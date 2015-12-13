@@ -1,0 +1,2241 @@
+% e. woollett
+%   april 08 - jan. 09
+% file qdraw.tex
+% things to add: 
+
+% edit with Notepad++, then load into LED for latexing
+\documentclass[12pt]{article}
+\usepackage[dvips,top=1.5cm,left=1.5cm,right=1.5cm,foot=1cm,bottom=1.5cm]{geometry}
+\usepackage{times}
+\usepackage{amsmath}
+\usepackage{amsbsy}
+\usepackage{graphicx} 
+\usepackage{url}
+\urldef\tedhome\url{ http://www.csulb.edu/~woollett/  }
+\urldef\tedmail\url{ woollett@charter.net}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   title page
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Maxima by Example: Ch.5: 2D Plots and Graphics using qdraw 
+            \thanks{This version uses Maxima 5.17.1. This is a live
+            document. Check \;  \tedhome \; for the latest version of these notes. Send comments and
+			 suggestions to \tedmail } }
+
+
+\author{Edwin L. Woollett}
+\date{\today}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%          document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%\small
+\maketitle
+\tableofcontents
+\numberwithin{equation}{section}
+\newpage
+\setcounter{section}{4}
+%\normalsize
+\newpage
+COPYING AND DISTRIBUTION POLICY\\
+\\    
+	
+    
+    This document is part of a series of notes titled
+    "Maxima by Example" and	is made available\\
+	via the author's webpage 
+	\verb|http://www.csulb.edu/~woollett/ | to aid
+	new users of the Maxima computer algebra system.\\
+	
+	\smallskip
+	NON-PROFIT PRINTING AND DISTRIBUTION IS PERMITTED.\\
+	You may make copies of this document and distribute them to others
+	as long as you charge no more than the costs of printing.\\
+	
+	\smallskip
+	These notes (with some modifications) will be published in book form
+	eventually via Lulu.com in an arrangement which will continue
+	to allow unlimited free download of the pdf files as well as the option
+	of ordering a low cost paperbound version of these notes.
+\newpage
+\section{2D Plots and Graphics using qdraw}
+
+
+\subsection{Quick Plots for Explicit Functions: ex(...)  }
+This chapter provides an introduction to a new graphics interface developed by
+  the author of the Maxima by Example tutorial notes.
+The \textbf{qdraw} package ( qdraw.mac: available for download on the
+  Maxima by Example webpage ) is an interface to the \textbf{draw}
+  package function \textbf{draw2d}; to obtain a plot you must load \textbf{draw}
+  as well as \textbf{qdraw}. You can just use \verb|load(qdraw)| if you have the file
+  in your work folder and have set up your file search as described in Chap. 1.
+  Otherwise just put qdraw.mac into your \verb|...maxima...share\draw| folder where it
+  will be found.
+  
+\smallskip
+The primary motivation for the \textbf{qdraw} package is to provide
+  "quick" (hence the "q" in "qdraw") plotting software which provides
+  the kinds of plotting defaults which are of interest to students
+  and researchers in the physical sciences and engineering. There are  two "quick"
+  plotting functions you can use with \textbf{qdraw}: \textbf{ex(...)} and
+  \textbf{imp(...)}.
+
+  \smallskip
+
+ An entry like
+\small
+\begin{verbatim}
+(%i1) load(draw)$
+(%i2) load(qdraw)$
+(%i3)  qdraw( ex( [x,x^2,x^3],x,-3,3 ) )$
+\end{verbatim}
+\normalsize
+will produce a plot of the three explicit functions of \verb|x| in the
+  first argument list, using line width = 3, an automatic rotating series
+  of default colors, clearly visible \verb|x| and \verb|y| axes, and
+  also a "grid" as well. The \textbf{ex} function passes its arguments
+  on to a series of calls to \textbf{draw2d}'s \textbf{explicit}
+  function.
+  
+%\smallskip
+%%\begin{figure}[!ht] 
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.3]{ch5p1.eps} }
+	\caption{ Using ex() for $x,x^2,x^3$ }
+\end{figure}    
+Since $3^3 = 27$, \textbf{draw2d} extends the vertical axis to $\pm \, 27$ by
+  default. 
+\newpage
+You can control the vertical range of the "canvas" with the \textbf{yr(...)} function,
+  which passes its arguments to a \textbf{draw2d} entry \verb|yrange = [y1,y2]|. 
+\small
+\begin{verbatim}
+(%i4) qdraw( ex([x,x^2,x^3],x,-3,3 ),yr(-2,2) )$ 
+\end{verbatim}
+\normalsize
+which produces the plot:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1]{ch5p2.eps} }
+	\caption{ Adding $yr(-2,2)$ }
+\end{figure}    
+
+\smallskip
+You can make the lines thinner or thicker than the default line
+  width (3) by using the \textbf{lw(n)} option, which only affects the
+  quick plotting functions \textbf{ex(...)} and \textbf{imp(...)}, as in
+\small
+\begin{verbatim}
+(%i5) qdraw(ex([x,x^2,x^3],x,-3,3 ),yr(-2,2), lw(6))$
+\end{verbatim}
+\normalsize
+to get:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1]{ch5p3.eps} }
+	\caption{ Adding $lw(6)$ }
+\end{figure}    
+\newpage
+You can place the plot "key" (legend) at the bottom right by using
+  the \textbf{key(bottom)} option, as in:
+\small
+\begin{verbatim}
+(%i6) qdraw( ex( [x,x^2,x^3],x,-3,3 ),yr(-2,2),lw(6),key(bottom) )$
+\end{verbatim}
+\normalsize
+to get:
+
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1]{ch5p4.eps} }
+	\caption{ Adding $key(bottom)$ }
+\end{figure}    
+
+You can remove the default grid and xy axes by adding \textbf{cut(grid,xyaxes)}
+as in:
+\small
+\begin{verbatim}
+(%i7) qdraw( ex( [x,x^2,x^3],x,-3,3 ),yr(-2,2),
+                 lw(6),key(bottom), cut(grid, xyaxes) )$
+\end{verbatim}
+\normalsize
+
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1]{ch5p5.eps} }
+	\caption{ Adding $cut(grid, xyaxes)$ }
+\end{figure}    
+\newpage
+You can remove the grid, axes, the key, and all the borders using \textbf{cut( all )},
+  as in:
+\small
+\begin{verbatim}
+(%i8) qdraw( ex( [x,x^2,x^3],x,-3,3 ),yr(-2,2),
+                 lw(6), cut( all ) )$
+\end{verbatim}
+\normalsize
+which results in a "clean" canvas:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.9]{ch5p6.eps} }
+	\caption{ Adding $cut( all )$ }
+\end{figure}
+\smallskip
+    
+Restoring the (default) grid and axes, we can place points (default size 3 and color black)
+  at the intersection points using the \textbf{pts(...)} option, which passes
+  a points list to \textbf{draw2d}'s \textbf{points} function:
+\small
+\begin{verbatim}
+(%i9)  qdraw( ex([x,x^2,x^3],x,-3,3 ),yr(-2,2),lw(6),
+              key(bottom),pts( [ [-1,-1],[0,0],[1,1] ] ) )$
+\end{verbatim}
+\normalsize
+which produces:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.9]{ch5p7.eps} }
+	\caption{ Adding $pts( ptlist )$ }
+\end{figure}    
+\newpage
+We can overide the default size and color of those points by including inside
+  the \textbf{pts} function the optional \textbf{ps(n)} and \textbf{pc(c)} 
+  arguments, as in:
+\small
+\begin{verbatim}
+(%i10) qdraw( ex( [x,x^2,x^3],x,-3,3 ),yr(-2,2), lw(6),key(bottom), 
+              pts([ [-1,-1],[0,0],[1,1] ],ps(2),pc(magenta) ) )$
+\end{verbatim}
+\normalsize
+
+\smallskip
+which produces:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.9]{ch5p8.eps} }
+	\caption{ Adding $pts(ptlist,ps(2),pc(magenta) )$ }
+\end{figure}    
+ 
+\smallskip
+We can include a key entry for the points using the \textbf{pk(string)} option
+  for the \textbf{pts} function, as in:
+\small
+\begin{verbatim}
+(%i11) qdraw( ex( [x,x^2,x^3],x,-3,3 ),yr(-2,2), lw(6),key(bottom), 
+           pts([ [-1,-1],[0,0],[1,1] ],ps(2),pc(magenta),pk("intersections") ) )$
+\end{verbatim}
+\normalsize
+which produces:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.9]{ch5p9.eps} }
+	\caption{ $pts(ptlist,ps(2),pc(magenta),pk("intersections") )$ }
+\end{figure}      
+\newpage
+The "eps" file ch5p9.eps used to get the last figure in the Tex file
+  which is the source of this pdf file was produced using the \textbf{pic}(type, filename)
+  option to \textbf{qdraw}, as in:
+\small
+\begin{verbatim}
+(%i12) qdraw( ex( [x,x^2,x^3],x,-3,3 ),yr(-2,2), lw(6),key(bottom), 
+        line(-3,0,3,0,lw(2)),line(0,-2,0,2,lw(2)),
+    pts([ [-1,-1],[0,0],[1,1] ],ps(2),pc(magenta),pk("intersections")),
+            pic(eps,"ch5p9") )$
+\end{verbatim}
+\normalsize
+We have discussed, at the end of Chapter 1, Getting Started, how we insert such
+  an "eps" file into our Tex file in order to get the figures you see here.  
+
+\smallskip
+The extra, optional, arguments we have included inside \textbf{qdraw} can be
+  entered in any order; in fact, all arguments to \textbf{qdraw} are optional
+  and can be entered in any order.
+For example
+\small
+\begin{verbatim}
+(%i13) qdraw( yr(-2,2),lw(6), ex( [x,x^2,x^3],x,-3,3 ),
+              key(bottom), ex(sin(3*x)*exp(x/3),x,-3,3),
+              pts([ [-1,-1],[0,0],[1,1] ]) )$
+\end{verbatim}
+\normalsize
+which adds $sin(3\,x)\, e^{x/3}$ with a separate \textbf{ex(...)} argument to
+  \textbf{qdraw}, and produces
+
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.9]{ch5p10.eps} }
+	\caption{ Adding $sin(3\,x)\, e^{x/3}$  }
+\end{figure}        
+  
+  \smallskip
+We next add a label "qdraw at work" to our plot. 
+
+\smallskip
+
+Using Windows, the font size must be adjusted only after getting
+  the plot drawn in a Gnuplot window by right clicking the icon in
+  the upper left hand corner, and selecting Options, Choose Font,...
+If you increase the windows graphics font from the default value of 10
+  to 20, say, you will see a dramatic increase in the size of the
+  label, but also in the size of the x and y axis coordinate numbers, and
+  also a large increase in size of any features of the graphics which
+  used a call to draw2d's \textbf{points} function (such as \textbf{qdraw}'s
+  \textbf{pts} function).
+
+\smallskip
+This behavior seems to be related to the limitations of the present incarnation of
+  the adaptation of Gnuplot to the Windows system, and hopefully will be addressed
+  in the future by the volunteers who work on Gnuplot software.
+
+\smallskip
+Our illustration of the use of labels will simply be what one gets by
+  sending the graphics object to a graphics file "ch5p11.eps" and including
+  that file in our Tex/pdf file.
+In Maxima, we use the code:
+\small
+\begin{verbatim}
+(%i14) qdraw( yr(-2,2),lw(6), ex( [x,x^2,x^3],x,-3,3 ),
+              key(bottom), ex(sin(3*x)*exp(x/3),x,-3,3),
+              pts([ [-1,-1],[0,0],[1,1] ]) ,
+               label(["qdraw at work",-2.9,1.5]),
+              pic(eps,"ch5p11",font("Times-Bold",20) ) );
+\end{verbatim}
+\normalsize
+\newpage
+  
+The resulting plot is then
+
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.9]{ch5p11.eps} }
+	\caption{ Adding a label at (-2.9,1.5) }
+\end{figure}        
+ 
+If you look in the html Maxima manual under the index item "font", which
+  takes you to a subsection of the draw package documentation, you will find
+  a listing of the available postscript fonts, which one can use with the
+  \textbf{pic(eps, filename, font( name, size ) ) } function call.
+These options have the names Times-Roman, Times-Bold, Helvetica, Helvetica-Bold,
+  Courier, Courier-Bold, also -Italic options.
+
+\smallskip
+If you want to save the graphics as a jpeg file, the font name should be
+  a string containing the path to the desired font file.
+Using the Windows XP operating system, the available windows fonts are in
+  the folder \verb|c:\windows\fonts\|.
+Here is Maxima code to get a jpeg graphics file based on our present drawing:
+\small
+\begin{verbatim}
+(%i15) qdraw( yr(-2,2),lw(6), ex( [x,x^2,x^3],x,-3,3 ),
+              key(bottom), ex(sin(3*x)*exp(x/3),x,-3,3),
+              pts([ [-1,-1],[0,0],[1,1] ]) ,
+               label(["qdraw at work",-2.9,1.5]),
+              pic(jpg,"ch5p11",font("c:/windows/fonts/timesbd.ttf",20) ) );
+\end{verbatim}
+\normalsize
+The resulting jpeg file has thicker lines and bolder labels, so some experimentation
+  may be called for to get the desired result.
+The font file requested corresponds to times roman bold.
+The font file extension "ttf" stands for "true type fonts".
+If you look in the windows, fonts folder you can find other interesting
+  choices.
+\newpage
+
+\subsection{Quick Plots for Implicit Functions: imp(...) }
+The quick plotting function \textbf{imp(...)} has the syntax\\
+\verb|     imp( eqnlist, x,x1,x2,y,y1,y2 ) | \\
+ or \verb|     imp( eqn,     x,x1,x2,y,y1,y2 ) |.\\
+If the equation(s) are actually functions of (u,v) then $x \rightarrow u$ and
+  $y \rightarrow v$.
+The numbers (x1,x2) determine the horizontal canvas extent, and the
+  numbers (y1,y2) determine the vertical canvas extent.
+\smallskip
+Here is an example using the single equation form:
+\small
+\begin{verbatim}
+(%i16) qdraw( imp( sin(2*x)*cos(y)=0.4,x,-3,3,y,-3,3 ) ,
+             cut(key) );
+\end{verbatim}
+\normalsize
+which produces the "implicit plot":
+
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.9]{ch5p12.eps} }
+	\caption{ Implicit plot of $sin(2\,x)\,cos(y)$ }
+\end{figure}      
+which uses the default line width = 3, the first of the default rotating colors (blue),
+  and, of course, the default axes and grid.
+To remove the default key, we have used the \textbf{cut} function.
+Since the left hand side of this equation will periodically return to the
+  same numerical value in both the x and the y directions, there is no "limit" to
+  the solutions obtained by setting the left hand side equal to some numerical
+  value between zero and one.
+
+\smallskip
+This looks like one piece of a contour plot for the given function.
+We can add more contour lines using the \textbf{imp} function by using
+  the list\_of\_equations form:
+\small
+\begin{verbatim}
+(%i17) qdraw( imp( [sin(2*x)*cos(y)=0.4,
+             sin(2*x)*cos(y)=0.7,
+             sin(2*x)*cos(y)=0.9] ,x,-3,3,y,-3,3 ) ,
+             cut(key) );
+\end{verbatim}
+\normalsize
+The resulting plot with the default rotating color set is shown on the top
+  of the next page.
+\newpage
+
+
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.7]{ch5p13.eps} }
+	\caption{contour plot of $sin(2\,x)\,cos(y)$ using imp() }
+\end{figure}      
+
+Of course if we define g, say, to be the expression $sin(2\,x)\,cos(y)$ first,
+  we can use that binding to simplify our call to \textbf{imp(...) }:
+\small
+\begin{verbatim}
+(%i18) g : sin(2*x)*cos(y)$
+(%i19) qdraw( imp( [g = 0.4,g = 0.7,g = 0.9] ,x,-3,3,y,-3,3 ) ,
+             cut(key) );
+\end{verbatim}
+\normalsize
+to achieve the same plot.
+
+\smallskip
+We can also use symbols like \verb|%pi|, which will evaluate to a real number,
+  in our horizontal and vertical limit slots, as in:
+\small
+\begin{verbatim}
+(%i20) qdraw( imp( [g = 0.4,g = 0.7,g = 0.9] ,x,-%pi,%pi,y,-%pi,%pi ) ,
+             cut(key) );
+\end{verbatim}
+\normalsize
+We need to arrange that the horizontal canvas width is about $1.4$ time the vertical
+  canvas height in order that geometrical shapes look closer to reality.
+For the present plot we simply change the numerical values of the \textbf{imp(...)}
+  function (x1,x2) parameters:
+\small
+\begin{verbatim}
+(%i21) qdraw( imp( [g = 0.4,g = 0.7,g = 0.9] ,x,-4.2,4.2,y,-3,3 ) ,
+             cut(key) );
+\end{verbatim}
+\normalsize
+which produces a slightly different looking plot:
+
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.7]{ch5p14.eps} }
+	\caption{using $(x1,x2) = (-4.2,4.2)$ }
+\end{figure}      
+
+
+\newpage
+\subsection{Contour Plots with contour(...)}
+Since we are talking about contour plots, this is a natural place to
+give some examples of the \textbf{qdraw} package's \textbf{contour(...)} function
+ which has two forms:\\
+ \verb| contour( expr,x,x1,x2,y,y1,y2,cvals( v1,v2,...),options )| \\
+ \verb| contour( expr,x,x1,x2,y,y1,y2, crange(n,min,max), options ) |.\\
+where \verb|expr| is assumed to be a function of (x,y) and the first 
+  form allows the setting of \verb|expr| to the supplied numerical values,
+  while the second form allows one to supply the number of contours (n),
+  the minimum value for a contour (min) and the maximum value for a
+  contour (max).
+If we use the most basic \verb|cvals(...)| form (ignoring options):
+\small
+\begin{verbatim}
+(%i22) qdraw( contour(g, x,-4.2,4.2, y,-3,3, cvals(0.4,0.7,0.9) ) );
+\end{verbatim}
+\normalsize
+we get a "plain jane" contour plot having line width 1, the key, grid, and xy-axes removed,
+  in "black":
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.6]{ch5p15.eps} }
+	\caption{simplest default contour example }
+\end{figure}      
+Since the quick plot functions \textbf{ex} and \textbf{imp} both use the rotating default
+  colors which cannot be turned off, we would have to use the \textbf{imp1} function (which we
+  have not yet discussed) with some of its options, to get the same results as the default
+  use of \textbf{contour} produces. 
+ The available "options" which can be used in any order but after the  required
+   first eight arguments, are \textbf{lw(n)}, \textbf{lc(color)}, and \textbf{add(options)},
+   where the "add options" are any or all of the set \verb|[grid,xaxis,yaxis,xyaxes]|.
+
+\smallskip
+Thus the following invocation of \textbf{contour}:
+\small
+\begin{verbatim}
+(%i23) qdraw( contour(g,x,-4.2,4.2,y,-3,3,cvals(0.4,0.7,0.9),
+        lw(2),lc(brown) ), ipgrid(15) );
+\end{verbatim}
+\normalsize
+produces:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.6]{ch5p16.eps} }
+	\caption{adding lw(2), lc(brown) }
+\end{figure}      
+   
+\newpage
+We also added the separate \textbf{qdraw} function \textbf{ipgrid} with
+  argument $15$ to over-ride the \textbf{qdraw} default value of the
+  \textbf{draw2d} parameter \verb|ip_grid_in |. The \textbf{draw2d} default
+  for this parameter is $5$, which results in some "jaggies" in implicit plots.
+The default value inside the \textbf{qdraw} package is $10$, which generally
+  produces smoother plots, but the drawing process takes more time, of course.
+For our example here, we increased this parameter from $10$ to $15$ to get
+  a smoother plot at the price of increased drawing time.
+
+\smallskip
+Here is an example of using the second, "crange", form of \textbf{contour}:
+\small
+\begin{verbatim}
+(%i24) qdraw( contour(g,x,-4.2,4.2,y,-3,3,crange(4,0.2,0.9),
+        lw(2),lc(brown) ), ipgrid(15)  )$
+\end{verbatim}
+\normalsize
+which produces the plot:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.8]{ch5p17.eps} }
+	\caption{using $crange(4,.2,.9)$ }
+\end{figure} 
+
+\smallskip
+     
+A final example illustrates the \textbf{contour} option \textbf{add}:
+\small
+\begin{verbatim}
+(%i25) qdraw( contour(sin(x)*sin(y),x,-2,2,y,-2,2,crange(4,0.2,0.9),
+              lw(3),lc(blue),add(xyaxes) ), ipgrid(15) )$
+\end{verbatim}
+\normalsize
+with the plot:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.8]{ch5p18.eps} }
+	\caption{using add( xyaxes ) }
+\end{figure}      
+\newpage
+
+\subsection{Density Plots with qdensity(...)}
+A type of plot closely related to the contour plot is the density plot,
+  which paints small regions of the graphics window with a variable color
+  chosen to highlight regions where the function of two variables takes
+  on large values.
+A completely separate density plotting function, \textbf{qdensity}, is
+  supplied in the qdraw package.
+The \textbf{qdensity} function in completely independent of the default
+  conventions and syntax associated with the function \textbf{qdraw}.
+
+\smallskip
+  
+The syntax of \textbf{qdensity} is:\\
+\verb|qdensity(expr,[x,x1,x2,dx],[y,y1,y2,dy], options palette(p),pic(..)) |,
+  where the two optional arguments are palette(p) and pic(type,filename).
+The \verb|x| interval \verb|(x1,x2)| is divided into subintervals of size \verb|dx|,
+  and likewise the \verb|y| interval \verb|(y1,y2)| is divided into subintervals
+  of size \verb|dy|.  
+\smallskip
+
+If the palette(p) option is not present, a default "shades of blue"
+   density plot is drawn (which corresponds to \verb|palette = [1,3,8]|).
+To use the paletter option, the argument "p" can be either blue, gray,
+   color, or a three element list \verb|[n1,n2,n3]|, where (n1,n2,n3) are positive integers which
+   select functions to apply respectively to red, green, and blue.
+
+\smallskip
+
+To use the pic(...) option, the type is eps, eps\_color, jpg, or png,
+and the filename is a string like "case5a".
+As usual, use "x" and "y" if \verb|expr| depends explicitly on x and y,
+or use "u" and "v" if \verb|expr| depends explicitly on u and v, etc.
+
+\smallskip
+A simple function of two variables to try is $f(x,y) = x\,y$, which increases from
+  zero at the origin to $1$ at (1,1).
+\small
+\begin{verbatim}
+(%i26) qdensity(x*y,[x,0,1,0.2],[y,0,1,0.2] )$
+\end{verbatim}
+\normalsize
+
+This produces the density plot:
+% this is an eps file converted from a jpeg using
+%cygwin's convert function:
+%  convert case6.jpg case6.eps
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.65]{ch5p19.eps} }
+%      \centerline{\includegraphics[scale=.65]{case4.eps} }
+	\caption{default palette density plot }
+\end{figure}      
+\newpage
+If we use the gray palette opton
+\small
+\begin{verbatim}
+(%i27) qdensity(x*y,[x,0,1,0.2],[y,0,1,0.2],
+                 palette(gray) )$
+\end{verbatim}
+\normalsize
+we get
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.45]{ch5p20.eps} }
+	\caption{palette(gray) option }
+\end{figure}      
+
+
+\smallskip
+while if we use palette(color), we get
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.45]{ch5p21.eps} }
+	\caption{palette(color) option }
+\end{figure}      
+
+
+
+\newpage
+
+To get a finer sampling of the function, you should decrease the values of
+  \verb|dx| and \verb|dy| to \verb|0.05| or less.
+Using the default palette choice with the interval choice \verb|0.05|, 
+\small
+\begin{verbatim}
+(%i28) qdensity(x*y,[x,0,1,0.05],[y,0,1,0.05] )$
+\end{verbatim}
+\normalsize
+yields a refined density plot with \verb|20 x 20 = 400| painted  rectangular panels.
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.35]{ch5p22.eps} }
+	\caption{interval set to $0.05$ }
+\end{figure}      
+
+\smallskip
+A more interesting function to look at is $f(x,y) = sin(x)\,sin(y)$.
+\small
+\begin{verbatim}
+(%i29) qdensity(sin(x)*sin(y),[x,-2,2,0.05],[y,-2,2,0.05] )$
+\end{verbatim}
+\normalsize
+which yields
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.6]{ch5p23.eps} }
+	\caption{$sin(x)\,sin(y)$}
+\end{figure}  
+
+\smallskip
+\newpage
+    
+
+\newpage
+
+\subsection{Explicit Plots with Greater Control: ex1(...) }
+If we are willing to deal with one explicit function or expression at a time,
+  we get more control over the plot elements if we use the \textbf{qdraw} function
+  \textbf{ex1(...)}, which has the syntax:\\
+\verb|ex1( expr, x, x1,x2, lc(c), lw(n),lk(string) ) |.\\
+
+\smallskip
+As usual, if the expression \verb|expr| is actually a function of \verb|u|, then
+  $x \rightarrow u$.
+The first four arguments are required and must be in the first four slots.
+The last three arguments are all optional and can be in any order.
+
+\smallskip
+Let's illustrate the use of \textbf{ex1(...)} by displaying a simple curve
+  and the tangent and normal at one point of the curve. 
+We will use the curve $y = x^2$ with the "slope" $dy/dx = 2\,x$, and
+  construct the tangent line tangent at the point $(x_0,y_0)$:
+  $$  (y - y_0) = m\,(x - x_0) $$
+ where $m$ is the slope at $(x_0,y_0)$.
+As we discuss in the next chapter, the normal line through the same point is
+$$ (y - y_0) = (-1/m) \, (x - x_0). $$
+For the point $x_0 = 1, y_0 = 1, m = 2$, the tangent line is
+  $y = 2\,x -1$ and the normal line is $y = -x/2 + 3/2$.
+\small
+\begin{verbatim}
+(%i30) qdraw( xr(-1.4,2.8),yr(-1,2),
+        ex1(x^2,x,-2,2,lw(5),lc(brown),lk("X^2")),
+        ex1(2*x-1,x,-2,2,lw(2),lc(blue),lk("TANGENT")),
+        ex1(-x/2 + 3/2,x,-2,2,lw(2),lc(magenta),lk("NORMAL") ) ,
+         pts( [ [1,1] ],ps(2),pc(red) ) )$
+\end{verbatim}
+\normalsize
+Note that we were careful to force the x-range to be about $1.4$ times as
+  great as the y-range (to get the correct geometry of the tangent and
+  normal lines).
+The resulting plot is:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.2]{ch5p25.eps} }
+	\caption{plot using $ex1(...)$ }
+\end{figure}      
+
+
+\newpage
+Here we use \textbf{ex1} to plot the first few Bessel functions
+  of the first kind $J_{n}(x)$ for integral $n$ and real $x$,
+\small
+\begin{verbatim}
+(%i31) qdraw( ex1(bessel_j(0,x),x,0,20,lc(red),lw(6),lk("bessel_j ( 0, x)") ),
+          ex1(bessel_j(1,x),x,0,20,lc(blue),lw(5),lk("bessel_j ( 1, x)")),
+          ex1(bessel_j(2,x),x,0,20,lc(brown),lw(4),lk("bessel_j ( 2, x)") ),
+          ex1(bessel_j(3,x),x,0,20,lc(green),lw(3),lk("bessel_j ( 3, x)") ) )$
+\end{verbatim}
+\normalsize
+which produces the plot:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1]{ch5p26.eps} }
+	\caption{$J_{n}(x)$ }
+\end{figure}      
+
+\smallskip
+Here is a plot of $J_{0}( \sqrt{x} )$:
+\small
+\begin{verbatim}
+(%i32) qdraw(line(0,0,50,0,lc(red),lw(2) ),
+               ex1(bessel_j(0, sqrt(x)),x,0,50 ,lc(blue),
+                lw(7),lk("J0( sqrt(x) )") ) )$
+\end{verbatim}
+\normalsize
+
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.7]{ch5p27.eps} }
+	\caption{$J_{0}(\sqrt{x} )$ }
+\end{figure}      
+
+
+%\newpage
+We chose to emphasize the axis $y = 0$ with a red line supplied by
+  another of the \textbf{qdraw} functions, \textbf{line}, which we will
+  discuss later in the section on geometric figures.
+Placing the \textbf{line} element before \textbf{ex1(..)} causes the
+  curve to write "over" the line, rather than the reverse.
+  
+\newpage
+\subsection{Explicit Plots with ex1(...) and Log Scaled Axes}
+The name "log plot" usually refers to a plot of $\ln(y)$ vs $x$ using linear
+  graph paper, which is equivalent to a plot of $y$ vs $x$ on graph paper
+  which uses a "logarithmic scale" on the vertical axis.
+Given an expression $g$ depending on x, you can either use   
+  the syntax \verb|qdraw( ex1( log(g),x,x1,x2 ), other options )| to generate such a "log plot"
+  or \verb|qdraw( ex1(g, x, x1, x2), log(y) , other options )|.
+
+\smallskip
+  
+Let's show the differences using the function $f(x) = x\,e^{-x}$, but
+  using an expression called $g$ rather than a Maxima function.  
+\small
+\begin{verbatim}
+(%i33) g : x*exp(-x)$
+(%i34) qdraw( ex1( log(g),x,0.001,10, lc(red) ),yr(-8,0)  )$
+\end{verbatim}
+\normalsize
+which displays the plot
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.6]{ch5p27a.eps} }
+	\caption{Linear Graph Paper Plot of $\ln(g)$ }
+\end{figure}      
+
+\smallskip
+The numbers on the vertical axis correspond to values of $\ln(g)$.
+Since $g$ is singular at $x = 0$, we have avoided that region by using
+  $x_{1} = 0.001$.
+
+\smallskip
+The second way to get a "log plot" of $g$ is to request "semi-log" graph paper
+  which has the vertical axis marked using a logarithmic scale for the values of $g$.
+Using the \textbf{log(y)} option of the \textbf{qdraw} function, we use:
+\small
+\begin{verbatim}
+(%i35) qdraw( ex1(g, x, 0.001,10,lc(red) ),
+                 yr(0.0001, 1), log(y) )$
+\end{verbatim}
+\normalsize
+The \textbf{yr(y1,y2)} option takes into account the numerical limits of
+  $g$ over the $x$ interval requested.
+The minimum value of $g$ is $0.005$ which occurs at $x = 10$.
+The maximum value of $g$ is about $0.37$.
+The resulting plot is:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.68]{ch5p27b.eps} }
+	\caption{Log Paper Plot of $g$ }
+\end{figure}      
+  
+\newpage
+The name "log-linear plot" can be used to mean "x axis marked with a log scale, y axis
+  marked with a linear scale".
+Using the same function, we generate this plot by using the \textbf{log(x)}
+  option to \textbf{qdraw}:
+\small
+\begin{verbatim}
+(%i36) qdraw( ex1(g, x, 0.001,10,lc(red),lw(7) ),
+                 yr(0,0.4), log(x) )$
+\end{verbatim}
+\normalsize
+% eps file generated by
+%(%i35) qdraw( ex1(g, x, 0.001,10,lc(red),lw(7) ),
+%                 yr(0,0.4), log(x),
+%                 pic(eps,"ch5p27c") );
+%  
+This generates the plot
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.85]{ch5p27c.eps} }
+	\caption{Log-Linear Plot of $g$}
+\end{figure}      
+
+\smallskip
+Scientists and engineers normally like to use a log scaled axis for
+  a variable which varies over many powers of ten, which is not the case
+  for our example.
+
+\smallskip
+
+Finally, we can request "log-log paper" which has both axes marked with a log scale,
+  by using the \textbf{log(xy)} option to \textbf{qdraw}.
+\small
+\begin{verbatim}
+(%i37) qdraw( ex1(g, x, 0.001,10,lc(red) ),
+                  yr(0.0001,1), log(xy) )$
+\end{verbatim}
+\normalsize
+% eps file generation
+%(%i42) qdraw( ex1(g, x, 0.001,10,lc(red),lw(7) ),
+%               yr(0.0001,1), log(xy) ,
+%              pic(eps,"ch5p27d") );
+%
+which produces
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.85]{ch5p27d.eps} }
+	\caption{Log-Log Plot of $g$}
+\end{figure}      
+
+\newpage
+
+\subsection{Data Plots with Error Bars: pts(...) and errorbars(...)}
+In Chapter One of Maxima by Example, Section 1.5.8, we created a data file
+  called "fit1.dat", which can be downloaded from the author's webpage.
+We will use that data file, together with "fit2.dat", also available, to illustrate
+  making simple data plots using the \textbf{qdraw} functions \textbf{pts(...)} and
+  \textbf{errorbars(...)}.
+The syntax of \textbf{pts(...)} is:\\
+\verb|pts( pointlist, pc(c), ps(s), pt(t), pj(lw), pk(string) ) |\\
+The only required argument is the first argument "pointlist" which 
+  has the form: \\      \verb|[ [x1,y1], [x2,y2], [x3,y3],...] |.\\
+The remaining arguments are all optional and may be entered in any
+  order following the first required argument.\\
+The optional argument \verb|pc(c)| overrides the default color (black), 
+  for example, \verb|pc(red)|.\\
+The optional argument \verb|ps(s)| overrides the default size (3), and
+  an example is \verb|ps(2)|.\\
+The optional argument \verb|pt(t)| overrides the default type (7, which is
+  the integer used for filled\_circle: see the Maxima manual index entry
+  for "point\_type"); an example would be \verb|pt(8)|, which would use
+  an open "up\_triangle" instead of a filled circle.\\
+The optional argument \verb|pj(lw)|, if present, will cause the points
+  provided by the nested list "pointlist" to be joined using a line
+  whose width is given by the argument of \verb|pj|; an example is
+  \verb|pj(2)| which would set the line width to the value 2.\\
+The optional argument \verb|pk(string)| provides text for a key
+  entry for the set of points represented by pointlist; as example
+  is \verb|pk("case x^2")|.\\
+
+\smallskip
+Before making the data plot, let's look at the data file contents from inside
+  Maxima:
+\small
+\begin{verbatim}
+(%i38) printfile("fit1.dat")$
+1 1.8904 
+2 3.0708 
+3 3.9215 
+4 5.1813 
+5 5.9443 
+6 7.0156 
+7 7.8441 
+8 8.8806 
+9 9.8132 
+10 11.129 
+\end{verbatim}
+\normalsize
+We next use Maxima's \textbf{read\_nested\_list} function to create a list of
+  data points from the data file.
+\small
+\begin{verbatim}
+(%i39) plist : read_nested_list("fit1.dat");
+(%o39) [[1, 1.8904], [2, 3.0708], [3, 3.9215], [4, 5.1813], [5, 5.9443], 
+   [6, 7.0156], [7, 7.8441], [8, 8.880599999999999], [9, 9.8132], [10, 11.129]]
+\end{verbatim}
+\normalsize
+\newpage
+
+The most basic plot of this data uses the \textbf{pts(...)} function defaults:
+\small
+\begin{verbatim}
+(%i40) qdraw( pts(plist) )$
+\end{verbatim}
+\normalsize
+which produces:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1]{ch5p27e.eps} }
+	\caption{Using pts(...) Defaults}
+\end{figure}      
+
+\smallskip
+We can use the \textbf{qdraw} functions \textbf{xr(...)} and \textbf{yr(...)}
+  to override the default range selected by \textbf{draw2d}, and decrease the
+  point size:
+\small
+\begin{verbatim}
+(%i41) qdraw( pts(plist, ps(2)), xr(0,12),yr(0,15) )$
+\end{verbatim}
+\normalsize
+with the result:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1]{ch5p27f.eps} }
+	\caption{Adding ps(2), xr(..), yr(..)}
+\end{figure}      
+
+\newpage
+Now we add color and a key string, as well as simple error bars corresponding to
+  an assumed uncertainty of the \verb|y| value of plus or minus \verb|1| for all
+  the data points.
+\small
+\begin{verbatim}
+(%i42) qdraw( pts(plist,pc(blue),pk("fit1"), ps(2)), xr(0,12),yr(0,15),
+          key(bottom), errorbars( plist, 1) )$
+\end{verbatim}
+\normalsize
+% eps file generator
+%(%i15) qdraw( pts(plist,pc(blue),pk("fit1"), ps(2)), xr(0,12),yr(0,15),
+%          key(bottom), errorbars( plist, 1),
+%           pic(eps, "ch5p27g") );
+%
+which looks like:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=0.8]{ch5p27g.eps} }
+	\caption{Adding pc(blue) and Simple Error Bars }
+\end{figure}      
+
+\smallskip
+The default error bar line width of \verb|1| is almost too small to see, so we thicken
+  the error bars and add color
+\small
+\begin{verbatim}
+(%i43) qdraw( pts(plist,pc(blue),pk("fit1"), ps(2)), xr(0,12),yr(0,15),
+          key(bottom), errorbars( plist, 1, lw(3),lc(red) )  )$
+\end{verbatim}
+\normalsize
+% eps file
+%(%i17) qdraw( pts(plist,pc(blue),pk("fit1"), ps(2)), xr(0,12),yr(0,15),
+%          key(bottom), errorbars( plist, 1, lw(2),lc(red) ),
+%           pic(eps, "ch5p27h" ) );
+%
+with the result:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1]{ch5p27h.eps} }
+	\caption{Adding lw(3), lc(red) to errorbars(...) }
+\end{figure} 
+     
+\smallskip
+The difference in the fonts is due to my using
+  \verb|pic(eps, "ch5p27h", font("Times-Roman",18) )| to create the eps graphic instead
+  of just \verb|pic(eps, "ch5p27h"  )| as another argument  to \textbf{qdraw}.
+\newpage
+If the data set has individual uncertainties in the \verb|y| value, we create a
+  list \verb|dyl|, say, \\
+  of the values \verb|dy1, dy2, dy3,...| and use the syntax:\\
+  \verb|   errorbars( pointlist, dylist, lw(n), lc(c) )| \\
+Here is an example:
+\small
+\begin{verbatim}
+(%i44) dyl : [0.2,0.3,0.5,1.5,0.8,1,1.4,1.8,2,2];
+(%o44)           [0.2, 0.3, 0.5, 1.5, 0.8, 1, 1.4, 1.8, 2, 2]
+(%i45) map(length,[plist,dyl] );
+(%o45)                             [10, 10]
+(%i46) qdraw( pts(plist,pc(blue),pk("fit1"), ps(2)), xr(0,12),yr(0,15),
+          key(bottom), errorbars( plist, dyl, lw(3),lc(red) )  )$
+\end{verbatim}
+\normalsize
+% eps file
+%(%i24) qdraw( pts(plist,pc(blue),pk("fit1"), ps(2)), xr(0,12),yr(0,15),
+%          key(bottom), errorbars( plist, dyl, lw(3),lc(red) ),
+%         pic(eps, "ch5p27i", font("Times-Roman",18) ) );
+%  
+with the result
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1]{ch5p27i.eps} }
+	\caption{Using a list of dy values with errorbars(..) }
+\end{figure} 
+
+\smallskip
+We now repeat the least squares fit of this data which we carried out in Chapter 1.
+See our discussion there for an explanation of what we are doing here.
+\small
+\begin{verbatim}
+(%i47) display2d:false$
+(%i48) pmatrix : apply( 'matrix, plist );
+(%o48) matrix([1,1.8904],[2,3.0708],[3,3.9215],[4,5.1813],[5,5.9443],
+              [6,7.0156],[7,7.8441],[8,8.880599999999999],[9,9.8132],
+              [10,11.129])
+(%i49) load(lsquares);
+(%o49) "C:/PROGRA~1/MAXIMA~4.0/share/maxima/5.15.0/share/contrib/lsquares.mac"
+(%i50) soln : (lsquares_estimates(pmatrix,[x,y],y=a*x+b,
+                   [a,b]), float(%%) );
+(%o50) [[a = 0.99514787679748,b = 0.99576667381004]]
+(%i51) [a,b] : (fpprintprec:5, map( 'rhs, soln[1] ) )$
+(%i52) [a,b];
+(%o52) [0.995,0.996]
+(%i53) qdraw( pts(plist,pc(blue),pk("fit1"), ps(2)), xr(0,12),yr(0,15),
+          key(bottom), errorbars( plist, dyl, lw(3),lc(red) ),
+         ex1( a*x + b,x,0,12, lc(brown),lk("linear fit") )  )$
+\end{verbatim}
+\normalsize
+% eps file gen
+%(%i32) qdraw( pts(plist,pc(blue),pk("fit1"), ps(2)), xr(0,12),yr(0,15),
+%          key(bottom), errorbars( plist, dyl, lw(3),lc(red) ),
+%         ex1( a*x + b,x,0,12, lc(brown),lk("linear fit") ),
+%         pic(eps,"ch5p27j",font("Times-Roman",18) ) );
+%
+\newpage
+We use the \textbf{qdraw} function \textbf{ex1(...)} to add the line
+ $f(x) = a\,x + b$ to the data plot.
+The resulting plot with the least squares fit added is then:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.5]{ch5p27j.eps} }
+	\caption{Adding the Linear Fit Line }
+\end{figure} 
+
+\smallskip
+Now we add the data in the file "fit2.dat":
+\small
+\begin{verbatim}
+(%i54) printfile("fit2.dat");
+1 0.9452 
+2 1.5354 
+3 1.9608
+4 2.5907
+5 2.9722
+6 3.5078
+7 3.9221
+8 4.4403
+9 4.9066
+10 5.5645
+(%o54) "fit2.dat"
+(%i55) p2list: read_nested_list("fit2.dat");
+(%o55) [[1,0.945],[2,1.5354],[3,1.9608],[4,2.5907],[5,2.9722],[6,3.5078],
+        [7,3.9221],[8,4.4403],[9,4.9066],[10,5.5645]]
+(%i56) qdraw( pts(plist,pc(blue),pk("fit1"), ps(2)), xr(0,12),yr(0,15),
+          key(bottom), errorbars( plist, dyl, lw(3),lc(red) ),
+         ex1( a*x + b,x,0,12, lc(brown),lk("linear fit 1") ),
+         pts(p2list, pc(magenta),pk("fit2"),ps(2)),
+         errorbars( p2list,0.5,lw(3) ) )$		
+\end{verbatim}
+\normalsize
+% eps file gen
+%(%i38) qdraw( pts(plist,pc(blue),pk("fit1"), ps(2)), xr(0,12),yr(0,15),
+%          key(bottom), errorbars( plist, dyl, lw(3),lc(red) ),
+%         ex1( a*x + b,x,0,12, lc(brown),lk("linear fit 1") ),
+%         pts(p2list, pc(magenta),pk("fit2"),ps(2)),
+%         errorbars( p2list,0.5,lw(3) ) ,
+%         pic(eps,"ch5p27k",font("Times-Roman",18) ) );
+%
+\newpage
+
+Here is the plot with the second data set:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.5]{ch5p27k.eps} }
+	\caption{Adding the Second Set of Data }
+\end{figure} 
+
+\smallskip
+We could then find the least squares fit to the data set 2 and again use
+  the function \textbf{ex1(...)} to add that fit to our plot, and add any
+  other features desired.
+
+
+
+\newpage
+  
+\subsection{Implicit Plots with Greater Control: imp1(...) }  
+If we are willing to deal with one implicit equation of two
+  variables at a time, we get more control over the plot elements if we use
+  the \textbf{qdraw} function \textbf{imp1(...)}, which has the syntax:\\
+\verb|imp1( eqn, x, x1,x2, y, y1,y2, lc(c), lw(n),lk(string) ) |.\\
+
+\smallskip
+As usual, if the equation \verb|eqn| is actually a function of  the pair
+  of variables \verb|u| and \verb|v|, then let $x \rightarrow u$,
+  and $y \rightarrow v$.
+The first seven arguments are required and must be in the first seven slots.
+The last three arguments are all optional and can be in any order.
+
+\smallskip
+Let's illustrate the use of \textbf{imp1(...)} by displaying a translated
+  and rotated ellipse, together with the rotated $x$ and $y$ axes.
+In the following, \verb|eqn1| describes the rotated ellipse, \verb|eqn2|
+  describes the rotated x axis, and \verb|eqn3| describes the
+  rotated y axis.  
+The angle of rotation is about $63.4 \deg$ (counter clockwise), which corresponds
+  to $\tan{\phi} = 2$.
+Notice that we take care to get the x-axis range about $1.4$ times 
+  the y-axis range, in order to get the geometry approximately
+  right.
+\small
+\begin{verbatim}
+(%i1) eqn1 : 5*x^2 + 4*x*y + 8*y^2 - 16*x + 8*y - 16 = 0$
+(%i2) eqn2 : y+1 = 2*(x-2)$
+(%i3) eqn3 : y+1 = -(x-2)/2$
+(%i4) qdraw( imp1(eqn1,x,-2,6.4,y,-4,2,lc(red),lw(6),lk("ELLIPSE")),
+              imp1(eqn2,x,-2,6.4,y,-4,2,lc(blue),lw(4),lk("ROT X AXIS")),
+              imp1(eqn3,x,-2,6.4,y,-4,2,lc(brown),lw(4),lk("ROT Y AXIS") ),
+          pts([ [2,-1] ],ps(2),pc(magenta),pk("TRANSLATED ORIGIN") ) )$
+\end{verbatim}
+\normalsize
+We get the following figure, if we increase the font size,
+
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.4]{ch5p28.eps} }
+	\caption{Rotated and Translated Ellipse }
+\end{figure}        
+ \newpage
+ 
+As a second example with \textbf{imp1} we make a simple plot 
+  based on the equation $y^3 = x^2$.
+\small
+\begin{verbatim}
+(%i5) qdraw( imp1(y^3=x^2,x,-3,3,y,-1,3,lw(10),lc(dark-blue)) )$
+\end{verbatim}
+\normalsize
+%\newpage
+
+which produces the plot:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.5]{ch5p29.eps} }
+	\caption{Implicit Plot of $y^3 = x^2$ }
+\end{figure}      
+
+\smallskip
+Notice that you can use hyphenated color choices (see Maxima color index) without the double
+  quotes, or with the double quotes.
+  
+\newpage
+
+  
+\subsection{Parametric Plots with para(...) }
+The \textbf{qdraw} function \textbf{para} can be used to draw parametric plots
+and has the syntax\\
+\verb|para(xofu,yofu,u,u1,u2,lw(n),lc(c),lk(string) )|\\
+where, as usual, the line width, line color, and key string
+  are optional and can be in any order.
+The parameter "u" can, of course, be any symbol.
+
+\smallskip
+A simple  example, in which we use "t" for the parameter,
+  and let the x coordinate corresponding to some value of
+  t be $sin(t)$, and let the y coordinate corresponding
+  to that same value of t be $sin(2\,t)$ is:
+\small
+\begin{verbatim}
+(%i6) qdraw(xr(-1.5,2),yr(-2,2), 
+         para(sin(t),sin(2*t),t,0,2*%pi ) ,
+         pts( [ [sin(%pi/8),sin(%pi/4)] ],ps(2),pc(blue),pk("t = pi/8")),
+         pts( [ [1,0] ],ps(2),pc(red),pk("t = pi/2")) )$
+\end{verbatim}
+\normalsize
+% eps file generated by:
+%(%i34) qdraw(xr(-1.5,2),yr(-2,2),
+%         line(-1.5,0,2,0,lw(2)),
+%          line(0,-2,0,2,lw(2)),
+%         para(sin(t),sin(2*t),t,0,2*%pi ) ,
+%         pts( [ [sin(%pi/8),sin(%pi/4)] ],ps(2),pc(blue),pk("t = pi/8")),
+%         pts( [ [1,0] ],ps(2),pc(red),pk("t = pi/2")),
+%         pic(eps,"ch5p30",font("Times-Roman",18) ) );
+%  
+produces the plot:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.5]{ch5p30.eps} }
+	\caption{$x = \sin(t), y = \sin(2\,t) $ }
+\end{figure}      
+
+\newpage
+
+A second example of a parametric plot has $u$ as the parameter,
+  $x = 2\,cos(u)$, and $y = u^2$:
+\small
+\begin{verbatim}
+(%i7) qdraw(xr(-3,4),yr(-1,40), para(2*cos(u),u^2,u,0,2*%pi) ,
+         pts([ [2,0] ],ps(2),pc(blue),pk("u = 0")),
+         pts( [ [0,(%pi/2)^2] ],ps(2), pc(red), pk("u = pi/2")),
+         pts([ [-2,%pi^2]],ps(2),pc(green),pk("u = pi")),
+         pts( [[0,(3*%pi/2)^2]],ps(2),pc(magenta),pk("u = 3*pi/2")) )$
+\end{verbatim}
+\normalsize
+% eps file created with
+%(%i43) qdraw(xr(-3,4),yr(-1,40),
+%          line(-3,0,4,0,lw(2)),
+%          line(0,-1,0,40,lw(2)),
+%             para(2*cos(u),u^2,u,0,2*%pi) ,
+%         pts([ [2,0] ],ps(2),pc(blue),pk("u = 0")),
+%         pts( [ [0,(%pi/2)^2] ],ps(2), pc(red), pk("u = pi/2")),
+%         pts([ [-2,%pi^2]],ps(2),pc(green),pk("u = pi")),
+%         pts( [[0,(3*%pi/2)^2]],ps(2),pc(magenta),pk("u = 3*pi/2")),
+%           pic(eps,"ch5p31",font("Times-Roman",18) ) ); 
+%
+
+
+which yields the plot:
+
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.5]{ch5p31.eps} }
+	\caption{$x = 2\,cos(u), y = u^2 $ }
+\end{figure}      
+
+\newpage
+
+\subsection{Polar Plots with polar(...) }
+A "polar plot" plots the points $(x = r(\theta)\,\cos (\theta) ,y = r(\theta)\,\sin(\theta) )$,
+  where the function $r(\theta)$ is supplied.
+
+\smallskip
+The \textbf{qdraw} function \textbf{polar} has the syntax:\\
+  \verb|polar( roftheta, theta, th1,th2, lc(c), lw(n), lk(string) )|\\
+  where theta, th1, and th2 are in radians, and the last three arguments
+  are optional.
+  
+\smallskip
+A simple example is provided by the hyperbolic spiral $r(\theta) = 10/\theta $.
+\small
+\begin{verbatim}
+(%i8) qdraw( polar(10/t,t,1,3*%pi,lc(brown),lw(5)),nticks(200),
+            xr(-4,6),yr(-3,9),key(bottom) ,
+       pts( [[10*cos(1),10*sin(1)]],ps(3),pc(red),pk("t = 1 rad")),         
+     pts([[5*cos(2),5*sin(2)]],ps(3),pc(blue),pk("t = 2 rad") ),
+              line(0,0,5*cos(2),5*sin(2)) )$
+\end{verbatim}
+\normalsize
+% eps file generation
+%(%i56) qdraw( polar(10/t,t,1,3*%pi,lc(brown),lw(7)),nticks(200),
+%            xr(-4,6),yr(-3,9),
+%       pts( [[10*cos(1),10*sin(1)]],ps(3),pc(red),pk("t = 1 rad")),
+%         key(bottom) ,
+%     pts([[5*cos(2),5*sin(2)]],ps(3),pc(blue),pk("t = 2 rad") ),
+%       line(0,0,5*cos(2),5*sin(2)),
+%     line(-4,0,6,0,lw(2)),line(0,-3,0,9,lw(2)),
+%      pic(eps,"ch5p32") ); 
+%
+which looks like:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.5]{ch5p32.eps} }
+	\caption{Polar Plot with $r = 10/\theta $ }
+\end{figure}      
+\newpage
+
+\subsection{Geometric Figures: line(...) }
+The \textbf{qdraw} function \textbf{line} has the syntax:\\
+  \verb|  line( x1,y1,x2,y2, lc(c), lw(n), lk(string) ) |\\
+  which draws a line from \verb|(x1,y1)| to \verb|(x2,y2)|.
+The last three arguments are optional and can be in any order after
+  the first four arguments.
+
+\smallskip
+For example, \verb|line(0,0,1,1,lc(blue),lw(6),lk("radius") ) | will draw
+  a line from $(0,0)$ to $(1,1)$ in blue with line width $6$ and with
+   a key entry with the text 'radius'. 
+The defaults are color black, line width $3$, and no key entry.
+\small
+\begin{verbatim}
+(%i9) qdraw( line(0,0,1,1) )$
+\end{verbatim}
+\normalsize
+produces the default line with \textbf{draw2d}'s default range:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.6]{ch5p33.eps} }
+	\caption{Default line(..) }
+\end{figure}      
+
+\smallskip
+Adding some options and extending the canvas range in both directions
+\small
+\begin{verbatim}
+(%i10) qdraw( line(0,0,1,1,lc(blue),lw(6),lk("radius") ),
+              xr(0,2),yr(0,2),key(bottom),
+              pts([ [1,1] ] ,pc(red),pk("point")) )$
+\end{verbatim}
+\normalsize
+produces a line to a point marked in red:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.8]{ch5p34.eps} }
+	\caption{Adding options to line(..) }
+\end{figure}      
+\newpage
+Here we define a Maxima function "doplot1(n)" in a file "doplot1.mac" which has the
+  following contents:
+\small
+\begin{verbatim}
+/* file doplot1.mac  */
+
+disp("doplot1(nlw)")$
+
+doplot1(nlw) := block([cc,qlist,x,val,i ],
+     /* list of 20 single name colors  */
+     cc : [aquamarine,beige,blue,brown,cyan,gold,goldenrod,green,khaki,
+            magenta,orange,pink,plum,purple,red,salmon,skyblue,turquoise,
+            violet,yellow ],
+     qlist : [ xr(-3.3,3) ],     
+     for i thru length(cc) do (
+       x : -3.3 + 0.3*i,
+       val : line( x,-1,x,1, lc( cc[i] ),lw(nlw) ),
+       qlist : append(qlist, [val] )
+     ),
+     qlist : append( qlist,[ cut(all) ] ),
+     apply('qdraw, qlist)
+    )$                            
+\end{verbatim}
+\normalsize
+Here is a record of loading and using the function defined to
+  produce a series of vertical colored lines.
+\small
+\begin{verbatim}
+(%i11) load(doplot1);
+                                  doplot1(nlw)
+(%o11)                         c:/work2/doplot1.mac
+(%i12) doplot1(20);
+\end{verbatim}
+\normalsize
+which produces the graphic (note use of \textbf{cut}(all) to get a
+  blank canvas):
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.25]{ch5p35.eps} }
+	\caption{Using line(...) to Display Colors }
+\end{figure}      
+\newpage
+\subsection{Geometric Figures: rect(...) }
+The \textbf{qdraw} function \textbf{rect} has the syntax:\\
+\verb|   rect( x1,y1,x2,y2, lc(c), lw(n), fill(c)  ) |\\
+  which will draw a rectangle with opposite corners \verb|(x1,y1)| and \verb|(x2,y2)|.
+The last three arguments are optional; without them the rectangle is drawn in
+  black with line thickness 3 and with no fill color.
+An example is \verb|rect(0,0,1,1,lc(brown),lw(2),fill(khaki) ) |.
+We start with the basic rectangle call:
+\small
+\begin{verbatim}
+(%i13) qdraw( xr(-1,2),yr(-1,2),rect(0,0,1,1) )$
+\end{verbatim}
+\normalsize
+% eps file code
+%(%i23) qdraw( xr(-1,2),yr(-1,2),rect(0,0,1,1,lw(5)),
+%             line(-1,0,2,0,lw(2) ),
+%             line(0,-1,0,2,lw(2)), pic(eps,"ch5p36") );
+%  
+with the result
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.8]{ch5p36.eps} }
+	\caption{Default rect(0,0,1,1) }
+\end{figure}      
+
+\smallskip
+We now add some color, thickness and fill:
+\small
+\begin{verbatim}
+(%i14) qdraw( xr(-1,2),yr(-1,2),
+            rect(0,0,1,1,lw(5),lc(brown),fill(khaki) ) )$
+\end{verbatim}
+\normalsize
+% eps file code
+%(%i29) qdraw( xr(-1,2),yr(-1,2),
+%            rect(0,0,1,1,lw(8),lc(brown),fill(khaki) ),
+%             pic(eps,"ch5p37" ),
+%   line(-1,0,0,0,lw(2)),line(1,0,2,0,lw(2)),
+%   line(0,-1,0,0,lw(2)),line(0,1,0,2,lw(2)) );
+%
+with the output:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.9]{ch5p37.eps} }
+	\caption{rect(0,0,1,1,lc(brown),lw(5),fill(khaki) ) }
+\end{figure}      
+
+\newpage
+Finally, we use \textbf{rect} for a set of nested rectangles.
+\small
+\begin{verbatim}
+(%i15) qdraw( xr(-3,3),yr(-3,3), rect( -2.5,-2.5,2.5,2.5,lw(4),lc(blue) ),
+         rect( -2,-2,2,2,lw(4),lc(red) ),
+         rect( -1.5,-1.5,1.5,1.5,lw(4),lc(green) ),
+         rect( -1,-1,1,1,lw(4),lc(brown) ),
+         rect( -.5,-.5,.5,.5,lw(4),lc(magenta) ),
+           cut(all) )$
+\end{verbatim}
+\normalsize
+
+% eps file code
+%  (%i32) qdraw( xr(-3,3),yr(-3,3), rect( -2.5,-2.5,2.5,2.5,lw(8),lc(blue) ),
+%         rect( -2,-2,2,2,lw(8),lc(red) ),
+%         rect( -1.5,-1.5,1.5,1.5,lw(8),lc(green) ),
+%         rect( -1,-1,1,1,lw(8),lc(brown) ),
+%         rect( -.5,-.5,.5,.5,lw(8),lc(magenta) ),
+%           cut(all), 
+%          pic(eps,"ch5p38") );
+%
+which produces:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.3]{ch5p38.eps} }
+	\caption{Nested Rectangles using rect(..) }
+\end{figure}      
+%\newpage
+ 
+\subsection{Geometric Figures: poly(...) }
+The \textbf{qdraw} function \textbf{poly} has the syntax:\\
+\verb|   poly( pointlist, lc(c), lw(n), fill(c) ) |\\
+  in which "pointlist" has the same form as when used with \textbf{pts}:\\
+  \verb|  [ [x1,y1], [x2,y2], ... [xn,yn] ] | ,\\
+  and the arguments lc, lw, and fill are optional and can be
+  in any order after pointlist.
+The last point in the list will be automatically connectd to the first.
+  
+\smallskip
+The default call to \textbf{poly} has color black, line width 3
+  and no fill color.
+\small
+\begin{verbatim}
+(%i16) qdraw( xr(-2,2),yr(-1,2),cut(all),
+            poly([ [-1,-1],[1,-1], [2,2] ]  ) )$
+\end{verbatim}
+\normalsize
+% eps file code
+% (%i34) qdraw( xr(-2,2),yr(-1,2),cut(all),
+%            poly([ [-1,-1],[1,-1], [2,2] ],lw(5) ),
+%            pic(eps, "ch5p39") );
+%
+\newpage
+
+This default use of \textbf{poly} produces a "plain jane" triangle:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.9]{ch5p39.eps} }
+	\caption{Default use of poly(...) }
+\end{figure}      
+
+\smallskip
+Next we create the work file "doplot2.mac" which contains the following Maxima function 
+  which will draw eighteen right triangles in various colors:
+\small
+\begin{verbatim}
+/*  eighteen triangles  */
+disp("doplot2()")$
+print("eighteen colored triangles")$
+doplot2() := 
+  block([cc, qlist,x1,x2,y1,y2,i,val ],
+     cc : [aquamarine,beige,blue,brown,cyan,gold,goldenrod,green,khaki,
+            magenta,orange,pink,plum,purple,red,salmon,skyblue,turquoise,
+            violet,yellow ],            
+     qlist : [ xr(-3.3,3.3), yr(-3.3,3.3) ],     
+  /* top row of triangles  */
+     y1  : 1,
+     y2 : 3,
+     for i:0 thru 5 do ( 
+       x1 : -3 + i,
+       x2 : x1 + 1,
+       val : poly( [ [x1,y1],[x2,y1],[x1,y2]], fill( cc[i+1] ) ),
+       qlist : append(qlist, [val ] ) 
+     ),
+  /* middle row of triangles  */
+     y1 : -1,
+     y2 : 1,
+     for i:0 thru 5 do (
+        x1 : -3 + i,
+        x2 : x1 + 1,
+        val : poly( [ [x1,y1],[x1,y2],[x2,y2]], fill( cc[i+7] ) ),
+        qlist : append(qlist, [val ] ) 
+     ),                
+\end{verbatim}
+\newpage
+\begin{verbatim}
+ /* bottom row of triangles  */
+     y1 : -3,
+     y2 : -1,
+     for i:0 thru 5 do (
+       x1 : -3 + i,
+       x2 : x1 + 1,
+       val : poly( [ [x1,y1],[x2,y1],[x1,y2]], fill( cc[i+13] ) ),
+       qlist : append(qlist, [val ] )        
+     ),          
+     qlist : append(qlist,[ cut(all) ] ),                    
+     apply( 'qdraw, qlist )                                   
+  )$     
+\end{verbatim}
+\normalsize
+Here is a record of use of this work file:
+\small
+\begin{verbatim}
+(%i17) load(doplot2);
+                                   doplot2()
+eighteen colored triangles 
+(%o17)                        c:/work2/doplot2.mac
+(%i18) doplot2();
+\end{verbatim}
+\normalsize
+and the resulting figure:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.7]{ch5p40.eps} }
+	\caption{Using poly(...) with Color}
+\end{figure}      
+
+\smallskip
+For "homework", use \textbf{poly} and \textbf{pts} to draw the following figure.
+(Hint: you should also use \textbf{xr(...)} ).
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.6]{ch5p41.eps} }
+	\caption{Homework Problem}
+\end{figure}      
+% eps code
+% (%i54) qdraw( poly([ [-.5,-1],[0,1], [.5,-1],[0,-2]  ],fill(khaki) ),
+%               xr(-2,2),yr(-2,1),cut(all),
+%               pts( [ [0,0],[0,-.5],[0,-1] ] ),
+%                pic(eps,"ch5p41") );
+%
+\newpage
+
+\subsection{Geometric Figures: circle(...) and ellipse(...) }
+The \textbf{qdraw} function \textbf{circle} has the syntax:\\
+  \verb|  circle( xc,yc, r, lc(c), lw(n), fill(c) ) | \\
+  to draw a circle centered at \verb|(xc,yc)| and having radius \verb|r|.
+The last three arguments are optional and may be entered in any order after
+  the required first three arguments.
+ \smallskip
+This object will not "look" like a circle unless you take care to make the
+  horizontal extent of the "canvas" about $1.4$ times the vertical extent
+  (by using \textbf{xr(...)} and \textbf{yr(...)} ).
+
+\smallskip
+Here is the default circle in black, with line width 3, and no fill color.
+\small
+\begin{verbatim}
+(%i19) qdraw( xr(-2, 2), yr(-2, 2), circle( 0, 0, 1 ) )$
+\end{verbatim}
+\normalsize
+% eps file code
+%(%i59) qdraw(xr(-2,2),yr(-2,2),circle(0,0,1,lw(5) ),
+%          line(-2,0,2,0,lw(2)),line(0,-2,0,2,lw(2)),
+%             pic(eps,"ch5p42") );
+%
+which looks like:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.6]{ch5p42.eps} }
+	\caption{Default "circle"}
+\end{figure}      
+
+\smallskip
+By using \textbf{xr(...)} and \textbf{yr(...)} we try for a "round" circle and also add
+  what should be a 45 degree line.
+\small
+\begin{verbatim}
+(%i20) qdraw(xr(-2.1,2.1),yr(-1.5,1.5),cut(all),
+            circle(0,0,1,lw(5),lc(brown),fill(khaki) ),
+              line(-1.5,-1.5,1.5,1.5,lw(8), lc(red) ),
+                key(bottom) )$
+\end{verbatim}
+\normalsize
+% eps file code
+% (%i68) qdraw(xr(-2.1,2.1),yr(-1.5,1.5),cut(all),
+%            circle(0,0,1,lw(8),lc(brown),fill(khaki) ),
+%              line(-1.5,-1.5,1.5,1.5,lw(12), lc(red) ),
+%                key(bottom),pic(eps,"ch5p43" ,font("Times-Roman",18)) );
+%
+with the result:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.85]{ch5p43.eps} }
+	\caption{line over "round" circle}
+\end{figure}      
+\newpage
+The line painted over the circle because of the order of the arguments to
+  \textbf{qdraw}.
+If we reverse the order, drawing the line before the circle:
+\small
+\begin{verbatim}
+(%i21) qdraw(xr(-2.1,2.1),yr(-1.5,1.5),cut(all),
+            line(-1.5,-1.5,1.5,1.5,lw(8),lc(red) ),
+            circle(0,0,1,lw(8),lc(brown),fill(khaki) ),
+                key(bottom) )$
+\end{verbatim}
+\normalsize
+% eps file code
+% (%i70) qdraw(xr(-2.1,2.1),yr(-1.5,1.5),cut(all),
+%            line(-1.5,-1.5,1.5,1.5,lw(12),lc(red) ),
+%            circle(0,0,1,lw(5),lc(brown),fill(khaki) ),
+%                key(bottom),
+%             pic(eps,"ch5p44" ,font("Times-Roman",18)) );
+%
+then the circle color will hide the line:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.8]{ch5p44.eps} }
+	\caption{circle over line}
+\end{figure}      
+
+\smallskip
+The \textbf{qdraw} function \textbf{ellipse} has the syntax:\\
+\verb|   ellipse( xc,yc,xsma,ysma,th0deg,dthdeg, lw(n), lc(c), fill(c) ) |\\
+  which will plot a partial or whole ellipse centered at \verb|(xc,yc)|,
+  oriented with ellipse axes aligned along the \verb|x| and \verb|y| axes,
+  having horizontal semi-axis xsma, vertical semi-axis ysma, beginning
+  at th0deg degrees measured counter clockwise from the  positive \verb|x| axis,
+  and drawn for dthdeg degrees in the counter clockwise direction.
+  
+\smallskip
+The last three arguments are optional.
+The default is the outline of an ellipse for the specified angular range in
+  color black, line width 3, and no fill color.
+  
+\smallskip
+Here is the default behavior:
+\small
+\begin{verbatim}
+(%i22) qdraw( xr(-4.2,4.2),yr(-3,3),
+         ellipse(0,0,3,2,90,270) )$
+\end{verbatim}
+\normalsize
+% eps file code
+%  (%i6) qdraw( xr(-4.2,4.2),yr(-3,3),
+%         ellipse(0,0,3,2,90,270),
+%          pic(eps, "ch5p45",font("Times-Roman",18) ),
+%           line(-4.2,0,4.2,0,lw(2)),
+%           line(0,-3,0,3,lw(2)) );
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.6]{ch5p45.eps} }
+	\caption{ellipse(0,0,3,2,90,270)}
+\end{figure}      
+
+\newpage
+If we add color, fill, and some curvy background, as in
+\small
+\begin{verbatim}
+(%i23) qdraw( xr(-5.6,5.6),yr(-4,4),ex1(x,x,-4,4,lc(blue),lw(5)),
+                  ex1(4*cos(x),x,-4,4,lc(red),lw(5) ),
+         ellipse(0,0,3,1,90,270,lc(brown),lw(5),fill(khaki)) ,
+             cut(all) )$
+\end{verbatim}
+\normalsize
+% eps file code
+%(%i15) qdraw( xr(-5.6,5.6),yr(-4,4),ex1(x,x,-4,4,lc(blue),lw(10)),
+%                  ex1(4*cos(x),x,-4,4,lc(red),lw(10) ),
+%         ellipse(0,0,3,1,90,270,lc(brown),lw(8),fill(khaki)),
+%             cut(all),pic(eps,"ch5p46",font("Times-Roman",18) ) );
+%
+
+we get
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.3]{ch5p46.eps} }
+	\caption{Filled Ellipse}
+\end{figure}      
+
+\smallskip
+\subsection{Geometric Figures: vector(..)  }
+The \textbf{qdraw} function \textbf{vector} has the syntax:\\
+\verb|vector([x,y],[dx,dy],ha(thdeg),hb(v),hl(v),ht(t),lw(n),lc(c),lk(string) )|\\
+   which draws a vector with components [dx,dy] starting at [x,y].\\
+The first two list arguments are required, all others are optional and can be entered in
+   any order after the first two required arguments.\\
+The default "head angle" is 30 deg; change to 45 deg using ha(45) for example.\\
+The default "head both" value is f for false; use hb(t) to set it to true,
+       and hb(f) to return to false.\\
+The default "head length" is 0.5; use hl(0.7) to change to 0.7.\\
+The default "head type" is "nofilled"; use ht(e) for "empty", ht(f) for "filled",
+       and ht(n) to change back to "nofilled".           \\
+Once one of the "head properties" has been changed in a call to \textbf{vector},
+   the next calls to vector assume the change is still in force. \\	   
+The default line width is 3; use lw(5) to change to 5.\\
+The default line color is black; use lc(brown) to change to brown.\\
+The default is no key string; use lk("A1"), for example, to create a text string for the key.\\
+
+\newpage
+
+Here is a use of \textbf{vector} which accepts all defaults:
+\small
+\begin{verbatim}
+(%i24) qdraw( xr(-2,2), yr(-2,2), vector( [-1,-1], [2,2] ) )$
+\end{verbatim}
+\normalsize
+% eps file code
+% (%i21) qdraw(xr(-2,2),yr(-2,2),vector([-1,-1],[2,2],lw(5)),
+%          line(-2,0,2,0,lw(2)),line(0,-2,0,2,lw(2)),
+%           pic(eps,"ch5p47",font("Times-Roman",18) ) );
+%
+with the result:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale= 1]{ch5p47.eps} }
+	\caption{Default Vector}
+\end{figure}      
+
+\smallskip
+We can thicken and apply color to this basic vector with
+\small
+\begin{verbatim}
+(%i25) qdraw(xr(-2,2),yr(-2,2),
+           vector([-1,-1],[2,2],lw(5),lc(brown),lk("vec 1")),
+            key(bottom) )$
+\end{verbatim}
+\normalsize
+% eps file code
+% (%i24) qdraw(xr(-2,2),yr(-2,2),
+%           vector([-1,-1],[2,2],lw(8),lc(brown),lk("vec 1")),
+%            key(bottom),
+%             line(-2,0,2,0,lw(2)),line(0,-2,0,2,lw(2)),
+%           pic(eps,"ch5p48",font("Times-Roman",18) )  );
+%
+which looks like:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1]{ch5p48.eps} }
+	\caption{Adding Color, etc.}
+\end{figure}      
+
+\newpage
+Next we can alter the "head" properties, but let's also make this vector
+  shorter.
+We use \verb|ht(e)| to set head\_type to "empty", \verb|hb(t)| to
+  set head\_both to "true", and \verb|ha(45)| to set head\_angle
+  to $45$ degrees.
+\small
+\begin{verbatim}
+(%i26) qdraw(xr(-2,2),yr(-2,2),
+           vector([0,0],[1,1],lw(5),lc(blue),lk("vec 1"),
+                  ht(e),hb(t),ha(45) ), key(bottom) )$
+\end{verbatim}
+\normalsize
+% eps file code
+%  (%i26) qdraw(xr(-2,2),yr(-2,2),
+%           vector([0,0],[1,1],lw(8),lc(blue),lk("vec 1"),
+%                       ht(e),hb(t),ha(45) ), 
+%            key(bottom),
+%                   line(-2,0,2,0,lw(2)),line(0,-2,0,2,lw(2)),
+%           pic(eps,"ch5p49",font("Times-Roman",18) ) );
+%
+which produces:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.8]{ch5p49.eps} }
+	\caption{Changing Head Properties}
+\end{figure}      
+
+\smallskip
+Once you invoke the head properties options, the new settings are
+  used on your next calls to \textbf{vector} (unless you deliberately
+  change them).
+Here is an example of that memory feature at work:
+\small
+\begin{verbatim}
+(%i27) qdraw(xr(-2.8,2.8),yr(-2,2),
+           vector([0,0],[1,1],lw(5),lc(blue),lk("vec 1"),
+                       ht(e),hb(t),ha(45) ),
+           vector([0,0],[-1,-1],lw(5),lc(red),lk("vec 2")),
+            key(bottom) )$
+\end{verbatim}
+\normalsize
+% eps file code
+% (%i28) qdraw(xr(-2.8,2.8),yr(-2,2),
+%           vector([0,0],[1,1],lw(8),lc(blue),lk("vec 1"),
+%                       ht(e),hb(t),ha(45) ),
+%           vector([0,0],[-1,-1],lw(8),lc(red),lk("vec 2")),
+%            key(bottom),
+%                   line(-2,0,2,0,lw(2)),line(0,-2,0,2,lw(2)),
+%           pic(eps,"ch5p50",font("Times-Roman",18) ) );
+%
+and we also used the x-range setting to get the geometry closer to reality,
+with the result:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.8]{ch5p50.eps} }
+	\caption{Head Properties Memory at Work}
+\end{figure}      		   
+\newpage
+\subsection{Geometric Figures: arrowhead(..) }
+The syntax of the \textbf{qdraw} function \textbf{arrowhead} is:\\
+\verb|  arrowhead( x, y, theta-degrees, s, lc(c), lw(n) )|\\
+  which will draw an arrow head with the vertex at \verb|(x,y)|.\\
+The first four arguments are required and must be numbers.\\
+The third argument theta is an angle in degrees and is the direction
+  the arrowhead is to point relative to the positive x axis,
+  ccw from x axis taken as a positive angle.\\
+The fourth argument s is the length of the sides of the arrowhead.\\
+The arguments lc(c) and lw(n) are optional, and are used to
+  alter the default color (black) and line width (3).\\
+The opening half angle is hardwired to be phi = 25 deg = 0.44 radians.\\
+The geometry will look better if the x-range is about 1.4 times the y-range.
+
+\smallskip
+Here are four arrow heads drawn with the default line widths and color
+  and "size" $0.3$, which show the use of the direction argument in degrees.
+\small
+\begin{verbatim}
+(%i28) qdraw(xr(-2.8,2.8),yr(-2,2),
+            arrowhead(1.5,0,180,.3),arrowhead(0,1,270,.3),
+            arrowhead(-1.5,0,0,.3),arrowhead(0,-1,90,.3) )$
+\end{verbatim}
+\normalsize
+% eps file code
+%(%i6) qdraw(xr(-2.8,2.8),yr(-2,2),
+%            arrowhead(1.5,0,180,.3),arrowhead(0,1,270,.3),
+%            arrowhead(-1.5,0,0,.3),arrowhead(0,-1,90,.3),
+%            line(-2.8,0,2.8,0,lw(2)),line(0,-2,0,2,lw(2)),
+%             pic(eps,"ch5p51",font("Times-Roman",18) ) );
+%			 
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.8]{ch5p51.eps} }
+	\caption{Using arrowhead(..)}
+\end{figure}      
+
+\smallskip
+
+\subsection{Labels with Greek Letters}
+\subsubsection{Enhanced Postscript Methods}
+Here we combine \textbf{line(..)}, \textbf{ellipse},  \textbf{arrowhead}
+  and \textbf{label}, using the enhanced postscript abilities of 
+  \textbf{draw2d}'s \verb|terminal = eps| option, which became
+  effective with the June 11, 2008 draw package update.
+This update includes an extension of the  \verb|terminal = eps| abilities to
+ include local conversion of font properties and the use of Greek and some math characters.
+As of the writing of this section, it was necessary to download this update
+ from the webpage\\
+ \verb|http://maxima.cvs.sourceforge.net/maxima/maxima/share/draw/draw.lisp|.
+On that webpage you will see \verb|Log of /maxima/share/draw/draw.lisp|, and
+  the top entry is\\
+  \verb|Revision 1.31 - (view) (download) (annotate) - [select for diffs] |\\
+  \verb|Wed Jun 11 18:19:55 2008 UTC|.
+Click on the "download" link, and the text of draw.lisp will appear in your
+  browser with the top looking like:
+\small
+\begin{verbatim}
+;;;                 COPYRIGHT NOTICE
+;;;  
+;;;  Copyright (C) 2007 Mario Rodriguez Riotorto
+;;;  
+;;;  This program is free software; you can redistribute
+;;;  it and/or modify it under the terms of the
+;;;   ........................ etc
+\end{verbatim}
+\normalsize
+This is a program written in the Lisp language, and down near the bottom is a
+series of lines which provide for the enhanced postscript behavior:
+\small
+\begin{verbatim}
+      ($eps (format cmdstorage "set terminal postscript eps enhanced ~a
+                            	  size ~acm, ~acm~%set out '~a.eps'"
+                           (write-font-type) ; other alternatives are Arial, Courier
+                           (get-option '$eps_width)
+                           (get-option '$eps_height)
+                           (get-option '$file_name)))
+\end{verbatim}
+\normalsize
+If you save this text file with the name "draw.lisp" and place it in the draw package
+  folder (on my Windows computer, the rather complicated path:\\
+\verb|drive c, program files, maxima-5.15.0, share, maxima, 5.15.0, share, draw | )
+to replace the old "draw.lisp" (which you could rename prior to the save as ),
+  then you can use the label syntax inside strings as shown in the following.
+  
+\smallskip
+\small
+\begin{verbatim}
+(%i29) qdraw(xr(0,2.8),yr(0,2),
+             line(0,0,2.8,0,lw(2)),
+             line(0,0,2,2,lc(blue),lw(8) ),
+           ellipse(0,0,1,1,0,45 ),
+           arrowhead(0.707,0.707,135,0.15),
+   label(["{/=36 {/Symbol q   \\254 }  The Incline Angle}",1,0.4]),
+            cut(all),
+           pic(eps,"ch5p52" ) );
+\end{verbatim}
+\normalsize
+%\newpage
+
+The result looks like:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.7]{ch5p52.eps} }
+	\caption{line(..), ellipse(..), arrowhead(..), label(..)}
+\end{figure}      
+
+%\newpage
+A summary of the enhanced postscript syntax can be downloaded:\\
+\verb|http://www.telefonica.net/web2/biomates/maxima/gpdraw/ps/ps_guide.ps |
+although the examples of using the "characters" works for me only if
+I use two back slashes, as in the example just shown, where the
+  entry \verb|\\254| inside the \verb|{/Symbol }| structure produces the leftward
+  pointing arrow (thanks to the draw package developer, Mario Rodriguez Riotorto, 
+  for the enhanced postscript abilities, and for aiding my understanding of 
+  how to use these features).
+An example of creating text for a label which includes the integral sign
+  and Greek letters is given on the webpage:\\
+\verb|http://www.telefonica.net/web2/biomates/maxima/gpdraw/ps/|.  
+\smallskip
+
+The entry \verb|{/Symbol q }| by itself would produce just the Greek
+  letter $\theta$.
+Wrapping the text entry in the structure \verb|{/=36  }| accepts the
+  default font type and sets the font size to 36 for the text inside the
+  pair of braces.
+ 
+\smallskip
+Here we make a lower case Latin to Greek conversion reminder using four instances of
+  \textbf{label}, although we could alternatively have used
+  the syntax \verb| label( [s1,x1,x2], [s2,x2,y2],... )|.
+\small
+\begin{verbatim}
+(%i30) qdraw(xr(-3,3),yr(-2,2),label_align(c),
+         label( ["{/=48 a b c d e f g h i j k l m}",0,1.5] ),
+        label( ["{/Symbol=48 a b c d e f g h i j k l m}",0,0.5] ),
+        label( ["{/=48 n o p q r s t u v w x y z}",0,-.5] ),
+         label( ["{/Symbol=48 n o p q r s t u v w x y z}",0,-1.5] ),   
+        cut(all), pic(eps,"ch5p53") )$
+\end{verbatim}
+\normalsize
+Note how we increase the font size of the latin alphabet \verb|a,b,c...|.
+Here is the resulting eps figure:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.7]{ch5p53.eps} }
+	\caption{Lower Case Latin to Greek}
+\end{figure}      
+
+\smallskip
+
+We can repeat that label figure using upper case Latin letters:
+\small
+\begin{verbatim}
+(%i31) qdraw(xr(-3,3),yr(-2,2),label_align(c),
+         label( ["{/=48 A B C D E F G H I J K L M}",0,1.5] ),
+        label( ["{/Symbol=48 A B C D E F G H I J K L M}",0,0.5] ),
+        label( ["{/=48 N O P Q R S T U V W X Y Z}",0,-.5] ),
+         label( ["{/Symbol=48 N O P Q R S T U V W X Y Z}",0,-1.5] ),   
+        cut(all), pic(eps,"ch5p54") )$
+\end{verbatim}
+\normalsize
+You can see the resulting figure on the next page.
+
+\smallskip
+\smallskip
+Useful character codes, used as \verb|{/Symbol \\abc  \\rst  etc }|\\
+  or as   \verb|{/Symbol=36 \\abc  \\rst  etc }| are:\\
+\verb|\\243| (less than or equal )\\
+\verb|\\245| (infinity symbol)\\
+\verb|\\253| (double ended arrow)\\
+\verb|\\254| (left arrow)\\
+\verb|\\256| (right arrow)\\
+\verb|\\261| (plus or minus)\\
+\verb|\\263| (greater than or equal)\\
+\verb|\\264| (times)\\
+\verb|\\271| (not equal)\\
+\verb|\\273| (approx equal)\\
+\verb|\\345| (summation sign)\\
+\verb|\\362| (integral sign)\\
+
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.7]{ch5p54.eps} }
+	\caption{Upper Case Latin to Greek}
+\end{figure}      
+
+\smallskip
+
+Here we use \textbf{label} to illustrate these possible symbols you can use:
+\small
+\begin{verbatim}
+(%i32) s1 : "{/Symbol=48 \\243   \\245   \\253   \\254   \\256}"$
+(%i33) s2 : "{/Symbol=48 \\261   \\263   \\264   \\271   \\273   \\345   \\362}"$
+(%i34) qdraw(xr(-3,3),yr(-2,2),label_align(c),
+        label( [s1,0,1] ), label( [s2,0,-1] ), cut(all), pic(eps,"ch5p55") )$
+\end{verbatim}
+\normalsize
+which produces the figure:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.7]{ch5p55.eps} }
+	\caption{Useful Character Code Symbols}
+\end{figure}      
+
+
+
+\newpage
+\subsubsection{Windows Fonts Methods with jpeg Files}
+We can produce the Greek letter $\theta$ in a jpeg file or a png file by using
+  the Greek font files in the\\
+  \verb|c:\windows\fonts| folder as follows:  
+\small
+\begin{verbatim}
+(%i35) qdraw(xr(0,2.8),yr(0,2),
+             line(0,0,2.8,0),
+             line(0,0,2,2,lc(blue),lw(5) ),
+           ellipse(0,0,1,1,0,45 ),
+           arrowhead(0.707,0.707,135,0.15),
+            label(["q",1,0.4]), cut(all),
+           pic(jpg,"ch5p52p",font("c:/windows/fonts/grii.ttf",36)) );  
+\end{verbatim}
+\normalsize
+which produces the file \verb|ch5p52.jpg|, which we converted to an eps
+  file using cygwin's convert function:\\
+  \verb|convert name.jpg name.eps| which will also work to convert a png graphics file.
+
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.5]{ch5p52p.eps} }
+	\caption{Greek in jpg converted to eps}
+\end{figure}      
+
+%\newpage
+Here we use the label function to show all the greek letters
+ available via the windows, fonts folder:
+\small
+\begin{verbatim}
+(%i36) qdraw(xr(-3,3),yr(-2,2), 
+     label(["a b c d e f g h i j k l m",-2.5,1.5],
+             ["n o p q r s t u v w x y z",-2.5,0.5],
+              ["A B C D E F G H I J K L M",-2.5,-0.5],
+                ["N O P Q R S T U V W X Y Z",-2.5,-1.5]  ),     
+            cut(all),
+           pic(png,"ch5p60",font("c:/windows/fonts/grii.ttf",24)) );
+\end{verbatim}
+\normalsize
+\newpage
+
+After conversion of the png to an eps graphics file using Cygwin's convert function,
+we get:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.4]{ch5p60.eps} }
+	\caption{windows fonts conv. of a - Z to Greek}
+\end{figure}      
+
+\smallskip
+
+\subsubsection{Using Windows Fonts with the Gnuplot Console Window}
+In the default Windows Gnuplot console mode, you can convert some
+  Latin letters to Greek as follows:  
+  
+\small
+\begin{verbatim}
+(%i37) qdraw(xr(0,2.8),yr(0,2),
+             line(0,0,2.8,0),
+             line(0,0,2,2,lc(blue),lw(5) ),
+           ellipse(0,0,1,1,0,45 ),
+           arrowhead(0.707,0.707,135,0.15),
+            label(["q",1,0.4]), cut(all) );
+\end{verbatim}
+\normalsize
+When the console graphics window appears, right click on the upper left corner
+ icon and select Options, Choose Font.
+In the Font panels, choose Graecall font, "regular" from the
+  middle panel, and size 36 from the right panel and click "ok".
+The English letter "q" (lower case) is then converted to the Greek
+  lower case theta.
+Use the Gnuplot window menu again to save the resulting image to
+  the clipboard, and open an image viewer.
+I use the freely available Infanview.
+If you use View, Paste, the clipboard image appears inside Infanview,
+  and you can save the image as a jpeg file in your choice of folder.
+Since I am using eps graphics files for this latex file, I converted
+  the jpg to eps using Cygwin's convert function:\\
+\verb|convert name.jpg  name.eps|.
+%\newpage
+
+Here is the result:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.2]{ch5p52w.eps} }
+	\caption{Greek via Windows Clipboard}
+\end{figure}      
+  
+\newpage
+
+Unfortunately, saving the Gnuplot window image to the Window's clipboard
+  also saves the current cursor position, which is not desirable.
+
+\subsection{Even More with more(...) }
+You can use the \textbf{qdraw} function \textbf{more(...)}, containing any legal \textbf{draw2d}
+  elements, as we illustrate by adding a label to the x-axis and a title.
+We focus here on producing an eps graphics file to display the enhanced ability to
+  show subscripts and superscripts.
+\small
+\begin{verbatim}
+(%i38)  qdraw( lw(8), ex([x,x^2,x^3],x,-2,2),
+          more(xlabel = "X AXIS", title="intersections of x, x^2, x^3" ),
+		   cut(key),line(-2,0,2,0,lw(2)),line(0,-8,0,8,lw(2)),
+               vector([-1,5],[-0.4,-2.7],lc(red),hl(0.1) ),
+               label(["x^2",-0.9,6]),
+               vector([-1.2,-6],[-0.5,0],lc(turquoise),lw(8)),
+               label( ["x^3", -1,-5.5] ),
+              pts( [[-1,-1],[0,0],[1,1]],ps(2),pc(magenta)  ),
+              pic(eps,"ch5p56",font("Times-Roman",28)) )$
+\end{verbatim}
+\normalsize
+The lines for the x and y axes need special emphasis to show up clearly with
+  an eps file, so we have used \textbf{qdraw}'s \textbf{line} function for
+  that task.
+We also need to increase the line width setting for the eps file case, which
+  we have done with the \textbf{qdraw} top level function \textbf{lw}, which
+  only affects the "quick plotting" functions \textbf{ex} and \textbf{imp}.
+We have used \textbf{qdraw}'s \textbf{more} function to provide an x-axis
+  label and a title.
+The font setting in the \textbf{pic} function supplies an overall drawing
+  font type and size which affects all elements unless locally over-ridden
+  with the special enhanced postscript features.
+In the title and labels, \verb|x^n| is converted automatically to $x^n$.
+\smallskip
+
+Here is the resulting plot:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.3]{ch5p56.eps} }
+	\caption{Using more(...) for Title and X Axis Label}
+\end{figure}      
+
+\newpage
+\subsection{Programming Homework Exercises}
+\subsubsection{General Comments}
+The file qdraw.mac is a text file which you can modify with a good text editor
+  such as notepad2.
+This Maxima code is heavily commented as an aid to passing on some Maxima
+  language programming examples.
+You can get some experience with the Maxima programming language elements by
+  copying the file qdraw.mac to another name, say myqdraw.mac, and use
+  that copy to make modifications to the code which might interest you.
+By frequently loading in the modified file with \verb|load(myqdraw)|, you can
+  let Maxima check for syntax errors, which it does immediately.
+  
+  \smallskip
+  
+The most common syntax errors involve parentheses and commas, with strange
+  error messages such as " BLANK IS NOT AN INFIX OPERATOR", or "TOO MANY PARENTHESES", etc.
+Placing a comma just before a closing parenthsis is a fatal error which
+  can nevertheless creep in.
+This sounds obvious, but you may find it useful to insert some special debug
+  printouts, such as \verb|print("in blank, a = ",a)| or \verb|display(a)|, perhaps
+  at the end of a do loop, so you are working with the structure:\\
+\small
+\begin{verbatim}
+  for i thru n do (
+    job1,
+    job2,
+    job3,
+	print(" i = ",i,"  blank = ",blank)
+	  /* end do loop */
+	),
+	...program continues...
+
+\end{verbatim}
+\normalsize
+When you are finished debugging a section, you either will comment out the
+  debug printout or simply delete it to clean up the code.
+If you are not fully awake, you might then load into Maxima
+\small
+\begin{verbatim}
+  for i thru n do (
+    job1,
+    job2,
+    job3,
+      /* end do loop */
+	),
+	...program continues...
+
+\end{verbatim}
+\normalsize
+and, of course, Maxima will object, since that extra comma no longer
+  makes sense.
+  
+ \smallskip
+ 
+It is crucial to use a good text editor which will "balance" parentheses, brackets,
+  and braces to minimize parentheses etc errors.
+
+\smallskip
+If you look at the general structure of \textbf{qdraw}, you will see that most of the
+  real work is done by \textbf{qdraw1}. 
+If you call \textbf{qdraw1} instead of \textbf{qdraw}, you will be presented with
+  a rather long list of elements which are understood by \textbf{draw2d}.
+Even if you use \textbf{qdraw}, you will see the same long list wrapped by "draw2d"
+  if you have not loaded the \textbf{draw} package.
+
+\smallskip
+One feature you should look at is how a function which takes an arbitrary number
+  of arguments, depending on the user (as does the function \textbf{draw2d}), is defined.
+If this seems strange to you, experiment with a toy function having a variable
+  number of arguments, and use printouts inside the function to see what Maxima is
+  doing.
+
+\newpage
+\subsubsection{XMaxima Tips}
+It is useful to first try out a small code idea directly in XMaxima, even if the code is
+  ten or fifteen lines long, since the XMaxima interface has been greatly improved.
+When you want to edit your previous "try", use \verb|Alt-p| to enter your previous
+  code, and immediately backspace over the final \verb|);| or \verb|)$|.
+You can then cursor up to an area where you want to add a new line of code,
+  and with the cursor placed just after a comma, press \verb|ENTER| to create
+  a new (blank) line.
+Since the block of code has not been properly concluded with either a \verb|);|
+  or \verb|)$|, Maxima will not try to "run" with the version you are working
+  on when you press \verb|ENTER|.
+Once you have made the changes you want, cursor your way to the end and put back
+  the correct ending and then pressing \verb|ENTER| will send your code to the 
+   Maxima engine.  
+
+\smallskip
+The use of \verb|HOME|, \verb|END|, \verb|PAGEUP|, \verb|PAGEDOWN|, \verb|CNTRL-HOME|, and
+  \verb|CNTRL-END| greatly speeds up working with XMaxima.
+For example to copy a code entry up near the top of your current workspace,
+  first enter \verb|HOME| to put the cursor at the beginning of the current
+  line, then \verb|PAGEUP| or \verb|CNTRL-HOME| to get up to the top fast,
+  then drag over the code (don't include the \verb|(%i5)| part) to the
+  end but not to the concluding \verb|);| or \verb|)$|.
+You can hold down the \verb|SHIFT| key and use the right (and left) cursor key to
+  help you select a region to copy.
+Then press \verb|CNTRL-C| to copy the selected code to Window's clipboard.
+Then press \verb|CTRL-END| to have the cursor move to the bottom of your workspace
+  where XMaxima is waiting for your next input.
+Press \verb|CNTRL-V| to paste your selection.
+If the selection extends over multiple lines, use the down cursor key to find
+  the end of the selection which should be without the proper code ending \verb|);|
+  or \verb|)$|.
+You are then in the driver's seat and can cursor your way around the code and make
+  any changes without danger of XMaxima pre-emptively sending your work to the
+  computing engine until you go to that end and provide the proper ending.  
+
+\subsubsection{Suggested Projects}
+You will have noticed that we used the \textbf{qdraw} function \textbf{more}
+  in order to insert axis labels and a title into our plot.
+Design  \textbf{qdraw} functions \verb|xlabel(string)|, \verb|ylabel(string)|,
+  and \verb|title(string)|.
+Place them in the "scan 3" section of \textbf{qdraw} and try them out.
+You will need to pay attention to how new elements get passed to \textbf{draw2d}.
+In particular, look at the list \verb|drlist|, using your text editor search
+  function ( in notepad2, Ctrl-f ) to see how that list is constructed based
+  on the user input.
+  
+  \smallskip
+ A second small project would be to add a "line type" option for the
+   \textbf{qdraw} function \textbf{line}. 
+My experience is that setting \verb|line_type = dots| in \textbf{draw2d} produces
+  no immediate change in the Windows Gnuplot console window, produces a finely
+  dotted line for jpeg and png image files, and produces a dashed line with eps image files.
+Your addition to \textbf{qdraw} should follow the present style, so the user
+  would use the syntax \verb|line(x1,y1,x2,y2,lc(c),lw(n),lk(string),lt(type) )|,
+  where type is either s or d (for solid or dots).
+  
+\smallskip
+A third small project would be to design a function \textbf{triangle} for \textbf{qdraw},
+  including the options which are presently in \textbf{poly}.
+
+
+\smallskip
+A fourth small project would be to include the option cbox(..) in the
+  \textbf{qdensity} function. The present default is to include the
+  colorbox key next to the density plot, but if the user entered
+  \verb|qdensity(....,cbox(f) ) |, the colorbox would be removed.
+
+\smallskip
+
+
+A more challenging project would be to write a \textbf{qdraw} function
+  which would directly access the creation of bar charts.
+These notes are written with the needs of the typical physical science or
+  engineering user in mind, so no attention has been paid to bar charts here.
+Naturally, if you frequently construct bar charts, this project would be
+  interesting for you.
+Start this project by first working with \textbf{draw2d} directly, to get
+  familiar with what is already available, and to avoid "re-creating the wheel".  
+
+\smallskip
+One general principle to keep in mind is that the Maxima language is an "interpretive
+  language"; Maxima does not make multiple passes over your code to reconcile function
+  references, such as a compiler does. 
+This means that if a part of your code "calls" some user defined function, Maxima
+  needs to have already read about that function definition in your code.
+
+\subsection{Acknowledgements}
+The author would like to thank Mario Rodriguez Riotorto, the creator of Maxima's \textbf{draw}
+ graphics interface to Gnuplot, for his encouragement and advice at crucial stages
+  in the development of the \textbf{qdraw} interface to \textbf{draw2d}.
+The serious graphics user should spend time with the many powerful features of the
+  \textbf{draw} package, and the examples provided on the \textbf{draw} webpages,\\
+  \verb|http://www.telefonica.net/web2/biomates/maxima/gpdraw/|.\\
+These examples go far beyond the simple graphics in this chapter.
+The recent updating of the \textbf{draw} package to allow use of
+  Gnuplot's enhanced postscript features makes Maxima a more attractive tool
+  for the creation of educational diagrams.
+
+
+
+
+\end{document}

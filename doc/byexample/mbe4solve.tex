@@ -1,0 +1,3439 @@
+% e. woollett
+%   march 08
+% file solve1.tex
+% things to add:
+% to_poly_solve and to_poly_solver
+% nth roots of - 1
+% fateman's example in solving.pdf
+% matrix eqn for three equations and four unknowns
+% sent to solve: see work3,maxima tricks3,solve-matrix-eqns.txt
+% saving only real roots
+%> finding yield a lot of imaginary numbers.  Is there perhaps a way
+%> to make maxima only give the real roots of a cubic, or any other
+%> polynomial for that matter?  They really just get in the way when
+%> dealing with real processes.
+%
+%realroots, realonly.
+%
+%(%i1) realroots (x^3-3*x^2+4*x-2 = 0);
+%(%o1)                              [x = 1]
+%
+%(%i2) algsys([x^3-3*x^2+4*x-2 = 0], [x]);
+%(%o2)               [[x = %i + 1], [x = 1 - %i], [x = 1]]
+%
+%(%i3) block([realonly:true], algsys([x^3-3*x^2+4*x-2 = 0], [x]));
+%(%o3)                             [[x = 1]] 
+% more: see work3 file maxima tricks 3 roots-cubic-deleting-imag.txt
+%(%i3) solve (x^3 - 6*x + 2), rectform, ratsimp;
+%(%o3) [x = -sqrt(2)*sqrt(3)*sin((atan(sqrt(7))-%pi)/3)
+%          -sqrt(2)*cos((atan(sqrt(7))-%pi)/3),
+%        x = sqrt(2)*sqrt(3)*sin((atan(sqrt(7))-%pi)/3)
+%          -sqrt(2)*cos((atan(sqrt(7))-%pi)/3),
+%        x = 2*sqrt(2)*cos((atan(sqrt(7))-%pi)/3)]
+%So I propose something like this:
+%real_roots_3 (e) := block ([rsol : []],
+%    for r in ratsimp(rectform(solve(e))) do (
+%        if freeof(%i,r) then
+%            rsol : cons(r,rsol)
+%    ),
+%    rsol
+%)$
+%(%i1) real_roots_3 (x^3 - 6*x + 2);
+%(%o1) [x = 2*sqrt(2)*cos((atan(sqrt(7))-%pi)/3),
+%        x = sqrt(2)*sqrt(3)*sin((atan(sqrt(7))-%pi)/3)
+%          -sqrt(2)*cos((atan(sqrt(7))-%pi)/3),
+%        x = -sqrt(2)*sqrt(3)*sin((atan(sqrt(7))-%pi)/3)
+%          -sqrt(2)*cos((atan(sqrt(7))-%pi)/3)]
+%(%i2) real_roots_3 (x^3-3*x^2+4*x-2);
+%(%o2) [x = 1]
+
+% solving iequalities barton: solve_rat_ineq.mac.
+%(%i4) load("solve_rat_ineq.mac")$
+% (%i5) solve_rat_ineq(x^2+2*x-3>=0);
+% (%o5) [[x<=-3],[x>=1]]
+%(%i4) load('topoly_solver')$ 
+%(%i5) to_poly_solve(abs(x)=2,x);
+%(%o5) [[x=2],[x=-2]]
+% topoly_solver.mac, topoly.lisp solve methods: see work3, solve-system.txt
+% finding complex roots symbolically barton
+% roots of equations containing %i
+% unsolved prob: sqrt(-43), num val (3 + 4*%i)^(1/3)
+% solving float problems: keepfloat:true screws up linsolve
+% and is ignored by solve: wrap solve in float and
+%turn off ratprint:
+%(%i1)  display2d:false$
+%(%i2) [globalsolve,programmode];
+%(%o2) [false,true]
+%(%i3) block([ratprint:false],
+%          linsolve([0.9*x + 0.3*y = 2.1,0.3*x -0.5*y = 5.4],[x,y] ) );
+%(%o3) [x = 89/18,y = -47/6]
+%(%i4) block([ratprint:false,keepfloat:true],
+%          linsolve([0.9*x + 0.3*y = 2.1,0.3*x -0.5*y = 5.4],[x,y] ) );
+%Inconsistent equations:  [2]
+% -- an error.  To debug this try debugmode(true);
+%(%i5) block([keepfloat:true ],
+%        solve([0.9*x + 0.3*y = 2.1,0.3*x -0.5*y = 5.4],[x,y] ) );
+%`rat' replaced -2.1 by -21/10 = -2.1
+
+%`rat' replaced 0.9 by 9/10 = 0.9
+
+%`rat' replaced 0.3 by 3/10 = 0.3
+
+%`rat' replaced -5.4 by -27/5 = -5.4
+
+%`rat' replaced 0.3 by 3/10 = 0.3
+
+%`rat' replaced -0.5 by -1/2 = -0.5
+%(%o5) [[x = 89/18,y = -47/6]]
+%(%i6) 
+
+%working float problems:
+%wrap solve in float and turn off ratprint
+
+%(%i6) fsolve(eqns,vars) := 
+%         block([ratprint:false], float(solve(eqns,vars)) );
+%(%o6) fsolve(eqns,vars):=block([ratprint:false],float(solve(eqns,vars)))
+%(%i7) fsolve(0.9*a - a*x,x);
+%(%o7) [x = 0.9]
+%(%i8) fsolve(0.8*x^2 + 2.3*x - 4.3, x);
+%(%o8) [x = -4.1653941053494,x = 1.2903941053494]
+%(%i9) ratprint;
+%(%o9) true
+%
+% edit with Notepad++, then load into LED for latexing
+\documentclass[12pt]{article}
+\usepackage[dvips,top=1.5cm,left=1.5cm,right=1.5cm,foot=1cm,bottom=1.5cm]{geometry}
+\usepackage{times}
+\usepackage{amsmath}
+\usepackage{amsbsy}
+\usepackage{graphicx} 
+\usepackage{url}
+\urldef\tedhome\url{ http://www.csulb.edu/~woollett/  }
+\urldef\tedmail\url{ woollett@charter.net}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   title page
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Maxima by Example: Ch.4: Solving Equations \thanks{This version uses Maxima 5.17.1. This is a live
+            document. Check \;  \tedhome \; for the latest version of these notes. Send comments and
+			 suggestions to \tedmail } }
+
+
+\author{Edwin L. Woollett}
+\date{\today}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%          document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\small
+\maketitle
+\tableofcontents
+\numberwithin{equation}{section}
+\newpage
+
+\setcounter{section}{3}
+\normalsize
+COPYING AND DISTRIBUTION POLICY\\
+\\    
+	
+    
+    This document is part of a series of notes titled
+    "Maxima by Example" and	is made available\\
+	via the author's webpage 
+	\verb|http://www.csulb.edu/~woollett/ | to aid
+	new users of the Maxima computer algebra system.\\
+	
+	\smallskip
+	NON-PROFIT PRINTING AND DISTRIBUTION IS PERMITTED.\\
+	You may make copies of this document and distribute them to others
+	as long as you charge no more than the costs of printing.\\
+	
+	\smallskip
+	These notes (with some modifications) will be published in book form
+	eventually via Lulu.com in an arrangement which will continue
+	to allow unlimited free download of the pdf files as well as the option
+	of ordering a low cost paperbound version of these notes.
+\newpage
+
+\section{Solving Equations}
+Maxima has several functions which can be used for solving sets of algebraic equations and
+  for finding the roots of an expression.
+These are described in the Maxima manual, Sec. 21, and listed under "Contents" under "Equations".\\
+
+This chapter gives examples of the following Maxima functions:
+\begin{itemize}
+\item \textbf{solve} solves a system of simultaneous linear or nonlinear polynomial equations
+  for the specified variable(s) and returns a list of the solutions.
+\item  \textbf{linsolve} solves a system of simultaneous linear equations for the specified
+   variables and returns a list of the solutions.
+\item   \textbf{find\_root} uses a combination of binary search and Newton-Raphson methods
+   for univariate functions and will find a root when provided with an interval containing at least
+   one root.
+\item   \textbf{allroots} finds all the real and complex roots of a real univariate polynomial.
+\item   \textbf{realroots} finds all of the real roots of a univariate polynomial
+   within a specified tolerance.
+\item  \textbf{eliminate} eliminates variables from a set of equations or expressions.
+\item \textbf{linsolve\_by\_lu} solves a system of linear algebraic equations by the matrix
+   method known as "LU decomposition", and provides a Maxima method to work with a set
+   of linear equations in terms of the matrix of coefficients.
+\item \textbf{newton}, naive univariate Newton-Raphson, and \textbf{mnewton}, multivariate Newton-Raphson,
+   can deal with nonlinear function(s).
+\end{itemize}
+We also encourage the use of two dimensional plots to approximately locate solutions.\\
+   
+This chapter does not yet include "Solving  Recurrence Relations", and 
+  "Solving One Hundred Equations".
+
+\subsection{One Equation or Expression: Symbolic Solution or Roots}
+
+\subsubsection{The Maxima Function solve}
+Maxima's ability to solve equations is limited, but progress is being made in this area.
+The Maxima manual has an extensive entry for the important function \textbf{solve},
+  which you can view in Maxima with the input \verb|? solve| (no semicolon) followed
+    by (Enter), or the equivalent command: \verb|describe(solve)$|.
+The input \verb|example(solve)$| will show you the manual examples without the manual
+  syntax material.
+We will present some examples of the use of \textbf{solve} and not try to cover "everything".\\
+\textbf{solve} tries to find exact solutions.
+If \textbf{solve}\verb|(f(x),x)| cannot find an exact solution, \textbf{solve} tries to 
+  return a simplified version of the original problem.
+  Sometimes the "simplified" version can be useful:
+\small
+\begin{verbatim}
+(%i1) f(x);
+(%o1)                                f(x)
+(%i2) solve( f(x)^2-1 , x );
+(%o2)                       [f(x) = - 1, f(x) = 1] 
+\end{verbatim}
+\normalsize
+Since Maxima's idea of what is "simpler" may not agree with your own, often
+  the returned version is of no use.  
+\newpage
+  
+The Maxima manual \textbf{solve} syntax discussion relevant to solving one equation is:
+\small
+\begin{quote}
+Function: \textbf{solve}\verb|(expr, x) |\\
+Function: \textbf{solve}\verb|(expr) |\\
+Solves the algebraic equation \verb|expr| for the variable \verb|x| and returns a
+  list of solution equations in \verb|x|.
+If \verb|expr| is not an equation, the equation \verb|expr = 0| is assumed in
+  its place.
+\verb|x| may be a function (e.g. \verb|f(x)|), or other non-atomic expression
+  except a sum or product.
+\verb|x| may be omitted if \verb|expr| contains only one variable.
+\verb|expr| may be a rational expression, and may contain trigonometric functions,
+ exponentials, etc.\\
+\verb|breakup| if \verb|false| will cause \verb|solve| to express the solutions
+   of cubic or quartic equations as single expressions rather than as made up
+   of several common subexpressions which is the default. \\
+\verb|multiplicities| will be set to a list of the multiplicities of the
+   individual solutions returned by \verb|solve|, \verb|realroots|, or \verb|allroots|.\\
+Try \verb|apropos (solve)| for the switches which affect \verb|solve|.
+\verb|describe| may then by used on the individual switch names if their purpose is not clear.
+\end{quote}
+\normalsize
+It is important to recognise that the first argument to \textbf{solve} is either
+an equation such as \verb|f(x) = g(x)| (or \verb|h(x) = 0|), or simply \verb|h(x)|; in
+  the latter case, \textbf{solve} understands that you mean the equation \verb|h(x) = 0|,
+and the problem is to find the "roots" of \verb|h(x)|, ie., values of \verb|x| such that 
+   the equation \verb|h(x) = 0| is satisfied.\\
+   
+Here we follow the manual suggestion about using \textbf{apropos} and \textbf{describe}:
+\small
+\begin{verbatim}
+(%i1) apropos(solve);
+(%o1) [solve, solvedecomposes, solveexplicit, solvefactors, solvenullwarn, 
+                          solveradcan, solvetrigwarn, solve_inconsistent_error]
+(%i2) describe(solveradcan)$
+ -- Option variable: solveradcan
+     Default value: `false'
+
+     When `solveradcan' is `true', `solve' calls `radcan' which makes
+     `solve' slower but will allow certain problems containing
+     exponentials and logarithms to be solved.
+(%i3) describe(solvetrigwarn)$
+ -- Option variable: solvetrigwarn
+     Default value: `true'
+
+     When `solvetrigwarn' is `true', `solve' may print a message saying
+     that it is using inverse trigonometric functions to solve the
+     equation, and thereby losing solutions.
+\end{verbatim}
+\normalsize
+\subsubsection{solve with Expressions or Functions \& the multiplicities List}
+Let's start with a simple example where the expected answers are obvious and
+  check the behavior of \textbf{solve}.
+In particular we want to check \textbf{solve}'s behavior with both an expression
+  and a function (defined via \verb|:=|).
+We also want to check how the system list \textbf{multiplicities} is created
+  and maintained.
+We include the use of \textbf{realroots} and \textbf{allroots} in this comparison,
+  even though we will not have to use these latter two functions for a while.
+ \small
+ \begin{verbatim}
+(%i1) multiplicities;
+(%o1)                             not_set_yet
+(%i2) ex1 : x^2 - 2*x + 1;
+                                  2
+(%o2)                            x  - 2 x + 1
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i3) factor(ex1);
+                                          2
+(%o3)                              (x - 1)
+(%i4) g(x) := x^2 - 2*x + 1$
+(%i5) g(y);
+                                  2
+(%o5)                            y  - 2 y + 1
+(%i6) solve(ex1);
+(%o6)                               [x = 1]
+(%i7) multiplicities;
+(%o7)                                 [2]
+(%i8) solve(g(y));
+(%o8)                               [y = 1]
+(%i9) multiplicities;
+(%o9)                                 [2]
+(%i10) realroots(ex1);
+(%o10)                              [x = 1]
+(%i11) multiplicities;
+(%o11)                                [2]
+(%i12) allroots(ex1);
+(%o12)                        [x = 1.0, x = 1.0]
+(%i13) multiplicities;
+(%o13)                                [2]
+\end{verbatim}
+\normalsize
+We see that we can use either an expression or a function with \textbf{solve}, and you can 
+  check that this also applies to \textbf{realroots} and \textbf{allroots}.
+It is not clear from our use of \textbf{allroots} above how \textbf{allroots} affects
+  \textbf{multiplicities}, although, as we will see later, the manual does not assert
+  any connection, and we would not expect there to be a connection because \textbf{allroots}
+  returns multiple roots explicitly in \verb|%o12|.
+Just to make sure, let's restart Maxima and use only \textbf{allroots}:
+\small
+\begin{verbatim}
+(%i1) multiplicities;
+(%o1)                             not_set_yet
+(%i2) allroots(x^2 - 2*x + 1);
+(%o2)                         [x = 1.0, x = 1.0]
+(%i3) multiplicities;
+(%o3)                             not_set_yet
+ \end{verbatim}
+ \normalsize
+As we expected, \textbf{allroots} does not affect \textbf{multiplicities}; only \textbf{solve}
+  and \textbf{realroots} set its value. 
+\subsubsection{General Quadratic Equation or Function}
+To get our feet wet, lets turn on the machinery with a general quadratic equation 
+  or expression.
+ There are some differences if you employ an expression rather than a function
+   defined with \verb|:=|.
+Each method has some advantages and some disadvantages.
+Let's first use the function argument, rather than an expression argument.
+We will later show how the calculation is different if an expression is used.
+We will step through the process of verifying the solutions and end up with
+  a "do loop" which will check all the solutions. We will use a function \verb|f(x)|
+  which depends parametrically on \verb|(a,b,c)| as the first argument to \textbf{solve}, and
+  first see what happens if we don't identify the unknown: how smart is Maxima??
+\small
+\begin{verbatim} 
+(%i1) f(x) := a*x^2 + b*x + c$
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i2) f(y);
+                                   2
+(%o2)                           a y  + b y + c
+(%i3) sol : solve( f(x) );
+More unknowns than equations - `solve'
+Unknowns given :  
+[a, x, b, c]
+Equations given:  
+    2
+[a x  + b x + c]
+ -- an error.  To debug this try debugmode(true);
+\end{verbatim}
+\normalsize
+We see that Maxima cannot read our mind! We must tell Maxima which of the four symbols is
+  to be considered the "unknown". From Maxima's point of view (actually the point of view
+  of the person who wrote the code), one equation cannot determine four unknowns, so we must
+  supply the information about which of the four variables is to be considered the unknown.
+\small
+\begin{verbatim}
+(%i4) sol : solve( f(x),x );
+                         2                         2
+                   sqrt(b  - 4 a c) + b      sqrt(b  - 4 a c) - b
+(%o4)       [x = - --------------------, x = --------------------]
+                           2 a                       2 a
+\end{verbatim}
+\normalsize
+We see that \textbf{solve} returns the expected list of two possible symbolic solutions.
+
+\subsubsection{Checking Solutions with subst or ev and a "Do Loop"}
+Let's check the first solution:
+\small
+\begin{verbatim}
+(%i5) s1 : sol[1];
+                                      2
+                                sqrt(b  - 4 a c) + b
+(%o5)                     x = - --------------------
+                                        2 a
+\end{verbatim}
+\normalsize
+Now we can use the \verb|subst( x = x1, f(x) )| form of the \textbf{subst} function syntax.
+\small
+\begin{verbatim}
+(%i6) r1 : subst(s1, f(x) );
+                   2              2            2
+            (sqrt(b  - 4 a c) + b)    b (sqrt(b  - 4 a c) + b)
+(%o6)       ----------------------- - ------------------------ + c
+                      4 a                       2 a
+(%i7) expand(r1);
+(%o7)                                  0
+\end{verbatim}
+\normalsize
+Now that we understand what steps lead to the desired "0", we automate the process
+  using a do loop:
+\small
+\begin{verbatim}
+(%i8) for i:1 thru 2 do disp( expand( subst( sol[i], f(x) ) ) )$
+                                       0
+                                       0
+\end{verbatim}
+\normalsize
+For each of the two solutions (for \verb|x|) found by Maxima, the given expression
+  evaluates to zero, verifying the roots of the expression.
+\newpage
+Since the result (here) of using \verb|ev( f(x), sol[i])| is the same as
+  using \verb|subst( sol[i], f(x) )|, we can use \textbf{ev} instead:
+
+\small
+\begin{verbatim}
+(%i9) for i:1 thru 2 do disp( expand( ev(f(x), sol[i]) ))$
+                                       0
+                                       0
+\end{verbatim}
+\normalsize
+
+  
+  
+\subsubsection{The One Argument Form of solve}  
+The simple one-argument form of \textbf{solve} can be used if all but one of the
+  symbols in the expression is already "bound".
+\small
+\begin{verbatim}
+(%i10) solve(3*x -2);
+                                         2
+(%o10)                               [x = -]
+                                         3
+(%i11) (a:1, b:2, c:3)$
+(%i12) [a,b,c];
+(%o12)                             [1, 2, 3]
+(%i13) solve(a*x^2 + b*x + c);
+(%o13)            [x = - sqrt(2) %i - 1, x = sqrt(2) %i - 1]
+(%i14) [a,b,c] : [4,5,6];
+(%o14)                             [4, 5, 6]
+(%i15) solve(a*x^2 + b*x + c);
+                        sqrt(71) %i + 5      sqrt(71) %i - 5
+(%o15)           [x = - ---------------, x = ---------------]
+                               8                    8
+(%i16) [a,b,c] : [4,5,6];
+(%o16)                              [4, 5, 6]
+\end{verbatim}
+\normalsize
+%\newpage
+\subsubsection{Using disp, display, and print}
+We have seen above examples of using \textbf{disp}, which can be used to print out
+  the values of symbols or text, and \textbf{display}, which can be used to print
+  out the name of the symbol and its value in the form of an equation:\\ "x = value".\\
+Here is the do loop check of the roots of the quadratic found above using \textbf{print}
+  instead of \textbf{disp}.\\
+However, we need to be careful, because we are using a function \verb|f(x)| rather
+  than an expression.
+We have just assigned the values of \verb|a|, \verb|b|, and \verb|c|, and we
+  want \verb|f(x)| to have arbitrary values of these parameters.
+\small
+\begin{verbatim}
+(%i17) [a,b,c];
+(%o17)                             [4, 5, 6]
+(%i18) f(x);
+                                   2
+(%o18)                          4 x  + 5 x + 6
+(%i19) kill(a,b,c);
+(%o19)                               done
+(%i20) [a,b,c];
+(%o20)                             [a, b, c]
+(%i21) f(x);
+                                   2
+(%o21)                          a x  + b x + c
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i22) sol;
+                         2                         2
+                   sqrt(b  - 4 a c) + b      sqrt(b  - 4 a c) - b
+(%o22)      [x = - --------------------, x = --------------------]
+                           2 a                       2 a
+(%i23) for i:1 thru 2 do print("expr = ", expand( subst(sol[i],f(x) ) ) )$
+expr =  0 
+expr =  0 
+\end{verbatim}
+\normalsize
+Here we use \textbf{disp} to display a title for the do loop:
+\small
+\begin{verbatim}
+(%i24) ( disp("check roots"), for i thru 2 do
+               print("expr = ", expand( subst( sol[i],f(x) ) ) )  )$
+                                  check roots
+
+expr =  0 
+expr =  0 
+\end{verbatim}
+\normalsize
+The only tricky thing about this kind of code is getting the parentheses to balance.
+Note that that \textbf{expand(...)} is inside \textbf{print}, so the syntax
+  used is \textbf{do print(... )}, ie., a "one job do ".
+The outside parentheses allow the syntax \verb|( job1, job2 )|.
+Note also that the default start of the do loop index is "1", so we can use an abbreviated
+ syntax that does not have the \verb|i:1| beginning.
+
+ 
+ \subsubsection{Checking Solutions using map}
+One advantage of using a function \verb|f(x)| defined via \verb|:=| as the first
+  argument to \textbf{solve} is that it is fairly easy to check the roots
+  by using the \textbf{map} function.
+We want to use the syntax \verb|map( f, solnlist}|, where \verb|solnlist| is
+  a list of the roots (not a list of replacement rules).
+To get the solution list we can again use \textbf{map} with the syntax
+  \verb|map(rhs, sol}|.
+\small
+\begin{verbatim}
+(%i25) solnlist : map( rhs, sol );
+                         2                     2
+                   sqrt(b  - 4 a c) + b  sqrt(b  - 4 a c) - b
+(%o25)          [- --------------------, --------------------]
+                           2 a                   2 a
+(%i26) map( f, solnlist );
+               2              2            2
+        (sqrt(b  - 4 a c) + b)    b (sqrt(b  - 4 a c) + b)
+(%o26) [----------------------- - ------------------------ + c, 
+                  4 a                       2 a
+                               2              2            2
+                        (sqrt(b  - 4 a c) - b)    b (sqrt(b  - 4 a c) - b)
+                        ----------------------- + ------------------------ + c]
+                                  4 a                       2 a
+(%i27) expand(%);
+(%o27)                              [0, 0]
+(%i28) expand( map(f, map(rhs, sol) ) );
+(%o28)                              [0, 0]
+\end{verbatim}
+\normalsize
+  The last input \verb|%i27| shows a compact method which avoids having to name
+   the "solnlist" and which also avoids having to look at the intermediate output.
+When you see someone's example written in a compact form like this,
+  you should realize that the "someone" probably tried out the progression of
+  steps one step at a time (just like we did) to see the correct route, and once
+  the path to the result has been found, reduced the result to the minimum
+  number of steps and names.
+Often, one does not know in advance which progression of steps will succeed,
+  and one must experiment before finding the "true path".
+You should "take apart" the compact code, by reading from the inside out (ie., from 
+  right to left), and also try getting the result one step at a time to get
+  comfortable with the method and notation being used.
+
+\subsubsection{Psuedo-PostFix Code: \%\%}
+An alternative "psuedo-postfix" (ppf) notation can be used which allows one to read
+  the line from left to right, following the logical succession of procedures being
+   used.
+Although this  ppf notation costs more in keystrokes (an extra pair of outside
+  parentheses, extra commas, and entry of double percent signs \verb|%%|), the 
+  resulting code is usually easier for beginners to follow, and it is easier to
+  mentally balance parentheses as well.
+As an example, the previous double map check of the roots can be carried out as:
+\small
+\begin{verbatim}
+(%i29) ( map(rhs,sol), map(f,%%), expand(%%) );
+(%o29)                               [0, 0]
+\end{verbatim}
+\normalsize
+Note the beginning and ending parentheses for the whole "line" of input, with
+  the syntax:\\
+  \verb|( job1, job2(%%), job3(%%),... )|.
+The system variable \verb|%%| has the manual description (in part):
+\small
+\begin{quote}
+System variable: \verb|%%|\\ 
+In compound statements, namely \verb|block|, \verb|lambda|,
+  or \verb|(s_1, ..., s_n)|, \verb|%%| is the value of the previous statement.
+\end{quote}
+\normalsize
+
+  
+\subsubsection{Using an Expression Rather than a Function with Solve}
+Let's rework the general quadratic equation solution, including the checks of the
+  solutions, using an expression \verb|ex| rather than a function \verb|f(x)|
+  defined using \verb|:=|.
+\small
+\begin{verbatim}
+(%i1) ex : a*x^2 + b*x + c$
+(%i2) sol : solve( ex, x );
+                         2                         2
+                   sqrt(b  - 4 a c) + b      sqrt(b  - 4 a c) - b
+(%o2)       [x = - --------------------, x = --------------------]
+                           2 a                       2 a
+(%i3) s1 : sol[1];
+                                      2
+                                sqrt(b  - 4 a c) + b
+(%o3)                     x = - --------------------
+                                        2 a
+(%i4) r1 : subst(s1, ex );
+                   2              2            2
+            (sqrt(b  - 4 a c) + b)    b (sqrt(b  - 4 a c) + b)
+(%o4)       ----------------------- - ------------------------ + c
+                      4 a                       2 a
+(%i5) expand(r1);
+(%o5)                                  0
+(%i6) for i:1 thru 2 do disp( expand( subst( sol[i], ex ) ) )$
+                                       0
+                                       0							   
+\end{verbatim}
+\normalsize
+(We could have also used \textbf{ev} instead of \textbf{subst}.)
+\newpage
+Thus far, the methods have been similar.
+If we now bind the values of \verb|(a,b,c)|, as we did in the middle of our solutions
+  using \verb|f(x)|, what  is the difference?
+\small
+\begin{verbatim}
+(%i7) [a,b,c] : [1,2,3]$
+(%i8) [a,b,c];
+(%o8)                              [1, 2, 3]
+(%i9) ex;
+                                   2
+(%o9)                           a x  + b x + c
+\end{verbatim}
+\normalsize
+We see that the symbol \verb|ex| remains bound to the same general expression.
+The symbol \verb|ex| retains its original binding.
+We can make use of the values given to \verb|(a,b,c)| with the expression \verb|ex|
+  by using two single quotes, which forces an extra evaluation of the expression \verb|ex|
+  by the Maxima engine, and which then makes use of the extra information about \verb|(a,b,c)|.
+\small
+\begin{verbatim}
+(%i10) ''ex;
+                                  2
+(%o10)                           x  + 2 x + 3
+(%i11) ex;
+                                   2
+(%o11)                          a x  + b x + c
+\end{verbatim}
+\normalsize
+Forcing the extra evaluation in \verb|%10| does not change the binding of \verb|ex|.
+Now let's try to check the solutions using \textbf{map}, as we did before.
+To use \textbf{map} we need a function, rather than an expression to map on a solution list.
+%\newpage
+Let's try to define such a function \verb|f(x)| using the expression \verb|ex|.
+\small
+\begin{verbatim}
+(%i12) f(x);
+(%o12)                               f(x)
+(%i13) f(x) := ex;
+(%o13)                            f(x) := ex
+(%i14) f(y);
+                                   2
+(%o14)                          a x  + b x + c
+(%i15) f(x) := ''ex;
+                                       2
+(%o15)                      f(x) := a x  + b x + c
+(%i16) f(y);
+                                  2
+(%o16)                           y  + 2 y + 3
+(%i17) kill(a,b,c);
+(%o17)                               done
+(%i18) f(y);
+                                   2
+(%o18)                          a y  + b y + c
+(%i19) solnlist : map(rhs,sol);
+                         2                     2
+                   sqrt(b  - 4 a c) + b  sqrt(b  - 4 a c) - b
+(%o19)          [- --------------------, --------------------]
+                           2 a                   2 a
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i20) map(f,solnlist);
+               2              2            2
+        (sqrt(b  - 4 a c) + b)    b (sqrt(b  - 4 a c) + b)
+(%o20) [----------------------- - ------------------------ + c, 
+                  4 a                       2 a
+                               2              2            2
+                        (sqrt(b  - 4 a c) - b)    b (sqrt(b  - 4 a c) - b)
+                        ----------------------- + ------------------------ + c]
+                                  4 a                       2 a
+(%i21) expand(%);
+(%o21)                              [0, 0]
+\end{verbatim}
+\normalsize
+Output \verb|%14| showed that the syntax \verb|f(x) := ex| did not succeed in defining
+  the function we need.
+The input \verb|f(x) := ''ex| suceeded in getting a true function of \verb|x|, but
+  now the function \verb|f(x)| automatically makes use of the current binding of 
+   \verb|(a,b,c)|, so we had to \textbf{kill} those values to get a function with
+   arbitrary values of \verb|(a,b,c)|.
+Having the function in hand, we again used the \textbf{map} function twice to check the
+  solutions.
+Now that we have discovered the "true path", we can restart Maxima and present the method as:
+\small
+\begin{verbatim}
+(%i1) ex : a*x^2 + b*x + c$
+(%i2) sol : solve( ex, x );
+                         2                         2
+                   sqrt(b  - 4 a c) + b      sqrt(b  - 4 a c) - b
+(%o2)       [x = - --------------------, x = --------------------]
+                           2 a                       2 a
+(%i3) f(x) := ''ex$
+(%i4) expand ( map(f, map(rhs, sol) ) ); 
+(%o4)                               [0, 0]
+\end{verbatim}
+\normalsize
+We can also use the (generally safer) syntax \verb|define( f(x),ex );| to
+  obtain a true function of x:
+\small
+\begin{verbatim}
+(%i5) define( f(x),ex );
+                                       2
+(%o5)                       f(x) := a x  + b x + c
+(%i6) f(y);
+                                   2
+(%o6)                           a y  + b y + c
+(%i7) expand ( map(f, map(rhs, sol) ) );
+(%o7)                               [0, 0]
+\end{verbatim}
+\normalsize
+  
+%\newpage
+We can also use the unnamed, anonymous function \textbf{lambda} to avoid 
+  introducing needless names, like "\verb|f|":
+\small
+\begin{verbatim}
+(%i8) expand( map(lambda([x],''ex), map(rhs,sol) ) );
+(%o8)                               [0, 0]
+\end{verbatim}
+\normalsize
+
+  
+  
+ \subsubsection{Escape Speed from the Earth}
+In this section we solve a physics problem which involves a simple quadratic equation.
+It is so simple that "doing it" on paper is faster than doing it with Maxima.
+In fact, once you understand the plan of the calculation, you can come up with the final
+  formula for the escape speed in your head.
+However, we will present practical details of setup and evaluation which can be used with
+  more messy problems, when you might want to use Maxima.\\
+  
+Let's use conservation of mechanical energy (kinetic plus potential) to first calculate the 
+  initial radial speed a rocket must have near the surface of the earth to achieve a final
+  required radial speed far from the earth (far enough away so we can neglect earth's gravitational
+  pull).\\
+Let the mass of the rocket be \verb|m|, the mass of the earth be \verb|M|, the radius of
+  the earth be \verb|R|, a general radial distance from the center of the
+  earth be \verb|r >= R|, a general radial rocket speed be \verb|v|, the maximum speed of
+  the rocket near the surface of the earth be \verb|v0|, and the final radial speed of
+  the rocket (as \verb|r| becomes infinite) be \verb|vf|.
+  
+At a general distance \verb|r| from the center of the earth the rocket has kinetic
+  energy \verb|ke = m*v^2/2|, and gravitational energy \verb|pe = -G*M*m/r|, where
+  \verb|G| is the gravitational constant:\\
+  (\verb|G = 6.673 10^(-11) newton*meter^2/kg^2|).
+\small
+\begin{verbatim}
+(%i1) energy : m*v^2/2 - G*M*m/r;
+                                    2
+                                 m v    m G M
+(%o1)                            ---- - -----
+                                  2       r
+\end{verbatim}
+\normalsize
+The initial energy \verb|e0| corresponds to the energy the rocket has achieved at the
+  moment of maximum radial speed: this will occur at a radius \verb|r| slightly larger
+  than the radius of the earth \verb|R|, but negligible error to the required "lift-off speed" \verb|v0| 
+  will be made by ignoring this difference in radius. (You can justify this as a good approximation
+  by getting the answer when including this small difference, and comparing the percent difference
+  in the answers.)
+\small
+\begin{verbatim}					  
+(%i2) e0 : energy,v=v0,r=R;
+                                     2
+                                 m v0    m G M
+(%o2)                            ----- - -----
+                                   2       R
+\end{verbatim}
+\normalsize
+As the rocket "rises", \verb|r| becomes larger, and the magnitude of the gravitational
+energy becomes smaller.
+The "final" energy \verb|efinal| will be the energy when the gravitational energy is so small
+  that we can ignore it; in practice this will occur when the magnitude of the gravitational
+  energy is much smaller than the magnitude of the inital gravitational energy.
+The radial outward speed of the rocket then remains a constant value \verb|vf|.
+\small
+\begin{verbatim}
+								   
+(%i3) efinal : limit(energy,r,inf),v=vf;
+                                         2
+                                     m vf
+(%o3)                                -----
+                                       2
+\end{verbatim}
+\normalsize
+If we neglect the loss of mechanical energy due to friction in leaving the earth's atmosphere,
+  and also neglect other tiny effects like the gravitational interaction between the moon and
+  the rocket, the sun and the rocket, etc, then we can approximately say that the total
+  mechanical energy (as we have defined it) of the rocket is a constant, once chemical energy
+  used to increase the rocket's speed is no longer a factor (which occurs at the moment
+  of maximum radial speed).\\
+We can then get one equation by approximately equating the mechanical energy of the
+  rocket just after achieving maximum speed to the mechanical energy of the rocket when 
+  \verb|r| is so large that we can ignore the instantaneous gravitational energy contribution.
+\small
+\begin{verbatim}									   
+(%i4) v0soln : solve(efinal = e0,v0);
+                           2 G M     2             2 G M     2
+(%o4)         [v0 = - sqrt(----- + vf ), v0 = sqrt(----- + vf )]
+                             R                       R
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i5) v0soln : v0soln[2];
+                                      2 G M     2
+(%o5)                       v0 = sqrt(----- + vf )
+                                        R
+(%i6) v0;
+(%o6)                                 v0
+(%i7) v0 : rhs( v0soln );
+                                    2 G M     2
+(%o7)                          sqrt(----- + vf )
+                                      R
+\end{verbatim}
+\normalsize
+This provides the required "lift-off" speed near the surface of the earth to achieve 
+  a given final radial speed \verb|vf|. 
+We now want to find the "escape speed", the minimum value of the lift-off speed which
+  will allow the rocket to escape the gravitational pull of the earth.
+Any rocket which has a radial speed when \verb|r| is effectively infinite will succeed
+  in escaping, no matter how small that radial speed is. 
+The limiting initial speed is then gotten by taking the limit of \verb|v0| as \verb|vf|
+  goes to zero.
+\small
+\begin{verbatim}								  
+(%i8) vescape : ev( v0, vf = 0 );
+                                            G M
+(%o8)                          sqrt(2) sqrt(---)
+                                             R
+\end{verbatim}
+\normalsize
+%\newpage
+
+Uing the mass of the earth, \verb|M = 5.974 10^(24) kg|, and the radius of the earth,\\
+  \verb|R = 6.378 10^(6) meters|, we get an escape speed \verb|11,181 m/s = 11.18 km/s|.
+\small
+\begin{verbatim}
+(%i09) ev( vescape, [G=6.673e-11,M=5.974e24,R=6.378e6] );
+(%o09)                     7905.892670345354 sqrt(2)
+(%i10) float(%);
+(%o10)                         11180.62063706845
+\end{verbatim}
+\normalsize
+We have rounded the answer to four significant figures, since that is the accuracy of
+  the Earth data and gravitational constant we have used.  \\
+%\newpage
+If we need to use a set of physical or numerical constants throughout a session,
+  we can define a list of "equalities", say \verb|clist|, and use as follows:
+  \small
+  \begin{verbatim}
+(%i11) clist : [G=6.673e-11,M=5.974e24,R=6.378e6];
+(%o11) [G = 6.6729999999999999E-11, M = 5.9740000000000004E+24, R = 6378000.0]
+(%i12) ev( vescape, clist, float );
+(%o12)                          11180.62063706845 
+\end{verbatim}
+\normalsize
+Note that adding the option variable \textbf{float} as a switch (equivalent to
+  \verb|float:true|), gets the \verb|sqrt(2)| in floating point.\\
+  
+Looking at all those digits is unnecessary; set \textbf{fpprintprec} to something
+  reasonable (this only affects the numbers presented on the screen, not the
+  accuracy of the calculation):
+\small
+\begin{verbatim}
+(%i13) fpprintprec:8$
+(%i14) ev( vescape, clist, float );
+(%o14)                              11180.621
+(%i15) clist;
+(%o15)            [G = 6.673E-11, M = 5.974E+24, R = 6378000.0] 
+  \end{verbatim}
+  \normalsize
+  
+ 
+ 
+ 
+ 
+ 
+ \subsubsection{Cubic Equation or Expression}
+Here is an example of using \textbf{solve} to "solve" a cubic equation, or, in the
+  alternative language, find the roots of a cubic expression.
+After checking the roots via the \textbf{map} function, we assign the
+  values of the roots to the symbols\verb|(x1,x2,x3)|.
+The cubic expression we choose is especially simple, with no arbitrary parameters,
+  so we can use the one argument form of \textbf{solve}.  
+\small
+\begin{verbatim}
+(%i1) ex : x^3 + x^2 + x$
+(%i2) sol : solve(ex);
+                      sqrt(3) %i + 1      sqrt(3) %i - 1
+(%o2)          [x = - --------------, x = --------------, x = 0]
+                            2                   2
+(%i3) define( f(x), ex )$
+(%i4) expand ( map(f, map(rhs, sol) ) );
+(%o4)                              [0, 0, 0]
+(%i5) [x1,x2,x3] : map(rhs,sol);
+                        sqrt(3) %i + 1  sqrt(3) %i - 1
+(%o5)                [- --------------, --------------, 0]
+                              2               2
+(%i6) x1;
+                                 sqrt(3) %i + 1
+(%o6)                          - --------------
+                                       2
+\end{verbatim}
+\normalsize
+
+\subsubsection{Trigonometric Equation or Expression}
+Here is an exact solution using \textbf{solve}:
+\small
+\begin{verbatim}
+(%i1) [fpprintprec:8,display2d:false]$
+(%i2) ex : sin(x)^2 -2*sin(x) -3$
+(%i3) sol : solve(ex);
+`solve' is using arc-trig functions to get a solution.
+Some solutions will be lost.
+(%o3) [x = asin(3),x = -%pi/2]
+(%i4) define( f(x), ex )$ 
+(%i5) expand ( map(f, map(rhs, sol) ) );
+(%o5) [0,0]
+(%i6) numroots : float( map(rhs, sol) );
+(%o6) [1.5707963-1.7627472*%i,-1.5707963]
+\end{verbatim}
+\normalsize
+The first solution returned is the angle (in radians) whose sin is 3. 
+For real \verb|x|, \verb|sin(x)| lies in the range \verb|-1 <=  sin(x) <= 1 |.
+Thus we have found one real root.
+But we have been warned that some solutions will be lost.
+Because the given expression is a polynomial in \verb|sin(x)|, we can use \textbf{realroots}:
+\small
+\begin{verbatim}
+(%i7) rr : realroots(ex);
+(%o7) [sin(x) = -1,sin(x) = 3]
+\end{verbatim}
+\normalsize
+However, by "realroots", \textbf{realroots} means that the numbers \verb|[-1,3]| are real!
+\newpage
+We can of course take the output of \textbf{realroots} and let \textbf{solve} go to
+  work.
+\small
+\begin{verbatim}
+(%i8) map(solve, rr);
+`solve' is using arc-trig functions to get a solution.
+Some solutions will be lost.
+
+`solve' is using arc-trig functions to get a solution.
+Some solutions will be lost.
+(%o8) [[x = -%pi/2],[x = asin(3)]]
+\end{verbatim}
+\normalsize
+
+We know that the numerical value of the expression \verb|ex3| repeats when \verb|x| is
+  replaced by \verb|x + 2*%pi|, so there are an infinite number of real roots, 
+  related to $-\pi/2$ by adding or subtracting $2 n \pi$, where $n$ is an integer.
+%\newpage
+
+We can make a simple plot of our expression to see the periodic behavior and the
+  approximate location of the real roots.
+  
+\smallskip
+%%\begin{figure}[!ht] 
+\begin{figure} [h]
+   \centerline{\includegraphics[width=5in]{root1.eps} }
+	\caption{plot of ex3}
+\end{figure}
+  
+We used the \textbf{plot2d} code:
+\small
+\begin{verbatim}
+(%i18) plot2d([0.0,ex3],[x,-6,6],[y,-5,5] )$
+\end{verbatim}
+\normalsize
+
+
+
+\subsubsection{Equation or Expression Containing Logarithmic Functions}
+Here is an example submitted to the Maxima mailing list and a method of solution
+  provided by Maxima developer Stavros Macrakis.
+The problem is to find the roots of the following expression \verb|ex|:
+\small
+\begin{verbatim}
+(%i1) [fpprintprec:8,display2d:false,ratprint:false]$
+(%i2) ex : log(0.25*(2*x+5)) - 0.5*log(5*x - 5)$
+\end{verbatim}
+\normalsize
+%\newpage
+We first try \textbf{solve}, with the option variable \textbf{solveradcan} set
+  equal to \textbf{true}.
+Remember that the syntax\\
+ \verb|func, optvar;| is equivalent to \verb|func, optvar:true;|.
+\small
+\begin{verbatim}
+(%i3) sol : solve(ex,x),solveradcan;
+(%o3) [log((2*x+5)/4) = log(5*x-5)/2]
+\end{verbatim}
+\normalsize
+We see that \textbf{solve} tried to find a "simpler" form which it returned in \verb|%o2|.
+The Maxima function \textbf{fullratsimp} has the manual description
+\small
+\begin{quote}
+Function: \textbf{fullratsimp}\verb|(expr) |\\
+\verb|fullratsimp| repeatedly applies \verb|ratsimp| followed by non-rational simplification
+  to an expression until no further change occurs, and returns the result. \\
+When non-rational expressions are involved, one call to \verb|ratsimp| followed as is
+   usual by non-rational ("general") simplification may not be sufficient
+   to return a simplified result.
+Sometimes, more than one such call may be necessary.
+\verb|fullratsimp| makes this process convenient. 
+\end{quote}
+\normalsize
+The effect of \textbf{fullratsimp} in our case results in the decimals being replaced by exact
+  fractions.
+\small
+\begin{verbatim}			
+(%i4) ex : fullratsimp(ex);
+(%o4) (2*log((2*x+5)/4)-log(5*x-5))/2
+\end{verbatim}
+\normalsize
+The logarithms can be combined using the Maxima function \textbf{logcontract}.
+This function was discussed in Chapter 2, Sect. 2.3.5.
+A partial description is:
+\small
+\begin{quote}
+Function: \textbf{logcontract}\verb|(expr) |\\
+Recursively scans the expression \verb|expr|, transforming subexpressions
+  of the form\\ \verb|a1*log(b1) + a2*log(b2) + c  | into \verb|log(ratsimp(b1^a1 * b2^a2)) + c | 
+\begin{verbatim} 
+(%i1) 2*(a*log(x) + 2*a*log(y))$
+(%i2) logcontract(%);
+                                 2  4
+(%o2)                     a log(x  y )
+\end{verbatim} 
+\end{quote}
+\normalsize
+%\newpage
+Here is the application to our problem:
+\small
+\begin{verbatim}
+(%i5) ex : logcontract(ex);
+(%o5) -log((80*x-80)/(4*x^2+20*x+25))/2
+\end{verbatim}
+\normalsize
+Having combined the logarithms, we try out \textbf{solve} on this expression:
+\small
+\begin{verbatim}
+(%i6) sol : solve(ex );
+(%o6) [x = -(2*sqrt(30)-15)/2,x = (2*sqrt(30)+15)/2]
+\end{verbatim}
+\normalsize
+We have a successful exact solution, but \textbf{solve} (in its present incarnation) needed
+  some help.
+We now use the \textbf{map} method to check the roots.
+\small
+\begin{verbatim}
+(%i7) define( f(x), ex )$ 
+(%i8) expand( map(f, map(rhs,sol) ) );
+(%o8) [0,0]
+\end{verbatim}
+\normalsize
+\subsubsection{Solving for the Nth Roots of ( - 1 )}
+% this need editing
+%  map 24, 2009
+\begin{verbatim}
+Maxima's solve function can return a solution in terms of z = (-1)^(1/n), 
+which
+is any (in general complex) number z such that z^n = -1.
+
+Since complex roots must occur in pairs, if n is even (such as 6) all the 
+roots
+are complex, and rectform, realpart, and imagpart all pick out what I will 
+call
+the " k = 0 root", in the sense that the n roots are given by
+  exp( %i * %pi * ( 1 + 2*k ) / n ), for k = 0, 1, 2, ..., (n - 1), for 
+example.
+
+If solve finds a solution in terms of (-1)^(1/n) for n odd, such as 
+(-1)^(1/3),
+maxima always simplifies this to (-1), the one real root, which is never the
+"k = 0 " choice.
+
+In other words for n odd the user has no choice, but for n even, the user
+has a choice.  One such choice is to use that taken by rectform, realpart,
+and imagpart.
+
+The danger here, in working with a solution returned by solve which
+includes unsimplified n'th roots of (-1), is that if you simplify first
+using ratsimp, say, and  then use rectform, your final result may be
+different than if you use rectform first, to "lock in" a specific choice.
+
+This is all elementary, but can bite, and cause wasted time if one
+does not recognise the danger.
+
+Here is a simple example of this possible source of confusion:
+
+(%i1) display2d:false$
+
+(%i2) z (n) := (-1)^(1/n)$
+
+(%i3) e : z(6) + 1/z(6);
+
+(%o3) (-1)^(1/6)+1/(-1)^(1/6)
+
+(%i4) ratsimp (rectform (e));
+
+(%o4) sqrt(3)
+
+(%i5) rectform (ratsimp (e));
+
+(%o5) 0
+
+(%i6) ratsimp (e);
+
+(%o6) 0
+================
+
+and here is simple code for explorations
+
+(%i7) rr (x) := ratsimp (rectform (x))$
+
+(%i8) v(n,k) :=
+    block( [fac],
+      fac: ratsimp ( (1 + 2*k)/n),
+           rr (exp ( %i*%pi*fac )))$
+
+(%i9) vals (n) := for i:0 thru (n-1) do print (i," ",v(n,i))$
+
+(%i10) z(3);
+(%o10) -1
+(%i11) vals(3)$
+0   (sqrt(3)*%i+1)/2
+1   -1
+2   -(sqrt(3)*%i-1)/2
+
+(%i12) z(4);
+(%o12) (-1)^(1/4)
+
+(%i13) rr(%);
+(%o13) (sqrt(2)*%i+sqrt(2))/2
+
+(%i14) vals(4)$
+0   (sqrt(2)*%i+sqrt(2))/2
+1   (%i-1)/sqrt(2)
+2   -(sqrt(2)*%i+sqrt(2))/2
+3   -(%i-1)/sqrt(2)
+
+(%i15) z(5);
+(%o15) -1
+
+(%i16) vals(5)$
+0   %i*sin(%pi/5)+cos(%pi/5)
+1   %i*sin(3*%pi/5)+cos(3*%pi/5)
+2   -1
+3   cos(3*%pi/5)-%i*sin(3*%pi/5)
+4   cos(%pi/5)-%i*sin(%pi/5)
+
+(%i17) z(6);
+(%o17) (-1)^(1/6)
+
+(%i18) rr(%);
+(%o18) (%i+sqrt(3))/2
+
+(%i19) vals(6)$
+0   (%i+sqrt(3))/2
+1   %i
+2   (%i-sqrt(3))/2
+3   -(%i+sqrt(3))/2
+4   -%i
+5   -(%i-sqrt(3))/2
+
+==================
+Ted Woollett
+p.s.  ratsimp is not bad and rectform is not bad ;)
+
+===============================================
+Message: 7
+Date: Wed, 20 May 2009 17:21:16 -0700
+From: Richard Fateman <fateman@cs.berkeley.edu>
+Subject: Re: [Maxima] ratsimp bad, rectform good
+To: Edwin Woollett <woollett@charter.net>
+Cc: Richard Fateman <fateman@EECS.Berkeley.EDU>, maxima mailing list
+<maxima@math.utexas.edu>
+Message-ID: <4A149E7C.9030503@cs.berkeley.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+
+Edwin Woollett wrote:
+> On  19 May 2009, Richard Fateman  wrote:
+> ---------------------------------------------------
+> May be related to your starting expression being ambiguous. There are 6
+> values for (-1)^(1/6).
+> There are as many as 36 values for the expression.  (Though probably
+> fewer distinct ones).
+> -------------------------------------------------------
+> Maxima's solve function can return a solution in terms of z = 
+> (-1)^(1/n), which
+> is any (in general complex) number z such that z^n = -1.
+Actually, I think the expression (-1)^(1/6) in Maxima is not "any" 
+number z such that z^6=-1.  It is a particular one.
+Just as 3^(1/2) is  only the positive value.  This is a notational 
+issue, and Maxima is not, generally, able to deal with multiple values.
+
+however,
+algebraic:true;
+tellrat(a^6+1);
+rat(a+1/a)  give the result a^5-a.
+
+now there are 6 possible values for a in the complex plane.
+a=exp(i pi/ 6) can be put in to a^5-a  to get sqrt(3).
+a=exp(5 i pi/6) gets -sqrt(3)
+a=exp(9 i pi/6) gets  0.
+
+The danger you refer to below is caused by taking a particular value for 
+the root  (instead of the collection of all the roots)
+and giving it a name like (-1)^(1/6).   The fact that rectform locks in 
+a specific root means that it may pick one that
+is different, in related expressions.  e.g.  a+1/a   are the two a's the 
+same??
+
+Certainly one way to commit an error is to take one solution from solve 
+and simplify it in isolation from the other solutions.
+
+Example.
+
+You don't need 6th roots.
+Take the solution of a quadratic, which is the two roots
+(-b+sqrt(b^2-4ac))/(2a)  and
+(-b-sqrt(...))
+
+Now you know that there are 2 sqrts of b^2-4ac   unless the b^2-4ac is 
+zero. Assume it is not zero..
+If you choose root r for the first formula and choose  root -r for the 
+second formula, you no longer have a
+complete solution set.
+
+How to fix all this?  You can be rigorous in dealing with algebraic 
+numbers (in which case you are requiring users of Maxima
+to have taken a college course in Modern Algebra).  Or you can insist on 
+multiple-values e.g. + and - sqrts.
+Or you can punt.
+Maxima, along with other CAS, punts.  Unless you use tellrat and friends.
+
+RJF
+
+to mailing list may 23, 2009:
+solve and nth roots of ( -1 )
+
+On  May 19, 2009, on thread "ratsimp bad,  rectform good",
+  Edwin Woollett wrote:
+    " Maxima's solve function can return a solution in terms of z = 
+        (-1)^(1/n), which  is any (in general complex) number z   
+        such that z^n = -1. "
+
+On May 20, 2009, on the same thread, Richard Fateman wrote:
+  "  Actually, I think the expression (-1)^(1/6) in Maxima is not "any" 
+         number z such that z^6=-1.  It is a particular one.
+        Just as 3^(1/2) is  only the positive value.  This is a notational 
+        issue, and Maxima is not, generally, able to deal with
+         multiple values."
+
+Let's look at the 4th roots of ( - 1 ) as an example.
+
+ solve ( a^4 + 1) returns a list of four answers, each
+  with a  factor  ( - 1 )^(1/4).  Since the latter factor
+ can be four possible complex numbers, one might
+ think that maxima is returning more than four  answers.
+
+For some reason, solve offers the user the choice of
+replacing  ( - 1 )^(1/4)  (using ratsubst, say) throughout 
+the list with a single choice and that will result in a list of
+four complex numbers.
+
+For any user choice, you get the same list of four
+complex numbers, just in a different (cyclic) order.
+
+Here is code for exploration of the case n = 4.
+
+(%i1) display2d:false$
+
+   usual definition of 4th roots of (-1), with k = 1, 2, 3, 4.
+
+(%i2) v(k):= factor (ratsimp ( 
+                       rectform (exp( %i*%pi*( -1 + 2*k)/4))))$
+
+   display these  as a simplified list:
+
+(%i3) q: fullmap ('rootscontract, makelist ( v(k), k, 1, 4));
+
+(%o3) [ 2^-(1/2)*(%i+1),  (%i-1)/sqrt(2),
+                  -2^-(1/2)*(%i+1),  -(%i-1)/sqrt(2) ]
+ 
+  check roots:
+
+(%i4) ratsimp ( q^4 );
+(%o4) [-1,-1,-1,-1]
+
+   Now ask solve for the 4th roots of (-1):
+
+(%i5) s : factor (map ( 'rhs, solve ( a^4 + 1 )));
+
+(%o5) [ (-1)^(1/4)*%i,   -(-1)^(1/4),   
+                        -(-1)^(1/4)*%i,   (-1)^(1/4)   ]
+
+   note presence of factor (-1)^(1/4) in each element
+
+check solutions
+
+(%i6) ratsimp(s^4);
+(%o6) [-1,-1,-1,-1]
+
+   define four particular solutions p[k] by replacing (-1)^(1/4) by
+              q[k] defined above
+ 
+(%i7) for k thru 4 do 
+                  p[k] : factor (ratsubst ( q[k], (-1)^(1/4), s ))$
+
+   show k,  p[k],  p[k]^4, and finally that p[k]
+    is really the same as the list q defined above, but just
+    in a different order.
+  
+(%i8) for k thru 4 do
+        (print("   ", k,"  ",  p[k]),
+           print("        ", ratsimp ( p[k]^4 ),
+             "  ",  ratsimp ( sort ( p[k] ) - sort ( q ))))$
+
+    1    [ (%i-1)/sqrt(2), -(%i+1)/sqrt(2),  
+                    -(%i-1)/sqrt(2),  (%i+1)/sqrt(2) ] 
+                   [-1,-1,-1,-1]    [0,0,0,0] 
+
+    2    [ -(%i+1)/sqrt(2),  -(%i-1)/sqrt(2),  
+                         (%i+1)/sqrt(2),  (%i-1)/sqrt(2) ] 
+                    [-1,-1,-1,-1]    [0,0,0,0] 
+
+    3    [ -(%i-1)/sqrt(2),   (%i+1)/sqrt(2), 
+                       (%i-1)/sqrt(2),   -(%i+1)/sqrt(2)] 
+                   [-1,-1,-1,-1]    [0,0,0,0] 
+
+    4    [ (%i+1)/sqrt(2),   (%i-1)/sqrt(2),  
+                       -(%i+1)/sqrt(2),   -(%i-1)/sqrt(2) ] 
+                   [-1,-1,-1,-1]    [0,0,0,0] 
+         
+    Finally,  let pr be the list of 4th roots if we just rectform the
+     list of solutions returned by solve, thus using maxima's default
+     choice for ( -1 )^( 1/n ) for n even.
+  
+(%i9) pr : factor ( rectform (s) );
+
+(%o9) [ (%i-1)/sqrt(2),   -(%i+1)/sqrt(2),  
+                     -(%i-1)/sqrt(2),   (%i+1)/sqrt(2) ]
+
+   check solution
+(%i10) ratsimp ( pr^4 );
+(%o10) [-1,-1,-1,-1]
+
+   show it is just the particular solution p[1]:
+
+(%i11) ratsimp ( pr - p[1] );
+(%o11) [0,0,0,0]
+
+=============================
+A similar exploration can be made for any even n
+with obvious changes.
+
+Ted Woollett
+
+
+added, 2nd mail:
+
+show we can multiply by -1, %i, or -%i
+and get same list of four complex numbers.
+
+(%i12) pr1 : -pr;
+(%o12) [-(%i-1)/sqrt(2),(%i+1)/sqrt(2),(%i-1)/sqrt(2),-(%i+1)/sqrt(2)]
+(%i13) ratsimp( pr1^4 );
+(%o13) [-1,-1,-1,-1]
+(%i14) pr2 : ratsimp(-%i*pr);
+(%o14) [(%i+1)/sqrt(2),(%i-1)/sqrt(2),-(%i+1)/sqrt(2),-(%i-1)/sqrt(2)]
+(%i15) ratsimp( sort(pr2) - sort(pr1));
+(%o15) [0,0,0,0]
+(%i16) ratsimp( pr2^4 );
+(%o16) [-1,-1,-1,-1]
+(%i17) pr3 : ratsimp(%i*pr);
+(%o17) [-(%i+1)/sqrt(2),-(%i-1)/sqrt(2),(%i+1)/sqrt(2),(%i-1)/sqrt(2)]
+(%i18) ratsimp(pr3^4);
+(%o18) [-1,-1,-1,-1]
+(%i19) ratsimp( sort(pr3) - sort(pr1));
+(%o19) [0,0,0,0]
+(%i20) 
+==============
+from fateman may 23
+
+Edwin Woollett wrote:
+
+> On  May 19, 2009, on thread "ratsimp bad,  rectform good",
+>   Edwin Woollett wrote:
+>     " Maxima's solve function can return a solution in terms of z = 
+>         (-1)^(1/n), which  is any (in general complex) number z   
+>         such that z^n = -1. "
+>
+> On May 20, 2009, on the same thread, Richard Fateman wrote:
+>   "  Actually, I think the expression (-1)^(1/6) in Maxima is not "any" 
+>          number z such that z^6=-1.  It is a particular one.
+>         Just as 3^(1/2) is  only the positive value.  This is a notational 
+>         issue, and Maxima is not, generally, able to deal with
+>          multiple values."
+>
+> Let's look at the 4th roots of ( - 1 ) as an example.
+>
+>  solve ( a^4 + 1) returns a list of four answers, each
+>   with a  factor  ( - 1 )^(1/4).  Since the latter factor
+>  can be four possible complex numbers, one might
+>  think that maxima is returning more than four  answers.
+>   
+
+You might think this, but of course you would be wrong, since a 
+polynomial of degree 4 has exactly 4 roots.
+There is a fundamental challenge to the correctness of the result of 
+solve if you separate the 4 answers and treat them as though each one 
+can be further bifurcated into 4 separate results regardless of the 
+other 3 answers that come from solve.
+
+> For some reason, solve offers the user the choice of
+> replacing  ( - 1 )^(1/4)  (using ratsubst, say) throughout 
+> the list with a single choice and that will result in a list of
+> four complex numbers.
+>   
+That seems like an OK thing to do, to me.
+> For any user choice, you get the same list of four
+> complex numbers, just in a different (cyclic) order.
+>   
+Exactly why it is OK to do it.
+
+ I am not sure I understand what you are doing in the rest of the message. 
+
+It is not adequate to determine that you have 4 distinct roots of a 
+quartic by taking each of the roots, inserting it into the quartic, and 
+simplifying to zero.
+All that tells you is that you have 4 expressions, each of which might 
+be equivalent to some root, but maybe not the 4 distinct ones.
+
+  How could this be?  It is well known that 1/sqrt(2) and 2/sqrt(2) are 
+equal, but not identical.  If you posed them as the two roots of the 
+equation x^2-2=0,  what would your exploration say?
+
+Let me try to be clear:  If you use a single expression that includes 
+(-1)^(1/4),  you are asking for trouble.  If solve produces an 
+expression that includes (-1)^(1/4), it probably also includes 3 more 
+expressions with that form.  That's sort of OK, if you keep the 4 
+expressions together as a set of solutions.
+
+Or you can pick a particular solution (in the complex plane) and then 
+instead of having the 4 solutions that circulate around, you have fixed 
+them all in place. But then you should remove (-1)^(1/4) in all the 
+roots in the solution set.
+
+
+================
+
+issue for new users is a safe path to the four unique
+complex roots of (-1)^(1/4), in a solve return
+list.
+
+  z :  (-1)^(1/4) ;
+  zr : rectform(z) ;
+  soln : ratsubst( zr, z, sollist );
+  
+  
+
+
+\end{verbatim}
+  
+\subsection{One Equation Numerical Solutions: allroots, realroots, find\_root}
+We have already tried out the Maxima functions \textbf{realroots} and \textbf{allroots}.
+The most important restriction for both of these numerical methods is that the expression
+  or equation be a polynomial, as the manual explains:
+\small
+\begin{quote}
+ -- Function: \textbf{realroots}\verb|(eqn, bound)|\\
+ -- Function: \textbf{realroots}\verb|(expr)|\\
+ -- Function: \textbf{realroots}\verb|(eqn)|\\ 
+ Computes rational approximations of the real roots of the polynomial \verb|expr|
+    or polynomial equation \verb|eqn| of one variable, to within a tolerance of \verb|bound|.
+Coefficients of \verb|expr| or \verb|eqn| must be literal numbers;
+   symbol constants such as \verb|%pi| are rejected.\\
+\verb|realroots| assigns the multiplicities of the roots it finds to
+     the global variable \verb|multiplicities|.\\
+\verb|realroots| constructs a Sturm sequence to bracket each root, and
+     then applies bisection to refine the approximations.
+All coefficients are converted to rational equivalents before
+     searching for roots, and computations are carried out by exact
+     rational arithmetic.
+Even if some coefficients are floating-point numbers, the results are
+   rational (unless coerced to floats by the \verb|float| or \verb|numer| flags).\\
+When \verb|bound| is less than 1, all integer roots are found exactly.
+When \verb|bound| is unspecified, it is assumed equal to the global
+     variable \verb|rootsepsilon| (default: \verb|10^(-7)|).\\
+When the global variable \verb|programmode| is \verb|true| (default: \verb|true|),
+ \verb|realroots| returns a list of the form\\ \verb|[x = <x_1>, x = <x_2>, ...]|.
+When \verb|programmode| is \verb|false|, \verb|realroots| creates intermediate
+     expression labels \verb|%t1|, \verb|%t2|, ..., assigns the results to them,
+     and returns the list of labels.
+\end{quote}
+\normalsize
+Here are the startup values of the option variables just mentioned:
+\small
+\begin{verbatim}
+(%i1) fpprintprec:8$
+(%i2) [multiplicities,rootsepsilon,programmode];
+(%o2)                     [not_set_yet, 1.0E-7, true]
+\end{verbatim}
+\normalsize
+%\newpage
+The function \textbf{allroots} also accepts only polynomials, and finds
+  numerical approximations to both real and complex roots:
+\small
+\begin{quote}
+Function: \textbf{allroots}\verb|(expr) |\\
+Function: \textbf{allroots}\verb|(eqn) |\\
+Computes numerical approximations of the real and complex roots of the
+   polynomial \verb|expr| or polynomial equation \verb|eqn| of one variable. \\
+The flag \verb|polyfactor| when \verb|true| causes \verb|allroots| to factor the
+   polynomial over the real numbers if the polynomial is real, or over the complex
+   numbers, if the polynomial is complex (default setting of \verb|polyfactor| is \verb|false|). \\
+\verb|allroots| may give inaccurate results in case of multiple roots.\\
+If the polynomial is \verb|real|,
+ \verb|allroots (%i*p))| may yield more accurate
+   approximations than \verb|allroots(p)|, as \verb|allroots| invokes a different
+   algorithm in that case. \\
+\verb|allroots| rejects non-polynomials.
+It requires that the numerator after rat'ing should be a polynomial, and
+   it requires that the denominator be at most a complex number.
+As a result of this, \verb|allroots| will always return an equivalent
+  (but factored) expression, if \verb|polyfactor| is \verb|true|. 
+\end{quote}
+\normalsize
+Here we test the default value of \textbf{polyfactor}:
+\small
+\begin{verbatim}
+(%i3) polyfactor;
+(%o3)                                false
+\end{verbatim}
+\normalsize
+\subsubsection{Comparison of realroots with allroots}
+Let's find the real and complex roots of a fifth order polynomial which
+  \textbf{solve} cannot "solve", doesn't factor, and use both
+  \textbf{realroots} and \textbf{allroots}.
+\small
+\begin{verbatim}
+(%i4) ex : x^5 + x^4 -4*x^3 +2*x^2 -3*x -7$
+(%i5) define( fex(x), ex )$ 
+\end{verbatim}
+\normalsize
+We first use \textbf{realroots} to find the three real roots of the
+  given polynomial, and substitute the roots back into the expression
+  to see how close to zero we get.
+\small
+\begin{verbatim}
+(%i6) rr : float( map(rhs, realroots(ex,1e-20) ) );
+(%o6)                [- 2.7446324, - 0.880858, 1.7964505]
+(%i7) frr : map( fex, rr );
+(%o7)                     [0.0, - 4.4408921E-16, 0.0]
+\end{verbatim}
+\normalsize
+\newpage
+Next we find numerical approximations to the three real roots and the
+  two (complex-conjugate) roots of the given polynomial, using
+   \textbf{allroots}\verb|( ex )|  and substitute the obtained roots back into
+   the expression to see how close to zero we get.
+\small
+\begin{verbatim}
+(%i8) ar1 : map(rhs, allroots( ex ) );
+(%o8) [1.1999598 %i + 0.41452, 0.41452 - 1.1999598 %i, - 0.880858, 1.7964505, 
+                                                                   - 2.7446324]
+(%i9) far1 : expand( map( fex, ar1 ) );
+(%o9) [1.12132525E-14 %i + 4.4408921E-16, 4.4408921E-16 - 1.12132525E-14 %i, 
+                            - 1.13242749E-14, 2.48689958E-14, - 2.84217094E-14]
+\end{verbatim}
+\normalsize
+%\newpage
+Finally, we repeat the process for the syntax \textbf{allroots}\verb|( %i* ex )|.
+\small
+\begin{verbatim}
+(%i10) ar2 : map(rhs, allroots( %i*ex ) );
+(%o10) [1.1999598 %i + 0.41452, - 3.60716392E-17 %i - 0.880858, 
+0.41452 - 1.1999598 %i, 6.20555942E-15 %i + 1.7964505, 
+- 6.54444294E-16 %i - 2.7446324]
+(%i11) far2 : expand( map( fex, ar2 ) );
+(%o11) [1.55431223E-15 %i - 1.77635684E-15, 5.61204464E-16 %i - 4.4408921E-16, 
+1.61204383E-13 %i + 2.26041408E-13, 2.52718112E-13 %i - 1.91846539E-13, 
+- 6.32553289E-14 %i - 3.97903932E-13]
+(%i12) far2 - far1;
+(%o12) [- 9.65894031E-15 %i - 2.22044605E-15, 
+1.1774457E-14 %i - 8.8817842E-16, 1.61204383E-13 %i + 2.37365683E-13, 
+2.52718112E-13 %i - 2.16715534E-13, - 6.32553289E-14 %i - 3.69482223E-13]
+\end{verbatim}
+\normalsize
+The three real roots of the given fifth order polynomial are
+  found more accurately by \textbf{realroots} than by either
+  version of \textbf{allroots}.
+We see that the three real roots of this fifth order polynomial are found
+  more accurately by the syntax \textbf{allroots}\verb|(expr)|  (which was used
+  to get \verb|ar1|), than by the syntax \textbf{allroots}\verb|(%i*expr)|,
+  used to get \verb|ar2|.
+We also see that the syntax \textbf{allroots}\verb|(%i*expr)| introduced
+  a tiny complex piece to the dominant real part.
+The two extra complex roots found by the first syntax (\verb|ar1|) are the complex
+ conjugate of each other.  
+The two extra complex roots found by the alternative syntax (\verb|ar2|) are also
+  the complex conjugate of each other to within the default arithmetic accuracy
+  being used.
+\subsubsection{Intersection Points of Two Polynomials}
+Where do the two curves $h(x)=x^3-8\, x^2 + 19\, x -12$ and
+  $k(x)=\frac{1}{2}\, x^2 -x - \frac{1}{8}$ intersect?
+We want approximate numerical values.
+We can plot the two functions together and use the cursor to read off the
+  values of \verb|x| for which the curves cross, and we can also find the
+  roots numerically.
+We first define the curves as expressions depending on \verb|x|, then
+  define the difference of the expressions (\verb|rx|) to work with using \textbf{allroots}
+  first to see if all the (three) roots are real, and then using \textbf{realroots}
+  just for fun, and then checking the solutions.  
+If we are just going to compare the results with a plot, we don't need
+  any great accuracy, so we will use the default \textbf{realroots} precision.
+\small
+\begin{verbatim}
+(%i1) fpprintprec : 8$
+(%i2) hx : x^3 - 8*x^2 + 19*x - 12$
+(%i3) kx : x^2/2 -x -1/8$
+(%i4) rx : hx - kx;
+                                     2
+                             3   17 x           95
+(%o4)                       x  - ----- + 20 x - --
+                                   2            8
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i5) factor(rx);
+                              3       2
+                           8 x  - 68 x  + 160 x - 95
+(%o5)                      -------------------------
+                                       8
+(%i6) define( fr(x), rx )$ 
+(%i7) allroots(rx);
+(%o7)            [x = 0.904363, x = 2.6608754, x = 4.9347613]
+(%i8) rr : float( realroots(rx) );
+(%o8)            [x = 0.904363, x = 2.6608754, x = 4.9347613]
+(%i9) rr : map( rhs, rr);
+(%o9)                  [0.904363, 2.6608754, 4.9347613]
+(%i10) map(fr, rr);
+(%o10)          [2.04101367E-8, - 8.4406409E-8, 5.30320676E-8]
+\end{verbatim}
+\normalsize
+We see that the numerical solutions are "zeros" of the cubic function to within
+  the numerical accuracy \textbf{realroots} is using.
+Just out of curiosity, what about exact solutions of this cubic polynomial?
+Use of \textbf{solve} will generate a complicated looking expression involving
+  roots and \verb|%i|.
+Let's set \textbf{display2d} to \textbf{false} so the output doesn't take up so much
+  room on the screen.
+\small
+\begin{verbatim}
+(%i11) display2d : false$
+(%i12) sx : solve(rx);
+(%o12) [x = (-sqrt(3)*%i/2-1/2)*(3^-(3/2)*sqrt(16585)*%i/16+151/432)^(1/3)
+          +49*(sqrt(3)*%i/2-1/2)/(36*(3^-(3/2)*sqrt(16585)*%i/16+151/432)
+                                     ^(1/3))+17/6,
+                  etc, etc ]
+(%i13) sx1 : map(rhs, sx);
+(%o13) [(-sqrt(3)*%i/2-1/2)*(3^-(3/2)*sqrt(16585)*%i/16+151/432)^(1/3)
+         +49*(sqrt(3)*%i/2-1/2)/(36*(3^-(3/2)*sqrt(16585)*%i/16+151/432)
+                                    ^(1/3))+17/6,
+          etc, etc ]
+\end{verbatim}
+\normalsize
+The list \verb|sx1| holds the exact roots of the cubic polynomial which
+  \textbf{solve} found.
+We see that the form returned has explicit factors of \verb|%i|.
+We already know that the roots of this polynomial are purely real.
+How can we get the exact roots into a form where it is "obvious" that
+  the roots are real?
+The Maxima expert Alexey Beshenov (via the Maxima mailing list) suggested
+  using \textbf{rectform}, followed by \textbf{trigsimp}.
+Using \textbf{rectform} gets rid of the factors of \verb|%i|, and
+  \textbf{trigsimp} does some trig simplification. 
+\small
+\begin{verbatim}
+(%i14) sx2 : rectform(sx1);
+(%o14) [49*(3*sqrt(3)*sin(atan(432*3^-(3/2)*sqrt(16585)/(151*16))/3)/7
+         -3*cos(atan(432*3^-(3/2)*sqrt(16585)/(151*16))/3)/7)/36
+         +7*sqrt(3)*sin(atan(432*3^-(3/2)*sqrt(16585)/(151*16))/3)/12
+         +%i*(-7*sin(atan(432*3^-(3/2)*sqrt(16585)/(151*16))/3)/12
+         +49*(3*sin(atan(432*3^-(3/2)*sqrt(16585)/(151*16))/3)/7
+         +3*sqrt(3)*cos(atan(432*3^-(3/2)*sqrt(16585)/(151*16))/3)/7)/36
+		 -7*sqrt(3)*cos(atan(432*3^-(3/2)*sqrt(16585)/(151*16))/3)/12)
+         -7*cos(atan(432*3^-(3/2)*sqrt(16585)/(151*16))/3)/12+17/6,
+          etc,etc   ]
+(%i15) sx3 : trigsimp(sx2);
+(%o15) [ (7*sqrt(3)*sin(atan(9*sqrt(16585)/(151*sqrt(3)))/3)
+         -7*cos(atan(9*sqrt(16585)/(151*sqrt(3)))/3)+17)/6,
+        -(7*sqrt(3)*sin(atan(9*sqrt(16585)/(151*sqrt(3)))/3)
+         +7*cos(atan(9*sqrt(16585)/(151*sqrt(3)))/3)-17)/6,
+		 (14*cos(atan(9*sqrt(16585)/(151*sqrt(3)))/3)+17)/6 ]
+\end{verbatim}
+\normalsize
+The quantity \verb|sx3| is a list of the "simplified" exact roots of
+  the cubic.
+Using \textbf{float} we ask for the numerical values:
+\small
+\begin{verbatim}
+(%i16) sx4 : float(sx3);
+(%o16) [2.6608754,0.904363,4.9347613]
+\end{verbatim}
+\normalsize
+We see that the numerical values agree, although the order of
+  the roots is different.
+Next we enquire whether or not the "exact roots", when substituted back into the cubic,
+  result in "exact zeroes".
+Mapping the cubic onto the list of roots doesn't automatically simplify to
+  a list of three zeroes, as we would like, although applying \textbf{float}
+  suggests the analytic roots are correct.
+The combination\\
+ \textbf{trigsimp( expand}\verb|( [fr(root1), fr(root2), fr(root3)] ) )|
+  still does not provide the algebraic and trig simplification needed, but we
+  finally get \verb|[0.0, 0.0, 0.0]| when applying \textbf{float}.
+\small
+\begin{verbatim}
+(%i17) float( map(fr, sx3) );
+(%o17) [-3.55271368E-15,1.88737914E-15,-1.42108547E-14]
+(%i18) float( expand( map(fr, sx3) ) );
+(%o18) [6.66133815E-16,-2.44249065E-15,0.0]
+(%i19) float( trigsimp( expand( map(fr, sx3) ) ) );
+(%o19) [0.0,0.0,0.0]
+\end{verbatim}
+\normalsize
+Let's next plot the three functions, using the expressions hx, kx, and rx (the difference).
+
+\smallskip
+%%\begin{figure}[!ht] 
+\begin{figure} [ht]
+   \centerline{\includegraphics[width=5in]{cubic1.eps} }
+	\caption{Intersection Points are Zeroes of rx}
+\end{figure}
+
+%\newpage
+
+Here is code you can use to make something close to the above plot.
+\small
+\begin{verbatim}
+(%i20) plot2d([hx,kx,rx],[x,0,5],
+        [style, [lines,2,1], [lines,2,2], [lines,2,0] ],
+           [legend, "hx", "kx", "rx=hx - rx"],
+        [gnuplot_preamble, " set xzeroaxis lw 2 "])$
+\end{verbatim}
+\normalsize
+When you place the cursor over the places on the \verb|x| axis where the expression
+  \verb|rx| is zero, you can read off the coordinates in the lower left corner of the plot
+  window.
+The \verb|x| coordinate (the first) is the desired root.  
+ \newpage
+
+ 
+ \subsubsection{Transcendental Equations and Roots: \; find\_root}
+A transcendental equation is an equation containing a transcendental function.
+Examples of such equations are $x=e^{x}$ and $x = \sin(x)$.
+The logarithm and the exponential function are examples of transcendental functions.
+We will include the trigonometric functions, i.e., sine, cosine, tangent,
+  cotangent, secant, and cosecant in this category of functions.
+(A function which is not transcendental is said to be algebraic.
+Examples of algebraic functions are rational functions and the square root function.)
+
+\smallskip
+To find the roots of transcendental expressions, for example, we can first make a
+  plot of the expression, and then use \textbf{find\_root} knowing roughly where
+  \textbf{find\_root} should start looking.
+The Maxima manual provides a lot of details, beginning with:
+\small
+\begin{quote}
+Function: \textbf{find\_root}\verb|(expr, x, a, b) |\\
+Function: \textbf{find\_root}\verb|(f, a, b) |\\
+Option variable: \textbf{find\_root\_error }\\
+Option variable: \textbf{find\_root\_abs }\\
+Option variable: \textbf{find\_root\_rel }\\
+Finds a root of the expression \verb|expr| or the function \verb|f| over the
+   closed interval \verb|[a, b]|.
+The expression \verb|expr| may be an equation, in which case \verb|find_root|
+  seeks a root of \verb|lhs(expr) - rhs(expr)|.\\
+Given that Maxima can evaluate \verb|expr| or \verb|f| over \verb|[a, b]|
+   and that \verb|expr| or \verb|f| is continuous, \verb|find_root|
+   is guaranteed to find the root, or one of the roots if there is more than one. \\
+%\verb|find_root| initially applies binary search.
+%If the function in question appears to be smooth enough, \verb|find_root|
+%  applies linear interpolation instead. \\
+%The accuracy of \verb|find_root| is governed by \verb|find_root_abs|
+%   and \verb|find_root_rel|.
+%\verb|find_root| stops when the function in question evaluates
+%  to something less than or equal to \verb|find_root_abs|, or if successive
+%   approximants \verb|x_0, x_1| differ by no more than \verb|find_root_rel * max(abs(x_0), abs(x_1))|.
+%The default values of \verb|find_root_abs| and \verb|find_root_rel| are both zero. \\
+%\verb|find_root| expects the function in question to have a different sign at
+%   the endpoints of the search interval.
+%If this condition is not met, the behavior of \verb|find_root| is governed
+%   by \verb|find_root_error|.
+%When \verb|find_root_error| is \verb|true|, \verb|find_root| prints an error message.
+%Otherwise \verb|find_root| returns the value of \verb|find_root_error|.
+%The default value of \verb|find_root_error| is \verb|true|. 
+\end{quote}
+\normalsize
+Let's find a root of the equation $x = \cos(x)$ .
+If we make a simple plot of the function $x - \cos(x)$, we see that there is one
+  root somewhere between $x = 0$ and $x = 1$.
+  
+\smallskip
+%%\begin{figure}[!ht] 
+\begin{figure} [h]
+   \centerline{\includegraphics[width=5in]{trans1.eps} }
+	\caption{Plot of x - cos(x)}
+\end{figure}
+
+%\newpage
+We can use either an expression or function as the entry to the first slot
+  of \textbf{find\_root}.
+I find that the most common mistake I make with \textbf{find\_root} is to
+  leave out the underline between "find" and "root", in which case, I
+  simply get back the unevaluated "findroot(ex, x, 0, 1)", since Maxima
+  has no knowledge of "findroot" (unless I create a homemade function with
+  that name).
+\newpage
+We can make a plot, find the root in a variety of ways using \textbf{find\_root},
+   and verify the accuracy of the root as follows:  
+\small
+\begin{verbatim}
+(%i1) fpprintprec:8$
+(%i2) plot2d( x - cos(x), [ x, 0, 1 ],
+              [style,  [lines, 4, 1] ],
+               [xlabel," plot of x - cos(x) "],
+            [gnuplot_preamble, "set nokey; set xzeroaxis lw 2 "] )$
+(%i3) find_root( x - cos(x),x, 0, 1);
+(%o3)                              0.739085
+(%i4) ex : x - cos(x)$
+(%i5) [find_root( ex, x, 0, 1),find_root( ex, 0, 1)];
+(%o5)                        [0.739085, 0.739085]
+(%i6) define( f(x), ex )$ 
+(%i7) [find_root(f(x), x, 0, 1), find_root(f(x), 0, 1),
+          find_root(f, 0, 1), find_root(f, x, 0, 1)];
+(%o7)             [0.739085, 0.739085, 0.739085, 0.739085]
+(%i8) ev(ex, x = first(%) );
+(%o8)                                0.0
+\end{verbatim}
+\normalsize
+% eps file plot
+% plot2d( [0.0, x - cos(x)],[x,-5,5],
+%              [style, [lines,4,4], [lines,4,1] ],
+%               [xlabel," plot of x - cos(x) "],
+%            [gnuplot_preamble, "set nokey; set yzeroaxis lw 4  "],
+%             [gnuplot_term,ps], [gnuplot_out_file,"c:/work2/trans1.eps"])$
+%
+
+\smallskip
+As a second example, we will find the roots of the function
+$$ f(x) = \cos(x/\pi) \, e^{-(x/4)^{2}} - \sin(x^{3/2}) - 5/4 $$
+
+Here is the plot of $f(x)$.
+
+  \smallskip
+%%\begin{figure}[!ht] 
+\begin{figure} [h]
+   \centerline{\includegraphics[width=5in]{trans2.eps} }
+	\caption{Plot of f(x)}
+\end{figure}
+
+  % eps file plot for second example f(x)			
+%(%i5) plot2d( [0.0, f(x)],[x,0,5],
+%              [style, [lines,4,4], [lines,4,1] ],
+%               [xlabel," plot of f(x) "],
+%            [gnuplot_preamble, "set nokey "],
+%             [gnuplot_term,ps], [gnuplot_out_file,"c:/work2/trans2.eps"])$
+This plot shows roots near the points \verb|[x = 2.53, x = 2.97]|.
+\newpage
+Here is our session making a plot and using \textbf{find\_root}:
+\small
+\begin{verbatim}
+(%i1) fpprintprec:8$
+(%i2) f(x):= cos(x/%pi)*exp(-(x/4)^2) - sin(x^(3/2)) - 5/4$
+
+(%i3) plot2d(  f(x),[x,0,5],
+              [style,  [lines,4,1] ],
+               [xlabel," plot of f(x) "],[ylabel," "],
+            [gnuplot_preamble, "set nokey; set xzeroaxis lw 2 "] )$
+(%i4) [find_root(f,2.5,2.6), find_root(f, x, 2.5, 2.6),
+          find_root(f(x),x,2.5,2.6), find_root(f(y),y,2.5,2.6)];
+(%o4)           [2.5410501, 2.5410501, 2.5410501, 2.5410501]
+(%i5) [x1 : find_root(f,2.5,2.6),x2 : find_root(f, 2.9, 3.0 )];
+(%o5)                       [2.5410501, 2.9746034]
+(%i6) float( map(f, [x1,x2] ) );
+(%o6)                  [3.33066907E-16, 2.77555756E-16]
+\end{verbatim}
+\normalsize
+We see that the numerical accuracy of \textbf{find\_root} using default
+  behavior is the normal accuracy of Maxima arithmetic.\\
+
+%  
+%\newpage
+\subsubsection{find\_root: Quote that Function!}
+The Maxima function \textbf{find\_root} is an unusual function.
+The source code which governs the behavior of \textbf{find\_root} has been
+  purposely designed to allow uses like the following:
+\small
+\begin{verbatim}
+(%i1) fpprintprec:8$
+(%i2) find_root(diff(cos(2*x)*sin(3*x)/(1+x^2),x), x, 0, 0.5);
+(%o2)                              0.321455
+\end{verbatim}
+\normalsize
+\textbf{find\_root} evaluates the derivative and parks the resulting expression in
+  the code function "fr(x)",say, to be used to probe where the function changes sign, as the code
+   executes a bisection search for a root in the range called for.
+The code first checks that the sign of the function fr(x) has opposite signs at the end points
+  of the given range.
+Next the code makes small steps in one direction, checking at each step if a sign change has
+  occurred.
+As soon as a sign change has occurred, the code backs up one step, cuts the size of the step in
+  half, say, and starts stepping again, looking for that sign change again.
+This is a brute force method which will find that root if there is one in the given
+  interval.
+%\newpage
+Of course the user can always evaluate the derivative and submit the resulting expression
+  to \textbf{find\_root} to find the same answer, as in:
+\small
+\begin{verbatim}
+(%i3) ex : trigsimp( diff(cos(2*x)*sin(3*x)/(1+x^2),x) );
+              2
+(%o3) - (((2 x  + 2) sin(2 x) + 2 x cos(2 x)) sin(3 x)
+                                      2                           4      2
+                              + (- 3 x  - 3) cos(2 x) cos(3 x))/(x  + 2 x  + 1)
+(%i4) plot2d([0.0,ex],[x,-3,3])$
+(%i5) find_root(ex,x,0,0.5);
+(%o5)                              0.321455
+\end{verbatim}
+\normalsize
+\newpage
+If we assign the delayed derivative to an expression ex1, we can then
+  use an argument \verb|ev(ex1,diff)| to \textbf{find\_root} as in:
+\small
+\begin{verbatim}
+(%i6) ex1 :  'diff(cos(2*x)*sin(3*x)/(1+x^2),x);
+                            d   cos(2 x) sin(3 x)
+(%o6)                       -- (-----------------)
+                            dx        2
+                                     x  + 1
+(%i7) find_root(ev(ex1,diff),x,0,0.5);
+(%o7)                              0.321455
+\end{verbatim}
+\normalsize
+If we assign the delayed derivative to a function g(x), and
+  assign \verb|ev(g(x),diff)| to another function k(x), we can
+  use \textbf{find\_root} as in:
+\small
+\begin{verbatim}
+(%i8) g(x) := 'diff(cos(2*x)*sin(3*x)/(1+x^2),x);
+                                d   cos(2 x) sin(3 x)
+(%o8)                   g(x) := -- (-----------------)
+                                dx            2
+                                         1 + x
+(%i9) k(x) := ev(g(x),diff);
+(%o9)                       k(x) := ev(g(x), diff)
+(%i10) find_root(k(x),x,0,0.5);
+(%o10)                             0.321455
+\end{verbatim}
+\normalsize
+or just use the syntax:
+\small
+\begin{verbatim}
+(%i11) find_root( ev(g(x),diff),x,0,0.5 );
+(%o11)                             0.321455
+\end{verbatim}
+\normalsize
+However, the following syntax which leaves out the variable name
+   produces an error message:
+\small
+\begin{verbatim}
+(%i12) find_root( k, 0, 0.5 );
+Non-variable 2nd argument to diff:
+0.0
+#0: g(x=0.0)
+#1: k(x=0.0)
+ -- an error.  To debug this try debugmode(true);
+\end{verbatim}
+\normalsize
+
+In the above cases we want \textbf{find\_root} to use the default initial
+  evaluation of the first slot argument before going to work looking for the root.
+%\newpage
+
+The important thing to stress is that the \textbf{find\_root} source code, by default, is designed
+  to evaluate the first slot expression before beginning the checking of the sign of the resulting
+  function (after evaluation) at the end points and proceeding with the bisection search.
+If the user wants to use (for some reason) a function f(x) in the first slot of \textbf{find\_root}
+  and wishes to prevent the initial evaluation of the first slot expression, the user
+  should use the syntax \verb|'(f(x))| for the first slot entry, rather than \verb|f(x)|.
+However, the code is loosely written so that most of the time you can get correct results
+  without using the single quote syntax \verb|'(f(x))|.
+All of the following examples give the correct answer for this simple function.
+\small
+\begin{verbatim}
+(%i13) f(x) := x - cos(x)$
+(%i14) [find_root( f, 0, 1), find_root( 'f, 0, 1),
+          find_root( '(f), 0, 1), find_root( f(x), x, 0, 1),
+             find_root( '( f(x)), 'x, 0, 1),find_root( '( f(x)), x, 0, 1),
+               find_root( 'f(x), x, 0, 1)];
+(%o14) [0.739085, 0.739085, 0.739085, 0.739085, 0.739085, 0.739085, 0.739085]
+\end{verbatim}
+\normalsize
+
+However, one can arrive at specialized homemade functions which require the strict
+  syntax (a quoted function entry in the first slot) to behave correctly.
+Suppose we need to find the numerical roots of a function defined by an integral.
+The following is a toy model which uses such a function in a case where we know
+  the answer ahead of time.
+Instead of directly looking for the roots of the function
+  $f(x)=(x^{2} - 5)$, we look for the roots of the function
+  $\int_{\sqrt{5}}^{x} 2\,y\,d\,y$.
+\small
+\begin{verbatim}
+(%i1) fpprintprec : 8$
+(%i2) ex : integrate(2*'y,'y,sqrt(5),x);
+                                      2
+                                     x    5
+(%o2)                             2 (-- - -)
+                                     2    2
+(%i3) ex : expand(ex);
+                                     2
+(%o3)                               x  - 5
+(%i4) define( f(x), ex );
+                                         2
+(%o4)                           f(x) := x  - 5
+(%i5) solve( ex );
+(%o5)                    [x = - sqrt(5), x = sqrt(5)]
+(%i6) rr : float( map(rhs,%) );
+(%o6)                       [- 2.236068, 2.236068]
+(%i7) map(f,rr);
+(%o7)                   [8.8817842E-16, 8.8817842E-16]
+(%i8) find_root(f,0,4);
+(%o8)                              2.236068
+\end{verbatim}
+\normalsize
+%\newpage
+Let's concentrate on finding the root \verb|2.23606797749979| using the indirect route.
+Define a function $g(x)$ in terms of \textbf{integrate}:
+\small
+\begin{verbatim}
+(%i9) g(x) := block([numer,keepfloat,y],
+          numer:true,keepfloat:true,
+          integrate(2*y,y,sqrt(5),x) )$
+(%i10) map(g, [1,2,3]);
+(%o10)                        [- 4.0, - 1.0, 4.0]
+(%i11) map(f, [1,2,3]);
+(%o11)                           [- 4, - 1, 4]
+(%i12) [find_root( g, 1, 4), find_root( g(x),x,1,4),
+         find_root( '(g(x)),'x,1,4 ), find_root( 'g(x),x,1,4 )];
+(%o12)              [2.236068, 2.236068, 2.236068, 2.236068]
+\end{verbatim}
+\normalsize
+We see that we have no problems with getting the function $g(x)$ to "work"
+  with \textbf{find\_root}.
+However, if we replace \textbf{integrate} with \textbf{quad\_qags}, we find
+  problems.
+First let's show the numerical integration routine \textbf{quad\_qags} at work
+  by itself:
+\small
+\begin{verbatim}
+(%i13) quad_qags(2*'y,'y,sqrt(5),2);
+(%o13)                  [- 1.0, 1.11076513E-14, 21, 0]
+(%i14) g(2.0);
+(%o14)                               - 1.0
+\end{verbatim}
+\normalsize
+The \textbf{quad\_qags} function returns a list of four items, the
+  first being the numerical value of the integral, the second being
+  an estimate of the error of the answer calculated, the third being the
+  number of function evaluations required, and the last  an error code.
+The returned error code \verb|0| means no problems were encountered, and we
+  will write a function which ignores the error code returned, although
+  in "real life" we would always want to report an error code value which
+  was not \verb|0|.
+\newpage
+Here we define \verb|h(x)| which employs the function \textbf{quad\_qags}
+  to carry out the numerical itegration.
+  
+\small
+\begin{verbatim}
+(%i15) h(x) := block([numer,keepfloat,y,qlist],
+          numer:true,keepfloat:true,
+          qlist : quad_qags(2*y,y,sqrt(5),x),
+           qlist[1] )$
+(%i16) map(h,[1,2,3]);
+(%o16)                        [- 4.0, - 1.0, 4.0]
+(%i17) map(g,[1,2,3]);
+(%o17)                        [- 4.0, - 1.0, 4.0]
+\end{verbatim}
+\normalsize
+The function $h(x)$ does the same job as $g(x)$, but uses \textbf{quad\_qags}
+  instead of \textbf{integrate}.
+Now let's use $h(x)$ in the Maxima function \textbf{find\_root}.
+\small
+\begin{verbatim}
+(%i18) find_root( h(x),x,1,4);
+function has same sign at endpoints
+[f(1.0) = - 5.0, f(4.0) = - 5.0]
+ -- an error.  To debug this try debugmode(true);
+\end{verbatim}
+\normalsize
+We see that the syntax \verb|find_root( h(x),x,1,4)| produced an error due
+  to the way \textbf{find\_root} evaluates the first slot. 
+Somehow \textbf{find\_root} assigned \verb|-5.0| to the internal
+  function fr(x) used to look for the root, and in the first steps of
+  that root location, checking for a difference in sign of fr(x) and the
+  range end points, found the value \verb|-5.0| at both ends.
+In effect, the code was working on the problem
+  \verb|find_root( -5.0, x, 1, 4)|.\\
+  
+The following methods succeed.
+\small
+\begin{verbatim}
+(%i19) [find_root( h, 1, 4),find_root( '(h(x)),'x,1,4 ),
+        find_root( '(h(x)),x,1,4 ),find_root( 'h(x),x,1,4 )];
+(%o19)              [2.236068, 2.236068, 2.236068, 2.236068]
+\end{verbatim}
+\normalsize
+
+\subsubsection{newton}
+The Maxima function \textbf{newton} can also be used for numerical solutions
+  of a single equation.
+The Maxima manual describes the syntax as:
+\small
+\begin{quote}
+Function: \textbf{newton}\verb|(expr, x, x_0, eps) |\\
+Returns an approximate solution of \verb|expr = 0| by Newton's method,
+  considering \verb|expr| to be a function of one variable, \verb|x|.
+The search begins with \verb|x = x_0| and proceeds until \verb|abs(expr) < eps|
+  (with \verb|expr| evaluated at the current value of \verb|x|). \\
+\verb|newton| allows undefined variables to appear in \verb|expr|, so
+   long as the termination test \verb|abs(expr) < eps| evaluates to \verb|true|
+   or \verb|false|.
+Thus it is not necessary that \verb|expr| evaluate to a number. \\
+\verb|load(newton1)| loads this function. 
+\end{quote}
+\normalsize
+The two examples in the manual are instructive:
+\small
+\begin{verbatim}
+(%i1) fpprintprec:8$
+(%i2) load (newton1);
+(%o2) C:/PROGRA~1/MAXIMA~3.0/share/maxima/5.14.0/share/numeric/newton1.mac
+(%i3) newton (cos (u), u, 1, 1/100);
+(%o3)                              1.5706753
+(%i4) ev (cos (u), u = %);
+(%o4)                            1.21049633E-4
+(%i5) assume (a > 0);
+(%o5)                               [a > 0]
+(%i6) newton (x^2 - a^2, x, a/2, a^2/100);
+(%o6)                             1.0003049 a
+(%i7) ev (x^2 - a^2, x = %);
+                                              2
+(%o7)                          6.09849048E-4 a
+\end{verbatim}
+\normalsize
+Of course both of these examples are found exactly by \textbf{solve}:
+\small
+\begin{verbatim}
+(%i8) solve( cos(x) );
+`solve' is using arc-trig functions to get a solution.
+Some solutions will be lost.
+                                        %pi
+(%o8)                              [x = ---]
+                                         2
+(%i9) float(%);
+(%o9)                           [x = 1.5707963]
+(%i10) solve( x^2 - a^2,x );
+(%o10)                         [x = - a, x = a]
+\end{verbatim}
+\normalsize
+%\newpage
+I find the source code (Windows XP) in the folder\\
+\verb|c:\Program Files\Maxima-5.14.0\share\maxima\5.14.0\share\numeric|.
+Here is the code in the file newton1.mac:
+\small
+\begin{verbatim}
+newton(exp,var,x0,eps):=
+    block([xn,s,numer],
+      numer:true,
+      s:diff(exp,var),
+      xn:x0,
+      loop,
+        if abs(subst(xn,var,exp))<eps then return(xn),
+        xn:xn-subst(xn,var,exp)/subst(xn,var,s),
+      go(loop)
+    )$
+\end{verbatim}
+\normalsize
+We see that the code implements the Newton-Raphson algorithm.
+Given a function $f(x)$ and an initial guess $x_{g}$ which can be assigned
+  to, say, $x^{i}$, a closer approximation to the value of $x$ for which
+  $f(x)=0$ is generated by
+  $$ x^{i+1} = x^{i} - \frac{f(x^{i})}{f'(x^{i}) }. $$
+The method depends on being able to evaluate the derivative of $f(x)$ which
+  appears in the denominator.\\
+Steven Koonin's (edited) comments (Computational Physics: Fortran Version, Steven E. Koonin and Dawn Meredith,
+   WestView Press, 1998, Ch. 1, Sec.3) are cautionary:
+\small
+\begin{quote}
+When the function $f(x)$ is badly behaved near its root (e.g., there is an inflection
+  point near the root) or when there are several roots, the "automatic" Newton-Raphson
+   method can fail to converge at all or converge to the wrong answer if the initial
+   guess for the root is poor.
+\end{quote}
+\normalsize
+
+  
+  
+\newpage
+  
+\subsection{Two or More Equations: Symbolic and Numerical Solutions}
+For sets of equations, we can use \textbf{solve} with the syntax:
+
+\small
+\begin{quote}
+Function: \textbf{solve}\verb|([eqn_1, ..., eqn_n], [x_1, ..., x_n]) |\\
+\verb|solve ([eqn_1, ..., eqn_n], [x_1, ..., x_n])| solves a system of simultaneous
+  (linear or non-linear) polynomial equations by calling \verb|linsolve| or
+  \verb|algsys| and returns a list of the solution lists in the variables.
+In the case of \verb|linsolve| this list would contain a single list of solutions.
+This form of \verb|solve| takes two lists as arguments.
+The first list represents the equations to be solved; the second list
+   is a list of the unknowns to be determined.
+If the total number of variables in the equations is equal to the number
+  of equations, the second argument-list may be omitted.
+\end{quote}
+\normalsize
+
+\subsubsection{Numerical or Symbolic Linear Equations with solve or linsolve  }
+The Maxima functions \textbf{solve}, \textbf{linsolve}, and \textbf{linsolve\_by\_lu}
+   can be used for linear equations.\\
+   
+Linear equations containing symbolic coefficients  can be
+    "solved" by \textbf{solve} and \textbf{linsolve}.
+For example the pair of equations
+$$ a x + b y = c, d x + e y = f $$	.
+Here we solve for the values of \verb|(x,y)| which simultaneously
+  satisfy these two equations and check the solutions.
+\small
+\begin{verbatim}
+(%i1) eqns : [a*x + b*y = c, d*x + e*y = f];
+(%o1)                   [b y + a x = c, e y + d x = f]
+(%i2) solve(eqns,[x,y]);
+                              c e - b f      c d - a f
+(%o2)                 [[x = - ---------, y = ---------]]
+                              b d - a e      b d - a e
+(%i3) soln : linsolve(eqns,[x,y]);
+                              c e - b f      c d - a f
+(%o3)                  [x = - ---------, y = ---------]
+                              b d - a e      b d - a e
+(%i4) (ev(eqns, soln), ratexpand(%%) );
+(%o4)                           [c = c, f = f]
+\end{verbatim}
+\normalsize
+Note the presence of the determinant of the "coefficient matrix" in the
+  denominator of the solutions.\\
+   
+A simple numerical (rather than symbolic) two equation example:
+\small
+\begin{verbatim}
+(%i1) eqns : [3*x-y=4,x+y=2];
+(%o1)                      [3 x - y = 4, y + x = 2]
+(%i2) solns : solve(eqns,[x,y]);
+                                     3      1
+(%o2)                          [[x = -, y = -]]
+                                     2      2
+(%i3) soln : solns[1];
+                                     3      1
+(%o3)                           [x = -, y = -]
+                                     2      2
+(%i4) for i thru 2 do disp( ev( eqns[i],soln ) )$
+                                     4 = 4
+                                     2 = 2
+\end{verbatim}
+\normalsize
+Using \textbf{linsolve} instead returns a list, rather than a list of a list.
+\small
+\begin{verbatim}
+(%i5) linsolve(eqns,[x,y]);
+                                     3      1
+(%o5)                           [x = -, y = -]
+                                     2      2
+\end{verbatim}
+\normalsize
+
+\subsubsection{Matrix Methods for Linear Equation Sets: linsolve\_by\_lu}
+The present version (5.14) of the Maxima manual does not have an index entry
+  for the function \textbf{linsolve\_by\_lu}.
+These notes include only the simplest of many interesting examples described
+  in two mailing list responses by the creator of the linear algebra package,
+  Barton Willis (Dept. of Mathematics, Univ. Nebraska at Kearney),
+  dated Oct. 27, 2007 and Nov. 21, 2007.
+ 
+ \smallskip
+ 
+If we re-cast the two equation problem we have just been solving 
+  in the form of a matrix equation\\
+  \verb|A . xcol = bcol|, we need
+  to construct the square matrix \verb|A| so that matrix multiplication by the column
+  vector \verb|xcol| results in a column vector whose rows contain the left hand sides
+  of the equations.
+The column vector \verb|bcol| rows hold the right hand sides of the equations.
+Our notation below ( as \verb|xycol| and \verb|xylist| ) is only natural for a two equation
+  problem (ie., a 2 x 2 matrix): you can invent your own notation to suit
+  your problem.
+
+\smallskip
+If the argument of the function \textbf{matrix} is a simple list, the result is a
+    row vector (a special case of a matrix object).
+We can then take the \textbf{transpose} of the row matrix to obtain a column matrix,
+   such as \verb|xcol| below.
+A direct definition of a two element column matrix is \verb|matrix([x],[y])|, which
+  is probably faster than \verb|transpose(matrix([x,y]))|.   
+To reduce the amount of space taken up by the default matrix output, we
+  can set \verb|display2d:false|.
+\small
+\begin{verbatim}
+(%i6) m : matrix( [3,-1],[1,1] );
+                                  [ 3  - 1 ]
+(%o6)                             [        ]
+                                  [ 1   1  ]
+(%i7) display2d:false$
+(%i8) m;
+(%o8) matrix([3,-1],[1,1])
+(%i9) xcol : matrix([x],[y]);
+(%o9) matrix([x],[y])
+(%i10) m . xcol;
+(%o10) matrix([3*x-y],[y+x])
+\end{verbatim}
+\normalsize
+The period allows non-commutative multiplication of matrices.
+The linear algebra package function \textbf{linsolve\_by\_lu} allows us to specify
+  the column vector \verb|bcol| as a simple list:
+\small
+\begin{verbatim}
+(%i11) b : [4,2];
+(%o11) [4,2]
+(%i12) linsolve_by_lu(m,b);
+(%o12) [matrix([3/2],[1/2]),false]
+(%i13) xycol : first(%);
+(%o13) matrix([3/2],[1/2])
+(%i14) m . xycol - b;
+(%o14) matrix([0],[0])
+(%i15) xylist : makelist( xycol[i,1],i,1,length(xycol) );
+(%o15) [3/2,1/2]
+(%i16) xyrules : map("=",[x,y],xylist);
+(%o16) [x = 3/2,y = 1/2]
+\end{verbatim}
+\normalsize
+The \textbf{matrix} argument needs to be a square matrix.
+The output of \textbf{linsolve\_by\_lu} is a list: the first element is the solution
+  column vector  which for this two dimensional problem we have called \verb|xycol|.
+
+We check the solution in input \verb|%i14|.
+The output \verb|%o14| is a column vector each of whose elements is zero;
+  such a column vector is ordinarily replaced by the number \verb|0|.\\
+  
+One should always check solutions when using computer algebra software,
+  since the are occasional bugs in the algorithms used.
+The second list element returned by \textbf{linsolve\_by\_lu} is \textbf{false}, which 
+  should always be the value returned when the calculation uses non-floating point numbers
+  as we have here.
+If floating point numbers are used, the second element should be either \textbf{false} or
+  a lower bound to the "matrix condition number". 
+(We show an example later.)
+We have shown how to convert the returned \verb|xycol| matrix object into an
+  ordinary list, and how to then construct a list of replacement rules (as would be
+  returned by \textbf{linsolve}) which could then be used for other purposes.
+The use of \textbf{makelist} is the recommended way to use parts of
+  \textbf{matrix} objects in lists.
+However, here is a simple method which avoids \textbf{makelist}:
+\small
+\begin{verbatim}
+(%i17) flatten( args( xycol));
+(%o17) [3/2,1/2]
+\end{verbatim}
+\normalsize
+but \textbf{makelist} should normally be the weapon of choice, since the method is foolproof and
+  can be extended to many exotic ways of using the various elements of a matrix.  
+ 
+ \smallskip
+The Maxima function \textbf{linsolve\_by\_lu} allows the second argument
+   to be either a list (as in the example above) or a column matrix, as we
+   show here.
+
+\small
+\begin{verbatim}
+(%i18) bcol : matrix([4],[2])$
+(%i19) linsolve_by_lu(m,bcol);
+(%o19) [matrix([3/2],[1/2]),false]
+(%i20) m . first(%) - bcol;
+(%o20) matrix([0],[0])
+\end{verbatim}
+\normalsize
+
+\subsubsection{Symbolic Linear Equation Solutions: Matrix Methods}
+Here we use \textbf{linsolve\_by\_lu} for the pair of equations
+$$ a x + b y = c, \qquad  d x + e y = f, $$	
+  seeking the values of \verb|(x,y)| which simultaneously
+  satisfy these two equations and checking the solutions.
+\small
+\begin{verbatim}
+(%i1) display2d:false$
+(%i2) m : matrix( [a,b], [d,e] )$
+(%i3) bcol : matrix( [c], [f] )$
+(%i4) ls : linsolve_by_lu(m,bcol);
+(%o4) [matrix([(c-b*(f-c*d/a)/(e-b*d/a))/a],[(f-c*d/a)/(e-b*d/a)]),false]
+(%i5) xycol : ratsimp( first(ls) );
+(%o5) matrix([-(b*f-c*e)/(a*e-b*d)],[(a*f-c*d)/(a*e-b*d)])
+(%i6) ( m . xycol - bcol, ratsimp(%%) );
+(%o6) matrix([0],[0])
+(%i7) (display2d:true,xycol);
+                                [   b f - c e ]
+                                [ - --------- ]
+                                [   a e - b d ]
+(%o7)                           [             ]
+                                [  a f - c d  ]
+                                [  ---------  ]
+                                [  a e - b d  ]
+(%i8) determinant(m);
+(%o8)                              a e - b d								
+\end{verbatim}
+\normalsize
+We see the value of the determinant of the "coefficient matrix" \verb|m|
+  in the denominator of the solution.
+
+\subsubsection{Multiple Solutions from Multiple Right Hand Sides}
+Next we show how one can solve for multiple solutions (with one call to
+  \textbf{linsolve\_by\_lu}) corresponding to a number of different "right hand sides".
+We will turn back on the default matrix display, and re-define the first 
+  (right hand side) column vector as \verb|b1col|, and the corresponding solution
+   \verb|x1col|.
+\small
+\begin{verbatim}
+(%i21) display2d:true$
+(%i22) b1col : matrix( [4], [2] );
+                                     [ 4 ]
+(%o22)                               [   ]
+                                     [ 2 ]
+(%i23) x1col : first( linsolve_by_lu(m,b1col) );
+                                     [ 3 ]
+                                     [ - ]
+                                     [ 2 ]
+(%o23)                               [   ]
+                                     [ 1 ]
+                                     [ - ]
+                                     [ 2 ]
+(%i24) b2col : matrix( [3], [1] );
+                                     [ 3 ]
+(%o24)                               [   ]
+                                     [ 1 ]
+(%i25) x2col : first( linsolve_by_lu(m, b2col) );
+                                     [ 1 ]
+(%o25)                               [   ]
+                                     [ 0 ]
+(%i26) bmat : matrix( [4,3], [2,1] );
+                                   [ 4  3 ]
+(%o26)                             [      ]
+                                   [ 2  1 ]
+(%i27) linsolve_by_lu( m, bmat );
+                                [ 3    ]
+                                [ -  1 ]
+                                [ 2    ]
+(%o27)                         [[      ], false]
+                                [ 1    ]
+                                [ -  0 ]
+                                [ 2    ]
+(%i28) xsolns : first(%);
+                                   [ 3    ]
+                                   [ -  1 ]
+                                   [ 2    ]
+(%o28)                             [      ]
+                                   [ 1    ]
+                                   [ -  0 ]
+                                   [ 2    ]
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i29) m . xsolns - bmat;
+                                   [ 0  0 ]
+(%o29)                             [      ]
+                                   [ 0  0 ]
+(%i30) x1col : col(xsolns,1);
+                                     [ 3 ]
+                                     [ - ]
+                                     [ 2 ]
+(%o30)                               [   ]
+                                     [ 1 ]
+                                     [ - ]
+                                     [ 2 ]
+(%i31) x2col : col(xsolns,2);
+                                     [ 1 ]
+(%o31)                               [   ]
+                                     [ 0 ]
+\end{verbatim}
+\normalsize
+In input \verb|%i26| we define the \verb|2 x 2| matrix \verb|bmat| whose first column
+  is \verb|b1col| and whose second column is \verb|b2col|.
+Using \verb|bmat| as the second argument to \textbf{linsolve\_by\_lu} results in
+  a return list whose first element (what we call \verb|xsolns|) is a \verb|2 x 2|
+  matrix whose first column is \verb|x1col| (the solution vector corresponding to
+  \verb|b1col|) and whose second column is \verb|x2col| (the solution vector
+  corresonding to \verb|b2col|).
+In input \verb|%i29| we check both solutions simultaneously.
+The result is a matrix with every element equal to zero, which would ordinarily
+  be replaced by the number \verb|0|.
+In input \verb|%i30| we extract \verb|x1col| using the \textbf{col} function.\\
+
+\subsubsection{Three Linear Equation Example }  
+We next consider a simple three linear equation example.
+Although \textbf{solve} does not require the list \verb|[x,y,z]| in this
+  problem, if you leave it out, the solution list returned will be in an
+  order determined by the peculiarities of the code, rather than by you.
+By including the variable list as \verb|[x,y,z]|, you are forcing the 
+  output list to be in the same order.
+\small
+\begin{verbatim}
+(%i1) eqns : [2*x - 3*y + 4*z = 2, 3*x - 2*y + z = 0,
+                     x + y - z = 1]$
+(%i2) display2d:false$
+(%i3) solns : solve( eqns,[x,y,z] );
+(%o3) [[x = 7/10,y = 9/5,z = 3/2]]
+(%i4) soln : solns[1];
+(%o4) [x = 7/10,y = 9/5,z = 3/2]
+(%i5) for i thru 3 do disp( ev(eqns[i],soln) )$
+2 = 2
+0 = 0
+1 = 1
+\end{verbatim}
+\normalsize
+The Maxima function \textbf{linsolve} has the same syntax as \textbf{solve} (for
+  a set of equations) but you cannot leave out the list of unknowns.
+\small
+\begin{verbatim}
+(%i6) linsolve(eqns,[x,y,z]);
+(%o6) [x = 7/10,y = 9/5,z = 3/2]
+\end{verbatim}
+\normalsize
+Notice that \textbf{linsolve} returns a list, while \textbf{solve} returns a
+  list of lists.
+
+  \smallskip
+
+\newpage
+
+Next we use \textbf{linsolve\_by\_lu} on this three equation problem.
+Using the laws of matrix multiplication, we "reverse engineer" the $3 \times 3$ 
+  matrix \verb|m| and the three element column vector \verb|bcol| which provide
+  an equivalent problem in matrix form.
+\small
+\begin{verbatim}
+(%i7) m : matrix( [2,-3,4],[3,-2,1],[1,1,-1] )$
+(%i8) xcol : matrix( [x],[y],[z] )$
+(%i9) m . xcol;
+(%o9) matrix([4*z-3*y+2*x],[z-2*y+3*x],[-z+y+x])
+(%i10) bcol : matrix( [2],[0],[1] )$
+(%i11) linsolve_by_lu(m,bcol);
+(%o11) [matrix([7/10],[9/5],[3/2]),false]
+(%i12) xyzcol : first(%);
+(%o12) matrix([7/10],[9/5],[3/2])
+(%i13) m . xyzcol - bcol;
+(%o13) matrix([0],[0],[0])
+(%i14) xyzlist : makelist( xyzcol[i,1],i,1,length(xyzcol) );
+(%o14) [7/10,9/5,3/2]
+(%i15) xyzrules : map("=",[x,y,z],xyzlist);
+(%o15) [x = 7/10,y = 9/5,z = 3/2]
+\end{verbatim}
+\normalsize
+
+\smallskip
+
+Both \textbf{linsolve} and \textbf{solve} can handle an "equation list" which
+  is actually an "expression list" in which it is understood that the required
+  equations are generated by setting each expression to zero.
+\small
+\begin{verbatim}
+(%i16) exs : [2*x - 3*y + 4*z - 2, 3*x - 2*y + z ,
+                     x + y - z - 1];
+(%o16)       [4 z - 3 y + 2 x - 2, z - 2 y + 3 x, - z + y + x - 1]
+(%i17) linsolve(exs,[x,y,z]);
+                                 7       9      3
+(%o17)                      [x = --, y = -, z = -]
+                                 10      5      2
+(%i18) solve(exs);
+                                 3      9      7
+(%o18)                     [[z = -, y = -, x = --]]
+                                 2      5      10
+\end{verbatim}
+\normalsize
+The Maxima manual presents a linear equation example in which there is
+  an undefined parameter "a".
+\small
+\begin{verbatim}
+(%i1) eqns : [x + z = y,2*a*x - y = 2*a^2,y - 2*z = 2]$
+(%i2) solns : linsolve(eqns,[x,y,z] );
+(%o2)                   [x = a + 1, y = 2 a, z = a - 1]
+(%i3) solve(eqns,[x,y,z]);
+(%o3)                  [[x = a + 1, y = 2 a, z = a - 1]]
+(%i4) for i thru 3 do (
+             e: expand( ev(eqns[i],solns) ),disp(lhs(e) - rhs(e)) )$
+                                       0
+                                       0
+                                       0
+(%i5) e;
+(%o5)                                2 = 2
+(%i6) [kill(e),e];
+(%o6)                              [done, e]
+\end{verbatim}
+\normalsize
+The code in input \verb|%i4| binds an equation to the symbol \verb|e|
+   which can be removed with \textbf{kill}.
+\newpage
+We can avoid introducing a global binding to a symbol by using \verb|%%|,
+  which allows use of the previous result inside a piece of code.
+\small
+\begin{verbatim}
+(%i7) for i thru 3 do (
+             expand( ev(eqns[i],solns) ),disp(lhs(%%) - rhs(%%)) )$
+                                       0
+                                       0
+                                       0
+\end{verbatim}
+\normalsize
+Note the syntax used here: \verb|do ( job1, job2 ) |.
+
+\smallskip
+Let's try out \textbf{linsolve\_by\_lu} on this three linear (in the
+  unknowns \verb|(x,y,z)|) equation problem which involves the unbound
+  parameter \verb|a|.
+\small
+\begin{verbatim}
+(%i8) display2d:false$
+(%i9) m : matrix([1,-1,1],[2*a,-1,0],[0,1,-2] )$
+(%i10) xcol : matrix( [x],[y],[z] )$
+(%i11) m . xcol;
+(%o11) matrix([z-y+x],[2*a*x-y],[y-2*z])
+(%i12) bcol : matrix( [0],[2*a^2], [2] )$
+(%i13) soln : linsolve_by_lu(m,bcol)$
+(%i14) xyzcol : ( first(soln), ratsimp(%%) );
+(%o14) matrix([a+1],[2*a],[a-1])
+(%i15) ratsimp( m . xyzcol - bcol);
+(%o15) matrix([0],[0],[0])
+\end{verbatim}
+\normalsize
+In input \verb|%i15| we check the solution, and the result is a three element
+  column vector, all of whose elements are zero.
+Such a column matrix is ordinarily replaced by the number \verb|0|.\\
+
+  
+\subsubsection{Surpressing rat Messages: ratprint}
+If we start with two linear equations with decimal coefficients, \textbf{solve} 
+  (and the other methods) converts the decimals to ratios of integers, and tries
+  to find an exact solution.
+You can avoid seeing all the rational replacements done by setting the
+  option variable \textbf{ratprint} to \textbf{false}.
+Despite the assertion, in the manual section on \textbf{rat}, that
+\small
+\begin{quote}
+\verb|keepfloat| if \verb|true| prevents floating point numbers from being
+ converted to rational numbers. 
+\end{quote}
+\normalsize
+setting \textbf{keepfloat} to \textbf{true} here does not stop \textbf{solve} from
+  converting decimal numbers to ratios of integers.  
+\small
+\begin{verbatim}
+(%i1) [keepfloat,ratprint];
+(%o1)                            [false, true]
+(%i2) display2d:false$
+(%i3) fpprintprec:8$
+(%i4) eqns : [0.2*x + 0.3*y = 3.3,0.1*x - 0.8*y = 6.6]$
+(%i5) solns : solve(eqns, [x,y]);
+`rat' replaced -3.3 by -33/10 = -3.3
+`rat' replaced 0.2 by 1/5 = 0.2
+`rat' replaced 0.3 by 3/10 = 0.3
+`rat' replaced -6.6 by -33/5 = -6.6
+`rat' replaced 0.1 by 1/10 = 0.1
+`rat' replaced -0.8 by -4/5 = -0.8
+(%o5) [[x = 462/19,y = -99/19]]
+(%i6) linsolve(eqns,[x,y]);
+`rat' replaced -3.3 by -33/10 = -3.3
+`rat' replaced 0.2 by 1/5 = 0.2
+`rat' replaced 0.3 by 3/10 = 0.3
+`rat' replaced -6.6 by -33/5 = -6.6
+`rat' replaced 0.1 by 1/10 = 0.1
+`rat' replaced -0.8 by -4/5 = -0.8
+(%o6) [x = 462/19,y = -99/19]
+(%i7) m : matrix([0.2,0.3],[0.1,-0.8] )$
+(%i8) bcol : matrix( [3.3], [6.6] )$
+(%i9) linsolve_by_lu(m,bcol);
+`rat' replaced 0.2 by 1/5 = 0.2
+`rat' replaced 0.2 by 1/5 = 0.2
+`rat' replaced 0.2 by 1/5 = 0.2
+`rat' replaced 0.95 by 19/20 = 0.95
+(%o9) [matrix([24.315789],[-5.2105263]),false]
+(%i10) ratprint:false$
+(%i11) solns : solve(eqns, [x,y]);
+(%o11) [[x = 462/19,y = -99/19]]
+(%i12) linsolve(eqns,[x,y]);
+(%o12) [x = 462/19,y = -99/19]
+(%i13) linsolve_by_lu(m,bcol);
+(%o13) [matrix([24.315789],[-5.2105263]),false]
+(%i14) float(solns);
+(%o14) [[x = 24.315789,y = -5.2105263]]
+\end{verbatim}
+\normalsize
+Matrix methods for sets of linear equations can be solved using IEEE double floats
+  (as well as "big floats") by including an optional "method" specification \verb|'floatfield| 
+  after the input column vector (or matrix of input column vectors).
+\small
+\begin{verbatim}
+(%i15) linsolve_by_lu(m,bcol, 'floatfield);
+(%o15) [matrix([24.315789],[-5.2105263]),8.8815789]
+\end{verbatim}
+\normalsize
+In this example the lower bound of the matrix condition number appears as
+  the second element of the returned list.
+\subsubsection{Non-Linear Polynomial Equations}
+Here is an example of using \textbf{solve} to find a pair of exact solutions
+  of a pair of equations, one equation being linear, the other quadratic.
+The pair of solutions represent the two intersections of the unit circle
+  with the line $y = -x/3.$
+\small
+\begin{verbatim}
+(%i1) fpprintprec:8$
+(%i2) eqns : [x^2 + y^2 = 1, x + 3*y = 0]$
+(%i3) solns : solve(eqns,[x,y]);
+                 3                 1
+(%o3) [[x = - --------, y = ---------------],
+              sqrt(10)      sqrt(2) sqrt(5)
+                                                 3                   1
+                                         [x = --------, y = - ---------------]]
+                                              sqrt(10)        sqrt(2) sqrt(5)
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i4) solns : rootscontract(solns);
+                  3             1               3               1
+(%o4)  [[x = - --------, y = --------], [x = --------, y = - --------]]
+               sqrt(10)      sqrt(10)        sqrt(10)        sqrt(10)
+(%i5) for i thru 2 do for j thru 2 do (
+                ev(eqns[i],solns[j]), disp(lhs(%%)-rhs(%%)) )$
+                                       0
+                                       0
+                                       0
+                                       0
+(%i6) float(solns);
+(%o6)  [[x = - 0.948683, y = 0.316228], [x = 0.948683, y = - 0.316228]]
+\end{verbatim}
+\normalsize
+The pair of solutions reflect the symmetry of the given set of equations, which
+  remain invariant under the transformation $x \rightarrow - y, y \rightarrow - x$.
+
+  \smallskip
+A set of two nonlinear polynomial equations with four solutions generated 
+  by \textbf{solve} is one of the examples in the Maxima manual.
+One of the solutions is exact, one is a real inexact solution, and the other two
+  solutions are inexact complex solutions.
+\small
+\begin{verbatim}
+(%i1)  fpprintprec:8$
+(%i2)  eqns : [4*x^2 - y^2 = 12, x*y - x = 2]$
+(%i3)  solns : solve( eqns, [x,y] );
+(%o3) [[x = 2, y = 2], [x = 0.520259 %i - 0.133124,
+y = 0.0767838 - 3.6080032 %i], [x = - 0.520259 %i - 0.133124,
+y = 3.6080032 %i + 0.0767838], [x = - 1.7337518, y = - 0.153568]]
+(%i4) for i thru 2 do for j thru length(solns) do (
+      expand( ev(eqns[i],solns[j]) ),
+      abs( lhs(%%) - rhs(%%) ), disp(%%) )$
+                                       0
+                                2.36036653E-15
+                                2.36036653E-15
+                                 1.13954405E-6
+                                       0
+                                      0.0
+                                      0.0
+                                 9.38499825E-8
+\end{verbatim}
+\normalsize
+To get real numbers from the complex solutions, we used the \textbf{abs}
+   function, which calculates the absolute value of a complex number.
+Note the syntax used to check the solutions: \verb| do ( job1, job2, job3)|.
+
+\newpage
+
+\subsubsection{General Sets of Nonlinear Equations: eliminate, mnewton}
+Solving systems of nonlinear equations is much more difficult than solving
+  one nonlinear equation.
+A wider variety of behavior is possible: determining the existence and
+  number of solutions or even a good starting guess is more complicated.
+There is no method which can guarantee convergence to the desired solution.
+The computing labor increases rapidly with the number of dimensions of the problem.
+
+
+\subsubsection{Intersections of Two Circles:  implicit\_plot}
+Given two circles, we seek the intersections points.
+We first write down the defining equations of the two circles, and
+  look visually for points \verb|(x,y)| which simultaneously lie on each circle.
+We use \textbf{implicit\_plot} for this visual search.
+\small
+\begin{verbatim}
+(%i1) [eq1 : x^2 + y^2 = 1,eq2 : (x-2)^2 + (y-2)^2 = 4]$
+(%i2) eqns : [eq1,eq2]$
+(%i3) load(implicit_plot);
+(%o3) 
+    C:/PROGRA~1/MAXIMA~3.0/share/maxima/5.14.0/share/contrib/implicit_plot.lisp
+(%i4) implicit_plot(eqns,[x,-6,6],[y,-6,6],[nticks,200],
+          [gnuplot_preamble, "set zeroaxis" ])$
+\end{verbatim}
+\normalsize
+We are not taking enough care with the \verb|x| and \verb|y| ranges to make
+  the "circles" circular, but we can use the cursor to read off approximate
+  intersections points: \verb|(x,y) = (0.26,0.98), (0.96,0.30)|.
+However, the defining equations are invariant under the symmetry
+  transformation $x \leftrightarrow y$, so the solution pairs must
+  also respect this symmetry.
+We next eliminate \verb|y| between the two equations and use \textbf{solve}
+  to find accurate values for the \verb|x|'s.
+Since we know that both solutions have positive values for \verb|y|, we
+  enforce this condition on equation 1.  
+\small
+\begin{verbatim}
+(%i5) solve(eq1,y);
+                                     2                 2
+(%o5)               [y = - sqrt(1 - x ), y = sqrt(1 - x )]
+(%i6) ysoln : second(%);
+                                             2
+(%o6)                          y = sqrt(1 - x )
+(%i7) eliminate(eqns,[y]);
+                                   2
+(%o7)                         [32 x  - 40 x + 9]
+(%i8) xex : solve(first(%));
+                            sqrt(7) - 5      sqrt(7) + 5
+(%o8)                [x = - -----------, x = -----------]
+                                 8                8
+(%i9) (fpprintprec:8, xex : float(xex) );
+(%o9)                   [x = 0.294281, x = 0.955719]
+(%i10) [x1soln : first(xex), x2soln : second(xex) ]$
+(%i11) [ev(%o7,x1soln), ev(%o7,x2soln)];
+(%o11)                    [[- 4.4408921E-16], [0.0]]
+(%i12) y1soln : ev(ysoln,x1soln);
+(%o12)                           y = 0.955719
+(%i13) y2soln : ev(ysoln,x2soln);
+(%o13)                           y = 0.294281
+(%i14) [soln1:[x1soln,y1soln],soln2:[x2soln,y2soln] ]$
+(%i15) [ev(eqns,soln1), ev(eqns,soln2) ];
+(%o15)             [[1.0 = 1, 4.0 = 4], [1.0 = 1, 4.0 = 4]]
+(%i16) [soln1,soln2];
+(%o16)   [[x = 0.294281, y = 0.955719], [x = 0.955719, y = 0.294281]]
+\end{verbatim}
+\normalsize
+We have solutions (\verb|%o16|) which respect the symmetry of the equations.
+The solutions have been numerically checked in input \verb|%i15|.  \\
+  
+\smallskip
+%%\begin{figure}[!ht] 
+\begin{figure} [h]
+   \centerline{\includegraphics[width=5in]{mycircle2.eps} }
+	\caption{two circles}
+\end{figure}
+  
+\subsubsection{Using Draw for Implicit Plots}
+The figure above was created using the draw package with the following code
+  in a separate work file "implicitplot1.mac".
+The code the the file is
+\small
+\begin{verbatim}
+/* file implicitplot1.mac  */
+/*  need load(implicit_plot);  to use this code  */
+disp(" doplot() ")$
+
+doplot() := block([ x,y, eq1, eq2, y1:-2, y2:4,r, x1 ,x2 ],
+                  r : 1.56,
+                  x1 : r*y1,
+                  x2 : r*y2,
+                  eq1 : x^2 + y^2 = 1,
+              eq2 : (x-2)^2 + (y-2)^2 = 4,
+          draw2d( 
+             grid      = true,
+             line_type = solid,
+             line_width  = 3,
+             color = blue,
+             implicit(eq1, x, x1,x2, y, y1,y2),
+             color = red,
+             implicit(eq2, x, x1,x2, y, y1,y2),
+             color = black,
+             point_type = filled_circle,
+             point_size = 2,
+             points( [ [0.294281,0.955719], [ 0.955719, 0.294281] ] ),
+             title     = "Intersections of Two Circles" ,
+             terminal = 'eps ,
+			  file_name = "c:/work2/mycircle2" )
+         )$
+\end{verbatim}
+\normalsize
+Here is record of use:
+\small
+\begin{verbatim}
+(%i1) load(draw);
+(%o1)   C:/PROGRA~1/MAXIMA~3.0/share/maxima/5.14.0/share/draw/draw.lisp
+(%i2) load(implicitplot1);
+                                   doplot() 
+
+(%o2)                     c:/work2/implicitplot1.mac
+(%i3) doplot();
+(%o3)                 [gr2d(implicit, implicit, points)]
+\end{verbatim}
+\normalsize
+Note that no actual plot was drawn on the screen, since an "eps" file
+  was created "mycircle2.eps" in my work folder \verb|c:\work2| for use
+  in my latex file.
+To use this code to get a figure on your screen, you would remove the last two
+  lines: \verb| terminal = 'eps , file_name = "c:/work2/mycircle2"| and,
+  very important!, also remove the comma at the end of "two circles".
+
+\subsubsection{Another Example}  
+We next work through Example 6.5.1 (page 149), in "Numerical Methods for Unconstrained Optimization
+  and Nonlinear Equations" by J. E. Dennis, Jr. and  Robert B. Schnabel (Prentice-Hall, 1983).
+\small
+\begin{verbatim}
+(%i1) eq1 : x^2 + y^2 = 2;
+                                   2    2
+(%o1)                             y  + x  = 2
+(%i2) eq2 : exp(x - 1) + y^3 = 2;
+                                3     x - 1
+(%o2)                          y  + %e      = 2
+\end{verbatim}
+\normalsize
+We will concentrate on the solution \verb|(x,y) = (1,1)|.
+We can eliminate \verb|y| and plot the resulting function of \verb|x|
+  to visually locate the \verb|x| solutions.
+\small
+\begin{verbatim}
+(%i3) eliminate([eq1,eq2],[y]);
+             2 x       x + 1     2  6       2  4        2  2       2
+(%o3)     [%e    - 4 %e      + %e  x  - 6 %e  x  + 12 %e  x  - 4 %e ]
+(%i4) ex : first(%);
+             2 x       x + 1     2  6       2  4        2  2       2
+(%o4)      %e    - 4 %e      + %e  x  - 6 %e  x  + 12 %e  x  - 4 %e
+(%i5) plot2d([0.0,ex],[x,-5,5] )$
+(%i6) plot2d([0.0,ex],[x,0,2] )$
+(%i7) x1 : find_root(ex,x,0.5,1.5);
+(%o7)                                 1.0
+(%i8) yeqn : ev(eq1,x = x1);
+                                  2
+(%o8)                            y  + 1.0 = 2
+(%i9) solve(yeqn);
+`rat' replaced -1.0 by -1/1 = -1.0
+(%o9)                          [y = - 1, y = 1]
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i10) ysol : second(%);
+(%o10)                               y = 1
+(%i11) soln1 : [x = x1, ysol];
+(%o11)                         [x = 1.0, y = 1]
+(%i12) ev(eq1,soln1);
+(%o12)                              2.0 = 2
+(%i13) ev(eq2,soln1);
+(%o13)                              2.0 = 2
+\end{verbatim}
+\normalsize
+One solution is then \verb|%o11| and the solution has been checked.\\
+
+\smallskip
+%%\begin{figure}[!ht] 
+\begin{figure} [h]
+   \centerline{\includegraphics[width=5in]{dennis1.eps} }
+	\caption{Dennis and Schnabel Example}
+\end{figure}
+
+
+Let's try \textbf{mnewton} on this problem.
+Wikipedia, under "Newton's Method",  has the introduction:
+
+\small
+\begin{quote}
+In numerical analysis, Newton's method (also known as the Newton Raphson method
+ or the Newton Fourier method) is perhaps the best known method for finding
+ successively better approximations to the zeros (or roots) of a
+ real valued function.
+Newton's method can often converge remarkably quickly, especially if
+  the iteration begins "sufficiently near" the desired root.
+Just how near "sufficiently near" needs to be and just how quickly
+  "remarkably quickly" can be depends on the problem, as is
+  discussed in detail below.
+Unfortunately, far from the desired root, Newton's method can easily lead
+  an unwary user astray, and astray with little warning.
+Such users are advised to heed the advice of Press, et. al. (1992), who
+  suggest embedding Newton's method in a routine that also detects
+  possible convergence failures.\\
+Newton's method can also be used to find a minimum or maximum of
+  such a function, by finding a zero in the function's first derivative,
+  see Newton's method as an optimization algorithm.\\
+The algorithm is first in the class of Householder's methods, succeeded by Halley's method.
+\end{quote}
+\normalsize
+The Maxima manual entry for \textbf{mnewton} begins:
+\small
+\begin{quote}
+Function: \textbf{mnewton}\verb|(FuncList,VarList,GuessList)|\\ 
+Multiple nonlinear functions solution using the Newton method.
+FuncList is the list of functions to solve, VarList is the list
+ of variable names, and GuessList is the list of initial approximations. \\
+The solution is returned in the same format that solve() returns.
+If the solution isn't found, \verb|[]| is returned. \\
+This function is controlled by global variables \verb|newtonepsilon|
+ and \verb|newtonmaxiter|. 
+\end{quote}
+\normalsize
+
+Here are the Maxima manual examples of \textbf{mnewton}:
+\small
+\begin{verbatim}
+(%i1) load(mnewton);
+(%o1) C:/PROGRA~1/MAXIMA~3.0/share/maxima/5.14.0/share/contrib/mnewton.mac
+(%i2) mnewton([2*a^a-5],[a],[1]);
+
+(%o2)                      [[a = 1.70927556786144]]
+(%i3) mnewton([2*3^u-v/u-5, u+2^v-4], [u, v], [2, 2]);
+(%o3)          [[u = 1.066618389595407, v = 1.552564766841786]]
+(%i4) mnewton([x1+3*log(x1)-x2^2, 2*x1^2-x1*x2-5*x1+1],
+              [x1, x2], [5, 5]);
+(%o4)         [[x1 = 3.756834008012769, x2 = 2.779849592817898]]
+\end{verbatim}
+\normalsize
+
+In the above examples, \textbf{mnewton} is presented with a list of expressions.
+Here we use \textbf{mnewton} on the Dennis and Schnabel problem we solved earlier
+ using eliminate and find\_root. 
+We rewrite the equations as expressions here.
+
+\small
+\begin{verbatim}
+(%i1) fpprintprec:8$
+(%i2) load(mnewton);
+(%o2) C:/PROGRA~1/MAXIMA~3.0/share/maxima/5.14.0/share/contrib/mnewton.mac
+(%i3) exs : [x^2 + y^2 -2, exp(x-1)+y^3-2]$
+(%i4) mn(x0,y0) := mnewton(exs,[x,y],[x0,y0] )$
+(%i5) mn(1.1,0.9);
+(%o5)                        [[x = 1.0, y = 1.0]]
+(%i6) mn(1.2,0.8);
+(%o6)                        [[x = 1.0, y = 1.0]]
+(%i7) mn(1.3,0.7);
+(%o7)                        [[x = 1.0, y = 1.0]]
+(%i8) mn(1.4,0.6);
+(%o8)                        [[x = 1.0, y = 1.0]]
+(%i9) mn(1.5,0.5);
+(%o9)                  [[x = - 0.713747, y = 1.2208868]]
+(%i10) mn(1.5,0.6);
+(%o10)                       [[x = 1.0, y = 1.0]]
+(%i11) mn(1.7,0.6);
+(%o11)                       [[x = 1.0, y = 1.0]]
+(%i12) mn(1.9,0.6);
+(%o12)                 [[x = - 0.713747, y = 1.2208868]]
+(%i13) mn(1.9,0.7);
+(%o13)                       [[x = 1.0, y = 1.0]]
+(%i14) mn(2,0.7);
+(%o14)                       [[x = 1.0, y = 1.0]]
+(%i15) mn(0.8,1.1);
+(%o15)                       [[x = 1.0, y = 1.0]]
+(%i16) mn(0.5,1.2);
+(%o16)                       [[x = 1.0, y = 1.0]]
+(%i17) mn(0.1,1.2);
+(%o17)                 [[x = - 0.713747, y = 1.2208868]]
+\end{verbatim}
+\normalsize
+We have to be "close enough" to find the (1,1) root with \textbf{mnewton}.
+Note that Maxima's function \textbf{mnewton} can't find the desired root starting
+ with \verb|(x0,y0) = (2,0.5)| as the textbook example does with eventual success.\\
+
+\subsubsection{Error Messages and Do It Yourself Mnewton}
+Let's explore the Newton Raphson method using an easy example which
+   \textbf{solve} has no trouble with.
+As a by-product, we show that \textbf{mnewton} can deal with a list of equations, rather
+than a list of expressions. 
+After getting an error message from Maxima's \textbf{mnewton}, we work this same
+  problem "by hand", using matrix methods.
+A good reference is Chapter 5, Nonlinear Equations, of the text
+  "Scientific Computing: An Introductory Survey" (2nd ed.), by Michael T. Heath.
+( see webpage:\\
+ \verb|http://www.cse.uiuc.edu/heath/scicomp/pubdata/index.html|)
+\small
+\begin{verbatim}
+(%i18) eqns : [x+y=3,x^2+y^2=9]$
+(%i19) mn(x0,y0) := mnewton(eqns,[x,y],[x0,y0] )$
+(%i20) solve(eqns,[x,y]);
+(%o20)                 [[x = 3, y = 0], [x = 0, y = 3]]
+(%i21) mn(1,2);
+(%o21)                  [[x = 6.37714165E-17, y = 3.0]]
+(%i22) mn(-1,4);
+(%o22)                  [[x = 6.37714165E-17, y = 3.0]]
+(%i23) mn(-2,5);
+(%o23)                  [[x = 1.13978659E-16, y = 3.0]]
+(%i24) mn(0,0);
+Maxima encountered a Lisp error:
+
+ Error in FUNCALL [or a callee]: Zero divisor.
+
+Automatically continuing.
+To reenable the Lisp debugger set *debugger-hook* to nil.
+(%i25) mn(0,1);
+(%o25)                  [[x = 1.13978659E-16, y = 3.0]]
+(%i26) mn(2,0);
+(%o26)                  [[x = 3.0, y = 1.41267055E-16]]
+\end{verbatim}
+\normalsize
+The "zero divisor" message from the Maxima code for \textbf{mnewton} probably 
+  means that the starting point \verb|(x,y) = (0,0)| resulted in an attempted
+  division by $0$.
+To explore what kind of problems can arise, we implement a naive (ie., a 
+  strategy-less) iteration algorithm as presented in Heath's text.
+We present the algorithm first in terms of a $2 \times 2$ matrix and
+  a two element column vector which are functions of the scalars \verb|(x,y)|.
+We then convert the algorithm to a form which works with two element
+  column vectors \verb|v| and \verb|b|.
+We let the column vector \verb|b| hold the elements \verb|x| and \verb|y| and we 
+  seek \verb|b| such that the equation $ f(b) = 0$, where \verb|f| is a column
+  vector which defines the problem.
+If \verb|b| is an approximate solution of this equation, then $bbetter = b + s$,
+  where \verb|s| is the solution of the matrix equation \verb|j(b) . s = -f(b)|, and
+  the $2 \times 2$ matrix \verb|j(b)| is the jacobian matrix:
+  \verb|j[1,1] : diff( f[1,1],x ), j[1,2] : diff( f[1,1],y )|,
+   and \verb|j[2,1] : diff( f[2,1],x), j[2,2] : diff( f[2,1],y )|.  
+\small
+\begin{verbatim}
+(%i1) (fpprintprec:8,ratprint:false)$
+(%i2) g : matrix( [x + y -3],[x^2 + y^2 -9] );
+                                [  y + x - 3  ]
+(%o2)                           [             ]
+                                [  2    2     ]
+                                [ y  + x  - 9 ]
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i3) gv : ev(g, x=v[1,1], y=v[2,1] );
+                             [ v     + v     - 3 ]
+                             [  2, 1    1, 1     ]
+(%o3)                        [                   ]
+                             [  2       2        ]
+                             [ v     + v     - 9 ]
+                             [  2, 1    1, 1     ]
+(%i4) define(f(v), gv);
+                                 [ v     + v     - 3 ]
+                                 [  2, 1    1, 1     ]
+(%o4)                    f(v) := [                   ]
+                                 [  2       2        ]
+                                 [ v     + v     - 9 ]
+                                 [  2, 1    1, 1     ]
+(%i5) b : matrix([1],[2]);
+                                     [ 1 ]
+(%o5)                                [   ]
+                                     [ 2 ]
+(%i6) f(b);
+                                    [  0  ]
+(%o6)                               [     ]
+                                    [ - 4 ]
+(%i7) (r1 : g[1,1], r2 : g[2,1] )$
+(%i8) h : matrix( [diff(r1,x), diff(r1,y)],
+               [diff(r2,x), diff(r2,y) ] );
+                                 [  1    1  ]
+(%o8)                            [          ]
+                                 [ 2 x  2 y ]
+(%i9) hv : ev(h, x=v[1,1], y=v[2,1] );
+                             [    1        1    ]
+(%o9)                        [                  ]
+                             [ 2 v      2 v     ]
+                             [    1, 1     2, 1 ]
+(%i10) define( j(v), hv );
+                                 [    1        1    ]
+(%o10)                   j(v) := [                  ]
+                                 [ 2 v      2 v     ]
+                                 [    1, 1     2, 1 ]
+(%i11) j(b);
+                                   [ 1  1 ]
+(%o11)                             [      ]
+                                   [ 2  4 ]
+(%i12) ls : linsolve_by_lu(j(b),-f(b) );
+                                [ - 2 ]
+(%o12)                         [[     ], false]
+                                [  2  ]
+(%i13) s :  first(ls) ;
+                                    [ - 2 ]
+(%o13)                              [     ]
+                                    [  2  ]
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i14) b : b + s;
+                                    [ - 1 ]
+(%o14)                              [     ]
+                                    [  4  ]
+(%i15) b : b + first( linsolve_by_lu(j(b),-f(b) )  );
+                                    [   1 ]
+                                    [ - - ]
+                                    [   5 ]
+(%o15)                              [     ]
+                                    [ 16  ]
+                                    [ --  ]
+                                    [ 5   ]
+(%i16) b : b + first( linsolve_by_lu(j(b),-f(b) )  );
+                                   [   1  ]
+                                   [ - -- ]
+                                   [   85 ]
+(%o16)                             [      ]
+                                   [ 256  ]
+                                   [ ---  ]
+                                   [ 85   ]
+(%i17) b : b + first( linsolve_by_lu(j(b),-f(b) )  );
+                                  [     1   ]
+                                  [ - ----- ]
+                                  [   21845 ]
+(%o17)                            [         ]
+                                  [  65536  ]
+                                  [  -----  ]
+                                  [  21845  ]
+(%i18) b : b + float( first( linsolve_by_lu(j(b),-f(b) )  ) );
+                             [ - 6.98491931E-10 ]
+(%o18)                       [                  ]
+                             [       3.0        ]				
+(%i19) f(b);
+                               [      0.0      ]
+(%o19)                         [               ]
+                               [ 4.19095159E-9 ]							 
+\end{verbatim}
+\normalsize
+Starting with the guess \verb|(x0,y0) = (1,2)|, this iteration process
+  has converged to the approximate solution given by \verb|%o18|, which we
+  check as an approximate solution in input \verb|%i19|.
+Now let's start with the "dangerous" guess: \verb|(x0,y0) = (0,0)|.
+\small
+\begin{verbatim}
+(%i20) b : matrix( [0],  [0] );
+                                     [ 0 ]
+(%o20)                               [   ]
+                                     [ 0 ]
+(%i21) f(b);
+                                    [ - 3 ]
+(%o21)                              [     ]
+                                    [ - 9 ]
+(%i22) j(b);
+                                   [ 1  1 ]
+(%o22)                             [      ]
+                                   [ 0  0 ]
+(%i23) ls : linsolve_by_lu(j(b),-f(b) );
+Division by 0
+ -- an error.  To debug this try debugmode(true);
+(%i24) determinant(j(b));
+(%o24)                                 0
+\end{verbatim}
+\normalsize
+Thus, a check of the non-vanishing of the determinant of the jacobian
+  matrix would have kept us out of trouble.
+
+\subsubsection{Automated Code for mymnewton}
+Writing code for an arbitrary number of dimensions is a suggested homework problem.
+Here we just assume the problem is two dimensional and assume the variables
+  are called \verb|x| and \verb|y|.
+To check for the "nonvanishing" of the determinant of the jacobian,
+   we ask if the absolute value is less than some very small number.
+Here is the code, written with notepad2 in a file "mymnewton.mac", 
+  placed in my work directory \verb|c:\work2\|.
+You can download this file from the author's webpage, and experiment with it.
+You can reduce the size of the output on the screen by adding the line
+  "\verb|display2d:false,|" in the program, or outside the program in your work
+  session.
+If you make changes to this code, add some extra "debug" printouts at first
+  like "\verb|display(newval1,newval2)|", or "\verb|print(" v1 = ",v1),|"
+  to make sure you are on the right track.
+Once the program has been "debugged", you can comment out the debug version in your
+ work file, copy the whole code to a new section, remove the debug printouts,
+  and use as your "working version".
+\small
+\begin{verbatim}
+/*  working version  */   
+/* file: mymnewton.mac
+    e. woollett, april, 08  */
+
+   
+disp("working version mymnewton,
+assumes two dimensional problem only,
+syntax: 
+
+mymnewton( exprlist, guesslist, numiter )$
+
+exprlist should have the form: [expr1, expr2],
+to find (x,y) such that simultaneously expr1=0,expr2=0,
+expr1, expr2 should be explicit functions of x and y,
+guesslist should be in the form: [xguess,yguess],
+numiter = number of iterations ")$
+
+mymnewton( exprlist, guesslist, numiter) :=
+
+   block([numer,ratprint,fpprintprec, small : 1.0e-30 ,
+                g,x,y,gv,h,hv,b,v,ls,d  ] , local(f,j),
+              
+     numer:true, ratprint:false, fpprintprec:8,
+      /* g = col vec: row 1=expr 1, row 2=expr 2 depends on (x,y) */
+      
+     g : matrix( [ exprlist[1] ],[ exprlist[2] ] ),
+     display(g),
+   
+     gv : ev(g, x=v[1,1], y=v[2,1] ), 
+   
+      /* v is generic col vector */
+         
+     define( f(v), gv ), 
+   
+     /* h is jacobian matrix associated with col vec g(x,y)  */
+     
+     h : matrix( [diff( g[1,1], x), diff( g[1,1], y)],
+           [diff( g[2,1], x), diff(g[2,1], y) ] ), 
+           
+     hv : ev(h, x=v[1,1], y=v[2,1] ), 
+   
+     define( j(v), hv ), 
+     
+     /* b is col vec containing (x,y) values  */
+     
+     b : matrix([ guesslist[1] ],[ guesslist[2] ]),
+    
+         /*  start iterations  */
+         
+     for i:0 thru numiter do (
+     
+       print("  "),
+       print(" i = ",i,"    b = ",b,"   f(b) = ",f(b)  ),
+       if ( i = 0) then print(" starting values ") else 
+                  print("    condition number = ", second(ls) ),
+     
+              /*  check jacobian determinant  */
+              
+       d : ( determinant( j(b) ), float(%%) , abs(%%) ),
+                
+       if ( d < small ) then (     
+               print("  abs(det(jacobian)) is ", d,"  program halt " ),
+                                  return()  ),  
+      
+        /*  using 'floatfield arg gets condition number returned */
+     
+       ls : linsolve_by_lu(j(b),-f(b), 'floatfield ),
+      
+        /*  improved (hopefully) estimates of values of (x,y)
+            which simultaneously satisfy expr1=0 and expr2=0 */
+            
+       b : b +  first(ls) 
+                                                         
+      )  /* end do  */
+      
+   )$   /*  end block  */
+\end{verbatim}
+\normalsize
+\newpage
+and here is a little output from this code:
+\small
+\begin{verbatim}
+(%i1) load("mymnewton.mac");
+working version mymnewton,
+assumes two dimensional problem only,
+syntax: 
+mymnewton( exprlist, guesslist, numiter )$
+exprlist should have the form: [expr1, expr2],
+to find (x,y) such that simultaneously expr1=0,expr2=0,
+expr1, expr2 should be explicit functions of x and y,
+guesslist should be in the form: [xguess,yguess],
+numiter = number of iterations 
+(%o1)                       c:/work2/mymnewton.mac
+(%i2) mymnewton([x+y-3, x^2+y^2-9],[1,2], 5)$
+                                  [  y + x - 3  ]
+                              g = [             ]
+                                  [  2    2     ]
+                                  [ y  + x  - 9 ]
+
+   
+                 [ 1 ]            [  0  ]
+ i =  0     b =  [   ]    f(b) =  [     ] 
+                 [ 2 ]            [ - 4 ]
+ starting values  
+   
+                 [ - 1.0 ]            [ 0.0 ]
+ i =  1     b =  [       ]    f(b) =  [     ] 
+                 [  4.0  ]            [ 8.0 ]
+    condition number =  22.5 
+   
+                 [ - 0.2 ]            [ 0.0  ]
+ i =  2     b =  [       ]    f(b) =  [      ] 
+                 [  3.2  ]            [ 1.28 ]
+    condition number =  19.5 
+   
+                 [ - 0.0117647 ]            [    0.0    ]
+ i =  3     b =  [             ]    f(b) =  [           ] 
+                 [  3.0117647  ]            [ 0.0708651 ]
+    condition number =  10.92 
+   
+                 [ - 4.57770657E-5 ]            [ 4.4408921E-16 ]
+ i =  4     b =  [                 ]    f(b) =  [               ] 
+                 [    3.0000458    ]            [ 2.74666585E-4 ]
+    condition number =  7.212872 
+   
+                 [ - 6.98491837E-10 ]            [      0.0      ]
+ i =  5     b =  [                  ]    f(b) =  [               ] 
+                 [       3.0        ]            [ 4.19095159E-9 ]
+    condition number =  7.000824 
+\end{verbatim}
+\normalsize
+\newpage
+Here is a test of the "dangerous" initial condition case:
+\small
+\begin{verbatim}
+(%i3) mymnewton([x+y-3, x^2+y^2-9],[0,0], 5)$
+                                  [  y + x - 3  ]
+                              g = [             ]
+                                  [  2    2     ]
+                                  [ y  + x  - 9 ]
+
+   
+                 [ 0 ]            [ - 3 ]
+ i =  0     b =  [   ]    f(b) =  [     ] 
+                 [ 0 ]            [ - 9 ]
+ starting values  
+  abs(det(jacobian)) is  0.0   program halt  
+\end{verbatim}
+\normalsize
+It is left as a homework problem to incorporate a criterion for finding an 
+  "accurate enough" solution without providing the program a number of 
+  iterations, and allowing the program to "hide" the details of the iteration process,
+  providing the user with an "answer" and an estimate of the likely "error".
+
+\end{document}

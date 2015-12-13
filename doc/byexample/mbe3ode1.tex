@@ -1,0 +1,2108 @@
+% e. woollett
+%
+%   spring summer 09
+% file ode1.tex
+% maxima by example, ch.3 Ordinary Differential Equations
+% april 30, 09, convert to new style
+% C:\work2\mbe1-start.tex
+% sec 1.4.5 used makelist to create xylist
+% sec 1.5.10 and 1.5.12 used apply('matrix, datalist) to get matrix
+% april 9, 08, sec -> subsec renumbering
+% mar 23, 08: sec variables in maxima : quote from macrakis about don't need to declare x
+%             using the maxima interface:  closing bott. window w keybd cmmds
+%needs step.eps
+% edit with Notepad++, then load into LED for latexing
+\documentclass[11pt]{article}
+\usepackage[dvips,top=1.5cm,left=1.5cm,right=1.5cm,foot=1cm,bottom=1.5cm]{geometry}
+\usepackage{times,amsmath,amsbsy,graphicx,fancyvrb,url}
+\usepackage[usenames]{color}
+%\definecolor{MyDarkBlue}{rgb}{0,0.08,0.45}
+\definecolor{mdb}{rgb}{0.1,0,0.55}
+\newcommand{\tcdb}{\textcolor{mdb}}
+\newcommand{\tcbr}{\textcolor{BrickRed}}
+\newcommand{\tcb}{\textcolor{blue}}
+\newcommand{\tcr}{\textcolor{red}}
+\urldef\tedhome\url{ http://www.csulb.edu/~woollett/  }
+\urldef\tedmail\url{ woollett@charter.net}
+%1.  this is for maxima code: red framed bold, footnotesize 
+\DefineVerbatimEnvironment%
+   {myVerbatim}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,fontsize=\footnotesize ,frame=single,rulecolor=\color{BrickRed}}
+\DefineVerbatimEnvironment%
+   {myVerbatim1}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,fontsize=\scriptsize ,frame=single,rulecolor=\color{BrickRed}}
+%2.  this is for blue framed bold 
+\DefineVerbatimEnvironment%
+   {myVerbatim2}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,frame=single,rulecolor=\color{blue}}
+\DefineVerbatimEnvironment%
+   {myVerbatim2s}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,fontsize=\small,frame=single,rulecolor=\color{blue}}
+\DefineVerbatimEnvironment%
+   {myVerbatim2f}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,fontsize=\footnotesize,frame=single,rulecolor=\color{blue}}
+% 3.  this is for black framed  bold
+\DefineVerbatimEnvironment%
+   {myVerbatim3}%
+   {Verbatim}%
+   {fontfamily= courier, fontseries=b, frame=single}
+% 4.  this is for no frame bold
+\DefineVerbatimEnvironment%
+   {myVerbatim4}%
+   {Verbatim}%
+   {fontfamily=courier, fontseries=b,fontsize=\small}
+% 6.  for defaults use usual verbatim
+\newcommand{\mv}{\Verb[fontfamily=courier,fontseries=b]}
+\newcommand{\mvs}{\Verb[fontfamily=courier,fontseries=b,fontsize=\small]}
+\newcommand{\mvf}{\Verb[fontfamily=courier,fontseries=b,fontsize=\footnotesize]}
+
+\renewcommand{\thefootnote}{\ensuremath{\fnsymbol{footnote}}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   title page
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{ Maxima by Example:\\ Ch. 3, Ordinary Differential Equation Tools 
+             \thanks{This version uses \textbf{Maxima 5.18.1} \;
+			 Check \; \textbf{ \tedhome } \; for the latest version of these notes. Send comments and
+			 suggestions to \textbf{\tedmail} } }
+
+%\author{Edwin L. Woollett \thanks{Dept. of Physics and Astron, Calif. State University at Long Beach,\\
+%                    author's email: \tedmail} }
+\author{ Edwin L. Woollett}
+\date{\today}
+%\date{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%          document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%\SMALL
+%\small
+\maketitle
+\tableofcontents
+\numberwithin{equation}{section}
+\newpage
+%\normalsize
+\subsubsection*{Preface}
+\begin{myVerbatim2s} 
+COPYING AND DISTRIBUTION POLICY    
+This document is part of a series of notes titled
+"Maxima by Example" and is made available
+via the author's webpage http://www.csulb.edu/~woollett/
+to aid new users of the Maxima computer algebra system.	
+	
+NON-PROFIT PRINTING AND DISTRIBUTION IS PERMITTED.
+	
+You may make copies of this document and distribute them
+to others as long as you charge no more than the costs of printing.	
+
+These notes (with some modifications) will be published in book form
+eventually via Lulu.com in an arrangement which will continue
+to allow unlimited free download of the pdf files as well as the option
+of ordering a low cost paperbound version of these notes.
+\end{myVerbatim2s}	
+\smallskip
+\noindent \tcbr{Feedback from readers is the best way for this series of notes
+  to become more helpful to new users of Maxima}.
+\tcdb{\emph{All} comments and suggestions for improvements will be appreciated and
+  carefully considered}.
+\smallskip
+\begin{myVerbatim2s}
+LOADING FILES
+The defaults allow you to use the brief version load(fft) to load in the
+Maxima file fft.lisp.
+To load in your own file, such as qxxx.mac 
+using the brief version load(qxxx), you either need to place 
+qxxx.mac in one of the folders Maxima searches by default, or
+else put a line like:
+  
+file_search_maxima : append(["c:/work2/###.{mac,mc}"],file_search_maxima )$
+  
+in your personal startup file maxima-init.mac (see later in this chapter
+for more information about this).
+
+Otherwise you need to provide a complete path in double quotes,
+as in load("c:/work2/qxxx.mac"),
+ 
+We always use the brief load version in our examples, which are generated 
+using the XMaxima graphics interface on a Windows XP computer, and copied
+into a fancy verbatim environment in a latex file which uses the fancyvrb
+and color packages.
+\end{myVerbatim2s} 
+\smallskip
+\begin{myVerbatim2s}
+Maxima.sourceforge.net. Maxima, a Computer Algebra System. Version 5.18.1
+ (2009). http://maxima.sourceforge.net/
+\end{myVerbatim2s}   
+\small
+The homemade function \mv|fll(x)| (first, last, length) is used to return the first and last
+  elements of lists (as well as the length), and is automatically loaded in with \mv|mbe1util.mac|
+  from Ch. 1.
+We will include a reference to this definition when working with lists.\\
+  
+\noindent This function has the definitions
+\begin{myVerbatim2s}
+fll(x) := [first(x),last(x),length(x)]$
+declare(fll,evfun)$
+\end{myVerbatim2s}
+Some of the examples used in these notes are from the Maxima html help 
+ manual or the Maxima mailing list:\\
+  \mvs|http://maxima.sourceforge.net/maximalist.html|.\\  
+  
+\noindent The author would like to thank the Maxima developers for their friendly help via 
+  the Maxima mailing list.
+\normalsize
+\newpage
+\setcounter{section}{3}
+\pagestyle{headings}
+\subsection{Solving Ordinary Differential Equations}
+\subsection{Solution of One First Order Ordinary Differential Equation (ODE)}
+\subsubsection{Summary Table}
+\begin{table}[h]
+\begin{center}
+  \renewcommand{\arraystretch}{1.25}
+  \begin{tabular}{|c|}
+    \hline
+  \Large{\tcbr{ode2 and ic1}}\\ \hline
+    \mv|gsoln : ode2 (de, u, t);|\\
+	\mv|where de involves 'diff(u,t).|\\
+	\mv|psoln : ic1 (gsoln, t = t0, u = u0);|\\ \hline
+  \Large{\tcbr{desolve}}\\ \hline
+    \mv|gsoln : desolve(de, u(t) );|\\
+	\mv|where de includes the equal sign (=)|\\
+	\mv|and 'diff(u(t),t) and possibly u(t).|\\
+	\mv|psoln : ratsubst(u0val,u(o),gsoln)|\\ \hline
+   \Large{\tcbr{plotdf}}\\ \hline
+	\mv|plotdf ( dudt, [t,u], [trajectory_at, t0, u0],|\\
+	\mv|[direction,forward], [t, tmin, tmax],|\\
+	\mv|  [u, umin, umax] )$|\\ \hline
+	\Large{\tcbr{rk}}\\ \hline
+	\mv|points : rk ( dudt, u, u0, [t, t0, tlast, dt] )$|\\ \hline
+	\mv|  where dudt is a function of t and u which|\\
+    \mv|  determines diff(u,t).|\\ \hline	
+	\end{tabular}  
+\caption{Methods for One First Order ODE}
+\end{center}
+\end{table}
+\noindent We will use these four different methods to solve the first order
+  ordinary differential equation
+\begin{equation}  \label{Eq:ode1}
+\mathbf{\frac{d\,u}{d\,t} = e^{-t} + u }
+\end{equation}
+  subject to the condition that when $\mathbf{t = 2, \quad u = -0.1}$.
+\subsubsection{Exact Solution with \textbf{ode2} and \textbf{ic1}}
+Most ordinary differential equations have no known exact solution (or the exact
+  solution is a complicated expression involving many terms with special
+  functions) and one normally uses approximate methods.
+However, some ordinary differential equations have simple exact solutions, and
+  many of these can be found using \textbf{ode2}, \textbf{desolve},  or \textbf{contrib\_ode}.
+The manual has the following information about \textbf{ode2}
+\begin{quote}
+Function: \textbf{ode2 (eqn, dvar, ivar)}\\
+The function \textbf{ode2} solves an ordinary differential equation (ODE) of 
+  \tcbr{first or second order}.
+It takes three arguments: an ODE given by \textbf{eqn}, the dependent variable \textbf{dvar},
+   and the independent variable \textbf{ivar}.
+When successful, it returns either an explicit or implicit solution for the 
+   dependent variable.
+\mv|%c| is used to represent the integration constant in the case of first-order equations,
+   and \mv|%k1| and \mv|%k2| the constants for second-order equations.
+The dependence of the dependent variable on the independent variable does not
+   have to be written explicitly, as in the case of \textbf{desolve}, 
+   but the independent variable must always be given as the third argument. 
+\end{quote}
+\newpage
+\noindent If the differential equation has the structure \textbf{Left(dudt,u,t) = Right(dudt,u,t)}
+  ( here \textbf{u} is the dependent variable and \textbf{t} is the independent variable),
+  we can always rewrite that differential equation as
+  \textbf{de = Left(dudt,u,t) - Right(dudt,u,t) = 0}, or \textbf{de = 0}.\\
+
+\noindent We can use the syntax \textbf{ode2(de,u,t)}, with the first argument  
+  an expression which includes derivatives, instead of the complete equation including
+  the \textbf{" = 0"} on the end, and \textbf{ode2} will assume we mean \textbf{de = 0}
+  for the differential equation.
+(Of course you can also use \textbf{ode2 ( de=0, u, t)}\\
+
+
+\noindent We rewrite our example linear first order differential equation 
+  Eq. \ref{Eq:ode1}
+  in the way just described, using the \textbf{noun} form \textbf{'diff},
+  which uses a single quote.
+We then use \textbf{ode2}, and call the general solution \textbf{gsoln}.
+\begin{myVerbatim}
+(%i1) de : 'diff(u,t)- u - exp(-t);
+                                du         - t
+(%o1)                           -- - u - %e
+                                dt
+(%i2) gsoln : ode2(de,u,t);
+                                        - 2 t
+                                      %e         t
+(%o2)                       u = (%c - -------) %e
+                                         2
+\end{myVerbatim}
+The general solution returned by \textbf{ode2} contains one constant of
+  integration \mvs|%c|, and is an explicit solution for \textbf{u} as a
+  function of \textbf{t}, although the above does not bind the symbol \mvs|u|.\\
+  
+\noindent We next find the particular solution which has $\mathbf{t = 2, \; u = -0.1}$
+  using \textbf{ic1}, and call this particular solution \textbf{psoln}.
+We then check the returned solution in two ways: 1. does it satisfy the
+  conditions given to \textbf{ic1}?, and 2. does it produce a zero value
+  for our expression \textbf{de}?
+\begin{myVerbatim}
+(%i3) psoln : ic1(gsoln,t = 2, u = -0.1),ratprint:false;
+                           - t - 4     2        2 t       4
+                         %e        ((%e  - 5) %e    + 5 %e )
+(%o3)              u = - -----------------------------------
+                                         10
+(%i4) rhs(psoln),t=2,ratsimp;
+                                       1
+(%o4)                                - --
+                                       10
+(%i5) de,psoln,diff,ratsimp;
+(%o5)                                  0
+\end{myVerbatim}
+Both tests are passed by this particular solution.
+We can now make a quick plot of this solution using \textbf{plot2d}.
+\begin{myVerbatim}
+(%i6) us : rhs(psoln);
+                         - t - 4     2        2 t       4
+                       %e        ((%e  - 5) %e    + 5 %e )
+(%o6)                - -----------------------------------
+                                       10
+(%i7) plot2d(us,[t,0,7],
+           [style,[lines,5]],[ylabel," "],
+           [xlabel,"t0 = 2, u0 = -0.1, du/dt = exp(-t) + u"])$
+\end{myVerbatim}
+\newpage
+\noindent which looks like
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.7]{ch1p7.eps} }
+	\caption{ Solution for which $\mathbf{t = 2, \;u = -0.1}$}
+\end{figure}
+ 
+%plot2d(us,[t,0,7],
+%           [style,[lines,8]],[ylabel," "],
+%           [xlabel,"t0 = 2, u0 = -0.1, du/dt = exp(-t) + u"],
+%            [psfile,"ch1p7.eps"])$
+\subsubsection{Exact Solution Using \textbf{desolve}}
+\textbf{desolve} uses Laplace transform methods to find an exact solution.
+To be able to use \textbf{desolve}, we need to write our example 
+  differential equation Eq.\ref{Eq:ode1} in
+  a more explicit form, with every \mv|u -> u(t)|, and include the
+  \mv|=| sign in the definition of the differential equation.
+\begin{myVerbatim}
+(%i1) eqn : 'diff(u(t),t) - exp(-t) - u(t) = 0;
+                         d                    - t
+(%o1)                    -- (u(t)) - u(t) - %e    = 0
+                         dt
+(%i2) gsoln : desolve(eqn,u(t));
+                                              t     - t
+                               (2 u(0) + 1) %e    %e
+(%o2)                   u(t) = ---------------- - -----
+                                      2             2
+(%i3) eqn,gsoln,diff,ratsimp;
+(%o3)                                0 = 0
+(%i4) bc : subst ( t=2, rhs(gsoln)) = - 0.1;
+                         2                  - 2
+                       %e  (2 u(0) + 1)   %e
+(%o4)                  ---------------- - ----- = - 0.1
+                              2             2
+(%i5) solve ( eliminate ( [gsoln, bc],[u(0)]), u(t) ),ratprint:false;
+                                 - t     t - 2       t - 4
+                           - 5 %e    - %e      + 5 %e
+(%o5)              [u(t) = -------------------------------]
+                                         10
+(%i6) us : rhs(%[1]);
+                              - t     t - 2       t - 4
+                        - 5 %e    - %e      + 5 %e
+(%o6)                   -------------------------------
+                                      10
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i7) us, t=2, ratsimp;
+                                       1
+(%o7)                                - --
+                                       10
+(%i8) plot2d(us,[t,0,7],
+           [style,[lines,5]],[ylabel," "],
+           [xlabel,"t0 = 2, u0 = -0.1, du/dt = exp(-t) + u"])$
+\end{myVerbatim}
+  and we get the same plot as before.
+The function \textbf{desolve} returns a solution in terms of the ``initial value'' \mv|u(0)|,
+  which here means \mv|u(t = 0)|,  and
+  we must go through an extra step to eliminate \mv|u(0)| in a way that
+  assures our chosen boundary condition \mv|t = 2,  u - -0.1| is satisfied.\\
+  
+\noindent We have checked that the general solution satisfies the given
+  differential equation in \mv|%i3|, and have checked that our particular
+  solution satisfies the desired condition at \mv|t = 2| in \mv|%i7|.\\
+  
+\noindent If your problem requires that the value of the solution \mv|us| be
+  specified at \mv|t = 0|, the route to the particular solution is much simpler than
+    what we used above.
+You simply use \mv|subst ( u(0) = -1, rhs (gsoln) )| if, for example, you wanted a
+  particular solution to have the property that when \mv|t = 0|, \mv|u = -1|. 
+\begin{myVerbatim}
+(%i9) us : subst( u(0) = -1,rhs(gsoln) ),ratsimp;
+                                  - t    2 t
+                                %e    (%e    + 1)
+(%o9)                         - -----------------
+                                        2
+(%i10) us,t=0,ratsimp;
+(%o10)                                 - 1
+\end{myVerbatim}
+\subsubsection{Numerical Solution and Plot with \textbf{plotdf}}
+We next use \textbf{plotdf} to numerically integrate the given first order
+  ordinary differential equation, draw a direction field plot which governs any particular
+  solution, and draw the particular solution we have chosen.\\
+  
+  
+\noindent The default color choice of \textbf{plotdf} is to use small blue arrows give the local 
+  direction of the trajectory of the particular solution passing though that point.
+This direction can be defined by an angle $\boldsymbol{\alpha}$ such that if $\mathbf{u' = f(t,u)}$,
+  then $\mathbf{\boldsymbol{\tan(\alpha}) = f(t,u)}$, and at the point $\mathbf{(t_{0}, \, u_{0})}$,
+\begin{equation}
+\mathbf{d\,u = f(t_{0},u_{0}) \times \,d\,t = d\,t \, \times  \left( \frac{d\,u}{d\,t} \right)_{t = t_{0},\;u = u_{0}} }
+\end{equation}
+ This equation determines the increase \textbf{d\,u} in the value of the dependent variable
+ \textbf{u} induced by a small increase \textbf{d\,t} in the independent variable \textbf{t}
+ at the point $\mathbf{(t_{0},\,u_{0})}$.
+We then define a local vector with \textbf{t} component \textbf{d\,t} and
+  \textbf{u} component \textbf{d\,u}, and draw a small arrow in that direction at a grid of
+  chosen points to construct a direction field associated with the given first
+  order differential equation.
+The length of the small arrow can be increased some to reflect large values of the
+  magnitude of $\mathbf{d\,u/d\,t}$.\\
+
+\noindent For one first order ordinary differential equation, \textbf{plotdf},
+  has the syntax
+\begin{myVerbatim2}
+       plotdf( dudt,[t,u], [trajectory_at, t0, u0], options ... )
+\end{myVerbatim2}
+  in which \mv|dudt| is the function of \mv|(t,u)| which determines the rate of change 
+   $\mathbf{d\,u/d\,t}$.
+\newpage
+\begin{myVerbatim}
+(%i1) plotdf(exp(-t) + u, [t, u], [trajectory_at,2,-0.1],
+             [direction,forward], [t,0,7], [u, -6, 1] )$
+\end{myVerbatim}
+produces the plot
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.6]{ch1p8.eps} }
+	\caption{Direction Field for the Solution $\mathbf{t = 2, \;u = -0.1}$}
+\end{figure}
+
+\noindent (We have thickened the red curve using the \textbf{Config, Linewidth} menu option of
+  \textbf{plotdf}, followed by \textbf{Replot}).\\
+
+\noindent The help manual has an extensive discussion and examples  of the use of the direction
+  field plot utility \textbf{plotdf}.
+\subsubsection{Numerical Solution with 4th Order Runge-Kutta: \textbf{rk}}
+Although the \textbf{plotdf} function is useful for orientation about the shapes and
+  types of solutions possible, if you need a list with coordinate points to use for
+  other purposes, you can use the fourth order Runge-Kutta function \textbf{rk}.\\
+  
+\noindent For one first order ordinary differential equation, the syntax has some
+  faint resemblance to that of \textbf{plotdf}:
+\begin{myVerbatim2}
+   rk ( dudt, u, u0, [ t, t0, tlast, dt ] )
+\end{myVerbatim2}  
+  in which we are assuming that \textbf{u} is the dependent variable and \textbf{t} is the
+   independent variable, and \mv|dudt| is that function of \textbf{(t, u)} which
+   locally determines the value of $\mathbf{d\,u/d\,t}$.
+This will numerically integrate the corresponding first order ordinary differential
+  equation and return a list of pairs of \textbf{(t, u)} on the solution curve which
+  has been requested:
+\begin{myVerbatim2}
+  [ [t0, u0], [t0 + dt, y(t0 + dt)], .... ,[tlast, y(tlast)] ]
+\end{myVerbatim2}  
+\newpage
+For our example first order ordinary differential equation, choosing
+  the same initial conditions as above, and choosing \mv|dt = 0.01|,
+\begin{myVerbatim}
+(%i1) fpprintprec:8$
+(%i2) points : rk (exp(-t) + u, u, -0.1, [ t, 2, 7, 0.01 ] )$
+(%i3) %, fll;
+(%o3)                [[2, - 0.1], [7.0, - 4.7990034], 501]
+(%i4) plot2d( [ discrete, points ], [ t, 0, 7],
+           [style,[lines,5]],[ylabel," "],
+           [xlabel,"t0 = 2, u0 = -0.1, du/dt = exp(-t) + u"])$
+\end{myVerbatim}
+(We have used our homemade function \mv|fll(x)|, loaded in at startup
+  with the other functions defined in \mv|mbe1util.mac|, available with
+  the Ch. 1 material.
+We have provided the definition of \mv|fll| in the preface of this
+  chapter.
+Instead of \mv|%, fll ;|, you could use \mv|[%[1],last(%),length(%)];|
+  to get the same information.)\\
+  
+\noindent The plot looks like
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.6]{ch1p30.eps} }
+	\caption{Runge-Kutta Solution with  $\mathbf{t = 2, \;u = -0.1}$ }
+\end{figure}
+
+%(%i7) plot2d([discrete,points],[t,0,7],
+%           [style,[lines,8]],[ylabel," "],
+%           [xlabel,"t0 = 2, u0 = -0.1, du/dt = exp(-t) + u"],
+%            [psfile,"ch1p30.eps"])$
+\newpage
+\subsection{Solution of One Second Order ODE or Two First Order ODE's}
+\subsubsection{Summary Table}
+\begin{table}[h]
+\begin{center}
+  \renewcommand{\arraystretch}{1.25}
+  \begin{tabular}{|c|}
+    \hline
+  \Large{\tcbr{ode2 and ic1}}\\ \hline
+    \mv|gsoln : ode2 (de, u, t); where de involves 'diff(u,t,2)|\\
+	\mv|and possibly 'diff(u,t).|\\
+	\mv|psoln : ic2 (gsoln, t = t0, u = u0, 'diff(u,t) = up0);|\\ \hline
+  \Large{\tcbr{desolve}}\\ \hline
+    \mv| atvalue ( 'diff(u,t), t = 0, v(0) );|\\
+    \mv|gsoln : desolve(de, u(t) );|\\
+	\mv|where de includes the equal sign (=), 'diff(u(t),t,2),|\\
+	\mv|and possibly 'diff(u(t),t) and  u(t).|\\
+	\mv|One type of particular solution is returned by using |\\
+	\mv|psoln : subst([ u(o) = u0, v(0) = v0] , gsoln)|\\ \hline
+   \Large{\tcbr{plotdf}}\\ \hline
+     \mv|plotdf ( [dudt, dvdt], [u, v], [trajectory_at, u0, v0],|\\
+     \mv| [u, umin, umax],[v, vmin, vmax], [tinitial, t0],|\\
+     \mv| [direction,forward], [versus_t, 1],[tstep, timestepval],|\\
+	 \mv|[nsteps, nstepsvalue] )$|\\ \hline	
+	\Large{\tcbr{rk}}\\ \hline
+	\mv|points : rk ([dudt, dvdt ],[u, v],[u0, v0],[t, t0, tlast, dt] )$|\\ \hline
+	\mv|  where dudt and dvdt are functions of t,u, and v which|\\
+    \mv|  determine diff(u,t) and diff(v,t).|\\ \hline	
+	\end{tabular}  
+\caption{Methods for One Second Order or Two First Order ODE's}
+\end{center}
+\end{table}
+We apply the above four methods to the simple second order
+  ordinary differential equation:
+\begin{equation}
+\mathbf{\frac{d^{2}\,u}{d\,t^{2}} = 4\, u}
+\end{equation}
+  subject to the conditions that when $\mathbf{t = 2}$, $\mathbf{u = 1}$ 
+  and $\mathbf{d\,u/d\,t = 0}$.
+\subsubsection{Exact Solution with \textbf{ode2}, \textbf{ic2}, and \textbf{eliminate}}
+The main difference here is the use of \textbf{ic2} rather than \textbf{ic1}.
+\begin{myVerbatim}
+(%i1) de : 'diff(u,t,2) - 4*u;
+                                    2
+                                   d u
+(%o1)                              --- - 4 u
+                                     2
+                                   dt
+(%i2) gsoln : ode2(de,u,t);
+                                    2 t         - 2 t
+(%o2)                     u = %k1 %e    + %k2 %e
+(%i3) de,gsoln,diff,ratsimp;
+(%o3)                                  0
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i4) psoln : ic2(gsoln,t=2,u=1,'diff(u,t) = 0);
+                                 2 t - 4     4 - 2 t
+                               %e          %e
+(%o4)                      u = --------- + ---------
+                                   2           2
+(%i5) us : rhs(psoln);
+                               2 t - 4     4 - 2 t
+                             %e          %e
+(%o5)                        --------- + ---------
+                                 2           2
+(%i6) us, t=2, ratsimp;
+(%o6)                                  1
+(%i7) plot2d(us,[t,0,4],[y,0,10],
+           [style,[lines,5]],[ylabel," "],
+           [xlabel," U versus t, U''(t) = 4 U(t), U(2) = 1, U'(2) = 0 "])$
+plot2d: expression evaluates to non-numeric value somewhere in plotting range.
+\end{myVerbatim}
+which produces the plot
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.7]{ch1p31.eps} }
+	\caption{Solution for which $\mathbf{t = 2, \;u = 1, \; u' = 0}$  }
+\end{figure}
+
+%plot2d(us,[t,0,4],[y,0,10],
+%           [style,[lines,8]],[ylabel," "],
+%           [xlabel," U versus t, U''(t) = 4 U(t), U(2) = 1, U'(2) = 0 "],
+%           [psfile,"ch1p31.eps"])$
+Next we make a ``phase space plot'' which is a plot of $\mathbf{v = d\,u/d\,t}$
+  versus $\mathbf{u}$ over the range $\mathbf{ 1 \leq t \leq 3 }$.
+\begin{myVerbatim}
+(%i8) vs : diff(us,t),ratsimp;
+                             - 2 t - 4    4 t     8
+(%o8)                      %e          (%e    - %e )
+(%i9) for i thru 3 do
+        d[i]:[discrete,[float(subst(t=i,[us,vs]))]]$
+(%i10) plot2d( [[parametric,us,vs,[t,1,3]],d[1],d[2],d[3] ],
+            [x,0,8],[y,-12,12],
+          [style, [lines,5,1],[points,4,2,1],
+            [points,4,3,1],[points,4,6,1]],
+          [ylabel," "],[xlabel," "],
+           [legend," du/dt vs u "," t = 1 ","t = 2","t = 3"] )$
+\end{myVerbatim}
+
+\newpage
+
+\noindent which produces the plot
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.7]{ch1p32.eps} }
+	\caption{ $\mathbf{t = 2, \;y = 1, \; y' = 0}$ Solution }
+\end{figure}
+
+%plot2d( [[parametric,us,vs,[t,1,3]],d[1],d[2],d[3] ],
+%            [x,0,8],[y,-12,12],
+%          [style, [lines,8,1],[points,6,2,1],
+%            [points,6,3,1],[points,6,6,1]],
+%          [ylabel," "],[xlabel," "],
+%           [legend," du/dt vs u "," t = 1 ","t = 2","t = 3"],
+%           [psfile,"ch1p32.eps"])$
+%\newpage
+If your boundary conditions are, instead, for \mv|t=0, u = 1|, and
+  for \mv|t = 2, u = 4|, then one can eliminate the two constants ``by hand''
+  instead of using \textbf{ic2} (see also next section).
+\begin{myVerbatim}
+(%i4) bc1 : subst(t=0,rhs(gsoln)) = 1$
+(%i5) bc2 : subst(t = 2, rhs(gsoln)) = 4$
+(%i6) solve(
+        eliminate([gsoln,bc1,bc2],[%k1,%k2]), u ),
+           ratsimp, ratprint:false;
+                       - 2 t       4        4 t     8       4
+                     %e      ((4 %e  - 1) %e    + %e  - 4 %e )
+(%o6)           [u = -----------------------------------------]
+                                        8
+                                      %e  - 1
+(%i7) us : rhs(%[1]);
+                     - 2 t       4        4 t     8       4
+                   %e      ((4 %e  - 1) %e    + %e  - 4 %e )
+(%o7)              -----------------------------------------
+                                      8
+                                    %e  - 1
+(%i8) us,t=0,ratsimp;
+(%o8)                                  1
+(%i9) us,t=2,ratsimp;
+(%o9)                                  4
+\end{myVerbatim}
+\newpage
+\subsubsection{Exact Solution with \textbf{desolve, atvalue,} and \textbf{eliminate}}
+The function \textbf{desolve} uses Laplace transform methods which
+  are set up to expect the use of initial values for dependent
+  variables and their derivatives.
+(However, we will show how you can impose more general boundary conditions.)
+If the dependent variable is \mv|u(t)|, for example, the solution
+  is returned in terms of a constant \mv|u(0)|, which refers to
+  the value of \mv|u(t = 0)| (here we are assuming that the independent
+  variable is \mv|t|).
+To get a simple result from \textbf{desolve} which we can work with (for the case of a second
+  order ordinary differential equation), we can use the \textbf{atvalue}
+  function with the syntax (for example):
+\begin{myVerbatim2}
+  atvalue ( 'diff(u,t), t = 0, v(0) )
+\end{myVerbatim2}
+  which will allow \textbf{desolve} to return the solution to a 
+  second order ODE in terms of the pair of constants \mv|( u(0), v(0) )|.
+Of course, there is nothing sacred about using the symbol \mv|v(0)| here.
+The function \textbf{atvalue} should be invoked before the use of
+  \textbf{desolve}.\\
+
+\noindent If the desired boundary conditions for a particular
+  solution refer to \mv|t = 0|, then you can immediately find that particular
+  solution using the syntax (if \mv|ug| is the general solution, say)
+\begin{myVerbatim2}
+  us : subst( [ u(0) = u0val, v(0) = v0val], ug ),
+\end{myVerbatim2}
+  or else by using \textbf{ratsubst} twice.\\
+  
+\noindent In our present example, the desired boundary conditions
+  refer to \mv| t = 2 |, and impose conditions on the value of \textbf{u} and
+  its first derivative at that value of \mv|t|.
+This requires a little more work, and we use \textbf{eliminate} to get
+  rid of the constants \mv|(u(0), v(0))| in a way that allows our desired
+  conditions to be satisfied.  
+\begin{myVerbatim}
+(%i1) eqn : 'diff(u(t),t,2) - 4*u(t) = 0;
+                             2
+                            d
+(%o1)                       --- (u(t)) - 4 u(t) = 0
+                              2
+                            dt
+(%i2) atvalue ( 'diff(u(t),t), t=0, v(0) )$
+(%i3) gsoln : desolve(eqn,u(t));
+                                     2 t                     - 2 t
+                   (v(0) + 2 u(0)) %e      (v(0) - 2 u(0)) %e
+(%o3)       u(t) = --------------------- - -----------------------
+                             4                        4
+(%i4) eqn,gsoln,diff,ratsimp;
+(%o4)                                0 = 0
+(%i5) ug : rhs(gsoln);
+                                  2 t                     - 2 t
+                (v(0) + 2 u(0)) %e      (v(0) - 2 u(0)) %e
+(%o5)           --------------------- - -----------------------
+                          4                        4
+(%i6) vg : diff(ug,t),ratsimp$
+(%i7) ubc : subst(t = 2,ug) = 1$
+(%i8) vbc : subst(t = 2,vg) = 0$
+(%i9) solve (
+          eliminate([gsoln, ubc, vbc],[u(0), v(0)]), u(t) ),
+           ratsimp,ratprint:false;
+                                - 2 t - 4    4 t     8
+                              %e          (%e    + %e )
+(%o9)                 [u(t) = -------------------------]
+                                          2
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i10) us : rhs(%[1]);
+                             - 2 t - 4    4 t     8
+                           %e          (%e    + %e )
+(%o10)                     -------------------------
+                                       2
+(%i11) subst(t=2, us),ratsimp;
+(%o11)                                 1
+(%i12) vs : diff(us,t),ratsimp;
+                             - 2 t - 4    4 t     8
+(%o12)                     %e          (%e    - %e )
+(%i13) subst(t = 2,vs),ratsimp;
+(%o13)                                 0
+(%i14) plot2d(us,[t,0,4],[y,0,10],
+           [style,[lines,5]],[ylabel," "],
+           [xlabel," U versus t, U''(t) = 4 U(t), U(2) = 1, U'(2) = 0 "])$
+plot2d: expression evaluates to non-numeric value somewhere in plotting range.
+(%i15) for i thru 3 do
+        d[i]:[discrete,[float(subst(t=i,[us,vs]))]]$
+(%i16) plot2d( [[parametric,us,vs,[t,1,3]],d[1],d[2],d[3] ],
+            [x,0,8],[y,-12,12],
+          [style, [lines,5,1],[points,4,2,1],
+            [points,4,3,1],[points,4,6,1]],
+          [ylabel," "],[xlabel," "],
+           [legend," du/dt vs u "," t = 1 ","t = 2","t = 3"] )$
+\end{myVerbatim}
+  which generates the same plots found with the \textbf{ode2} method above.\\
+  
+\noindent If the desired boundary conditions are that \mv|u| have given values
+  at \mv|t = 0| and \mv|t = 3|, then we can proceed from the same
+  general solution above as follows with \mv|up| being a partially defined
+  particular solution (assume \mv|u(0) = 1| and \mv|u(3) = 2|):
+\begin{myVerbatim}
+(%i17) up : subst(u(0) = 1, ug);
+                                  2 t                - 2 t
+                     (v(0) + 2) %e      (v(0) - 2) %e
+(%o17)               ---------------- - ------------------
+                            4                   4
+(%i18) ubc : subst ( t=3, up) = 2;
+                       6                - 6
+                     %e  (v(0) + 2)   %e    (v(0) - 2)
+(%o18)               -------------- - ---------------- = 2
+                           4                 4
+(%i19) solve(
+          eliminate ( [ u(t) = up, ubc ],[v(0)] ), u(t) ),
+             ratsimp, ratprint:false;
+                        - 2 t       6        4 t     12       6
+                      %e      ((2 %e  - 1) %e    + %e   - 2 %e )
+(%o19)        [u(t) = ------------------------------------------]
+                                         12
+                                       %e   - 1
+(%i20) us : rhs (%[1]);
+                    - 2 t       6        4 t     12       6
+                  %e      ((2 %e  - 1) %e    + %e   - 2 %e )
+(%o20)            ------------------------------------------
+                                     12
+                                   %e   - 1
+(%i21) subst(t = 0, us),ratsimp;
+(%o21)                                 1
+(%i22) subst (t = 3, us),ratsimp;
+(%o22)                                 2
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i23) plot2d(us,[t,0,4],[y,0,10],
+           [style,[lines,5]],[ylabel," "],
+           [xlabel," U versus t, U''(t) = 4 U(t), U(0) = 1, U(3) = 2 "])$
+plot2d: expression evaluates to non-numeric value somewhere in plotting range.
+\end{myVerbatim}
+\noindent which produces the plot
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.7]{ch1p33.eps} }
+	\caption{Solution for $\mathbf{u(0) = 1, \; u(3) = 2 }$ }
+\end{figure}
+
+%plot2d ( us, [t,0,4], [y,0,10],
+%           [style,[lines,8]],[ylabel," "],
+%           [xlabel," U versus t, U''(t) = 4 U(t), U(0) = 1, U(3) = 2 "],
+%           [psfile,"ch1p33.eps"])$
+
+\noindent If instead, you need to satisfy \mv|u(1) = -1| and \mv|u(3) = 2|, you
+  could proceed from \mv|gsoln| and \mv|ug| as follows:
+\begin{myVerbatim}
+(%i24) ubc1 : subst ( t=1, ug) = -1$
+(%i25) ubc2 : subst ( t=3, ug) = 2$
+(%i26) solve(
+         eliminate ( [gsoln, ubc1, ubc2],[u(0),v(0)]), u(t) ),
+          ratsimp, ratprint:false;
+                        - 2 t       4        4 t     12       8
+                      %e      ((2 %e  + 1) %e    - %e   - 2 %e )
+(%o26)        [u(t) = ------------------------------------------]
+                                        10     2
+                                      %e   - %e
+(%i27) us : rhs(%[1]);
+                    - 2 t       4        4 t     12       8
+                  %e      ((2 %e  + 1) %e    - %e   - 2 %e )
+(%o27)            ------------------------------------------
+                                    10     2
+                                  %e   - %e
+(%i28) subst ( t=1, us), ratsimp;
+(%o28)                                - 1
+(%i29) subst ( t=3, us), ratsimp;
+(%o29)                                 2
+(%i30) plot2d ( us, [t,0,4], [y,-2,8],
+           [style,[lines,5]],[ylabel," "],
+           [xlabel," U versus t, U''(t) = 4 U(t), U(1) = -1, U(3) = 2 "])$
+\end{myVerbatim}
+\newpage
+\noindent which produces the plot
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.7]{ch1p34.eps} }
+	\caption{Solution for $\mathbf{u(1) = -1, \; u(3) = 2 }$ }
+\end{figure}
+
+%plot2d ( us, [t,0,4], [y,-2,8],
+%           [style,[lines,8]],[ylabel," "],
+%           [xlabel," U versus t, U''(t) = 4 U(t), U(1) = -1, U(3) = 2 "],
+%           [psfile,"ch1p34.eps"])$
+\noindent The simplest case of using \textbf{desolve} is the case in which you impose conditions
+  on the solution and its first derivative at \mv|t = 0|, in which case you simply
+  use:
+\begin{myVerbatim}
+(%i4) psoln : subst([u(0) = 1,v(0)=0],gsoln);
+                                     2 t     - 2 t
+                                   %e      %e
+(%o4)                       u(t) = ----- + -------
+                                     2        2
+(%i5) us : rhs(psoln);
+                                  2 t     - 2 t
+                                %e      %e
+(%o5)                           ----- + -------
+                                  2        2
+\end{myVerbatim}
+  in which we have chosen the initial conditions \mv|u(0) = 1|, and
+   \mv|v(0) = 0|.
+\newpage
+\subsubsection{Numerical Solution and Plot with \textbf{plotdf}}
+Given a second order autonomous ODE, one needs to introduce a second
+  dependent variable \mv|v(t)|, say, which is defined as the first
+  derivative of the original single dependent variable \mv|u(t)|.
+Then for our example, the starting ODE
+\begin{equation}
+\mathbf{\frac{d^{2}\,u}{d\,t^{2}} = 4\, u}
+\end{equation}
+  is converted into two first order ODE's
+\begin{equation}
+\mathbf{\frac{d\,u}{d\,t} = v, \quad \frac{d\,v}{d\,t} = 4\,u}
+\end{equation}
+and the \textbf{plotdf} syntax for two first order ODE's is
+\begin{myVerbatim2}
+    plotdf ( [dudt, dvdt], [u, v], [trajectory_at, u0, v0], [u, umin, umax],
+	   [v, vmin, vmax], [tinitial, t0], [versus_t, 1],
+	   [tstep, timestepval], [nsteps, nstepsvalue] )$
+\end{myVerbatim2}
+  in which at \mv|t = t0|, \mv|u = u0| and \mv|v = v0|.
+If \mv|t0 = 0| you can omit the option \mv|[tinitial, t0]|.
+The options \mv|[u, umin, umax]| and \mv|[v, vmin, vmax]| allow you to control
+  the horizontal and vertical extent of the phase space plot (here \mv|v| versus \mv|u|) which will
+  be produced. 
+The option \mv|[versus_t,1]| tells \textbf{plotdf} to create a separate plot
+  of both \mv|u| and \mv|v| versus the dependent variable.
+The last two options are only needed if you are not satisfied with the
+  plots and want to experiment with other than the default values of
+  \mv|tstep| and \mv|nsteps|.\\
+  
+\noindent Another option you can add is \mv|[direction,forward]|, which will display the
+  trajectory for \mv|t| greater than or equal to  \mv|t0|, rather than for a default interval
+  around the value \mv|t0| which corresponds to \mv|[direction,both]|.  
+  
+\noindent Here we invoke \textbf{plotdf} for our example.
+\begin{myVerbatim}
+(%i1) plotdf ( [v, 4*u], [u, v], [trajectory_at, 1, 0],
+            [u, 0, 8], [v, -10, 10], [versus_t, 1],
+              [tinitial, 2])$
+\end{myVerbatim}
+\noindent The plot versus \mv|t| is
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.4]{ch1p36.eps} }
+	\caption{u(t) and u'(t) vs. $\mathbf{t}$ for $\mathbf{u(2) = 1, \; u'(2) = 0 }$ }
+\end{figure}
+
+\newpage
+\noindent and the phase space plot is
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.4]{ch1p35.eps} }
+	\caption{u'(t) vs. u(t) for  $\mathbf{u(2) = 1, \; u'(2) = 0 }$ }
+\end{figure}
+
+\noindent In both of these plots we used the \mv|Config| menu to increase the linewidth,
+  and then clicked on \mv|Replot|.
+We also cut and pasted the color \mv|red| to be the second choice on the color cycle 
+  (instead of green) used in the plot versus the independent variable \mv|t|.
+Note that no matter what you call your independent variable, it will always be
+  called \mv|t| on the plot of the dependent variables versus the independent
+  variable.
+\subsubsection{Numerical Solution with 4th Order Runge-Kutta: \textbf{rk}}
+To use the fourth order Runge-Kutta numerical integrator \textbf{rk} for
+  this example, we need to follow the procedure used in the previous
+  section using \textbf{plotdf}, converting the second order ODE
+  to a pair of first order ODE's.\\
+  
+\noindent The syntax for two first order ODE's with dependent variables
+ \mv|[u,v]| and independent variable \mv|t| is
+\begin{myVerbatim2}
+   rk ( [ dudt, dvdt ], [u,v], [u0,v0], [t, t0, tmax, dt] )
+\end{myVerbatim2}
+  which will produce the list of lists:
+\begin{myVerbatim2}
+   [ [t0, u0,v0],[t0+dt, u(t0+dt),v(t0+dt)], ..., [tmax, u(tmax),v(tmax)] ]
+\end{myVerbatim2}
+For our example, following our discussion in the previous section with \textbf{plotdf},
+  we use
+\begin{myVerbatim2}
+  points : rk ( [v, 4*u], [u, v], [1, 0], [t, 2, 3.6, 0.01] )
+\end{myVerbatim2}
+We again use the homemade function \mv|fll| (see the preface) to look at the first element, the last
+  element, and the length of various lists.
+\begin{myVerbatim}
+(%i1) fpprintprec:8$
+(%i2) points : rk([v,4*u],[u,v],[1,0],[t,2,3.6,0.01])$
+(%i3) %, fll;
+(%o3)            [[2, 1, 0], [3.6, 12.286646, 24.491768], 161]
+(%i4) uL : makelist([points[i][1],points[i][2]],i,1,length(points))$
+(%i5) %, fll;
+(%o5)                   [[2, 1], [3.6, 12.286646], 161]
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i6) vL : makelist([points[i][1],points[i][3]],i,1,length(points))$
+(%i7) %, fll;
+(%o7)                   [[2, 0], [3.6, 24.491768], 161]
+(%i8) plot2d([ [discrete,uL],[discrete,vL]],[x,1,5],
+           [style,[lines,5]],[y,-1,24],[ylabel," "],
+           [xlabel,"t"],[legend,"u(t)","v(t)"])$
+\end{myVerbatim}
+%\newpage
+\noindent which produces the plot
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.5]{ch1p37.eps} }
+	\caption{Runge-Kutta for  $\mathbf{u(2) = 1, \; u'(2) = 0 }$ }
+\end{figure}
+
+\noindent Next we make a phase space plot of \mv|v| versus \mv|u| from
+  the result of the Runge-Kutta integration.
+\begin{myVerbatim}
+(%i9) uvL : makelist([points[i][2],points[i][3]],i,1,length(points))$
+(%i10) %, fll;
+(%o10)                [[1, 0], [12.286646, 24.491768], 161]
+(%i11) plot2d( [ [discrete,uvL]],[x,0,13],[y,-1,25],
+                [style,[lines,5]],[ylabel," "],
+                [xlabel," v vs. u "])$
+\end{myVerbatim}
+%\newpage
+\noindent which produces the phase space plot
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.5]{ch1p38.eps} }
+	\caption{R-K Phase Space Plot for  $\mathbf{u(2) = 1, \; u'(2) = 0 }$ }
+\end{figure}
+
+%plot2d( [ [discrete,uvL]],[x,0,13],[y,-1,25],
+%                [style,[lines,8]],[ylabel," "],
+%                [xlabel," v vs. u "],
+%                [psfile,"ch1p38.eps"])$
+  
+
+\newpage
+\subsection{Examples of ODE Solutions}  
+\subsubsection{Ex. 1: Fall in Gravity with Air Friction: Terminal Velocity}
+Let's explore a problem posed by Patrick T. Tam (A Physicist's Guide to Mathematica, Academic
+  Press, 1997, page 349).
+\begin{quote}
+A small body falls downward with an initial velocity $\mathbf{v_{0}}$ from a height $\mathbf{h}$
+  near the surface of the earth.
+For low velocities (less than about $\mathbf{24 \,m/s}$), the effect of air resistance may be
+  approximated by a frictional force proportional to the velocity.
+Find the displacement and velocity of the body, and determine the terminal velocity.
+Plot the speed as a function of time for several initial velocities.
+\end{quote}
+The net vector force $\mathbf{F}$ acting on the object is thus assumed to be the 
+ (constant) force of gravity and the (variable) force due to air friction, 
+  which is in a direction opposite to the direction of the velocity vector $\mathbf{v}$.
+We can then write Newton's Law of motion in the form
+\begin{equation}
+\mathbf{F} = m \,\mathbf{g} - b \, \mathbf{v} = m\,\frac{d\,\mathbf{v}}{d\,t}
+\end{equation}
+In this vector equation, $m$ is the mass in kg., $\mathbf{g}$ is a vector pointing downward
+   with magnitude $g$, and $b$ is a positive constant
+	which depends on the size and shape of the object and on the viscosity of the air.
+The velocity vector $\mathbf{v}$ points down during the fall.\\
+	
+\noindent If we choose the $y$ axis positive downward, with the point $y = 0$ the
+  launch point, then  the net $y$ components of the  force and Newton's Law of motion are:
+\begin{equation}
+F_{y} =  m \,g - b \,v_{y}  = m\,\frac{d\,v_{y}}{d\,t}
+\end{equation}
+   where $g$ is the positive number $\;9.8 \,m/s^{2}$ and since the
+   velocity component  $v_{y} > 0$ during the fall, the effects of gravity and 
+   air resistance are in competition.\\
+   
+\noindent We see that the rate of change of velocity will become zero at the
+  instant that $m \,g - b \,v_{y} = 0$, or $v_{y} = m \,g/b$, and the downward
+  velocity stops increasing at that moment, the "\textbf{terminal velocity}" having been
+  attained.\\
+   
+\noindent While working with Maxima, we can simplify our notation and
+  let $v_{y} \rightarrow v$ and $(b/m) \rightarrow a$ so both $v$ and $a$ represent
+  positive numbers.
+We then use Maxima to solve the equation $d\,v/d\,t = g - a\,v$.  
+The dimension of each term of this equation must evidently be the dimension of $v/t$,
+  so $a$ has dimension $1/t$.
+%\newpage
+\begin{myVerbatim}
+(%i1) de : 'diff(v,t) - g + a*v;
+                                 dv
+(%o1)                            -- + a v - g
+                                 dt
+(%i2) gsoln : ode2(de,v,t);
+                                           a t
+                                - a t  g %e
+(%o2)                     v = %e      (------- + %c)
+                                          a
+(%i3) de, gsoln, diff,ratsimp;
+(%o3)                                  0
+\end{myVerbatim}
+We then use \textbf{ic1} to get a solution such that $v = v0$ when $t = 0$.
+\begin{myVerbatim}
+(%i4) psoln : expand ( ic1 (gsoln,t = 0, v = v0 ) );
+                                             - a t
+                              - a t      g %e        g
+(%o4)                   v = %e      v0 - --------- + -
+                                             a       a
+(%i5) vs : rhs(psoln);
+                                          - a t
+                           - a t      g %e        g
+(%o5)                    %e      v0 - --------- + -
+                                          a       a
+\end{myVerbatim}
+For consistency, we must get the correct \textbf{terminal speed} for large $t$:
+\begin{myVerbatim}
+(%i6) assume(a>0)$
+(%i7) limit( vs, t, inf );
+                                       g
+(%o7)                                  -
+                                       a
+\end{myVerbatim}
+which agrees with our analysis.\\
+
+\noindent To make some plots, we can introduce a dimensionless time $u$ with the
+  replacement $t \rightarrow u = a\,t$, and a dimensionless speed $w$ with the
+  replacement $v \rightarrow w = a\,v/g$.
+\begin{myVerbatim}
+(%i8) expand(vs*a/g);
+                             - a t
+                         a %e      v0     - a t
+(%o8)                    ------------ - %e      + 1
+                              g
+(%i9) %,[t=u/a,v0=w0*g/a];
+                              - u        - u
+(%o9)                       %e    w0 - %e    + 1
+(%i10) ws : collectterms (%, exp (-u));
+                                - u
+(%o10)                        %e    (w0 - 1) + 1
+\end{myVerbatim}
+As our dimensionless time $u$ gets large, $\mathbf{ws \rightarrow 1}$, which is the value of the
+  terminal speed in dimensionless units.\\
+  
+\noindent Let's now plot three cases, two cases with initial speed less than terminal speed
+  and one case with initial speed greater than the terminal speed.
+(The use of dimensionless units for plots generates what are called ``universal curves'', since
+  they are generally valid, no matter what the actual numbers are).
+\begin{myVerbatim}
+(%i11) plot2d([[discrete,[[0,1],[5,1]]],subst(w0=0,ws),subst(w0=0.6,ws),
+                    subst(w0=1.5,ws)],[u,0,5],[y,0,2],
+           [style,[lines,2,7],[lines,4,1],[lines,4,2],[lines,4,3]],
+           [legend,"terminal speed", "w0 = 0", "w0 = 0.6", "w0 = 1.5"],
+         [ylabel, " "],
+         [xlabel, " dimensionless speed w vs dimensionless time u"])$
+\end{myVerbatim}  
+%\newpage
+\noindent which produces:
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.5]{ch1p13.eps} }
+	\caption{Dimensionless Speed Versus Dimensionless Time }
+\end{figure}
+
+%plot2d([[discrete,[[0,1],[5,1]]],subst(w0=0,ws),subst(w0=0.6,ws),
+%           subst(w0=1.5,ws)],[u,0,5],[y,0,2],
+%           [style,[lines,3,4],[lines,6,1],[lines,6,2],[lines,6,3]],
+%           [legend,"terminal speed", "w0 = 0", "w0 = 0.6", "w0 = 1.5"],
+%           [ylabel, " "],[xlabel, " dimensionless speed w vs dimensionless time u "],
+%           [psfile,"ch1p13.eps"])$
+\newpage
+\noindent An object thrown down with an initial speed greater than the terminal
+  speed (as in the top curve) slows down until its speed is the terminal speed.\\
+  
+\noindent Thus far we have been only concerned with
+  the relation between velocity and time. 
+We can now focus on the implications for distance versus time.
+A dimensionless length $\mathbf{z}$ is $\mathbf{a^{2} \,y/g}$ and the relation
+  $\mathbf{d\,y/d\,t = v}$ becomes $\mathbf{d\,z/d\,u = w}$, or $\mathbf{d\,z = w\,d\,u}$, which can
+  be integrated over corresponding intervals: $\mathbf{z}$ over the interval $\mathbf{[0, z_{f}]}$,
+  and $\mathbf{u}$ over the interval $\mathbf{[0, u_{f}]}$.
+\begin{myVerbatim}
+(%i12) integrate(1,z,0,zf) = integrate(ws,u,0,uf);
+                            - uf            uf
+(%o12)             zf = - %e     (w0 - uf %e   - 1) + w0 - 1
+(%i13) zs : expand(rhs(%)),uf = u;
+                            - u             - u
+(%o13)                  - %e    w0 + w0 + %e    + u - 1
+(%i14) zs, u=0;
+(%o14)                                 0
+\end{myVerbatim}
+(Remember the object is launched at $\mathbf{y = 0}$ which means at $\mathbf{z = 0}$).
+Let's make a plot of distance travelled vs time (dimensionless units)
+  for the three cases considered above.
+\begin{myVerbatim}
+(%i15) plot2d([subst(w0=0,zs),subst(w0=0.6,zs),
+          subst(w0=1.5,zs)],[u,0,1],[style,[lines,4,1],[lines,4,2],
+		  [lines,4,3]], [legend,"w0 = 0", "w0 = 0.6", "w0 = 1.5"],
+          [ylabel," "],
+          [xlabel,"dimensionless distance z vs dimensionless time u"],
+          [gnuplot_preamble,"set key top left;"])$
+\end{myVerbatim}
+%\newpage
+\noindent which produces:
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.8]{ch1p14.eps} }
+	\caption{Dimensionless Distance Versus Dimensionless Time }
+\end{figure}
+
+%plot2d([subst(w0=0,zs),subst(w0=0.6,zs),
+%          subst(w0=1.5,zs)],[u,0,1],[style,[lines,4,1],[lines,4,2],
+%		  [lines,4,3]], [legend,"w0 = 0", "w0 = 0.6", "w0 = 1.5"],
+%          [ylabel," "],
+%          [xlabel,"dimensionless distance z vs dimensionless time u"],
+%          [gnuplot_preamble,"set key top left;"],
+%           [psfile,"ch1p14.eps"])$
+
+\newpage
+\subsubsection{Ex. 2: One Nonlinear First Order ODE}
+Let's solve 
+\begin{equation}
+\mathbf{x^{2}\,y\,\frac{d\,y}{d\,x}  = x\,y^{2} + x^{3} - 1 }
+\end{equation}
+for a solution such that when $\mathbf{x = 1, \; y = 1}$.
+\begin{myVerbatim}
+(%i1) de : x^2*y*'diff(y,x) - x*y^2 - x^3 + 1;
+                             2   dy      2    3
+(%o1)                       x  y -- - x y  - x  + 1
+                                 dx
+(%i2) gsoln : ode2(de,y,x);
+                              2      3
+                         3 x y  - 6 x  log(x) - 2
+(%o2)                    ------------------------ = %c
+                                      3
+                                   6 x
+(%i3) psoln : ic1(gsoln,x=1,y=1);
+                              2      3
+                         3 x y  - 6 x  log(x) - 2   1
+(%o3)                    ------------------------ = -
+                                      3             6
+                                   6 x
+\end{myVerbatim}
+This implicitly determines $\mathbf{y}$ as a function of the independent variable $\mathbf{x}$
+By inspection, we see that $\mathbf{x = 0}$ is a singular point we should
+  stay away from, so we assume from now on that $\mathbf{x \neq 0}$.  \\
+  
+\noindent To look at \tcbr{explicit} solutions \textbf{y(x)} we use \textbf{solve},
+  which returns a list of two expressions depending on \textbf{x}.  
+Since the \tcbr{implicit} solution is a quadratic in \textbf{y}, we will
+  get two solutions from \textbf{solve}, which we call \textbf{y1} and \textbf{y2}.
+\begin{myVerbatim}
+(%i4) [y1,y2] : map('rhs, solve(psoln,y) );
+                     2           2   2           2           2   2
+             sqrt(6 x  log(x) + x  + -)  sqrt(6 x  log(x) + x  + -)
+                                     x                           x
+(%o4)     [- --------------------------, --------------------------]
+                      sqrt(3)                     sqrt(3)
+(%i5) [y1,y2], x = 1, ratsimp;
+(%o5)                              [- 1, 1]
+(%i6) de, diff, y= y2, ratsimp;
+(%o6)                                  0
+\end{myVerbatim}
+We see from the values at $\mathbf{x=1}$ that $\mathbf{y2}$ is the particular solution
+  we are looking for, and we have checked that $\mathbf{y2}$ satisfies the original
+  differential equation.
+From this example, we learn the lesson that \textbf{ic1} sometimes needs 
+  some help in finding the particular solution we are looking for.\\ 
+
+\noindent Let's make a plot of the two solutions found.
+\begin{myVerbatim}
+(%i7) plot2d([y1,y2],[x,0.01,5],
+        [style,[lines,5]],[ylabel, " Y "],
+          [xlabel," X "] , [legend,"Y1", "Y2"],
+         [gnuplot_preamble,"set key bottom center;"])$
+\end{myVerbatim}
+\newpage
+\noindent which produces:
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.6]{ch1p20.eps} }
+	\caption{ Positive X Solutions }
+\end{figure}
+
+%plot2d([y1,y2],[x,0.01,5],
+%        [style,[lines,8]],[ylabel, " Y "],
+%          [xlabel," X "] , [legend,"Y1", "Y2"],
+%         [gnuplot_preamble,"set key bottom center;"],
+%         [psfile,"ch1p20.eps"])$
+
+\subsubsection{Ex. 3: One First Order ODE Which is Not Linear in Y'}
+The differential equation to solve is
+\begin{equation}
+\mathbf{\left( \frac{d\,x}{d\,t} \right)^{2} + 5\,x^{2} = 8 }
+\end{equation}
+  with the initial conditions $\mathbf{t = 0, \quad x = 0}$.
+\begin{myVerbatim}
+(%i1) de: 'diff(x,t)^2 + 5*x^2 - 8;
+                                dx 2      2
+(%o1)                          (--)  + 5 x  - 8
+                                dt
+(%i2) ode2(de,x,t);
+                                dx 2      2
+(%t2)                          (--)  + 5 x  - 8
+                                dt
+
+                     first order equation not linear in y'
+
+(%o2)                                false
+\end{myVerbatim}
+We see that direct use of \textbf{ode2} does not succeed. 
+We can use \textbf{solve} to get equations which are linear in
+  the first derivative, and then using \textbf{ode2} on each of the resulting
+  linear ODE's.
+\begin{myVerbatim}
+(%i3) solve(de,'diff(x,t));
+                  dx                 2   dx               2
+(%o3)            [-- = - sqrt(8 - 5 x ), -- = sqrt(8 - 5 x )]
+                  dt                     dt
+(%i4) ode2 ( %[2], x, t );
+                                  5 x
+                          asin(----------)
+                               2 sqrt(10)
+(%o4)                     ---------------- = t + %c
+                              sqrt(5)
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i5) solve(%,x);
+                     2 sqrt(10) sin(sqrt(5) t + sqrt(5) %c)
+(%o5)           [x = --------------------------------------]
+                                       5
+(%i6) gsoln2 : %[1];
+                     2 sqrt(10) sin(sqrt(5) t + sqrt(5) %c)
+(%o6)            x = --------------------------------------
+                                       5
+(%i7) trigsimp ( ev (de,gsoln2,diff ) );
+(%o7)                                 0
+(%i8) psoln : ic1 (gsoln2, t=0, x=0);
+solve: using arc-trig functions to get a solution.
+Some solutions will be lost.
+                            2 sqrt(10) sin(sqrt(5) t)
+(%o8)                   x = -------------------------
+                                        5
+(%i9) xs : rhs(psoln);
+                          2 sqrt(10) sin(sqrt(5) t)
+(%o9)                     -------------------------
+                                      5
+(%i10) xs,t=0;
+(%o10)                                 0
+\end{myVerbatim}
+We have selected only one of the linear ODE's to concentrate on here.
+We have shown that the solution satisfies the original differential
+  equation and the given boundary condition.
+\subsubsection{Ex. 4: Linear Oscillator with Damping }
+The equation of motion for a particle of mass \textbf{m} executing one dimensional
+  motion which is subject to a linear restoring force proportional to \mv+|x|+
+  and subject to a frictional force proportional to its speed is
+\begin{equation}
+\mathbf{m\,\frac{d^{2}\,x}{d\,t^{2}} + b\,\frac{d\,x}{d\,t} + k \,x = 0}
+\end{equation}
+Dividing by the mass \textbf{m}, we note that if there were no damping, this
+  motion would reduce to a linear oscillator with the angular frequency 
+\begin{equation}
+\mathbf{\boldsymbol{\omega}_{0} = \left(\frac{k}{m}\right)^{1/2}.}
+\end{equation}
+In the presence of damping, we can define
+\begin{equation}
+\mathbf{\boldsymbol{\gamma} = \frac{b}{2\,m} }
+\end{equation}
+  and the equation of motion becomes
+\begin{equation}
+\mathbf{\frac{d^{2}\,x}{d\,t^{2}} + 2\,\boldsymbol{\gamma}\,\frac{d\,x}{d\,t} + \boldsymbol{\omega}_{0}^{2} \,x = 0}
+\end{equation}
+In the presence of damping, there are now two natural time scales
+\begin{equation}
+\mathbf{ t1 = \frac{1}{\boldsymbol{\omega}_{0}}, \qquad  t2 = \frac{1}{\boldsymbol{\gamma}} }
+\end{equation}
+  and we can introduce a dimensionless time $\mathbf{\boldsymbol{\theta} = \boldsymbol{\omega}_{0}\,t}$
+  and the dimensionless positive constant $\mathbf{a = \boldsymbol{\gamma/\omega_{0}}}$, to get
+\begin{equation}
+\mathbf{\frac{d^{2}\,x}{d\,\boldsymbol{\theta}^{2}} + 2\,a\,\frac{d\,x}{d\,\boldsymbol{\theta}} + x = 0}
+\end{equation}
+\newpage
+\noindent The ``underdamped'' case corresponds to $\mathbf{\boldsymbol{\gamma} < \boldsymbol{\omega}_{0}}$,
+  or $\mathbf{a < 1}$ and results in damped oscillations around the final $\mathbf{x = 0}$.
+The ``critically damped'' case corresponds to $\mathbf{a = 1}$, and the ``overdamped'' case
+  corresponds to $\mathbf{a > 1}$.
+We specialize to solutions which have the initial conditions
+  $\mathbf{\boldsymbol{\theta} = 0, \qquad x = 1, \qquad d\,x/d\,t = 0 \; \Rightarrow d\,x/d\,\boldsymbol{\theta} = 0  }$.
+\begin{myVerbatim}
+(%i1) de : 'diff(x,th,2) + 2*a*'diff(x,th) + x ;
+                               2
+                              d x        dx
+(%o1)                         ---- + 2 a --- + x
+                                 2       dth
+                              dth
+(%i2) for i thru 3 do
+          x[i] : rhs ( ic2 (ode2 (subst(a=i/2,de),x,th), th=0,x=1,diff(x,th)=0))$
+(%i3) plot2d([x[1],x[2],x[3]],[th,0,10],
+          [style,[lines,4]],[ylabel," "],
+           [xlabel," Damped Linear Oscillator " ],
+           [gnuplot_preamble,"set zeroaxis lw 2"],
+           [legend,"a = 0.5","a = 1","a = 1.5"])$
+\end{myVerbatim}
+%\newpage
+\noindent which produces
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.8]{ch1p19.eps} }
+	\caption{ Damped Linear Oscillator }
+\end{figure}
+
+%plot2d([x[1],x[2],x[3],[discrete,[[0,0],[10,0]]]],[th,0,10],
+%          [style,[lines,5,1],[lines,5,2],[lines,5,3],[lines,3,4]],
+%          [ylabel," "],[xlabel," Damped Linear Oscillator: x vs theta " ],
+%           [psfile,"ch1p19.eps"],
+%           [legend,"a = 0.5","a = 1","a = 1.5"," x = 0 "])$
+\noindent and illustrates why engineers seek the critical damping case,
+  which brings the system to $\mathbf{x = 0}$ most rapidly.
+\newpage  
+\noindent Now for a phase space plot with \mv|dx/dth| versus \mv|x|,
+  drawn for the underdamped case:
+\begin{myVerbatim}
+(%i4) v1 : diff(x[1],th)$
+(%i5) fpprintprec:8$
+(%i6) [x5,v5] : [x[1],v1],th=5,numer;
+(%o6)                      [- 0.0745906, 0.0879424]
+(%i7) plot2d ( [ [parametric, x[1], v1, [th,0,10],[nticks,80]],
+             [discrete,[[1,0]]], [discrete,[ [x5,v5] ] ] ],
+         [x, -0.4, 1.2],[y,-0.8,0.2], [style,[lines,3,7],
+                   [points,3,2,1],[points,3,6,1] ],
+          [ylabel," "],[xlabel,"th = 0, x = 1, v = 0"],
+          [legend," v vs x "," th = 0 "," th = 5 "])$
+\end{myVerbatim}
+%\newpage
+\noindent which shows
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.7]{ch1p21.eps} }
+	\caption{Underdamped Phase Space Plot }
+\end{figure}
+
+%plot2d ( [ [parametric, x[1], v1, [th,0,10],[nticks,80]],
+%             [discrete,[[1,0]]], [discrete,[ [x5,v5] ] ] ],
+%         [x, -0.4, 1.2],[y,-0.8,0.2], [style,[lines,6,4],
+%                   [points,5,2,1],[points,5,6,1] ],
+%          [ylabel," "],[xlabel,"th = 0, x = 1, v = 0"],
+%          [legend," v vs x "," th = 0 "," th = 5 "],
+%          [psfile,"ch1p21.eps"])$
+\subsubsection*{Using plotdf for the Damped Linear Oscillator}
+Let's use \textbf{plotdf} to show the phase space plot of our underdamped
+  linear oscillator, using the syntax
+\begin{myVerbatim2}
+   plotdf ( [dudt, dvdt],[u,v], options...)
+\end{myVerbatim2}
+  which requires that we convert our single second order ODE to an equivalent pair of
+  first order ODE's.
+If we let $\mathbf{d\,x/d\,\boldsymbol{\theta} = v}$, assume the dimensionless
+  damping parameter $\mathbf{a = 1/2}$, we then have  $\mathbf{d\,v/d\,\boldsymbol{\theta} = -v -x}$,
+  and we use the \textbf{plotdf} syntax
+\begin{myVerbatim2}
+   plotdf ( [dxdth, dvdth], [x, v], options... ).
+\end{myVerbatim2}
+One has to experiment with the number of steps, the step size, and
+  the horizontal and vertical views.
+The $\mathbf{v(\boldsymbol{\theta})}$ values determine the vertical position 
+   and the $\mathbf{x(boldsymbol{\theta})}$ values determine
+  the horizontal position of a point on the phase space plot curve.
+The symbols used for the horizontal and vertical ranges should correspond
+  to the symbols used in the second argument (here \mv|[x,v]|).
+Since we want to get a phase space plot which agrees with our work above,
+  we require the trajectory begin at $\mathbf{\boldsymbol{\theta} = 0, \quad x = 1, \quad v = 0}$,
+   and we integrate forward in dimensionless time $\boldsymbol{\theta}$.
+\begin{myVerbatim}
+(%i8) plotdf([v,-v-x],[x,v],[trajectory_at,1,0],
+           [direction,forward],[x,-0.4,1.2],[v,-0.6,0.2],
+            [nsteps,400],[tstep,0.01])$
+\end{myVerbatim}
+This will bring up the phase space plot \textbf{v} vs. \textbf{x}, and you can thicken the
+  red curve by clicking the \textbf{Config} button (which brings up the
+  \textbf{Plot Setup} panel), increasing the \textbf{linewidth} to 3, and then
+  clicking \mv|ok|.
+To actually see the thicker line, you must then click on the \textbf{Replot} button.
+This plot is
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.4]{ch1p22.eps} }
+	\caption{Underdamped Phase Space Plot Using plotdf }
+\end{figure}
+
+\noindent To see the separate curves $\mathbf{v(\boldsymbol{\theta})}$ and $\mathbf{x(\boldsymbol{\theta})}$,
+  you can click on the \textbf{Plot Versus t} button. (The symbol \mv|t| is simply a placeholder
+  for the independent variable, which in our case is $\boldsymbol{\theta}$.)
+Again, you can change the linewidth and colors (we changed green to red) via the \textbf{Config}
+  and \textbf{Replot} button process, which yields
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.4]{ch1p23.eps} }
+	\caption{$\mathbf{x(\boldsymbol{\theta})}$ and $\mathbf{v(\boldsymbol{\theta})}$ Using plotdf }
+\end{figure}
+\subsubsection{Ex. 5: Underdamped Linear Oscillator with Sinusoidal Driving Force}
+We extend our previous oscillator example by adding a sinusoidal driving force.
+The equation of motion is now
+\begin{equation}
+\mathbf{m\,\frac{d^{2}\,x}{d\,t^{2}} + b\,\frac{d\,x}{d\,t} + k \,x = A\,\boldsymbol{\cos(\omega}\,t)}
+\end{equation}
+We again divide by the mass \textbf{m} and let
+\begin{equation}
+\mathbf{\boldsymbol{\omega}_{0} = \left(\frac{k}{m}\right)^{1/2}.}
+\end{equation}
+As before, we define
+\begin{equation}
+\mathbf{\boldsymbol{\gamma} = \frac{b}{2\,m}. }
+\end{equation}
+Finally, let $\mathbf{B = A/m}$.
+The equation of motion becomes
+\begin{equation}
+\mathbf{\frac{d^{2}\,x}{d\,t^{2}} + 2\,\boldsymbol{\gamma}\,\frac{d\,x}{d\,t} +
+   \boldsymbol{\omega}_{0}^{2} \,x = B\,\boldsymbol{\cos(\omega}\,t)}
+\end{equation}
+There are now three natural time scales
+\begin{equation}
+\mathbf{ t1 = \frac{1}{\boldsymbol{\omega}_{0}}, \quad  t2 = \frac{1}{\boldsymbol{\gamma}},
+  \quad t3 = \frac{1}{\boldsymbol{\omega}} }
+\end{equation}
+  and we can introduce a dimensionless time $\mathbf{\boldsymbol{\theta} = \boldsymbol{\omega}_{0}\,t}$,
+  the dimensionless positive damping constant $\mathbf{a = \boldsymbol{\gamma/\omega_{0}}}$,
+   the dimensionless oscillator displacement $\mathbf{y = x/B}$, and the dimensionless
+   driving angular frequency $\mathbf{q = \boldsymbol{\omega}/\boldsymbol{\omega}_{0}}$   to get
+\begin{equation}
+\mathbf{\frac{d^{2}\,y}{d\,\boldsymbol{\theta}^{2}} +
+   2\,a\,\frac{d\,y}{d\,\boldsymbol{\theta}} + y = \boldsymbol{\cos(q\,\theta})}
+\end{equation}
+The ``underdamped'' case corresponds to $\mathbf{\boldsymbol{\gamma} < \boldsymbol{\omega}_{0}}$,
+  or $\mathbf{a < 1}$, and we specialize to the case $\mathbf{a = 1/2}$.
+\begin{myVerbatim}
+(%i1) de : 'diff(y,th,2) + 'diff(y,th) + y - cos(q*th);
+                           2
+                          d y    dy
+(%o1)                     ---- + --- + y - cos(q th)
+                             2   dth
+                          dth
+(%i2) gsoln : ode2(de,y,th);
+                              2
+          q sin(q th) + (1 - q ) cos(q th)
+(%o2) y = --------------------------------
+                     4    2
+                    q  - q  + 1
+                             - th/2          sqrt(3) th            sqrt(3) th
+                         + %e       (%k1 sin(----------) + %k2 cos(----------))
+                                                 2                     2
+(%i3) psoln : ic2(gsoln,th=0,y=1,diff(y,th)=0);
+                              2
+          q sin(q th) + (1 - q ) cos(q th)
+(%o3) y = --------------------------------
+                     4    2
+                    q  - q  + 1
+                             4      2      sqrt(3) th        4     sqrt(3) th
+                           (q  - 2 q ) sin(----------)      q  cos(----------)
+                - th/2                         2                       2
+            + %e       (--------------------------------- + ------------------)
+                                 4            2                 4    2
+                        sqrt(3) q  - sqrt(3) q  + sqrt(3)      q  - q  + 1
+\end{myVerbatim}
+\newpage
+\noindent We now specialize to a high (dimensionless) driving angular frequency case,
+  $\mathbf{q = 4}$, which means that we are assuming that the actual driving
+  angular frequency is four times as large as the natural angular frequency of this oscillator.
+\begin{myVerbatim}
+(%i4) ys : subst(q=4,rhs(psoln));
+                        sqrt(3) th            sqrt(3) th
+                224 sin(----------)   256 cos(----------)
+        - th/2              2                     2
+(%o4) %e       (------------------- + -------------------)
+                    241 sqrt(3)               241
+                                                     4 sin(4 th) - 15 cos(4 th)
+                                                   + --------------------------
+                                                                241
+(%i5) vs : diff(ys,th)$
+\end{myVerbatim}
+We now plot both the dimensionless oscillator amplitude and the dimensionless oscillator
+  velocity on the same plot.
+\begin{myVerbatim}
+(%i6) plot2d([ys,vs],[th,0,12],
+        [nticks,100],
+        [style,[lines,5]],
+        [legend," Y "," V "],
+        [xlabel," dimensionless Y and V vs. theta"])$
+\end{myVerbatim}
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.6]{ch1p24.eps} }
+	\caption{Dimensionless Y and V versus Dimensionless Time $\boldsymbol{\theta}$}
+\end{figure}
+
+%plot2d([ys,vs],[th,0,12],
+%        [nticks,100],
+%        [style,[lines,9]],
+%        [legend," Y "," V "],
+%        [xlabel," dimensionless Y and V vs. theta"],
+%        [psfile,"ch1p24.eps"])$
+We see that the driving force soon dominates the motion of the  underdamped linear 
+  oscillator, which is forced to oscillate at the driving frequency.
+This dominance evidently has nothing to do with the actual strength \textbf{A newtons}
+  of the peak driving force, since we are solving for a dimensionless oscillator amplitude, and
+  we get the same qualitative curve no matter what the size of \textbf{A} is.  
+\newpage
+\noindent We next make a phase space plot for the early ``capture'' part of the motion
+  of this system. 
+(Note that \textbf{plotdf} cannot numerically integrate this differential equation because
+  of the explicit appearance of the dependent variable.)  
+\begin{myVerbatim}
+(%i7) plot2d([parametric,ys,vs,[th,0,8]],
+           [style,[lines,5]],[nticks,100],
+            [xlabel," V (vert) vs. Y (hor) "])$
+\end{myVerbatim}
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.6]{ch1p25.eps} }
+	\caption{Dimensionless V Versus Dimensionless Y: Early History}
+\end{figure}
+
+%plot2d([parametric,ys,vs,[th,0,8]],
+%           [style,[lines,9]],[nticks,100],
+%            [xlabel," V (vert) vs. Y (hor) "],
+%            [psfile,"ch1p25.eps"])$
+We see the phase space plot being driven to regular oscillations about \textbf{y = 0}
+  and \textbf{v = 0}.
+\subsubsection{Ex. 6: Regular and Chaotic Motion of a Driven Damped Planar Pendulum}
+The motion is pure rotation in a fixed plane (one degree of freedom), and if the pendulum is a simple
+  pendulum with all the mass \textbf{m} concentrated at the end of a weightless support of length
+  \textbf{L}, then the moment of inertia about the support point is
+  $\mathbf{I = m\,L^{2}}$, and the angular acceleration is $\mathbf{\boldsymbol{\alpha}}$,
+  and rotational dynamics implies the equation of motion
+\begin{equation}
+\mathbf{I\,\boldsymbol{\alpha} = m\,L^{2}\,\frac{d^{2}\boldsymbol{\theta}}{d\,t^{2}} = 
+    \boldsymbol{\tau}_{z} = - m\,g\,L\,\boldsymbol{\sin \theta} - 
+	c\, \frac{d\,\boldsymbol{\theta}}{d\,t} + A\,\boldsymbol{\cos}(\boldsymbol{\omega}_{d}\,t)}
+\end{equation}
+  We introduce a dimensionless time $\mathbf{\boldsymbol{\tau} = \boldsymbol{\omega}_{0}\,t}$
+  and a dimensionless driving angular frequency
+  $\mathbf{ \boldsymbol{\omega}  =  \boldsymbol{\omega}_{d} / \boldsymbol{\omega}_{0} }$,
+  where $\mathbf{\boldsymbol{\omega}_{0}^{2} = g/L}$, to get the
+equation of motion
+\begin{equation}
+\mathbf{  \frac{d^{2}\boldsymbol{\theta}}{d\,\boldsymbol{\tau}^{2}} = 
+         - \boldsymbol{\sin \theta} - a\, \frac{d\,\boldsymbol{\theta}}{d\,\boldsymbol{\tau}} + 
+		 b \, \boldsymbol{\cos}(\boldsymbol{\omega}\,\boldsymbol{\tau})}
+\end{equation}
+To simplify the notation for our exploration of this differential equation,
+  we make the replacements $\mathbf{\boldsymbol{\theta} \rightarrow u}$,
+  $\mathbf{\boldsymbol{\tau} \rightarrow t}$, and
+  $\mathbf{\boldsymbol{\omega} \rightarrow w}$ 
+  ( parameters \textbf{a}, \textbf{b}, and \textbf{w}
+   are dimensionless) to work with the differential equation:
+\begin{equation}
+\mathbf{\frac{d^{2}\,u}{d\,t^{2}} = - \boldsymbol{\sin}\,u  -
+   a\,\frac{d\,u}{d\,t} + b\,\boldsymbol{\cos}(w\,t)}
+\end{equation}
+  where now both \textbf{t} and \textbf{u} are dimensionless, with the measure
+  of \textbf{u} being radians, and the physical values of the pendulum angle being
+  limited to the range $\mathbf{ -\boldsymbol{\pi} \leq u \leq \boldsymbol{\pi}}$,
+  both extremes being the ``flip-over-point'' at the top of the motion.\\
+  
+\noindent We will use both \textbf{plotdf} and \textbf{rk} to explore this
+  system, with
+\begin{equation}
+\mathbf{  \frac{d\,u}{d\,t} = v, \quad \frac{d\,v}{d\,t} = - \boldsymbol{\sin}\,u -
+         a\,v   +  b\,\boldsymbol{\cos}(w\,t) }
+\end{equation}
+\subsubsection{Free Oscillation Case}
+Using \textbf{plotdf}, the phase space plot for NO friction and NO driving torque
+is
+\begin{myVerbatim}
+(%i1) plotdf([v,-sin(u)],[u,v],[trajectory_at,float(2*%pi/3),0],
+            [direction,forward],[u,-2.5,2.5],[v,-2.5,2.5],
+             [tstep, 0.01],[nsteps,600])$
+\end{myVerbatim}
+%\newpage
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.3]{ch1p26.eps} }
+	\caption{No Friction, No Driving Torque:  V Versus Angle U}
+\end{figure}
+
+\noindent  and now we use the \textbf{Plot Versus t} button of \textbf{plotdf} 
+ to show the angle \textbf{u radians}
+  and the dimensionless rate of change of angle \textbf{v}
+%\newpage
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.4]{ch1p27.eps} }
+	\caption{No Friction, No Driving Torque: Angle U [blue] and  V [red]}
+\end{figure}
+
+%\newpage
+\newpage
+\subsubsection{Damped Oscillation Case}
+\noindent We now include some damping with $\mathbf{a = 1/2}$.
+\begin{myVerbatim}
+(%i2)  plotdf([v,-sin(u)-0.5*v],[u,v],[trajectory_at,float(2*%pi/3),0],
+            [direction,forward],[u,-1,2.5],[v,-1.5,1],
+             [tstep, 0.01],[nsteps,450])$
+\end{myVerbatim}
+%\newpage
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.4]{ch1p28.eps} }
+	\caption{With Friction, but No Driving Force: V Versus Angle U}
+\end{figure}
+
+\noindent  and now we use the \textbf{Plot Versus t} button of \textbf{plotdf} 
+ to show the angle \textbf{u radians}
+  and the dimensionless rate of change of angle \textbf{y} for the friction present
+  case.
+ % \newpage
+  
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.4]{ch1p29.eps} }
+	\caption{With Friction, but No Driving Force: Angle U [blue] and  V [red]}
+\end{figure}
+  
+\newpage
+\subsubsection{Including a Sinusoidal Driving Torque}
+We now use the Runge-Kutta function \textbf{rk} to integrate the differential equation set
+  forward in time for \mv|ncycles|, which is the same as setting the
+  final dimensionless \mv|tmax| equal to \mv|ncycles*2*%pi/w|, or \mv|ncycles*T|,
+  where we can call \mv|T| the dimensionless period defined by the dimensionless
+  angular frequency \mv|w|.
+The physical meaning of \mv|T| is the ratio of the period of the driving torque
+  to the period of unforced and undamped small oscillations of the free
+  simple pendulum.\\
+  
+\noindent For simplicity of exposition, we will call \mv|t| the ``time'' and
+  \mv|T| the ``period''.
+We again use our homemade function \mv|fll| described in the preface.\\
+  
+\noindent One cycle (period) of time is divided into \mv|nsteps| subdivisions, so \mv|dt = T/nsteps|.\\
+
+\noindent For both the regular and chaotic parameter cases, we have used the same parameters
+ as used in \textbf{Mathematica in Theoretical Physics}, by Gerd Baumann, Springer/Telos, 1996,
+  pages 46 - 53.
+\subsubsection{Regular Motion Parameters Case}
+We find regular motion of this driven system with
+  \mv|a = 0.2, b = 0.52, and w = 0.694|, and with \mv|u0 = 0.8 rad|, and \mv|v0 = 0.8 rad/unit-time|.
+\begin{myVerbatim}
+(%i1) fpprintprec:8$
+(%i2) (nsteps : 31, ncycles : 30, a : 0.2, b : 0.52, w : 0.694)$
+(%i3) [dudt : v, dvdt : -sin(u) - a*v + b*cos(w*t),
+           T : float(2*%pi/w ) ];
+(%o3)        [v, - 0.2 v - sin(u) + 0.52 cos(0.694 t), 9.0535811]
+(%i4) [dt : T/nsteps, tmax : ncycles*T ];
+(%o4)                        [0.292051, 271.60743]
+(%i5) tuvL : rk ([dudt,dvdt],[u,v],[0.8,0.8],[t,0,tmax, dt])$
+(%i6) %, fll;
+(%o6)      [[0, 0.8, 0.8], [271.60743, - 55.167003, 1.1281164], 931]
+(%i7) 930*dt;
+(%o7)                              271.60743
+\end{myVerbatim}
+\subsubsection*{Plot of u(t) and v(t)}
+Plot of u(t) and v(t) against t
+\begin{myVerbatim}
+(%i8) tuL : makelist ([tuvL[i][1],tuvL[i][2]],i,1,length(tuvL))$
+(%i9) %, fll;
+(%o9)              [[0, 0.8], [271.60743, - 55.167003], 931]
+(%i10) tvL : makelist ([tuvL[i][1],tuvL[i][3]],i,1,length(tuvL))$
+(%i11) %, fll;
+(%o11)              [[0, 0.8], [271.60743, 1.1281164], 931]
+(%i12) plot2d([ [discrete,tuL], [discrete,tvL]],[x,0,280],
+          [style,[lines,3]],[xlabel,"t"],
+           [legend, "u", "v"],
+             [gnuplot_preamble,"set key bottom left;"])$
+\end{myVerbatim}
+\newpage
+\noindent which produces 
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.5]{ch3p1.eps} }
+	\caption{Angle u(t) and v(t)}
+\end{figure}
+
+%plot2d([ [discrete,tuL], [discrete,tvL]],[x,0,280],
+%          [style,[lines,4]],[xlabel,"t"],
+%           [legend, "u", "v"],
+%             [gnuplot_preamble,"set key bottom left;"],
+%             [psfile,"ch3p1.eps"])$
+
+\noindent The above plot shows nine flips of the pendulum at the
+  top:\\
+the first passage over the top at  \mv|u = -3 pi/2 = -4.7 rad|,\\
+the second passage over the top at  \mv|u = -7 pi/2 = -11 rad| ,\\
+and so on.
+\subsubsection*{Phase Space Plot}
+\noindent We next construct a phase space plot.
+\begin{myVerbatim}
+(%i13) uvL : makelist ([tuvL[i][2],tuvL[i][3]],i,1,length(tuvL))$
+(%i14) %, fll;
+(%o14)            [[0.8, 0.8], [- 55.167003, 1.1281164], 931]
+(%i15) plot2d ( [discrete,uvL],[x,-60,5],[y,-5,5],
+                   [style,[lines,3]],
+             [ylabel," "],[xlabel," v vs u "] )$
+\end{myVerbatim}
+%\newpage
+\noindent which produces (note that we include the early points which are more
+  heavily influenced by the initial conditions):
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.5]{ch3p2.eps} }
+	\caption{Non-Reduced Phase Space Plot}
+\end{figure}
+
+%plot2d ( [discrete,uvL],[x,-60,5],[y,-5,5],
+%                   [style,[lines,4]],
+%             [ylabel," "],[xlabel," v vs u "] ,
+%              [psfile,"ch3p2.eps"] )$
+\subsubsection*{Reduced Phase Space Plot}
+Let's define a Maxima function \textbf{reduce} which brings \textbf{u} back to the
+interval \textbf{(-pi, pi )} and then make a reduced phase space plot.
+Since this is a strictly numerical task, we can simplify Maxima's efforts by defining
+  a floating point number \mv|pi| once and for all, and simply work with that
+  definition.
+You can see the origin of our definition of \mv|reduce| in the manual's entry on
+  Maxima's modulus function \textbf{mod}.
+\begin{myVerbatim}
+(%i16) pi : float(%pi);
+(%o16)                             3.1415927
+(%i17) reduce(yy) := pi - mod (pi - yy,2*pi)$
+(%i18) float( [-7*%pi/2,-3*%pi/2 ,3*%pi/2, 7*%pi/2] );
+(%o18)          [- 10.995574, - 4.712389, 4.712389, 10.995574]
+(%i19) map('reduce, % );
+(%o19)         [1.5707963, 1.5707963, - 1.5707963, - 1.5707963]
+(%i20) uvL_red : makelist ( [ reduce( tuvL[i][2]),
+                         tuvL[i][3]],i,1,length(tuvL))$
+(%i21) %, fll;
+(%o21)             [[0.8, 0.8], [1.3816647, 1.1281164], 931]
+\end{myVerbatim}			  
+To make a reduced phase space plot with our reduced regular motion points,
+  we will only use the last two thirds  of the pairs \mv|(u,v)|.
+This will then show the part of the motion which has been ``captured''
+  by the driving torque and shows little influence of the initial 
+  conditions.\\
+  
+\noindent We use the Maxima function \textbf{rest (list, n)} which returns \textbf{list} 
+  with its first \textbf{n} elements removed if \textbf{n} is positive.
+Thus we  use \mv|rest (list, num/3)| to get the last two thirds.
+\begin{myVerbatim}
+(%i22) uvL_regular : rest (uvL_red, round(length (uvL_red)/3) )$
+(%i23) %, fll;
+(%o23)      [[0.787059, - 1.2368529], [1.3816647, 1.1281164], 621]
+(%i24) plot2d ( [discrete,uvL_regular],[x,-3.2,3.2],[y,-3.2,3.2],
+                   [style,[lines,2]],
+             [ylabel," "],[xlabel,"reduced phase space v vs u "] )$
+\end{myVerbatim}
+%\newpage
+\noindent which produces
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.6]{ch3p3.eps} }
+	\caption{Reduced Phase Space Plot of Regular Motion Points}
+\end{figure}
+
+%plot2d ( [discrete,uvL_regular],[x,-3.2,3.2],[y,-3.2,3.2],
+%                   [style,[lines,3]],
+%             [ylabel," "],[xlabel,"reduced phase space v vs u "] ,
+%             [psfile,"ch3p3.eps"])$
+\subsubsection*{Poincare Plot}
+We next construct a Poincare plot of the regular (reduced) phase space
+  points by using a ``stroboscopic view'' of this phase space, displaying
+  only phase space points which correspond to times separated by the driving
+  period \textbf{T}.
+We select \mv|(u,v)| pairs which correspond to intervals of time \mv|n*T|,
+  where \mv|n = 10, 11, ..., 30| which will give us \mv|21| phase space points
+  for our plot (this is roughly the same as taking the last two thirds of the
+  points).\\
+
+\noindent The time \mv|t = 30*T| corresponds to \mv|t = 30*31*dt| = \mv|930*dt| which is the
+  time associated with element \mv|931|, the last element) \mv|of uvL_red|.
+The value of \mv|j| used to select the last Poincare point is the solution
+  of the equation \mv|1 + 10*nsteps + j*nsteps = 1 + ncycles*nsteps|, which for this
+  case is equivalent to\\
+  \mv|311 + j*31 = 931|.
+\begin{myVerbatim}
+(%i25) solve(311 + j*31 = 931);
+(%o25)                             [j = 20]
+(%i26) pL : makelist (1+10*nsteps + j*nsteps, j, 0, 20);
+(%o26) [311, 342, 373, 404, 435, 466, 497, 528, 559, 590, 621, 652, 683, 714, 
+                                             745, 776, 807, 838, 869, 900, 931]
+(%i27) length(pL);
+(%o27)                                21
+(%i28) poincareL : makelist (uvL_red[i], i, pL)$
+(%i29) %,fll;
+(%o29)       [[0.787059, - 1.2368529], [1.3816647, 1.1281164], 21]
+(%i30) plot2d ( [discrete,poincareL],[x,-0.5,2],[y,-1.5,1.5],
+                   [style,[points,1,1,1 ]],
+             [ylabel," "],[xlabel," Poincare Section v vs u "] )$
+\end{myVerbatim}
+%\newpage
+\noindent which produces the plot
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.8]{ch3p4.eps} }
+	\caption{Reduced Phase Space Plot of Regular Motion Points}
+\end{figure}
+
+%plot2d ( [discrete,poincareL],[x,-0.5,2],[y,-1.5,1.5],
+%                   [style,[points ]],
+%             [ylabel," "],[xlabel," Poincare Section v vs u "],
+%               [psfile,"ch3p4.eps"] )$
+
+
+For this regular motion parameters case, the Poincare plot shows 
+  the phase space point coming back to one of three general locations in phase
+  space at times separated by the period \textbf{T}.    
+\newpage
+\subsubsection{Chaotic Motion Parameters Case.}
+To exhibit an example of chaotic motion for this system, we use the same
+  initial conditions for \mv|u| and \mv|v|, but use the parameter set 
+  \mv|a = 1/2,  b = 1.15, w = 2/3|.
+\begin{myVerbatim}
+(%i1) fpprintprec:8$
+(%i2) (nsteps : 31, ncycles : 240, a : 1/2, b : 1.15, w : 2/3)$
+(%i3) [dudt : v, dvdt : -sin(u) - a*v + b*cos(w*t),
+           T : float(2*%pi/w ) ];
+                        v                     2 t
+(%o3)             [v, - - - sin(u) + 1.15 cos(---), 9.424778]
+                        2                      3
+(%i4) [dt : T/nsteps, tmax : ncycles*T ];
+(%o4)                        [0.304025, 2261.9467]
+(%i5) tuvL : rk ([dudt,dvdt],[u,v],[0.8,0.8],[t,0,tmax, dt])$
+(%i6) %, fll;
+(%o6)       [[0, 0.8, 0.8], [2261.9467, 26.374502, 0.937008], 7441]
+(%i7) dt*( last(%) - 1 );
+(%o7)                              2261.9467
+(%i8) tuL : makelist ([tuvL[i][1],tuvL[i][2]],i,1,length(tuvL))$
+(%i9) %, fll;
+(%o9)              [[0, 0.8], [2261.9467, 26.374502], 7441]
+(%i10) tvL : makelist ([tuvL[i][1],tuvL[i][3]],i,1,length(tuvL))$
+(%i11) %, fll;
+(%o11)              [[0, 0.8], [2261.9467, 0.937008], 7441]
+(%i12) plot2d([ [discrete,tuL], [discrete,tvL]],[x,0,2000],
+               [y,-15,30],
+          [style,[lines,2]],[xlabel,"t"], [ylabel, " "],
+           [legend, "u","v" ] ,[gnuplot_preamble,"set key bottom;"])$
+\end{myVerbatim}
+%\newpage
+\noindent which produces a plot of \mv|u(t)| and \mv|v(t)| over \mv|0 <= t <= 2000|:
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.8]{ch3p5.eps} }
+	\caption{Angle u(t), and v(t) for Chaotic Parameters Choice}
+\end{figure}
+
+%plot2d([ [discrete,tuL], [discrete,tvL]],[x,0,2000],
+%               [y,-15,30],
+%          [style,[lines,2]],[xlabel,"t"],[ylabel," "],
+%           [legend, "u","v" ] ,[gnuplot_preamble,"set key bottom;"],
+%           [psfile,"ch3p5.eps"])$
+\newpage
+\subsubsection*{Phase Space Plot}
+We next construct a \tcbr{non-reduced} phase space plot, but
+  show only the first \mv|2000| reduced phase space points.
+\begin{myVerbatim}
+(%i13) uvL : makelist ([tuvL[i][2],tuvL[i][3]],i,1,length(tuvL))$
+(%i14) %, fll;
+(%o14)             [[0.8, 0.8], [26.374502, 0.937008], 7441]
+(%i15) uvL_first : rest(uvL, -5441)$
+(%i16) %, fll;
+(%o16)             [[0.8, 0.8], [23.492001, 0.299988], 2000]
+(%i17) plot2d ( [discrete,uvL_first],[x,-12,30],[y,-3,3],
+                   [style,[points,1,1,1]],
+             [ylabel," "],[xlabel," v vs u "])$
+\end{myVerbatim}
+%\newpage
+\noindent which produces
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.45]{ch3p6.eps} }
+	\caption{non-reduced phase space plot using first 2000 points}
+\end{figure}
+
+%plot2d ( [discrete,uvL_first],[x,-12,30],[y,-3,3],
+%                   [style,[points,1,1,1]],
+%             [ylabel," "],[xlabel," v vs u "],
+%               [psfile,"ch3p6.eps"])$
+If we use the \textbf{discrete} default \textbf{style} option \mv|lines| 
+  instead of \mv|points|, 
+\begin{myVerbatim}
+(%i18) plot2d ( [discrete,uvL_first],[x,-12,30],[y,-3,3],
+             [ylabel," "],[xlabel," v vs u "])$
+\end{myVerbatim}
+%\newpage
+\noindent we get the non-reduced phase space plot drawn with
+  lines between the points:
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.45]{ch3p11.eps} }
+	\caption{non-reduced phase space plot using first 2000 points}
+\end{figure}
+
+%plot2d ( [discrete,uvL_first],[x,-12,30],[y,-3,3],
+%             [ylabel," "],[xlabel," v vs u "],
+%              [psfile,"ch3p11.eps"])$
+\newpage
+\subsubsection*{Reduced Phase Space Plot}
+We now construct the reduced phase space points as in the regular motion case
+  and then omit the first \mv|400|.
+\begin{myVerbatim}
+(%i19) pi : float(%pi);
+(%o19)                             3.1415927
+(%i20) reduce(yy) := pi - mod (pi - yy,2*pi)$
+(%i21) uvL_red : makelist ( [ reduce( first( uvL[i] )),
+                        second( uvL[i] ) ],i,1,length(tuvL))$
+(%i22) %, fll;
+(%o22)             [[0.8, 0.8], [1.2417605, 0.937008], 7441]
+(%i23) uvL_cut : rest(uvL_red, 400)$
+(%i24) %, fll;
+(%o24)        [[0.25464, 1.0166641], [1.2417605, 0.937008], 7041]
+\end{myVerbatim}
+We have discarded the first \mv|400| reduced phase space points in defining
+  \mv|uvL_cut|.
+If we now only plot the first \mv|1000| of the points retained in
+  \mv|uvL_cut|:
+\begin{myVerbatim}
+(%i25) uvL_first : rest (uvL_cut, -6041)$
+(%i26) %, fll;
+(%o26)        [[0.25464, 1.0166641], [2.2678603, 0.608686], 1000]
+(%i27) plot2d ( [discrete,uvL_first],[x,-3.5,3.5],[y,-3,3],
+                 [style,[points,1,1,1]],
+             [ylabel," "],[xlabel,"reduced phase space v vs u "])$
+\end{myVerbatim}
+%\newpage
+\noindent we get the plot
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.6]{ch3p7.eps} }
+	\caption{1000 points reduced phase space plot}
+\end{figure}
+
+%plot2d ( [discrete,uvL_first],[x,-3.5,3.5],[y,-3,3],
+%                 [style,[points,1,1,1]],
+%             [ylabel," "],[xlabel,"reduced phase space v vs u "],
+%              [psfile,"ch3p7.eps"])$
+
+and the same set of points drawn with the default \mv|lines| option:
+\begin{myVerbatim}
+(%i28) plot2d ( [discrete,uvL_first],[x,-3.5,3.5],[y,-3,3],
+             [ylabel," "],[xlabel,"reduced phase space v vs u "])$
+\end{myVerbatim}
+\newpage
+\noindent produces the plot
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.5]{ch3p8.eps} }
+	\caption{1000 points reduced phase space plot}
+\end{figure}
+
+%plot2d ( [discrete,uvL_first],[x,-3.5,3.5],[y,-3,3],
+%             [ylabel," "],[xlabel,"reduced phase space v vs u "],
+%             [psfile,"ch3p8.eps"])$
+\subsubsection*{3000 point phase space plot}
+We next draw the same reduced phase space plot, but use the first \mv|3000|
+  points of \mv|uvL_cut|.
+\begin{myVerbatim}
+(%i29) uvL_first : rest (uvL_cut, -4041)$
+(%i30) %, fll;
+(%o30)      [[0.25464, 1.0166641], [- 2.2822197, - 0.532184], 3000]
+(%i31) plot2d ( [discrete,uvL_first],[x,-3.5,3.5],[y,-3,3],
+                 [style,[points,1,1,1]],
+             [ylabel," "],[xlabel,"reduced phase space v vs u "])$
+\end{myVerbatim}
+%\newpage
+\noindent which produces
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.6]{ch3p9.eps} }
+	\caption{3000 points reduced phase space plot}
+\end{figure}
+
+%plot2d ( [discrete,uvL_first],[x,-3.5,3.5],[y,-3,3],
+%                 [style,[points,1,1,1]],
+%             [ylabel," "],[xlabel,"reduced phase space v vs u "],
+%              [psfile,"ch3p9.eps"])$
+\newpage
+\noindent and again, the same set of points drawn with the default \mv|lines| option
+\begin{myVerbatim}
+(%i32) plot2d ( [discrete,uvL_first],[x,-3.5,3.5],[y,-3,3],
+             [ylabel," "],[xlabel,"reduced phase space v vs u "])$
+\end{myVerbatim}
+%\newpage
+\noindent which produces the plot
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=1.1]{ch3p11.eps} }
+	\caption{3000 points reduced phase space plot}
+\end{figure}
+
+%plot2d ( [discrete,uvL_first],[x,-3.5,3.5],[y,-3,3],
+%             [ylabel," "],[xlabel,"reduced phase space v vs u "],
+%             [psfile,"ch3p11.eps"])$
+
+\newpage
+\subsubsection*{Poincare Plot}
+We now construct the Poincare section plot as before, using all the
+ points available in \mv|uvL_red|.
+\begin{myVerbatim}
+(%i33) pL : makelist(1+10*nsteps + j*nsteps, j, 0, ncycles - 10)$
+(%i34) %, fll;
+(%o34)                         [311, 7441, 231]
+(%i35) poincareL : makelist(uvL_red[i], i, pL)$
+(%i36) %, fll;
+(%o36)      [[- 2.2070801, 1.3794391], [1.2417605, 0.937008], 231]
+(%i37) plot2d ( [discrete,poincareL],[x,-3,3],[y,-4,4],
+                   [style,[points,1,1,1]],
+             [ylabel," "],[xlabel," Poincare Section v vs u "] )$
+\end{myVerbatim}
+%\newpage
+\noindent which produces the plot
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=1.1]{ch3p10.eps} }
+	\caption{231 poincare section points}
+\end{figure}
+
+%plot2d ( [discrete,poincareL],[x,-3,3],[y,-4,4],
+%                   [style,[points,2,1,1]],
+%             [ylabel," "],[xlabel," Poincare Section v vs u "],
+%               [psfile,"ch3p10.eps"])$
+
+
+\newpage
+\subsection{Using \textbf{contrib\_ode} for ODE's}
+The syntax of \textbf{contrib\_ode} is the same as \textbf{ode}.
+Let's first solve the same first order ODE example used in the first sections.
+\begin{myVerbatim}
+(%i1) de : 'diff(u,t)- u - exp(-t);
+                                du         - t
+(%o1)                           -- - u - %e
+                                dt
+(%i2) gsoln : ode2(de,u,t);
+                                        - 2 t
+                                      %e         t
+(%o2)                       u = (%c - -------) %e
+                                         2
+(%i3) contrib_ode(de,u,t);
+                                   du         - t
+(%o3)                  contrib_ode(-- - u - %e   , u, t)
+                                   dt
+(%i4) load('contrib_ode);
+(%o4) C:/PROGRA~1/MAXIMA~3.1/share/maxima/5.18.1/share/contrib/diffequations/c\
+ontrib_ode.mac
+(%i5) contrib_ode(de,u,t);
+                                        - 2 t
+                                      %e         t
+(%o5)                      [u = (%c - -------) %e ]
+                                         2
+(%i6) ode_check(de, %[1] );
+(%o6)                                  0
+\end{myVerbatim}
+We see that \mv|contrib_ode|, with the same syntax as \mv|ode|, returns a list
+  (here with one solution, but in general more than one solution) rather than
+  simply one answer.\\
+  
+\noindent Moreover, the package includes the Maxima function \textbf{ode\_check}
+  which can be used to confirm the general solution.\\
+  
+\noindent Here is a comparison for our second order ODE example.  
+\begin{myVerbatim}
+(%i7) de : 'diff(u,t,2) - 4*u;
+                                    2
+                                   d u
+(%o7)                              --- - 4 u
+                                     2
+                                   dt
+(%i8) gsoln : ode2(de,u,t);
+                                    2 t         - 2 t
+(%o8)                     u = %k1 %e    + %k2 %e
+(%i9) contrib_ode(de,u,t);
+                                    2 t         - 2 t
+(%o9)                    [u = %k1 %e    + %k2 %e     ]
+(%i10) ode_check(de, %[1] );
+(%o10)                                 0
+\end{myVerbatim}
+Here is an example of an ODE which \textbf{ode2} cannot solve, but
+  \textbf{contrib\_ode} can solve.
+\begin{myVerbatim}
+(%i11) de : 'diff(u,t,2) + 'diff(u,t) + t*u;
+                                 2
+                                d u   du
+(%o11)                          --- + -- + t u
+                                  2   dt
+                                dt
+(%i12) ode2(de,u,t);
+(%o12)                               false
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i13) gsoln : contrib_ode(de,u,t);
+                                 3/2
+                     1  (4 t - 1)                         - t/2
+(%o13) [u = bessel_y(-, ------------) %k2 sqrt(4 t - 1) %e
+                     3       12
+                                                3/2
+                                    1  (4 t - 1)                         - t/2
+                         + bessel_j(-, ------------) %k1 sqrt(4 t - 1) %e     ]
+                                    3       12
+(%i14) ode_check(de, %[1] );
+(%o14)                                 0
+\end{myVerbatim}
+This section will probably be augmented in the future with more examples of
+  using \textbf{contrib\_ode}.   
+\end{document}

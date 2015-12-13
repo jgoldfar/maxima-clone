@@ -1,0 +1,2296 @@
+% e. woollett
+% revised june 2013 to take out white space at end
+% revised jan 2012 to add path to file names
+% using function mkp and global variable bpath
+%  revised may 2011
+%   feb 08, april may 08 july 09
+% file work2/plotfit.tex
+% maxima by example, ch.2 Plots, Files, Read, Write, and Fit
+% april 30, 09, convert to new style
+% C:\work2\mbe1-start.tex
+% sec 1.4.5 used makelist to create xylist
+% sec 1.5.10 and 1.5.12 used apply('matrix, datalist) to get matrix
+% april 9, 08, sec -> subsec renumbering
+% mar 23, 08: sec variables in maxima : quote from macrakis about don't need to declare x
+%             using the maxima interface:  closing bott. window w keybd cmmds
+%needs step.eps
+% edit with Notepad++, then load into LED for latexing
+% add write data to file example
+\documentclass[11pt]{article}
+\usepackage[dvips,top=1.5cm,left=1.5cm,right=1.5cm,foot=1cm,bottom=1.5cm]{geometry}
+\usepackage{times,amsmath,amsbsy,graphicx,fancyvrb,url}
+\usepackage[usenames]{color}
+%\definecolor{MyDarkBlue}{rgb}{0,0.08,0.45}
+\definecolor{mdb}{rgb}{0.1,0,0.55}
+\newcommand{\tcdb}{\textcolor{mdb}}
+\newcommand{\tcbr}{\textcolor{BrickRed}}
+\newcommand{\tcb}{\textcolor{blue}}
+\newcommand{\tcr}{\textcolor{red}}
+\urldef\tedhome\url{ http://www.csulb.edu/~woollett/  }
+\urldef\tedmail\url{ woollett@charter.net}
+%1.  this is for maxima code: red framed bold, footnotesize 
+\DefineVerbatimEnvironment%
+   {myVerbatim}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,fontsize=\footnotesize ,frame=single,rulecolor=\color{BrickRed}}
+\DefineVerbatimEnvironment%
+   {myVerbatim1}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,fontsize=\scriptsize ,frame=single,rulecolor=\color{BrickRed}}
+%2.  this is for blue framed bold 
+\DefineVerbatimEnvironment%
+   {myVerbatim2}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,frame=single,rulecolor=\color{blue}}
+\DefineVerbatimEnvironment%
+   {myVerbatim2s}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,fontsize=\small,frame=single,rulecolor=\color{blue}}
+\DefineVerbatimEnvironment%
+   {myVerbatim2f}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,fontsize=\footnotesize,frame=single,rulecolor=\color{blue}}
+% 3.  this is for black framed  bold
+\DefineVerbatimEnvironment%
+   {myVerbatim3}%
+   {Verbatim}%
+   {fontfamily= courier, fontseries=b, frame=single}
+% 4.  this is for no frame bold
+\DefineVerbatimEnvironment%
+   {myVerbatim4}%
+   {Verbatim}%
+   {fontfamily=courier, fontseries=b,fontsize=\small}
+% 6.  for defaults use usual verbatim
+\newcommand{\mv}{\Verb[fontfamily=courier,fontseries=b]}
+\newcommand{\mvs}{\Verb[fontfamily=courier,fontseries=b,fontsize=\small]}
+\newcommand{\mvf}{\Verb[fontfamily=courier,fontseries=b,fontsize=\footnotesize]}
+
+\renewcommand{\thefootnote}{\ensuremath{\fnsymbol{footnote}}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   title page
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \title{\color{mdb}\  Maxima by Example:\\ Ch. 2,
+\title{ Maxima by Example:\\ Ch. 2, Plots, Files, Read, Write, and Fit
+             \thanks{This version uses \textbf{Maxima 5.31.2}. \;
+			 Check \; \textbf{ \tedhome } \; for the latest version of these notes. Send comments and
+			 suggestions to \textbf{\tedmail} } }
+
+%\author{Edwin L. Woollett \thanks{Dept. of Physics and Astron, Calif. State University at Long Beach,\\
+%                    author's email: \tedmail} }
+%%  \author{\color{BrickRed}\  Edwin
+\author{ Edwin L. Woollett}
+\date{\today}
+%\date{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%          document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%\SMALL
+%\small
+\maketitle
+\small
+\tableofcontents
+\normalsize
+\numberwithin{equation}{section}
+\newpage
+%\normalsize
+\begin{myVerbatim2} 
+COPYING AND DISTRIBUTION POLICY    
+This document is part of a series of notes titled
+"Maxima by Example" and is made available
+via the author's webpage http://www.csulb.edu/~woollett/
+to aid new users of the Maxima computer algebra system.	
+	
+NON-PROFIT PRINTING AND DISTRIBUTION IS PERMITTED.
+	
+You may make copies of this document and distribute them
+to others as long as you charge no more than the costs of printing.	
+
+Keeping a set of notes about using Maxima up to date is easier
+than keeping a published book up to date, especially in view of
+the regular changes introduced in the Maxima software updates.
+\end{myVerbatim2}	
+\smallskip
+\noindent \tcbr{Feedback from readers is the best way for this series of notes
+  to become more helpful to new users of Maxima}.
+\tcdb{\emph{All} comments and suggestions for improvements will be appreciated and
+  carefully considered}.
+\smallskip
+\begin{myVerbatim2s}
+LOADING FILES
+The defaults allow you to use the brief version load(fft) to load in the
+Maxima file fft.lisp.
+To load in your own homemade file, such as qxxx.mac 
+using the brief version load(qxxx), you either need to place 
+qxxx.mac in one of the folders Maxima searches by default, or
+else put a line like:
+  
+file_search_maxima : append(["c:/work2/###.{mac,mc}"],file_search_maxima )$
+  
+in your personal startup file maxima-init.mac (see Ch. 1, Introduction to
+  Maxima for more information about this).
+
+Otherwise you need to provide a complete path in double quotes,
+as in load("c:/work2/qxxx.mac"),
+ 
+We always use the brief load version in our examples, which are generated 
+using the XMaxima graphics interface on a Windows XP computer, and copied
+into a fancy verbatim environment in a latex file which uses the fancyvrb
+and color packages.
+\end{myVerbatim2s} 
+\smallskip
+\begin{myVerbatim}
+Maxima.sourceforge.net. Maxima, a Computer Algebra System. Version 5.31.2
+ (2013). http://maxima.sourceforge.net/
+\end{myVerbatim}   
+\newpage
+%\normalsize
+\setcounter{section}{2}
+\pagestyle{headings}
+\subsection{Introduction to \textbf{plot2d}}
+\small
+You should be able to use any of our examples with either \textbf{wxMaxima}
+  or \textbf{Xmaxima}.
+If you substitute the word \mv|wxplot2d| for the word \mv|plot2d|, you should get
+  the same plot (using \textbf{wxMaxima}), but the plot will be drawn ``inline'' 
+  in your notebook rather than in a separate gnuplot window, and the vertical axis
+  labeling will be rotated by 90 degrees as compared to the gnuplot window
+  graphic produced by \mv|plot2d|.\\
+  
+\noindent To save a plot as an image file, using \textbf{wxMaxima}, right click on the inline
+  plot, choose a name and a destination folder, and click ok.\\
+  
+\noindent The \textbf{XMaxima} interface default plot mode is set to ``Separate'', which the author
+  recommends you use normally.
+You can check this setting in the \textbf{XMaxima} window by selecting \textbf{Options},
+  \textbf{Plot Windows}, and see that \textbf{Separate} is checked.
+(You can then back out by pressing Esc repeatedly.)\\
+
+\noindent To save a \textbf{XMaxima} plot drawn in a separate \textbf{gnuplot} window,
+ left click the left-most icon in the icon bar of the gnuplot window, which is labeled
+  ``Copy the plot to clipboard'', and
+  then open any utility which can open a picture file and select Edit, Paste, and then
+  File, Save As.
+A standard utility which comes with \textbf{Windows XP} is the accessory \textbf{Paint}, which will work fine
+  in this role to save the clipboard image file.
+The freely available \textbf{Infanview} is a combination picture viewer and editor which can
+  also be used for this purpose.
+Saving the image via the gnuplot window route results in a larger image.  \\
+
+\noindent We discuss later how to use an optional plot2d list to force a particular
+  type of image output. 
+A simple example is
+\begin{myVerbatim2s}
+    plot2d (sin(u),['u,0,%pi], [gnuplot_term,'pdf])$
+\end{myVerbatim2s}
+ which will create the image file \mv|maxplot.pdf| in your
+  current working directory.
+\subsubsection{First Steps with \textbf{plot2d}}
+The syntax of \mv|plot2d| is
+\begin{myVerbatim2}
+ plot2d( object-list, draw-parameter-list, other-option-lists).
+\end{myVerbatim2}
+The required object list (the first item) \tcbr{may} be simply one object (not a list).
+The object types may be expressions (or functions), all depending on the same draw
+  parameter, discrete data objects, and parametric objects.
+If at least one of the plot objects involves a draw parameter, say \mv|p|, then a draw parameter range 
+  list of the form \mv|[p, pmin, pmax]| should follow the object list.\\
+ 
+\noindent We start with the simplest version  which only controls how much of the expression to 
+  plot, and does not try to control the canvas width or height.
+\begin{myVerbatim}
+(%i1) plot2d ( sin(u), ['u, 0, %pi/2] )$
+\end{myVerbatim}
+%\newpage
+which produces (on the author's Windows XP system) approximately:
+
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.4]{ch2p01.eps} }
+	\caption{ plot2d ( sin(u), ['u, 0, \%pi/2] ) }
+\end{figure}
+
+%plot2d(sin(u),['u,0,%pi/2],[psfile,"ch2p01.eps"])$
+\newpage
+\normalsize
+\noindent While viewing the resulting plot, use of the two-key command \mv|Alt-Spacebar|,
+  which normally (in Windows)
+  brings up a resizing menu, instead switches from the  gnuplot figure to
+  a raw gnuplot window.
+You can get back to the figure using \mv|Alt-Tab|, but the raw gnuplot
+  window remains in the background. 
+You should resize the figure window by clicking on the Maximize (or Restore)
+  icon in the upper right-hand corner.
+Both the figure and the raw gnuplot window disappear when you close (using, say
+  \mv|Alt-F4|, twice: once to close the figure window, and once to close the
+  raw gnuplot window).\\
+  
+\noindent Returning to the drawn plot, we see that \textbf{plot2d} has made the 
+  canvas width only as wide as the drawing
+  width, and has made the canvas height only as high as the drawing height.
+Now let's add a horizontal range (canvas width) control list in the
+  form \mv|['x,-0.2,1.8]|.
+Notice the special role the symbol \mv|x| plays here in \mv|plot2d|.
+\mv|u| is a plot parameter, and \mv|x| is a horizontal range control parameter.
+\begin{myVerbatim}
+(%i2) plot2d ( sin(u),['u,0,%pi/2],['x, -0.2, 1.8] )$
+\end{myVerbatim}
+%\newpage
+which produces approximately:
+
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.6]{ch2p02.eps} }
+	\caption{ plot2d ( sin(u), ['u, 0, \%pi/2], ['x,-0.2,1.8] ) }
+\end{figure}
+
+%plot2d(sin(u),['u,0,%pi/2],['x,-0.2,1.8],
+%         [psfile,"ch2p02.eps"])$
+\noindent We see that we now have separate draw width and canvas width controls 
+  included.
+If we try to put the canvas width control list before the draw width control list, we get an
+  error message:
+\begin{myVerbatim}
+(%i3) plot2d(sin(u),['x,-0.2,1.8], ['u,0,%pi/2] )$
+set_plot_option: unknown plot option: u
+ -- an error. To debug this try: debugmode(true);
+\end{myVerbatim}
+However, if the expression variable \tcbr{happens} to be \mv|x|, the following
+  command includes both draw width and canvas width using separate \mv|x|
+  symbol control lists, and results in the correct plot:
+\begin{myVerbatim}
+(%i4) plot2d ( sin(x), ['x,0,%pi/2], ['x,-0.2,1.8] )$
+\end{myVerbatim}
+\noindent in which the first (required) \mv|x| drawing parameter list determines the drawing range, and the
+   second (optional) \mv|x| control list determines the canvas width.\\
+   
+\noindent Despite the special role the symbol \mv|y| also plays in \textbf{plot2d},
+  the following command produces the same plot as above.
+\begin{myVerbatim}
+(%i5) plot2d ( sin(y), ['y,0,%pi/2], ['x,-0.2,1.8] )$
+\end{myVerbatim}
+\newpage
+\noindent The \textbf{optional} vertical canvas height control list uses the special symbol \mv|y|,
+  as shown in
+\begin{myVerbatim}
+(%i6) plot2d ( sin(u), ['u,0,%pi/2], ['x,-0.2,1.8], ['y,-0.2, 1.2] )$
+\end{myVerbatim}
+  which produces
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.6]{ch2p03.eps} }
+	\caption{plot2d ( sin(u), ['u,0,\%pi/2], ['x,-0.2,1.8], ['y,-0.2, 1.2] )}
+\end{figure}
+
+%plot2d(sin(u),['u,0,%pi/2],['x,-0.2,1.8],
+%           ['y,-0.2, 1.2],[psfile,"ch2p03.eps"])$
+  and the following alternatives produce exactly the same plot.
+\begin{myVerbatim}
+(%i7) plot2d ( sin(u), ['u,0,%pi/2], ['y,-0.2, 1.2], ['x,-0.2,1.8] )$
+(%i8) plot2d ( sin(x), ['x,0,%pi/2], ['x,-0.2,1.8], ['y,-0.2, 1.2] )$
+(%i9) plot2d ( sin(y), ['y,0,%pi/2], ['x,-0.2,1.8], ['y,-0.2, 1.2] )$
+\end{myVerbatim}
+%\newpage
+\subsubsection{\textbf{Parametric} Plots}
+For orientation, we will draw a sine curve using the parametric plot object
+  syntax and using a parametric parameter \mv|t|.
+\begin{myVerbatim}
+(%i1) plot2d ( [parametric, t, sin(t), ['t, 0, %pi] ] )$
+\end{myVerbatim}
+%\newpage
+which produces
+
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.4]{ch2p04.eps} }
+	\caption{plot2d ( [parametric, t, sin(t), ['t, 0, \%pi] ] )}
+\end{figure}
+
+\newpage
+\noindent As the \mv|plot2d| section of the manual asserts, the general syntax
+  for a \mv|plot2d| parametric plot is
+\begin{myVerbatim2}
+  plot2d (... [parametric,x_expr,y_expr,t_range],...)  
+\end{myVerbatim2}
+  in which \mv|t_range| has the form of a list: \mv|['t,tmin,tmax]| if the
+  two expressions are functions of \mv|t|, say.
+There is no restriction on the name used for the parametric parameter.\\
+
+\noindent We see that
+\begin{myVerbatim2}
+  plot2d ( [ parametric,  fx(t),  fy(t), [ 't, tmin, tmax ] ] )$
+\end{myVerbatim2}
+  plots pairs of points \mv| ( fx (ta), fy(ta) ) | for \mv|ta| in the interval \mv|[tmin, tmax]|.
+We have used \textbf{no} canvas width control list \mv|[ 'x, xmin, xmax ]| in this minimal version.\\
+\subsubsection{Can We Draw A Circle?}
+This is a messy subject.
+We will only consider the separate gnuplot window mode (not the
+  embedded plot mode) and assume  a maximized gnuplot window 
+  (as large as the monitor allows).\\
+  
+\noindent We use a parametric plot to create a ``circle'', letting
+  \mv|fx(t) = cos(t)| and \mv|fy(t) = sin(t)|, and again adding no canvas width or height
+  control lists.  
+  
+\begin{myVerbatim}
+(%i2) plot2d ([parametric, cos(t), sin(t), ['t,-%pi,%pi]])$
+\end{myVerbatim}  
+If this plot is viewed in a maximized gnuplot window, the height
+  to width ratio is about 0.6 on the author's equipment.
+The corresponding eps file for the figure included here has a height to width ratio
+  of about 0.7 when viewed with GSView, and about the same ratio in
+  this pdf file:
+  
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.5]{ch2p05.eps} }
+	\caption{ plot2d ( [ parametric, cos(t), sin(t), ['t, -\%pi, \%pi] ] ) }
+\end{figure}
+
+%plot2d ([parametric, cos(t), sin(t), ['t,-%pi,%pi]],
+%                  [psfile,"ch2p05.eps"])$
+\newpage 
+\noindent There are two approaches to better ``roundness''. 
+The first approach is to use the \mv|plot2d| option\\
+  \mv|[gnuplot_preamble,"set size ratio 1;"]|, as in
+\begin{myVerbatim2}
+(%i3) plot2d ([parametric, cos(t), sin(t), ['t,-%pi,%pi]],
+          [gnuplot_preamble,"set size ratio 1;"])$
+\end{myVerbatim2}
+With this command, the author gets a height to width ratio of about 0.9 using the fullscreen
+  gnuplot window choice.  
+The eps file save of this figure, produced with the code
+\begin{myVerbatim2}
+plot2d ([parametric, cos(t), sin(t), ['t,-%pi,%pi]],
+           [gnuplot_preamble,"set size ratio 1;"],
+           [psfile,"ch2p06.eps"] )$
+\end{myVerbatim2}
+ had a height to width ratio close to 1 when viewed with GSView 
+  and close to that value in this pdf file:
+
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.7]{ch2p06.eps} }
+	\caption{ plot2d ( adding set size ratio 1 option ) }
+\end{figure}
+
+% plot2d ([parametric, cos(t), sin(t), ['t,-%pi,%pi]],
+%           [gnuplot_preamble,"set size ratio 1;"],
+%           [psfile,"ch2p06.eps"] )$
+  
+We conclude that the gnuplot preamble method of getting an approximate
+  circle works quite well for an eps graphics file, and we will use that
+  method to produce figures for this pdf file.\\
+  
+\noindent The alternative approach is to handset the x-range and y-range
+  experimentally until the resulting ``circle'' measures the same
+  width as height, for example forcing the horizontal canvas width
+  to be, say, 1.6 as large as the vertical canvas height.
+\begin{myVerbatim}
+(%i4) plot2d ([parametric, cos(t), sin(t), ['t, -%pi, %pi] ], ['x,-1.6,1.6])$
+\end{myVerbatim}
+ has a height to width ratio of about 1.0 (fullscreen Gnuplot window) on the
+  author's equipment.
+Notice above that the vertical range is determined by the curve properties
+  and extends over \mv|(y= -1, y = 1)|.
+The y-range here is 2, the x-range is 3.2, so the x-range is 1.6 times
+  the y-range.
+  
+
+\newpage
+\noindent We now make a plot consisting of two plot objects, the first being the explicit
+  expression \mv|u^3|, and the second being the parametric plot object used above.
+We now need the syntax
+\begin{myVerbatim2}
+plot2d ([plot-object-1, plot-object-2], possibly-required-draw-range-control,
+                   other-option-lists )
+\end{myVerbatim2}
+Here is an example :
+\begin{myVerbatim}
+(%i5) plot2d ([u^3,[parametric, cos(t), sin(t), ['t,-%pi,%pi]]],
+                ['u,-1.1,1.1],['x,-1.5,1.5],['y,-1.5,1.5],
+                 [gnuplot_preamble,"set size ratio 1;"])$
+\end{myVerbatim}
+  in which \mv|['u,-1.1,1.1]| is required to determine the drawing range of \mv|u^3|,
+  and we have added separate horizontal and vertical canvas control lists
+  as well as the gnuplot\_preamble option to approximate a circle, since it is quicker than fiddling
+  with the x and y ranges by hand.\\  
+
+\noindent To get the corresponding eps file figure for incorporation in this pdf file,
+  we used the code 
+\begin{myVerbatim2}
+plot2d ([u^3,[parametric, cos(t), sin(t), ['t,-%pi,%pi]]],
+                ['u,-1.1,1.1],['x,-1.5,1.5],['y,-1.5,1.5],
+                 [gnuplot_preamble,"set size ratio 1;"],
+                 [psfile,"ch2p07.eps"])$
+\end{myVerbatim2}
+ which produces
+ 
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.7]{ch2p07.eps} }
+	\caption{ Combining an Explicit Expression with a Parametric Object }
+\end{figure}
+
+%
+% plot2d ([u^3,[parametric, cos(t), sin(t), ['t,-%pi,%pi]]],
+%                ['u,-1.1,1.1],['x,-1.95,1.95],['y,-1.5,1.5],
+%                 [psfile,"ch2p07.eps"])$
+
+
+ in which the horizontal axis label (by default) is \mv|u|.  
+\newpage
+\noindent We now add a few more options to make this combined plot
+  look cleaner and brighter (more about some of these later).
+\begin{myVerbatim}
+(%i6) plot2d (
+              [ [parametric, cos(t), sin(t), ['t,-%pi,%pi],[nticks,200]],u^3],
+                ['u,-1,1], ['x,-1.2,1.2] , ['y,-1.2,1.2], 
+                [style, [lines,8]],  [xlabel," "], [ylabel," "],
+                [box,false], [axes, false],              
+                [legend,false],[gnuplot_preamble,"set size ratio 1;"])$
+\end{myVerbatim}
+  and the corresponding eps file (with \mv|[lines,20]| for increased line width) produces:
+  
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=1]{ch2p08.eps} }
+	\caption{ Drawing of $\mathbf{u^3}$ Over a Circle }
+\end{figure}
+
+%plot2d (
+%              [ [parametric, cos(t), sin(t), ['t,-%pi,%pi],[nticks,200]],u^3],
+%                ['u,-1,1], ['x,-1.2,1.2] , ['y,-1.2,1.2], 
+%                [style, [lines,20]],  [xlabel," "], [ylabel," "],
+%                [box,false], [axes, false],              
+%                [legend,false],[gnuplot_preamble,"set size ratio 1;"],
+%                [psfile,"ch2p08.eps"])$
+
+\noindent The default value of \textbf{nticks} inside \textbf{plot2d} is \mv|29|, and
+  using \mv|[nticks, 200]| yields a much smoother parametric curve.
+\subsubsection{Line Width and Color Controls}
+Each element to be included in the plot can have a separate
+  \textbf{[ lines, nlw, nlc ]} entry in the \textbf{style} option
+  list, with \textbf{nlw} determining the line width and \textbf{nlc} determining the line color.
+The default value of \textbf{nlw} is \mv|1|, a very thin weak line.
+The use of \textbf{nlw = 5} creates a strong wider line.\\
+
+\noindent The default color choices (if you don't provide a specific vlue of \mv|nlc|)
+   consist of a rotating color scheme which starts with
+  \textbf{nlc = 1} (blue)  and then progresses through \textbf{nlc = 6} (cyan = greenish-blue)
+  and then repeats.\\
+
+
+\noindent You will see the colors with the associated values of \textbf{nlc},
+   using  the following code which draws a set of vertical lines in various colors
+   (a version of a histogram).
+This code also shows an example of using \textbf{discrete} list objects (to
+  draw straight lines), and the  use of various options available.
+You should run this code with your own hardware-software setup, to see what
+  the default \mv|plot2d| colors are with your system.
+\begin{myVerbatim}
+(%i1) plot2d(
+         [ [discrete,[[0,0],[0,5]]], [discrete,[[2,0],[2,5]]],
+           [discrete,[[4,0],[4,5]]],[discrete,[[6,0],[6,5]]],
+           [discrete,[[8,0],[8,5]]],[discrete,[[10,0],[10,5]]],
+           [discrete,[[12,0],[12,5]]],[discrete,[[14,0],[14,5]]] ],
+		   
+           [style,  [lines,6,0],[lines,6,1],[lines,6,2],
+           [lines,6,3],[lines,6,4],[lines,6,5],[lines,6,6],
+           [lines,6,7]],
+		   
+           [x,-2,20],   [y,-2,8],
+           [legend,"0","1","2","3","4","5","6","7"],
+           [xlabel," "],   [ylabel," "],
+           [box,false],[axes,false])$
+\end{myVerbatim}
+Note that none of the objects being drawn are expressions or functions, so
+  a draw parameter range list is not only not necessary but would make no 
+   sense,  and that the optional horizontal canvas width control list above
+   is \mv|['x,-2,20]|.\\
+  
+\noindent The interactive gnuplot \textbf{plot2d} colors 
+  available on a Windows XP system (using XMaxima with Maxima ver. 5.31) thus 
+  are: \textbf{0 = cyan, 1 = blue, 2 = red, 3 = green},
+   \textbf{4 = majenta, 5 = black, 6 = cyan, 7 = blue, 8 = red, ...}\\
+   
+\noindent Adding the element \mv|[psfile,"c:/work2/ztest2.eps"]| to the above
+  \mv|plot2d| code produces the figure displayed here:
+
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.8]{ztest2.eps} }
+	\caption{Cyclic \textbf{plot2d} Colors with a Windows XP System }
+\end{figure}
+
+\newpage
+\noindent For a simple example which uses color and line width controls, we plot
+  the expressions \mv|u^2| and \mv|u^3| on the same canvas,
+   using lines in black and red colors, and add a height control list,
+  which has the syntax \mvs| ['y, ymin, ymax]|.
+\begin{myVerbatim}
+(%i2) plot2d( [u^2,u^3],['u,0,2], ['x, -.2, 2.5],
+          [style, [lines,5,5],[lines,5,2]],
+           ['y,-1,4] )$
+plot2d: some values were clipped.
+\end{myVerbatim}
+The plot2d warning should not be of concern here.\\
+
+\noindent The width and height control list parameters have been chosen to make it easy
+  to see where the two curves cross for positive \textbf{u}.
+If you move the cursor over the crossing point, you can read off the coordinates
+  from the cursor position printout in the lower left corner of the plot window.
+This produces the plot:
+
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.7]{ch2p11.eps} }
+	\caption{ Black and Red Curves }
+\end{figure}
+
+\subsubsection{\textbf{Discrete} Data Plots: Point Size, Color, and Type Control}
+We have seen some simple parametric plot examples above.
+Here we make a more elaborate plot which includes discrete data points which locate on the
+  curve special places, with information on the key legend about those
+  special points.
+The actual parametric curve color is chosen to be black (5) with some
+  thickness (4), using \mv|[lines,4,5]| in the \mv|style| list.
+We force large size points with special color choices, using the maximum amount
+  of control in the \mv|[points, nsize, ncolor, ntype]| style assignments.
+\begin{myVerbatim}
+(%i1) obj_list : [ [parametric, 2*cos(t),t^2,['t,0,2*%pi]],
+                     [discrete,[[2,0]]],[discrete,[[0,(%pi/2)^2]]],
+              [discrete,[[-2,%pi^2]]],[discrete,[[0,(3*%pi/2)^2]]] ]$
+(%i2) style_list : [style, [lines,4,5],[points,5,1,1],[points,5,2,1],
+                 [points,5,3,1],[points,5,4,1]]$
+(%i3) legend_list : [legend, " ","t = 0","t = pi/2","t = pi",
+                " t = 3*pi/2"]$
+(%i4) plot2d( obj_list, ['x,-3,4], ['y,-1,40],style_list,
+                  [xlabel,"X = 2 cos( t ), Y = t ^2 "],
+                   [ylabel, " "] ,legend_list )$
+\end{myVerbatim}
+\newpage
+\noindent This produces the plot:
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.7]{ch2p12.eps} }
+	\caption{ Parametric Plot with Discrete Points }
+\end{figure}
+
+\noindent The \textbf{points} style option has any of the following
+  forms: \mvs|[points]|, or \mvs|[points, point_size]|, 
+  or\\
+  \mvs|[points, point_size, point_color]|, or
+  \mvs|[points, point_size, point_color, point_type]|, in order of increasing
+  control.\\
+  
+\noindent The default \tcbr{point colors} are the same cyclic colors used by the \textbf{lines}
+  style.
+The default \tcbr{point type} is a cyclic order starting with 
+  \textbf{1 = filled circle} ,
+  then  continuing \textbf{2 = open circle}, \textbf{3 = plus sign},
+  \textbf{4 = diagonal crossed lines as capital X},
+  \textbf{5 = star}, \textbf{6 = filled square}, {7 = open square},
+  {8 = filled triangle point up}, \textbf{9 = open triangle point up},
+  \textbf{10 = filled triangle point down}, \textbf{11 = open triangle point down}
+  \textbf{12 = filled diamond}, \textbf{13 = open diamond = 0},
+  \textbf{14 = filled circle}, which is the same as \textbf{1}, and repeating the same
+  cycle.  
+Thus if you use \mvs|[points,5]| you will get good size points, and both the color and shape
+  will cycle through the default order.
+If you use \mvs|[points,5,2]| you will force a red color but the shape will depend on
+  the contents and order of the rest of the objects list.\\
+  
+\noindent You can see the default points cycle through both colors and shapes
+  with the code:
+\begin{myVerbatim2}
+plot2d([ [discrete,[[0,.5]]],[discrete,[[0.1,.5]]],
+                  [discrete,[[0.2,.5]]],[discrete,[[0.3,.5]]],
+                 [discrete,[[0.4,.5]]],[discrete,[[0.5,.5]]],
+                  [discrete,[[0.6,.5]]],[discrete,[[0.7,.5]]],
+                  [discrete,[[0,0]]],[discrete,[[0.1,0]]],
+                  [discrete,[[0.2,0]]],[discrete,[[0.3,0]]],
+                  [discrete,[[0.4,0]]],[discrete,[[0.5,0]]],
+                  [discrete,[[0.6,0]]],[discrete,[[0.7,0]]]   ],
+\end{myVerbatim2}
+\newpage
+\begin{myVerbatim2}
+                [style,[points,5]],[xlabel,""],[ylabel,""],
+                ['x,-0.2,1],['y,-0.2,0.7],
+                [box,false],[axes,false],[legend,false])$
+\end{myVerbatim2}
+
+which will produce something like
+
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.6]{shapes.eps} }
+	\caption{default point colors and styles, 1-8, then 9-16 }
+\end{figure}
+
+\noindent You can also experiment with one shape at a time by defining a function \mv|dopt(n)|
+  which selects the shape with the integer \mv|n| and leaves the color blue:
+\begin{myVerbatim2}
+dopt(n) := plot2d ([discrete,[[0,0]]],[style,[points,15,1,n]],
+                   [box,false],[axes,false],[legend,false])$
+\end{myVerbatim2}
+
+\noindent Next we combine a list of twelve (x,y) pairs of points with the key word \textbf{discrete} to
+  form a discrete object type for \textbf{plot2d}, and then look at the data points
+  without adding the optional canvas width control.
+Note that  using only one discrete list for all the points  results in
+  all data points being displayed with the same size, color and shape.
+\begin{myVerbatim}
+(%i5) data_list : [discrete,
+         [ [1.1,-0.9],[1.45,-1],[1.56,0.3],[1.88,2],
+              [1.98,3.67],[2.32,2.6],[2.58,1.14],
+           [2.74,-1.5],[3,-0.8],[3.3,1.1],
+           [3.65,0.8],[3.72,-2.9] ] ]$
+(%i6) plot2d( data_list, [style,[points]])$
+\end{myVerbatim}
+\newpage
+
+\noindent This produces the plot
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.6]{ch2p13.eps} }
+	\caption{ Twelve Data Points with Same Size, Color, and Shape}
+\end{figure}
+
+%plot2d( data_list, [style,[points]],
+%         [psfile,"ch2p13.eps"])$
+
+\noindent We now combine the data points with a curve which
+  is a possible fit to these data points over the draw parameter range  \mvs|[u, 1, 4]|.
+\begin{myVerbatim}
+(%i7) plot2d( [sin(u)*cos(3*u)*u^2, data_list],
+               ['u,1,4], ['x,0,5],['y,-10,8],
+          [style,[lines,4,1],[points,4,2,1]])$
+plot2d: some values were clipped.
+\end{myVerbatim}
+%\newpage
+which produces (approximately) the plot
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.6]{ch2p14.eps} }
+	\caption{ Curve Plus Data }
+\end{figure}
+ 
+ 
+%plot2d( [sin(u)*cos(3*u)*u^2, data_list],
+%               [u,1,4], ['x,0,5],['y,-10,8],
+%          [style,[lines,4,1],[points,4,2,1] ],
+%           [psfile,"ch2p14.eps"])$
+\newpage
+\subsubsection{More \textbf{gnuplot\_preamble} Options}
+Here is an example of using the \textbf{gnuplot\_preamble} options
+  to add a grid, a title, and position the plot key at the bottom
+  center of the canvas.
+Note the use of a semi-colon between successive gnuplot instructions.
+\begin{myVerbatim}
+(%i1) plot2d([ u*sin(u),cos(u)],['u,-4,4] ,['x,-8,8],
+             [style,[lines,5]],
+         [gnuplot_preamble,"set grid; set key bottom center;
+              set title 'Two Functions';"])$
+\end{myVerbatim}
+%\newpage
+which produces (approximately) the plot
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=1.2]{ch1p47.eps} }
+	\caption{ Using the gnuplot\_preamble Option }
+\end{figure}
+
+\noindent Another option you can use is \mv|set zeroaxis lw 5;| to get more
+  prominent \mv|x| and \mv|y| axes.
+Another example of a key location would be \mv|set key top left;|.
+We have also previously used \mv|set size ratio 1;| to get a ``rounder'' circle.
+\newpage
+\subsubsection{Creating Various Kinds of Graphics Files Using \textbf{plot2d}}
+The first method of exporting \mv|plot2d| drawings as special graphics files is
+  to have the plot drawn in the Gnuplot window (either the XMaxima route, or using
+   \mv|wxplot2d| rather than \mv|plot2d| if you are  using \mv|wxmaxima|).
+Then left-click the left-most Gnuplot icon near the top of the Gnuplot
+  window (``copy the plot to clipboard").
+Then open an application which accomodates the graphics format you desire,
+  and paste the clipboard image into the application, and then use Save As,
+  selecting the graphics type of save desired.\\
+  
+\noindent The second method of exporting \mv|plot2d| drawings as special graphics files is
+  to use the \mv|gnuplot_term|  option as part of your \mv|plot2d| command.
+If you do not add an additional option of the form (for example)
+\begin{myVerbatim2}
+  [gnuplot_out_file, "c:/k1/myname.ext"]
+\end{myVerbatim2}
+  where \mv|ext| is replaced by an
+  appropriate graphics type extension, then \mv|plot2d| creates
+  a file with the name \mv|maxplot.ext| in your current working directory.\\
+  
+\noindent For example,
+\begin{myVerbatim}
+(%i1) plot2d (sin(u),['u,0,%pi], [gnuplot_term,'jpeg])$
+\end{myVerbatim}
+  will create the graphics file \mv|maxplot.jpeg|, and a further 
+  commmand
+\begin{myVerbatim}
+(%i2) plot2d (cos(u),['u,0,%pi], [gnuplot_term,'jpeg])$
+\end{myVerbatim}
+ will overwrite the previous file \mv|maxplot.jpeg| to create the
+   new graphics file for the plot of \mv|cos|.
+To provide a different name for different plots, you would
+  write, for example,
+\begin{myVerbatim}
+(%i3) plot2d (cos(u),['u,0,%pi],
+        [gnuplot_out_file,"c:/work2/mycos1.jpeg"],
+       [gnuplot_term,'jpeg])$
+\end{myVerbatim}
+If you do not supply the complete path, the file is written in the
+ \mv|/bin| folder of the Maxima program installation.
+Turning to other graphics file formats, and ignoring the naming option
+  part, 
+\begin{myVerbatim}
+(%i4) plot2d (sin(u),['u,0,%pi],
+       [gnuplot_term,'png])$
+\end{myVerbatim}
+  will create \mv|maxplot.png|.
+\begin{myVerbatim}
+(%i5) plot2d (sin(u),['u,0,%pi],
+       [gnuplot_term,'eps])$
+\end{myVerbatim}
+will create \mv|maxplot.eps|.
+\begin{myVerbatim}
+(%i6) plot2d (sin(u),['u,0,%pi],
+       [gnuplot_term,'svg])$
+\end{myVerbatim}
+will create \mv|maxplot.svg| (a ``scalable vector graphics'' file openable by \mv|inkscape|).
+\begin{myVerbatim}
+(%i7) plot2d (sin(u),['u,0,%pi],
+       [gnuplot_term,'pdf])$
+\end{myVerbatim}
+will create \mv|maxplot.pdf|, which will be the cleanest plot of the above cases.
+\subsubsection{Using \textbf{qplot} for Quick Plots of One or More Functions}
+The file \textbf{qplot.mac} is posted with Ch. 2 and
+  contains a function called \textbf{qplot} which
+  can be used for quick plotting of functions in place of \textbf{plot2d}.\\
+  
+\noindent The function \textbf{qplot} (\mv|q| for ``quick'') accepts the default cyclic
+  colors but always uses thicker lines than the \textbf{plot2d} default,
+  adds more prominent x and y axes to the plot, and adds a grid (which can be
+  switched off using the third from the left gnuplot icon).
+Here are some examples of use.
+(We include use with \textbf{discrete} lists only for completeness, since
+  there is no way to get the \textbf{points} style with \textbf{qplot}.)
+
+\begin{myVerbatim}
+(%i1) load(qplot);
+(%o1)                         c:/work2/qplot.mac
+(%i2) qplot(sin(u),['u,-%pi,%pi])$
+(%i3) qplot(sin(u),['u,-%pi,%pi],['x,-4,4])$
+(%i4) qplot(sin(u),['u,-%pi,%pi],['x,-4,4],['y,-1.2,1.2])$
+(%i5) qplot([sin(u),cos(u)],['u,-%pi,%pi])$
+(%i6) qplot([sin(u),cos(u)],['u,-%pi,%pi],['x,-4,4])$
+(%i7) qplot([sin(u),cos(u)],['u,-%pi,%pi],['x,-4,4],['y,-1.2,1.2])$
+(%i8) qplot ([parametric, cos(t), sin(t), ['t,-%pi,%pi]],
+              ['x,-2.1,2.1],['y,-1.5,1.5])$
+\end{myVerbatim}
+The last use involved only a parametric object, and the list
+  \mv|['x,-2.1,2.1]| is interpreted as a horizontal canvas width control 
+  list based on the symbol \mv|x|.\\
+
+\small
+\noindent While viewing the resulting plot, use of the two-key command \mv|Alt-Spacebar|,
+  which normally
+  brings up a resizing menu, instead switches from the  gnuplot figure to
+  a raw gnuplot window.
+You can get back to the figure using \mv|Alt-Tab|, but the raw gnuplot
+  window remains in the background. 
+You should resize the figure window by clicking on the Maximize (or Restore)
+  icon in the upper right-hand corner.
+Both the figure and the raw gnuplot window disappear when you close (using, say
+  \mv|Alt-F4|, twice: once to close the figure window, and once to close the
+  raw gnuplot window).\\
+  
+\noindent The next example includes both an expression depending on the parameter \mv|u|
+  and a parametric object depending on a parameter \mv|t|, so we must have a 
+  expression draw list of the form: \mv|['u,umin,umax]|.
+\begin{myVerbatim}
+(%i9) qplot ([ u^3,
+               [parametric, cos(t), sin(t), ['t,-%pi,%pi]]],
+               ['u,-1,1],['x,-2.25,2.25],['y,-1.5,1.5])$
+\end{myVerbatim}
+\noindent Here is approximatedly the result with the author's system:
+
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.5]{ch2p17.eps} }
+	\caption{ qplot example }
+\end{figure}
+ 
+%plot2d([ u^3, [parametric, cos(t), sin(t), ['t,-%pi,%pi]]],
+%               ['u,-1,1],['x,-2.1,2.1],['y,-1.5,1.5],
+%              [style,[lines,15]], [nticks,100],
+%            [gnuplot_preamble, "set grid; set zeroaxis lw 15;"],
+%             [legend,false],[ylabel, " "],
+%            [psfile,"ch2p17.eps"])$
+
+\newpage
+\normalsize
+\noindent To get the same plot using \mv|plot2d| from scratch requires the
+  code:
+\begin{myVerbatim2}
+plot2d([ u^3, [parametric, cos(t), sin(t), ['t,-%pi,%pi]]],
+               ['u,-1,1],['x,-2.25,2.25],['y,-1.5,1.5],
+              [style,[lines,5]], [nticks,100],
+            [gnuplot_preamble, "set grid; set zeroaxis lw 5;"],
+             [legend,false],[ylabel, " "])$
+\end{myVerbatim2}
+\noindent Here are two \textbf{discrete} examples which draw vertical lines.
+\begin{myVerbatim}
+(%i10) qplot([discrete,[[0,-2],[0,2]]],['x,-2,2],['y,-4,4])$
+(%i11) qplot( [ [discrete,[[-1,-2],[-1,2]]],
+                  [discrete,[[1,-2],[1,2]]]],['x,-2,2],['y,-4,4])$
+\end{myVerbatim}
+Here is the code (in qplot.mac) which defines the Maxima function
+  \textbf{qplot}.
+\begin{myVerbatim2}
+qplot ( exprlist, prange, [hvrange]) := 
+    block([optlist, plist],
+      optlist : [ [nticks,100], [legend, false], 
+           [ylabel, " "], [gnuplot_preamble, "set grid; set zeroaxis lw 5;"] ], 
+      optlist : cons ( [style,[lines,5]], optlist ),
+      if length (hvrange) = 0 then plist : [] 
+            else   plist : hvrange, 
+      plist : cons (prange,plist), 
+      plist : cons (exprlist,plist),
+      plist : append ( plist, optlist ),
+      apply (plot2d, plist ) )$
+\end{myVerbatim2}
+In this code, the third argument is an optional argument.
+The local \textbf{plist} accumulates the arguments to be passed
+  to \textbf{plot2d} by use of \textbf{cons} and \textbf{append}, and is then
+   passed to \textbf{plot2d} by the use of  \textbf{apply}. 
+The order of using \textbf{cons} makes sure that \textbf{exprlist} will be
+  the first element, (and \textbf{prange} will be the second) seen
+  by \textbf{plot2d}.
+In this example you can see several tools used for programming with lists.\\
+
+\noindent Several choices have been made in the \textbf{qplot} code to get
+  quick and uncluttered plots of one or more functions.
+One choice was to add a grid and stronger \mv|x| and \mv|y| axis lines.
+Another choice was to eliminate the key legend by using the
+  option \mv|[legend, false]|.
+If you want a key legend to appear when plotting multiple functions,
+  you should remove that option from the code and reload \textbf{qplot.mac}.
+\newpage
+\subsubsection{Plot of a Discontinuous Function}
+Here is an example of a definition and plot of a discontinous function.
+\begin{myVerbatim}
+(%i12) fs(x) := if x >= -1 and x <= 1 then 3/2 else 0$
+(%i13) plot2d (fs(u),['u,-2,2],['x,-3,3],['y,-.5,2],
+        [style, [lines,5]],[ylabel,""],
+         [xlabel,""])$
+\end{myVerbatim}
+
+ which produces (approximately) the plot:
+ 
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.6]{ch2p22.eps} }
+	\caption{Plot of a Discontinuous Function}
+\end{figure}
+  
+%plot2d (fs(u),['u,-2,2],['x,-3,3],['y,-.5,2],
+%        [style, [lines,10]],[ylabel,""],
+%         [xlabel,""],[psfile,"ch2p22.eps"])$
+\noindent or we can use \mv|qplot|:
+\begin{myVerbatim}
+(%i14) load(qplot);
+(%o14)                          c:/work2/qplot.mac
+(%i15) qplot (fs(u),['u,-2,2],['x,-3,3],['y,-.5,2],[xlabel,""])$
+\end{myVerbatim}
+  to get the same plot.
+\subsection{Working with Files Using the Package \textbf{mfiles.mac}}
+The chapter 2 package file \mv|mfiles.mac| (which loads \mv|mfiles1.lisp|)
+  has some Maxima tools for working with both text and data files.
+Both files are available on the author's webpage.
+Unless you use your initialization file to automatically load \mv|mfiles.mac|
+  when you start or restart Maxima, you will need to do an explicit load to
+  use these functions.
+\subsubsection{Check File Existence with \textbf{file\_search} or \textbf{probe\_file}}
+\small
+To check for the existence of a file, you can use the
+  standard Maxima function \mv|file_search| or the \mv|mfiles| package
+  function \mv|probe_file| (the latter is experimental and
+  seems to work in a M.S. Windows version of Maxima).
+In the following, the file \mv|ztemp.txt| exists in the current
+  working directory (\mv|c:/work2/|), and the file \mv|ytemp.txt| does not
+   exist in this work folder.
+Both functions return \mv|false| when the file is not found.
+You need to supply the full file name including any extension, as a string.\\
+
+\noindent The XMaxima output shown here uses \mv|display2d:true| (the default).
+If you use the non-default setting\\
+ (\mv|display2d:false|), strings will appear
+   surrounded by double-quotes, but unpleasant backslash escape characters \mv|\|
+   will appear in the output.\\
+   
+\newpage
+\normalsize
+\noindent In the following, we have not yet loaded \mv|mfiles.mac|.
+\begin{myVerbatim}
+(%i1) file_search ("ztemp.txt");
+(%o1)                         c:/work2/ztemp.txt
+(%i2) probe_file ("ztemp.txt");
+(%o2)                        probe_file(ztemp.txt)
+(%i3) load(mfiles);
+(%o3)                         c:/work2/mfiles.mac
+(%i4) probe_file ("ztemp.txt");
+(%o4)                                false
+(%i5) probe_file ("c:/work2/ztemp.txt");
+(%o5)                         c:/work2/ztemp.txt
+(%i6) myf : mkp("ztemp.txt");
+(%o6)                         c:/work2/ztemp.txt
+(%i7) probe_file (myf);
+(%o7)                         c:/work2/ztemp.txt
+(%i8) file_search ("ztemp");
+(%o8)                                false
+(%i9) file_search ("ytemp.txt");
+(%o9)                                false
+\end{myVerbatim}
+Although the core Maxima function \mv|file_search| does not need the complete
+  path (due to our \mv|maxima.init| file contents),
+  our homemade functions, such as \mv|probe_file| do need a complete
+    path, due to recent changes in Maxima.
+To ease the pain of typing the full path, you can use a function
+  which we call \mv|mkp| (``make path'') which we define in our
+  \mv|maxima.init.mac| file, whose contents are:
+\begin{myVerbatim2}
+/* this is c:\Documents and Settings\Edwin Woollett\maxima\maxima-init.mac  */
+maxima_userdir: "c:/work2" $     
+maxima_tempdir : "c:/work2"$
+file_search_maxima : append(["c:/work2/###.{mac,mc}"],file_search_maxima )$
+file_search_lisp : append(["c:/work2/###.lisp"],file_search_lisp )$
+
+bpath : "c:/work2/"$
+mkp (_fname) := sconcat (bpath,_fname)$
+\end{myVerbatim2}
+We have used this function, \mv|mkp| above, to get \mv|probe_file| to work.
+The string processing function \mv|sconcat| creates a new string from
+  two given strings (``string concatenation''):
+\begin{myVerbatim}
+(%i10) display2d:false$
+(%i11) sconcat("a bc","xy z");
+(%o11) "a bcxy z"
+\end{myVerbatim}
+Note that we defined (in our maxima-init.mac file) a global 
+  variable \mv|bpath| (``base of path'' or 
+	``beginning of path'') instead of using the global variable
+	\mv|maxima_userdir|.
+This makes it more convenient for the user to redefine \mv|bpath| ``on the fly''
+   (inside a maxima session)
+   instead of opening and editing \mv|maxima-init.mac|, and restarting Maxima
+   to have the changes take effect.\\
+   
+\noindent We see that \mv|file_search| is easier to use than \mv|probe_file|.
+\subsubsection{Check for File Existence using \textbf{ls} or \textbf{dir}}
+The \mv|mfiles.mac| package functions \mv|ls| and \mv|dir| accept
+  the use of a wildcard pathname.
+Both functions are experimental and are not guaranteed to
+  work with Maxima engines compiled with a Lisp version 
+  different from GCL (Gnu Common Lisp) (which is the Lisp
+  version used for the Windows binary used by the author).\\
+\newpage 
+\noindent Again, you must use the full path, and can make use
+  of the  \mv|mkp| function as in the above examples.
+The last examples below refer to a folder different than
+  the working folder \mv|c:/work2/|.
+\begin{myVerbatim}
+(%i12) ls(mkp("*temp.txt"));
+(%o12) [c:/work2/REPLACETEMP.TXT, c:/work2/temp.txt, c:/work2/ztemp.txt]
+(%i13) ls("c:/work2/*temp.txt");
+(%o13) [c:/work2/REPLACETEMP.TXT, c:/work2/temp.txt, c:/work2/ztemp.txt]
+(%i14) dir(mkp("*temp.txt"));
+(%o14)              [REPLACETEMP.TXT, temp.txt, ztemp.txt]
+(%i15) dir("c:/work2/*temp.txt");
+(%o15)              [REPLACETEMP.TXT, temp.txt, ztemp.txt]
+(%i16) ls ("c:/work3/dirac.*");
+(%o16)             [c:/work3/dirac.mac, c:/work3/dirac.tex]
+(%i17) dir ("c:/work3/dirac.*");
+(%o17)                      [dirac.mac, dirac.tex]
+\end{myVerbatim}
+\subsubsection{Type of File, Number of Lines, Number of Characters}
+The text file lisp1w.txt is a file with Windows line ending control
+  characters which has three lines of text and no blank lines.
+\begin{myVerbatim}
+(%i18) file_search("lisp1w.txt");
+(%o18)                        c:/work2/lisp1w.txt
+(%i19) file_lines("lisp1w.txt");
+openr: file does not exist: lisp1w.txt
+#0: file_lines(fnm=lisp1w.txt)(mfiles.mac line 637)
+ -- an error. To debug this try: debugmode(true);
+(%i20) file_lines(mkp("lisp1w.txt"));
+(%o20)                              [3, 3]
+(%i21) file_lines("c:/work2/lisp1w.txt");
+(%o21)                              [3, 3]
+\end{myVerbatim}
+The output of the \mv|file_lines| function returns the list \\
+\mv|[number of non-blank lines, total number of lines]|.
+\begin{myVerbatim}
+(%i22) myf:mkp("lisp1w.txt");
+(%o22)                        c:/work2/lisp1w.txt
+(%i23) ftype(myf);
+(%o23)                              windows
+(%i24) file_length(myf);
+(%o24)                                131
+(%i25) file_info(myf);
+(%o25)                       [3, 3, windows, 131]
+\end{myVerbatim}
+The function \mv|ftype| (file type) returns either \mv|windows|, \mv|unix|, or \mv|mac|
+  depending on the nature of the ``end of line chars''.
+The function \mv|file_length| returns the number of characters (``chars'') in the
+  file, including the end of line chars.
+The function \mv|file_info| combines the line number info,  the file type, and
+  the number of characters into one list.
+\subsubsection{Print All or Some Lines of a File to the Console}
+For a small file the packge function \mv|print_file(file)| is useful.
+For a larger file\\ \mv|print_lines(file,start,end)| is useful.
+\begin{myVerbatim}
+(%i26) print_file (myf)$
+Lisp (or LISP) is a family of computer programming
+languages with a long history and a distinctive, fully
+parenthesized syntax.
+(%i27) myf : mkp("lisp2.txt");
+(%o27)                        c:/work2/lisp2.txt
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i28) file_info(myf);
+(%o28)                       [8, 8, windows, 504]
+(%i29) print_lines(myf,3,5)$
+parenthesized syntax. Originally specified in 1958, Lisp is 
+the second-oldest high-level programming language in 
+widespread use today; only Fortran is older (by one year).
+\end{myVerbatim}
+\subsubsection{Rename a File using \textbf{rename\_file}}
+The \mv|mfiles.mac| package function \mv|rename_file (oldname,newname)|
+  is an experimental function which works as follows in a Windows
+  version of Maxima (again we must use the complete path):
+\begin{myVerbatim}
+(%i30) file_search("foo1.txt");
+(%o30)                               false
+(%i31) file_search("bar1.txt");
+(%o31)                         c:/work2/bar1.txt
+(%i32) rename_file(mkp("bar1.txt"),mkp("foo1.txt"));
+(%o32)                         c:/work2/foo1.txt
+(%i33) file_search("foo1.txt");
+(%o33)                         c:/work2/foo1.txt
+(%i34) file_search("bar1.txt");
+(%o34)                               false
+\end{myVerbatim}
+\subsubsection{Delete a File with \textbf{delete\_file}}
+The \mv|mfiles.mac| package function \mv|delete_file (filename)|
+  does what its name implies:
+\begin{myVerbatim}
+(%i35) file_search("bar2.txt");
+(%o35)                         c:/work2/bar2.txt
+(%i36) delete_file(mkp("bar2.txt"));
+(%o36)                               done
+(%i37) file_search("bar2.txt");
+(%o37)                               false
+\end{myVerbatim}
+\subsubsection{Copy a File using \textbf{copy\_file}}
+The \mv|mfiles.mac| package function \mv|copy_file(fsource,fdest)|
+  will preserve the file type, but will not warn you if you
+  are over-writing a previous file name.
+\begin{myVerbatim}
+(%i38) file_search("foo2.txt");
+(%o38)                               false
+(%i39) file_info(mkp("foo1.txt"));
+(%o39)                        [3, 3, windows, 59]
+(%i40) copy_file(mkp("foo1.txt"),mkp("foo2.txt"));
+(%o40)                         c:/work2/foo2.txt
+(%i41) file_info(mkp("foo2.txt"));
+(%o41)                        [3, 3, windows, 59]
+\end{myVerbatim}
+\subsubsection{Change the File Type using \textbf{file\_convert}}
+Here, ``file type'' refers to the text file types \mv|unix|, \mv|windows|,
+  and \mv|mac|, each distinguised by the use of different conventions
+  in indicating the end of a text file line.\\
+  
+\noindent Syntax: \mv|file_convert(file, newtype)| or\\
+\mv|file_convert (oldfile, newfile,newtype)|\\
+The acceptable values of \mv|newtype| are \mv|windows|, \mv|unix|,
+  and \mv|mac|.\\
+  
+\noindent For example, we can change a unix file to a windows file using
+  \mv|file_convert(f,windows)| which replaces the previous
+  file, or we can change a unix file to a windows file
+  with a new name using \mv|file_convert(fold,fnew,windows)|.\\
+  
+\noindent It is easy to check the end of line characters using the Notepad2
+   View menu.
+Notepad2 also easily lets you change the end of line characters, so writing
+  Maxima code for this task is somewhat unneeded, though instructive as
+  a coding challenge.
+\begin{myVerbatim}
+(%i42) file_search("bar1.txt");
+(%o42)                          c:/work2/bar1.txt
+(%i43) file_search("bar2.txt");
+(%o43)                          c:/work2/bar2.txt
+(%i44) print_file(mkp("bar1.txt"))$
+This is line one.
+This is line two.
+This is line three.
+(%i45) file_info(mkp("bar1.txt"));
+(%o45)                        [3, 3, windows, 59]
+(%i46) file_convert(mkp("bar1.txt"),mkp("bar11u.txt"),unix);
+(%o46)                        c:/work2/bar11u.txt
+(%i47) file_info(mkp("bar11u.txt"));
+(%o47)                         [3, 3, unix, 56]
+(%i48) print_file(mkp("bar2.txt"));
+This is line one.
+This is line two.
+This is line three.
+(%o48)                         c:/work2/bar2.txt
+(%i49) file_info(mkp("bar2.txt"));
+(%o49)                        [3, 3, windows, 59]
+(%i50) file_convert(mkp("bar2.txt"),mac);
+(%o50)                         c:/work2/bar2.txt
+(%i51) file_info(mkp("bar2.txt"));
+(%o51)                          [3, 3, mac, 56]
+(%i52) print_file(mkp("bar2.txt"));
+This is line one.
+This is line two.
+This is line three.
+(%o52)                         c:/work2/bar2.txt
+\end{myVerbatim}
+\subsubsection{Breaking File Lines with \textbf{pbreak\_lines} or \textbf{pbreak()}}
+Four paragraphs of the Lisp entry from part of Paul Graham's web site were copied
+  into a text file \mv|ztemp.txt|.
+In Notepad2, each paragraph was one long line.\\
+
+\noindent Inside Maxima, we then used the \mv|mfiles| package 
+  function \mv|pbreak_lines (file,nmax)| to break the lines
+  (at a space) and print the results to the console screen of Xmaxima.
+\begin{myVerbatim}
+(%i53) file_info(mkp("ztemp.txt"));
+(%o53)                      [7, 13, windows, 1082]
+(%i54) print_lines(mkp("ztemp.txt"),1,1);
+6. Programs composed of expressions. Lisp programs are trees ...[continues]
+(%o54)                        c:/work2/ztemp.txt
+(%i55) pbreak_lines(mkp("ztemp.txt"),60)$
+6. Programs composed of expressions. Lisp programs are
+trees of expressions, each of which returns a value. (In
+some Lisps expressions can return multiple values.) This is
+in contrast to Fortran and most succeeding languages, which
+distinguish between expressions and statements.
+
+It was natural to have this distinction in Fortran because
+(not surprisingly in a language where the input format was
+punched cards) the language was line-oriented. You could
+not nest statements. And so while you needed expressions
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+for math to work, there was no point in making anything
+else return a value, because there could not be anything
+waiting for it.
+
+This limitation went away with the arrival of
+block-structured languages, but by then it was too late.
+The distinction between expressions and statements was
+entrenched. It spread from Fortran into Algol and thence to
+both their descendants.
+
+When a language is made entirely of expressions, you can
+compose expressions however you want. You can say either
+(using Arc syntax)
+
+(if foo (= x 1) (= x 2))
+
+or
+
+(= x (if foo 1 2))
+\end{myVerbatim}
+Once the line breaking text appears on the console screen,
+  one can copy and paste into a text file for further use.\\
+
+\noindent It is simpler to use the function \mv|pbreak()| which
+  has \mv|nmax = 72| hardwired in the code, as well as the
+  name\\
+  \mv|"ztemp.txt"|; this could be used
+  in the above example as \mv|pbreak()|, and is easy to use
+  since you don't have to type either the text file name or
+  the value of \mv|nmax|.\\
+
+\noindent The package function \mv|pbreak()| uses the current definition
+  of \mv|bpath| and \mv|mkp|, as well as the file name \mv|"ztemp.txt"|.
+\begin{myVerbatim}
+(%i56) pbreak();
+6. Programs composed of expressions. Lisp programs are trees of
+expressions, each of which returns a value. (In some Lisps expressions
+can return multiple values.) This is in contrast to Fortran and most
+succeeding languages, which distinguish between expressions and
+statements.
+
+It was natural to have this distinction in Fortran because (not
+surprisingly in a language where the input format was punched cards)
+the language was line-oriented. You could not nest statements. And so
+while you needed expressions for math to work, there was no point in
+making anything else return a value, because there could not be
+anything waiting for it.
+
+This limitation went away with the arrival of block-structured
+languages, but by then it was too late. The distinction between
+expressions and statements was entrenched. It spread from Fortran into
+Algol and thence to both their descendants.
+
+When a language is made entirely of expressions, you can compose
+expressions however you want. You can say either (using Arc syntax)
+
+(if foo (= x 1) (= x 2))
+
+or
+
+(= x (if foo 1 2))
+(%o56)                               done
+\end{myVerbatim}
+\newpage 
+\noindent Alternatively, one can employ the \mv|mfiles| package
+  function \mv|break_file_lines (fold,fnew,nmax)| to dump the
+  folded lines into created file \mv|fnew|.
+\begin{myVerbatim}
+(%i57) break_file_lines (mkp("ztemp.txt"),mkp("ztemp1.txt"),72);
+(%o57)                        c:/work2/ztemp1.txt
+(%i58) print_lines(mkp("ztemp1.txt"),1,2);
+6. Programs composed of expressions. Lisp programs are trees of 
+expressions, each of which returns a value. (In some Lisps expressions 
+(%o58)                        c:/work2/ztemp1.txt
+(%i59) file_info(mkp("ztemp.txt"));
+(%o59)                      [7, 13, windows, 1082]
+(%i60) file_info(mkp("ztemp1.txt"));
+(%o60)                      [20, 26, windows, 1095]
+\end{myVerbatim}
+\subsubsection{Search Text Lines for Strings with \textbf{search\_file}}
+the default two arg behavior:\\
+\mv|     search_file(filename, substring)|\\
+   is to return line number and line text only for
+   lines in which \mv|substring| is a distinct word, as
+   defined by the package function \mv|sword|, used by
+    the package function \mv|wsearch|.\\
+       
+\noindent Using the form\\
+\mv|      search_file (filename,substring,word)|\\
+  produces exactly the same as the two arg default mode above.\\
+        
+\noindent Using the form\\
+\mv|       search_file (filename,substring,all)|\\
+   will return line numbers and line text for all lines in which 
+   the package function \mv|ssearch| returns an integer,
+   ie., all lines in which the substring appears, 
+   regardless of being a distinct word. \\
+ 
+\noindent The simplest syntax \mv|search_file (file, search-string)| is first demonstrated
+  with two searches of the file \mv|ndata1.dat|, which happens to be a purely
+  text file.
+\begin{myVerbatim}
+(%i61) file_info (mkp("ndata1.dat"));
+(%o61)                       [5, 9, windows, 336]
+(%i62) print_file (mkp("ndata1.dat"))$
+The calculation of the effective cross section is much simplified if only
+ 
+those collisions are considered for which the impact parameter is large, so
+ 
+that the field U is weak and the angles of deflection are small. The
+ 
+calculation can be carried out in the laboratory system, and the center
+ 
+of mass frame need not be used.
+(%i63) search_file (mkp("ndata1.dat"),"is")$
+c:/work2/ndata1.dat 
+ 1  The calculation of the effective cross section is much simplified if only 
+ 3  those collisions are considered for which the impact parameter is large, so 
+ 5  that the field U is weak and the angles of deflection are small. The 
+ 
+(%i64) search_file (mkp("ndata1.dat"),"is much")$
+c:/work2/ndata1.dat 
+ 1  The calculation of the effective cross section is much simplified if only 
+ 
+\end{myVerbatim}
+\newpage
+\noindent We next demonstrate all three possible syntax forms with a purely
+  text file \mv|text1.txt|.
+\begin{myVerbatim}
+(%i65) file_info (mkp("text1.txt"));
+(%o65)                       [5, 5, windows, 152]
+(%i66) print_file (mkp("text1.txt"))$
+is this line one? Yes, this is line one.
+This might be line two.
+Here is line three.
+I insist that this be line four.
+This is line five, isn't it?
+(%i67) search_file (mkp("text1.txt"),"is")$
+c:/work2/text1.txt 
+ 1  is this line one? Yes, this is line one. 
+ 3  Here is line three. 
+ 5  This is line five, isn't it? 
+ 
+(%i68) search_file (mkp("text1.txt"),"is",word)$
+c:/work2/text1.txt 
+ 1  is this line one? Yes, this is line one. 
+ 3  Here is line three. 
+ 5  This is line five, isn't it?  
+
+(%i69) search_file (mkp("text1.txt"),"is",all)$
+c:/work2/text1.txt 
+ 1  is this line one? Yes, this is line one. 
+ 2  This might be line two. 
+ 3  Here is line three. 
+ 4  I insist that this be line four. 
+ 5  This is line five, isn't it? 
+ 
+\end{myVerbatim}
+%\newpage
+\subsubsection{Search for a Text String in Multiple Files with \textbf{search\_mfiles}}
+The most general syntax is \mv|search_mfiles (file or path,string,options...)|
+  in which the options recognised are \mv|word, all, cs, ic|, used in the
+  same way as described above for \mv|search_file|.
+The simplest syntax is \mv|search_mfiles (file or path,string)| which 
+  defaults to case sensitive (\mv|cs|) and isolated  word (\mv|word|) as options.
+An example of over-riding the default behavior (\mv|cs| and \mv|word|) would be\\
+  \mv|search_mfiles (file or path, string,ic, all)| and the
+  options args can be in either order.\\
+
+\noindent First an example of searching one file in the working directory.
+\begin{myVerbatim}
+(%i1) load(mfiles);
+(%o1)                         c:/work2/mfiles.mac
+(%i2) print_file(mkp("text1.txt"))$
+is this line one? Yes, this is line one.
+This might be line two.
+Here is line three.
+I insist that this be line four.
+This is line five, isn't it?
+(%i3) search_mfiles(mkp("text1.txt"),"is")$
+c:/work2/text1.txt 
+ 1  is this line one? Yes, this is line one. 
+ 3  Here is line three. 
+ 5  This is line five, isn't it? 
+ 
+(%i4) search_mfiles(mkp("text1.txt"),"Is")$
+(%i5) 
+\end{myVerbatim}
+\newpage
+\noindent Next we use a wildcard type file name for a search in the
+  working directory.
+\begin{myVerbatim}
+(%i5) search_mfiles(mkp("ndata*.dat"),"is")$
+c:/work2/ndata1.dat 
+ 1  The calculation of the effective cross section is much simplified if only 
+ 3  those collisions are considered for which the impact parameter is large, so 
+ 5  that the field U is weak and the angles of deflection are small. The 
+ 
+\end{myVerbatim}
+Next we return to a search of the single file \mv|text1.txt|, but look
+  for lines containing the string \mv|"is"| whether or not it is an instance
+  of an isolated word.
+\begin{myVerbatim}
+(%i6) search_mfiles(mkp("text1.txt"),"is",all)$
+c:/work2/text1.txt 
+ 1  is this line one? Yes, this is line one. 
+ 2  This might be line two. 
+ 3  Here is line three. 
+ 4  I insist that this be line four. 
+ 5  This is line five, isn't it? 
+ 
+\end{myVerbatim}
+\noindent We now use \mv|search_mfiles| to look for a text string in a file
+  \mv|atext1.txt| which is \textbf{not} in the current working directory.
+\begin{myVerbatim}
+(%i1) load(mfiles);
+(%o1)                         c:/work2/mfiles.mac
+(%i2) search_mfiles ("c:/work2/temp1/atext1.txt","is");
+c:/work2/temp1/atext1.txt 
+ 2  Is this line two? Yes, this is line two. 
+ 6  This is line six, Isn't it? 
+ 
+(%o2)                               done
+\end{myVerbatim}
+If you want to search \textbf{all} files in the folder \mv|c:/work2/temp1|, you 
+  use the syntax:
+\begin{myVerbatim}
+(%i3) search_mfiles ("c:/work2/temp1/","is")$
+c:/work2/temp1/atext1.txt 
+ 2  Is this line two? Yes, this is line two. 
+ 6  This is line six, Isn't it? 
+ 
+c:/work2/temp1/atext2.txt 
+ 2  Is this line two? Yes, this is line two. 
+ 6  This is line six, Isn't it? 
+ 
+c:/work2/temp1/calc1news.txt 
+ 9  The organization of chapter six is then: 
+ 96  The Maxima output is the list of the vector curl components in the 
+ 98   a reminder to the user of what the current coordinate system is 
+ 102  Thus the syntax is based on lists and is similar to (although better 
+ 105  There is a separate function to change the current coordinate system. 
+ 112    plotderiv(..) which is useful for "automating" the plotting 
+ 
+c:/work2/temp1/ndata1.dat 
+ 1  The calculation of the effective cross section is much simplified if only 
+ 3  those collisions are considered for which the impact parameter is large, so 
+ 5  that the field U is weak and the angles of deflection are small. The 
+ 
+c:/work2/temp1/stavros-tricks.txt 
+ 34  Not a bug, but Maxima doesn't know that the beta function is symmetric: 
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+ 
+c:/work2/temp1/text1.txt 
+ 1  is this line one? Yes, this is line one. 
+ 3  Here is line three. 
+ 5  This is line five, isn't it? 
+ 
+c:/work2/temp1/trigsimplification.txt 
+ 13  (1) Is there a Maxima command that indicates whether expr is a product of  
+ 76  > (1) Is there a Maxima command that indicates whether expr is a product of 
+ 91  Well, that is inherent in their definition.  Trigreduce replaces all 
+ 94  is sin(x)*cos(x), since the individual terms are not products of trigs. 
+ 95  There is no built-in function which tries to find the smallest expression, 
+ 151  is better. If the user wants to expand the contents of sin to discover 
+ 153  is right that Maxima avoids potentially very expensive operations in 
+ 
+c:/work2/temp1/wu-d.txt 
+ 1  As a dedicated windows xp user who is delighted to have windows binaries 
+ 3  all who are considering windows use that there is no problem with keeping previous 
+ 
+\end{myVerbatim}
+%\newpage
+\subsubsection{Replace Text in File with \textbf{ftext\_replace}}
+The simplest syntax \mv|ftext_replace(file,sold,snew)| replaces 
+  distinct substrings \mv|sold| (separate words) by \mv|snew|.\\  
+  
+\noindent The four arg syntax \mv|ftext_replace(file,sold,snew,word)|
+   does exactly the same thing.\\
+   
+\noindent The four arg syntax \mv|ftext_replace(file,sold,snew,all)|
+  instead replaces \textbf{all} substrings \mv|sold| by \mv|snew|,
+   whether or not they are distinct words.\\
+   
+\noindent In all cases, the text file type (unix, windows, or mac) is
+   preserved.\\
+   
+The package function \mv|ftext_replace| calls the package function\\
+  \mv|replace_file_text (fsource, fdest, sold,snew, optional-mode)|
+  which allows the replacement to occur in a newly created file with 
+  a name \mv|fdest|.        
+\begin{myVerbatim}
+(%i4) file_info(mkp("text1w.txt"));
+(%o4)                       [5, 5, windows, 152]
+(%i5) print_file(mkp("text1w.txt"));
+is this line one? Yes, this is line one.
+This might be line two.
+Here is line three.
+I insist that this be line four.
+This is line five, isn't it?
+(%o5)                        c:/work2/text1w.txt
+(%i6) ftext_replace(mkp("text1w.txt"),"is","was");
+(%o6)                        c:/work2/text1w.txt
+(%i7) print_file(mkp("text1w.txt"));
+was this line one? Yes, this was line one.
+This might be line two.
+Here was line three.
+I insist that this be line four.
+This was line five, isn't it?
+(%o7)                        c:/work2/text1w.txt
+(%i8) file_info(mkp("text1w.txt"));
+(%o8)                       [5, 5, windows, 156]
+(%i9) ftext_replace(mkp("text1w.txt"),"was","is");
+(%o9)                        c:/work2/text1w.txt
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i10) print_file(mkp("text1w.txt"));
+is this line one? Yes, this is line one.
+This might be line two.
+Here is line three.
+I insist that this be line four.
+This is line five, isn't it?
+(%o10)                        c:/work2/text1w.txt
+\end{myVerbatim}
+%\newpage
+\subsubsection{Email Reply Format Using \textbf{reply\_to}}
+The package function \mv|reply_to (name-string)| reads an email
+  message (or part of an email message) which has been dumped into
+  the current working directory file called \mv|ztemp.txt| (the
+  name chosen so the file is easy to find) and writes a version
+  of that file to the console screen with a supplied name
+  prefixing each line, suitable for a copy/paste into a 
+  reply email message.\\  
+
+\noindent It will be obvious if the message lines need breaking.
+  If so, then use \mv|pbreak()|, which will place the
+  broken line message on the Xmaxima console screen, 
+  which can be copied and pasted over the original contents
+  of \mv|ztemp.txt|.\\
+  
+\noindent Once you are satisfied with the appearance of the message
+  in \mv|ztemp.txt|, use \mv|reply_to("Ray")| for example, which will
+  print out on the console screen the email message with each line
+  prefixed by \mv|"Ray"|.
+This output can then be copied from the Xmaxima screen and
+  pasted into the email message being designed as a reply.
+   
+\begin{myVerbatim}
+(%i11) reply_to("");
+>Could you file a bug report on this?  I know about some of these issues
+>and am working on them (slowly).  The basic parts work, but the corner
+>cases need more work (especically since my approach fails in some cases
+>where the original gave correct answers).
+>
+(%o11)                               done
+\end{myVerbatim}
+or
+\begin{myVerbatim}
+(%i12) reply_to(" ray")$
+ ray>Could you file a bug report on this?  I know about some of these issues
+ ray>and am working on them (slowly).  The basic parts work, but the corner
+ ray>cases need more work (especically since my approach fails in some cases
+ ray>where the original gave correct answers).
+ ray>
+ \end{myVerbatim}
+\subsubsection{Reading a Data File with \textbf{read\_data}}
+An important advantage of \mv|read_data| is the ability to
+  work correctly with all three types of text files (unix,
+  windows, and mac).\\
+  
+\noindent Our first example data file has the data items separated by
+  commas on the first line and by spaces on the second line.
+The data items are a mixture of integers, rational numbers,
+  strings, and floating point numbers.
+None of the strings contain spaces.\\
+
+\noindent The function \mv|read_data| places the items of each line in
+  the data file into a separate list.
+\begin{myVerbatim}
+(%i13) print_file(mkp("ndata2w.dat"))$
+2 , 4.8, -3/4, "xyz", -2.8e-9
+3 22.2  7/8 "abc" 4.4e10
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i14) read_data(mkp("ndata2w.dat"));
+                   3
+(%o14) [[2, 4.8, - -, xyz, - 2.7999999999999998E-9], 
+                   4
+                                                              7
+                                                    [3, 22.2, -, abc, 4.4E+10]]
+                                                              8
+(%i15) display2d:false$
+(%i16) read_data(mkp("ndata2w.dat"));
+(%o16) [[2,4.8,-3/4,"xyz",-2.7999999999999998E-9],[3,22.2,7/8,"abc",4.4E+10]]
+(%i17) fpprintprec:8$
+(%i18) read_data(mkp("ndata2w.dat"));
+(%o18) [[2,4.8,-3/4,"xyz",-2.8E-9],[3,22.2,7/8,"abc",4.4E+10]]
+\end{myVerbatim}
+This simplest syntax mode of \mv|read_data| does not care where
+  the commas and spaces are, they can be randomly used as data
+  item separators, and the data is read into lists correctly:
+\begin{myVerbatim}
+(%i19) print_file(mkp("ndata2wa.dat"))$
+2 , 4.8  -3/4, "xyz" -2.8e-9
+3 22.2,  7/8 "abc",  4.4e10
+(%i20) read_data(mkp("ndata2wa.dat"));
+(%o20) [[2,4.8,-3/4,"xyz",-2.8E-9],[3,22.2,7/8,"abc",4.4E+10]]
+\end{myVerbatim}
+Next is a case in which the data item separator is consistently
+   a semicolon \mv|;|.
+In such a case we must include as a second argument to \mv|read_data|
+  the string \mv|";"|.   
+\begin{myVerbatim}
+(%i21) print_file(mkp("ndata3w.dat"))$
+2.0; -3/7; (x:1,y:2,x+y); block([fpprec:24],bfloat(%pi)); foo
+(%i22) read_data(mkp("ndata3w.dat"),";");
+(%o22) [[2.0,-3/7,(x:1,y:2,y+x),block([fpprec:24],bfloat(%pi)),foo]]
+\end{myVerbatim}
+(If some of the data items include semicolons, then you would not
+  want to use semicolons as data item separators; rather you might
+  choose a dollar sign \mv|$| as the separator, and so indicate
+  as the second argument.)\\
+  
+\noindent Our next example is a data file which includes some strings
+  which include spaces inside the strings. 
+The data file should use commas as data item separators, and
+  the correct syntax to read the data is
+  \mv|read_data(file,",")|.
+\begin{myVerbatim}
+(%i23) print_file(mkp("ndata6.dat"));
+1, 2/3, 3.4, 2.3e9, "file ndata6.dat"
+"line two" , -3/4 , 6 , -4.8e-7 , 5.5
+7/13, "hi there", 8, 3.3e4, -7.3
+4,-3/9,"Jkl", 44.6, 9.9e-6
+(%o23) "c:/work2/ndata6.dat"
+(%i24) read_data(mkp("ndata6.dat"),",");
+(%o24) [[1,2/3,3.4,2.3E+9,"file ndata6.dat"],["line two",-3/4,6,-4.8E-7,5.5],
+        [7/13,"hi there",8,33000.0,-7.3],[4,-1/3,"Jkl",44.6,9.9E-6]]
+\end{myVerbatim}
+The package function \mv|read_data| ignores blank lines in
+  the data file (as it should):
+\begin{myVerbatim}
+(%i25) print_file(mkp("ndata10w.dat"))$
+2  4.8  -3/4  "xyz"  -2.8e-9
+ 
+2   4.8  -3/4  "xyz"  -2.8e-9
+ 
+2   4.8  -3/4  "xyz"  -2.8e-9
+ 
+(%i26) read_data(mkp("ndata10w.dat"));
+(%o26) [[2,4.8,-3/4,"xyz",-2.8E-9],[2,4.8,-3/4,"xyz",-2.8E-9],
+        [2,4.8,-3/4,"xyz",-2.8E-9]]
+(%i27) file_info (mkp("ndata10w.dat"));
+(%o27) [3,6,windows,98]
+\end{myVerbatim}
+\newpage
+\subsubsection{File Lines to List of Strings using \textbf{read\_text}}
+The package function \mv|read_text(path)| preserves blank lines in the source
+     file, and returns a list of strings, one for each physical
+     line in the source file.
+\begin{myVerbatim}
+(%i28) print_file(mkp("ndata1.dat"))$
+The calculation of the effective cross section is much simplified if only
+ 
+those collisions are considered for which the impact parameter is large, so
+ 
+that the field U is weak and the angles of deflection are small. The
+ 
+calculation can be carried out in the laboratory system, and the center
+ 
+of mass frame need not be used.
+
+(%i29) read_text(mkp("ndata1.dat"));
+(%o29) ["The calculation of the effective cross section is much simplified if only",
+        "",
+        "those collisions are considered for which the impact parameter is large, so",
+        "",
+        "that the field U is weak and the angles of deflection are small. The",
+        "",
+        "calculation can be carried out in the laboratory system, and the center",
+        "","of mass frame need not be used."]
+\end{myVerbatim}
+\subsubsection{Writing Data to a Data File One Line at a Time Using \textbf{with\_stdout}}
+The core Maxima function \mv|with_stdout| can be used to write loop results to
+  a file instead of to the screen.
+This can be used to create a separate data file as a byproduct of your
+  Maxima work.
+The function has the syntax\\
+  \mv|with_stdout (file,expr1,expr2,...)| and
+  writes any output generated with \mv|print|, \mv|display|, or \mv|grind| (for example)
+  to the indicated file, overwriting any pre-existing file, and creating a
+  unix type file.
+\begin{myVerbatim}
+(%i30) with_stdout (mkp("tmp.out"),
+           for i thru 10 do
+             print (i,",",i^2,",",i^3))$
+(%i31) print_file (mkp("tmp.out"))$
+1 , 1 , 1 
+2 , 4 , 8 
+3 , 9 , 27 
+4 , 16 , 64 
+5 , 25 , 125 
+6 , 36 , 216 
+7 , 49 , 343 
+8 , 64 , 512 
+9 , 81 , 729 
+10 , 100 , 1000 
+(%i32) read_data (mkp("tmp.out"));
+(%o32) [[1,1,1],[2,4,8],[3,9,27],[4,16,64],[5,25,125],[6,36,216],[7,49,343],
+        [8,64,512],[9,81,729],[10,100,1000]]
+(%i33) file_info (mkp("tmp.out"));
+(%o33) [10,10,unix,134]
+\end{myVerbatim}
+Notice that if you don't provide the full path to your
+  work directory with the file name (with the Maxima
+  function \mv|with_stdout|), the file will be created
+  in the \mv|../bin/| folder of Maxima.
+\newpage
+\subsubsection{Creating a Data File from a Nested List Using \textbf{write\_data}}
+The core Maxima function \mv|write_data| can be used to write
+  the contents of a nested list to a named file, writing one line for each 
+  sublist, overwriting the contents of any pre-existing file of that name,
+  creating a unix type file with space separator as the default.
+The simplest syntax, \mv|write_data (list, filename)| produces the default
+  space separation of the sublist items.
+You can get comma separation or semicolon separation by using respectively
+  \mv|write_data (list,filename,comma)| or \mv|write_data (list,filename,semicolon)|.\\
+  
+\noindent Note again that you need to supply the full path as well
+  as the file name, or else the file will be created by \mv|write_data|
+  in \mv|.../bin/|.\\
+  
+\noindent (This same function can also be used to write a Maxima matrix object
+  to a data file.)
+\begin{myVerbatim}
+(%i34) dataL : [[0,2],[1,3],[2,4]]$
+(%i35) write_data(dataL,mkp("tmp.out"))$
+(%i36) file_search("tmp.out");
+(%o36) "c:/work2/tmp.out"
+(%i37) print_file(mkp("tmp.out"))$
+0 2
+1 3
+2 4
+(%i38) file_info(mkp("tmp.out"));
+(%o38) [3,3,unix,12]
+(%i39) write_data(dataL,mkp("tmp.out"),comma)$
+(%i40) print_file(mkp("tmp.out"))$
+0,2
+1,3
+2,4
+(%i41) file_info(mkp("tmp.out"));
+(%o41) [3,3,unix,12]
+(%i42) write_data(dataL,mkp("tmp.out"),semicolon)$
+(%i43) print_file(mkp("tmp.out"))$
+0;2
+1;3
+2;4
+\end{myVerbatim}
+Here is a simple example taken from a question from the Maxima mailing list.
+Suppose you compute the expression \mv|(1 - z)/(1 + z)| for a number of values
+  of \mv|z|, and you want to place the numbers \mv|z , f(z)| in a data file for
+  later use.\\
+  
+\noindent The easiest way to do this in Maxima is to create a list of
+  sublists, with each sublist being a row in your new data file.
+You can then use the Maxima function \mv|write_data|, which has the
+  syntax: \mv|write_data ( datalist, filename )|.\\
+
+\noindent Let's keep the example really simple and just use five integral values of
+  \mv|z|, starting with an empty list we will call \mv|dataL|.
+(The final \mv|L| is useful (but not necessary) to remind us that it
+  stands for a list.)
+\begin{myVerbatim}
+(%i44) dataL : []$
+(%i45) for x thru 5 do (
+          px : subst (x,z, (1-z)/(1+z)),
+          dataL : cons ( [x, px], dataL ))$
+(%i46) dataL;
+(%o46) [[5,-2/3],[4,-3/5],[3,-1/2],[2,-1/3],[1,0]]
+(%i47) dataL : reverse (dataL);
+(%o47) [[1,0],[2,-1/3],[3,-1/2],[4,-3/5],[5,-2/3]]
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i48) write_data (dataL, mkp("mydata1.dat"))$
+(%i49) print_file (mkp("mydata1.dat"))$
+1 0
+2 -1/3
+3 -1/2
+4 -3/5
+5 -2/3
+(%i50) read_data (mkp("mydata1.dat"));
+(%o50) [[1,0],[2,-1/3],[3,-1/2],[4,-3/5],[5,-2/3]]
+(%i51) file_info (mkp("mydata1.dat"));
+(%o51) [5,5,unix,32]
+\end{myVerbatim}
+If you open the unix text file \mv|mydata1.dat| using the older version of the  Windows
+  text file application Notepad, you may only see one line, which looks like:
+\begin{myVerbatim2}
+1 02 -1/33 -1/24 -3/55 -2/3
+\end{myVerbatim2}
+  which occurs because Maxima creates text files having Unix style 
+  line endings which older native Windows applications don't recognise.\\
+	
+\noindent In order to see the two columns of numbers (using a text editor), you should use the
+  freely available Windows text editor Notepad2. (Just Google it.)
+Notepad2 recognises unix, mac and windows line ending control characters, and in fact has a
+  signal (LF for unix) at the bottom of the screen which tells you what the line ending
+  control characters are.\\
+  
+\noindent The alternative choice provided by the standard Maxima system to
+  created a nested list from a data file is the function \mv|read_nested_list|.
+This is not as good a choice as our package function \mv|read_data|, as is shown
+  here:
+\begin{myVerbatim}
+(%i52) read_nested_list (mkp("mydata1.dat"));
+(%o52) [[1,0],[2,-1,\/,3],[3,-1,\/,2],[4,-3,\/,5],[5,-2,\/,3]]
+(%i53) display2d:true$
+(%i54) read_nested_list (mkp("mydata1.dat"));
+(%o54) [[1, 0], [2, - 1, /, 3], [3, - 1, /, 2], [4, - 3, /, 5], 
+                                                                [5, - 2, /, 3]]
+\end{myVerbatim}
+\subsection{Least Squares Fit to Experimental Data}
+\subsubsection{Maxima and Least Squares Fits: \textbf{lsquares\_estimates}}
+Suppose we are given a list of \mv|[x,y]| pairs which are thought to
+  be roughly described by the relation \mv|y = a*x^b + c|, where the three
+  parameters are all of order \mv|1|.
+We can use the data of \mv|[x,y]| pairs to find the ``best'' values of
+  the unknown parameters \mv|[a, b, c]|, such that the data is described
+  by the equation \mv|y = a*x^b + c| (a three parameter fit to the data).\\
+  
+\noindent We are using one of the Manual examples for \textbf{lsquares\_estimates}.
+\begin{myVerbatim}
+(%i1) dataL : [[1, 1], [2, 7/4], [3, 11/4], [4, 13/4]]$
+(%i2) display2d:false$
+(%i3) dataM : apply ('matrix, dataL);
+(%o3) matrix([1,1],[2,7/4],[3,11/4],[4,13/4])
+(%i4) load (lsquares);
+(%o4) "C:/PROGRA~1/MAXIMA~3.2/share/maxima/5.31.2/share/lsquares/lsquares.mac"
+(%i5) fpprintprec:6$
+(%i6) lsquares_estimates (dataM, [x,y], y=a*x^b+c,
+               [a,b,c], initial=[3,3,3], iprint=[-1,0] );
+(%o6) [[a = 1.37575,b = 0.7149,c = -0.4021]]
+(%i7) myfit : a*x^b + c , % ;
+(%o7) 1.37575*x^0.7149-0.4021
+\end{myVerbatim}
+Note that we must use \mv|load (lsquares);| to use this method.
+We can now make a plot of both the discrete data points and the
+  least squares fit to those four data points.
+\begin{myVerbatim}
+(%i8) plot2d ([myfit,[discrete,dataL]],[x,0,5],
+        [style,[lines,5],[points,4,2,1]],
+         [legend,"myfit", "data"],
+         [gnuplot_preamble,"set key bottom;"])$
+\end{myVerbatim}
+
+\noindent which produces the plot
+
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.4]{ch2p19.eps} }
+	\caption{Three Parameter Fit to Four Data Points }
+\end{figure}
+
+%plot2d([fit,[discrete,dataL]],[x,0,5],
+%        [style,[lines,8],[points,6,2,1]],
+%         [legend,"fit", "data"],
+%         [gnuplot_preamble,"set key bottom;"],
+%         [psfile,"ch2p19.eps"] )$
+\subsubsection{Syntax of \textbf{lsquares\_estimates}}
+The \tcbr{minimal} syntax is
+\begin{myVerbatim2s}
+  lsquares_estimates (data-matrix, data-variable-list, fit-eqn, param-list );
+\end{myVerbatim2s}
+ in which the \mv|data-variable-list| assigns a variable name to the
+ corresponding column of the \mv|data-matrix|, and the \mv|fit-eqn| is an equation
+ which is a relation among the data variable symbols and the equation parameters
+ which appear in \mv|param-list|.
+ The function returns the "best fit" values of the equation parameters
+   in the form \mv|[ [p1 = p1val, p2  = p2val, ...] ]|.\\
+   
+\noindent In the example above, the data variable list was \mv|[x, y]| and
+  the parameter list was \mv|[a, b, c]|.\\
+  
+\noindent If an exact solution cannot be found, a numerical approximation
+  is attempted using \textbf{lbfgs}, in which case, all the elements of the
+  data matrix should be "numbers" \mv|numberp(x) ->  true|.
+This means that \mv|%pi| and \mv|%e|, for example, should be converted to explicit
+  numbers before use of this method.
+\begin{myVerbatim}
+(%i1) expr : 2*%pi + 3*exp(-4);
+                                            - 4
+(%o1)                           2 %pi + 3 %e
+(%i2) listconstvars:true$
+(%i3) listofvars(expr);
+(%o3)                              [%e, %pi]
+(%i4) map('numberp,%);
+(%o4)                           [false, false]
+(%i5) fullmap('numberp,expr);
+                               true
+(%o5)                     false     true + false true
+(%i6) float(expr);
+(%o6)                          6.338132223845789
+(%i7) numberp(%);
+(%o7)                                true
+\end{myVerbatim}
+
+\noindent Optional arguments to \textbf{lsquares\_estimates} are (in any order)
+\begin{myVerbatim2}
+ initial = [p10, p20,...], iprint = [n, m], tol = search-tolerance
+\end{myVerbatim2}
+The list \mv|[p10, p20, ...]| is the optional list of initial values of
+  the equation parameters, and without including your own guess for starting values
+  this list defaults (in the code) to \mv|[1, 1, ...]|.\\
+  
+\noindent The first integer \mv|n| in the \mv|iprint| list controls how
+  often progress messages are printed to the screen.
+The default is \mv|n = 1| which causes a new progress message printout
+  each iteration of the search method.
+Using \mv|n = -1| surpresses all progress messages.
+Using \mv|n = 5| allows one progress message every five iterations.\\
+
+\noindent The second integer \mv|m| in the \mv|iprint| list controls
+  the verbosity, with \mv|m = 0| giving minimum information 
+  and \mv|m = 3| giving maximum information.\\
+  
+\noindent The option \mv|iprint = [-1,0]| will hide the details of the
+  search process.\\
+  
+\noindent The default value of the \mv|search-tolerance| is \mv|1e-3|,
+  so by using the option \mv|tol = 1e-8| you might find a more accurate
+  solution.\\
+  
+\noindent Many examples of the use of the \textbf{lsquares} package are found in the file
+  \mv|lsquares.mac|, which is found in the \mv|...share/contrib| folder.
+You can also see great examples of efficient programming in the Maxima language in that file.
+\subsubsection{Coffee Cooling Model}
+"Newton's law of cooling" (only approximate and not a law) assumes the rate 
+ of decrease of temperature (celsius degrees per minute) is proportional to 
+ the instantaneous difference between the temperature $\mathbf{T(t)}$ of the
+ coffee in the cup and the surrounding 
+  ambient temperature $\mathbf{T_{s}}$, the latter being treated as a constant.
+If we use the symbol $\mathbf{r}$ for the "rate constant" of proportionality,
+  we then assume the cooling of the coffee obeys the first order
+  differential equation
+\begin{equation}
+\mathbf{ \frac{d\,T}{d\,t} = - r \, ( T(t) - T_{s} ) }
+\end{equation}
+Since $\mathbf{T}$ has dimension degrees Celsius, and $\mathbf{t}$ has dimension minute,
+   the dimension of the rate constant $\mathbf{r}$ must be \mv|1/min|.\\
+
+\noindent (This attempt to employ a rough mathematical model which
+  can be used for the cooling of a cup of coffee avoids a bottom-up approach
+  to the problem, which would require 
+  mathematical descriptions of the four distinct physical mechanisms which contribute
+  to the decrease of thermal energy in the system hot coffee plus cup to 
+  the surroundings: thermal radiation 
+  (net electromagnetic radiation flux, approximately black body )  energy transport across the
+  surface of the liquid and cup, collisional heat conduction due to the presence of the surrounding 
+  air molecules, convective energy transport due to local air temperature rise,  
+  and finally evaporation which is the escape of the fastest coffee molecules
+  which are able to escape the binding surface forces at the liquid surface.
+If the temperature difference between the coffee and the ambient surroundings is not
+  too large, experiment shows that the simple relation above is roughly true.)\\
+
+\noindent This differential equation is easy to solve "by hand" , since we can write
+\begin{equation}
+\mathbf{\frac{d\,T}{d\,t} = \frac{d\,(T - T_{s})}{d\,t} = \frac{d\,y}{d\,t} }
+\end{equation}
+ and then divide both sides by $\mathbf{y = (T - T_{s} ) }$, multiply both
+ sides by $\mathbf{d\,t}$, and use $\mathbf{ d\,y/y = d\,\boldsymbol{\ln}(y)}$
+ and finally integrate both sides over corresponding intervals to get
+ $\mathbf{ \boldsymbol{\ln(y) - \ln(y_{0}) = \ln}(y/y_{0}) = - r \, t}$, where 
+ $\mathbf{y_{0} = T(0) - T_{s}}$ involves the initial temperature at $\mathbf{t = 0}$.
+Since
+\begin{equation}
+\mathbf{ e^{\boldsymbol{\ln}(A)} = A, }
+\end{equation}
+  by equating the exponential of the left side to that of the right side, we get 
+\begin{equation}  \label{Eq:newton}
+\mathbf{T(t) = T_{s} + ( T(0) - T_{s} )\,e^{ - r \, t}.}
+\end{equation}
+Using \textbf{ode2}, \textbf{ic1}, \textbf{expand}, and \textbf{collectterms},
+  we can also use Maxima just for fun:
+\begin{myVerbatim}
+(%i1) de : 'diff(T,t) + r*(T - Ts);
+                                dT
+(%o1)                           -- + r (T - Ts)
+                                dt
+(%i2) gsoln : ode2(de,T,t);
+                                - r t    r t
+(%o2)                     T = %e      (%e    Ts + %c)
+(%i3) de, gsoln, diff, ratsimp;
+(%o3)                                  0
+(%i4) ic1 (gsoln, t = 0, T = T0);
+                             - r t          r t
+(%o4)                  T = %e      (T0 + (%e    - 1) Ts)
+(%i5) expand (%);
+                             - r t        - r t
+(%o5)                  T = %e      T0 - %e      Ts + Ts
+(%i6) Tcup : collectterms ( rhs(%), exp(-r*t) );
+                              - r t
+(%o6)                       %e      (T0 - Ts) + Ts
+(%i7) Tcup, t = 0;
+(%o7)                                 T0
+\end{myVerbatim}
+We arrive at the same solution as found ``by hand''.
+We have checked the particular solution for the initial condition and checked
+  that our original differential equation is satisfied by the general solution.
+\subsubsection{Experiment Data for Coffee Cooling }
+Let's take some ``real world'' data for this problem (p. 21, An Introduction to Computer
+  Simulation Methods, 2nd ed., Harvey Gould and Jan Tobochnik, Addison-Wesley, 1996) which is
+  in a data file \mvs|c:\work2\coffee.dat| on the author's Window's XP computer (data file
+  available with this chapter on the author's webpage).\\
+  
+\noindent This file contains three columns of tab separated numbers, column one
+  being the elapsed time in minutes, column two is the Celsius temperature of the
+  system glass plus coffee for black coffee, and column three is the Celsius temperature
+  for the system glass plus creamed coffee.
+The glass-coffee temperature was recorded with an estimated accuracy of $\mathbf{0.1^{\circ}C }$.
+The ambient temperature of the surroundings was $\mathbf{17^{\;\circ}C}$.
+The function \mv|read_data| automatically replaces tabs (ascii(9)) in the data
+  by spaces (ascii(32)) as each line is read in.\\
+  
+\noindent We need to remind the reader that we are using a function
+  \mv|mkp| to create a complete path to a file name.
+This function was discussed at the beginning of the section on
+  file manipulation methods.
+For convenience, we repeat some of that discussion here:\\
+
+\noindent To ease the pain of typing the full path, you can use a function
+  which we call \mv|mkp| (``make path'') which we define in our
+  \mv|maxima.init.mac| file, whose contents are:
+\begin{myVerbatim2}
+/* this is c:\Documents and Settings\Edwin Woollett\maxima\maxima-init.mac  */
+maxima_userdir: "c:/work2" $     
+maxima_tempdir : "c:/work2"$
+file_search_maxima : append(["c:/work2/###.{mac,mc}"],file_search_maxima )$
+file_search_lisp : append(["c:/work2/###.lisp"],file_search_lisp )$
+
+bpath : "c:/work2/"$
+mkp (_fname) := sconcat (bpath,_fname)$
+\end{myVerbatim2}
+We will use this function, \mv|mkp|, below for example
+  with \mv|print_file| and \mv|read_data|.
+The string processing function \mv|sconcat| creates a new string from
+  two given strings (``string concatenation''):
+\begin{myVerbatim}
+(%i8) display2d:false$
+(%i9) sconcat("a bc","xy z");
+(%o9) "a bcxy z"
+\end{myVerbatim}
+Note that we used a global variable \mv|bpath| (``base of path'' or 
+	``beginning of path'') instead of the global variable
+	\mv|maxima_userdir|.
+This makes it more convenient for the user to redefine \mv|bpath| ``on the fly''
+   instead of opening and editing \mv|maxima-init.mac|, and restarting Maxima
+   to have the changes take effect.\\
+\begin{myVerbatim}
+(%i10) file_search("coffee.dat");
+(%o10)                         c:/work2/coffee.dat
+(%i11) (display2d:false,load(mfiles));
+(%o11) "c:/work2/mfiles.mac"
+(%i12) print_file(mkp("coffee.dat"))$
+0	82.3	68.8
+2	78.5	64.8
+4	74.3	62.1
+6	70.7	59.9
+8	67.6	57.7
+10	65.0	55.9
+12	62.5	53.9
+14	60.1	52.3
+16	58.1	50.8
+18	56.1	49.5
+20	54.3	48.1
+22	52.8	46.8
+24	51.2	45.9
+26	49.9	44.8
+28	48.6	43.7
+30	47.2	42.6
+32	46.1	41.7
+34	45.0	40.8
+36	43.9	39.9
+38	43.0	39.3
+40	41.9	38.6
+42	41.0	37.7
+44	40.1	37.0
+\end{myVerbatim}
+We now use \mv|read_data| which will create a list of sublists, one sublist
+  per row.
+\begin{myVerbatim}
+(%i13) fpprintprec:6$
+(%i14) cdata : read_data(mkp("coffee.dat"));
+(%o14) [[0,82.3,68.8],[2,78.5,64.8],[4,74.3,62.1],[6,70.7,59.9],[8,67.6,57.7],
+       [10,65.0,55.9],[12,62.5,53.9],[14,60.1,52.3],[16,58.1,50.8],
+       [18,56.1,49.5],[20,54.3,48.1],[22,52.8,46.8],[24,51.2,45.9],
+       [26,49.9,44.8],[28,48.6,43.7],[30,47.2,42.6],[32,46.1,41.7],
+       [34,45.0,40.8],[36,43.9,39.9],[38,43.0,39.3],[40,41.9,38.6],
+       [42,41.0,37.7],[44,40.1,37.0]]
+\end{myVerbatim}
+We now use \textbf{makelist} to create a (time, temperature) list based on the
+  \tcbr{black} coffee data and then based on the \tcbr{white} (creamed coffee) data.
+\begin{myVerbatim}
+(%i15) black_data : makelist( [first(cdata[i]),second(cdata[i])],
+                       i,1,length(cdata));
+(%o15) [[0,82.3],[2,78.5],[4,74.3],[6,70.7],[8,67.6],[10,65.0],[12,62.5],
+       [14,60.1],[16,58.1],[18,56.1],[20,54.3],[22,52.8],[24,51.2],[26,49.9],
+       [28,48.6],[30,47.2],[32,46.1],[34,45.0],[36,43.9],[38,43.0],[40,41.9],
+       [42,41.0],[44,40.1]]
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i16) white_data : makelist( [first(cdata[i]),third(cdata[i])],
+                       i,1,length(cdata));
+(%o16) [[0,68.8],[2,64.8],[4,62.1],[6,59.9],[8,57.7],[10,55.9],[12,53.9],
+       [14,52.3],[16,50.8],[18,49.5],[20,48.1],[22,46.8],[24,45.9],[26,44.8],
+       [28,43.7],[30,42.6],[32,41.7],[34,40.8],[36,39.9],[38,39.3],[40,38.6],
+       [42,37.7],[44,37.0]]
+\end{myVerbatim}
+\subsubsection{Least Squares Fit of Coffee Cooling Data}
+We now use \textbf{lsquares\_estimates} to use a least squares fit with
+  each of our data sets to our phenomenological model, that is finding
+  the "best" value of the cooling rate constant \textbf{r} that appears
+  in Eq. (\ref{Eq:newton}).
+The function \textbf{lsquares\_estimates(data\_matrix, eqnvarlist,eqn,paramlist)}
+  is available after using \textbf{load(lsquares)}.\\
+
+\noindent To save space in this chapter we use \textbf{display2d:false} to surpress the
+  default two dimensional display of a Maxima \textbf{matrix} object.
+\begin{myVerbatim}
+(%i17) black_matrix : apply ( 'matrix, black_data);
+(%o17) matrix([0,82.3],[2,78.5],[4,74.3],[6,70.7],[8,67.6],[10,65.0],[12,62.5],
+             [14,60.1],[16,58.1],[18,56.1],[20,54.3],[22,52.8],[24,51.2],
+             [26,49.9],[28,48.6],[30,47.2],[32,46.1],[34,45.0],[36,43.9],
+             [38,43.0],[40,41.9],[42,41.0],[44,40.1])
+(%i18) white_matrix : apply ( 'matrix, white_data);
+(%o18) matrix([0,68.8],[2,64.8],[4,62.1],[6,59.9],[8,57.7],[10,55.9],
+              [12,53.9],[14,52.3],[16,50.8],[18,49.5],[20,48.1],[22,46.8],
+              [24,45.9],[26,44.8],[28,43.7],[30,42.6],[32,41.7],[34,40.8],
+              [36,39.9],[38,39.3],[40,38.6],[42,37.7],[44,37.0])
+\end{myVerbatim}
+We now load \textbf{lsquares.mac} and calculate the "best fit" values of the
+  cooling rate constant \textbf{r} for both cases.
+For the black coffee case, \mv|T0 = 82.3 deg C| and \mv|Ts = 17 deg C| and we surpress the
+  units.
+\begin{myVerbatim}
+(%i19) load(lsquares);
+(%o19) "C:/PROGRA~1/MAXIMA~1.1-G/share/maxima/5.25.1/share/contrib/lsquares.mac"
+(%i20) black_eqn : T = 17 + 65.3*exp(-r*t);
+(%o20) T = 65.3*%e^-(r*t)+17
+(%i21) lsquares_estimates ( black_matrix, [t,T], black_eqn, [r],
+                               iprint = [-1,0] );
+(%o21) [[r = 0.02612]]
+(%i22) black_fit : rhs ( black_eqn ), %;
+(%o22) 65.3*%e^-(0.02612*t)+17
+\end{myVerbatim}
+Thus \textbf{rblack} is roughly \mv|0.026 min^(-1)|.\\
+
+\noindent For the white coffee case, \mv|T0 = 68.8 deg C| and \mv|Ts = 17 deg C|.
+\begin{myVerbatim}
+(%i23) white_eqn : T = 17 + 51.8*exp(-r*t);
+(%o23) T = 51.8*%e^-(r*t)+17
+(%i24) lsquares_estimates ( white_matrix, [t,T], white_eqn, [r],
+                              iprint = [-1,0] );
+(%o24) [[r = 0.02388]]
+(%i25) white_fit : rhs ( white_eqn ), %;
+(%o25) 51.8*%e^-(0.02388*t)+17
+\end{myVerbatim}
+Thus \textbf{rwhite} is roughly \mv|0.024 min^(-1)|, a slightly smaller value than for
+  the black coffee ( which is reasonable since a black body is a better radiator of thermal
+  energy than a white surface).
+\newpage  
+\noindent A prudent check on mathematical reasonableness can be made by using, say, the
+  two data points for $\mathbf{t = 0}$ and $\mathbf{t = 24 \, min}$ to solve for
+  a rough value of \textbf{r}.
+For this rough check, the author concludes that \textbf{rblack} is roughly
+   \mv|0.027 min^(-1)| and \textbf{rwhite} is roughly \mv|0.024 min^(-1)|.\\
+  
+\noindent We can now plot the temperature data against the best fit model curve,
+  first for the black coffee case.
+\begin{myVerbatim}
+(%i26) plot2d( [ black_fit ,[discrete,black_data] ],
+           [t,0,50], [style, [lines,5], [points,2,2,6]],
+           [ylabel," "] ,
+           [xlabel," Black Coffee T(deg C) vs. t(min) with r = 0.026/min"],
+           [legend,"black fit","black data"] )$
+\end{myVerbatim}  
+
+which produces the plot
+
+
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.35]{ch2p20.eps} }
+	\caption{Black Coffee Data and Fit }
+\end{figure}
+
+
+%plot2d( [ black_fit ,[discrete, black_data] ],
+%           [t,0,50], [style,[lines,10],[points,4,2,6]],
+%           [ylabel," "] ,
+%           [xlabel," Black Coffee T(deg C) vs. t(min) with r = 0.026/min"],
+%           [legend,"black fit","black data"],
+%           [psfile,"ch2p20.eps"] )$
+
+
+\noindent and next plot the white coffee data and fit:
+\begin{myVerbatim}
+(%i27) plot2d( [ white_fit ,[discrete, white_data] ],
+           [t,0,50], [style, [lines,5], [points,2,2,6]],
+           [ylabel," "] ,
+           [xlabel," White Coffee T(deg C) vs. t(min) with r = 0.024/min"],
+           [legend,"white fit","white data"] )$
+\end{myVerbatim}
+%\newpage
+which yields the plot
+
+\smallskip
+\begin{figure} [h]  
+   \centerline{\includegraphics[scale=.35]{ch2p21.eps} }
+	\caption{White Coffee Data and Fit }
+\end{figure}
+
+%plot2d( [ white_fit ,[discrete, white_data] ],
+%           [t,0,50], [style,[lines,10],[points,4,2,6]],
+%           [ylabel," "] ,
+%           [xlabel," White Coffee T(deg C) vs. t(min) with r = 0.024/min"],
+%           [legend,"white fit","white data"],
+%           [psfile,"ch2p21.eps"] )$
+\newpage
+\subsubsection*{Cream at Start or Later?}
+Let's use the above approximate values for the cooling rate constants to 
+  find the fastest method to use to get the temperature of hot coffee down
+  to a drinkable temperature.
+Let's assume we start with a glass of very hot coffee, $\mathbf{T_{0} = 90^{\circ}C}$,
+  and want to compare two methods of getting the temperature down to $\mathbf{75^{\circ}C}$,
+  which we assume is low enough to start sipping.
+We will assume that adding cream lowers the temperature of the coffee by $\mathbf{5^{\circ}C}$
+  for both options we explore.
+Option 1 (white option) is to immediately add cream and let the creamed coffee cool down
+  from $\mathbf{85^{\circ}C}$ to $\mathbf{75^{\circ}C}$.
+We first write down a general expression as a function of
+  \mv|T0| and \mv|r|, and then substitute values appropriate to the
+  white coffee cooldown.
+\begin{myVerbatim}
+(%i28) T : 17 + (T0 -17)*exp(-r*t);
+(%o28) %e^-(r*t)*(T0-17)+17
+(%i29) T1 : T, [T0 = 85, r = 0.02388];
+(%o29) 68*%e^-(0.02388*t)+17
+(%i30) t1 : find_root(T1 - 75,t,2,10);
+(%o30) 6.661
+\end{myVerbatim}  
+The "white option" requires about $\mathbf{6.7 \, min}$ for the coffee to be sippable.\\
+
+\noindent Option 2 (the black option) lets the black coffee cool from $\mathbf{90^{\circ}C}$ 
+   to $\mathbf{80^{\circ}C}$, and then adds cream, immediately getting the temperature
+   down from $\mathbf{80^{\circ}C}$  to $\mathbf{75^{\circ}C}$
+\begin{myVerbatim}
+(%i31) T2 : T, [T0 = 90, r = 0.02612];
+(%o31) 73*%e^-(0.02612*t)+17
+(%i32) t2 : find_root(T2 - 80,t,2,10);
+(%o32) 5.6403
+\end{myVerbatim}
+The black option (option 2) is the fastest method to cool the coffee, taking about $\mathbf{5.64 \,min}$
+  which is about $\mathbf{61 \,sec}$ less than the white option 1.
+
+\end{document}
+
+ver 5.31.2 xmaxima jan 1, 2014
+if you look at global variable plot_options,
+you see the element
+(cyan is greenish-blue)
+
+ [color, blue, red, green, magenta, black, cyan]
+ 
+ 0: cyan, 1: dark blue, 2: red, 3: green,
+4: majenta, 5: black, 6: cyan, 7: dark blue
+
+color bar: need to shrink line width to 6 for the
+legend numbers to be seen.
+as in:
+
+use default colors for bars: plot_options; returns the 
+element [color,blue,red,green,majenta,black,cyan]
+using [lines,6] for width allows legend numbers to
+be seen.
+
+plot2d(
+[ [discrete,[[0,0],[0,5]]], [discrete,[[2,0],[2,5]]],
+[discrete,[[4,0],[4,5]]],[discrete,[[6,0],[6,5]]],
+[discrete,[[8,0],[8,5]]],[discrete,[[10,0],[10,5]]],
+[discrete,[[12,0],[12,5]]],[discrete,[[14,0],[14,5]]] ],
+[style, [lines,6]],
+[x,-2,20], [y,-2,8],
+[legend,"1","2","3","4","5","6","7","8"],
+[xlabel," "], [ylabel," "],
+[box,false],[axes,false])$
+

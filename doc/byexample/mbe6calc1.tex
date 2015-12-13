@@ -1,0 +1,3578 @@
+% e. woollett
+%   april 08
+% file calculus1.tex
+% things to add: 
+%  section on directional derivatives in three coordinate systems
+
+% edit with Notepad++, then load into LED for latexing
+\documentclass[12pt]{article}
+\usepackage[dvips,top=1.5cm,left=1.5cm,right=1.5cm,foot=1cm,bottom=1.5cm]{geometry}
+\usepackage{times}
+\usepackage{amsmath}
+\usepackage{amsbsy}
+\usepackage{graphicx} 
+\usepackage{url}
+\urldef\tedhome\url{ http://www.csulb.edu/~woollett/  }
+\urldef\tedmail\url{ woollett@charter.net}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   title page
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Maxima by Example: Ch.6: Differential Calculus 
+            \thanks{This version uses Maxima 5.15. This is a live
+            document. Check \;  \tedhome \; for the latest version of these notes. Send comments and
+			 suggestions to \tedmail } }
+
+
+\author{Edwin L. Woollett}
+\date{\today}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%          document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\small
+\maketitle
+\tableofcontents
+\numberwithin{equation}{section}
+\newpage
+\normalsize
+COPYING AND DISTRIBUTION POLICY\\
+\\    
+	
+    
+    This document is part of a series of notes titled
+    "Maxima by Example" and	is made available\\
+	via the author's webpage 
+	\verb|http://www.csulb.edu/~woollett/ | to aid
+	new users of the Maxima computer algebra system.\\
+	
+	\smallskip
+	NON-PROFIT PRINTING AND DISTRIBUTION IS PERMITTED.\\
+	You may make copies of this document and distribute them to others
+	as long as you charge no more than the costs of printing.\\
+	
+	\smallskip
+	These notes (with some modifications) will be published in book form
+	eventually via Lulu.com in an arrangement which will continue
+	to allow unlimited free download of the pdf files as well as the option
+	of ordering a low cost paperbound version of these notes.
+\newpage
+
+\setcounter{section}{5}
+
+\section{Differential Calculus}
+The methods of calculus lie at the heart of the physical sciences and engineering.
+
+\smallskip
+The student of calculus needs to take charge of his or her own understanding, taking the
+  subject apart and putting it back together again in a way that makes logical sense.
+The best way to learn any subject is to work through a large collection of problems.
+The more problems you work on your own, the more you "own" the subject.
+Maxima can help you make faster progress, if you are just learning calculus.
+
+\smallskip
+For those who are already calculus savvy, the examples in this chapter will offer
+  an opportunity to see some Maxima tools in the context of very simple
+  examples, but you will likely be thinking about much harder problems you want to
+  solve as you see these tools used here.
+
+\smallskip
+After examples of using \textbf{diff} and \textbf{gradef}, we present examples of
+  finding the critical and inflection points of plane curves defined by an explicit
+  function.
+
+\smallskip
+We then present examples of calculating and plotting the tangent and normal to a
+  point on a curve, first for explicit functions and then for implicit functions.  
+
+\smallskip
+We also have two examples of finding the maximum or minimum of a function of two 
+  variables.  
+
+\smallskip
+We then present several examples of using Maxima's powerful \textbf{limit} function,
+ followed by several examples of using \textbf{taylor}(..).
+
+\smallskip
+The next section shows examples of using the vector calculus functions (as well as
+  cross product) in the package vcalc.mac, developed by the author and available on
+  his webpage with this chapter, to calculate the gradient, divergence, curl,
+  and Laplacian in cartesian, cylindrical, and spherical polar coordinate systems.
+An example of using this package would be \verb|curl([r*cos(theta),0,0]);| (if the
+  current coordinate system has already been changed to spherical polar) or
+  \verb|curl([r*cos(theta),0,0], s(r,theta,phi) );| if the coordinate system needs
+  to be shifted to spherical polar from either cartesian (the starting default) or
+  cylindrical.
+The order of list vector components corresponds to the order of the arguments 
+  in \verb|s(r,theta,phi)|.  
+The Maxima output is the list of the vector curl components in the current coordinate system,
+  in this case \verb|[0, 0, sin(theta)]| plus a reminder to the user of what the current
+   coordinate system is and what symbols are currently being used for the independent 
+   variables.
+
+\smallskip
+Thus the syntax is based on lists and is similar (although better!) than Mathematica's
+  syntax.
+There is a separate function to change the current coordinate system.
+An example of its use would be\\
+ \verb|setcoord( cy(rho,phi,z) );| to set the use
+  of cylindrical coordinates (rho,phi,z), or\\
+  \verb|setcoord( cy(r,t,z) );| to set
+  cylindrical coordinates (r,t,z).
+
+\smallskip
+The package vcalc.mac also contains the plotting function \verb|plotderiv(..)| which
+  is useful for "automating" the plotting of a function and its first \verb|n| derivatives.
+
+
+\smallskip
+The next two sections dicuss the use of the batch file  mode of problem solving
+  by presenting Maxima based derivations of the form of the gradient, divergence,
+   curl, and Laplacian by starting with the cartesian forms and changing 
+   variables to (separately)  cylindrical and spherical polar coordinates.
+   These two sections show Maxima's implementation of the calculus chain rule at work
+   with use of both \textbf{depends} and \textbf{gradef}.
+   
+\subsection{Differentiation of Explicit Functions}
+We begin with explicit functions of a single variable.
+After giving a few examples of the use of Maxima's \textbf{diff(...)} function,
+  we will discuss critical and inflection points of curves defined by
+  explicit functions, and the construction and plotting of the tangent and
+  normal of a point of such curves.
+
+
+\subsubsection{diff}
+The command \textbf{diff}\verb|(expr,var,num)| will differentiate the expresssion 
+  in slot one with respect to the variable entered in slot two a number of times
+  determined by a positive integer in slot three.
+Unless a dependency has been established, all parameters and "variables" in the
+  expression are treated as constants when taking the derivative.  
+  
+Thus \textbf{diff}\verb|(expr,x,2)| will yield the second derivative of \verb|expr|
+  with respect to the variable \verb|x|.\\
+
+\smallskip
+The simple form \textbf{diff}\verb|(expr, var)| is equivalent to \textbf{diff}\verb|(expr,var,1)|.\\  
+
+If the expression depends on more than one variable, we can use commands such as
+  \textbf{diff}\verb|(expr,x,2,y,1)| to find the result of taking the second
+  derivative with respect to \verb|x| (holding \verb|y| fixed) followed by the first derivative with
+  respect to \verb|y| (holding \verb|x| fixed).
+Here are some simple examples.\\
+\smallskip
+
+We first calculate the derivative of $x^{n}$.
+\small
+\begin{verbatim}
+(%i1) diff(x^n,x);
+                                      n - 1
+(%o1)                              n x
+\end{verbatim}
+\normalsize
+
+Next we calculate the third derivative of $x^{n}$.
+\small
+\begin{verbatim}
+(%i2) diff(x^n,x,3);
+                                              n - 3
+(%o2)                      (n - 2) (n - 1) n x
+\end{verbatim}
+\normalsize
+
+Here we take the derivative (with respect to x) of an expression
+  depending on both $x$ and $y$.
+\small
+\begin{verbatim}
+(%i3) diff(x^2 + y^2,x);
+(%o3)                                 2 x
+\end{verbatim}
+\normalsize
+
+You can differentiate with respect to any expression that does not
+  involve explicit mathematical operations.
+\small
+\begin{verbatim}
+(%i4) diff( x[1]^2 + x[2]^2, x[1] );
+(%o4)                                2 x
+                                        1
+\end{verbatim}
+\normalsize
+Note that $x_{1}$ is Maxima's way of "pretty printing" \verb|x[1]|.
+We can use the \textbf{grind} function to display the output \verb|%o4|
+  in the "non-pretty print mode" (what would have been returned if we
+  had set the \textbf{display2d} switch to \verb|false|).
+\small
+\begin{verbatim}
+(%i5) grind(%)$
+2*x[1]$
+(%i6) display2d;
+(%o6)                                true
+\end{verbatim}
+\normalsize
+Note the dollar sign \textbf{grind} adds to the end of \textbf{its} output.  
+
+\smallskip
+Finally, an example of using one invocation of \textbf{diff}  to differentiate 
+  with respect to more than one variable:
+\small
+\begin{verbatim}
+(%i7) diff(x^2*y^3,x,1,y,2);
+(%o7)                               12 x y
+\end{verbatim}
+\normalsize
+
+\subsubsection{Total Differential}
+If you use the \textbf{diff} function without a symbol in slot two, Maxima returns the
+  "total differential" of  the expression in slot one, and by default assumes every
+  parameter is a variable.
+
+  \smallskip
+If an expression contains a single parameter, say $x$, then \verb|diff(expr)| will
+  generate
+\begin{equation}
+d\,f(x) = \left(\frac{d\, f(x)}{d\, x}  \right) \; d\,x
+\end{equation}  
+\smallskip
+In the first example, we calculate the differential of the expression $x^2$, that is,
+ the derivative of the expression (with respect to the variable $x$)
+  multiplied by "the differential of the independent variable $x$", $d\,x$.
+Maxima uses \textbf{del(x)} for the differential of $x$, a small increment of $x$.  
+\small
+\begin{verbatim}
+(%i1) diff(x^2);
+(%o1)                             2 x del(x)
+\end{verbatim}
+\normalsize
+If the expression contains two parameters $x$ and $y$, then the total 
+  differential is equivalent to the Maxima expression\\
+\verb|  diff(expr,x)*del(x) + diff(expr,y)*del(y) |, \\
+which generates (using conventional notation):
+\begin{equation}
+ d\,f(x,y) = \left(\frac{\partial f(x,y)}{\partial x}  \right)_{y} \; d\,x  +
+    \left(\frac{\partial f(x,y)}{\partial y}  \right)_{x} \; d\,y.
+\end{equation}  
+Each additional parameter induces an additional term of the same form.  
+\small
+\begin{verbatim}
+(%i2) diff(x^2*y^3);
+                           2  2               3
+(%o2)                   3 x  y  del(y) + 2 x y  del(x)
+(%i3) diff(a*x^2*y^3);
+                    2  2                 3           2  3
+(%o3)          3 a x  y  del(y) + 2 a x y  del(x) + x  y  del(a)
+\end{verbatim}
+\normalsize
+
+%\newpage
+We can use the \textbf{subst} function to replace, say \verb|del(x)|, by anything else:
+\small
+\begin{verbatim}
+(%i4) subst(del(x) = dx, %o1);
+(%o4)                               2 dx x
+(%i5) subst([del(x)= dx, del(y) = dy, del(a) = da],%o3 );
+                         2  3             3           2  2
+(%o5)                da x  y  + 2 a dx x y  + 3 a dy x  y
+\end{verbatim}
+\normalsize
+%\newpage
+You can use the \textbf{declare} function to prevent some of the symbols from
+  being treated as variables when calculating the total differential:
+\small
+\begin{verbatim}
+(%i6) declare (a, constant)$
+(%i7) diff(a*x^2*y^3);
+                           2  2                 3
+(%o7)                 3 a x  y  del(y) + 2 a x y  del(x)
+(%i8) declare([b,c],constant)$
+(%i9) diff( a*x^3 + b*x^2 + c*x );
+                                2
+(%o9)                     (3 a x  + 2 b x + c) del(x)
+(%i10) properties(a);
+(%o10)                            [constant]
+(%i11) propvars(constant);
+(%o11)                             [a, b, c]
+(%i12) kill(a,b,c)$
+(%i13) propvars(constant);
+(%o13)                                []
+(%i14) diff(a*x);
+(%o14)                        a del(x) + x del(a)
+\end{verbatim}
+\normalsize
+We can "map" \textbf{diff} on to a list of functions of $x$, say, and divide by \textbf{del(x)},
+  to generate a list of derivatives, as in
+\small
+\begin{verbatim}
+(%i15) map('diff,[sin(x),cos(x),tan(x) ] )/del(x);
+                                                2
+(%o15)                     [cos(x), - sin(x), sec (x)]
+(%i16) map('diff,%)/del(x);
+                                              2
+(%o16)               [- sin(x), - cos(x), 2 sec (x) tan(x)]
+\end{verbatim}
+\normalsize
+
+  
+\subsubsection{Controlling the Form of a Derivative with gradef(..)}
+
+We can use \textbf{gradef} is to select one from among a number of
+  alternative ways of writing the result of differentiation.
+The large number of "trigonometric identities" means that any given expression
+  containing trig functions can be written in terms of a different set of
+  trig functions.
+
+\smallskip
+As an example, consider trig identities which express $\sin(x)$,  $\cos(x)$,
+  and $\sec(x)^2$ in terms of $\tan(x)$ and $\tan(x/2)$:
+\begin{equation}
+\sec(x)^2 = 1 + \tan(x)^2,
+\end{equation}
+\begin{equation}
+\sin(x) = 2 \, \tan(x/2) / (1 + \tan(x/2)^2 ) ,
+\end{equation}
+\begin{equation}
+\cos(x) = ( 1 - \tan(x/2)^2 ) / ( 1 + \tan(x/2)^2 ) .
+\end{equation}
+The default Maxima result for the first derivatives of $\sin(x)$, $\cos(x)$,
+  and $\tan(x)$ is:
+\small
+\begin{verbatim}
+(%i1) map('diff,[sin(x),cos(x),tan(x)] )/del(x);
+                                                2
+(%o1)                    [cos(x), - sin(x), sec (x)]
+\end{verbatim}
+\normalsize
+Before using \textbf{gradef} to alter the return value of \textbf{diff} for these
+  three functions, let's check that Maxima agrees with the trig "identities" displayed
+  above.
+Variable amounts of expression simplification are needed to get what we want.
+\small
+\begin{verbatim}
+(%i2) trigsimp( 1 + tan(x)^2 );
+                                       1
+(%o2)                              -------
+                                       2
+                                    cos (x)
+(%i3) ( trigsimp( 2*tan(x/2)/(1 + tan(x/2)^2) ), trigreduce(%%) );
+(%o3)                              sin(x)
+(%i4) ( trigsimp( (1-tan(x/2)^2)/(1 + tan(x/2)^2) ),
+          trigreduce(%%), expand(%%) );
+(%o4)                              cos(x)									
+\end{verbatim}
+\normalsize
+Recall that \textbf{trigsimp} will convert \verb|tan|, \verb|sec|, etc to
+  \verb|sin| and \verb|cos| of the same argument.
+Recall also that \textbf{trigreduce} will convert an expression containing
+  $\cos(x/2)$  and $\sin(x/2)$ into an expression containing $\cos(x)$
+  and $\sin(x)$.
+Finally, remembering that $\sec(x) = 1/\cos(x)$, we see that Maxima has "passed
+  the test".
+  
+\newpage
+
+Now let's use \textbf{gradef} to express the derivatives in terms of
+  $\tan(x)$ and $\tan(x/2)$:
+\small
+\begin{verbatim}
+(%i5) gradef(tan(x), 1 + tan(x)^2 );
+(%o5)                              tan(x)
+(%i6) gradef(sin(x),(1-tan(x/2)^2 )/(1 + tan(x/2)^2 ) );
+(%o6)                              sin(x)
+(%i7) gradef(cos(x), -2*tan(x/2)/(1 + tan(x/2)^2 ) );
+(%o7)                              cos(x)
+\end{verbatim}
+\normalsize
+Here we check the behavior:
+\small
+\begin{verbatim}
+(%i8) map('diff,[sin(x),cos(x),tan(x)] )/del(x);
+                           2 x            x
+                    1 - tan (-)     2 tan(-)
+                             2            2        2
+(%o8)             [-----------, - -----------, tan (x) + 1]
+                       2 x            2 x
+                    tan (-) + 1    tan (-) + 1
+                         2              2
+\end{verbatim}
+\normalsize
+
+
+\subsection{Critical and Inflection Points of a Curve Defined by an Explicit Function}
+The critical points of a function $f(x)$ are the points $x_{j}$ such that $f'(x_{j})=0$.
+We will use $f'$ to indicate the first derivative, and $f''$ to indicate the second
+  derivative.
+The "extrema" (ie., maxima and minima) are the values of the function at the
+  critical points, provided the "slope" $f'$ actually has a different sign on
+  the opposite sides of the critical point.
+\begin{center}
+\fbox{\parbox{4.9in}{
+Maximum: $f'(a) = 0$, \qquad $f'(x)$ \quad changes from $+$ to $-$ \qquad $f''(a)<0 $\\
+Minimum: $f'(a) = 0$, \qquad $f'(x)$ \quad changes from $-$ to $+$ \qquad $f''(a)>0 $
+  } }
+\end{center}
+
+\smallskip
+If $f(x)$ is a function with a continuous second derivative, and if, as $x$ increases
+  through the value $a$, $f\,''(x)$  changes sign, then the plot of $f(x)$ has an
+  inflection point at $x=a$ and $f\,''(a) = 0$.
+The inflection point requirement that $f\,''(x)$ changes sign at $x = a$ is equivalent
+  to $f\,'''(a) \ne 0 $.
+We consider some simple examples taken from Sect. 126 of Analytic Geometry and Calculus,
+  by Lloyd L. Smail, Appleton-Century-Crofts, N.Y., 1953 (a reference which "dates" the writer
+    of these notes!). 
+  
+\subsubsection{Example 1: A Polynomial}
+To find the maxima and minima of the function $f(x)=2\,x^{3} - 3\,x^{2} - 12 \, x + 13$,
+  we use an "expression" (called "g") rather than a Maxima function.
+We use \verb|gp| (g prime) for the first derivative, and \verb|gpp| (g double prime)
+  as notation for the second derivative.
+Since we will want to make some simple plots, we use the package \textbf{qdraw}, available
+  on the author's webpage, and discussed in detail in chapter five of these notes.  
+\small
+\begin{verbatim}
+(%i1) load(draw)$
+(%i2) load(qdraw);
+               qdraw(...), qdensity(...), syntax: type qdraw(); 
+(%o2)                         c:/work2/qdraw.mac
+(%i3) g : 2*x^3 - 3*x^2 - 12*x + 13$
+(%i4) gf : factor(g);
+                                        2
+(%o4)                       (x - 1) (2 x  - x - 13)
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i5) gp : diff(g,x);
+                                   2
+(%o5)                           6 x  - 6 x - 12
+(%i6) gpf : factor(gp);
+(%o6)                          6 (x - 2) (x + 1)
+(%i7) gpp : diff(gp,x);
+(%o7)                              12 x - 6
+(%i8) qdraw( ex(g,x,-4,4), key(bottom)  )$
+\end{verbatim}
+\normalsize
+Since the coefficients of the given polynomial are integral, we have tried out
+  \textbf{factor} on both the given expression and its first derivative.
+We see from output \verb|%o6| that the first derivative vanishes when \verb|x = -1, 2 |.
+We can confirm these critical points of the given function by using \textbf{qdraw} with the
+  quick plotting argument \textbf{ex(..)}, which
+  gives us the plot:
+  
+\smallskip
+%%\begin{figure}[!ht] 
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1]{ch6p1.eps} }
+	\caption{ Plot of g over the range $[-4,4]$}
+\end{figure}               
+% eps file code
+% (%i11) qdraw( line(-4,0,4,0,lw(2)),
+%                line(0,-115,0,45,lw(2)), lw(7),
+%               ex(g,x,-4,4) ,pic(eps,"ch6p1",font("Times-Roman",18)),
+%               key(bottom) ); 
+%
+ \smallskip
+We can use the cursor on the plot to find that \verb|g| takes on the value of roughly
+\verb|-7| when \verb|x = 2| and the value of about \verb|20| when \verb|x = -1|.
+%\newpage
+We can use \textbf{solve} to find the roots of the equation \verb|gp = 0|, and
+  then evaluate the given expression \verb|g|, as well as the second derivative \verb|gpp|
+  at the critical points found:
+\small
+\begin{verbatim}
+(%i9) solve(gp=0);
+(%o9)                         [x = 2, x = - 1]
+(%i10) [g,gpp],x=-1;
+(%o10)                            [20, - 18]
+(%i11) [g,gpp],x=2;
+(%o11)                             [- 7, 18]
+\end{verbatim}
+\normalsize
+%\newpage
+We next look for the inflection points, the points where the curvature changes sign, which
+  is equivalent to the points where the second derivative vanishes.
+\small
+\begin{verbatim}
+(%i12) solve(gpp=0);
+                                         1
+(%o12)                              [x = -]
+                                         2
+(%i13) g,x=0.5;
+(%o13)                                6.5										 
+\end{verbatim}
+\normalsize
+We have found one inflection point, that is a point on a smooth curve where the
+  curve changes from concave downward to concave upward, or visa versa (in this case
+  the former).\\
+We next plot \verb|g, gp, gpp| together.
+\small
+\begin{verbatim}
+(%i14) qdraw2( ex([g,gp,gpp],x,-3,3), key(bottom),
+                pts([[-1,20]],ps(2),pc(magenta),pk("MAX") ),
+             pts([[2,-7]],ps(2),pc(green),pk("MIN") ),
+            pts([[0.5, 6.5]],ps(2),pk("INFLECTION POINT") ) )$
+\end{verbatim}
+\normalsize
+% eps code 
+% (%i13) qdraw( line( -3,0,4,0,lw(2) ),
+%              line( 0,-42,0,60,lw(2) ),  
+%             ex([g,gp,gpp],x,-3,4) ,key(bottom),
+%             pts([[-1,20]],ps(2),pc(magenta),pk("MAX") ),
+%             pts([[2,-7]],ps(2),pc(green),pk("MIN") ) ,
+%              pts([[0.5, 6.5]],ps(2),pk("INFLECTION POINT") ),  
+%             pic(eps,"ch6p2",font("Times-Roman",18) ) );
+%
+with the resulting plot:
+\smallskip
+%%\begin{figure}[!ht] 
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.3]{ch6p2.eps} }
+	\caption{ Plot of 1: g, 2: gp, and 3: gpp }
+\end{figure}               
+
+\smallskip
+The curve \verb|g| is concave downward until \verb|x = 0.5| and then is concave upward.
+Note that each successive differentiation tends to flatten out the kinks in the previous
+  expression (function). In other words, \verb|gp| is "flatter" than \verb|g|, and
+  \verb|gpp| is "flatter" than \verb|gp|.
+This behavior under \textbf{diff} is simply because each successive differentiation
+  reduces by one the degree of the polynomial.
+%\newpage
+\subsubsection{Automating Derivative Plots with plotderiv(..)}
+In a separate text file "vcalc.mac" (available on the author's webpage)
+  is a small homemade Maxima function called \verb|plotderiv(...)| which
+  will plot a given expression together with as many derivatives as you
+  want, using \textbf{qdraw} from Ch.5.
+  
+
+\small
+\begin{verbatim}
+/* vcalc.mac */
+plotderiv_syntax() :=
+  disp("plotderiv(expr,x,x1,x2,y1,y2,numderiv)  constructs a list of
+       the submitted expression expr and its first numderiv derivatives
+       with respect to the independent variable, and then passes
+       this list to qdraw(..). You need to have used load(draw)
+       and load(qdraw) before using this function ")$
+
+/*  version 1 commented out
+plotderiv(expr,x,x1,x2,y1,y2,numderiv) :=
+   block([plist],
+     plist : [],
+     for i thru numderiv do
+        plist : cons(diff(expr,x,i), plist),
+     plist : reverse(plist),
+     plist : cons(expr, plist),
+     display(plist),
+     apply( 'qdraw, [ ex( plist,x,x1,x2 ),yr(y1,y2), key(bottom) ]  )
+   )$   
+*/
+/* version 2  slightly more efficient  */ 
+plotderiv(expr,x,x1,x2,y1,y2,numderiv) :=
+   block([plist,aa],
+     plist : [],
+     aa[0] : expr,
+     for i thru numderiv do (
+        aa[i] : diff(aa[i-1],x),
+        plist : cons(aa[i], plist)
+         ),
+     plist : reverse(plist),
+     plist : cons(expr, plist),
+     display(plist),
+     apply( 'qdraw, [ ex( plist,x,x1,x2 ),yr(y1,y2), key(bottom) ]  )
+   )$
+\end{verbatim}
+\normalsize
+We have provided two versions of this function, the first version commented out.
+If the expression to be plotted is a very complicated function and you are
+  concerned with computing time, you can somewhat improve the efficiency of
+  \textbf{plotderiv} by introducing a "hashed array" called \verb|aa[j]|, say,
+  to be able to simply differentiate the previous derivative expression.
+That is the point of version 2 which is not commented out.  
+
+\smallskip
+
+We have added the line \verb|display(plist)| to print a list containing the
+  expression as well as all the derivatives requested.
+  
+  
+We test \verb|plotderiv| on the expression \verb|u^3|.
+\small
+\begin{verbatim}
+(%i15) load(vcalc)$
+                vcalc.mac:   for syntax, type: vcalc_syntax(); 
+ CAUTION: global variables set and used in this package:
+       hhh1, hhh2, hhh3, uuu1, uuu2, uuu3, nnnsys 
+(%i16) plotderiv(u^3,u,-3,3,-27,27,4)$
+                                   3     2
+                         plist = [u , 3 u , 6 u, 6, 0]
+\end{verbatim}
+\normalsize
+\newpage
+
+which produces the plot:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.9]{ch6p3.eps} }
+	\caption{ 1: $u^3$,\; 2: $3\,u^2$,\; 3: $6\,u$,\; 4: $6$,\; 5: $0$ }
+\end{figure}      
+
+%\newpage
+
+% eps file code
+% (%i5) qdraw( line(-3,0,3,0,lw(2) ), line(0,-27,0,27,lw(2)),
+%             lw(5),key(bottom),
+%             ex([x^3,3*x^2,6*x,6,0],x,-3,3),
+%             pic(eps,"ch6p3",font("Times-Roman",18) ) );
+%
+
+
+\subsubsection{Example 2: Another Polynomial}
+To find the critical points, inflection points, and extrema of the expression
+  $ 3\,x^{4} - 4\, x^{3}$.
+We first look at the expression and its first two derivatives using
+  \verb|plotderiv|.
+\small
+\begin{verbatim}
+(%i17) plotderiv(3*x^4 - 4*x^3,x,-1,3,-5,5,2)$
+                          4      3      3       2      2
+              plist = [3 x  - 4 x , 12 x  - 12 x , 36 x  - 24 x]
+\end{verbatim}
+\normalsize
+which produces the plot:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1]{ch6p4.eps} }
+	\caption{ 1: $f = 3\,x^4 - 4\, x^3$,\; 2: $f\,'$,\; 3: $f\,''$  }
+\end{figure}      
+
+\smallskip
+We have inflection points at $x = 0, \; 2/3$ since the second derivative is zero at
+  both points and changes sign as we follow the curve through those points.
+The curve changes from concave up to concave down passing through $x = 0$
+  and changes from concave down to concave up passing through $x = 2/3$.
+The following provides confirmation of our inferences from the plot:
+\small
+\begin{verbatim}
+(%i18) g:3*x^4 - 4*x^3$
+(%i19) g1: diff(g,x)$
+(%i20) g2 : diff(g,x,2)$
+(%i21) g3 : diff(g,x,3)$
+(%i22) x1 : solve(g1=0);
+(%o22)                           [x = 0, x = 1]
+(%i23) gcrit : makelist(subst(x1[i],g),i,1,2);
+(%o23)                              [0, - 1]
+(%i24) x2 : solve(g2=0);
+                                     2
+(%o24)                           [x = -, x = 0]
+                                     3
+(%i25) ginflec : makelist( subst(x2[i],g ),i,1,2 );
+                                      16
+(%o25)                              [- --, 0]
+                                      27
+(%i26) g3inflec : makelist( subst(x2[i],g3),i,1,2 );
+(%o26)                             [24, - 24]
+\end{verbatim}
+\normalsize
+We have critical points where the first derivative vanishes at $x = 0, \; 1$.
+Since the first derivative does not change sign as the curve passes through
+  the point $x = 0$, that point is neither a maximum nor a mimimum point.
+The point $x = 1$ is a minimum point since the first derivative changes sign
+  from negative to positive as the curve passes through that point.
+
+
+\subsubsection{Example 3: $x^{2/3}$, \;  Singular Derivative, \; Use of limit(..)}
+Searching for points where a function has a minimum or maximum by looking at
+  points where the first derivative is zero is useful as long as the first
+  derivative is well behaved.
+Here is an example in which the given function of $x$ has a minimum at $x=0$,
+  but the first derivative is singular at that point.
+Using the expression \verb|g = x^(2/3)| with \verb|plotderiv(..)|:
+\small
+\begin{verbatim}
+(%i27) plotderiv(x^(2/3),x,-2,2,-2,2,1);									
+\end{verbatim}
+\normalsize
+
+%\begin{figure}[!ht] 
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.7]{ch6p5.eps} }
+	\caption{ Plot of $1:\;f(x) = x^{2/3},\;2:\;f\,'$ }
+\end{figure}               
+
+\newpage
+% eps file code
+% (%i9) qdraw(key(bottom),xr(-2,2),yr(-2,2),
+%         line(-2,0,2,0,lw(2)),line(0,-2,0,2,lw(2)),
+%         lw(5),ex([x^(2/3),2/(3*x^(1/3))],x,-2,2),
+%           pic(eps,"ch6p5",font("Times-Roman",18) ) );
+%
+
+
+
+We see that the first derivative is singular at $x=0$ and approaches either
+  positive or negative infinity, depending on your direction of approaching
+  the point $x=0$.
+We can see from the plot of $f(x) = x^{2/3}$ that the tangent line (the "slope") of the curve
+  is negative for $x<0$ and becomes increasingly negative (approaching minus infinity)
+  as we approach the point $x=0$ from the negative side.
+We also see from the plot of $f(x)$ that the tangent line ("slope") is positive for
+  positive values of $x$ and as we pass $x=0$, moving from smaller $x$ to larger $x$
+  that the sign of the first derivative $f\,'(x)$ changes from $-$ to $+$, which
+  is a signal of a local minimum of a function.
+
+\smallskip
+We can practice using the Maxima function \textbf{limit} with this example:  
+\small
+\begin{verbatim}
+(%i28) gp : diff(x^(2/3),x);
+                                      2
+(%o28)                              ------
+                                       1/3
+                                    3 x
+(%i29) limit(gp,x,0,plus);
+(%o29)                                inf
+(%i30) limit(gp,x,0,minus);
+(%o30)                               minf
+(%i31) limit(gp,x,0);
+(%o31)                                und
+\end{verbatim}
+\normalsize
+The most frequent use of the Maxima \textbf{limit} function has the syntax  
+\small
+\begin{quote}
+Function: \textbf{limit}\verb|(expr, x, val, dir)|\\
+Function: \textbf{limit}\verb|(expr, x, val) |\\
+
+The first form computes the limit of \verb|expr| as the real variable \verb|x| approaches
+ the value \verb|val| from the direction \verb|dir|.
+\verb|dir| may have the value \verb|plus| for a limit from above,
+  \verb|minus| for a limit from below.\\
+In the second form, \verb|dir| is omitted,  implying
+   a "two-sided limit" is to be computed. \\
+\verb|limit| uses the following special symbols: \verb|inf| (positive infinity)
+   and \verb|minf| (negative infinity).
+On output it may also use \verb|und| (undefined), \verb|ind| (indefinite but bounded)
+  and \verb|infinity| (complex infinity). \\
+\end{quote}
+\normalsize
+
+
+Returning to our example, if we ignore the point $x=0$, the slope is always
+ decreasing, so the second derivative is always negative.
+
+\subsection{Tangent and Normal of a Point of a Curve Defined by an Explicit Function} \label{explicit}
+
+The equation of a line with the form $y = m\, (x - x_0) + y_0$, where $m$, $x_0$, and $y_0$ 
+  are constants, is identically satisfied if we consider the point $(x,y) = (x_0,y_0)$.
+Hence this line passes through the point $(x_0, y_0)$.
+The "slope" of this line (the first derivative) is the constant $m$.
+
+\smallskip
+
+Now we also assume that the point $(x_0, y_0)$ is a point of a curve given by some
+  explicit function of $x$, say $y = f(x)$; hence $y_0 = f(x_0)$.
+The first derivative of this function, evaluated at the point $x_0$ is the local
+  "slope", which defines the \textbf{local tangent line} $y = m \,(x - x_0) + y_0$ if
+  we use for $m$ the value of $f\,'(x_0)$, where the notation means first take the derivative for arbitrary
+  $x$ and then evaluate the derivative at $x = x_0$.
+\smallskip
+Let the two dimensional vector \verb|tvec| be a vector parallel to the tangent line (at the
+  point of interest) with components \verb|(tx,ty)|, such that the vector makes an angle
+  $ \theta$ with the positive $x$ axis.
+Then $\tan(\theta) = t_{y}/t_{x} = m = d\,y/d\,x $ is the slope of the tangent (line) at this point.
+Let the two dimensional vector \verb|nvec| with components \verb|(nx,ny)| be parallel to the
+line perpendicular to the tangent at the given point.
+This \textbf{normal} line will be perpendicular to the tangent line if the vectors \verb|nvec| and
+  \verb|tvec| are "orthogonal".
+\newpage
+  
+In Maxima, we can represent vectors by lists:
+\small
+\begin{verbatim}
+(%i1) tvec : [tx,ty];
+(%o1)                              [tx, ty]
+(%i2) nvec : [nx, ny];
+(%o2)                              [nx, ny]
+\end{verbatim}
+\normalsize
+Two vectors are "orthogonal" if the "dot product" is zero.
+A simple example will illustrate this general property.
+Consider the pair of unit vectors \verb|ivec = [1,0]| parallel to the positive
+ $x$ axis and \verb|jvec = [0,1]| parallel to the positive $y$ axis.
+\small
+\begin{verbatim}
+(%i3) ivec : [1,0]$
+(%i4) jvec : [0,1]$
+(%i5) ivec . jvec;
+(%o5)                                  0
+\end{verbatim}
+\normalsize
+
+Since Maxima allows us to use a period to find the dot product (inner product) of two
+  lists (two vectors), we will ensure that the normal vector is "at right angles" to
+  the tangent vector by requiring \verb|nvec . tvec = 0|
+\small
+\begin{verbatim}
+(%i6) eqn : nvec . tvec = 0;
+(%o6)                          ny ty + nx tx = 0
+(%i7) eqn : ( eqn/(nx*ty), expand(%%) );
+                                  tx   ny
+(%o7)                             -- + -- = 0
+                                  ty   nx
+\end{verbatim}
+\normalsize
+We represent the normal  (the line perpendicular to the tangent line) 
+  at the point $(x_{0},y_{0})$ as
+  $y  = m_{n}\,(x - x_{0}) +  y_{0}$, where $m_{n}$ is the slope of the
+  normal line: \verb|mn = ny/nx = - (1/(ty/tx)) = -1/m |
+
+\smallskip
+In words, \textbf{the slope of the normal line is the negative reciprocal of the slope of
+  the tangent line}.
+\smallskip
+ Thus the equation of the \textbf{local normal} to the point $(x_0,y_0)$ can be written
+   as $y =  -(x - x_0)/m + y_0$, where $m$ is the slope of the local tangent.
+
+%\newpage
+\subsubsection{Example 1: $x^2$}
+As an easy first example, let's use the function $f(x) = x^2$ and construct the
+  tangent line and normal line to this plane curve at the point \verb|x=1, y=f=1|.
+(We have discussed this same example in Ch. 5).
+The first derivative is $2\,x$, and its value at $x=1$ is $2$.
+ Thus the equation of the local tangent to the curve at \verb|(x,y) = (1,1)| is
+   $y = 2\,x - 1$.
+The equation of the local normal at the same point is $y =  -x/2 + 3/2$.
+
+\smallskip
+We will plot the curve $x^2$, the local tangent, and the local normal together.
+Special care is needed to get the horizontal "canvas" width about \verb|1.4| times
+  the vertical height to achieve a geometrically correct plot; otherwise the "normal" line
+  would not cross the tangent line at right angles.
+\small
+\begin{verbatim}
+(%i8) qdraw( ex([x^2,2*x-1,-x/2+3/2],x,-1.4,2.8), yr(-1,2) ,
+               pts( [ [1,1]],ps(2) ) )$
+\end{verbatim}
+\normalsize
+% eps file code
+% (%i16) qdraw( lw(5),line(-1.4,0,2.8,0,lw(2) ),
+%                line(0,-1,0,2,lw(2) ),
+% ex([x^2,2*x-1,-x/2+3/2],x,-1.4,2.8), yr(-1,2) ,
+%               pts( [ [1,1]],ps(2) ),
+%             pic(eps,"ch6p6",font("Times-Roman",18) ) ); 
+\newpage
+
+The plot looks like:
+
+\smallskip
+%%\begin{figure}[!ht] 
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1]{ch6p6.eps} }
+	\caption{ Tangent and Normal to $x^2$ at point (1,1)  }
+\end{figure}                 
+
+\smallskip
+
+We can see directly from the plot that the slope of the tangent line has the value $2$.
+Remember that we can think of "slope" as being the number derived from dividing the "rise"
+  by the "run".
+Thus if we choose a "run" to be the $x$ interval \verb|(0,1)|, from the plot this
+  corresponds to the "rise" of $1 - (-1) = 2$.
+Hence "rise/run" is $2$.
+
+\smallskip
+
+
+\subsubsection{Example 2: $\ln(x)$}
+Our next example repeats the analysis of Example 1 for the function $\ln(x)$, 
+  using the point $(x = 2, y = \ln(2) )$.
+Maxima's natural log function is written \textbf{log(...)}.
+Maxima does not have a core log to the base 10 function, although you can 
+  "roll your own" with a definition like \verb|log10(x) := log(x)/log(10)|,
+  which is equivalent to \verb|log(x)/2.303|.
+Thus in Maxima, \verb|log(10) = 2.303, log(2) = 0.693|, etc.
+We are constructing the local tangent and normal at the point
+  $(x = 2, y = 0.693)$.
+The derivative of the natural log is
+\small
+\begin{verbatim}
+(%i9) diff(log(x),x);
+                                       1
+(%o9)                                  -
+                                       x
+\end{verbatim}
+\normalsize
+so the "slope" of our curve (and the tangent) at the chosen point is $1/2$, 
+  and the slope of the local normal is $-2$.
+The equation of the tangent is then $(y - \ln(2) ) = (1/2) \, (x - 2)$, or
+  $y = x/2 - 0.307$.
+The equation of the normal is $(y - \ln(2) ) = -2 \,(x - 2)$, or
+  $y = -2\,x + 4.693$.
+% eps file code
+% (%i8) qdraw(key(bottom), yr(-1,1.786),lw(5),
+%         line(0.1,0,4,0,lw(2) ),line(0,-1,0,1.786,lw(2)),
+%         ex([log(x), x/2 - 0.307, -2*x + 4.693],x,0.1,4),
+%          pts( [ [2,0.693]],ps(2) ),
+%         pic(eps,"ch6p7",font("Times-Roman",18) ) );
+%
+In order to get a decent plot, we need to stay away from the singular point $x=0$, 
+  so we start the plot with $x$ a small positive number. 
+We choose to use the x-axis range $(0.1, 4)$, then $\Delta x = 3.9$.
+Since we want $\Delta x \approx 1.4 \, \Delta y$, we need $\Delta y = 2.786$,
+  which is satisfied if we choose the y-axis range to be $(-1, 1.786)$.
+\small
+\begin{verbatim}
+(%i10) qdraw(key(bottom), yr(-1,1.786),
+          ex([log(x), x/2 - 0.307, -2*x + 4.693],x,0.1,4),
+          pts( [ [2,0.693]],ps(2) )  );
+\end{verbatim}
+\normalsize
+
+\newpage
+which produces the plot:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.3]{ch6p7.eps} }
+	\caption{ Tangent and Normal to $\ln(x)$ at point $(2,\ln(2))$  }
+\end{figure}      
+
+\smallskip
+\subsection{Maxima and Minima of a Function of Two Variables}
+You can find proofs of the following criteria in calculus texts.
+
+\small
+\begin{quote}
+If $f(x,y)$ and its first derivatives are continuous in a region including
+ the point $(a,b)$, a necessary condition that $f(a,b)$ shall be an extreme (maximum
+ or minimum) value of the function $f(x,y)$ is that (I):
+\begin{equation}
+ \frac{\partial f(a,b)}{\partial x} = 0, \quad  \frac{\partial f(a,b)}{\partial y} = 0
+\end{equation}
+in which the notation means first take the partial derivatives for arbitrary $x$ and $y$
+  and then evaluate the resulting derivatives at the point $(x,y) = (a,b)$.
+\smallskip
+Examples show that these two conditions (I) do not guarantee that the function actually
+  takes on an extreme value at the point $(a,b)$, although in many practical problems
+  the existence and nature of an extreme value is often evident from the problem
+  itself and no extra test is needed; all that is needed is the location of the
+  extreme value.
+\smallskip
+If condition (I) is satisfied and if, in addition, at the point $(a,b)$ we have (II):
+\begin{equation}
+ \Delta = \left(\frac{\partial^2\,f}{\partial \, x^2} \right)\, \left(\frac{\partial^2\,f}{\partial \, y^2} \right) -
+            \left(\frac{\partial^2\,f}{\partial x \,\partial y} \right)^2  > 0
+\end{equation}  
+then $f(x,y)$ will have a maximum value or a minimum value given by $f(a,b)$ according as 
+  $\partial^2\,f/\partial\,x^2$ ( or $\partial^2\,f/\partial\,y^2$ ) is negative or positive
+  for $x=a, y=b$.
+\newpage
+If condition (I) holds and $\Delta < 0$ then $f(a,b)$ is neither a maximum nor a minimum;
+if $\Delta = 0$ the test fails to give any information.  
+\end{quote}
+\normalsize
+\subsubsection{Example 1: Minimize the Area of a Rectangular Box of Fixed Volume}
+Let the sides of a "rectangular box" (rectangular prism, or cuboid, if you wish) of
+  fixed volume $v$ be $x$, $y$, and $z$.
+We wish to determine the shape of this box (for fixed $v$) which minimizes the surface
+  area $s = 2\,(x\,y + y\,z + z\,x)$.
+We can use the fixed volume relation to express $z$ as a function of $x$ and $y$
+  and then achieve an expression for the surface area which only depends of the 
+   two variables $x$ and $y$.
+We then know that a necessary condition that the surface area be an extremum
+  is that the two equations of condition I above be satisfied.
+We need to expose the hidden dependence of $z$ on $x$ and $y$ via the volume constraint
+  before we can correctly derive the two equations of condition I.  
+  
+You probably already know the answer to this shape problem is a cube, in which all sides are equal in
+  length, and a side is the same as the cube root of the volume.  
+We require three equations to be satisfied, the first being the constant volume
+  expressed as $v = x\,y\,z$,  and the other two being the equations of condition I above.  
+There are multiple paths to such a solution in Maxima.
+Perhaps the simplest is to use \textbf{solve} to generate a solution of the
+  three equations for the variables $(x,y,z)$, although the solutions returned
+  will include non-physical solutions and we must select the physically realizable
+  solution.
+\small
+\begin{verbatim}
+(%i1) eq1 : v = x*y*z;
+(%o1)                              v = x y z
+(%i2) solz : solve(eq1,z);
+                                         v
+(%o2)                              [z = ---]
+                                        x y
+(%i3) s : ( subst(solz,2*(x*y  + y*z + z*x) ), expand(%%) );
+                                       2 v   2 v
+(%o3)                          2 x y + --- + ---
+                                        y     x
+(%i4) eq2 : diff(s,x)=0;
+                                       2 v
+(%o4)                            2 y - --- = 0
+                                        2
+                                       x
+(%i5) eq3 : diff(s,y) = 0;
+                                       2 v
+(%o5)                            2 x - --- = 0
+                                        2
+                                       y
+(%i6) solxyz: solve([eq1,eq2,eq3],[x,y,z]);
+\end{verbatim}
+\newpage
+\begin{verbatim}
+             1/3       1/3       1/3
+(%o6) [[x = v   , y = v   , z = v   ], 
+            1/3                              1/3
+         2 v               (sqrt(3) %i + 1) v
+[x = --------------, y = - ---------------------, 
+     sqrt(3) %i - 1                  2
+                        1/3                 1/3
+      (sqrt(3) %i + 1) v                 2 v
+z = - ---------------------], [x = - --------------, 
+                2                    sqrt(3) %i + 1
+                      1/3                        1/3
+    (sqrt(3) %i - 1) v         (sqrt(3) %i - 1) v
+y = ---------------------, z = ---------------------]]
+              2                          2
+\end{verbatim}
+\normalsize
+Since the physical solutions must be real, the first sublist is the physical
+  solution which implies the cubical shape.
+%\newpage
+  
+\smallskip
+
+An alternative solution path is to solve \verb|eq2| for $y$ as a function of $x$ and $v$
+  and use this to eliminate $y$ from \verb|eqn3|
+\small
+\begin{verbatim}
+(%i7) soly : solve(eq2,y);
+                                        v
+(%o7)                              [y = --]
+                                         2
+                                        x
+(%i8) eq3x : ( subst(soly, eq3),factor(%%) );
+                                      3
+                                2 x (x  - v)
+(%o8)                         - ------------ = 0
+                                     v
+\end{verbatim}
+\normalsize
+The factored form \verb|%o7| shows that, since $x \neq 0$, the solution
+  must have $x = v^{1/3}$.
+We can then use this solution for $x$ to generate the solution for $y$
+  and then for $z$.
+\small
+\begin{verbatim}
+(%i9) solx : x = v^(1/3);
+                                        1/3
+(%o9)                              x = v
+(%i10) soly : subst(solx, soly);
+                                        1/3
+(%o10)                             [y = v   ]
+(%i11) subst( [solx,soly[1] ], solz );
+                                        1/3
+(%o11)                            [z = v   ]
+\end{verbatim}
+\normalsize
+We find that $\Delta > 0$ and that  the second derivative of $s(x,y)$ with
+  respect to $x$ is positive, as needed for the cubical solution to
+  define a minimum surface solution.
+\small
+\begin{verbatim}
+(%i12) delta : ( diff(s,x,2)*diff(s,y,2) - diff(s,x,1,y,1), expand(%%) );
+                                       2
+                                   16 v
+(%o12)                             ----- - 2
+                                    3  3
+                                   x  y
+(%i13) delta : subst([x^3=v,y^3=v], delta );
+(%o13)                                14
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i14) dsdx2 : diff(s,x,2);
+                                      4 v
+(%o14)                                ---
+                                       3
+                                      x
+(%i15) dsdy2 : diff(s,y,2);
+                                      4 v
+(%o15)                                ---
+                                       3
+                                      y
+\end{verbatim}
+\normalsize
+%\newpage
+
+\subsubsection{Example 2: Maximize the Cross Sectional Area of a Trough}
+A long rectangular sheet of aluminum of width $L$ is to be formed into a flat bottom
+  trough by bending both a left and right hand length $x$ up by an angle $\theta$
+  with the horizontal.
+A cross section view is then:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1]{ch6p18.eps} }
+	\caption{ Flat Bottomed Trough }
+\end{figure}        
+% eps file code : need to crop this 
+%(%i29) qdraw(xr(-2.8,2.8),yr(-2,2),
+%            line(-1.5,0,1.5,0,lw(10) ),
+%             line(-1.5,0,-2,0.866,lw(10)),
+%             line(1.5,0,2,0.866,lw(10) ),
+%             ellipse(1.5,0,0.5,0.5,0,60 ),
+%             ellipse(-1.5,0,0.5,0.5,120,60 ),
+%             label(["{/Symbol=36 q}",2.1,0.3],
+%              ["{/Symbol=36 q}",-2.2,0.3],
+%               ["{/=36 x}",1.5,0.5],["{/=36 x}",-1.6,0.5],
+%                 ["{/=36 L - 2 x}",-0.5,-0.3]   ),
+%             vector([-0.8,-0.3],[-0.7,0],hl(0.2) ),
+%              vector([0.8,-0.3],[0.7,0],hl(0.2) ),
+%               line(-1.5,0,-1.5,-0.7,lw(2) ),
+%               line(1.5,0,1.5,-0.7,lw(2) ),
+%                line(-2.5,0,-1.5,0,lw(2) ),
+%                line( 1.5,0,2.5,0,lw(2) ),
+%             pic(eps,"ch6p18"), cut(all) );
+%
+
+\smallskip
+The lower base is $l= L - 2\,x$, the upper base is $u =l + 2\,x\,\cos(\theta)$.
+The altitude is $h= x\,\sin(\theta)$.
+The area of a trapezoid whose parallel sides are $l$ and $u$ and whose altitude is $h$
+  is $(h/2)\,(l + u)$ (ie., the height times the average width: Exercise: check this
+  by calculating the area of a rectange $h\,u$, where $u$ is the larger base, and
+  then subtracting the area of the two similar right triangles on the left
+  and right hand sides.)
+Hence the area of the cross section (called \verb|s| in our Maxima work)
+ is $A = L\,x\,\sin(\theta) - 2\,x^2\,\sin(\theta) + x^2\,\sin(\theta)\,\cos(\theta)$
+ 
+\smallskip
+Using condition I equations, we proceed to find the extremum solutions for $x$ and $\theta$
+  (which is called \verb|th| in our Maxima work).
+Our method is merely one possible path to a solution.  
+\small
+\begin{verbatim}
+(%i1) s : L*x*sin(th) - 2*x^2*sin(th) + x^2*sin(th)*cos(th);
+                                               2              2
+(%o1)           sin(th) x L + cos(th) sin(th) x  - 2 sin(th) x
+(%i2) dsdx : ( diff(s,x), factor(%%) );
+(%o2)                   sin(th) (L + 2 cos(th) x - 4 x)
+\end{verbatim}
+\normalsize
+We see that one way we can get \verb|dsdx| to be zero is to set $\sin(\theta) = 0$,
+  however this would mean the angle of bend was zero degrees, which is not the solution
+  of interest.
+Hence our first equation comes from setting the second factor of \verb|dsdx| equal to zero.
+\small
+\begin{verbatim}
+(%i3) eq1 : dsdx/sin(th) = 0;
+(%o3)                      L + 2 cos(th) x - 4 x = 0
+(%i4) solx : solve(eq1,x);
+                                          L
+(%o4)                        [x = - -------------]
+                                    2 cos(th) - 4
+(%i5) dsdth : ( diff(s,th), factor(%%) );
+                               2            2
+(%o5)        x (cos(th) L - sin (th) x + cos (th) x - 2 cos(th) x)									
+\end{verbatim}
+\normalsize
+We see that we can get \verb|dsdth| to be zero if we set $x = 0$, but this
+  is not the physical situation we are examining.
+We assume (of course) that $x \neq 0$, and arrive at our second equation of
+  condition I by setting the second factor of \verb|dsdth| equal to zero.
+\small
+\begin{verbatim}
+(%i6) eq2 : dsdth/x = 0;
+                            2            2
+(%o6)        cos(th) L - sin (th) x + cos (th) x - 2 cos(th) x = 0
+(%i7) eq2 : ( subst(solx,eq2), ratsimp(%%) );
+                        2          2
+                    (sin (th) + cos (th) - 2 cos(th)) L
+(%o7)               ----------------------------------- = 0
+                               2 cos(th) - 4
+\end{verbatim}
+\normalsize
+The only way we can satisfy \verb|eq2| is to set the numerator of the left hand
+  side equal to zero, and divide out the factor \verb|L| which is positive:
+\small
+\begin{verbatim}
+(%i8) eq2 : num(lhs(eq2) )/L = 0;
+                         2          2
+(%o8)                 sin (th) + cos (th) - 2 cos(th) = 0
+(%i9) eq2 : trigsimp(eq2);
+(%o9)                          1 - 2 cos(th) = 0
+(%i10) solcos : solve( eq2, cos(th) );
+                                            1
+(%o10)                           [cos(th) = -]
+                                            2
+(%i11) solx : subst(solcos, solx);
+                                         L
+(%o11)                              [x = -]
+                                         3
+(%i12) solth : solve(solcos,th);
+`solve' is using arc-trig functions to get a solution.
+Some solutions will be lost.
+                                        %pi
+(%o12)                            [th = ---]
+                                         3
+\end{verbatim}
+\normalsize
+  
+\subsection{Tangent and Normal of a Point of a Curve Defined by an Implicit Function}
+\textbf{diff} does "partial differentiation". 
+In the following, Maxima assumes that $y$ is independent of x:
+\small
+\begin{verbatim}
+(%i1) diff(x^2 + y^2,x);
+(%o1)                                 2 x
+\end{verbatim}
+\normalsize
+\newpage
+We can indicate explicitly that $y$ depends on $x$ for purposes of taking
+  this derivative by replacing $y$ by $y(x)$.
+\small
+\begin{verbatim}
+(%i2) diff(x^2 + y(x)^2,x);
+                                   d
+(%o2)                      2 y(x) (-- (y(x))) + 2 x
+                                   dx
+\end{verbatim}
+\normalsize
+Instead of using the functional notation to indicate dependency, we can
+  use the \textbf{depends} function before taking the derivative.
+\small
+\begin{verbatim}
+(%i3) depends(y,x);
+(%o3)                               [y(x)]
+(%i4) g : diff(x^2 + y^2, x);
+                                     dy
+(%o4)                            2 y -- + 2 x
+                                     dx
+(%i5) grind(g)$
+2*y*'diff(y,x,1)+2*x$
+(%i6) gs1 : subst('diff(y,x) = x^3, g );
+                                    3
+(%o6)                            2 x  y + 2 x	
+\end{verbatim}
+\normalsize
+In \verb|%i9| we defined \verb|g| as the derivative with respect to \verb|x|
+  of the expression \verb|x^2 + y^2| after telling Maxima that the symbol \verb|y|
+  is to be considered dependent on the value of \verb|x|.
+Since Maxima, as yet, has no specific information about the nature of the
+  dependence of \verb|y| on \verb|x|, the output is expressed in terms of the
+  "noun form" of \textbf{diff}, which Maxima's pretty print shows as $\frac{d\,y}{d\,x}$.
+To see the "internal" form, we again use the \textbf{grind} function, which shows
+  the explicit noun form \verb|'diff(y,x,1)|.
+This is useful to know if we want to later replace that unknown derivative with
+  a known result, as we do in input \verb|%i11|.
+
+\smallskip
+However, Maxima doesn't do anything creative with the derivative substitution
+  done in \verb|%i11|, like working backwards to what the explicit function of \verb|x|
+  the symbol \verb|y| might stand for (different answers differ by a constant).
+The output \verb|%o11| still contains the symbol \verb|y|.
+
+\smallskip
+
+
+Two ways to later implement our knowledge of \verb|y(x)| are shown in steps
+\verb|%i12| and \verb|%i13|, which use the \textbf{ev} function.
+(In Chapter 2 we discussed using \textbf{ev} for making substitutions, although
+  the use of \textbf{subst} is more generally recommended for that job.)
+\small
+\begin{verbatim}
+(%i7) ev(g,y=x^4/4,diff);
+                                    7
+                                   x
+(%o7)                             -- + 2 x
+                                   2
+(%i8) ev(g,y=x^4/4,nouns);
+                                    7
+                                   x
+(%o8)                             -- + 2 x
+                                   2
+(%i9) y;
+(%o9)                                 y								   
+(%i10) g;
+                                     dy
+(%o10)                           2 y -- + 2 x
+                                     dx
+\end{verbatim}
+\normalsize
+We see that Maxima does not bind the symbol \verb|y| to anything when we
+  call \textbf{ev} with an equation like \verb|y = x^4/4|,
+  and that the binding of \verb|g| has not changed.
+
+\smallskip
+  
+A list which reminds you of all dependencies in force is \textbf{dependencies}.
+The Maxima function \textbf{diff} is the only core function which makes use of 
+  the \textbf{dependencies} list.
+The functions \textbf{integrate} and \textbf{laplace} do not use the \textbf{depends}
+  assignments; one must indicate the dependence explicitly by using functional notation.  
+
+\smallskip
+  
+In the following, we first ask for the contents of the \textbf{dependencies} list
+  and then ask Maxima to remove the above dependency of $y$ on $x$, using
+  \textbf{remove}, then check the list contents again, and carry out the previous
+  differentiation with Maxima no longer assuming that $y$ depends on $x$.
+\small
+\begin{verbatim}
+(%i11) dependencies;
+(%o11)                              [y(x)]
+(%i12) remove(y, dependency);
+(%o12)                               done
+(%i13) dependencies;
+(%o13)                                []
+(%i14) diff(x^2 + y^2,x);
+(%o14)                                2 x
+\end{verbatim}
+\normalsize
+On can also remove the properties associated with the symbol $y$ by using
+  \textbf{kill}\verb|(y)|, although this is more drastic than using \textbf{remove}.
+\small
+\begin{verbatim}
+(%i15) depends(y,x);
+(%o15)                               [y(x)]
+(%i16) dependencies;
+(%o16)                               [y(x)]
+(%i17) kill(y);
+(%o17)                               done
+(%i18) dependencies;
+(%o18)                                []
+(%i19) diff(x^2+y^2,x);
+(%o19)                                2 x
+\end{verbatim}
+\normalsize
+There are many varieties of using the \textbf{kill} function.
+The way we are using it here corresponds to the syntax:\\
+\small
+\begin{quote}
+Function: \textbf{kill}\verb|(a_1, ..., a_n) |\\
+Removes all bindings (value, function, array, or rule) from the
+  arguments \verb|a_1, ..., a_n|.
+An argument \verb|a_k| may be a symbol or a single array element.
+\end{quote}
+\normalsize
+The list \textbf{dependencies} is one of the lists Maxima uses to hold information
+  introduced during a work session. 
+You can use the command \textbf{infolists} to obtain a list of the names of all
+ of the information lists in Maxima.
+\small
+\begin{verbatim}
+(%i1) infolists;
+(%o2) [labels, values, functions, macros, arrays, myoptions, props, aliases, 
+                   rules, gradefs, dependencies, let_rule_packages, structures]
+\end{verbatim}
+\normalsize
+When you first start up Maxima, each of the above named lists is empty.
+\small
+\begin{verbatim}
+(%i2) functions;
+(%o2)                                 []
+\end{verbatim}
+\normalsize
+
+
+\subsubsection{Tangent of a Point of a Curve Defined by $f(x,y) = 0$} \label{gradef}
+Suppose some plane curve is defined by the equation $f(x,y) = 0$.
+Every point $(x,y)$ belonging to the curve must satisfy that equation.
+For such pairs of numbers, changing $x$ forces a change in $y$ so that
+  the equation of the curve is still satisfied. 
+When we start plotting tangent lines to plane curves, we will need to
+  evaluate the change in $y$, given a change in $x$, such that the numbers
+  $(x,y)$ are always points of the curve.
+Let's then regard $y$ as depending on $x$ via the equation of the curve.
+Given that the equation $f(x,y) = 0$ is valid, we obtain another valid
+  equation by taking the derivative of both sides of the equation with
+  respect to $x$.
+Let's work just on the left hand side of the resulting equation for
+  now:
+\small
+\begin{verbatim}
+(%i1) depends(y,x);
+(%o1)                               [y(x)]
+(%i2) diff(f(x,y),x);
+                                 d
+(%o2)                            -- (f(x, y))
+                                 dx
+\end{verbatim}
+\normalsize
+We can make progress by assigning values to the partial derivative of $f(x,y)$ with respect to
+  the first argument $x$ and also to the partial derivative of $f(x,y)$ with respect to the
+  second argument $y$, using the \textbf{gradef} function.
+The assigned values can be explicit mathematical expressions or symbols.
+We are going to adopt the symbol \verb|dfdx| to stand for the
+  partial derivative 
+$$  dfdx  =  \left(\frac{\partial f(x,y)}{\partial x}  \right)_{y}\, ,  $$
+where the $y$ subscript means "treat $y$ as a constant when evaluating this 
+  derivative".
+  
+\smallskip
+Likewise, we will use the symbol \verb|dfdy| to stand for the partial derivative of
+  $f(x,y)$ with respect to $y$ (regarding $x$ to be independent of $y$):
+$$   dfdy  =  \left(\frac{\partial f(x,y)}{\partial y}  \right)_{x}\, .  $$
+
+
+
+\small
+\begin{verbatim}
+(%i3) gradef(f(x,y), dfdx, dfdy );
+(%o3)                               f(x, y)
+(%i4) g : diff( f(x,y), x );
+                                     dy
+(%o4)                           dfdy -- + dfdx
+                                     dx
+(%i5) grind(g)$
+dfdy*'diff(y,x,1)+dfdx$
+(%i6) g1 : subst('diff(y,x) = dydx, g);
+(%o6)                          dfdy dydx + dfdx
+\end{verbatim}
+\normalsize
+We have adopted the symbol \verb|dydx| for the "rate of change" of $y$ as $x$ varies,
+  subject to the constraint that the numbers $(x,y)$ always satisfy the equation of
+  the curve $f(x,y) = 0$, which implies that \verb|g1 = 0|.
+\small
+\begin{verbatim}
+(%i7) solns : solve(g1=0, dydx);
+                                          dfdx
+(%o7)                           [dydx = - ----]
+                                          dfdy
+\end{verbatim}
+\normalsize
+We see that Maxima knows enough about the rules for differentiation to
+  allow us to get to a famous calculus formula.
+If $x$ and $y$ are constrained by the equation $f(x,y) = 0$, then the "slope" of
+  the local tangent to the point $(x,y)$ is 
+\begin{equation} \label{Eq:1}
+ \frac{d\,y}{d\,x} = - \frac{\left(\frac{\partial f(x,y)}{\partial x}  \right)_{y} }{
+                        \left(\frac{\partial f(x,y)}{\partial y}  \right)_{x} }.  
+\end{equation}						
+Of course, this formal expression has no meaning at a point where the denominator
+  is zero.
+
+\smallskip
+In your calculus book you will find the derivation of the differentiation 
+  rule embodied in our output \verb|%o4| above:
+\begin{equation}  \label{Eq:2}
+\frac{d}{d\,x} f(x,y(x)) = \left(\frac{\partial f(x,y)}{\partial x}  \right)_{y} +
+        \left(\frac{\partial f(x,y)}{\partial y}  \right)_{x} \frac{d\,y(x)}{d\,x}
+\end{equation}  
+Remember that Maxima knows only what the code writers put in; we normally assume
+  that the correct laws of mathematics are encoded as an aid to calculation.
+If Maxima were not consistent with the differentiation rule Eq. (\ref{Eq:2}),
+  then a bug would be present and would have to be removed.
+\smallskip
+  
+
+\smallskip
+The result Eq.(\ref{Eq:1}) provides a way to find the slope (which we call $m$)
+ at a general point $(x,y)$.
+ 
+This "slope" should be evaluated at the curve point $(x_0,y_0)$ of interest
+  to get the tangent and normal in numerical form.  
+Recall our discussion in the first part of Section(\ref{explicit}) where we
+  derived the relation between the slopes of the tangent and normal.
+If the numerical value of the slope is denoted $m_0$, then the tangent (line) is the
+  equation $y  = m_0 \, (x - x_{0}) + y_{0}$, and the normal (line) is the
+  equation $y  = -(x - x_{0})/m_0 + y_{0}$
+
+\subsubsection*{A Function which Solves for $d\,y/d\,x$ given that $f(x,y) = 0$}
+Given an equation relating $x$ and $y$, we assume we can rewrite that equation in
+  the form $f(x,y) = 0$, and then define the following function:
+\small
+\begin{verbatim}
+(%i1) dydx(expr,x,y) := -diff(expr,x)/diff(expr,y);
+                                          - diff(expr, x)
+(%o1)                dydx(expr, x, y) := ---------------
+                                           diff(expr, y)
+\end{verbatim}
+\normalsize
+As a first example, consider finding $d\,y/d\,x$ given that $x^3 + y^3 = 1$.
+\small
+\begin{verbatim}
+(%i2) dydx( x^3+y^3-1,x,y);
+                                        2
+                                       x
+(%o2)                               - --
+                                        2
+                                       y
+\end{verbatim}
+\normalsize
+
+
+Next find $d\,y/d\,x$ given that $\cos(x^2 - y^2) = y \, cos(x)$.
+\small
+\begin{verbatim}
+(%i3) r1 : dydx( cos(x^2 - y^2) - y*cos(x),x,y );
+                                    2    2
+                         - 2 x sin(y  - x ) - sin(x) y
+(%o3)                   -----------------------------
+                                     2    2
+                          - 2 y sin(y  - x ) - cos(x)
+(%i4) r2 : (-num(r1))/(-denom(r1));
+                                   2    2
+                          2 x sin(y  - x ) + sin(x) y
+(%o4)                    ---------------------------
+                                    2    2
+                           2 y sin(y  - x ) + cos(x)
+\end{verbatim}
+\normalsize
+For some reason Maxima 5.15 does not simplify \verb|r1| by cancelling the minus signs,
+  and we have resorted to dividing the negative of the numerator by the negative of
+  the denominator(!) to get the form of \verb|r2|.
+Notice also that Maxima has chosen to write $\sin(y^2 - x^2)$ instead of $\sin(x^2-y^2)$.
+
+\smallskip
+Finally, find $d\,y/d\,x$ given that $3\,y^4 + 4\,x -x^2\,\sin(y) - 4 = 0$.
+\small
+\begin{verbatim}
+(%i5) dydx(3*y^4 +4*x -x^2*sin(y) - 4, x, y );
+                                2 x sin(y) - 4
+(%o5)                         -----------------
+                                   3    2
+                               12 y  - x  cos(y)
+\end{verbatim}
+\normalsize
+
+
+
+
+
+
+\subsubsection{Example 1: Tangent and Normal of a Point of a Circle}
+As an easy first example, lets consider a circle of radius $r$ defined
+  by the equation $x^2 + y^2 = r^2$.
+Let's choose $r = 1$.
+Then $f(x,y) = x^2 + y^2 -1 = 0$ defines the circle of interest, and we use
+  the "slope" function above to calculate the slope "m" for a general point $(x,y)$.
+\small
+\begin{verbatim}
+(%i1) dydx(expr,x,y) := -diff(expr,x)/diff(expr,y)$
+(%i2) f:x^2 + y^2-1$
+(%i3) m : dydx(f,x,y);
+                                        x
+(%o3)                                 - -
+                                        y
+\end{verbatim}
+\normalsize
+We then choose a point of the circle, evaluate the slope at that point,
+  and construct the tangent and normal at that point.
+\small
+\begin{verbatim}
+(%i4) fpprintprec:8$
+(%i5) [x0,y0] : [0.5,0.866];
+(%o5)                            [0.5, 0.866]
+(%i6) m : subst([x=x0,y=y0],m );
+(%o6)                             - 0.577367
+(%i7) tangent : y = m*(x-x0) + y0;
+(%o7)                   y = 0.866 - 0.577367 (x - 0.5)
+(%i8) normal : y = -(x-x0)/m + y0;
+(%o8)                     y = 0.866 - 1.732 (0.5 - x)
+\end{verbatim}
+\normalsize
+We can then use \textbf{qdraw} to show the circle with both the
+  tangent and normal.
+\small
+\begin{verbatim}
+(%i9) load(draw);
+(%o9)   C:/PROGRA~1/MAXIMA~4.0/share/maxima/5.15.0/share/draw/draw.lisp
+(%i10) load(qdraw);
+               qdraw(...), qdensity(...), syntax: type qdraw(); 
+
+(%o10)                        c:/work2/qdraw.mac
+(%i11) ratprint:false$
+(%i12) qdraw(key(bottom),ipgrid(15),
+          imp([ f = 0,tangent,normal],x,-2.8,2.8,y,-2,2 ),
+           pts([ [0.5,0.866]],ps(2) ) )$
+\end{verbatim}
+\normalsize
+
+% eps file code
+% (%i16) qdraw(key(bottom),lw(5),line(-2.8,0,2.8,0,lw(2)),
+%           line(0,-2,0,2,lw(2) ),ipgrid(15),
+%          imp([x^2 + y^2 = 1,(y - 0.866) = - 0.577*(x - 0.5),
+%                    (y - 0.866) = 1.732*(x - 0.5)],x,-2.8,2.8,
+%                   y,-2,2 ),
+%           pts([ [0.5,0.866]],ps(2) ),
+%           pic(eps,"ch6p8",font("Times-Roman",18)) );   
+%
+\newpage
+The result is
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.3]{ch6p8.eps} }
+	\caption{ Tangent and Normal to $x^2+y^2=1$ at point $(0.5,0.866)$  }
+\end{figure}      
+
+
+\subsubsection{Example 2: Tangent and Normal of a Point of the Curve $sin(2\,x)\,cos(y)=0.5$}
+A curve is defined by $f(x,y) = \sin(2\,x)\,\cos(y) - 0.5 = 0$,
+  with  $0 \leq x \leq 2$ and $0 \leq y \leq 2$.
+Using Eq. (\ref{Eq:1}) we calculate the slope of the tangent to this curve at some
+  point $(x,y)$ and then specialize to the point $(x=1, y=y_0)$ with $y_0$ to be found:
+\small
+\begin{verbatim}
+(%i13) f : sin(2*x)*cos(y) - 0.5$
+(%i14) m : dydx(f,x,y);
+                               2 cos(2 x) cos(y)
+(%o14)                         -----------------
+                                sin(2 x) sin(y)
+(%i15) s1 : solve(subst(x=1,f),y);
+`solve' is using arc-trig functions to get a solution.
+Some solutions will be lost.
+                                          1
+(%o15)                       [y = acos(--------)]
+                                       2 sin(2)
+(%i16) fpprintprec:8$
+(%i17) s1 : float(s1);
+(%o17)                          [y = 0.988582]
+(%i18) m : subst([ x=1, s1[1] ], m);
+                               1.3166767 cos(2)
+(%o18)                         ----------------
+                                    sin(2)
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i19) m : float(m);
+(%o19)                            - 0.602587
+(%i20) mnorm : -1/m;
+(%o20)                             1.6595113
+(%i21) y0 : rhs( s1[1] );
+(%o21)                             0.988582
+(%i22) qdraw( imp([f = 0, y - y0 = m*(x - 1), 
+               y - y0 = mnorm*(x - 1) ],x,0,2,y,0,1.429),
+              pts( [ [1,y0] ], ps(2) ), ipgrid(15))$
+\end{verbatim}
+\normalsize
+which produces the plot
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.8]{ch6p9.eps} }
+	\caption{ Tangent and Normal to $\sin(2\,x)\,\cos(y)=0.5$ at point $(1,0.988)$  }
+\end{figure} 
+
+
+
+% eps file code
+% (%i59) qdraw(lw(5), imp([f=0,y-y0=m*(x-1),
+%                    y-y0=mnorm*(x-1)],x,0,2,y,0,1.429),
+%             ipgrid(15),pts( [ [1,y0] ], ps(2) ) , 
+%              pic(eps,"ch6p9",font("Times-Roman",18)) );
+%  
+
+\subsubsection{Example 3: Tangent and Normal of a Point of the Curve: $x = \sin(t), y = \sin(2\,t)$ }
+This example is the parametric curve example we plotted in Ch. 5.
+If we divide the differential of $y$ by the differential of $x$,
+  the common factor of $d\,t$ will cancel out and we will have
+  an expression for the slope of the tangent to the curve at a
+   point determined by the value the parameter t, which in this
+  example must be an angle expressed in radians (as usual in
+  calculus).
+  
+\smallskip
+We then specialize to a point on the curve corresponding to
+  $x = 0.8$, with $0 \leq t \leq \pi/2$, which we solve for:  
+\small
+\begin{verbatim}
+(%i23) m : diff(sin(2*t))/diff(sin(t));
+                                  2 cos(2 t)
+(%o23)                            ----------
+                                    cos(t)
+(%i24) x0 : 0.8;
+(%o24)                                0.8
+(%i25) tsoln : solve(x0 = sin(t), t);
+                                           4
+(%o25)                           [t = asin(-)]
+                                           5
+(%i26) tsoln : float(tsoln);
+(%o26)                          [t = 0.927295]
+(%i27) t0 : rhs( tsoln[1] );
+(%o27)                             0.927295
+(%i28) m : subst( t = t0, m);
+(%o28)                            - 0.933333
+(%i29) mnorm : -1/m;
+(%o29)                             1.0714286
+(%i30) y0 : sin(2*t0);
+(%o30)                               0.96
+(%i31) qdraw( xr(0, 2.1), yr(0,1.5), ipgrid(15),nticks(200),
+              para(sin(t),sin(2*t),t,0,%pi/2, lc(brown) ),                 
+             ex([y0+m*(x-x0),y0+mnorm*(x-x0)],x,0,2.1 ),
+            pts( [ [0.8, 0.96]],ps(2) ) )$
+\end{verbatim}
+\normalsize
+% eps file code
+%(%i77) qdraw( xr(0, 2.1), yr(0,1.5), ipgrid(15),nticks(200),
+%              para(sin(t),sin(2*t),t,0,%pi/2, lc(brown) ),lw(5),
+%             ex([y0+m*(x-x0),y0+mnorm*(x-x0)],x,0,2.1 ),
+%            pts( [ [0.8, 0.96]],ps(2) ) ,
+%             pic(eps,"ch6p10",font("Times-Roman",18)) );
+%
+with the resulting plot
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.8]{ch6p10.eps} }
+	\caption{ Tangent and Normal to $x=\sin(t),\,y=\sin(2\,t)$ at point $t=0.927$ radians  }
+\end{figure} 
+
+
+\subsubsection{Example 4: Polar Plot:   $x = r(t)\, \cos(t), y = r(t)\, \sin(t)$ }
+We use the polar plot example from ch. 5, in which we took $r(t) = 10/t$, and
+  again $t$ is in radians, and we consider the interval $ 1 \leq t \leq \pi$ and
+  find the tangent and normal at the curve point corresponding to $t = 2$ radians.
+We find the general slope of the tangent by again forming the ratio of the
+  differential $dy$ to the differential $dx$.
+\small
+\begin{verbatim}
+(%i32) r : 10/t;
+                                      10
+(%o32)                                --
+                                      t
+(%i33) xx : r * cos(t);
+                                   10 cos(t)
+(%o33)                             ---------
+                                       t
+(%i34) yy : r * sin(t);
+                                   10 sin(t)
+(%o34)                             ---------
+                                       t
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i35) m : diff(yy)/diff(xx);
+                             10 cos(t)   10 sin(t)
+                             --------- - ---------
+                                 t           2
+                                            t
+(%o35)                      -----------------------
+                              10 sin(t)   10 cos(t)
+                            - --------- - ---------
+                                  t           2
+                                             t
+(%i36) m : ratsimp(m);
+                               sin(t) - t cos(t)
+(%o36)                         -----------------
+                               t sin(t) + cos(t)
+(%i37) m : subst(t = 2.0, m);
+(%o37)                             1.2418222
+(%i38) mnorm : -1/m;
+(%o38)                            - 0.805268
+(%i39) x0 : subst(t = 2.0, xx);
+(%o39)                            - 2.0807342
+(%i40) y0 : subst(t = 2.0, yy);
+(%o40)                             4.5464871
+(%i41) qdraw(polar(10/t,t,1,3*%pi,lc(brown) ),
+           xr(-6.8,10),yr(-3,9),
+           ex([y0 + m*(x-x0),y0 + mnorm*(x-x0)],x,-6.8,10 ),
+           pts( [ [x0,y0] ], ps(2),pk("t = 2 rad") ) );
+\end{verbatim}
+\normalsize
+% eps file code
+% (%i93) qdraw( line(-6.8,0,10,0,lw(2)),
+%           line(0,-3,0,9,lw(2) ),
+%           polar(10/t,t,1,3*%pi,lc(brown),lw(5) ),
+%           xr(-6.8,10),yr(-3,9),lw(5),
+%           ex([y0 + m*(x-x0),y0 + mnorm*(x-x0)],x,-6.8,10 ),
+%           pts( [ [x0,y0] ], ps(2),pk("t = 2 rad") ),
+%             pic(eps,"ch6p11",font("Times-Roman",18) ) );
+%
+which produces the plot:
+
+
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.2]{ch6p11.eps} }
+	\caption{ Tangent and Normal to $x=10\,\cos(t)/t,\,y=10\,\sin(t)/t$ at point $t=2$ radians  }
+\end{figure} 
+
+%\newpage
+
+\subsection{Limit Examples Using Maxima's limit(...) Function}
+Maxima has a powerful \textbf{limit(...)} function which uses l'Hospital's rule and Taylor
+  series expansions to investigate the limit of a univariate function as the variable
+  approaches some point.
+The Maxima manual has the following description the Maxima function \textbf{limit}:
+\small
+\begin{quote}
+Function: \textbf{limit}\verb|(expr, x, val, dir)|\\
+Function: \textbf{limit}\verb|(expr, x, val) |\\
+Function: \textbf{limit}\verb|(expr)|\\ 
+Computes the limit of \verb|expr| as the real variable \verb|x| approaches
+ the value \verb|val| from the direction \verb|dir|.
+\verb|dir| may have the value \verb|plus| for a limit from above,
+  \verb|minus| for a limit from below, or may be omitted (implying
+   a two-sided limit is to be computed). \\
+\verb|limit| uses the following special symbols: \verb|inf| (positive infinity)
+   and \verb|minf| (negative infinity).
+On output it may also use \verb|und| (undefined), \verb|ind| (indefinite but bounded)
+  and \verb|infinity| (complex infinity). \\
+\verb|lhospitallim| is the maximum number of times L'Hospital's rule is used in \verb|limit|.
+This prevents infinite looping in cases like \verb|limit (cot(x)/csc(x), x, 0)|.\\ 
+\verb|tlimswitch| when \verb|true| will allow the \verb|limit| command
+   to use Taylor series expansion when necessary. \\
+\verb|limsubst| prevents \verb|limit| from attempting substitutions on unknown forms.
+This is to avoid bugs like \verb|limit (f(n)/f(n+1), n, inf)| giving 1.
+Setting \verb|limsubst| to \verb|true| will allow such substitutions. \\
+\verb|limit| with one argument is often called upon to simplify constant
+  expressions, for example, \verb|limit (inf-1)|. \\
+\verb|example (limit)| displays some examples. 
+\end{quote}
+\normalsize
+Here is the result of calling Maxima's \textbf{example} function:
+\small
+\begin{verbatim}
+(%i1) example(limit)$
+(%i2) limit(x*log(x),x,0,plus)
+(%o2)                                  0
+(%i3) limit((x+1)^(1/x),x,0)
+(%o3)                                 %e
+(%i4) limit(%e^x/x,x,inf)
+(%o4)                                 inf
+(%i5) limit(sin(1/x),x,0)
+(%o5)                                 ind
+\end{verbatim}
+\normalsize
+Most use of \textbf{limit} will use the first two ways to call \textbf{limit}.
+The "direction" argument is optional.
+The default values of the option switches mentioned above are:
+\small
+\begin{verbatim}
+(%i6) [lhospitallim,tlimswitch,limsubst];
+(%o6)                          [4, true, false]
+\end{verbatim}
+\normalsize
+Thus the default Maxima behavior is to allow the use of a Taylor series expansion
+  in finding the correct limit.
+(We will discuss Taylor series expansions soon in this chapter.)
+The default is also to prevent "substitutions" on unknown (formal) functions.
+The third (single argument) syntax is illustrated by
+\small
+\begin{verbatim}
+(%i7) limit(inf - 1);
+(%o7)                                 inf
+\end{verbatim}
+\normalsize
+The expression presented to the \textbf{limit} function in input \verb|%i7| contains only known
+  constants, so there are no unbound (formal) parameters like \verb|x| for
+  \textbf{limit} to worry about.
+
+  \smallskip
+Here is a use of \textbf{limit} which mimics the calculus definition of
+  a derivative of a power of $x$.
+\small
+\begin{verbatim}
+(%i8) limit( ( (x+eps)^3 - x^3 )/eps, eps, 0 );
+                                        2
+(%o8)                               3 x
+\end{verbatim}
+\normalsize
+%\newpage
+
+And a similar use of \textbf{limit} with $\ln(x)$:
+\small
+\begin{verbatim}
+(%i9) limit( (log(x+eps) - log(x))/eps, eps,0 );
+                                       1
+(%o9)                                 -
+                                       x
+\end{verbatim}
+\normalsize
+What does Maxima do with a typical calculus definition of a derivative of a
+  trig function?
+\small
+\begin{verbatim}
+(%i10) limit((sin(x+eps)-sin(x))/eps, eps,0 );
+Is  sin(x)  positive, negative, or zero?
+p;
+Is  cos(x)  positive, negative, or zero?
+p;
+(%o10)                              cos(x)
+\end{verbatim}
+\normalsize
+We see above a typical Maxima query before producing an answer.
+Using \verb|p;| instead of \verb|positive;| is allowed.  
+Likewise one can use \verb|n;| instead of \verb|negative;|.
+\subsubsection{Discontinuous Functions}
+A simple example of a discontinuous function can be created using Maxima's
+  \textbf{abs} function.\\
+\verb|abs(expr)| returns either the absolute value \verb|expr|,
+  or (if \verb|expr| is complex) the complex modulus of \verb|expr|.
+
+\smallskip
+We first plot the function $\vert x \vert /x$.  
+\small
+\begin{verbatim}
+(%i11)  load(draw)$
+(%i12)  load(qdraw)$
+(%i13) qdraw( yr(-2,2),lw(8),ex(abs(x)/x,x,-1,1 ) )$
+\end{verbatim}
+\normalsize
+% eps file code
+% (%i31) qdraw( yr(-2,2), line(-1,0,1,0,lw(2)),
+%            line(0,-2,0,2,lw(2) ),
+%           lw(10),ex(abs(x)/x,x,-1,1 ) ,
+%        pic(eps,"ch6p13",font("Times-Roman",18) ) );
+
+Here is that plot of $\vert x \vert /x$:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.2]{ch6p13.eps} }
+	\caption{ $\vert x \vert /x$  }
+\end{figure} 
+
+\newpage
+
+Maxima correctly evaluates the one-sided limits:
+\small
+\begin{verbatim}
+(%i14) limit(abs(x)/x,x,0,plus);
+(%o14)                                 1
+(%i15) limit(abs(x)/x,x,0,minus);
+(%o15)                                - 1
+(%i16) limit(abs(x)/x,x,0);
+(%o16)                                und
+\end{verbatim}
+\normalsize
+and Maxima also computes a derivative:
+\small
+\begin{verbatim}
+(%i17) g : diff(abs(x)/x,x);
+                                  1      abs(x)
+(%o17)                          ------ - ------
+                                abs(x)      2
+                                           x
+(%i18) g, x = 0.5;
+(%o18)                                0.0
+(%i19) g, x = - 0.5;
+(%o19)                                0.0
+(%i20) g,x=0;
+Division by 0
+ -- an error.  To debug this try debugmode(true);
+(%i21) limit(g,x,0,plus);
+(%o21)                                 0
+(%i22) limit(g,x,0,minus);
+(%o22)                                 0
+(%i23) load(vcalc)$
+(%i24) plotderiv(abs(x)/x,x,-2,2,-2,2,1)$
+                                abs(x)    1      abs(x)
+                       plist = [------, ------ - ------]
+                                  x     abs(x)      2
+                                                   x
+\end{verbatim}
+\normalsize
+The derivative does not simplify to $0$ since the derivative is
+  undefined at $x = 0$.
+The plot of the step function and its derivative, as returned
+  by \textbf{plotderiv(..)} is
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.7]{ch6p14.eps} }
+	\caption{ $\vert x \vert /x$ and its Maxima derivative }
+\end{figure} 
+
+\newpage
+
+A homemade unit step function can now be defined by adding $1$ to lift the
+  function up to the value of $0$ for $ x < 0$ and then dividing the result
+  by $2$ to get a "unit step function".
+\small
+\begin{verbatim}
+(%i25) mystep : ( (1 + abs(x)/x)/2 , ratsimp(%%) );
+                                  abs(x) + x
+(%o25)                            ----------
+                                     2 x
+\end{verbatim}
+\normalsize
+We then use \textbf{qdraw} to plot the definition
+\small
+\begin{verbatim}
+(%i26) qdraw(yr(-1,2),lw(5),ex(mystep,x,-1,1) )$
+\end{verbatim}
+\normalsize
+% eps file code
+% (%i12) qdraw(yr(-1,2),line(-1,0,1,0,lw(2)),
+%            line(0,-1,0,2,lw(2) ),
+%              lw(8),ex(mystep,x,-1,1) ,
+%        pic(eps,"ch6p15",font("Times-Roman",18) ) );
+with the result:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.7]{ch6p15.eps} }
+	\caption{ mystep }
+\end{figure} 
+
+
+\smallskip
+Maxima has a function called \textbf{unit\_step(x)} available if you load
+  the \textbf{orthopoly} package.
+This function is "left continuous", since it has the value $0$ for $x \leq 1$.
+However, no derivative is defined, although you can use \textbf{gradef}.
+\small
+\begin{verbatim}
+(%i27) load(orthopoly)$
+(%i28) map(unit_step,[-1/10,0,1/10] );
+(%o28)                             [0, 0, 1]
+(%i29) diff(unit_step(x),x);
+                               d
+(%o29)                         -- (unit_step(x))
+                               dx
+(%i30) gradef(unit_step(x),0);
+(%o30)                           unit_step(x)
+(%i31) diff(unit_step(x),x);
+(%o31)                                 0							   
+\end{verbatim}
+\normalsize
+Of course, defining the derivative to be $0$ everywhere can be dangerous in
+  some circumstances.
+You can use \textbf{unit\_step} in a plot using, say,
+  \verb|qdraw(yr(-1,2),lw(5),ex(unit_step(x),x,-1,1) );|.  
+%\newpage
+Here we use \textbf{unit\_step} to define a "unit pulse" function
+  \verb|upulse(x,x0,w)| which is a function of x which becomes equal to $1$
+  when $x = x_0$ and has width $w$.
+\small
+\begin{verbatim}
+(%i32) upulse(x,x0,w) := unit_step(x-x0) - unit_step(x - (x0+w))$
+\end{verbatim}
+\normalsize
+and then make a plot of three black pulses of width $0.5$.
+\small
+\begin{verbatim}
+(%i33) qdraw(yr(-1,2), xr(-3,3), 
+           ex1( upulse(x,-3,0.5),x,-3,-2.49,lw(5)),  
+          ex1( upulse(x,-1,0.5),x,-1,-.49,lw(5)),
+           ex1( upulse(x,1,0.5),x,1,1.51,lw(5)) )$
+\end{verbatim}
+\normalsize
+% eps file code
+% (%i36) qdraw(yr(-1,2), xr(-3,3),line(0,-1,0,2 ), 
+%           ex1( upulse(x,-3,0.5),x,-3,-2.49,lw(8)),  
+%          ex1( upulse(x,-1,0.5),x,-1,-.49,lw(8)),
+%           ex1( upulse(x,1,0.5),x,1,1.51,lw(8)),
+%           pic(eps,"ch6p16",font("Times-Roman",18) ) );
+with the result:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.9]{ch6p16.eps} }
+	\caption{ Using upulse(x,x0,w) }
+\end{figure} 
+
+\smallskip
+Of course, the above drawing can be done more easily with the \textbf{poly(..)}
+  function in \textbf{qdraw}, which uses \textbf{draw2d}'s \textbf{polygon(..)}
+  function.
+
+
+\subsubsection{Indefinite Limits}
+The \textbf{example} run showed that $\sin(1/x)$ has no definite limit as
+  the variable $x$ approaches zero.
+This function oscillates increasingly rapidly between $\pm \,1$ as $x \rightarrow 0$.
+It is instructive to make a plot of this function near the origin 
+  using the smallest line width:
+\small
+\begin{verbatim}
+(%i34) qdraw(lw(1),ex(sin(1/x),x,0.001,0.01));
+\end{verbatim}
+\normalsize
+% eps file code
+%(%i21) qdraw( line(0.001,0,0.01,0,lw(2) ),
+%             lw(1),ex(sin(1/x),x,0.001,0.01),
+%          pic(eps,"ch6p12",font("Times-Roman",18) ) );
+%
+%\newpage
+
+The eps image reproduced here actually uses a finer line width than
+  the Windows Gnuplot console window:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.6]{ch6p12.eps} }
+	\caption{ $\sin(1/x)$ Behavior Near $x = 0$  }
+\end{figure} 
+
+\newpage
+
+The Maxima \textbf{limit} function correctly returns \textbf{ind} for "indefinite 
+  but bounded" when asked to find the limit as $x \rightarrow 0^{+}$.
+\small
+\begin{verbatim}
+(%i35) limit(sin(1/x),x,0,plus);
+(%o35)                                ind
+\end{verbatim}
+\normalsize
+
+\smallskip
+An example of a function which is well behaved at $x=0$ but whose derivative is
+  indefinite but bounded is $x^2\,\sin(1/x)$, which approaches the value $0$ at
+  $x = 0$.
+\small
+\begin{verbatim}
+(%i36) g : x^2*sin(1/x)$
+(%i37) limit(g,x,0);
+(%o37)                                 0
+(%i38) dgdx : diff(g,x);
+                                    1          1
+(%o38)                        2 sin(-) x - cos(-)
+                                    x          x
+(%i39) limit(dgdx,x,0);
+(%o39)                                ind
+\end{verbatim}
+\normalsize
+In the first term of the derivative, $x\,\sin(1/x)$ is driven to $0$ by the factor $x$,
+  but the second term oscillates increasingly rapidly between $\pm 1$ as $x \rightarrow 0$.
+For a plot, we use the smallest line width and color blue for the derivative, and
+  use a thicker red curve for the original function $x^2\,\sin(1/x)$.
+\small
+\begin{verbatim}
+(%i40) qdraw( yr(-1.5,1.5),ex1(2*x*sin(1/x)-cos(1/x),x,-1,1,lw(1),lc(blue)),
+               ex1(x^2*sin(1/x),x,-1,1,lc(red) ) )$
+\end{verbatim}
+\normalsize
+
+\smallskip
+Here is the plot:  
+
+
+
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.2]{ch6p17.eps} }
+	\caption{ Indefinite but Bounded Behavior of Derivative }
+\end{figure} 
+
+\subsection{Taylor Series Expansions using taylor(...) }
+A Taylor (or Laurent) series expansion of a univariate expression has the syntax\\
+\verb|  taylor( expr, x, a, n ) |\\
+  which will return a Taylor or Laurent series expansion of \verb|expr| in the
+  variable \verb|x| about the point \verb|x = a|, through terms proportional
+  to \verb|(x - a)^n |.
+Here are some examples of first getting the expansion, then evaluating the
+  expansion at some other point, using both \textbf{at} and \textbf{subst}.
+\small
+\begin{verbatim}
+(%i1) t1 : taylor(sqrt(1+x),x,0,5);
+                              2    3      4      5
+                         x   x    x    5 x    7 x
+(%o1)/T/             1 + - - -- + -- - ---- + ---- + . . .
+                         2   8    16   128    256
+(%i2) [ at( t1, x=1 ),subst(x=1, t1 ) ];
+                                   365  365
+(%o2)                             [---, ---]
+                                   256  256
+(%i3) float(%);
+(%o3)                      [1.42578125, 1.42578125]
+(%i4) t2: taylor (cos(x) - sec(x), x, 0, 5);
+                                       4
+                                  2   x
+(%o4)/T/                       - x  - -- + . . .
+                                      6
+(%i5) [ at( t2, x=1 ),subst(x=1, t2 ) ];
+                                     7    7
+(%o5)                             [- -, - -]
+                                     6    6
+(%i6) t3 : taylor(cos(x),x,%pi/4,4);
+                                 %pi                 %pi 2                %pi 3
+                    sqrt(2) (x - ---)   sqrt(2) (x - ---)    sqrt(2) (x - ---)
+          sqrt(2)                 4                   4                    4
+(%o6)/T/ ------- - ----------------- - ------------------ + ------------------
+             2              2                   4                    12
+                                                                  %pi 4
+                                                     sqrt(2) (x - ---)
+                                                                   4
+                                                   + ------------------ + . . .
+                                                             48
+(%i7) ( at(t3, x = %pi/3), factor(%%) );
+                       4         3           2
+           sqrt(2) (%pi  + 48 %pi  - 1728 %pi  - 41472 %pi + 497664)
+(%o7)     ---------------------------------------------------------
+                                    995328
+\end{verbatim}
+\normalsize
+To expand an expression depending on two variables, say \verb|(x,y)|, there
+  are two essentially different forms.
+The first form is\\
+\verb|  taylor(expr, [x,y], [a,b],n )|\\
+  which will expand in \verb|x| about \verb|x = a|  and expand
+  in the variable \verb|y| about \verb|y = b|, up through combined powers
+   of order \verb|n|.
+If \verb|a = b|, then the simpler syntax:\\
+\verb|  taylor(expr, [x,y], a, n ) |\\
+will suffice. 
+\newpage
+  
+\small
+\begin{verbatim}
+(%i8) t4 : taylor(sin(x+y),[x,y],0,3);
+                            3        2      2      3
+                           x  + 3 y x  + 3 y  x + y
+(%o8)/T/           y + x - ------------------------- + . . .
+                                       6
+(%i9) (subst( [x=%pi/2, y=%pi/2], t4), ratsimp(%%) );
+                                     3
+                                  %pi  - 6 %pi
+(%o9)                           - ------------
+                                       6
+(%i10) ( at( t4, [x=%pi/2,y=%pi/2]), ratsimp(%%) );
+                                     3
+                                  %pi  - 6 %pi
+(%o10)                           - ------------
+                                       6
+\end{verbatim}
+\normalsize
+Note the crucial difference between this last example and the next.
+\small
+\begin{verbatim}
+(%i11) t5 : taylor(sin(x+y),[x,0,3],[y,0,3] );
+              3                 2                      3
+             y                 y                  y   y            2
+(%o11)/T/ y - -- + . . . + (1 - -- + . . .) x + (- - + -- + . . .) x
+             6                 2                  2   12
+                                                          2
+                                                     1   y            3
+                                                + (- - + -- + . . .) x  + . . .
+                                                     6   12
+(%i12) (subst([x=%pi/2,y=%pi/2],t5),ratsimp(%%) );
+                              5         3
+                           %pi  - 32 %pi  + 192 %pi
+(%o12)                     ------------------------
+                                     192
+\end{verbatim}
+\normalsize
+Thus the syntax\\
+\verb| taylor( expr, [x,a,nx], [y,b,ny] )|\\
+will expand to higher combined powers in \verb|x| and \verb|y|.
+
+\smallskip
+We can differentiate and integrate a taylor series returned expression:
+\small
+\begin{verbatim}
+(%i13) t6 : taylor(sin(x),x,0,7 );
+                               3    5      7
+                              x    x      x
+(%o13)/T/                 x - -- + --- - ---- + . . .
+                              6    120   5040
+(%i14) diff(t6,x);
+                                2    4    6
+                               x    x    x
+(%o14)/T/                  1 - -- + -- - --- + . . .
+                               2    24   720
+(%i15) integrate(%,x);
+                                 7     5     3
+                                x     x     x
+(%o15)                       - ---- + --- - -- + x
+                               5040   120   6
+(%i16) integrate(t6,x);
+                                8      6     4    2
+                               x      x     x    x
+(%o16)                      - ----- + --- - -- + --
+                              40320   720   24   2
+\end{verbatim}
+\normalsize
+A common use of the Taylor series is to expand a function of \verb|x| in the form
+  $f(x + dx)$, for $dx$ small.
+\small
+\begin{verbatim}
+(%i17) taylor(f(x+dx),dx,0,3);
+                                                               !
+                                                 2             !
+                                                d              !          2
+                                              (---- (f(x + dx))!      ) dx
+                                                  2            !
+                                !              ddx             !
+                  d             !                              !dx = 0
+(%o17)/T/ f(x) + (--- (f(x + dx))!      ) dx + -----------------------------
+                 ddx            !                           2
+                                !dx = 0
+                                                           !
+                                             3             !
+                                            d              !          3
+                                          (---- (f(x + dx))!      ) dx
+                                              3            !
+                                           ddx             !
+                                                           !dx = 0
+                                        + ----------------------------- + . . .
+                                                        6
+(%i18) taylor(cos(x+dx),dx,0,4);
+                                       2            3            4
+                              cos(x) dx    sin(x) dx    cos(x) dx
+(%o18)/T/ cos(x) - sin(x) dx - ---------- + ---------- + ---------- + . . .
+                                  2            6            24
+\end{verbatim}
+\normalsize
+  
+Another frequent use of the Taylor series is the expansion of a function which contains
+  a small parameter which we will symbolize by \verb|e|.
+\small
+\begin{verbatim}
+(%i19) g : log(a/e + sqrt(1+(a/e)^2 ) );
+                                           2
+                                 a        a
+(%o19)                        log(- + sqrt(-- + 1))
+                                 e         2
+                                          e
+(%i20) taylor(g,e,0,2);
+                                                  2
+                                                 e
+(%o20)/T/          - log(e) + log(2 a) + . . . + ---- + . . .
+                                                   2
+                                                4 a
+\end{verbatim}
+\normalsize
+
+More examples of Taylor and Laurent series expansions can be found in the
+  Maxima manual.
+
+
+\subsection{Vector Calculus Calculations and Derivations using vcalc.mac}
+The package vcalc.mac has been mentioned in the introduction to this chapter.
+Here we give a few examples of using this package for vector calculus
+  work.
+
+\subsubsection*{General Comments: Working with the Batch File vcalcdem.mac}
+A separate file "vcalcdem.mac" is available with this chapter on the author's webpage.
+This file is designed to be introduced into Maxima using the command \verb|batch(vcalcdem)|
+ (if vcalcdem.mac is in your work directory, say, and you have set up your file search
+  paths as suggested in Ch. 1).
+You should first load in the vcalc.mac file which contains the definitions of
+  the vcalc vector calculus functions.  
+
+\smallskip
+There are three points to emphasize when using batch files in this mode.
+The first feature is the use of lines like \verb|"this is a comment"$| in the file, 
+  which allow you to place readable comments between the usual Maxima input
+  lines.
+Secondly, a Maxima input which simply defines something and for which there
+  is no need to see the "output" line should end with the dollar sign \verb|$|.
+Finally, when you "batch in" the file, you see neither the dollar signs, nor the semi-colons
+  which end the other inputs.
+However, input and output numbers of the form \verb|(%i12)| and \verb|(%o12)| will
+  be seen for inputs which end with a semi-colon, whereas there are no output 
+  numbers for inputs which end with the dollar sign.
+Once you get a little practice reading the text form of the batch file and
+  comparing that to the Maxima display of the "batched in" file, you should have
+  no problem understanding what is going on.  
+The first lines of vcalcdem.mac are:
+\small
+\begin{verbatim}
+" vcalcdem.mac: sample calculations and derivations"$
+" default coordinates are cartesian (x,y,z)"$
+" gradient and laplacian of a scalar field "$
+depends(f,[x,y,z]);
+grad(f);
+lap(f);
+\end{verbatim}
+\normalsize
+Here is what you will see in your Maxima session:
+\small
+\begin{verbatim}
+(%i1) load(vcalc);
+                vcalc.mac:   for syntax, type: vcalc_syntax(); 
+
+ CAUTION: global variables set and used in this package:
+
+       hhh1, hhh2, hhh3, uuu1, uuu2, uuu3, nnnsys, nnnprint, tttsimp 
+
+(%o1)                         c:/work2/vcalc.mac
+(%i2) batch(vcalcdem);
+batching #pc:/work2/vcalcdem.mac
+(%i3)          vcalcdem.mac: sample calculations and derivations
+(%i4)              default coordinates are cartesian (x,y,z)
+(%i5)              gradient and laplacian of a scalar field 
+(%i6)                        depends(f, [x, y, z])
+(%o6)                            [f(x, y, z)]
+(%i7)                               grad(f)
+cartesian  [x, y, z] 
+                                  df  df  df
+(%o7)                            [--, --, --]
+                                  dx  dy  dz
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i8)                               lap(f)
+cartesian  [x, y, z] 
+                                 2     2     2
+                                d f   d f   d f
+(%o8)                           --- + --- + ---
+                                  2     2     2
+                                dz    dy    dx
+\end{verbatim}
+\normalsize
+The default coordinates are cartesian $(x,y,z)$, and by telling Maxima that the
+  otherwise undefined symbol \verb|f| is to be treated as an explicit function
+  of $(x,y,z)$, we get symbolic output from \verb|grad(f)| and \verb|lap(f)| which
+  respectively produce the gradient and laplacian in the current coordinate system.
+
+\smallskip
+For each function used, a reminder is printed to your screen concerning the current
+ coordinate system and the current choice of independent variables.
+
+\smallskip
+Three dimensional vectors (the only kind allowed by this package) are represented
+  by lists with three elements.
+In the default cartesian coordinate system $(x,y,z)$, the first slot is the
+  $x$ component of the vector, the second slot is the $y$ component, and the
+  third slot is the $z$ component.
+
+\smallskip
+Now that you have seen the difference between the file vcalcdem.mac and the
+  Maxima response when using "batch", we will just show the latter for brevity.
+You can, of course, look at the file vcalcdem.mac with a text editor.
+
+\smallskip
+Here the batch file displays the divergence and curl of a general 3-vector in a cartesian
+  coordinate system.  
+\small
+\begin{verbatim}
+(%i9)                divergence and curl of a vector field
+(%i10)                        avec : [ax, ay, az]
+(%o10)                           [ax, ay, az]
+(%i11)                     depends(avec, [x, y, z])
+(%o11)              [ax(x, y, z), ay(x, y, z), az(x, y, z)]
+(%i12)                             div(avec)
+cartesian  [x, y, z] 
+                                daz   day   dax
+(%o12)                          --- + --- + ---
+                                dz    dy    dx
+(%i13)                            curl(avec)
+cartesian  [x, y, z] 
+                        daz   day  dax   daz  day   dax
+(%o13)                 [--- - ---, --- - ---, --- - ---]
+                        dy    dz   dz    dx   dx    dy
+\end{verbatim}
+\normalsize
+We next have two vector calculus identities:
+\small
+\begin{verbatim}
+(%i14)          vector identities true in any coordinate system
+(%i15)                           curl(grad(f))
+cartesian  [x, y, z] 
+cartesian  [x, y, z] 
+(%o15)                             [0, 0, 0]
+(%i16)                          div(curl(avec))
+cartesian  [x, y, z] 
+cartesian  [x, y, z] 
+(%o16)                                 0
+\end{verbatim}
+\normalsize
+\newpage
+and an example of finding the Laplacian of a vector field (rather than a scalar field)
+  with an explicit example:
+\small
+\begin{verbatim}
+(%i17)                    laplacian of a vector field 
+                                3       3     2    3
+(%i18)                   aa : [x  y, x y  z, x  y z ]
+                              3       3     2    3
+(%o18)                      [x  y, x y  z, x  y z ]
+(%i19)                              lap(aa)
+cartesian  [x, y, z] 
+                                            3      2
+(%o19)                [6 x y, 6 x y z, 2 y z  + 6 x  y z]
+\end{verbatim}
+\normalsize
+and an example of the use of the vector cross product which is included with this
+  package:
+\small
+\begin{verbatim}
+(%i20)                       vector cross product 
+(%i21)                        bvec : [bx, by, bz]
+(%o21)                           [bx, by, bz]
+(%i22)                        lcross(avec, bvec)
+(%o22)           [ay bz - az by, az bx - ax bz, ax by - ay bx]
+\end{verbatim}
+\normalsize
+We next change the current coordinate system to cylindrical with a choice of
+  the symbols \verb|rho|, \verb|phi|, and \verb|z| as the independent variables.
+We again start with some general expressions
+\small
+\begin{verbatim}
+(%i23)             cylindrical coordinates using (rho,phi,z) 
+(%i24)                     setcoord(cy(rho, phi, z))
+(%o24)                               true
+(%i25)             gradient and laplacian of a scalar field 
+(%i26)                     depends(g, [rho, phi, z])
+(%o26)                         [g(rho, phi, z)]
+(%i27)                              grad(g)
+cylindrical  [rho, phi, z] 
+                                       dg
+                                      ----
+                                 dg   dphi  dg
+(%o27)                         [----, ----, --]
+                                drho  rho   dz
+(%i28)                              lap(g)
+cylindrical  [rho, phi, z] 
+                                   2
+                                  d g
+                           dg    -----
+                          ----       2    2      2
+                          drho   dphi    d g    d g
+(%o28)                    ---- + ----- + --- + -----
+                          rho       2      2       2
+                                 rho     dz    drho
+(%i29)               divergence and curl of a vector field
+(%i30)                       bvec : [brh, bp, bz]
+(%o30)                           [brh, bp, bz]
+(%i31)                   depends(bvec, [rho, phi, z])
+(%o31)       [brh(rho, phi, z), bp(rho, phi, z), bz(rho, phi, z)]
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i32)                             div(bvec)
+cylindrical  [rho, phi, z] 
+                                  dbp
+                                  ----
+                            brh   dphi   dbz   dbrh
+(%o32)                      --- + ---- + --- + ----
+                            rho   rho    dz    drho
+(%i33)                            curl(bvec)
+cylindrical  [rho, phi, z] 
+                 dbz                        dbrh
+                 ----                       ----
+                 dphi   dbp  dbrh   dbz     dphi   bp    dbp
+(%o33)          [---- - ---, ---- - ----, - ---- + --- + ----]
+                 rho    dz    dz    drho    rho    rho   drho
+\end{verbatim}
+\normalsize
+Instead of using \verb|setcoord(...)| to change the current coordinate system,
+  we can insert an extra argument in the vector calculus function we are using.
+Here is an example of not changing the coordinate system, but telling Maxima to
+  use \verb|r| instead of \verb|rho| with the currently operative cylindrical
+  coordinates.
+\small
+\begin{verbatim}
+(%i34)   change from cylindrical coordinate label rho to r on the fly: 
+                                          1
+(%i35)                         bvec : [0, -, 0]
+                                          r
+(%i36)                     div(bvec, cy(r, phi, z))
+cylindrical  [r, phi, z] 
+(%o36)                                 0
+\end{verbatim}
+\normalsize
+Here is an example of using this method to switch to spherical polar
+  coordinates:
+\small
+\begin{verbatim}
+(%i37)         change to spherical polar coordinates on the fly 
+                                         sin(theta)
+(%i38)                     cvec : [0, 0, ----------]
+                                              2
+                                             r
+(%i39)                    div(cvec, s(r, theta, phi))
+spherical polar  [r, theta, phi] 
+(%o39)                                 0
+(%i40)   coordinate system remains spherical unless explicitly changed 
+(%i41)                    cvec : [0, 0, r sin(theta)]
+(%i42)                             div(cvec)
+spherical polar  [r, theta, phi] 
+(%o42)                                 0
+(%i43)          example of div(vec) = 0 everywhere except r = 0 
+                                     1
+(%i44)                          div([--, 0, 0])
+                                      2
+                                     r
+spherical polar  [r, theta, phi] 
+(%o44)                                 0
+\end{verbatim}
+\normalsize
+The best way to get familiar with vcalc.mac is just to play with it.
+Some syntax descriptions are built into the package.
+  
+\subsection{Maxima Derivation of Vector Calculus Formulas in Cylindrical Coordinates   }
+In this section we start with the cartesian (rectangular) coordinate expressions for the
+  divergence, the gradient, the curl, and the Laplacian of a scalar expression, and
+  use the power of Maxima to find the correct forms of these vector calculus formulas
+  in a cylindrical coordinate system.
+  
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1]{cylinder2.eps} }
+	\caption{ $\rho$ and $\phi$ unit vectors   }
+\end{figure}   
+
+\smallskip
+  
+Consider a change of variable
+  from cartesian coordinates $(x,y,z)$ to cylindrical
+  coordinates $(\rho,\varphi, z)$.  
+Given $(\rho,\varphi)$, we obtain $(x,y)$ from the pair of equations
+  $x = \rho \,\cos(\varphi)$ and $y = \rho \,\sin(\varphi)$.
+Given $(x,y)$, we obtain $(\rho,\varphi)$ from the equations
+  $\rho = \sqrt{x^2 + y^2}$ (or $\rho^2 = x^2 + y^2$) and
+  $\tan(\varphi) = y/x$ ( or $\varphi = \arctan(y/x)$ ).
+
+\smallskip
+  
+We consider the derivatives of a general scalar function $f(\rho,\varphi,z)$ which
+  is an explicit function of the cylindrical coordinates $(\rho, \varphi, z)$
+  and an implicit function of the cartesian coordinates $(x,y,z)$ via the dependence of
+  $\rho$ and $\varphi$ on $x$ and $y$.
+
+  \smallskip
+Likewise we consider a general three dimensional vector $\mathbf{B}(\rho,\varphi,z)$
+ which is an explicit function of the cylindrical coordinates and an implicit function
+  of the cartesian coordinates.
+  
+Since many of the fundamental equations governing processes in the physical 
+  sciences and engineering can be written down in terms of the Laplacian, the
+  divergence, the gradient, and the curl, we concentrate on using Maxima
+  to do the "heavy lifting" (ie., the tedious algebra) to work out
+  formulas for these operations in cylindrical coordinates.
+
+Our approach to the use of vectors here is based on choosing an explicit
+  set of three element lists to represent the cartesian unit vectors.
+We then use the built-in dot product of lists to implement the scalar
+  product of three-vectors, used to check orthonormality, and we also provide
+  a simple cross product function which can be used to check that the unit
+  vectors we write down are related by the vector cross product to each other
+  in the conventional way (the "right hand rule").
+  
+\subsubsection{The Calculus Chain Rule in Maxima}
+Let $g$ be some scalar function which depends implicitly on $(x,y,z)$
+  via an explicit dependence on $(u,v,w)$.
+We want to express the partial derivative of $g$ with respect
+  to $x$, $y$, or $z$ in terms of derivatives of $g$ with
+  respect to $u$, $v$, and $w$.
+
+\smallskip
+We first tell Maxima to treat $g$ as an explicit function of $(u,v,w)$.  
+\small
+\begin{verbatim}
+(%i1) depends(g,[u,v,w]);
+(%o1)                            [g(u, v, w)]
+\end{verbatim}
+\normalsize
+If, at this point, we ask for the derivative of $g$ with respect to $x$,
+  we get zero, since Maxima has no information yet about dependence of
+  $u$, $v$, and $w$ on $x$.
+\small
+\begin{verbatim}
+(%i2) diff(g,x);
+(%o2)                                  0
+\end{verbatim}
+\normalsize
+One way to make progress is to use another \textbf{depends} statement, as in
+\small
+\begin{verbatim}
+(%i3) depends([u,v,w],[x,y,z]);
+(%o3)                [u(x, y, z), v(x, y, z), w(x, y, z)]
+\end{verbatim}
+\normalsize
+which now allows Maxima to demonstrate its knowledge of the calculus "chain rule",
+  which Maxima writes as:
+\small
+\begin{verbatim}
+(%i4) diff(g,x);
+                             dg dw   dg dv   dg du
+(%o4)                        -- -- + -- -- + -- --
+                             dw dx   dv dx   du dx
+\end{verbatim}
+\normalsize
+Note how Maxima writes the "chain rule" in this example, which would
+  be written in a calculus text as
+\begin{equation}
+\left(\frac{\partial g(u,v,w)}{\partial x}  \right)_{(y,z)} = 
+    \frac{\partial g(u,v,w)}{\partial u} \, \frac{\partial\,u(x,y,z)}{\partial\,x}  +
+    \frac{\partial g(u,v,w)}{\partial v}  \, \frac{\partial\,v(x,y,z)}{\partial\,x} +
+	\frac{\partial g(u,v,w)}{\partial w}  \, \frac{\partial\,w(x,y,z)}{\partial\,x}
+\end{equation}
+Instead of using a \textbf{depends} statement to tell Maxima about the $(x,y,z)$ 
+  dependence of $(u,v,w)$ , we can use the \textbf{gradef} function in a syntax
+  we have not used before.
+
+\small
+\begin{verbatim}
+(%i5) (gradef(u,x,dudx),gradef(u,y,dudy),gradef(u,z,dudz),
+        gradef(v,x,dvdx),gradef(v,y,dvdy),gradef(v,z,dvdz),
+         gradef(w,x,dwdx),gradef(w,y,dwdy),gradef(w,z,dwdz) )$
+\end{verbatim}
+\normalsize
+This now produces the partial derivative
+\small
+\begin{verbatim}
+(%i6) diff(g,x);
+                               dg        dg        dg
+(%o6)                     dwdx -- + dvdx -- + dudx --
+                               dw        dv        du
+(%i7) grind(%)$
+dwdx*'diff(g,w,1)+dvdx*'diff(g,v,1)+dudx*'diff(g,u,1)$							   
+\end{verbatim}
+\normalsize
+This is the method we will use in this section on cylindrical coordinates and in
+  the next section on spherical polar coordinates.
+%\newpage
+
+\smallskip
+
+In the following sections we discuss successive parts of a batch file called
+  "cylinder.mac", available with this chapter on the author's webpage.
+This file is designed to be introduced into Maxima with the input: \verb|batch(cylinder)| 
+  (if cylinder.mac is in your work directory, say, and you have set up your file search
+  paths as suggested in Ch. 1).
+We have given some orientation concerning batch files in the previous section.
+
+\subsubsection*{Relating $(x,y,z)$ to $(\rho,\varphi,z)$}
+In cylinder.mac we use \verb|rh| to represent $\rho$ and \verb|p| to represent
+ the angle $\varphi$  expressed in radians.
+The ranges of the independent variables are $ 0 < \rho < \infty$,
+  $0 \leq \varphi \leq 2\,\pi$, and $-\infty \leq z \leq +\infty$. 
+We first define \verb|c3rule| as a list of replacement "rules"
+  in the form of equations which can be used later by the \textbf{subst} function.
+To get automatic simplification of \verb|rh/abs(rh)| we use the \textbf{assume}
+ function.  
+\small
+\begin{verbatim}
+"  cylindrical coordinates (rho, phi, z ) = (rh, p, z)  "$   
+" replacement rules x,y,z to rh, p, z  "$
+c3rule : [x = rh*cos(p), y = rh*sin(p)  ]$
+c3sub(expr) := (subst(c3rule,expr),trigsimp(%%) )$
+rhxy : sqrt(x^2 + y^2)$
+assume(rh > 0)$
+\end{verbatim}
+\normalsize
+which Maxima displays as:
+\small
+\begin{verbatim}
+(%i1) batch(cylinder);
+batching #pc:/work2/cylinder.mac
+(%i2)           cylindrical coordinates (rho,phi,z ) = (rh,p,z)  
+(%i3)                 replacement rules x,y,z to rh,p,z  
+(%i4)               c3rule : [x = rh cos(p), y = rh sin(p)]
+(%i5)         c3sub(expr) := (subst(c3rule, expr), trigsimp(%%))
+                                          2    2
+(%i6)                        rhxy : sqrt(y  + x )
+(%i7)                           assume(rh > 0)
+\end{verbatim}
+\normalsize
+Now that you have seen what Maxima does with a file introduced into Maxima
+ via \verb|batch(cylinder)|, we will stop displaying the contents of cylinder.mac
+ but just show you Maxima's response.
+You can, of course, look at cylinder.mac with a text editor if you are not sure
+  what was the input.
+
+\smallskip
+We next tell Maxima how to work with the cylindrical coordinates and their derivatives:
+We let the symbol \verb|drhdx|, for example, hold (for later use) $\partial\, \rho / \partial\,x$.
+\small
+\begin{verbatim}
+(%i8)           partial derivatives of rho and phi wrt x and y 
+(%i9)                 drhdx : (diff(rhxy, x), c3sub(%%))
+(%o9)                               cos(p)
+(%i10)                drhdy : (diff(rhxy, y), c3sub(%%))
+(%o10)                              sin(p)
+                                       y
+(%i11)               dpdx : (diff(atan(-), x), c3sub(%%))
+                                       x
+                                     sin(p)
+(%o11)                             - ------
+                                       rh
+                                       y
+(%i12)               dpdy : (diff(atan(-), y), c3sub(%%))
+                                       x
+                                    cos(p)
+(%o12)                              ------
+                                      rh
+(%i13)               tell Maxima rh=rh(x,y) and p = p(x,y) 
+(%i14)           (gradef(rh, x, drhdx), gradef(rh, y, drhdy))
+(%i15)             (gradef(p, x, dpdx), gradef(p, y, dpdy))
+\end{verbatim}
+\normalsize
+We thus have established the derivatives $\partial \rho(x,y) / \partial x = \cos(\varphi)$,
+  $\partial \rho(x,y) / \partial y = \sin(\varphi)$, 
+  $\partial \varphi(x,y) / \partial x = -\sin(\varphi)/\rho$, 
+  and $\partial \varphi(x,y) / \partial y = \cos(\varphi)/\rho$.
+  
+
+\subsubsection{Laplacian \quad $\boldsymbol{\nabla}^2 \, f(\rho,\varphi,z)$ }
+The Laplacian of a scalar function $f$ depending on $(x,y,z)$,is defined
+  as
+\begin{equation}
+ \boldsymbol{\nabla}^2\,f(x,y,z) \equiv \frac{\partial^2 \, f(x,y,z)}{\partial \, x^2}  +
+                          \frac{\partial^2 \, f(x,y,z)}{\partial \, y^2} +
+						  \frac{\partial^2 \, f(x,y,z)}{\partial \, z^2}
+\end{equation}
+Let's calculate the Laplacian of a scalar function $f$ when
+  the function depends implicitly on $(x,y,z)$ via an explicit dependence on
+  the cylindrical coordinates $(\rho,\varphi,z)$.
+Because of our Maxima input\\
+ "\verb|depends(f,[rh,p,z])|", the cartesian form of
+  the Laplacian of $f$ is expressed in terms of the fundamental set of
+  derivatives ($\partial\,\rho/\partial\,x$, etc. ) which have been established above.
+
+\newpage
+
+The next section of cylinder.mac then produces the response:  
+
+\small
+\begin{verbatim}
+(%i16)           tell Maxima to treat scalar function f as an 
+(%i17)                    explicit function of (rh,p,z) 
+(%i18)                      depends(f, [rh, p, z])
+(%o18)                           [f(rh, p, z)]
+(%i19)      calculate the Laplacian of the scalar function f(rh,p,z) 
+(%i20)                   using the cartesian definition 
+(%i21) (diff(f, z, 2) + diff(f, y, 2) + diff(f, x, 2), trigsimp(%%), 
+                                     multthru(%%) )
+                                   2
+                                  d f
+                            df    ---
+                            ---     2    2     2
+                            drh   dp    d f   d f
+(%o21)                      --- + --- + --- + ----
+                            rh      2     2      2
+                                  rh    dz    drh
+(%i22)                             grind(%)
+'diff(f,rh,1)/rh+'diff(f,p,2)/rh^2+'diff(f,z,2)+'diff(f,rh,2)$
+\end{verbatim}
+\normalsize
+We then have the result:
+
+\begin{equation}
+\boldsymbol{\nabla}^2\,f(\rho,\varphi,z) =  \frac{1}{\rho} \frac{\partial \, f}{\partial \, \rho} +
+       \frac{\partial^2 \, f}{\partial \, \rho^2} +
+	   \frac{1}{\rho^2} \frac{\partial^2 \, f}{\partial \, \varphi^2} +
+	   \frac{\partial^2 \, f}{\partial \, z^2}
+\end{equation}
+The two terms involving derivatives with respect to $\rho$ can be combined:
+\begin{equation}
+\frac{1}{\rho} \frac{\partial \, f}{\partial \, \rho} + 
+\frac{\partial^2 \, f}{\partial \, \rho^2}  =  
+\frac{1}{\rho} \, \frac{\partial}{\partial \, \rho} \left( \rho \,\frac{\partial f}{\partial \rho} \right)
+\end{equation}
+We clearly need to avoid points for which $\rho = 0$.
+
+\smallskip
+
+It is one thing to use Maxima to help derive the correct form of an operation
+  like the Laplacian operator in cylindrical coordinates, and another to build
+  a usable function which can be used (without repeating a derivation each time!)
+  to calculate the Laplacian when we have some function we are interested in.
+
+\smallskip
+The file "vcalc.mac", available with this chapter on the author's webpage, contains
+  usable functions for the Laplacian, gradient, divergence, and curl for the
+  three coordinate systems: cartesian, cylindrical, and spherical polar.
+
+  \smallskip
+  However, here is a Maxima function specifically designed for cylindrical coordinates
+  which will calculate the Laplacian of a scalar expression in cylindrical coordinates.
+No effort at simplification is made inside this function; the result
+  can be massaged by the alert user which Maxima always assumes is at the ready.  
+(Note: the laplacian and other functions in vcalc.mac start with the general 
+  expressions valid in any orthonormal coordinate system, using the appropriate
+  "scale factors" (h1,h2,h3), and some simplification is done.
+Also, the laplacian in vcalc.mac will correctly compute the Laplacian of
+  a vector field as well as a scalar field.)  
+\small
+\begin{verbatim}
+(%i1) cylaplacian(expr,rho,phi,z) :=                
+             (diff(expr,rho)/rho + diff(expr,phi,2)/rho^2 +
+                diff(expr,rho,2) + diff(expr,z,2)) $   
+\end{verbatim}
+\normalsize
+
+\newpage
+We can show that the combinations $\rho^n\,\cos(n\,\varphi)$ and $\rho^n\,\sin(n\,\varphi)$
+  are each solutions of Laplace's equation $\nabla^2\,u = 0$.
+\small
+\begin{verbatim}
+(%i2) ( cylaplacian(rh^n*cos(n*p),rh,p,z), factor(%%) );
+(%o2)                                 0
+(%i3) ( cylaplacian(rh^n*sin(n*p),rh,p,z), factor(%%) );
+(%o3)                                 0
+(%i4) ( cylaplacian(rh^(-n)*cos(n*p),rh,p,z), factor(%%) );
+(%o4)                                 0
+(%i5) ( cylaplacian(rh^(-n)*sin(n*p),rh,p,z), factor(%%) );
+(%o5)                                 0
+\end{verbatim}
+\normalsize
+Another general solution is $\ln(\rho)$:
+\small
+\begin{verbatim}
+(%i6) cylaplacian(log(rh),rh,p,z);
+(%o6)                                 0
+\end{verbatim}
+\normalsize
+
+
+Here is another example of the use of this Maxima function.
+The expression $u = (2/3)\,(\rho - 1/\rho)\,\sin(\varphi)$ is proposed as the solution to
+  a problem defined by: (partial differential equation: pde)
+  \; $\boldsymbol{\nabla}^2\,u = 0$ for $1 \le \rho \le 2$,
+  and (boundary conditions: bc) $u(1,\varphi) = 0$, and $u(2,\varphi) = \sin(\varphi)$.
+Here we use Maxima to check the three required solution properties.  
+\small
+\begin{verbatim}
+(%i7) u : 2*(rh - 1/rh)*sin(p)/3$
+(%i8) (cylaplacian(u,rh,p,z), ratsimp(%%) );
+(%o8)                                 0
+(%i9) [subst(rh=1,u),subst(rh=2,u) ];
+(%o9)                            [0, sin(p)]
+\end{verbatim}
+\normalsize
+    
+\subsubsection{Gradient \quad $\boldsymbol{\nabla} \, f(\rho,\varphi,z)$ }
+There are several ways one can work with vector calculus problems.
+One method is to use symbols for a set of orthogonal unit vectors, and
+  assume a set of properties for these unit vectors without connecting
+  the set to any specific list basis representation.
+One can then construct the dot product, the cross product and the derivative operations
+ in terms of the coefficients of these symbolic unit vectors (using \textbf{ratcoeff}, for example).
+ 
+ 
+\smallskip
+We have chosen to define our 3-vectors in terms of three element lists,
+ in which the first element of the list contains the $x$ axis component of
+ the vector, the second element of the list contains the $y$ axis component,
+   and the third element contains the $z$ component.
+   
+\smallskip
+This method is less abstract and closer to the beginning student's experience of
+  vectors, and provides a straightforward path which can be used with any 
+  orthonormal coordinate system
+  
+  
+\smallskip
+The unit vector along the $x$ axis ($\mathbf{\hat{x}}$) is represented by 
+  \verb|xu = [1,0,0]| (for " x - unit vector"), the unit vector along the $y$ axis
+  ($\mathbf{\hat{y}}$) is represented by \verb|yu = [0,1,0]|, and the unit vector along the
+  $z$ axis ($\mathbf{\hat{z}}$) is represented by \verb|zu = [0,0,1]|.
+ 
+
+ \smallskip
+Here we return to the batch file cylinder.mac, where we define \verb|lcross(u,v)|
+  to calculate the vector cross product when we are using three element lists
+  to represent vectors.
+
+\smallskip
+Note that our "orthonormality checks" use the built-in "dot product" of
+  lists provided by the period \verb|.| (which is also used for non-commutative
+  matrix multiplication). 
+The dot product of two vectors represented by Maxima lists is obtained by placing a 
+  period between the lists.
+We have checked that the cartesian vectors defined are "unit vectors" (dot product yields unity)
+  and are also mutually orthogonal (ie., at right angles to each other) which is 
+  equivalent to the dot product being zero.
+  
+\smallskip
+  
+\small
+\begin{verbatim}
+(%i23)        prepare to find derivatives which involve vectors. 
+(%i24)          cross product rule when using lists for vectors 
+(%i25) lcross(u, v) := (u  v  - u  v ) zu + (u  v  - u  v ) yu
+                         1  2    2  1         3  1    1  3
+                                                           + (u  v  - u  v ) xu
+                                                               2  3    3  2
+(%i26)             cross product of parallel vectors is zero 
+(%i27)                lcross([a, b, c], [n a, n b, n c])
+(%o27)                                 0
+(%i28)                  a function we can use with map 
+(%i29)                  apcr(ll) := apply('lcross, ll)
+(%i30)               3d cartesian unit vectors using lists 
+(%i31)         (xu : [1, 0, 0], yu : [0, 1, 0], zu : [0, 0, 1])
+(%i32)          orthonormality checks on cartesian unit vectors 
+(%i33)      [xu . xu, yu . yu, zu . zu, xu . yu, xu . zu, yu . zu]
+(%o33)                        [1, 1, 1, 0, 0, 0]
+(%i34)     low tech check of cross products of cartesian unit vectors
+(%i35)                        lcross(xu, yu) - zu
+(%o35)                             [0, 0, 0]
+(%i36)                        lcross(yu, zu) - xu
+(%o36)                             [0, 0, 0]
+(%i37)                        lcross(zu, xu) - yu
+(%o37)                             [0, 0, 0]
+(%i38)         [lcross(xu, xu), lcross(yu, yu), lcross(zu, zu)]
+(%o38)                 [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+(%i39)    high tech checks of cross products of cartesian unit vectors
+(%i40)     map('apcr, [[xu, yu], [yu, zu], [zu, xu]]) - [zu, xu, yu]
+(%o40)                 [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+(%i41)            map('apcr, [[xu, xu], [yu, yu], [zu, zu]])
+(%o41)                 [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+\end{verbatim}
+\normalsize
+
+Thus we have cartesian unit vector relations such as
+  $\mathbf{\hat{x}} \boldsymbol{\cdot} \mathbf{\hat{x}} = 1$, and
+  $\mathbf{\hat{x}} \boldsymbol{\cdot} \mathbf{\hat{y}} = 0$, and
+  $\mathbf{\hat{x}} \boldsymbol{\times} \mathbf{\hat{y}} = \mathbf{\hat{z}}$.
+
+\smallskip
+  
+The unit vector $\boldsymbol{\hat{\rho}}$  along the direction  of increasing $\rho$ 
+  at the point $(\rho,\varphi,z)$ is defined in terms of the cartesian unit
+  vectors $\mathbf{\hat{x}}$ and $\mathbf{\hat{y}}$ via
+\begin{equation}  
+  \boldsymbol{\hat{\rho}} = \mathbf{\hat{x}}\,\cos \varphi +   \mathbf{\hat{y}} \,\sin \varphi
+\end{equation}
+Because the direction of $\boldsymbol{\hat{\rho}}$ depends on $\varphi$,
+  a more explicit notation would be $\boldsymbol{\hat{\rho}}(\varphi)$, but following 
+  convention, we surpress that dependence in the following.
+
+\smallskip
+  
+The unit vector $\boldsymbol{\hat{\varphi}}$  along the direction of increasing $\varphi$
+  at the point $(\rho,\varphi,z)$ is
+\begin{equation}  
+  \boldsymbol{\hat{\varphi}} = -\mathbf{\hat{x}} \,\sin \varphi +   \mathbf{\hat{y}} \,\cos \varphi
+\end{equation}  
+Again, because the direction of $\boldsymbol{\hat{\varphi}}$ depends on $\varphi$,
+  a more explicit notation would be $\boldsymbol{\hat{\varphi}}(\varphi)$, but following
+  conventional use we surpress that dependence in the following.
+We use the symbol \verb|rhu| (rh-unit-vec) for $\boldsymbol{\hat{\rho}}$, and the
+  symbol \verb|pu| for $\boldsymbol{\hat{\varphi}}$.
+
+\small
+\begin{verbatim}
+(%i42)       cylindrical coordinate unit vectors rho-hat, phi-hat  
+(%i43)                    rhu : sin(p) yu + cos(p) xu
+(%o43)                        [cos(p), sin(p), 0]
+(%i44)                    pu : cos(p) yu - sin(p) xu
+(%o44)                       [- sin(p), cos(p), 0]
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i45)               orthonormality checks on unit vectors 
+(%i46) ([rhu . rhu, pu . pu, zu . zu, rhu . pu, rhu . zu, pu . zu], 
+                                                                  trigsimp(%%))
+(%o46)                        [1, 1, 1, 0, 0, 0]
+(%i47)                 low tech check of cross products 
+(%i48)               (lcross(rhu, pu), trigsimp(%%)) - zu
+(%o48)                             [0, 0, 0]
+(%i49)               (lcross(pu, zu), trigsimp(%%)) - rhu
+(%o49)                             [0, 0, 0]
+(%i50)               (lcross(zu, rhu), trigsimp(%%)) - pu
+(%o50)                             [0, 0, 0]
+(%i51)                [lcross(rhu, rhu), lcross(pu, pu)]
+(%o51)                      [[0, 0, 0], [0, 0, 0]]
+(%i52)                high tech checks of cross products 
+(%i53) (map('apcr, [[rhu, pu], [pu, zu], [zu, rhu]]), trigsimp(%%))
+                                                                - [zu, rhu, pu]
+(%o53)                 [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+(%i54)                map('apcr, [[rhu, rhu], [pu, pu]])
+(%o54)                      [[0, 0, 0], [0, 0, 0]]
+\end{verbatim}
+\normalsize
+Thus we have cylindrical unit vector relations such as 
+  $\boldsymbol{\hat{\rho}} \boldsymbol{\cdot} \boldsymbol{\hat{\rho}} = 1$,
+  $\boldsymbol{\hat{\rho}} \boldsymbol{\cdot} \boldsymbol{\hat{\varphi}} = 0$,
+  and $\boldsymbol{\hat{\rho}} \boldsymbol{\times} \boldsymbol{\hat{\varphi}} = \mathbf{\hat{z}}$.
+
+\smallskip
+
+The gradient of a scalar function $f(x,y,z)$ is defined by
+\begin{equation}
+\boldsymbol{\nabla} \, f(x,y,z) =
+           \mathbf{\hat{x}}\,\frac{\partial f}{\partial x} +
+          \mathbf{\hat{y}}\,\frac{\partial f}{\partial y} +
+		  \mathbf{\hat{z}}\,\frac{\partial f}{\partial z}
+\end{equation}  
+For a function $f$ which depends implicitly on $(x,y,z)$ and explicitly on $(\rho,\varphi,z)$,
+  we can use the relations established to express
+  the gradient of $f$ (called here \verb|fgradient|) in terms of the cartesian unit vectors and in
+  terms of derivatives with respect to $(\rho,\varphi,z)$.
+
+\smallskip
+Again returning to cylinder.mac:  
+
+\small
+\begin{verbatim}
+(%i55)              cartesian def. of gradient of scalar f 
+(%i56)     fgradient : diff(f, z) zu + diff(f, y) yu + diff(f, x) xu
+\end{verbatim}
+\normalsize
+
+
+The $\rho$ component of a vector $\mathbf{A}$ (at the point $(\rho,\varphi,z)$) is given
+  by 
+\begin{equation}
+ A_{\rho} = \boldsymbol{\hat{\rho}} \boldsymbol{\cdot} \mathbf{A},
+\end{equation}  
+and the $\varphi$ component of a vector $\mathbf{A}$ 
+  at the point $(\rho,\varphi,z)$ is given by
+
+\begin{equation}
+ A_{\varphi} = \boldsymbol{\hat{\varphi}} \, \boldsymbol{\cdot} \, \mathbf{A}.
+\end{equation} 
+Our batch file follows this pattern to get the $(\rho,\varphi,z)$
+  components of the vector $\boldsymbol{\nabla}f$:
+
+\small
+\begin{verbatim}
+(%i57)               rho, phi, and z components of grad(f) 
+(%i58)          fgradient_rh : (rhu . fgradient, trigsimp(%%))
+                                      df
+(%o58)                                ---
+                                      drh
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i59)           fgradient_p : (pu . fgradient, trigsimp(%%))
+                                      df
+                                      --
+                                      dp
+(%o59)                                --
+                                      rh
+(%i60)           fgradient_z : (zu . fgradient, trigsimp(%%))
+                                      df
+(%o60)                                --
+                                      dz
+\end{verbatim}
+\normalsize
+
+Hence we have derived
+\begin{equation}
+\boldsymbol{\nabla} \, f(\rho,\varphi,z) = 
+  \boldsymbol{\hat{\rho}}\, \frac{\partial f}{\partial \rho} +
+   \boldsymbol{\hat{\varphi}} \, \frac{1}{\rho} \, \frac{\partial f}{\partial \varphi} +
+   \mathbf{\hat{z}}\, \frac{\partial f}{\partial z}.
+\end{equation}
+
+
+\subsubsection{Divergence \quad $\boldsymbol{\nabla} \boldsymbol{\cdot} \mathbf{B}(\rho,\varphi,z)$  }
+In cartesian coordinates the divergence of a three dimensional vector field 
+  $\mathbf{B}(x,y,z)$ can be calculated with the equation
+\begin{equation}
+\boldsymbol{\nabla} \boldsymbol{\cdot} \mathbf{B}(x,y,z) = \frac{\partial B_{x}}{\partial x} +
+                        \frac{\partial B_{y}}{\partial y} +
+						\frac{\partial B_{z}}{\partial z}
+\end{equation}  
+Consider a vector field $\mathbf{B}(\rho,\varphi,z)$ which is an
+  implicit function of $(x,y,z)$ and an explicit function of the 
+  cylindrical coordinates $\rho,\varphi,z)$.
+We will use the symbol \verb|bvec| to represent $\mathbf{B}(\rho,\varphi,z)$, and use the
+  symbols \verb|bx|, \verb|by|, and \verb|bz| to represent the $x$, $y$, and $z$ components of
+  $\mathbf{B}(\rho,\varphi,z)$.
+
+\smallskip
+The $\rho$ component (the component in the direction of increasing $\rho$ with 
+  constant $\varphi$ and constant $z$)
+ of $\mathbf{B}(\rho,\varphi,z)$ at the point $(\rho,\varphi,z)$ is given by
+  
+\begin{equation}
+ B_{\rho}(\rho,\varphi,z) = \boldsymbol{\hat{\rho}} \boldsymbol{\cdot} \mathbf{B}(\rho,\varphi,z).
+\end{equation} 
+We use the symbol \verb|brh| for $B_{\rho}(\rho,\varphi,z)$ .
+The component of $\mathbf{B}(\rho,\varphi,z)$ at the point $(\rho,\varphi,z)$ in the
+  direction of increasing $\varphi$ (with constant $\rho$ and constant $z$) is given by the equation
+  
+% something bad here  
+\begin{equation}
+B_{\varphi}(\rho,\varphi,z) = \boldsymbol{\hat{\varphi}} \boldsymbol{\cdot} \mathbf{B}(\rho,\varphi,z).
+\end{equation}
+We use the symbol \verb|bp| for $B_{\varphi}(\rho,\varphi,z)$.    
+Returning to the cylinder.mac batch file:  
+
+\small
+\begin{verbatim}
+(%i61)                        divergence of bvec 
+(%i62)                   bvec : bz zu + by yu + bx xu
+(%o62)                           [bx, by, bz]
+(%i63)         two equations which relate cylindrical components
+(%i64)                 of bvec to the cartesian components 
+(%i65)                      eq1 : brh = rhu . bvec
+(%o65)                    brh = by sin(p) + bx cos(p)
+(%i66)                       eq2 : bp = pu . bvec
+(%o66)                    bp = by cos(p) - bx sin(p)
+(%i67)                      invert these equations 
+(%i68)       sol : (linsolve([eq1, eq2], [bx, by]), trigsimp(%%))
+(%o68)    [bx = brh cos(p) - bp sin(p), by = brh sin(p) + bp cos(p)]
+(%i69)                     [bx, by] : map('rhs, sol)
+(%i70)          tell Maxima to treat cylindrical components as 
+(%i71)                   explicit functions of (rh,p,z) 
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i72)                depends([brh, bp, bz], [rh, p, z])
+(%o72)            [brh(rh, p, z), bp(rh, p, z), bz(rh, p, z)]
+(%i73)                 calculate the divergence of bvec 
+(%i74) bdivergence : (diff(bz, z) + diff(by, y) + diff(bx, x), trigsimp(%%), 
+                                                                  multthru(%%))
+                                  dbp
+                                  ---
+                            brh   dp    dbz   dbrh
+(%o74)                      --- + --- + --- + ----
+                            rh    rh    dz    drh
+\end{verbatim}
+\normalsize
+
+Hence we have derived the result:
+\begin{equation}
+\boldsymbol{\nabla} \boldsymbol{\cdot} \mathbf{B}(\rho,\varphi,z) = 
+ \frac{1}{\rho}\,\frac{\partial}{\partial \,\rho} \,\left( \rho \, B_{\rho} \right) +
+       \frac{1}{\rho} \, \frac{\partial}{\partial \, \varphi} \, B_{\varphi} +
+	   \frac{\partial \, B_{z} }{\partial \, z},
+\end{equation}  
+in which we have used the identity
+\begin{equation}
+\frac{1}{\rho}\,\frac{\partial}{\partial \,\rho} \,\left( \rho \, B_{\rho} \right) = 
+  \frac{B_{\rho}}{\rho} + \frac{\partial}{\partial \, \rho} \, B_{\rho} 
+\end{equation}
+
+\subsubsection{Curl \quad $\boldsymbol{\nabla} \boldsymbol{\times}  \mathbf{B}(\rho,\varphi,z)$  }
+In cartesian coordinates the curl of a three dimensional vector field 
+  $\mathbf{B}(x,y,z)$ can be calculated with the equation
+\begin{equation}
+\boldsymbol{\nabla} \boldsymbol{\times} \mathbf{B}(x,y,z) =
+ \mathbf{\hat{x}}\,\left( \frac{\partial B_z}{\partial y} - \frac{\partial B_y}{\partial z} \right) +
+ \mathbf{\hat{y}}\,\left( \frac{\partial B_x}{\partial z} - \frac{\partial B_z}{\partial x} \right) +
+ \mathbf{\hat{z}}\,\left( \frac{\partial B_y}{\partial x} - \frac{\partial B_x}{\partial y} \right)
+\end{equation}  
+Remember that we have already bound the symbols \verb|bx| and \verb|by| to
+  linear combinations of \verb|brh| and \verb|bp|, and have told Maxima (using \textbf{depends})
+  to treat \verb|brh| and \verb|bp| as explicit functions of \verb|(rh,p,z)|.
+Hence our assignment of the symbol \verb|bcurl| in cylinder.mac will result in Maxima
+  using the calculus chain rule.
+We can then extract the cylindrical components of $\mathbf{B}$ by taking the
+  dot product of the cylindrical unit vectors with $\mathbf{B}$, just as we did
+  to get the cylindrical components of $\boldsymbol{\nabla}f$.
+\smallskip
+  
+Returning to cylinder.mac:
+
+\small
+\begin{verbatim}
+(%i75)                cartesian definition of curl(vec)   
+(%i76) bcurl : (diff(by, x) - diff(bx, y)) zu + (diff(bx, z) - diff(bz, x)) yu
+                                               + (diff(bz, y) - diff(by, z)) xu
+(%i77)             find cylindrical components of curl(bvec) 
+(%i78)       bcurl_rh : (rhu . bcurl, trigsimp(%%), multthru(%%))
+                                   dbz
+                                   ---
+                                   dp    dbp
+(%o78)                             --- - ---
+                                   rh    dz
+(%i79)        bcurl_p : (pu . bcurl, trigsimp(%%), multthru(%%))
+                                  dbrh   dbz
+(%o79)                            ---- - ---
+                                   dz    drh
+(%i80)        bcurl_z : (zu . bcurl, trigsimp(%%), multthru(%%))
+                                 dbrh
+                                 ----
+                                  dp    bp   dbp
+(%o80)                         - ---- + -- + ---
+                                  rh    rh   drh
+\end{verbatim}
+\normalsize
+Hence we have derived
+\begin{equation}
+\boldsymbol{\nabla} \boldsymbol{\times} \mathbf{B}(\rho,\varphi,z) =
+  \boldsymbol{\hat{\rho}}\, \left( \frac{1}{\rho}\, \frac{\partial \, B_{z}}{\partial \,\varphi} -
+     \frac{\partial \, B_{\varphi}}{\partial \, z} \right) +
+   \boldsymbol{\hat{\varphi}} \, \left( \frac{\partial \, B_{\rho}}{\partial \,z} -
+       \frac{\partial \, B_{z}}{\partial \, \rho} \right)    +
+   \mathbf{\hat{z}}\, \left( \frac{1}{\rho}\, \frac{\partial }{\partial \,\rho} \,(\rho \, B_{\varphi} ) -
+        \frac{1}{\rho}\, \frac{\partial \, B_{\rho}}{\partial \, \varphi} \right)  
+\end{equation}
+in which we have used 
+\begin{equation}  \label{Eq:cycurl}
+\frac{B_{\varphi}}{\rho} + \frac{\partial \, B_{\phi}}{\partial \, \rho} = 
+        \frac{1}{\rho}\, \frac{\partial }{\partial \,\rho} \,(\rho \, B_{\varphi} ).
+\end{equation}
+
+\subsection{Maxima Derivation of Vector Calculus Formulas in Spherical Polar Coordinates   }
+The batch file sphere.mac, available on the author's webpage with this chapter, uses Maxima
+  to apply the same method we used in the previous section to derive spherical polar
+  coordinate expressions for the gradient, divergence, curl and Laplacian.
+We will include less commentary in this section since the method is the same.
+
+
+We consider a change of variable
+  from cartesian coordinates $(x,y,z)$ to spherical polar
+  coordinates $(r,\theta,\varphi )$.  
+Given $(r,\theta,\varphi)$, we obtain $(x,y,z)$ from the  equations
+ $x =  r \, \sin(\theta) \, \cos(\varphi)$,  $y = r \, \sin(\theta) \, \sin(\varphi)$,
+   and $z = r \, \cos(\theta)$.
+Given $(x,y,z)$, we obtain $(r,\theta,\varphi)$ from the equations
+  $r = \sqrt{x^2 + y^2 + z^2}$,  $\cos(\theta) = z/\sqrt{x^2+y^2+z^2}$,
+  and $\tan(\varphi) = y/x$.
+  
+\smallskip
+In sphere.mac we use \verb|t| to represent $\theta$ and \verb|p| to represent
+ the angle $\varphi$  expressed in radians.
+The ranges of the independent variables are $ 0 < r < \infty$,
+  $0 < \theta <  \pi$, and $0 \leq \varphi < 2\,\pi$.
+  
+We first define \verb|cs3rule| as a list of replacement "rules"
+  in the form of equations which can be used later by the \textbf{subst} function.
+To get automatic simplification of \verb|r/abs(r)| and \verb|sin(t)/abs(sin(t)|we
+ use the \textbf{assume} function.  
+
+\smallskip
+Here is the top part of sphere.mac:
+\small
+\begin{verbatim}
+(%i1) batch(sphere);
+batching #pc:/work2/sphere.mac
+(%i2)        spherical polar coordinates (r,theta,phi ) = (r,t,p)  
+(%i3)                  replacement rules x,y,z to r,t,p  
+(%i4)  s3rule : [x = r sin(t) cos(p), y = r sin(t) sin(p), z = r cos(t)]
+(%i5)         s3sub(expr) := (subst(s3rule, expr), trigsimp(%%))
+(%i6)                      assume(r > 0, sin(t) > 0)
+                                        2    2    2
+(%i7)                      rxyz : sqrt(z  + y  + x )
+(%i8)      partial derivatives of r, theta, and phi wrt x, y, and z 
+(%i9)                  drdx : (diff(rxyz, x), s3sub(%%))
+(%o9)                            cos(p) sin(t)
+(%i10)                 drdy : (diff(rxyz, y), s3sub(%%))
+(%o10)                           sin(p) sin(t)
+(%i11)                 drdz : (diff(rxyz, z), s3sub(%%))
+(%o11)                              cos(t)
+                                       z
+(%i12)              dtdx : (diff(acos(----), x), s3sub(%%))
+                                      rxyz
+                                 cos(p) cos(t)
+(%o12)                           -------------
+                                       r
+\end{verbatim}
+\newpage
+\begin{verbatim}
+                                       z
+(%i13)              dtdy : (diff(acos(----), y), s3sub(%%))
+                                      rxyz
+                                 sin(p) cos(t)
+(%o13)                           -------------
+                                       r
+                                       z
+(%i14)              dtdz : (diff(acos(----), z), s3sub(%%))
+                                      rxyz
+                                     sin(t)
+(%o14)                             - ------
+                                       r
+                                       y
+(%i15)               dpdx : (diff(atan(-), x), s3sub(%%))
+                                       x
+                                     sin(p)
+(%o15)                            - --------
+                                    r sin(t)
+                                       y
+(%i16)               dpdy : (diff(atan(-), y), s3sub(%%))
+                                       x
+                                    cos(p)
+(%o16)                             --------
+                                   r sin(t)
+(%i17)   (gradef(r, x, drdx), gradef(r, y, drdy), gradef(r, z, drdz))
+(%i18)   (gradef(t, x, dtdx), gradef(t, y, dtdy), gradef(t, z, dtdz))
+(%i19)             (gradef(p, x, dpdx), gradef(p, y, dpdy))
+\end{verbatim}
+\normalsize
+The batch file next calculates the Laplacian of a scalar function $f$.
+\small
+\begin{verbatim}
+(%i23)      calculate the Laplacian of the scalar function f(r,t,p) 
+(%i24) (diff(f, z, 2) + diff(f, y, 2) + diff(f, x, 2), trigsimp(%%), 
+                                                        scanmap('multthru, %%))
+                                   2                2
+                                  d f              d f
+                   df             ---         df   ---
+                   -- cos(t)        2       2 --     2    2
+                   dt             dp          dr   dt    d f
+(%o24)             --------- + ---------- + ---- + --- + ---
+                    2           2    2       r      2      2
+                   r  sin(t)   r  sin (t)          r     dr
+(%i25)                             grind(%)
+'diff(f,t,1)*cos(t)/(r^2*sin(t))+'diff(f,p,2)/(r^2*sin(t)^2)+2*'diff(f,r,1)/r
+                                +'diff(f,t,2)/r^2+'diff(f,r,2)$
+\end{verbatim}
+\normalsize
+Hence the form of the Laplacian of a scalar field in spherical polar coordinates:
+\begin{equation}
+\boldsymbol{\nabla}^{2} \, f(r,\theta,\varphi ) =
+ \frac{1}{r^{2}} \frac{\partial }{\partial \, r} \left( r^{2} \, \frac{\partial f}{\partial r} \right) +
+ \frac{1}{r^{2} \, \sin \theta} \, \frac{\partial}{\partial \, \theta} 
+       \left( \sin \theta \, \frac{\partial f}{\partial \theta} \right) +
+ \frac{1}{r^{2} \, \sin^{2} \theta} \frac{\partial^{2} \, f}{\partial \, \varphi^{2}}
+\end{equation} 
+in which we have used the identities
+\begin{equation}
+\frac{\partial^{2} f}{\partial \, r^{2}} + \frac{2}{r} \, \frac{\partial f}{\partial \, r} =
+\frac{1}{r^{2}} \frac{\partial }{\partial \, r} \left( r^{2} \, \frac{\partial f}{\partial \, r} \right)
+\end{equation}
+and
+\begin{equation}
+\frac{\partial^{2} f}{\partial \, \theta^{2}}
+ + \frac{\cos \theta}{\sin \theta} \frac{\partial f}{\partial \, \theta} =
+ \frac{1}{\sin \theta} \frac{\partial}{\partial \, \theta} \left(\sin \theta \, \frac{\partial f}{\partial \, \theta} \right)
+\end{equation}
+We need to avoid $r = 0$ and $\sin \theta = 0$.
+The latter condition means avoiding $\theta = 0$ and $\theta = \pi$.
+\subsubsection*{Gradient of a Scalar Field}
+
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1]{sphere2.eps} }
+	\caption{ $r$ and $\theta$ unit vectors   }
+\end{figure}   
+
+\smallskip
+The batch file sphere.mac introduces the cartesian and spherical polar unit vectors
+  corresponding to the coordinates $(r,\theta,\varphi)$.
+The unit vector $\boldsymbol{\hat{\varphi}}$ is the same as in cylindrical coordinates:
+\begin{equation}  
+  \boldsymbol{\hat{\varphi}} = -\mathbf{\hat{x}} \,\sin \varphi +   \mathbf{\hat{y}} \,\cos \varphi
+\end{equation}  
+We can express $\mathbf{\hat{r}}$ and $\boldsymbol{\hat{\theta}}$ in terms of the
+  cylindrical $\boldsymbol{\hat{\rho}}$ and $\mathbf{\hat{z}}$ (from the figure above):
+\begin{equation}
+ \mathbf{\hat{r}} = \mathbf{\hat{z}} \, \cos \theta +  \boldsymbol{\hat{\rho}} \, \sin \theta
+\end{equation}  
+and
+\begin{equation}
+\boldsymbol{\hat{\theta}} = - \mathbf{\hat{z}} \, \sin \theta +  \boldsymbol{\hat{\rho}} \, \cos \theta.
+\end{equation}
+Hence we have
+\begin{equation}  
+  \mathbf{\hat{r}} = \mathbf{\hat{x}}\, \sin \theta \, \cos \varphi + 
+  \mathbf{\hat{y}}\, \sin \theta \sin \varphi + \mathbf{\hat{z}} \, \cos \theta
+\end{equation}
+and
+\begin{equation}  
+  \boldsymbol{\hat{\theta}} = \mathbf{\hat{x}} \, \cos \theta \cos \varphi +
+   \mathbf{\hat{y}} \, \cos \theta \,\sin \varphi - \mathbf{\hat{z}} \, \sin \theta
+\end{equation}  
+
+
+Maxima has already been told to treat $f$ as an explicit function of \verb|(r,t,p)| which we are
+  using for $(r,\theta,\varphi)$.
+\newpage
+The vector components of $\boldsymbol{\nabla} f$ are isolated by using the dot product of
+  the unit vectors with $\boldsymbol{\nabla} f$.
+For example,
+\begin{equation}
+ \left( \boldsymbol{\nabla} f \right)_{r} = \mathbf{\hat{r}} \boldsymbol{\cdot} \boldsymbol{\nabla} f
+\end{equation}  
+
+\small
+\begin{verbatim}
+(%i26)         prepare to find derivatives which involve vectors 
+(%i27)                      cartesian unit vectors 
+(%i28)         (xu : [1, 0, 0], yu : [0, 1, 0], zu : [0, 0, 1])
+(%i29)             spherical polar coordinate unit vectors  
+(%i30)       ru : cos(t) zu + sin(t) sin(p) yu + sin(t) cos(p) xu
+(%o30)              [cos(p) sin(t), sin(p) sin(t), cos(t)]
+(%i31)      tu : - sin(t) zu + cos(t) sin(p) yu + cos(t) cos(p) xu
+(%o31)             [cos(p) cos(t), sin(p) cos(t), - sin(t)]
+(%i32)                    pu : cos(p) yu - sin(p) xu
+(%o32)                       [- sin(p), cos(p), 0]
+(%i33)              cartesian def. of gradient of scalar f 
+(%i34)     fgradient : diff(f, z) zu + diff(f, y) yu + diff(f, x) xu
+(%i35)              r, theta, and phi components of grad(f) 
+(%i36)           fgradient_r : (ru . fgradient, trigsimp(%%))
+                                      df
+(%o36)                                --
+                                      dr
+(%i37)           fgradient_t : (tu . fgradient, trigsimp(%%))
+                                      df
+                                      --
+                                      dt
+(%o37)                                --
+                                      r
+(%i38)           fgradient_p : (pu . fgradient, trigsimp(%%))
+                                      df
+                                      --
+                                      dp
+(%o38)                             --------
+                                   r sin(t)
+\end{verbatim}
+\normalsize
+Thus we have the gradient of a scalar field in spherical polar coordinates:
+\begin{equation}
+\boldsymbol{\nabla} \, f(r,\theta,\varphi ) = 
+  \mathbf{\hat{r}}\, \frac{\partial f}{\partial r} +
+   \boldsymbol{\hat{\theta}} \, \frac{1}{r} \, \frac{\partial f}{\partial \theta} +
+   \boldsymbol{\hat{\varphi}} \, \frac{1}{r \,\sin\theta} \, \frac{\partial f}{\partial \varphi}   
+\end{equation}
+
+\subsubsection*{Divergence of a Vector Field}
+The path here is the same as in the cylindrical case.
+For example, we define the spherical polar components of the vector $\mathbf{B}$ via
+\begin{equation}
+B_{r} = \mathbf{\hat{r}} \boldsymbol{\cdot} \mathbf{B}, B_{\theta} = 
+  \boldsymbol{\hat{\theta}} \boldsymbol{\cdot} \mathbf{B},  B_{\varphi} = 
+  \boldsymbol{\hat{\varphi}} \boldsymbol{\cdot} \mathbf{B}.
+\end{equation}
+\small
+\begin{verbatim}
+(%i39)                        divergence of bvec 
+(%i40)                   bvec : bz zu + by yu + bx xu
+(%o40)                           [bx, by, bz]
+(%i41)      three equations which relate spherical polar components
+(%i42)                 of bvec to the cartesian components 
+(%i43)                       eq1 : br = ru . bvec
+(%o43)       br = by sin(p) sin(t) + bx cos(p) sin(t) + bz cos(t)
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i44)                       eq2 : bt = tu . bvec
+(%o44)      bt = - bz sin(t) + by sin(p) cos(t) + bx cos(p) cos(t)
+(%i45)                       eq3 : bp = pu . bvec
+(%o45)                    bp = by cos(p) - bx sin(p)
+(%i46)                      invert these equations 
+(%i47)   sol : (linsolve([eq1, eq2, eq3], [bx, by, bz]), trigsimp(%%))
+(%o47) [bx = br cos(p) sin(t) + bt cos(p) cos(t) - bp sin(p), 
+by = br sin(p) sin(t) + bt sin(p) cos(t) + bp cos(p), 
+bz = br cos(t) - bt sin(t)]
+(%i48)                   [bx, by, bz] : map('rhs, sol)
+(%i49)        tell Maxima to treat spherical polar components as 
+(%i50)                    explicit functions of (r,t,p) 
+(%i51)                 depends([br, bt, bp], [r, t, p])
+(%o51)              [br(r, t, p), bt(r, t, p), bp(r, t, p)]
+(%i52)                 calculate the divergence of bvec 
+(%i53) bdivergence : (diff(bz, z) + diff(by, y) + diff(bx, x), trigsimp(%%), 
+                                                        scanmap('multthru, %%))
+                                  dbp      dbt
+                                  ---      ---
+                    bt cos(t)     dp       dt    2 br   dbr
+(%o53)              --------- + -------- + --- + ---- + ---
+                    r sin(t)    r sin(t)    r     r     dr
+\end{verbatim}
+\normalsize
+Hence we have the spherical polar coordinate version of the divergence of a vector field:
+\begin{equation}
+\boldsymbol{\nabla} \boldsymbol{\cdot} \mathbf{B}(r,\theta,\varphi) = 
+ \frac{1}{r^2}\,\frac{\partial}{\partial \, r} \,\left( r^2 \, B_{r} \right) +
+       \frac{1}{r \, \sin \theta} \, \frac{\partial}{\partial \, \theta} \,\left(\sin \theta \, B_{\theta} \right) +
+	   \frac{1}{r \, \sin \theta} \, \frac{\partial \, B_{\varphi} }{\partial \, \varphi}
+\end{equation}  
+using the identities
+\begin{equation}
+\frac{2}{r}\,B_{r} + \frac{\partial \, B_{r}}{\partial \, r} = 
+ \frac{1}{r^2}\,\frac{\partial}{\partial \,r} \left(r^2\,B_{r} \right)
+\end{equation}
+and
+\begin{equation} \label{Eq:spdiv}
+\frac{\cos \theta}{\sin \theta} \,B_{\theta} + \frac{\partial \,B_{\theta}}{\partial \,\theta} = 
+\frac{1}{\sin \theta} \,\frac{\partial}{\partial \, \theta} \left(\sin \theta \,B_{\theta} \right)
+\end{equation}
+\subsubsection*{Curl of a Vector Field}
+Again the path is essentially the same as in the cylindrical case:
+\small
+\begin{verbatim}
+(%i54)                  cartesian curl(vec) definition  
+(%i55) bcurl : (diff(by, x) - diff(bx, y)) zu + (diff(bx, z) - diff(bz, x)) yu
+                                               + (diff(bz, y) - diff(by, z)) xu
+(%i56)           find spherical polar components of curl(bvec) 
+(%i57)   bcurl_r : (ru . bcurl, trigsimp(%%), scanmap('multthru, %%))
+                                        dbt      dbp
+                                        ---      ---
+                          bp cos(t)     dp       dt
+(%o57)                    --------- - -------- + ---
+                          r sin(t)    r sin(t)    r
+\end{verbatim}
+\newpage
+\begin{verbatim}
+(%i58)   bcurl_t : (tu . bcurl, trigsimp(%%), scanmap('multthru, %%))
+                                dbr
+                                ---
+                                dp       bp   dbp
+(%o58)                        -------- - -- - ---
+                              r sin(t)   r    dr
+(%i59)   bcurl_p : (pu . bcurl, trigsimp(%%), scanmap('multthru, %%))
+                                     dbr
+                                     ---
+                                bt   dt    dbt
+(%o59)                          -- - --- + ---
+                                r     r    dr
+(%o60)                        c:/work2/sphere.mac
+\end{verbatim}
+\normalsize
+which produces the spherical polar coordinate version of the curl of a vector field:
+\begin{equation}
+\left( \boldsymbol{\nabla} \boldsymbol{\times}  \mathbf{B} \right)_{r} =
+  \frac{1}{r \, \sin \theta} \left[ \frac{\partial }{\partial \theta} \left( \sin \theta\,B_{\varphi} \right)-
+    \frac{\partial \,B_{\theta}}{\partial \,\varphi} \right]
+\end{equation}
+\begin{equation}
+\left( \boldsymbol{\nabla} \boldsymbol{\times}  \mathbf{B} \right)_{\theta} =
+  \frac{1}{r} \left[ \frac{1}{\sin \theta} \,\frac{\partial \,B_{r} }{\partial \varphi}   -
+    \frac{\partial }{\partial \, r}  \, \left( r\, B_{\varphi} \right) \right]
+\end{equation}
+\begin{equation}
+\left( \boldsymbol{\nabla} \boldsymbol{\times}  \mathbf{B} \right)_{\varphi} =
+  \frac{1}{r} \left[ \frac{\partial }{\partial r} \, \left(r\, B_{\theta} \right)   -
+    \frac{\partial \, B_{r} }{\partial \, \theta}   \right]
+\end{equation}
+in which we have used Eq.(\ref{Eq:spdiv}) with $B_{\theta}$ replaced by $B_{\varphi}$
+and also Eq.(\ref{Eq:cycurl}) with $\rho$ replaced by $r$.
+
+\end{document}

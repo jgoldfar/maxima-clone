@@ -1,0 +1,2133 @@
+% e. woollett
+%   july 08 - april 09
+% file fltrans.tex this is new ch. 10
+% copied from calculus2.tex
+% ch. 8 nint.tex is just the quadpack romberg stuff nint.tex
+% and ch. 9 bigfloats and arb prec integration
+% and ch. 11 fast fourier transforms
+% check with new version of maxima
+% after cleaning up line numbers, check
+% 
+% 
+% 
+% things to add: 
+% mailing list example see 
+% work3, maxima tricks3a,
+%  fourier-series-abs-lambda-pw-mac.txt
+% 
+% 
+% 
+% 
+% edit with Notepad++, then load into LED for latexing
+\documentclass[12pt]{article}
+\usepackage[dvips,top=1.5cm,left=1.5cm,right=1.5cm,foot=1cm,bottom=1.5cm]{geometry}
+\usepackage{times,amsmath,amsbsy,graphicx,fancyvrb,url}
+\usepackage[usenames]{color}
+%\definecolor{MyDarkBlue}{rgb}{0,0.08,0.45}
+\definecolor{mdb}{rgb}{0.1,0,0.55}
+\newcommand{\tcdb}{\textcolor{mdb}}
+\newcommand{\tcbr}{\textcolor{BrickRed}}
+\newcommand{\tcb}{\textcolor{blue}}
+\newcommand{\tcr}{\textcolor{red}}
+\urldef\tedhome\url{ http://www.csulb.edu/~woollett/  }
+\urldef\tedmail\url{ woollett@charter.net}
+%1.  this is for maxima code: red framed bold, footnotesize 
+\DefineVerbatimEnvironment%
+   {myVerbatim}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,fontsize=\footnotesize ,frame=single,rulecolor=\color{BrickRed}}
+\DefineVerbatimEnvironment%
+   {myVerbatim1}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,fontsize=\scriptsize ,frame=single,rulecolor=\color{BrickRed}}
+%2.  this is for blue framed bold 
+\DefineVerbatimEnvironment%
+   {myVerbatim2}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,frame=single,rulecolor=\color{blue}}
+\DefineVerbatimEnvironment%
+   {myVerbatim2s}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,fontsize=\small,frame=single,rulecolor=\color{blue}}
+\DefineVerbatimEnvironment%
+   {myVerbatim2f}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,fontsize=\footnotesize,frame=single,rulecolor=\color{blue}}
+% 3.  this is for black framed  bold
+\DefineVerbatimEnvironment%
+   {myVerbatim3}%
+   {Verbatim}%
+   {fontfamily= courier, fontseries=b, frame=single}
+% 4.  this is for no frame bold
+\DefineVerbatimEnvironment%
+   {myVerbatim4}%
+   {Verbatim}%
+   {fontfamily=courier, fontseries=b}
+% 6.  for defaults use usual verbatim
+\newcommand{\mv}{\Verb[fontfamily=courier,fontseries=b]}
+\newcommand{\mvs}{\Verb[fontfamily=courier,fontseries=b,fontsize=\small]}
+\newcommand{\mvf}{\Verb[fontfamily=courier,fontseries=b,fontsize=\footnotesize]}
+
+\renewcommand{\thefootnote}{\ensuremath{\fnsymbol{footnote}}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   title page
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{  Maxima by Example:\\ Ch.10: Fourier Series, Fourier and Laplace Transforms
+            \thanks{This version uses \textbf{Maxima 5.18.1}. This is a live
+            document. Check \; \textbf{ \tedhome } \; for the latest version of these notes. Send comments and
+			 suggestions to \textbf{\tedmail} } }
+
+
+\author{ Edwin L. Woollett}
+\date{\today}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%          document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%
+%\small
+\maketitle
+\tableofcontents
+\numberwithin{equation}{section}
+\newpage
+\begin{myVerbatim2} 
+COPYING AND DISTRIBUTION POLICY    
+This document is part of a series of notes titled
+"Maxima by Example" and is made available
+via the author's webpage http://www.csulb.edu/~woollett/
+to aid new users of the Maxima computer algebra system.	
+	
+NON-PROFIT PRINTING AND DISTRIBUTION IS PERMITTED.
+	
+You may make copies of this document and distribute them
+to others as long as you charge no more than the costs of printing.	
+
+These notes (with some modifications) will be published in book form
+eventually via Lulu.com in an arrangement which will continue
+to allow unlimited free download of the pdf files as well as the option
+of ordering a low cost paperbound version of these notes.
+\end{myVerbatim2}	
+\smallskip
+\noindent \tcbr{Feedback from readers is the best way for this series of notes
+  to become more helpful to new users of Maxima}.
+\tcdb{\emph{All} comments and suggestions for improvements will be appreciated and
+  carefully considered}.
+\smallskip
+\begin{myVerbatim2s}
+The Maxima code examples in this chapter were generated 
+using the XMaxima graphics interface on a Windows XP computer, and copied
+into a fancy verbatim environment in a latex file which uses the fancyvrb
+and color packages.
+We use qdraw.mac for plots (see Ch.5), which uses draw2d defined
+in share/draw/draw.lisp.
+\end{myVerbatim2s}  
+\smallskip
+\begin{myVerbatim}
+Maxima.sourceforge.net. Maxima, a Computer Algebra System. Version 5.18.1
+ (2009). http://maxima.sourceforge.net/
+\end{myVerbatim}
+\newpage
+\setcounter{section}{10}
+\subsection{Introduction}
+In chapter 10 we discuss the Fourier series expansion of a given function, the
+  computation of Fourier transform integrals, and the calculation
+  of Laplace transforms (and inverse Laplace transforms).
+\subsection{Fourier Series Expansion of a Function}
+\subsubsection{Fourier Series Expansion of a Function over $(-\boldsymbol{\pi,\,\pi})$}
+A Fourier series expansion designed to represent a given function
+  \textbf{f(x)} defined over a finite interval $(-\boldsymbol{\pi, \pi})$, is a sum of terms
+\begin{equation}  \label{fxpi}
+\mathbf{f(x) = \frac{1}{2} \, a_{0} + \sum_{n=1}^{\infty} \left[ 
+   a_{n}\,\boldsymbol{\cos} (n\,x) + b_{n} \,\boldsymbol{\sin} (n\,x) \right] }
+\end{equation}
+  
+\noindent and the constant coefficients ($\mathbf{a_{n},\, b_{n}}$) are 
+\begin{equation} \label{fcoeff}
+ \mathbf{ a_{n} = \frac{1}{\boldsymbol{\pi}} \, \int_{-\boldsymbol{\pi}}^{\boldsymbol{\pi}} f(y)\,
+   \boldsymbol{\cos} (n\,y) \, dy}, \quad
+   \mathbf{ b_{n} = \frac{1}{\boldsymbol{\pi}} \, \int_{-\boldsymbol{\pi}}^{\boldsymbol{\pi}} f(y)\,
+   \boldsymbol{\sin} (n\,y) \, dy}. 
+\end{equation}
+(For a derivation of these equations see Sec.\ref{expfs} and Eqs.(\ref{Eq:piex1}) and
+  (\ref{Eq:piex2}).)\\
+
+\noindent Whether or not you are working with a function which is periodic, the Fourier
+  expansion will represent a periodic function for all \textbf{x}, in this case
+  having period $\boldsymbol{2\,\pi}$.\\
+
+\noindent The first term of the expansion
+\begin{equation}
+\mathbf{ \frac{1}{2} \, a_0  =
+ \frac{1}{2\, \boldsymbol{\pi}}  \int_{-\boldsymbol{\pi}}^{\boldsymbol{\pi}} f(y)\,dy =
+ \langle f(x) \rangle }
+\end{equation}
+is the (un-weighted) average of \textbf{f(x)} over the domain $(-\boldsymbol{\pi},\boldsymbol{\pi})$.
+Hence $\mathbf{a_{0}}$ will always be twice the average value of the function over
+  the domain.\\
+
+\noindent If \textbf{f(x)} is an even function ($\mathbf{f(-x) =  f(x)}$),
+  then only the $\mathbf{\boldsymbol{\cos}(n\,x)}$ terms
+  contribute. 
+If \textbf{f(x)} is an odd function ($\mathbf{f(-x) =  -f(x)}$),
+  then only the $\mathbf{\boldsymbol{\sin}(n\,x)}$ terms contribute. \\
+  
+\noindent If you are trying to find a fourier expansion for a function or expression \textbf{f(x)} 
+   which is a homemade function which involves "if..then..else"
+  constructs, it is necessary to do the preliminary work "by hand".\\
+  
+\noindent On the other hand, if the given function is a smooth function defined in terms of elementary
+  functions and polynomials, or includes \textbf{abs} of elements of the
+  function, one can use the \textbf{fourie} package to do most of the work
+  in obtaining the desired Fourier series expansion.
+This package is \mv|calculus/fourie.mac|, and there is also a short \textbf{demo} file
+  \mv|fourie.dem|.\\
+  
+\noindent Although many secondary functions defined in this mac file are usable once you
+  load the package, they are not documented in the Maxima manual.
+The Maxima manual gives a brief definition of the primary tools available, but
+  gives no examples of use, nor is there an \textbf{example} file for such
+  primary functions as \textbf{fourier}, \textbf{foursimp}, and \textbf{fourexpand}.\\
+  
+\noindent If the Fourier series integrals needed for the coefficients are too difficult
+  for \textbf{integrate}, you should use the Quadpack function \mvs|quad_qawo|
+  described in Chapter 8, Numerical Integration.  
+\newpage
+\subsubsection{Fourier Series Expansion of $\mathbf{f(x) = x}$ \; over ($-\boldsymbol{\pi,\, \pi}$)}
+We first use the coefficient formulas Eq.(\ref{fcoeff}) to find the Fourier expansions
+  of this simple linear function $\mathbf{f(x) = x}$ by hand.\\
+  
+\noindent Because the average value of \textbf{f(x)} over the domain $(-\boldsymbol{\pi,\pi})$ is zero,
+   $\mathbf{a_{0} = 0}$.
+Because \textbf{f(x)} is an odd function, we have $\mathbf{a_{n} = 0}$
+  for all $\mathbf{n > 0}$.
+\begin{myVerbatim}
+(%i1) (declare(n,integer), assume(n > 0 ), facts() );
+(%o1)                      [kind(n, integer), n > 0]
+(%i2) define(b(n),integrate(x*sin(n*x),x,-%pi,%pi)/%pi );
+                                               n
+                                        2 (- 1)
+(%o2)                         b(n) := - --------
+                                           n
+(%i3) map('b,makelist(i,i,1,7));
+                                   2    1  2    1  2
+(%o3)                     [2, - 1, -, - -, -, - -, -]
+                                   3    2  5    3  7
+(%i4) fs(nmax) := sum( b(m)*sin(m*x),m,1,nmax)$
+(%i5) map('fs,[1,2,3,4] );
+                                      2 sin(3 x)
+(%o5) [2 sin(x), 2 sin(x) - sin(2 x), ---------- - sin(2 x) + 2 sin(x), 
+                                          3
+                                   sin(4 x)   2 sin(3 x)
+                                 - -------- + ---------- - sin(2 x) + 2 sin(x)]
+                                      2           3
+\end{myVerbatim}
+The list contains, in order, the lowest approximation $\mathbf{2\,\boldsymbol{\sin}(x)}$
+  which retains only the $\mathbf{n = 1}$ term in the expansion, the two term approximation
+  $\mathbf{2\,\boldsymbol{\sin}(x) - \boldsymbol{\sin}(2\,x)}$,
+  which includes the $\mathbf{n = 1,\, 2}$ terms, etc.
+We now load the \textbf{draw} package and the \textbf{qdraw} package (the
+  latter available with Ch. 5 material on the author's webpage)
+  to make two simple plots.
+We first make a plot showing the function $\mathbf{f(x) = x}$ in \textcolor{blue}{blue}, the
+  one term approximation (\mvf|fs(1) = 2 sin(x)|) in \textcolor{red}{red}, and the
+  two term approximation (\mvf|fs(2) = 2 sin(x) - sin(2 x)|) in \textcolor{PineGreen}{green}.
+\begin{myVerbatim}
+(%i6) (load(draw), load(qdraw) )$
+               qdraw(...), qdensity(...), syntax: type qdraw(); 
+
+(%i7) qdraw( xr(-5.6,5.6),yr(-4,4),
+               ex([x,fs(1),fs(2)],x,-%pi,%pi),key(bottom) )$
+\end{myVerbatim}
+In this plot (see next page), we have taken control of the \textbf{x} and \textbf{y} range, using
+  the approximate fudge factor \mv|1.4| to relate the horizontal canvas
+  extent to the vertical canvas extent (see our discussion in Ch. 5 if this is
+  all new to you) to get the geometry approximately correct.
+In the next plot we include one, two, three and four term approximations.
+\begin{myVerbatim}
+(%i8) qdraw( xr(-5.6,5.6),yr(-4,4),
+               ex([x,fs(1),fs(2),fs(3),fs(4)],x,-%pi,%pi),key(bottom) )$
+\end{myVerbatim}
+with the four term approximation in purple being a closer approximation to
+  $\mathbf{f(x) = x}$ (see the figure on the next page).
+\newpage
+\begin{figure} [ht]
+   \centerline{\includegraphics[scale=.8]{ch7p3.eps} }
+	\caption{ One and Two Term Approximations  }
+\end{figure}   
+% eps code for two term approx  
+%(%i9) qdraw( xr(-5.6,5.6),yr(-4,4), line(-5.6,0,5.6,0,lw(3) ),
+%          line(0,-4,0,4,lw(3) ),
+%          ex([x,fs(1),fs(2)],x,-%pi,%pi ), key(bottom),
+%         pic(eps,"ch7p3",font("Times-Bold",20) ) )$ 
+%
+%\smallskip
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.2]{ch7p4.eps} }
+	\caption{ 1, 2, 3, and 4 Term Approximations  }
+\end{figure}     
+% eps code for 1,2,3,and 4 term approximations
+% (%i11) qdraw( xr(-5.6,5.6),yr(-4,4), line(-5.6,0,5.6,0,lw(3) ),
+%          line(0,-4,0,4,lw(3) ),
+%          ex([x,fs(1),fs(2),fs(3),fs(4)],x,-%pi,%pi ), key(bottom),
+%         pic(eps,"ch7p4",font("Times-Bold",20) ) )$ 
+%
+%\newpage
+
+\subsubsection{The \textbf{calculus/fourie.mac} Package: \textbf{fourier}, \textbf{foursimp}, \textbf{fourexpand} }
+Now let's show how to get the expansions of this simple linear function 
+  using the package \textbf{calculus/fourie.mac}. A curious feature of \textbf{fourie.mac} is 
+  the role that the symbol \mvs|n| plays in the calculation of the fourier coefficients.
+If you look at the code of \textbf{calculus/fourie.mac} (about a four page text file), 
+  you will see that the function \textbf{fourier} calls either \textbf{fourcos},
+  \textbf{foursin}, or \textbf{fourcoeff}, and each of these latter functions
+  declare \mvs|n| to be a local variable, and then have the statement (inside the
+  \textbf{block}) \mvs|assume( n > 0 )|, which "leaks out" of the \textbf{block}
+  to become a global assumption.
+These functions then call a package function \textbf{adefint(..)} to integrate
+  the function to be expanded times either $\mathbf{\boldsymbol{\cos}(n\,\boldsymbol{\pi}\,x/p)}$
+  or $\mathbf{\boldsymbol{\sin}(n\,\boldsymbol{\pi}\,x/p)}$, (where $\mathbf{p}$ will be
+  $\boldsymbol{\pi}$ for our expansion domain here).\\
+  
+\noindent Finally, after dealing with possible instances of \textbf{abs(..)} in the function
+  to be expanded, \textbf{adefint} calls either \textbf{ldefint} or \textbf{integrate}
+  with an argument involving these same \mv|n| dependent trig functions.\\
+
+\noindent Here is a small test of that leakage for both an \textbf{assume} statement
+  and a \textbf{declare} statement.
+\begin{myVerbatim}
+(%i1) facts();
+(%o1)                                 []
+(%i2) f(m) := block([n],declare(n,integer),assume( n > 0 ),
+                 if m < 2 then n :2 else n:3,(2*n*m) )$
+(%i3) f(1);
+(%o3)                                  4
+(%i4) facts();
+(%o4)                      [kind(n, integer), n > 0]
+(%i5) is(n>0);
+(%o5)                                true
+\end{myVerbatim}
+Another curious feature of the \mv|fourie.mac| package is that \mv|n| is not declared to
+  be an integer, and unless the user of the package does this first, the integration
+  routine may ask questions about signs which may seem irrelevant to the result.
+We avoid that trap here and use \mv|declare(n, integer)| before calling
+  \textbf{fourier}.
+\begin{myVerbatim}
+(%i1) facts();
+(%o1)                                 []
+(%i2) (load(fourie), facts() );
+(%o2)                                 []
+(%i3) (declare(n,integer), facts() );
+(%o3)                         [kind(n, integer)]
+(%i4) clist : fourier(x,x,%pi);
+(%t4)                               a  = 0
+                                     0
+
+(%t5)                               a  = 0
+                                     n
+
+                                              n
+                                       2 (- 1)
+(%t6)                           b  = - --------
+                                 n        n
+
+(%o6)                           [%t4, %t5, %t6]
+(%i7) facts();
+(%o7)                      [kind(n, integer), n > 0]
+(%i8) fs(nmax) := fourexpand(clist,x,%pi, nmax )$
+(%i9) map( 'fs, [1,2,3,4] );
+                                      2 sin(3 x)
+(%o9) [2 sin(x), 2 sin(x) - sin(2 x), ---------- - sin(2 x) + 2 sin(x), 
+                                          3
+                                   sin(4 x)   2 sin(3 x)
+                                 - -------- + ---------- - sin(2 x) + 2 sin(x)]
+                                      2           3
+(%i10) b(n);
+(%o10)                               b(n)
+\end{myVerbatim}
+Some comments: you can use \textbf{foursimp} to get extra simplification of the
+  fourier coefficients (if needed) before defining what I call \textbf{clist} (for
+  coefficient list) which is the list \textbf{fourexpand} needs to generate the
+  expansions you want.
+Note \textbf{fourier} produces a separate output for $\mathbf{a_{0}}$ and $\mathbf{a_{n}}$,
+  with the second meant for $\mathbf{n = 1,\,2,\,\ldots }$, and there is never an
+  output for $\mathbf{b_{0}}$.  
+We have defined the small function \textbf{fs(nmax)} to make it easier
+  to call \textbf{fourexpand} with any value of $\mathbf{nmax}$ and to
+  allow the function to be mapped onto a list of integers to show
+  us the first few approximations.  
+Note that once you call \textbf{fourier}, the assumption $\mathbf{n > 0}$ becomes
+  a global fact.
+Also note that the \textbf{fourie.mac} package does not define a Maxima function $\mathbf{b(n)}$,
+  although you could use:
+\begin{myVerbatim}
+(%i11) define(b(n),rhs(%t6) );
+                                               n
+                                        2 (- 1)
+(%o11)                        b(n) := - --------
+                                           n
+(%i12) map( 'b, makelist(i,i,1,7) );
+                                   2    1  2    1  2
+(%o12)                    [2, - 1, -, - -, -, - -, -]
+                                   3    2  5    3  7
+\end{myVerbatim} 
+If you look at the Maxima code in \mv|fourie.mac|, you see that because
+  we have an "odd" function $\mathbf{f(x) = x}$, \textbf{fourier} calls
+  the package function \textbf{foursin}, which calls package function
+  \textbf{adefint}, which calls the core Maxima function \textbf{ldefint}
+ for this case.\\
+
+\noindent Those expansion expressions can then be used for plots as above.
+\subsubsection{Fourier Series Expansion of a Function  Over ($\mathbf{-p,\, p}$)}
+The Fourier series expansion of a function defined over the interval
+  $\mathbf{-p \le x \le p}$ (and whose Fourier expansion will represent
+  a function which has a period $\mathbf{2\,p}$) can be found from the expansion over
+  the interval $(-\boldsymbol{\pi, \pi})$ which we have been using above
+  by a simple change of variables in the integrals which appear in
+  Eqs.(\ref{fcoeff}) and (\ref{fxpi}).\\
+  
+\noindent However, we will simply use the results derived in Sec.\ref{expfs}, and written down
+  in Eqns (\ref{Eq:pex1}) and (\ref{Eq:pex2}).
+\begin{equation}  \label{pfexpan}
+\mathbf{f(x) = \frac{1}{2} \, a_{0} + \sum_{n=1}^{\infty} \left[ 
+   a_{n}\,\boldsymbol{\cos} \left( \frac{ \boldsymbol{\pi}\,n\,x}{p} \right) +
+   b_{n} \,\boldsymbol{\sin} \left( \frac{ \boldsymbol{\pi}\,n\,x}{p} \right) \right] }
+\end{equation}
+with the corresponding coefficients (for $\mathbf{a_{n}}$, $\mathbf{n = 0, 1, ...}$,
+  for $\mathbf{b_{n}}$, $\mathbf{n = 1, ...}$):
+\begin{equation} \label{pfcoeff}
+\mathbf{ a_{n} = \frac{1}{p} \, \int_{-p}^{p} f(y)\,
+   \boldsymbol{\cos} \left( \frac{ \boldsymbol{\pi}\,n\,y}{p} \right) \, dy}, \quad
+   \mathbf{ b_{n} = \frac{1}{p} \, \int_{-p}^{p} f(y)\,
+   \boldsymbol{\sin} \left( \frac{ \boldsymbol{\pi}\,n\,y}{p} \right) \, dy}. 
+\end{equation}
+We need to warn the user of the package \textbf{fourie.mac} that they use the
+  symbol $\mathbf{a_{0}}$ to mean \textit{our} $\mathbf{a_{0}/2}$.  \\
+  
+\noindent \textit{Our} $\mathbf{a_{0}}$ is defined by
+\begin{equation}
+\mathbf{ a_{0} = \frac{1}{p} \, \int_{-p}^{p} f(x)\,dx }
+\end{equation}
+The \textbf{fourie.mac} package's definition of \textit{their} $\mathbf{a_{0}}$ is
+\begin{equation} \label{fa0}
+\mathbf{ [a_0]_{fourie.mac} = \frac{1}{2\,p} \, \int_{-p}^{p} f(x)\,dx }
+\end{equation}
+ which defines the average value of the function over the domain
+ and which becomes the first term of the fourier series expansion they provide.
+\subsubsection{Fourier Series Expansion of the Function $\mathbf{\vert x \vert}$ }
+We define the function to have period $\mathbf{4}$ with 
+  $\mathbf{f(x) = \vert x \vert}$ for $\mathbf{-2 \leq x \leq 2}$.   
+This function  is an even function of \textbf{x} so the $\boldsymbol{\sin}$
+  coefficients $\mathbf{b_{n}}$ are all zero.
+The average value of $\mathbf{\vert x \vert}$ over the domain $\mathbf{(-2,2)}$
+ is greater than zero  so we willl have a non-zero coefficient $\mathbf{a_{0}}$
+ which we will calculate separately. We do this calculation by hand here.\\
+ 
+\noindent Note that the Maxima function \textbf{integrate} cannot cope with \textbf{abs(x)}:
+\begin{myVerbatim}
+(%i13) integrate(abs(x)*cos(n*%pi*x/2),x,-2,2)/2;
+                           2
+                          /
+                          [               %pi n x
+                          I    abs(x) cos(-------) dx
+                          ]                  2
+                          /
+                           - 2
+(%o13)                    ---------------------------
+                                       2
+\end{myVerbatim}
+so we will split up the region of integration into two sub-intervals:
+  $\mathbf{-2 \leq x \leq 0}$, in which $\mathbf{\vert x \vert = -x}$, and  the interval 
+   $\mathbf{0 \leq x \leq  2}$ in which $\mathbf{\vert x \vert = x}$.
+We will use the formula Eq. (\ref{pfcoeff})   for the coefficients $\mathbf{a_{n}}$
+  (note that $\mathbf{a_{n} = 0}$ if \textbf{n} is even)
+  and the expansion formula Eq. (\ref{pfexpan}).
+\begin{myVerbatim}
+(%i1) (declare(n,integer),assume(n > 0), facts() );
+(%o1)                      [kind(n, integer), n > 0]
+(%i2) a0 :integrate(-x,x,-2,0)/2 + integrate(x,x,0,2)/2;
+(%o2)                                  2
+(%i3) an : integrate((-x)*cos(n*%pi*x/2),x,-2,0)/2 +
+           integrate(x*cos(n*%pi*x/2),x,0,2)/2;
+                                     n
+                              4 (- 1)       4
+(%o3)                         -------- - -------
+                                 2  2       2  2
+                              %pi  n     %pi  n
+(%i4) an : (ratsimp(an), factor(%%) );
+                                        n
+                                4 ((- 1)  - 1)
+(%o4)                           --------------
+                                      2  2
+                                   %pi  n
+(%i5) define(a(n),an);
+                                            n
+                                    4 ((- 1)  - 1)
+(%o5)                       a(n) := --------------
+                                          2  2
+                                       %pi  n
+(%i6) map( 'a, [1,2,3,4,5] );
+                          8           8             8
+(%o6)                 [- ----, 0, - ------, 0, - -------]
+                            2            2             2
+                         %pi        9 %pi        25 %pi
+(%i7) fs(nmax) := a0/2 + sum(a(m)*cos(m*%pi*x/2),m,1,nmax)$
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i8) map('fs, [1, 3, 5] );
+                 %pi x           3 %pi x          %pi x
+           8 cos(-----)    8 cos(-------)   8 cos(-----)
+                   2                2               2
+(%o8) [1 - ------------, - -------------- - ------------ + 1, 
+                  2                 2              2
+               %pi             9 %pi            %pi
+                                  5 %pi x          3 %pi x          %pi x
+                            8 cos(-------)   8 cos(-------)   8 cos(-----)
+                                     2                2               2
+                          - -------------- - -------------- - ------------ + 1]
+                                     2                2              2
+                               25 %pi            9 %pi            %pi
+(%i9) (load(draw),load(qdraw))$
+               qdraw(...), qdensity(...), syntax: type qdraw(); 
+
+(%i10) qdraw( ex([abs(x),fs(1)],x,-2,2),key(bottom) )$
+(%i11) qdraw( ex([abs(x),fs(1),fs(3)],x,-2,2),key(bottom) )$
+(%i12) qdraw( ex([abs(x),fs(5) ],x,-2,2),key(bottom) )$
+\end{myVerbatim}
+The first function in the plot list is $\mathbf{\vert x \vert}$, represented by
+  \textbf{abs(x)}, which appears in the color blue.
+We see that the expansion out to $\mathbf{n = 5}$ provides a close fit to $\mathbf{\vert x \vert}$.
+Here is that comparison:
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=1.2]{ch7p5.eps} }
+	\caption{$\mathbf{n = 5}$ Approximation to $\mathbf{\vert x \vert}$  }
+\end{figure}   
+
+% eps code for n = 5 approximation
+% qdraw( line(0,0,0,2,lw(3) ),
+%       ex([abs(x),fs(5) ],x,-2,2 ), key(bottom),
+%       pic(eps,"ch7p5",font("Times-Bold",20) ) )$
+%
+We now try out the package \textbf{fourie.mac} on this example:
+\begin{myVerbatim}
+(%i1) ( load(fourie),facts() );
+(%o1)                                 []
+(%i2) (declare(n,integer),facts());
+(%o2)                         [kind(n, integer)]
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i3) fourier(abs(x),x,2);
+(%t3)                               a  = 1
+                                     0
+
+                                        n
+                                 4 (- 1)       4
+(%t4)                       a  = -------- - -------
+                             n      2  2       2  2
+                                 %pi  n     %pi  n
+
+(%t5)                               b  = 0
+                                     n
+
+(%o5)                           [%t3, %t4, %t5]
+(%i6) clist : foursimp(%);
+(%t6)                               a  = 1
+                                     0
+
+                                           n
+                                   4 ((- 1)  - 1)
+(%t7)                         a  = --------------
+                               n         2  2
+                                      %pi  n
+
+(%t8)                               b  = 0
+                                     n
+
+(%o8)                           [%t6, %t7, %t8]
+(%i9) facts();
+(%o9)                      [kind(n, integer), n > 0]
+(%i10) fs(nmax) := fourexpand(clist,x,2,nmax )$
+(%i11) map( 'fs, [1,3,5] );
+                  %pi x           3 %pi x          %pi x
+            8 cos(-----)    8 cos(-------)   8 cos(-----)
+                    2                2               2
+(%o11) [1 - ------------, - -------------- - ------------ + 1, 
+                   2                 2              2
+                %pi             9 %pi            %pi
+                                  5 %pi x          3 %pi x          %pi x
+                            8 cos(-------)   8 cos(-------)   8 cos(-----)
+                                     2                2               2
+                          - -------------- - -------------- - ------------ + 1]
+                                     2                2              2
+                               25 %pi            9 %pi            %pi
+\end{myVerbatim}
+Notice that $\mathbf{(a_{0})_{fourie} = 1 = \frac{1}{2} \, (a_{0})_{our def}}$, 
+  (see Eq. (\ref{fa0}) ) so that \mv|fourie.mac|'s expansion starts off with 
+  the term $\mathbf{a_{0}}$ rather
+  than $\mathbf{\frac{1}{2} \, a_{0}}$.
+Of course, the actual end results look the same, with the first
+  term in this example being \textbf{1}, which is the average value of
+  $\mathbf{\vert x \vert}$ over the domain $\mathbf{(-2, 2)}$.\\  
+  
+\noindent Here we chose to use the package function \textbf{foursimp} to simplify
+  the appearance of the coefficients.
+We see that \mv|fourie.mac| is able to cope with the appearance of \textbf{abs(x)} in
+  the integrand, and produces the same coefficients and expansions as were found
+  "by hand".
+\subsubsection{Fourier Series Expansion of a Rectangular Pulse}
+We define \textbf{f(x)} to be a function of period \textbf{4}, with $\mathbf{f = 0}$
+  for $\mathbf{-2 \leq x < -1}$, $\mathbf{3/2}$ for $\mathbf{-1 \leq x \leq 1}$ and
+  $\mathbf{f = 0}$ for $\mathbf{1 < x \leq 2}$. 
+\begin{myVerbatim}
+(%i1) f(x):= if x >= -1 and x <= 1 then 3/2 else 0$
+(%i2) map('f, [-3/2,-1,0,1,3/2] );
+                                    3  3  3
+(%o2)                          [0, -, -, -, 0]
+                                    2  2  2
+(%i3) (load(draw),load(qdraw) )$
+               qdraw(...), qdensity(...), syntax: type qdraw(); 
+
+(%i4) qdraw( yr(-0.5,2), ex1(f(x),x,-2,2,lw(5),lc(blue) ) )$
+\end{myVerbatim}
+The plot of \textbf{f(x)} shows a square pulse with height $\mathbf{3/2}$ above the
+  \textbf{x} axis and with a width of $\mathbf{2}$ units over the
+  interval $\mathbf{-1 \leq x \leq 1}$.
+Over the rest of the domain $\mathbf{-2 \leq x \leq 2}$, \textbf{f(x)} is defined to be
+  zero.  
+\smallskip
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=0.7]{ch7p6.eps} }
+	\caption{Rectangular Pulse of Height $3/2$}
+\end{figure}   
+% eps code for square pulse plot
+% qdraw( yr(-0.5,2), line(-1,0,1,0,lw(4)),
+%              line(0,-0.5,0,2,lw(4) ),
+%       ex1(f(x),x,-2,2,lw(10),lc(blue) ),
+%       pic(eps,"ch7p6",font("Times-Bold",18) ) )$
+%
+% \smallskip  
+
+\noindent Although we can make a plot of the function \textbf{f(x)} as defined ,
+   Maxima's \textbf{integrate} function cannot
+  do anything useful with it, and hence neither can \mv|fourie.mac| at
+   the time of writing.
+\begin{myVerbatim}
+(%i5) integrate(f(x),x,-2,2);
+               2
+              /
+              [                                     3
+(%o5)        I    (if (x >= - 1) and (x <= 1) then - else 0) dx
+              ]                                     2
+              /
+               - 2
+\end{myVerbatim}
+Hence we must compute the Fourier series expansion "by hand".
+We see that \textbf{f(x)} is an even function\\
+ ($\mathbf{f(-x) = f(x)}$),
+  so only the $\mathbf{\boldsymbol{\cos}(n\,\boldsymbol{\pi}\,x/2)}$
+  terms will contribute, so we only need to calculate the $\mathbf{a_{n}}$ coefficients.
+\begin{myVerbatim}
+(%i6) (declare(n,integer), assume(n>0),facts() );
+(%o6)                      [kind(n, integer), n > 0]
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i7) a0 : (1/2)*integrate( (3/2),x,-1,1 );
+                                       3
+(%o7)                                  -
+                                       2
+(%i8) define(a(n),(1/2)*integrate((3/2)*cos(n*%pi*x/2),x,-1,1));
+                                           %pi n
+                                     3 sin(-----)
+                                             2
+(%o8)                        a(n) := ------------
+                                        %pi n
+(%i9) map( 'a, makelist(i,i,1,7) );
+                       3         1        3           3
+(%o9)                [---, 0, - ---, 0, -----, 0, - -----]
+                      %pi       %pi     5 %pi       7 %pi
+\end{myVerbatim}
+We see that for $\mathbf{n>0}$, $\mathbf{a_{n} = 0}$ for \textbf{n} even, and the non-zero  coefficients have
+   $\mathbf{n = 1, 3, 5, 7, ...}$.
+Hence we only get a better approximation if we increase $\mathbf{n_{max}}$ by $\mathbf{2}$ each
+  time.
+\begin{myVerbatim}
+(%i10) fs(nmax) := a0/2 + sum( a(m)*cos(m*%pi*x/2),m,1,nmax )$
+(%i11) map( 'fs, [1,3] );
+                    %pi x             3 %pi x          %pi x
+              3 cos(-----)        cos(-------)   3 cos(-----)
+                      2      3           2               2      3
+(%o11)        [------------ + -, - ------------ + ------------ + -]
+                  %pi        4        %pi            %pi        4
+(%i12) qdraw( yr(-0.5,2),ex([f(x),fs(1),fs(3) ],x,-2,2) )$
+(%i13) qdraw( yr(-0.5,2),ex([f(x),fs(11) ],x,-2,2) )$
+\end{myVerbatim}
+The plot with the approximations \mv|fs(1)| and \mv|fs(3)| was drawn first.
+\smallskip
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=0.9]{ch7p7.eps} }
+	\caption{$\mathbf{nmax = 1, 3}$ Approx. to Rectangular Pulse  }
+\end{figure}   
+% eps code for rectangular pulse plot
+% qdraw( yr(-0.5,2), line(-2,0,2,0,lw(3)),
+%              line(0,-0.5,0,2,lw(3) ),
+%       ex([f(x),fs(1),fs(3)],x,-2,2 ),
+%       pic(eps,"ch7p7",font("Times-Bold",20) ) )$
+%
+%\newpage
+
+\newpage
+\noindent Then a plot showing the \mv|fs(11)| approximation:
+\begin{figure} [h!]
+   \centerline{\includegraphics[scale=0.7]{ch7p8.eps} }
+	\caption{$\mathbf{nmax = 11}$ Approx. to Rectangular Pulse  }
+\end{figure}   
+% eps code for rectangular pulse plot
+% qdraw( yr(-0.5,2), line(-2,0,2,0,lw(3)),
+%              line(0,-0.5,0,2,lw(3) ),
+%       ex([f(x),fs(11) ],x,-2,2 ),
+%       pic(eps,"ch7p8",font("Times-Bold",20) ) )$
+%
+
+\subsubsection{Fourier Series Expansion of a Two Element Pulse}
+We compute the Fourier series expansion of a function 
+  which has the definition over the interval $\mathbf{(-10,10)}$
+  (and whose Fourier series expansion will be a function with period $\mathbf{20}$
+  for all \textbf{x})
+  given by:   for $\mathbf{-10 \leq x < -5}$, $\mathbf{f = 0}$,
+  and for $\mathbf{-5 \leq x < 0}$, $\mathbf{f = -5}$,
+  and for $\mathbf{0 \leq x \leq 5}$, $\mathbf{f = 5}$,
+  and for $\mathbf{5 < x \leq 10}$, $\mathbf{f = 0}$.
+First we define such a function for our plots.
+\begin{myVerbatim}
+(%i1) f(x):= if x >= -5 and x < 0 then -5
+              elseif x >= 0 and x <= 5 then 5 else 0$
+(%i2) map('f,[-6,-5,-1,0,1,5,6]);
+(%o2)                      [0, - 5, - 5, 5, 5, 5, 0]
+\end{myVerbatim}
+and plot the function
+\begin{myVerbatim}
+(%i3) ( load(draw),load(qdraw) )$
+               qdraw(...), qdensity(...), syntax: type qdraw(); 
+(%i4) qdraw( yr(-8,8), ex1(f(x),x,-10,10,lw(5),lc(blue) ) )$
+\end{myVerbatim}
+which looks like
+\smallskip
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=0.5]{ch7p15.eps} }
+	\caption{Two Element Pulse with Period $\mathbf{20}$ }
+\end{figure}   
+
+% eps code for two element pulse plot
+% qdraw( yr(-8,8), line(-5,0,5,0,lw(3)),line(0,-8,0,-5,lw(3) ),
+%       line(0,5,0,8,lw(3) ),
+%       ex1(f(x),x,-10,10,lw(10),lc(blue) ),
+%       pic(eps,"ch7p15",font("Times-Bold",18) ) )$
+%
+\newpage
+\noindent Since we have an odd function, only terms like
+   $\mathbf{b_{n} \, \boldsymbol{\sin}(n\,\boldsymbol{\pi} \, x/10)}$ will contribute to the
+   expansion, but, just for practice, we find $\mathbf{a_{n}}$ too.
+\begin{myVerbatim1}
+(%i5) a0 : (1/10)*( integrate( -5, x, -5, 0 ) +
+                              integrate( 5, x, 0, 5 )  );
+(%o5)                                  0
+(%i6) an : (1/10)*(integrate( -5*cos( n*%pi*x/10 ), x, -5, 0 ) +
+                       integrate(5*cos(n*%pi*x/10), x, 0, 5 )  );
+(%o6)                                  0
+(%i7) bn : ( (1/10)*(integrate( -5*sin(n*%pi*x/10), x, -5, 0 ) +
+             integrate( 5*sin(n*%pi*x/10), x, 0, 5 )  ),
+              ratsimp(%%) );
+                                      %pi n
+                               10 cos(-----) - 10
+                                        2
+(%o7)                        - ------------------
+                                     %pi n
+(%i8) define( b(n), bn );
+                                          %pi n
+                                   10 cos(-----) - 10
+                                            2
+(%o8)                    b(n) := - ------------------
+                                         %pi n
+(%i9) map('b,makelist(i,i,1,7));
+                     10   10    10        2    10     10
+(%o9)              [---, ---, -----, 0, ---, -----, -----]
+                     %pi  %pi  3 %pi     %pi  3 %pi  7 %pi
+(%i10) fs(nmax) :=  sum( b(m)*sin(m*%pi*x/10), m, 1, nmax )$
+(%i11) map('fs,[1,2,3]);
+               %pi x          %pi x           %pi x
+        10 sin(-----)  10 sin(-----)   10 sin(-----)
+                10              5              10
+(%o11) [-------------, ------------- + -------------, 
+             %pi            %pi             %pi
+                                      3 %pi x           %pi x           %pi x
+                               10 sin(-------)   10 sin(-----)   10 sin(-----)
+                                        10                5              10
+                               --------------- + ------------- + -------------]
+                                    3 %pi             %pi             %pi
+(%i12) qdraw(  xr(-15, 15), yr(-10, 10),
+                            ex( [f(x), fs(1), fs(2) ], x, -10, 10 ) )$
+\end{myVerbatim1}
+The plot of \textbf{f(x)} with the two lowest approximations looks like
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=0.9]{ch7p16.eps} }
+	\caption{Two Lowest Order Approximations }
+\end{figure} 
+% eps code for two element pulse plot
+% qdraw(xr(-15, 15), yr(-10,10), line(-5,0,5,0,lw(3)),line(0,-10,0,-5,lw(3) ),
+%       line(0,5,0,10,lw(3) ), lw(10),
+%       ex( [f(x), fs(1), fs(2) ], x, -10, 10 ),
+%       pic(eps,"ch7p16",font("Times-Bold",18) ) )$
+
+\newpage
+\noindent The expansion \textbf{fs(11)} does pretty well as a rough approximation
+\begin{myVerbatim}
+(%i13) qdraw( xr(-15, 15), yr(-10, 10),
+                    ex(  [ f(x), fs(11) ], x, -10, 10 ) )$
+\end{myVerbatim}
+\begin{figure} [h!]
+   \centerline{\includegraphics[scale=0.8]{ch7p17.eps} }
+	\caption{$\mathbf{nmax = 11}$ Approx. to Two Element Pulse }
+\end{figure}   
+% eps code for two element pulse plot
+% qdraw(xr(-15, 15), yr(-10,10), line(-5,0,5,0,lw(3)),line(0,-10,0,-5,lw(3) ),
+%       line(0,5,0,10,lw(3) ), lw(10),
+%       ex(  [ f(x), fs(11) ], x, -10, 10 ),
+%       pic(eps,"ch7p17",font("Times-Bold",18) ) )$
+
+\noindent Whether you are working with a periodic function or not, the Fourier
+  series expansion always represents a periodic function for all \textbf{x}.
+For this example, the period is $\mathbf{20}$, and if we make a plot of \textbf{fs(11)}
+  over the range \mv|[-10, 30]|, we are including two periods.
+\begin{myVerbatim}
+(%i14) qdraw(yr(-10, 10),ex( fs(11), x, -10 , 30 ) )$
+\end{myVerbatim}
+which looks like
+\smallskip
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=0.8]{ch7p18.eps} }
+	\caption{$\mathbf{nmax = 11}$ Approx. Drawn for Two Periods }
+\end{figure}   
+% eps code for two element pulse plot
+% qdraw( yr(-10,10), line(-5,0,5,0,lw(3)), line(15,0,25,0,lw(3)),
+%      line(0,-10,0,-5,lw(3) ),line(0,5,0,10,lw(3) ), lw(10),
+%       ex( fs(11) , x, -10, 30 ),
+%       pic(eps,"ch7p18",font("Times-Bold",18) ) )$
+
+\newpage
+\subsubsection{Exponential Form of a Fourier Series Expansion} \label{expfs}
+The exponential form of a Fourier series can be based on the completeness and
+  orthogonality (in the Hermitian sense) of the set of exponential functions
+\begin{equation}
+\left\{ \mathbf{ exp\left(\frac{2\,\boldsymbol{\pi}\,i\,n\,x}{b-a} \right) } \right\} \qquad 
+\mathbf{(n=0,\, \pm 1,\, \pm 2,\, \cdots) }
+\end{equation}
+on the interval $\mathbf{(a,\,b)}$.
+Define the function $\mathbf{\boldsymbol{ \phi}_{n}(x) }$ as
+\begin{equation} \label{Eq:phi1}
+\mathbf{\boldsymbol{\phi}_{n}(x) =  exp \left(\frac{- 2\,\boldsymbol{\pi}\,i\,n\,x}{b-a} \right) }.
+\end{equation}
+This function has the properties
+\begin{equation} \label{Eq:phi2}
+\mathbf{\boldsymbol{ \phi}_{-n}(x) = \boldsymbol{\phi}_{n}(x)^{\ast} ,\qquad 
+\boldsymbol{\phi}_{n}(x) \, \boldsymbol{\phi}_{n}(x)^{\ast}  = 1}.
+\end{equation}
+in which the asterisk indicates the complex conjugate.\\
+
+\noindent The (Hermitian) orthogonality of the
+ $\mathbf{\left\{ \boldsymbol{\phi}_{n}(x) \right\}}$ over $\mathbf{(a,\,b)}$ 
+  is expressed by
+\begin{equation} \label{Eq:phi3}
+\mathbf{\int_{a}^{b} \boldsymbol{\phi}_{n}(x) \, \boldsymbol{\phi}_{m}(x)^{\ast}  \, dx =
+   (b-a)\,\boldsymbol{\delta}_{n\,m} },
+\end{equation}
+in which the Kronecker delta symbol is
+\begin{equation} \label{Eq:kron}
+\mathbf{\boldsymbol{\delta}_{n\,m}} = \left\{ \begin{array}{rcc}
+                \mathbf{1} & \text{for} & \mathbf{n = m }\\
+				\mathbf{0} & \text{for} & \mathbf{n \neq m}. 
+				\end{array} \right\}
+\end{equation}
+Eq.(\ref{Eq:phi3}) is clearly true for $\mathbf{n = m}$, using Eq.(\ref{Eq:phi2}).
+For $\mathbf{m \neq n}$, we can simplify this integral
+  by using the exponential product law $\mathbf{e^{A}\,e^{B} = e^{A+B}}$,
+  letting $\mathbf{r= m-n \neq 0}$, and changing the variable of integration
+  $\mathbf{x \rightarrow y}$ via $\mathbf{x = (b-a)\,y + a}$.
+The resulting integral in terms of $\mathbf{y}$ will then be over the interval (0,\,1).
+The differential $\mathbf{dx \, \rightarrow (b-a)\,dy}$ and $\mathbf{(b-a)}$ comes outside the integral.
+Also, inside the exponential, $\mathbf{x/(b-a) \rightarrow a/(b-a) + y}$, and
+  we can take outside an exponential function of a constant. Thus the integral is
+  proportional to $\mathbf{\int_{0}^{1} exp(2\,\boldsymbol{\pi}\,i\,r\,y)\,dy}$,
+  which is proportional to $\mathbf{exp(2\,\boldsymbol{\pi}\,i\,r) - 1 = exp(2\,\boldsymbol{\pi}\,i)^{r} -1 = 0}$.\\
+ 
+  
+\noindent We now write some function of $\mathbf{x}$ as a linear combination 
+  of the $\boldsymbol{\phi_{n}(x)}$ with coefficients $\mathbf{C_{n}}$ to be
+  determined.
+\begin{equation} \label{Eq:fs1}
+\mathbf{f(x) = \sum_{n = -\infty}^{\infty} C_{n} \,} \boldsymbol{\phi}_{\mathbf{n}}\mathbf{(x)}.
+\end{equation}
+To find the $\{\mathbf{C_{n}} \}$, we multiply both sides of Eq.(\ref{Eq:fs1}) by
+  $\mathbf{\boldsymbol{\phi}_{m}(x)^{\ast}  \, dx}$, integrate
+  both sides over the interval $\mathbf{(a,\,b)}$, and use orthogonality, Eq.(\ref{Eq:phi3}).
+\begin{align*}
+  \int_{a}^{b} \mathbf{f(x)} \,\boldsymbol{\phi}_{\mathbf{m}}(\mathbf{x})^{\ast}  \, \mathbf{dx} &=
+\mathbf{\sum_{n = -\infty}^{\infty} C_{n} } \, \int_{a}^{b} \boldsymbol{\phi}_{\mathbf{n}}\mathbf{(x)}
+ \, \boldsymbol{\phi}_{\mathbf{m}} \mathbf{(x)}^{\ast}  \, \mathbf{dx} \\
+  &= \mathbf{\sum_{n = -\infty}^{\infty} C_{n}\,(b-a)} \, \boldsymbol{\delta}_{\mathbf{n\,m}} \\
+  &= \mathbf{(b - a)\,C_{m}}.
+\end{align*}
+Hence we have for the coefficients
+\begin{equation} \label{Eq:fs2}
+\mathbf{C_{n} = \frac{1}{(b-a)}\,
+\int_{a}^{b} f(x)} \,\boldsymbol{\phi}_{\mathbf{n}}(\mathbf{x})^{\ast}  \, \mathbf{dx}.
+\end{equation}
+Inserting these coefficients into Eq.(\ref{Eq:fs1}) we can write
+\begin{align*}
+\mathbf{f(x)} &= \mathbf{ \sum_{n = -\infty}^{\infty} C_{n} \,} \boldsymbol{\phi}_{\mathbf{n}}\mathbf{(x)} \\
+             &= \mathbf{ \sum_{-\infty}^{\infty} exp \left(\frac{- 2\,\boldsymbol{\pi}\,i\,n\,x}{b-a} \right)} \,
+\mathbf{ \frac{1}{b - a}\,\int_{a}^{b} f(y)\,exp \left(\frac{ 2\,\boldsymbol{\pi}\,i\,n\,y}{b-a} \right)\,dy } \\
+			 &= \mathbf{\frac{1}{b-a}\,	\sum_{-\infty}^{\infty} 
+			      \int_{a}^{b} f(y)\,exp \left(\frac{ 2\,\boldsymbol{\pi}\,i\,n\,(y-x)}{b-a} \right)\,dy. }
+\end{align*}
+We now separate out the $\mathbf{n=0}$ term and combine the $\mathbf{n = \pm m}$ terms into
+ a sum over the positive integers. 
+\begin{align*}
+\mathbf{f(x)} &= \mathbf{ \frac{1}{b-a} \, \int_{a}^{b} f(y)\,dy} +
+\mathbf{\frac{1}{b-a}  \sum_{n=1}^{\infty} \int_{a}^{b} f(y)\,
+\left[ exp \left(\frac{ 2\,\boldsymbol{\pi}\,i\,n\,(y-x)}{b-a} \right) +
+        exp \left(\frac{ -2\,\boldsymbol{\pi}\,i\,n\,(y-x)}{b-a} \right) \right] \, dy } \\
+ &= \mathbf{ \frac{1}{b-a} \, \int_{a}^{b} f(y)\,dy} + 
+	\mathbf{ \frac{2}{b-a} \sum_{n=1}^{\infty}  \int_{a}^{b} f(y)} \,\boldsymbol{\cos }
+	 \mathbf{ \left( \frac{ 2\,\boldsymbol{\pi}\,n\,(y-x)}{b-a} \right) \, dy }
+\end{align*}
+Using the trig identity $\mathbf{\boldsymbol{\cos}(A-B)= \boldsymbol{\cos} A \, \boldsymbol{\cos} B +
+ \boldsymbol{\sin} A \, \boldsymbol{\sin} B}$, we recover the trigonometric form
+ of the Fourier series expansion of a function over the interval (a,\,b), which will
+ represent a function which has period equal to (b\,-\,a) for all values of $\mathbf{x}$.
+\begin{equation} \label{Eq:ab1}
+\mathbf{f(x) = \frac{1}{2} \, a_{0} + \sum_{n=1}^{\infty} \left[ 
+   a_{n}\,\boldsymbol{\cos} \left( \frac{ 2\,\boldsymbol{\pi}\,n\,x}{b-a} \right) +
+   b_{n} \,\boldsymbol{\sin} \left( \frac{ 2\,\boldsymbol{\pi}\,n\,x}{b-a} \right) \right] }
+\end{equation}
+The coefficients are given by the integrals
+\begin{equation} \label{Eq:ab2}
+\mathbf{ a_{n} = \frac{2}{b-a} \, \int_{a}^{b} f(y)\,
+   \boldsymbol{\cos} \left( \frac{ 2\,\boldsymbol{\pi}\,n\,y}{b-a} \right) \, dy}, \quad
+   \mathbf{ b_{n} = \frac{2}{b-a} \, \int_{a}^{b} f(y)\,
+   \boldsymbol{\sin} \left( \frac{ 2\,\boldsymbol{\pi}\,n\,y}{b-a} \right) \, dy}. 
+\end{equation}
+The expansion starts with the term
+\begin{equation}
+\mathbf{f(x) = \frac{1}{2} \, a_{0} + \cdots  = \frac{1}{b-a} \, \int_{a}^{b} f(y) + \cdots }
+\end{equation}
+which is the (unweighted) average of $\mathbf{f(x)}$ over (a,\,b).\\
+
+\noindent If we specialize to a function defined over the interval \textbf{(-p,\,p)}, whose Fourier
+  expansion will represent a function which has period \textbf{2\,p} for all \textbf{x}, 
+  the above results have the replacements $\mathbf{2/(b-a) \rightarrow 2/(2\,p) \rightarrow 1/p}$, and
+the appropriate exspansion equations are
+\begin{equation}  \label{Eq:pex1}
+\mathbf{f(x) = \frac{1}{2} \, a_{0} + \sum_{n=1}^{\infty} \left[ 
+   a_{n}\,\boldsymbol{\cos} \left( \frac{ \boldsymbol{\pi}\,n\,x}{p} \right) +
+   b_{n} \,\boldsymbol{\sin} \left( \frac{ \boldsymbol{\pi}\,n\,x}{p} \right) \right] }
+\end{equation}
+with coefficients
+\begin{equation} \label{Eq:pex2}
+\mathbf{ a_{n} = \frac{1}{p} \, \int_{-p}^{p} f(y)\,
+   \boldsymbol{\cos} \left( \frac{ \boldsymbol{\pi}\,n\,y}{p} \right) \, dy}, \quad
+   \mathbf{ b_{n} = \frac{1}{p} \, \int_{-p}^{p} f(y)\,
+   \boldsymbol{\sin} \left( \frac{ \boldsymbol{\pi}\,n\,y}{p} \right) \, dy}. 
+\end{equation}
+If we specialize further to $\mathbf{p = \boldsymbol{\pi}}$, the appropriate equations
+  are
+\begin{equation}  \label{Eq:piex1}
+\mathbf{f(x) = \frac{1}{2} \, a_{0} + \sum_{n=1}^{\infty} \left[ 
+   a_{n}\,\boldsymbol{\cos} (n\,x) + b_{n} \,\boldsymbol{\sin} (n\,x) \right] }
+\end{equation}
+with coefficients
+\begin{equation} \label{Eq:piex2}
+\mathbf{ a_{n} = \frac{1}{\boldsymbol{\pi}} \, \int_{-\boldsymbol{\pi}}^{\boldsymbol{\pi}} f(y)\,
+   \boldsymbol{\cos} (n\,y) \, dy}, \quad
+   \mathbf{ b_{n} = \frac{1}{\boldsymbol{\pi}} \, \int_{-\boldsymbol{\pi}}^{\boldsymbol{\pi}} f(y)\,
+   \boldsymbol{\sin} (n\,y) \, dy}. 
+\end{equation}
+\subsection{Fourier Integral Transform Pairs}
+\subsubsection{Fourier Cosine Integrals and \textbf{fourintcos(..)}}
+Given some function $\mathbf{f(x)}$ defined for $\mathbf{x \geq 0}$,
+  we define the Fourier cosine transform  of this function as
+\begin{equation}  \label{Eq:fc1}
+\mathbf{F_{C}(f,\boldsymbol{\omega}) = \frac{2}{\boldsymbol{\pi}} 
+  \int_{0}^{\infty} \boldsymbol{\cos}(\boldsymbol{\omega}\,x)\,f(x)\,dx }
+\end{equation}
+The given function $\mathbf{f(x)}$ can then be written as an integral
+  over positive values of $\boldsymbol{\omega}$:
+\begin{equation}  \label{Eq:fc2}
+\mathbf{f(x) = \int_{0}^{\infty} F_{C}(f,\boldsymbol{\omega})\,
+    \cos(\boldsymbol{\omega}\,x)\,d\boldsymbol{\omega} }
+\end{equation}
+The two equations (\ref{Eq:fc1}) and (\ref{Eq:fc2}) are an example of
+  a "Fourier transform pair", which include conventions about where
+  to place the factor of $2/\boldsymbol{\pi}$.\\
+
+\noindent Here is a simple example. 
+We let the function be $\mathbf{f(x) = \boldsymbol{\sin}(x)\, e^{-x} }$, defined for 
+ $\mathbf{x \geq 0}$.
+ Let the letter \mv|w| be used to stand for $\boldsymbol{\omega}$.
+We first calculate the Fourier cosine transform
+ $\mathbf{F_{C}(f,\boldsymbol{\omega})}$   (we use the symbol \mv|fcw| 
+  in our work here) using \textbf{integrate} and then show that the \tcbr{inverse}
+  integral over $\boldsymbol{\omega}$ gives back the original function.
+\begin{myVerbatim}
+(%i1) f:sin(x)*exp(-x)$
+(%i2) integrate(f*cos(w*x),x,0,inf);
+                                             2
+                                 2        2 w
+(%o2)                          ------ - --------
+                                4          4
+                               w  + 4   2 w  + 8
+(%i3) fcw : (2/%pi)*ratsimp(%);
+                                       2
+                                   2 (w  - 2)
+(%o3)                           - ------------
+                                        4
+                                  %pi (w  + 4)
+(%i4) integrate(fcw*cos(w*x),w,0,inf);
+Is  x  positive, negative, or zero?
+p;
+                                   - x
+(%o4)                            %e    sin(x)
+\end{myVerbatim}
+\newpage
+\noindent We can also use the package \textbf{fourie.mac}, which we explored in the section
+  on Fourier series.
+This package provides for the calculation of our Fourier cosine transform integral
+  via the \textbf{fourintcos(expr,var)} function.
+The function \textbf{fourintcos(f,x)} returns an answer with the label $\mathbf{a_{z}}$
+  which contains the Fourier cosine integral $\mathbf{F_{C}(f,\,z)}$, with the
+  letter \mv|z| being the package convention for what we called \mv|w| ($\boldsymbol{\omega}$),
+\begin{myVerbatim}
+(%i5) load(fourie);
+(%o5) C:/PROGRA~1/MAXIMA~3.1/share/maxima/5.18.1/share/calculus/fourie.mac
+(%i6) fourintcos(f,x);
+                                               2
+                                     2        z
+                                2 (------ - ------)
+                                    4        4
+                                   z  + 4   z  + 4
+(%t6)                      a  = -------------------
+                            z           %pi
+
+(%o6)                                [%t6]
+(%i7) az : ratsimp(rhs(%t6));
+                                       2
+                                    2 z  - 4
+(%o7)                          - --------------
+                                      4
+                                 %pi z  + 4 %pi
+(%i8) (2/%pi)*ratsimp(%pi*az/2);
+                                       2
+                                   2 (z  - 2)
+(%o8)                           - ------------
+                                        4
+                                  %pi (z  + 4)
+\end{myVerbatim}
+Thus \textbf{fourintcos(expr,var)} agrees with our definition of the Fourier
+  cosine transform.    
+\subsubsection{Fourier Sine Integrals and \textbf{fourintsin(..)}}
+Given some function $\mathbf{f(x)}$ defined for $\mathbf{x \geq 0}$,
+  we define the Fourier sine transform  of this function as
+\begin{equation}  \label{Eq:fsine1}
+\mathbf{F_{S}(f,\boldsymbol{\omega}) = \frac{2}{\boldsymbol{\pi}} 
+  \int_{0}^{\infty} \boldsymbol{\sin}(\boldsymbol{\omega}\,x)\,f(x)\,dx }
+\end{equation}
+The given function $\mathbf{f(x)}$ can then be written as an integral
+  over positive values of $\boldsymbol{\omega}$:
+\begin{equation}  \label{Eq:fsine2}
+\mathbf{f(x) = \int_{0}^{\infty} F_{S}(f,\boldsymbol{\omega})\,
+    \sin(\boldsymbol{\omega}\,x)\,d\boldsymbol{\omega} }
+\end{equation}
+The two equations (\ref{Eq:fsine1}) and (\ref{Eq:fsine2}) are another 
+   "Fourier transform pair", which include conventions about where
+  to place the factor of $2/\boldsymbol{\pi}$.  
+\newpage
+\noindent Here is a simple example. 
+We let the function be $\mathbf{f(x) = \boldsymbol{\cos}(x)\, e^{-x} }$, defined for 
+ $\mathbf{x \geq 0}$.
+Let the letter \mv|w| stand for $\boldsymbol{\omega}$.
+We first calculate the Fourier sine transform 
+  $\mathbf{F_{S}(f,\boldsymbol{\omega})}$ (we use the symbol \mv|fsw| 
+  in our work here) using \textbf{integrate} and then show that the
+  \tcbr{inverse} integral over $\boldsymbol{\omega}$ gives back the original function.  
+\begin{myVerbatim}
+(%i1) f:cos(x)*exp(-x)$
+(%i2) assume(w>0)$
+(%i3) integrate(f*sin(w*x),x,0,inf);
+                                       3
+                                      w
+(%o3)                               ------
+                                     4
+                                    w  + 4
+(%i4) fsw : (2/%pi)*%;
+                                        3
+                                     2 w
+(%o4)                            ------------
+                                       4
+                                 %pi (w  + 4)
+(%i5) integrate(fsw*sin(w*x),w,0,inf);
+Is  x  positive, negative, or zero?
+
+p;
+                                   - x
+(%o5)                            %e    cos(x)
+\end{myVerbatim}
+We can also use the package \textbf{fourie.mac}, which we used above.
+This package provides for the calculation of our Fourier sine transform integral
+  via the \textbf{fourintsin(expr,var)} function.
+The function \textbf{fourintsin(f,x)} returns an answer with the label $\mathbf{b_{z}}$
+  which contains the Fourier sine integral $\mathbf{F_{S}(f,\,z)}$, with the
+  letter \mv|z| being the package convention for what we called \mv|w| ($\boldsymbol{\omega}$).
+\begin{myVerbatim1}
+(%i6) load(fourie);
+(%o6) C:/PROGRA~1/MAXIMA~3.1/share/maxima/5.18.1/share/calculus/fourie.mac
+(%i7) facts();
+(%o7)                               [w > 0]
+(%i8) (forget(w>0),facts());
+(%o8)                                 []
+(%i9) fourintsin(f,x);
+                                           3
+                                        2 z
+(%t9)                          b  = ------------
+                                z         4
+                                    %pi (z  + 4)
+
+(%o9)                                [%t9]
+(%i10) bz : rhs(%t9);
+                                        3
+                                     2 z
+(%o10)                           ------------
+                                       4
+                                 %pi (z  + 4)
+\end{myVerbatim1}
+Thus \textbf{fourintsin(expr,var)} agrees with our definition of the Fourier
+  sine transform.
+\newpage
+\subsubsection{Exponential Fourier Integrals and \textbf{fourint}}  
+Given some function $\mathbf{f(x)}$ defined for $\mathbf{-\infty <x < \infty}$,
+  we define the exponential Fourier transform  of this function as
+\begin{equation}  \label{Eq:fexp1}
+\mathbf{F_{Exp}(f,\boldsymbol{\omega}) = \frac{1}{2\, \boldsymbol{\pi}} 
+  \int_{-\infty}^{\infty} \,f(x) e^{i\,\boldsymbol{\omega}\,x}\,dx }
+\end{equation}
+The given function $\mathbf{f(x)}$ can then be written as an integral
+  over both positive and negative values of $\boldsymbol{\omega}$:
+\begin{equation}  \label{Eq:fexp2}
+\mathbf{f(x) = \int_{-\infty}^{\infty} F_{Exp}(f,\boldsymbol{\omega})\,
+    e^{-i\,\boldsymbol{\omega}\,x} \,d\boldsymbol{\omega} }
+\end{equation}
+The two equations (\ref{Eq:fexp1}) and (\ref{Eq:fexp2}) are another 
+   "Fourier transform pair", which include conventions about where
+  to place the factor of $\mathbf{2\, \boldsymbol{\pi}}$ as well as which member
+  has the minus sign in the exponent.\\  
+
+\noindent If the given function is even, $\mathbf{f(-x) = f(x) }$, then the
+exponential Fourier transform has the symmetry 
+\begin{equation}
+\mathbf{F_{Exp}(f,\boldsymbol{-\omega}) = F_{Exp}(f,\boldsymbol{\omega}) }
+\end{equation}
+and can be expressed in terms of the Fourier cosine transform:
+\begin{equation}
+\mathbf{F_{Exp}(f,\boldsymbol{\omega}) = \frac{1}{2} \, F_{C}(f,\boldsymbol{\omega})}.
+\end{equation}
+If the given function is odd, $\mathbf{f(-x) = -f(x) }$, then the
+exponential Fourier transform has the symmetry 
+\begin{equation}
+\mathbf{F_{Exp}(f,\boldsymbol{-\omega}) = -F_{Exp}(f,\boldsymbol{\omega}) }
+\end{equation}
+and can be expressed in terms of the Fourier sine transform:
+\begin{equation}
+\mathbf{F_{Exp}(f,\boldsymbol{\omega}) = \frac{i}{2} \, F_{S}(f,\boldsymbol{\omega})}.
+\end{equation}
+If the given function is neither even nor odd, the function can always be written
+  as the sum of an even function $\mathbf{f_{e}(x)}$ and an odd function $\mathbf{f_{o}(x)}$:
+\begin{equation}
+\mathbf{f(x) \equiv f_{e}(x) + f_{o}(x) = 
+  \frac{1}{2} \,( f(x) + f(-x) + \frac{1}{2} \, ( f(x) - f(-x) }
+\end{equation}
+and can be expressed in terms of the Fourier cosine transform of $\mathbf{f_{e}(x)}$
+  and the Fourier sine transform of $\mathbf{f_{o}(x)}$:
+\begin{equation}
+\mathbf{F_{Exp}(f,\boldsymbol{\omega}) \equiv F_{Exp}(f_{e}+f_{o},\boldsymbol{\omega}) =
+  \frac{1}{2} \, F_{C}(f_{e},\boldsymbol{\omega}) +
+  \frac{i}{2} \, F_{S}(f_{o},\boldsymbol{\omega}) }
+\end{equation}
+The \textbf{fourie.mac} package function \textbf{fourint(expr,var)} displays the non-zero
+coefficients $\mathbf{a_{z}}$ and/or the $\mathbf{b_{z}}$, in terms of which we can
+write down the value of $\mathbf{F_{Exp}(f,z)}$ (with our conventions):
+\begin{equation}
+\mathbf{F_{Exp}(f,z) = \frac{1}{2} \, a_{z} + \frac{i}{2} \, b_{z} }
+\end{equation}
+\subsubsection{Example 1: Even Function}
+We calculate here the exponential fourier transform $\mathbf{F_{Exp}(f,\boldsymbol{\omega})}$
+  when the function is $\mathbf{f(x) = \cos(x) \, e^{-\vert x \vert} }$ which is
+  an even function $\mathbf{f(-x) = f(x)}$ and is defined for $\mathbf{-\infty < x < \infty}$.\\
+  
+\noindent We first use \textbf{integrate}, by separating the integral into two pieces,
+  \textbf{i1} is the integral over $\mathbf{(-\infty,0)}$ and \textbf{i2} is the integral
+  over $\mathbf{(0,\infty)}$ (we ignore the overall factor of $\mathbf{1/(2\,\boldsymbol{\pi}) }$
+  initially).  
+\begin{myVerbatim}
+(%i1) assume(w>0)$
+(%i2) i1:integrate(exp(%i*w*x)*cos(x)*exp(x),x,minf,0);
+                                 2           3
+                                w  + 2   %i w
+(%o2)                           ------ - ------
+                                 4        4
+                                w  + 4   w  + 4
+(%i3) i2:integrate(exp(%i*w*x)*cos(x)*exp(-x),x,0,inf);
+                                    3     2
+                                %i w     w  + 2
+(%o3)                           ------ + ------
+                                 4        4
+                                w  + 4   w  + 4
+(%i4) i12:ratsimp(i1+i2);
+                                      2
+                                   2 w  + 4
+(%o4)                              --------
+                                     4
+                                    w  + 4
+(%i5) 2*ratsimp(i12/2);
+                                      2
+                                  2 (w  + 2)
+(%o5)                             ----------
+                                     4
+                                    w  + 4
+(%i6) iexp:%/(2*%pi);
+                                     2
+                                    w  + 2
+(%o6)                            ------------
+                                       4
+                                 %pi (w  + 4)
+\end{myVerbatim}
+Hence, direct use of \textbf{integrate} provides the exponential Fourier transform
+\begin{equation}
+\mathbf{F_{Exp}(\cos(x)\,exp(-\vert x \vert),\, \boldsymbol{\omega}) = 
+ \frac{\boldsymbol{\omega}^{2} + 2}{\boldsymbol{\pi}\,( \boldsymbol{\omega}^{4} + 4) } }
+\end{equation}
+We can use \textbf{integrate} to calculate the \tcbr{inverse} Fourier exponential transform,
+  recovering our original even function of $\mathbf{x}$.
+\begin{myVerbatim}
+(%i7) integrate(exp(-%i*w*x)*iexp,w,minf,inf);
+Is  x  positive, negative, or zero?
+p;
+                                   - x
+(%o7)                            %e    cos(x)
+(%i8) integrate(exp(-%i*w*x)*iexp,w,minf,inf);
+Is  x  positive, negative, or zero?
+n;
+                                    x
+(%o8)                             %e  cos(x)
+\end{myVerbatim}
+\newpage
+\noindent Next we use \textbf{integrate} again directly to calculate the Fourier cosine transform
+  of the given even function, now considered as defined for $\mathbf{x \geq 0}$ and confirm
+  that the required exponential Fourier transform in this case is correctly given
+  by $\mathbf{\frac{1}{2} \, F_{C}(f,\boldsymbol{\omega})}$.
+\begin{myVerbatim}
+(%i9) i3:ratsimp(integrate(cos(x)*exp(-x)*cos(w*x),x,0,inf));
+                                     2
+                                    w  + 2
+(%o9)                               ------
+                                     4
+                                    w  + 4
+(%i10) i3:(2/%pi)*i3;
+                                      2
+                                  2 (w  + 2)
+(%o10)                           ------------
+                                       4
+                                 %pi (w  + 4)
+\end{myVerbatim}
+Output \mv|%o10| is the value of $\mathbf{F_{C}(f,\boldsymbol{\omega})}$, and one half
+  of that value is the required exponential Fourier transform.\\
+  
+\noindent Next we use \textbf{fourint(expr,var)} with this even function.
+\begin{myVerbatim}
+(%i1) load(fourie);
+(%o1) C:/PROGRA~1/MAXIMA~3.1/share/maxima/5.18.1/share/calculus/fourie.mac
+(%i2) fourint(cos(x)*exp(-abs(x)),x);
+                                      2
+                                     z        2
+                                2 (------ + ------)
+                                    4        4
+                                   z  + 4   z  + 4
+(%t2)                      a  = -------------------
+                            z           %pi
+
+(%t3)                               b  = 0
+                                     z
+
+(%o3)                             [%t2, %t3]
+(%i4) ratsimp(rhs(%t2));
+                                      2
+                                   2 z  + 4
+(%o4)                           --------------
+                                     4
+                                %pi z  + 4 %pi
+(%i5) (2/%pi)*ratsimp(%pi*%/2);
+                                      2
+                                  2 (z  + 2)
+(%o5)                            ------------
+                                       4
+                                 %pi (z  + 4)
+\end{myVerbatim}
+which confirms that for an even function, the required exponential Fourier transform
+  is correctly given (using \textbf{fourint}) by $\mathbf{F_{Exp}(f,z) = a_{z}/2}$.  
+\newpage
+\subsubsection{Example 2: Odd Function}  
+We calculate here the exponential fourier transform $\mathbf{F_{Exp}(f,\boldsymbol{\omega})}$
+  when the function is $\mathbf{f(x) = \sin(x) \, e^{-\vert x \vert} }$ which is
+  an odd function $\mathbf{f(-x) = -f(x)}$ and is defined for $\mathbf{-\infty < x < \infty}$.\\
+  
+\noindent We first use \textbf{integrate}, by separating the integral into two pieces,
+  \textbf{i1} is the integral over $\mathbf{(-\infty,0)}$ and \textbf{i2} is the integral
+  over $\mathbf{(0,\infty)}$ (we ignore the overall factor of $\mathbf{1/(2\,\boldsymbol{\pi}) }$
+  initially).
+\begin{myVerbatim}
+(%i1) ( assume(w>0), facts());
+(%o1)                               [w > 0]
+(%i2) i1:ratsimp(integrate(exp(%i*w*x)*sin(x)*exp(x),x,minf,0));
+                                 2
+                                w  + 2 %i w - 2
+(%o2)                           ---------------
+                                     4
+                                    w  + 4
+(%i3) i2:ratsimp(integrate(exp(%i*w*x)*sin(x)*exp(-x),x,0,inf));
+                                  2
+                                 w  - 2 %i w - 2
+(%o3)                          - ---------------
+                                      4
+                                     w  + 4
+(%i4) iexp:ratsimp(i1+i2)/(2*%pi);
+                                    2 %i w
+(%o4)                            ------------
+                                       4
+                                 %pi (w  + 4)
+(%i5) facts();
+(%o5)                               [w > 0]
+\end{myVerbatim}
+Hence, direct use of \textbf{integrate} provides the exponential Fourier transform
+\begin{equation}
+\mathbf{F_{Exp}(\sin(x)\,exp(-\vert x \vert),\, \boldsymbol{\omega}) = 
+ \frac{2\,i\,\boldsymbol{\omega}}{\boldsymbol{\pi}\,( \boldsymbol{\omega}^{4} + 4) } }
+\end{equation}
+We can use \textbf{integrate} to calculate the \tcbr{inverse} Fourier exponential transform,
+  recovering our original odd function of $\mathbf{x}$.
+\begin{myVerbatim}
+(%i6) integrate(exp(-%i*w*x)*iexp,w,minf,inf);
+Is  x  positive, negative, or zero?
+p;
+                                   - x
+(%o6)                            %e    sin(x)
+(%i7) integrate(exp(-%i*w*x)*iexp,w,minf,inf);
+Is  x  positive, negative, or zero?
+n;
+                                    x
+(%o7)                             %e  sin(x)
+(%i8) facts();
+(%o8)                               [w > 0]
+\end{myVerbatim}
+\newpage
+\noindent Next we use \textbf{integrate} again directly to calculate the Fourier sine transform
+  of the given odd function, now considered as defined for $\mathbf{x \geq 0}$ and confirm
+  that the required exponential Fourier transform in this case is correctly given
+  by $\mathbf{\frac{i}{2} \, F_{S}(f,\boldsymbol{\omega})}$.
+\begin{myVerbatim}
+(%i9) ratsimp(integrate(sin(x)*exp(-x)*sin(w*x),x,0,inf));
+                                     2 w
+(%o9)                               ------
+                                     4
+                                    w  + 4
+(%i10) (2/%pi)*%;
+                                     4 w
+(%o10)                           ------------
+                                       4
+                                 %pi (w  + 4)
+\end{myVerbatim}
+Output \mv|%o10| is the value of $\mathbf{F_{S}(f,\boldsymbol{\omega})}$, and multiplying
+ by $\mathbf{i/2}$ yields the required exponential Fourier transform.\\
+  
+\noindent Next we use \textbf{fourint(expr,var)} with this odd function.
+\begin{myVerbatim}
+(%i11) load(fourie);
+(%o11) C:/PROGRA~1/MAXIMA~3.1/share/maxima/5.18.1/share/calculus/fourie.mac
+(%i12) fourint(sin(x)*exp(-abs(x)),x);
+(%t12)                              a  = 0
+                                     z
+
+                                        4 z
+(%t13)                         b  = ------------
+                                z         4
+                                    %pi (z  + 4)
+
+(%o13)                           [%t12, %t13]
+\end{myVerbatim}
+which confirms that for an odd function, the required exponential Fourier transform
+  is correctly given (using \textbf{fourint}) by $\mathbf{F_{Exp}(f,z) = (i \, b_{z} )/2 }$.
+\newpage
+\subsubsection{Example 3: A Function Which is Neither Even nor Odd}  
+We calculate here the exponential fourier transform $\mathbf{F_{Exp}(f,\boldsymbol{\omega})}$
+  when the function is $\mathbf{f(x) = \cos^{2}(x-1) \, e^{-\vert x \vert} }$ which is
+  defined for $\mathbf{-\infty < x < \infty}$ and is neither even nor odd.\\
+  
+\noindent We first use \textbf{integrate}, by separating the integral into two pieces.
+\textbf{i1} is the integral over $\mathbf{(-\infty,0)}$ and \textbf{i2} is the integral
+  over $\mathbf{(0,\infty)}$ (we ignore the overall factor of $\mathbf{1/(2\,\boldsymbol{\pi}) }$
+  initially).
+\begin{myVerbatim}
+(%i1) ( assume(w>0), facts());
+(%o1)                               [w > 0]
+(%i2) i1:ratsimp(integrate(exp(%i*w*x)*cos(x-1)^2*exp(x),x,minf,0));
+                           5                              4
+(%o2) - ((%i cos(2) + %i) w  + (- 2 sin(2) - cos(2) - 1) w
+                                         3                              2
+ + (- 4 %i sin(2) - 2 %i cos(2) - 6 %i) w  + (8 sin(2) - 6 cos(2) + 6) w
+ + (- 4 %i sin(2) - 3 %i cos(2) + 25 %i) w + 10 sin(2) - 5 cos(2) - 25)
+     6       4       2
+/(2 w  - 10 w  + 38 w  + 50)
+(%i3) i2:ratsimp(integrate(exp(%i*w*x)*cos(x-1)^2*exp(-x),x,0,inf));
+                         5                              4
+(%o3) ((%i cos(2) + %i) w  + (- 2 sin(2) + cos(2) + 1) w
+                                       3                              2
+ + (4 %i sin(2) - 2 %i cos(2) - 6 %i) w  + (8 sin(2) + 6 cos(2) - 6) w
+ + (4 %i sin(2) - 3 %i cos(2) + 25 %i) w + 10 sin(2) + 5 cos(2) + 25)
+     6       4       2
+/(2 w  - 10 w  + 38 w  + 50)
+(%i4) i12 : rectform(ratsimp(i1 + i2));
+                    4                   2
+      (cos(2) + 1) w  + (6 cos(2) - 6) w  + 5 cos(2) + 25
+(%o4) ---------------------------------------------------
+                     6      4       2
+                    w  - 5 w  + 19 w  + 25
+                                                                3
+                                                  %i (4 sin(2) w  + 4 sin(2) w)
+                                                + -----------------------------
+                                                      6      4       2
+                                                     w  - 5 w  + 19 w  + 25
+(%i5) i12 : map('ratsimp,i12);
+                    4                   2
+      (cos(2) + 1) w  + (6 cos(2) - 6) w  + 5 cos(2) + 25   4 %i sin(2) w
+(%o5) --------------------------------------------------- + --------------
+                     6      4       2                        4      2
+                    w  - 5 w  + 19 w  + 25                  w  - 6 w  + 25
+(%i6) i12 : realpart(i12)/(2*%pi) + %i*imagpart(i12)/(2*%pi);
+                    4                   2
+      (cos(2) + 1) w  + (6 cos(2) - 6) w  + 5 cos(2) + 25
+(%o6) ---------------------------------------------------
+                        6      4       2
+                2 %pi (w  - 5 w  + 19 w  + 25)
+                                                              2 %i sin(2) w
+                                                         + --------------------
+                                                                 4      2
+                                                           %pi (w  - 6 w  + 25)
+\end{myVerbatim}
+The final \mv|i12| is the desired exponential Fourier transform.
+\newpage
+\noindent We can now calculate the \tcbr{inverse} Fourier transform.
+\begin{myVerbatim}
+(%i7) integrate(exp(-%i*w*x)*i12,w,minf,inf);
+Is  x  positive, negative, or zero?
+p;
+                   - x
+                 %e    (sin(2) sin(2 x) + cos(2) cos(2 x) + 1)
+(%o7)            ---------------------------------------------
+                                       2
+\end{myVerbatim}
+As an exercise in the manipulation of trigonometric functions, we now go back
+  and forth between the coefficient of \mv|%e^(-x)| in this result and our starting 
+  function (for positive $\mathbf{x}$).
+\begin{myVerbatim}
+(%i8) cos(x-1)^2;
+                                     2
+(%o8)                             cos (x - 1)
+(%i9) trigreduce(%);
+                              cos(2 (x - 1)) + 1
+(%o9)                         ------------------
+                                      2
+(%i10) ratsimp(%);
+                               cos(2 x - 2) + 1
+(%o10)                         ----------------
+                                      2
+(%i11) trigexpand(%);
+                     sin(2) sin(2 x) + cos(2) cos(2 x) + 1
+(%o11)               -------------------------------------
+                                       2
+\end{myVerbatim}
+which gets us from the original coefficient to that returned
+  by our inverse transform integral.
+Now we go in the \textcolor{blue}{opposite} direction:
+\begin{myVerbatim}
+(%i12) trigreduce(%);
+                               cos(2 x - 2) + 1
+(%o12)                         ----------------
+                                      2
+(%i13) factor(%);
+                              cos(2 (x - 1)) + 1
+(%o13)                        ------------------
+                                      2
+(%i14) trigexpand(%);
+                             2             2
+                        - sin (x - 1) + cos (x - 1) + 1
+(%o14)                  -------------------------------
+                                       2
+(%i15) trigsimp(%);
+                                     2
+(%o15)                            cos (x - 1)
+\end{myVerbatim}
+which returns us from the transform integral coefficient to our original coefficient.
+Hence we have verified the correctness of the exponential Fourier transform for this case.
+\newpage
+\noindent Next we use \textbf{fourint(expr,var)} with this function which is neither
+  even nor odd.
+\begin{myVerbatim}
+(%i16) load(fourie);
+(%o16) C:/PROGRA~1/MAXIMA~3.1/share/maxima/5.18.1/share/calculus/fourie.mac
+(%i17) fourint(cos(x-1)^2*exp(-abs(x)),x);
+                              4                   2
+                (cos(2) + 1) z  + (6 cos(2) - 6) z  + 5 cos(2) + 25
+(%t17)     a  = ---------------------------------------------------
+            z                    6      4       2
+                           %pi (z  - 5 z  + 19 z  + 25)
+
+                                     4 sin(2) z
+(%t18)                     b  = --------------------
+                            z         4      2
+                                %pi (z  - 6 z  + 25)
+
+(%o18)                           [%t17, %t18]
+(%i19) az : rhs(%t17);
+                            4                   2
+              (cos(2) + 1) z  + (6 cos(2) - 6) z  + 5 cos(2) + 25
+(%o19)        ---------------------------------------------------
+                               6      4       2
+                         %pi (z  - 5 z  + 19 z  + 25)
+(%i20) bz : rhs(%t18);
+                                  4 sin(2) z
+(%o20)                       --------------------
+                                   4      2
+                             %pi (z  - 6 z  + 25)
+(%i21) iexp_f : az/2 + %i*bz/2;
+                     4                   2
+       (cos(2) + 1) z  + (6 cos(2) - 6) z  + 5 cos(2) + 25
+(%o21) ---------------------------------------------------
+                         6      4       2
+                 2 %pi (z  - 5 z  + 19 z  + 25)
+                                                              2 %i sin(2) z
+                                                         + --------------------
+                                                                 4      2
+                                                           %pi (z  - 6 z  + 25)
+\end{myVerbatim}
+To compare this with our result using \textbf{integrate} we need to replace \mv|z|
+  by \mv|w|:
+\begin{myVerbatim}
+(%i22) subst(z=w,iexp_f) - i12;
+(%o22)                                 0
+\end{myVerbatim}
+which shows that, except for notation, the results are the same.
+We have confirmed that for a general function, the required exponential Fourier transform
+  is correctly given (using \textbf{fourint}) by
+  $\mathbf{F_{Exp}(f,z) = a_{z}/2 + (i \, b_{z} )/2 }$.
+\subsubsection{Dirac Delta Function $\mathbf{\boldsymbol{\delta}(x)}$ } \label{dirac}
+It is conventional to define the Dirac delta function (unit impulse function)
+  $\mathbf{\boldsymbol{\delta}(x)}$ by
+\begin{align}
+\mathbf{\boldsymbol{\delta}(-x)} &= \mathbf{\boldsymbol{\delta}(x)} \quad \text{even function} \\
+      \mathbf{\boldsymbol{\delta}(x)}  &= 0 \quad \text{for} \quad   \mathbf{x \neq 0} \\
+	  \mathbf{\int_{-a}^{b} \boldsymbol{\delta}(x)\,dx} &= \mathbf{1 \quad \text{for} \quad 
+              a,\,b > 0 } 	    
+\end{align}
+These equations imply
+\begin{equation}
+\mathbf{\boldsymbol{\delta}(y-x) = \boldsymbol{\delta}(x-y)}
+\end{equation}
+and
+\begin{equation}  \label{Eq:delta0}
+  \mathbf{\int f(y)\,\boldsymbol{\delta}(y-x)\,dy = f(x) }
+\end{equation}
+for any well behaved function $\mathbf{f(x)}$ (we are more careful below), 
+  provided the range of integration includes the point $\mathbf{x}$.
+For since $\mathbf{\boldsymbol{\delta}(y-x)}$ is zero except at the single point $\mathbf{y=x}$, 
+  we can evaluate $\mathbf{f(y)}$ at that single point and take the result outside the integral.
+The resulting integral which is left is $\mathbf{\int \boldsymbol{\delta}(y-x) \, dy }$, and the
+  change of variables $\mathbf{y \rightarrow t = y - x }$ for fixed $\mathbf{x}$ yields the
+  integral $\mathbf{\int \boldsymbol{\delta}(t)\,dt = 1 }$.\\
+  
+\noindent Now let $\mathbf{c}$ be a positive constant (independent of the integration variable $\mathbf{x}$).
+In the integral $\mathbf{\int_{-a}^{b} \boldsymbol{\delta}(c\,x) \,dx}$, we change variables,
+  $\mathbf{x \rightarrow y = c\,x}$ so $\mathbf{dx = dy/c}$.
+\begin{equation} 
+\mathbf{\int_{-a}^{b} \boldsymbol{\delta}(c\,x) \,dx = 
+   \frac{1}{c} \,  \int_{-c\,a}^{c\,b} \boldsymbol{\delta}(y) \,dy = \frac{1}{c} }
+\end{equation}
+since $\mathbf{(c\,a) > 0 \; \text{and} \; (c\,b) > 0}$.\\
+
+\noindent If, on the other hand, $\mathbf{c}$ is a negative constant, 
+  $\mathbf{c = -\vert c \vert}$, and we make the same change of variables,
+\begin{equation}
+\mathbf{\int_{-a}^{b} \boldsymbol{\delta}(c\,x) \,dx = 
+   \frac{1}{c} \,  \int_{-c\,a}^{c\,b} \boldsymbol{\delta}(y) \,dy = 
+   \frac{1}{c} \,  \int_{\vert c \vert \,a}^{-\vert c \vert \,b} \boldsymbol{\delta}(y) \,dy = 
+    - \frac{1}{c} \,  \int_{-\vert c \vert \,b}^{\vert c \vert \,a} \boldsymbol{\delta}(y) \,dy = 
+      \frac{1}{\vert c \vert}	}
+\end{equation}
+Evidently, we can always write (since both $\mathbf{x \; \text{and} \; y}$ are dummy integration
+  variables
+\begin{equation}
+\mathbf{\int  \boldsymbol{\delta}(c\,x) \,dx = \int \frac{\boldsymbol{\delta}(x)}{ \vert c \vert}\,dx}
+\end{equation}
+or simply (with the understanding that this kind of relation only makes sense inside an
+  integral)
+\begin{equation}  \label{Eq:delta1}
+\mathbf{ \boldsymbol{\delta}(c\,x) = \frac{\boldsymbol{\delta}(x)}{ \vert c \vert} }
+\end{equation}
+We can find a sometimes useful representation of the Dirac delta function by using the exponential
+  Fourier transform pair Eqs.(\ref{Eq:fexp1}) and (\ref{Eq:fexp2}).
+If we use $\mathbf{y}$ as the (dummy) variable of integration in Eq.(\ref{Eq:fexp1}), and
+  insert into Eq.(\ref{Eq:fexp2}), we get (interchanging the order of integration)
+\begin{align*}
+\mathbf{f(x)} &= \mathbf{\int_{-\infty}^{\infty} \left[\frac{1}{2\,\boldsymbol{\pi}} 
+                  \int_{-\infty}^{\infty} e^{i\,\boldsymbol{\omega}\,y}\,f(y)\,dy \right]
+				  e^{-i\,\boldsymbol{\omega}\,x}\,d\boldsymbol{\omega} } \\
+		&= 	\mathbf{\int_{-\infty}^{\infty} f(y)\, \left[ \frac{1}{2\,\boldsymbol{\pi}}
+		      \int_{-\infty}^{\infty} e^{i\,\boldsymbol{\omega} (y-x)}\,d\boldsymbol{\omega} \right] dy} \\
+		&= 	\mathbf{ \int_{-\infty}^{\infty} f(y)\, \boldsymbol{\delta}(y-x)\,dy }
+\end{align*}
+Hence we can write
+\begin{equation}  \label{Eq:delta2}
+\mathbf{ \boldsymbol{\delta}(x) = \frac{1}{2\,\boldsymbol{\pi}}	\int_{-\infty}^{\infty} 
+               e^{i\,\boldsymbol{\omega}\,x}\,	d\boldsymbol{\omega} }
+\end{equation}
+One use of such a representation of the one dimensional Dirac delta function is to
+  derive in a different way the result of Eq.(\ref{Eq:delta1}).
+From Eq.(\ref{Eq:delta2}) we have
+\begin{equation} \label{Eq:delta3}
+\mathbf{\boldsymbol{\delta}(c\,x) = \frac{1}{2\,\boldsymbol{\pi}}	\int_{-\infty}^{\infty} 
+              e^{i\,\boldsymbol{\omega}\,c\,x}\, d\boldsymbol{\omega} }
+\end{equation}
+Again, suppose $\mathbf{c}$ is a constant and $\mathbf{c > 0}$.
+Then if we change variables $\mathbf{\boldsymbol{\omega} \rightarrow y = \boldsymbol{\omega}\,c}$,
+we have $\mathbf{d\boldsymbol{\omega} = dy/c}$.
+When $\mathbf{\boldsymbol{\omega} = -\infty, y = -\infty}$.
+When $\mathbf{\boldsymbol{\omega} = \infty, y = \infty}$.
+Hence
+\begin{equation}
+\mathbf{\boldsymbol{\delta}(c\,x) = \frac{1}{c}\,\left( 
+             \frac{1}{2\,\boldsymbol{\pi}}	\int_{-\infty}^{\infty} e^{i\,y\,x}\,dy \right) =
+			 \frac{1}{c}\,\boldsymbol{\delta}(x) }
+\end{equation}
+If, on the other hand, $\mathbf{c < 0,\,c = -\vert c \vert}$ in Eq.(\ref{Eq:delta3}), 
+  and we make the same change of variables, 
+  when $\mathbf{\boldsymbol{\omega} = -\infty}$, $\mathbf{y = \infty}$,
+  and when $\mathbf{\boldsymbol{\omega} = \infty}$, $\mathbf{y = -\infty}$.
+Hence, for this case,
+\begin{equation}
+\mathbf{\boldsymbol{\delta}(c\,x) = \frac{1}{c}\,\left( 
+             \frac{1}{2\,\boldsymbol{\pi}}	\int_{\infty}^{-\infty} e^{i\,y\,x}\,dy \right) =
+			  \frac{1}{c}\,\left( 
+			 -\frac{1}{2\,\boldsymbol{\pi}}	\int_{-\infty}^{\infty} e^{i\,y\,x}\,dy \right) =
+			 \frac{1}{\vert c \vert }\,\boldsymbol{\delta}(x) }.
+\end{equation}
+Combining the two cases leads us again to Eq.(\ref{Eq:delta1}).\\
+
+\noindent
+Although the representation Eq.(\ref{Eq:delta2}) can be useful for formal properties of
+  the Dirac delta function, for actual calculation of integrals one is safer using
+  a limiting form of that result, or even simpler versions, as we will see.
+If we replace the infinite limits in Eq.(\ref{Eq:delta2}) by finite limits, we can
+  work with the representation
+\begin{equation}
+\mathbf{\boldsymbol{\delta}(x) = \boldsymbol{\lim_{L \rightarrow \infty}} \, d_{L}(x) }
+\end{equation}
+where
+\begin{equation}
+\mathbf{d_{L}(x) = \frac{1}{2\,\boldsymbol{\pi}}\, \int_{-L}^{L} e^{i\,x\,y}\,dy =
+           \frac{\boldsymbol{\sin}(x\,L)}{\boldsymbol{\pi}\,x} }
+\end{equation}
+which can then be used as
+\begin{equation}
+\mathbf{ \int f(x)\,\boldsymbol{\delta}(x) \, dx =
+    \boldsymbol{\lim_{L \rightarrow \infty}} \int \,f(x)\,d_{L}(x)\,dx = 
+	\boldsymbol{\lim_{L \rightarrow \infty}} \int \,f(x)\, 
+	  \frac{\boldsymbol{\sin}(x\,L)}{\boldsymbol{\pi}\,x} }.
+\end{equation}
+However, this will only be useful if the resulting integrals can be done.\\
+
+\noindent An easier approach to the careful use of the Dirac delta function for the
+  calculation of integrals is to create a mathematically simple model
+  of a function of $\mathbf{x}$ which has the required properties and whose use will
+  result in integrals which can easily be done.
+Mathematically rigorous treatments (see the Theory of Distributions) of the Dirac delta 
+  function justify the use of such models .\\
+  
+\noindent Here we follow the approach of William E. Boyce and Richard C. DiPrima, in their
+  textbook "Elementary Differential Equations and Boundary Value Problems", Fifth Edition,
+  John Wiley \& Sons, Inc, New York, 1992, Section 6.5, "Impulse Functions".\\
+  
+\noindent Let
+\begin{equation}
+\mathbf{d_{\boldsymbol{\epsilon}}(x)} = 
+ \left\{ \begin{array}{ccl}
+  1/(2\,\boldsymbol{\epsilon}) & \text{for} & \mathbf{-\boldsymbol{\epsilon} < x < \boldsymbol{\epsilon}} \\
+  0 & \text{for} & \mathbf{x \leq -\boldsymbol{\epsilon} \quad \text{or} \quad x \geq \boldsymbol{\epsilon} }
+  \end{array} \right\}
+\end{equation}
+which defines a rectangular pulse with base length $\mathbf{2\,\boldsymbol{\epsilon}}$,
+  height $\mathbf{1/(2\,\boldsymbol{\epsilon})}$ with area "under the curve" equal to $\mathbf{1}$.
+This is an even function of $\mathbf{x}$ centered on $\mathbf{x=0}$ which gets narrower and
+  taller as $\mathbf{\boldsymbol{\epsilon} \rightarrow 0}$.\\
+  
+\noindent Then
+\begin{equation}
+\mathbf{d_{\boldsymbol{\epsilon}}(y-x)} = 
+ \left\{ \begin{array}{ccl}
+  1/(2\,\boldsymbol{\epsilon}) & \text{for} & 
+            \mathbf{(x-\boldsymbol{\epsilon}) < y < (x + \boldsymbol{\epsilon})} \\
+  0 & \text{for} & \mathbf{y \leq (x -\boldsymbol{\epsilon}) \quad \text{or} \quad
+         y \geq (x + \boldsymbol{\epsilon}) }
+  \end{array} \right\}
+\end{equation}  
+\newpage
+\noindent This model can then be used in the form (with the range of integration assumed
+  to include the point $\mathbf{y=x}$):
+\begin{equation}
+\mathbf{\int f(y)\,\boldsymbol{\delta}(y-x)\,dy}   = 
+  \boldsymbol{\lim_{\epsilon \rightarrow 0}} \, \mathbf{\int f(y)\,d_{\boldsymbol{\epsilon}}(y-x)\,dy } 
+  = \boldsymbol{\lim_{\epsilon \rightarrow 0}} \, \mathbf{ \frac{1}{2\,\boldsymbol{\epsilon}} \,
+           \int_{x - \boldsymbol{\epsilon}}^{x + \boldsymbol{\epsilon}} f(y)\,dy }.
+\end{equation}
+The integral should be done before taking the limits in this safer approach.\\
+
+\noindent However, if $\mathbf{f(y)}$ is a continuous function and possesses a derivative
+  in a complete neighborhood of $\mathbf{x}$, we can use the mean value theorem of
+  calculus to write this limit as
+\begin{equation}
+\mathbf{ \boldsymbol{\lim_{\epsilon \rightarrow 0}} \,\frac{1}{2\,\boldsymbol{\epsilon}}\,
+          f(\hat{y})\, (2\,\boldsymbol{\epsilon}) =
+		  \boldsymbol{\lim_{\epsilon \rightarrow 0}} \,f(\hat{y})) }.
+\end{equation}
+where $\mathbf{ (x -\boldsymbol{\epsilon}) < \hat{y} < (x +\boldsymbol{\epsilon}) }$
+As $\mathbf{\boldsymbol{\epsilon \rightarrow 0},\; \hat{y} \rightarrow x}$, 
+  and $\mathbf{f(\hat{y}) \rightarrow f(x)}$,
+  which recovers Eq. (\ref{Eq:delta0}), and which we repeat here for emphasis.
+\begin{equation}  \label{Eq:deltaxy}
+  \mathbf{\int f(y)\,\boldsymbol{\delta}(y-x)\,dy = f(x) }
+\end{equation}
+for any function $\mathbf{f(x)}$ which is continuous and possesses a derivative
+  in a complete neighborhood of $\mathbf{x}$, provided the range of integration
+  includes the point $\mathbf{x}$.
+\subsubsection{Laplace Transform of the Delta Function Using a Limit Method} \label{dirac2}
+Use of Eq. (\ref{Eq:deltaxy}) allows us to immediately write down the Laplace
+  transform of $\mathbf{\boldsymbol{\delta}(t - t_{0})}$ for $\mathbf{t_{0} > 0}$, the integral
+  $\mathbf{\int_{0}^{\infty}  e^{-s\,t}\, \boldsymbol{\delta}(t - t_{0})\,dt}$,
+  since the function $\mathbf{e^{-s\,t}}$ which multiplies the delta function is continuous and
+  possesses a derivative for all values of $\mathbf{t}$.\\
+  
+\noindent However, as a consistency check, let's also use the limit method just
+  discussed to derive this result.
+\begin{equation} \label{Eq:delta4}
+\mathbf{ \mathcal{L} \{\boldsymbol{\delta}(t - t_{0})\} \equiv
+       \int_{0}^{\infty}  e^{-s\,t}\, \boldsymbol{\delta}(t - t_{0})\,dt =
+	   e^{-s\,t_{0}} }
+\end{equation}
+provided $\mathbf{s \; \text{and} \; t_{0}  }$ are positive.
+\begin{myVerbatim}
+(%i1) assume(s>0,e>0,t0>0)$
+(%i2) i1: integrate(exp(-s*t),t,t0-e,t0+e)/(2*e);
+                           e s - s t0     - s t0 - e s
+                         %e             %e
+                         ------------ - --------------
+                              s               s
+(%o2)                    -----------------------------
+                                      2 e
+(%i3) limit(i1,e,0,plus);
+                                     - s t0
+(%o3)                              %e
+\end{myVerbatim}
+As a bonus, the limit of Eq.(\ref{Eq:delta4}) as $\mathbf{t_{0} \rightarrow 0^{+} }$ then
+  gives us the Laplace transform of $\mathbf{\boldsymbol{\delta}(t)}$.
+\begin{equation}
+\mathbf{\mathcal{L} \{\boldsymbol{\delta}(t)\} \equiv 
+        \int_{0}^{\infty} e^{-s\,t}\,\boldsymbol{\delta}(t)\,dt = 1 }
+\end{equation}
+\newpage
+\subsection{Laplace Transform Integrals}
+\subsubsection{Laplace Transform Integrals: \textbf{laplace(..)}, \textbf{specint(..)}}
+A subgroup of definite integrals is so useful in applications that Maxima
+  has functions which calculate the Laplace transform (\textbf{laplace}
+  and \textbf{specint}) of a given  expression, as well as the inverse Laplace
+  transform (\textbf{ilt}).\\
+  
+\noindent \textbf{laplace(expr,\, t,\, s)} calculates the integral
+\begin{equation}
+\mathbf{\int_{0}^{\infty} e^{- s\,t} \, f(t)\, d\,t = \mathcal{L} \{f(t)\} = F(s) }
+\end{equation}
+where $\mathbf{f(t)}$ stands for the \textbf{expr} argument (here assumed to depend
+  explicitly on $\mathbf{t}$) of \textbf{laplace}.
+\textbf{laplace} assumes that $\mathbf{s}$ is a very large positive number.
+If there are convergence issues of the integral, one allows $\mathbf{s}$ to
+  be a complex number $\mathbf{s = x + i\,y}$ and the assumption is made that
+  the integral converges to the right of some line $\mathbf{Re(s) = const}$ in the
+  complex $\mathbf{s}$ plane.\\
+\subsubsection{Comparison of \textbf{laplace} and \textbf{specint} }  
+\textbf{specint( exp(- s*t) * expr, t)} is equivalent to
+  \textbf{laplace(expr, t, s)}
+  in its effect, but has been specially designed to handle special functions with care.
+You need to prepare \textbf{specint} with \textbf{assume} statement(s) that $\mathbf{s}$ is
+  both positive and larger than other positive parameters in \textbf{expr}.
+\subsubsection*{$\mathbf{\mathcal{L} \{1\} = 1/s}$}
+We start the following comparison of \textbf{laplace} and \textbf{specint} with an
+  \textbf{assume} statement (needed by \textbf{specint} alone).
+\begin{myVerbatim}
+(%i1) assume( s>0, a > 0, b > 0, s > a, s > b )$
+(%i2) laplace(1,t,s);
+                                       1
+(%o2)                                  -
+                                       s
+(%i3) specint(exp(-s*t),t);
+                                       1
+(%o3)                                  -
+                                       s
+(%i4) ilt(%,s,t);
+(%o4)                                  1
+\end{myVerbatim}
+\subsubsection*{$\mathbf{\mathcal{L} \{t\} = 1/s^{2}}$}
+\begin{myVerbatim}
+(%i5) laplace(t,t,s);
+                                      1
+(%o5)                                --
+                                       2
+                                      s
+(%i6) specint(exp(-s*t)*t,t);
+                                      1
+(%o6)                                --
+                                       2
+                                      s
+(%i7) ilt(%,s,t);
+(%o7)                                  t
+\end{myVerbatim}
+\subsubsection*{$\mathbf{\mathcal{L} \{e^{a\,t}\} = 1/(s-a) }$}
+\begin{myVerbatim}
+(%i8) laplace(exp(a*t),t,s);
+                                       1
+(%o8)                                -----
+                                     s - a
+(%i9) specint(exp(-s*t)*exp(a*t),t);
+                                       1
+(%o9)                                -----
+                                     s - a
+\end{myVerbatim}
+\subsubsection*{$\mathbf{ \mathcal{L} \{\boldsymbol{\sin}(a\,t)/a\} = (s^{2}+a^{2})^{-1} }$}
+\begin{myVerbatim}
+(%i10) laplace(sin(a*t)/a,t,s);
+                                       1
+(%o10)                              -------
+                                     2    2
+                                    s  + a
+(%i11) (specint(exp(-s*t)*sin(a*t)/a,t),ratsimp(%%) );
+                                       1
+(%o11)                              -------
+                                     2    2
+                                    s  + a
+\end{myVerbatim}
+%\newpage
+\subsubsection*{$\mathbf{\mathcal{L} \{\boldsymbol{\cos}(a\,t)\} = s \,(s^{2}+a^{2})^{-1} }$}
+\begin{myVerbatim}
+(%i12) laplace(cos(a*t),t,s);
+                                       s
+(%o12)                              -------
+                                     2    2
+                                    s  + a
+(%i13) (specint(exp(-s*t)*cos(a*t),t ), ratsimp(%%) );
+                                       s
+(%o13)                              -------
+                                     2    2
+                                    s  + a
+\end{myVerbatim}
+\subsubsection*{$\mathbf{\mathcal{L} \{t\,\boldsymbol{\sin}(a\,t)/(2\,a)\} = s\,(s^{2}+a^{2})^{-2}}$}
+\begin{myVerbatim}
+(%i14) laplace(sin(a*t)*t/(2*a),t,s);
+                                      s
+(%o14)                            ----------
+                                    2    2 2
+                                  (s  + a )
+(%i15) (specint(exp(-s*t)*sin(a*t)*t/(2*a),t ),ratsimp(%%) );
+                                       s
+(%o15)                         -----------------
+                                4      2  2    4
+                               s  + 2 a  s  + a
+(%i16) map('factorsum,%);
+                                      s
+(%o16)                            ----------
+                                    2    2 2
+                                  (s  + a )
+\end{myVerbatim}
+\subsubsection*{$\mathbf{\mathcal{L} \{e^{a\,t}\,\boldsymbol{\cos}(b\,t)\} = (s-a)\,(\,(s-a)^{2} + b^{2}\,)^{-1}}$}
+\begin{myVerbatim}
+(%i17) laplace(exp(a*t)*cos(b*t),t,s);
+                                    s - a
+(%o17)                       --------------------
+                              2            2    2
+                             s  - 2 a s + b  + a
+(%i18) map('factorsum,%);
+                                     s - a
+(%o18)                           -------------
+                                        2    2
+                                 (s - a)  + b
+(%i19) (specint(exp(-s*t)*exp(a*t)*cos(b*t),t ),ratsimp(%%) );
+                                    s - a
+(%o19)                       --------------------
+                              2            2    2
+                             s  - 2 a s + b  + a
+(%i20) map('factorsum,%);
+                                     s - a
+(%o20)                           -------------
+                                        2    2
+                                 (s - a)  + b								 
+\end{myVerbatim}
+%\newpage
+\subsubsection*{$\mathbf{\mathcal{L} \{\sqrt{t}}$ \,\textbf{bessel\_j} $\mathbf{(1,2\,\sqrt{a\,t})\} =
+ \sqrt{a}\,s^{-2}\,e^{-a/s}}$ }
+\begin{myVerbatim}
+(%i21) expr : t^(1/2) * bessel_j(1, 2 * a^(1/2) * t^(1/2));
+(%o21)              bessel_j(1, 2 sqrt(a) sqrt(t)) sqrt(t)
+(%i22) laplace(expr,t,s);
+                                          - a/s
+                                sqrt(a) %e
+(%o22)                          ---------------
+                                       2
+                                      s
+(%i23) specint(exp(-s*t)*expr,t);
+                                          - a/s
+                                sqrt(a) %e
+(%o23)                          ---------------
+                                       2
+                                      s
+(%i24) ilt(%,s,t);
+                                        - a/s
+                              sqrt(a) %e
+(%o24)                    ilt(---------------, s, t)
+                                     2
+                                    s
+							  
+\end{myVerbatim}
+We find in the above example that \textbf{ilt} cannot find the inverse Laplace transform.
+\newpage
+\subsubsection*{$\mathbf{\mathcal{L} \{erf(\sqrt{t})\} = (\,s\,\sqrt{s+1}\,)^{-1}}$}
+Here again \textbf{ilt} fails. 
+\begin{myVerbatim}
+(%i25) assume(s>0)$
+(%i26) laplace(erf(sqrt(t)),t,s);
+                                       1
+(%o26)                            -------------
+                                 s sqrt(s + 1)
+(%i27) specint(exp(-s*t)*erf(sqrt(t)),t);
+                                      1
+(%o27)                         ----------------
+                                    1       3/2
+                               sqrt(- + 1) s
+                                    s
+(%i28) radcan(%);
+                                       1
+(%o28)                           -------------
+                                 s sqrt(s + 1)
+(%i29) ilt(%,s,t);
+                                     1
+(%o29)                     ilt(-------------, s, t)
+                               s sqrt(s + 1)								 
+\end{myVerbatim}
+%\newpage
+\subsubsection*{$\mathbf{\mathcal{L} \{erf(t)\} = e^{s^{2}/4}\,(1 - erf(s/2))\,s^{-1}}$}
+Here \textbf{laplace} succeeds, and \textbf{ilt} and \textbf{specint} fail.
+\begin{myVerbatim}
+(%i30) laplace(erf(t),t,s);
+                                  2
+                                 s
+                                 --
+                                 4           s
+                               %e   (1 - erf(-))
+                                             2
+(%o30)                         -----------------
+                                       s
+(%i31) ilt(%,s,t);
+                                2
+                               s
+                               --
+                               4           s
+                             %e   (1 - erf(-))
+                                           2
+(%o31)                   ilt(-----------------, s, t)
+                                     s
+(%i32) specint(exp(-s*t)*erf(t),t);
+                                    - s t
+(%o32)                    specint(%e      erf(t), t)
+\end{myVerbatim}
+\newpage
+\subsubsection{Use of the Dirac Delta Function (Unit Impulse Function) \textbf{delta} with \textbf{laplace(..)} }
+The \textbf{laplace} function recognises \textbf{delta(arg)} as part of the expression
+supplied to \textbf{laplace}.
+We have introduced the Dirac delta function (unit impulse function) 
+  in Sections \ref{dirac} and \ref{dirac2}.  
+Here are three examples of using \textbf{delta}  with \textbf{laplace}.
+\subsubsection*{$\mathbf{\mathcal{L} \{\boldsymbol{\delta}(t)\} = 1}$}
+\begin{myVerbatim}
+(%i1) laplace(delta(t),t,s);
+(%o1)                                  1
+(%i2) ilt(1,s,t);
+(%o2)                            ilt(1, s, t)
+\end{myVerbatim}
+\subsubsection*{$\mathbf{\mathcal{L} \{\boldsymbol{\delta}(t-a)\} = e^{-a\,s}}$}
+ (for $\mathbf{a > 0}$):
+\begin{myVerbatim}
+(%i3) laplace(delta(t-a),t,s);
+Is  a  positive, negative, or zero?
+p;
+                                      - a s
+(%o3)                               %e
+\end{myVerbatim}
+%\newpage
+\subsubsection*{$\mathbf{\mathcal{L} \{\boldsymbol{\delta}(t-a) \,\boldsymbol{\sin}(b\,t) \} =
+ \boldsymbol{\sin}(a\,b)\,e^{-a\,s}}$}
+ (for $\mathbf{a > 0}$):
+\begin{myVerbatim}
+(%i4) laplace(delta(t-a)*sin(b*t),t,s);
+Is  a  positive, negative, or zero?
+p;
+                                          - a s
+(%o4)                          sin(a b) %e
+\end{myVerbatim}
+In this last example, we see that \textbf{laplace} is simply using
+\begin{equation}
+\mathbf{\int_{0}^{\infty} f(t)\,\boldsymbol{\delta}(t-a)\,dt = f(a) }
+\end{equation}
+with $\mathbf{a > 0}$ and  $\mathbf{f(t) = e^{-s\,t}\,\boldsymbol{\sin}(b\,t) }$.
+\subsection{The Inverse Laplace Transform and Residues at Poles }
+\subsubsection{\textbf{ilt}: Inverse Laplace Transform}
+The Maxima function: \textbf{ilt (expr,\, s,\, t)} computes the inverse Laplace
+   transform of \textbf{expr} with respect to $\mathbf{s}$ and in terms of the parameter $\mathbf{t}$.
+This Maxima function is able to compute the inverse Laplace transform only if
+   \textbf{expr} is a rational algebraic function (a quotient of two
+   polynomials).\\
+
+\noindent In elementary work with Laplace transforms, one uses a "look-up table" of
+  Laplace transforms, together with general properties of Laplace and inverse
+  Laplace transforms, to determine inverse Laplace transforms of elementary and
+  special functions.\\
+  
+\noindent For advanced work, one can use the general formula for the inverse Laplace
+  transform
+\begin{equation}  \label{ilt}
+\mathbf{f(t>0) = \frac{1}{2\,\boldsymbol{\pi}\,i}
+   \int_{\boldsymbol{\sigma} - i\, \infty}^{\boldsymbol{\sigma} + i\,\infty} e^{s\,t}\,F(s)\,ds}
+\end{equation}
+where the contour of integration is a vertical line in the complex $\mathbf{s = x + i\,y}$ plane
+  (ie., along a line $\mathbf{x = \boldsymbol{\sigma}}$),
+  to the right of all singularities (poles, branch points,
+  and essential singularities) of the integrand.
+Here we assume the only type of singularities we need to worry about are poles, isolated
+  values of $\mathbf{s}$ where the approximate power series expansion for $\mathbf{s}$
+  near $\mathbf{s_{j}}$ is
+  $\mathbf{g(s_{j})/(s - s_{j})^m}$, where $\mathbf{g(s_{j})}$ is a finite number,
+  and $\mathbf{m}$ is the "order" of the pole.
+If $\mathbf{m = 1}$, we call it a "simple pole".
+At a particular point $\mathbf{(x,y)}$ of the contour, the exponential factor has the form
+  $\mathbf{e^{s\,t} = e^{i\,t\,y}\, e^{t\,x}}$.
+Because $\mathbf{t > 0}$ the integrand is heavily damped by the factor $\mathbf{e^{x\,t}}$ when
+  $\mathbf{x \rightarrow -\infty},$ and the contour of integration can be turned into a closed contour
+  by adding a zero contribution  which is the integral of the same integrand along 
+   a large arc in the left hand $\mathbf{s}$ plane (in the limit that the radius of the arc
+   approaches $\mathbf{\infty}$), and  the resulting closed contour integral
+   can then be evaluated using the residue theorem of  complex variable theory.
+The (counter-clockwise) closed contour integral is then given by $\mathbf{2\,\boldsymbol{\pi} \,i}$
+  times the sum of the residues of the integrand at the isolated poles enclosed by the contour.\\
+
+\noindent The factor $\mathbf{2\,\boldsymbol{\pi} \,i}$ coming from the integral part of Eq.(\ref{ilt})
+ is then cancelled by the factor $\mathbf{1/(2\,\boldsymbol{\pi} \,i)}$  which appears in
+ the definition (Eq.(\ref{ilt})) of the inverse Laplace transform, and one has the 
+ simple result that \textbf{the inverse Laplace transform is
+  the sum of the residues of the poles of the integrand}.
+%\newpage
+\subsubsection{\textbf{residue}: Residues at Poles}
+We can use the Maxima \textbf{residue} function to illustrate how the sum of the
+  residues at all the poles of the integrand reproduces the answer returned by \textbf{ilt}.  
+\begin{quote}
+\mv|residue (expr, z, z_0)| \\ 
+Computes the residue in the complex plane of the expression \mv|expr|
+   when the variable $\mathbf{z}$ assumes the value \mv|z_0|.
+The residue is the coefficient of \mv|(z - z_0)^(-1)| in the Laurent series for \mv|expr|. 
+\end{quote}
+\begin{myVerbatim}
+(%i1) residue (s/(s^2+a^2), s, a*%i);
+                                       1
+(%o1)                                  -
+                                       2
+(%i2) residue (sin(a*x)/x^4, x, 0);
+                                        3
+                                       a
+(%o2)                                - --
+                                       6
+\end{myVerbatim}
+We start with some arbitrary rational algebraic function of $\mathbf{s}$, use \textbf{ilt} to determine
+  the corresponding function of $\mathbf{t}$, and then compute the inverse Laplace transform
+  (a second way) by summing the values of the residues of the Laplace inversion integrand
+  in the complex $\mathbf{s}$ plane.
+\begin{myVerbatim}
+(%i3) fs : -s/(s^3 +4*s^2 + 5*s +2)$
+(%i4) ft : ( ilt(fs,s,t),collectterms(%%,exp(-t),exp(-2*t) ) );
+                                     - t       - 2 t
+(%o4)                      (t - 2) %e    + 2 %e
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i5) (laplace(ft,t,s), ratsimp(%%) );
+                                        s
+(%o5)                        - -------------------
+                                3      2
+                               s  + 4 s  + 5 s + 2
+(%i6) fs - %;
+(%o6)                                  0
+(%i7) fst : exp(s*t)*fs;
+                                         s t
+                                     s %e
+(%o7)                        - -------------------
+                                3      2
+                               s  + 4 s  + 5 s + 2
+(%i8) partfrac(fst,s);
+                             s t       s t      s t
+                         2 %e      2 %e       %e
+(%o8)                    ------- - ------- + --------
+                          s + 2     s + 1           2
+                                             (s + 1)
+\end{myVerbatim}
+The inverse Laplace transform \textbf{integrand}  above was called \textbf{fst}, and we used
+  \textbf{partfrac} on \textbf{fst} to exhibit the poles of this integrand.
+We see that there is one simple pole at $\mathbf{s = -2}$ and one pole of order $\mathbf{2}$
+  located at $\mathbf{s = -1}$.\\
+
+\noindent To use the Maxima function \textbf{residue}, we need to tell Maxima that $\mathbf{t > 0}$.
+\begin{myVerbatim}
+(%i9) assume( t > 0 )$
+(%i10) r1 : residue(fst,s,-2);
+                                        - 2 t
+(%o10)                              2 %e
+(%i11) r2 : residue(fst,s,-1);
+                                            - t
+(%o11)                            (t - 2) %e
+(%i12) r1 + r2 - ft;
+(%o12)                                 0
+\end{myVerbatim}
+  which shows that the sum of the residues reproduces the function of $\mathbf{t}$ which
+   \textbf{ilt} produced.    \\
+   
+\noindent This concludes our discussion of the inverse Laplace transform.
+\end{document}

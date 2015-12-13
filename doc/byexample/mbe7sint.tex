@@ -1,0 +1,1975 @@
+% e. woollett
+%   july 08 - april 09
+% file sint.tex this is new ch. 7
+% make ch. 8 just the quadpack romberg stuff nint.tex
+% then make ch 9 fourier integrals and laplace transforms
+% and ch. 10 bigfloats and arb prec integration
+% and ch. 11 fast fourier transforms
+% check with new version of maxima
+% 1. bfloat erf(z) is changevar example 4
+% what about using fpprintprec:8 for numerical outputs here?
+% things to add: 
+% mailing list hard integral using expansion of exponential
+% in terms of bessel functions
+% function to interchange order of integration and summation
+% r dodier's ''(integrate...) construct for plots
+% edit with Notepad++, then load into LED for latexing
+\documentclass[12pt]{article}
+\usepackage[dvips,top=1.5cm,left=1.5cm,right=1.5cm,foot=1cm,bottom=1.5cm]{geometry}
+\usepackage{times,amsmath,amsbsy,graphicx,fancyvrb,url}
+\usepackage[usenames]{color}
+%\definecolor{MyDarkBlue}{rgb}{0,0.08,0.45}
+\definecolor{mdb}{rgb}{0.1,0,0.55}
+\newcommand{\tcdb}{\textcolor{mdb}}
+\newcommand{\tcbr}{\textcolor{BrickRed}}
+\newcommand{\tcb}{\textcolor{blue}}
+\newcommand{\tcr}{\textcolor{red}}
+\urldef\tedhome\url{ http://www.csulb.edu/~woollett/  }
+\urldef\tedmail\url{ woollett@charter.net}
+%1.  this is for maxima code: red framed bold, footnotesize 
+\DefineVerbatimEnvironment%
+   {myVerbatim}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,fontsize=\footnotesize ,frame=single,rulecolor=\color{BrickRed}}
+\DefineVerbatimEnvironment%
+   {myVerbatim1}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,fontsize=\scriptsize ,frame=single,rulecolor=\color{BrickRed}}
+%2.  this is for blue framed bold 
+\DefineVerbatimEnvironment%
+   {myVerbatim2}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,frame=single,rulecolor=\color{blue}}
+\DefineVerbatimEnvironment%
+   {myVerbatim2s}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,fontsize=\small,frame=single,rulecolor=\color{blue}}
+\DefineVerbatimEnvironment%
+   {myVerbatim2f}%
+   {Verbatim}%
+   {fontfamily=courier,fontseries=b,fontsize=\footnotesize,frame=single,rulecolor=\color{blue}}
+% 3.  this is for black framed  bold
+\DefineVerbatimEnvironment%
+   {myVerbatim3}%
+   {Verbatim}%
+   {fontfamily= courier, fontseries=b, frame=single}
+% 4.  this is for no frame bold
+\DefineVerbatimEnvironment%
+   {myVerbatim4}%
+   {Verbatim}%
+   {fontfamily=courier, fontseries=b}
+% 6.  for defaults use usual verbatim
+\newcommand{\mv}{\Verb[fontfamily=courier,fontseries=b]}
+\newcommand{\mvs}{\Verb[fontfamily=courier,fontseries=b,fontsize=\small]}
+\newcommand{\mvf}{\Verb[fontfamily=courier,fontseries=b,fontsize=\footnotesize]}
+
+\renewcommand{\thefootnote}{\ensuremath{\fnsymbol{footnote}}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   title page
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \title{ \color{mdb}\  Maxima by Examp
+\title{  Maxima by Example:\\ Ch.7: Symbolic Integration 
+            \thanks{This version uses \textbf{Maxima 5.18.1}. This is a live
+            document. Check \; \textbf{ \tedhome } \; for the latest version of these notes. Send comments and
+			 suggestions to \textbf{\tedmail} } }
+
+%%  \author{\color{BrickRed}\  Edwin
+\author{ Edwin L. Woollett}
+\date{\today}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%          document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%\footnotesize
+%\small
+\maketitle
+\tableofcontents
+\numberwithin{equation}{section}
+\newpage
+\begin{myVerbatim2} 
+COPYING AND DISTRIBUTION POLICY    
+This document is part of a series of notes titled
+"Maxima by Example" and is made available
+via the author's webpage http://www.csulb.edu/~woollett/
+to aid new users of the Maxima computer algebra system.	
+	
+NON-PROFIT PRINTING AND DISTRIBUTION IS PERMITTED.
+	
+You may make copies of this document and distribute them
+to others as long as you charge no more than the costs of printing.	
+
+These notes (with some modifications) will be published in book form
+eventually via Lulu.com in an arrangement which will continue
+to allow unlimited free download of the pdf files as well as the option
+of ordering a low cost paperbound version of these notes.
+\end{myVerbatim2}	
+\smallskip
+\noindent \tcbr{Feedback from readers is the best way for this series of notes
+  to become more helpful to new users of Maxima}.
+\tcdb{\emph{All} comments and suggestions for improvements will be appreciated and
+  carefully considered}.
+\smallskip
+\begin{myVerbatim2s}
+The Maxima session transcripts were generated using the XMaxima 
+graphics interface on a Windows XP computer, and copied into 
+a fancy verbatim environment in a latex file which uses the
+fancyvrb and color packages.
+
+We use qdraw.mac (available on the author's web page with Ch. 5 materials)
+for plots.
+\end{myVerbatim2s}  
+\smallskip
+\begin{myVerbatim}
+Maxima.sourceforge.net. Maxima, a Computer Algebra System. Version 5.18.1
+ (2009). http://maxima.sourceforge.net/
+\end{myVerbatim}
+\newpage
+\setcounter{section}{7}
+\subsection{Symbolic Integration with \textbf{integrate}}
+Although the process of finding an integral can be viewed as
+  the inverse of the process of finding a derivative, in practice
+  finding an integral is more difficult.
+It turns out that the integral of fairly simple looking functions cannot
+  be expressed in terms of well known functions, and this has been
+  one motivation for the introduction of definitions for a variety of "special functions",
+  as well as efficient methods for numerical integration (quadrature) discussed in Ch. 8.\\    
+  
+\noindent In the following, we always assume we are dealing with a real function of a real variable
+  and that the function is single-valued and continuous over the intervals of interest.\\
+
+\noindent The Maxima manual entry for \textbf{integrate} includes
+  (we have made some changes and additions):
+\small
+\begin{quote}
+Function: \textbf{integrate(expr, var)} \\
+Function: \textbf{integrate(expr, var, a, b)}\\ 
+Attempts to symbolically compute the integral of \textbf{expr} with respect to \textbf{var}.
+   \textbf{integrate(expr, var)} is an indefinite integral, 
+   while \textbf{integrate(expr, var, a, b)} is a definite integral,
+   with limits of integration \textbf{a} and \textbf{b}.
+The integral  is returned if \textbf{integrate} succeeds.
+Otherwise the return value is the noun form of the integral (the quoted operator \textbf{'integrate})
+   or an expression containing one or more noun forms.
+The noun form of \textbf{integrate} is displayed with an integral sign if \textbf{display2d} is
+  set to \textbf{true} (which is the default).\\
+
+In some circumstances it is useful to construct a noun form by hand, by quoting \textbf{integrate}
+   with a single quote, e.g., \textbf{'integrate(expr, var)}.
+For example, the integral may depend on some parameters which are not yet computed.
+The noun may be applied to its arguments by \textbf{ev(iexp, nouns)} where \textbf{iexp}
+ is the noun form of interest. \\
+ 
+
+The Maxima function \textbf{integrate} is defined by the lisp 
+  function \textbf{\$integrate} in the file /src/simp.lisp.
+The indefinite integral invocation, \textbf{integrate(expr,var)}, results in a call to the lisp
+  function \textbf{sinint}, defined in src/sin.lisp, unless the flag \textbf{risch} is present,
+  in which case the lisp function \textbf{rischint}, defined in src/risch.lisp, is called.
+The definite integral invocation, \textbf{integrate(expr,var,a,b)},
+ causes a call to the lisp function \textbf{\$defint}, defined in src/defint.lisp.
+ The lisp function \textbf{\$defint} is available as the Maxima function \textbf{defint} and
+  can be used to bypass \textbf{integrate} for a definite integral.\\  
+
+To integrate a Maxima function $\mathbf{f(x)}$, insert $\mathbf{f(x)}$ in
+ the \textbf{expr} slot.\\
+
+\textbf{integrate} does not respect implicit dependencies established by the \textbf{depends} function. \\
+
+\textbf{integrate} may need to know some property of the parameters in the integrand.
+\textbf{integrate} will first consult the \textbf{assume} database, and, if the
+   variable of interest is not there, \textbf{integrate} will ask the user.
+Depending on the question, suitable responses are \textbf{yes;} or \textbf{no;},
+  or \textbf{pos;}, \textbf{zero;}, or \textbf{neg;}.
+Thus, the user can use the \textbf{assume} function to avoid all or some questions.  \\
+\end{quote}
+\normalsize
+\newpage
+
+\subsection{Integration Examples and also \textbf{defint}, \textbf{ldefint}, \textbf{beta},
+                 \textbf{gamma}, \textbf{erf}, and \textbf{logabs}}  \label{symbolic}
+
+\subsubsection*{Example 1}
+Our first example is the \tcbr{indefinite} integral $\mathbf{\int \boldsymbol{\sin}^{3}x \, dx}$:
+\begin{myVerbatim}
+(%i1) integrate (sin(x)^3, x);
+                                  3
+                               cos (x)
+(%o1)                          ------- - cos(x)
+                                  3
+(%i2) ( diff (%,x), trigsimp(%%) );
+                                       3
+(%o2)                               sin (x)
+\end{myVerbatim} 
+Notice that the \tcbr{indefinite} integral returned by \textbf{integrate}
+  \emph{does not include} the arbitrary
+  constant of integration which can always be added.\\
+  
+\noindent If the returned integral is correct (up to an arbitrary constant), then the first
+  derivative of the returned indefinite integral should be the original integrand,
+  although we may have to simplify the result manually (as we had to do above).
+\subsubsection*{Example 2}
+Our second example is another indefinite integral,
+    $\mathbf{\int x \, (b^{2}-x^{2})^{-1/2} \, dx}$:
+\begin{myVerbatim}
+(%i3) integrate (x/ sqrt (b^2 - x^2), x);
+                                        2    2
+(%o3)                           - sqrt(b  - x )
+(%i4) diff(%,x);
+                                       x
+(%o4)                            -------------
+                                       2    2
+                                 sqrt(b  - x )
+\end{myVerbatim}
+\subsubsection*{Example 3}
+The \tcbr{definite} integral can be related to the "area under a curve" and is the more
+  accessible concept, while the \tcbr{} integral is simply a function whose first derivative
+  is the original integrand.\\
+
+\noindent Here is a \tcbr{definite} integral,
+     $\mathbf{\int_{0}^{\pi} \boldsymbol{\cos}^2 x \, e^{x} \,dx}$:
+\begin{myVerbatim}
+(%i5) i3 : integrate (cos(x)^2 * exp(x), x, 0, %pi);
+
+                                      %pi
+                                  3 %e      3
+(%o5)                            ------- - -
+                                     5      5
+\end{myVerbatim} 
+Instead of using \textbf{integrate} for a definite integral, you 
+  can try \textbf{ldefint} (think Limit definite integral), which may
+  provide an alternative form of the answer (if successful).
+\newpage
+From the Maxima manual:
+\small
+\begin{quote}
+Function: \textbf{ldefint(expr, x, a, b)}\\
+Attempts to compute the definite integral of \textbf{expr} by using \textbf{limit} to evaluate
+  the indefinite integral of \textbf{expr} with respect to $\mathbf{x}$ at the
+  upper limit $\mathbf{b}$ and at the lower limit $\mathbf{a}$.
+If it fails to compute the definite integral, \textbf{ldefint} returns
+  an expression containing limits as noun forms.\\
+  
+\textbf{ldefint} is not called from \textbf{integrate}, so executing
+  \textbf{ldefint(expr, x, a, b)} may yield a different result
+   than \textbf{integrate(expr, x, a, b)}.
+\textbf{ldefint} always uses the same method to evaluate the
+   definite integral, while \textbf{integrate} may employ various
+   heuristics and may recognize some special cases.
+\end{quote}
+\normalsize
+\noindent Here is an example of use of \textbf{ldefint}, as well as the direct use
+  of \textbf{defint} (which bypasses \textbf{integrate} ):
+\begin{myVerbatim}
+(%i6) ldefint (cos(x)^2 * exp(x), x, 0, %pi);
+                                      %pi
+                                  3 %e      3
+(%o6)                             ------- - -
+                                     5      5
+(%i7) defint (cos(x)^2 * exp(x), x, 0, %pi);
+                                      %pi
+                                  3 %e      3
+(%o7)                             ------- - -
+                                     5      5
+\end{myVerbatim} 
+\subsubsection*{Example 4}
+Here is an example of a definite integral over an infinite range,
+  $\mathbf{\int_{-\infty}^{\infty} x^{2}\, e^{-x^{2}} \, dx}$:  
+\begin{myVerbatim}
+(%i8) integrate (x^2 * exp(-x^2), x, minf, inf);
+                                   sqrt(%pi)
+(%o8)                              ---------
+                                       2									   
+\end{myVerbatim} 
+To check this integral, we first ask for the indefinite integral and 
+  then check it by differentiation.
+\begin{myVerbatim}
+(%i9) i1 : integrate(x^2*exp(-x^2),x );
+                                                    2
+                                                 - x
+                          sqrt(%pi) erf(x)   x %e
+(%o9)                    ---------------- - --------
+                                 4              2
+(%i10) diff(i1,x);
+                                           2
+                                    2   - x
+(%o10)                             x  %e
+\end{myVerbatim} 
+Thus the indefinite integral is correct.
+The second term, heavily damped by the factor $\mathbf{e^{-x^2}}$ at $\mathbf{\pm \, \infty}$, does
+  not contribute to the definite integral.
+The first term is proportional to the (Gauss) error function, $\mathbf{erf(x)}$, in which 
+  $\mathbf{x}$ is real.
+For (in general) complex $\mathbf{w = u + i\,v}$,
+\begin{equation}
+\mathbf{Erf(w) = \frac{2}{\sqrt{\boldsymbol{\pi}}} \, \int_{0}^{w} e^{-z^2}\, dz}
+\end{equation}
+in which we can integrate over any path connecting $\mathbf{0}$ and $\mathbf{w}$ in
+  the complex $\mathbf{z = x + i\,y}$ plane, since the integrand is an entire function
+  of $\mathbf{z}$ (no singularities in the finite $\mathbf{z}$ plane.
+\newpage
+\noindent Let's make a plot of \mv|erf(x)|:
+\begin{myVerbatim}
+(%i11) ( load(draw),load(qdraw) )$
+(%i12) qdraw(yr(-2,2),ex1(erf(x),x,-5,5,lw(5),lc(red),lk("erf(x)") ) )$	
+\end{myVerbatim}
+with the result:
+%\smallskip
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.6]{ch7p1.eps} }
+	\caption{ $\mathbf{erf(x)}$  }
+\end{figure} 
+%% eps code for ch7p1 plot of erf(x)
+%  (%i30) qdraw(yr(-2,2), line(-5,0,5,0,lw(3) ),
+%          line(0,-2,0,2,lw(3) ),
+%          ex1(erf(x),x,-5,5,lw(5),lc(red),lk("erf(x)") ),
+%         pic(eps,"ch7p1",font("Times-Bold",20) ) );
+%   (%o30)                 [gr2d(points, points, explicit)]
+
+\noindent Maxima's \textbf{limit} function confirms what the plot indicates:
+\begin{myVerbatim}
+(%i13) [limit(erf(x),x, inf), limit(erf(x),x, minf)];
+(%o13)                             [1, - 1]
+\end{myVerbatim} 
+Using these limits in \mv|%o9| produces the definite integral desired.
+\subsubsection*{Example 5: Use of \textbf{assume} }
+We next calculate the definite integral $\mathbf{\int_{0}^{\infty} x^{a}\,(x+1)^{-5/2} \, dx}$.
+\begin{myVerbatim}
+(%i1) (assume(a>1),facts());
+(%o1)                               [a > 1]
+(%i2) integrate (x^a/(x+1)^(5/2), x, 0, inf );
+   2 a + 2
+Is ------- an integer?
+      5
+
+no;
+Is  2 a - 3  positive, negative, or zero?
+
+neg;
+                                   3
+(%o2)                         beta(- - a, a + 1)
+                                   2
+\end{myVerbatim} 
+The combination of $\mathbf{assume ( a > 1 )}$ and $\mathbf{2\, a - 3 < 0}$ means that
+  we are assuming $\mathbf{1 < a < 3/2}$. \\
+These assumptions about $\mathbf{a}$ imply that 
+ $\mathbf{4/5 < (2\,a+2)/5 < 1}$. 
+To be consistent, we must hence answer \textbf{no} to the first question.
+\newpage
+\small
+Let's tell Maxima to \textbf{forget} about the \textbf{assume} assignment 
+  and see what the difference is.
+\begin{myVerbatim1}
+(%i3) ( forget(a>1), facts() );
+(%o3)                                 []
+(%i4) is( a>1 );
+(%o4)                               unknown
+(%i5) integrate (x^a/(x+1)^(5/2), x, 0, inf );
+Is  a + 1  positive, negative, or zero?
+
+pos;
+Is a an integer?
+
+no;
+      7
+Is ------- an integer?
+   2 a + 4
+
+no;
+Is  2 a - 3  positive, negative, or zero?
+
+neg;
+                                   3
+(%o5)                         beta(- - a, a + 1)
+                                   2
+(%i6) [is( a>1 ), facts() ];
+(%o6)                            [unknown, []]
+\end{myVerbatim1}
+Thus we see that omitting the initial \mvs|assume(a>1)| statement 
+  causes \textbf{integrate} to ask four questions instead of two.
+We also see that answering questions posed by the \textbf{integrate} dialogue script
+  does \tcbr{not} result in population of the \textbf{facts} list. \\  
+
+\noindent The Maxima \textbf{beta} function has the manual entry:
+\begin{myVerbatim2s}
+Function: beta (a, b) 
+The beta function is defined as gamma(a) gamma(b)/gamma(a+b) (A&S 6.2.1). 
+\end{myVerbatim2s}
+In the usual mathematics notation, the beta function can be defined in terms of the gamma function as
+\begin{equation}
+\mathbf{B(r,s) = \frac{\boldsymbol{\Gamma}(r)\,\boldsymbol{\Gamma}(s)}{\boldsymbol{\Gamma}(r + s)} }
+\end{equation}
+for all $\mathbf{r, s}$ in the complex plane.\\
+
+\noindent The Maxima \textbf{gamma} function has the manual entry
+\begin{myVerbatim2f}
+Function: gamma (z) 
+The basic definition of the gamma function (A&S 6.1.1) is 
+
+                               inf
+                              /
+                              [     z - 1   - t
+                   gamma(z) = I    t      %e    dt
+                              ]
+                              /
+                               0
+\end{myVerbatim2f}
+The gamma function can be defined for complex $\mathbf{z}$ and $\mathbf{Re(z)  > 0}$ by the integral along
+  the real $\mathbf{t}$ axis
+\begin{equation}
+\mathbf{\boldsymbol{\Gamma}(z) = \int_{0}^{\infty} t^{z-1}\,e^{-t}\,d\,t }
+\end{equation}
+and  for $\mathbf{Im(z) = 0}$ and $\mathbf{Re(z) = n}$ and $\mathbf{n}$ an integer greater than zero we have
+\begin{equation}
+\mathbf{\boldsymbol{\Gamma}(n+1) = n\,! }
+\end{equation}
+\newpage
+\noindent How can we check the definite integral Maxima has offered?
+If we ask the \textbf{integrate} function for the indefinite integral, we get 
+   the "noun form", a signal of failure:
+\begin{myVerbatim1}
+(%i7) integrate(x^a/(x+1)^(5/2), x );
+                                /      a
+                                [     x
+(%o7)                          I ---------- dx
+                                ]        5/2
+                                / (x + 1)
+(%i8) grind(%)$
+'integrate(x^a/(x+1)^(5/2),x)$
+\end{myVerbatim1} 
+Just for fun, let's include the \textbf{risch} flag and see what we get:
+\begin{myVerbatim1}
+(%i9) integrate(x^a/(x+1)^(5/2), x ), risch;
+                        /           a log(x)
+                        [         %e
+(%o9)                   I -------------------------- dx
+                        ]               2
+                        / sqrt(x + 1) (x  + 2 x + 1)
+\end{myVerbatim1} 
+We again are presented with a noun form, but the integrand has been written in
+  a different form, in which the identity
+  $$\mathbf{x^A = e^{A \, \boldsymbol{\ln}(x)}}$$ has been used.\\  
+
+\noindent We can at least make a spot check for a value of the parameter $\mathbf{a}$ in the
+  middle of the assumed range $\mathbf{(1, 3/2)}$, namely for $\mathbf{a = 5/4}$.
+\begin{myVerbatim}
+(%i10) float(beta(1/4,9/4));
+(%o10)                         3.090124462168955
+(%i11) quad_qagi(x^(5/4)/(x+1)^(5/2),x, 0, inf);
+(%o11)        [3.090124462010259, 8.6105700347616221E-10, 435, 0]
+\end{myVerbatim} 
+We have used the quadrature routine, \mv|quad_qagi| (see Ch. 8) for
+  a numerial estimate of this integral.
+The first element of the returned list is the numerical answer,
+  which agrees with the analytic answer.
+\normalsize
+\subsubsection*{Example 6: Automatic Change of Variable and \textbf{gradef} }
+Here is an example which illustrates Maxima's ability to make a change of
+  variable to enable the return of an indefinite integral.
+The task is to evaluate the indefinite integral
+\begin{equation}
+\mathbf{\int \frac{\boldsymbol{\sin}(r^2) \, dr(x)/dx}{q(r)} \, dx }
+\end{equation}
+by telling Maxima that the $\mathbf{\boldsymbol{\sin} (r^{2})}$ in the numerator is
+ related to $\mathbf{q(r)}$ in the denominator by the derivative:
+\begin{equation}
+\mathbf{\frac{d\,q(u)}{d\,u} = \boldsymbol{\sin}(u^2) }.
+\end{equation}
+We would manually rewrite the integrand (using the chain rule) as
+\begin{equation}
+\mathbf{\frac{\boldsymbol{\sin}(r^2)\, dr(x)/dx}{q} = \frac{1}{q}\, (dq(r)/dr) \, (dr(x)/dx ) =
+   \frac{1}{q}\, \frac{dq}{dx} = \frac{d}{dx}\, \boldsymbol{\ln}(q) }
+\end{equation}
+and hence obtain the indefinite integral $\mathbf{\boldsymbol{\ln}(q(r(x)))}$.
+\newpage
+\noindent Here we assign the derivative knowledge using \textbf{gradef} (as discussed in Ch. 6):
+\begin{myVerbatim}
+(%i1) gradef(q(u),sin(u^2) )$
+(%i2) integrand : sin(r(x)^2)* 'diff(r(x),x ) /q( r(x) ) ;
+                             d               2
+                            (-- (r(x))) sin(r (x))
+                             dx
+(%o2)                       ----------------------
+                                   q(r(x))
+(%i3) integrate(integrand,x);
+(%o3)                            log(q(r(x)))
+(%i4) diff(%,x);
+                             d               2
+                            (-- (r(x))) sin(r (x))
+                             dx
+(%o4)                       ----------------------
+                                   q(r(x))
+\end{myVerbatim} 
+Note that \textbf{integrate} pays no attention to \textbf{depend} assignments,
+  so the briefer type of notation which \textbf{depend} allows with differentiation
+  cannot be used with \textbf{integrate}:
+\begin{myVerbatim}
+(%i5) depends(r,x,q,r);
+(%o5)                            [r(x), q(r)]
+(%i6) integrand : sin(r^2)* 'diff(r,x) / q;
+                                  dr      2
+                                  -- sin(r )
+                                  dx
+(%o6)                             ----------
+                                      q
+(%i7) integrate(integrand,x);
+                                        /
+                                     2  [ dr
+                                sin(r ) I -- dx
+                                        ] dx
+                                        /
+(%o7)                           ---------------
+                                       q
+\end{myVerbatim} 
+which is fatally flawed, since Maxima pulled both $\mathbf{\boldsymbol{\sin}(r(x)^2)}$
+ and $\mathbf{1/q(r(x))}$ outside the integral.\\
+  
+\noindent Of course, the above \textbf{depends} assignment will still allow Maxima
+  to rewrite the derivative of $\mathbf{q}$ with respect to $\mathbf{x}$ using the chain rule:
+\begin{myVerbatim}
+(%i8) diff(q,x);
+                                     dq dr
+(%o8)                                -- --
+                                     dr dx
+\end{myVerbatim} 
+\newpage
+\subsubsection*{Example 7: Integration of Rational Algebraic Functions, \textbf{rat},
+    \textbf{ratsimp}, and \textbf{partfrac} }
+A \it rational algebraic function \rm can be written as a quotient of two polynomials.
+Consider the following function of $\mathbf{x}$.
+\begin{myVerbatim}
+(%i1) e1 : x^2 + 3*x -2/(3*x)+110/(3*(x-3)) + 12;
+                         2          2       110
+(%o1)                   x  + 3 x - --- + --------- + 12
+                                   3 x   3 (x - 3)
+\end{myVerbatim} 
+We can obviously find the lowest common denominator and write this
+  as the ratio of two polynomials, using either \textbf{rat} or \textbf{ratsimp}.
+\begin{myVerbatim}
+(%i2) e11 : ratsimp(e1);
+                                  4      2
+                                 x  + 3 x  + 2
+(%o2)                            -------------
+                                    2
+                                   x  - 3 x
+\end{myVerbatim} 
+Because the polynomial in the numerator is of higher degree than the polynomial in
+  the denominator, this is called an \textit{improper rational fraction}.
+Any improper rational fraction can be reduced by division to a mixed form, consisting
+  of a sum of some polynomial and a sum of proper fractions.
+We can recover the "partial fraction" representation in terms of \textit{proper rational fractions}
+  (numerator degree less than denominator degree) by using \textbf{partfrac}\verb|(expr, var)|.
+\begin{myVerbatim}
+(%i3) e12 : partfrac(e11,x);
+                         2          2       110
+(%o3)                   x  + 3 x - --- + --------- + 12
+                                   3 x   3 (x - 3)
+\end{myVerbatim} 
+With this function of $\mathbf{x}$ expressed in partial fraction form, you are
+  able to write down the indefinite integral immediately (ie., by inspection,
+  without using Maxima).
+But, of course, we want to practice using Maxima!
+\begin{myVerbatim}
+(%i4) integrate(e11,x);
+                                                3      2
+                 2 log(x)   110 log(x - 3)   2 x  + 9 x  + 72 x
+(%o4)          - -------- + -------------- + ------------------
+                    3             3                  6
+(%i5) integrate(e12,x);
+                                               3      2
+                  2 log(x)   110 log(x - 3)   x    3 x
+(%o5)           - -------- + -------------- + -- + ---- + 12 x
+                     3             3          3     2
+\end{myVerbatim} 
+Maxima has to do less work if you have already provided the partial fraction
+  form as the integrand; otherwise, Maxima internally seeks a partial fraction form in order
+  to do the integral.  
+\newpage
+\subsubsection*{Example 8}
+The next example shows that \textbf{integrate} can sometimes split the
+  integrand into at least one piece which can be integrated, and leaves the
+  remainder as a formal expression (using the noun form of \textbf{integrate}).
+This may be possible if the denominator of the integrand is a polynomial
+  which Maxima can factor.
+\begin{myVerbatim}
+(%i6) e2: 1/(x^4 - 4*x^3 + 2*x^2 - 7*x - 4);
+                                      1
+(%o6)                    --------------------------
+                           4      3      2
+                          x  - 4 x  + 2 x  - 7 x - 4
+(%i7) integrate(e2,x);
+                                     /  2
+                                     [ x  + 4 x + 18
+                                     I ------------- dx
+                                     ]  3
+                        log(x - 4)   / x  + 2 x + 1
+(%o7)                  ---------- - ------------------
+                            73               73
+(%i8) grind(%)$
+log(x-4)/73-('integrate((x^2+4*x+18)/(x^3+2*x+1),x))/73$
+(%i9) factor(e2);
+                                      1
+(%o9)                      ----------------------
+                                      3
+                            (x - 4) (x  + 2 x + 1)
+(%i10) partfrac(e2,x);
+                                        2
+                            1          x  + 4 x + 18
+(%o10)                  ---------- - -----------------
+                        73 (x - 4)        3
+                                     73 (x  + 2 x + 1)
+\end{myVerbatim} 
+We have first seen what Maxima can do with this integrand, using the \textbf{grind}
+  function to clarify the resulting expression, and then we have used \textbf{factor}
+  and \textbf{partfrac} to see how the split-up arises.
+Despite a theorem that the integral of every rational function can be expressed in terms
+  of algebraic, logarithmic and inverse trigonometric expressions, Maxima
+  declines to return a symbolic expression for the second, formal, piece of this
+  integral (which is good because the exact symbolic answer is an extremely long
+  expression).
+\subsubsection*{Example 9: The \textbf{logabs} Parameter and \textbf{log} }
+There is a global parameter \textbf{logabs} whose default value is \textbf{false}
+  and which affects what is returned with an indefinite integral containing logs.
+\begin{myVerbatim}
+(%i11) logabs;
+(%o11)                                false
+(%i12) integrate(1/x,x);
+(%o12)                               log(x)
+(%i13) diff(%,x);
+                                       1
+(%o13)                                 -
+                                       x
+(%i14) logabs:true$
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i15) integrate(1/x,x);
+(%o15)                            log(abs(x))
+(%i16) diff(%,x);
+                                       1
+(%o16)                                 -
+                                       x
+(%i17) log(-1);
+(%o17)                             log(- 1)
+(%i18) float(%);
+(%o18)                       3.141592653589793 %i
+\end{myVerbatim} 
+When we override the default and set \textbf{logabs} to \textbf{true}, the argument
+  of the \textbf{log} function is wrapped with \textbf{abs}.
+According to the manual
+\begin{quote}
+When doing indefinite integration where logs are generated, e.g. integrate(1/x,x),
+ the answer is given in terms of log(abs(...)) if logabs is true,
+  but in terms of log(...) if logabs is false.
+For definite integration, the logabs:true setting is used,
+  because here "evaluation" of the indefinite integral at
+  the endpoints is often needed. 
+\end{quote}
+\vspace{1cm}
+\subsection{Piecewise Defined Functions and \textbf{integrate} }
+We can use Maxima's \textbf{if}, \textbf{elseif}, and \textbf{else} construct
+  to define piecewise defined functions.
+We first define and plot a square wave of unit height which extends
+  from $\mathbf{1 \leq x \leq 3}$.
+\begin{myVerbatim}
+(%i1) u(x) := if x >= 1 and x <= 3 then 1 else 0$
+(%i2) map('u,[0.5,1,2,3,3.5]);
+(%o2)                           [0, 1, 1, 1, 0]
+(%i3) (load(draw),load(qdraw))$
+               qdraw(...), qdensity(...), syntax: type qdraw(); 
+(%i4) qdraw( yr(-1,2),ex1(u(x),x,0,4,lw(5),lc(blue)) )$
+\end{myVerbatim} 
+This produces 
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.6]{ch7p12.eps} }
+	\caption{if $\mathbf{x > 1}$ and $\mathbf{x < 3}$ then $\mathbf{1}$ else $\mathbf{0}$}
+\end{figure} 
+%% eps code for ch7p12 plot of uu(x,1,3)
+%%qdraw(yr(-1,2), line(1,0,3,0,lw(4) ),
+%          ex1(u(x ),x,0,4,lw(10),lc(blue)  ),
+%         pic(eps,"ch7p12",font("Times-Bold",16) ) )$
+%
+
+\newpage
+\noindent We next define a function which is $\mathbf{(x-1)}$ for $\mathbf{1 \leq x < 2}$ and
+  is $\mathbf{(6 - 2\,x)}$ for $\mathbf{2 \leq x \leq 3}$ and is $\mathbf{0}$ otherwise.
+\begin{myVerbatim}
+(%i5) g(x):= if x >= 1 and x < 2 then (x-1)
+              elseif x >= 2 and x <= 3 then (6 - 2*x) else 0$
+(%i6) map('g,[1/2,1,3/2,2,5/2,3,7/2]);
+                                    1
+(%o6)                        [0, 0, -, 2, 1, 0, 0]
+                                    2
+(%i7) qdraw( yr(-1,3),ex1(g(x),x,0,4,lw(5),lc(blue)) )$
+\end{myVerbatim} 
+which produces
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.6]{ch7p13.eps} }
+	\caption{ Example of a Piecewise Defined Function  }
+\end{figure} 
+%% eps code for ch7p13 plot of g(x)
+% qdraw(yr(-1,3), line(1,0,3,0,lw(4) ),
+%          ex1(g(x),x,0,4,lw(10),lc(blue)  ),
+%         pic(eps,"ch7p13",font("Times-Bold",16) ) )$
+%
+
+\noindent This is not quite the figure we want, since it doesn't really show the
+  kind of discontinuity we want to illustrate.
+With our definition of $\mathbf{g(x)}$, \textbf{draw2d} draws a blue vertical
+  line from $\mathbf{(2,1)}$ to $\mathbf{(2,2)}$.
+We can change the way $\mathbf{g(x)}$ is plotted to get the plot we want,
+  as in
+\begin{myVerbatim}
+(%i8) block([small :1.0e-6],
+         qdraw( yr(-1,3),ex1(g(x),x,0,2-small,lw(5),lc(blue)),
+                  ex1(g(x),x,2+small,4,lw(5),lc(blue)) ) )$
+\end{myVerbatim}
+which produces
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=.6]{ch7p14.eps} }
+	\caption{Example with More Care with Plot Limits }
+\end{figure} 
+%% eps code for ch7p12 plot of uu(1,3)
+% block([small:1.0e-6],
+%        qdraw(yr(-1,3), line(1,0,3,0,lw(4) ),
+%          ex1(g(x),x,0,2-small,lw(10),lc(blue)  ),
+%            ex1(g(x),x,2+small,4,lw(10),lc(blue)),
+%         pic(eps,"ch7p14",font("Times-Bold",16) ) ))$
+% 
+
+\newpage
+\noindent The Maxima function \textbf{integrate} cannot handle correctly a
+  function defined with the \textbf{if}, \textbf{elseif}, and \textbf{else} constructs.
+\begin{myVerbatim}
+(%i9) integrate(g(x),x,0,4);
+        4
+       /
+       [
+(%o9) I  (if (x > 1) and (x < 2) then x - 1 elseif (x > 2) and (x < 3)
+       ]
+       /
+        0
+                                                        then 6 - 2 x else 0) dx
+\end{myVerbatim} 
+This means that for now we will have to break up the integration interval
+  into sub-intervals by hand and add up the individual integral results.
+\begin{myVerbatim}
+(%i10) integrate(x-1,x,1,2) + integrate(6-2*x,x,2,3);
+                                       3
+(%o10)                                 -
+                                       2
+\end{myVerbatim}
+\subsection{Area Between Curves Examples}
+\subsubsection*{Example 1}  
+We will start with a very simple example, finding the area between $\mathbf{f_{1}(x) = \sqrt{x}}$
+  and $\mathbf{f_{2}(x) = x^{3/2}}$.
+A simple plot shows that the curves cross at $\mathbf{x = 0}$ and $\mathbf{x = 1}$.
+\begin{myVerbatim}
+(%i1) (load(draw),load(qdraw) )$
+(%i2) f1(x) := sqrt(x)$
+(%i3) f2(x) := x^(3/2)$
+(%i4) qdraw(   xr(-.5,1.5), yr(-.5,1.5),
+         ex1(f1(x),x,0,1.5,lw(5),lc(blue) ),
+         ex1(f2(x),x,0,1.5,lw(5),lc(red) ) )$
+\end{myVerbatim}
+%\newpage
+This produces the plot:
+\begin{figure} [h!]
+   \centerline{\includegraphics[scale=0.7]{ch7p9.eps} }
+	\caption{$\mathbf{\sqrt{x}}$ (blue) and $\mathbf{x^{3/2}}$ (red)}
+\end{figure}
+% eps code for simple plot of two curves
+%qdraw(   xr(-.5,1.5), yr(-.5,1.5),
+%         line( -.5,0,1.5,0 ),
+%         line(0,-.5,0,1.5 ),
+%         ex1(f1(x),x,0,1.5,lw(5),lc(blue) ),
+%         ex1(f2(x),x,0,1.5,lw(5),lc(red) ),
+%           pic(eps,"ch7p9",font("Times-Bold",20) ) )$
+%
+
+\newpage
+\noindent Next we redraw this simple plot, but add some shading in color
+  to show the area.
+The simplest way to do this is to draw some vertical lines
+  between the functions in the region of interest $\mathbf{0 \leq x \leq 1}$.
+We can use the \textbf{qdraw} package function \textbf{line}.
+We first construct a list of $\mathbf{x}$ axis positions for the vertical
+  lines, using values $\mathbf{0.01, 0.02, ... 0.99}$.
+We then construct a list \verb|vv| of the vertical lines and
+  merge that list with a list \verb|qdlist| containing the rest of
+  the plot instructions.
+We then use \textbf{apply} to pass this list as a set of arguments 
+  to \textbf{qdraw}.
+\begin{myVerbatim}
+(%i5) qdlist : [xr(-.5,1.5), yr(-.5,1.5),
+         ex1(f1(x),x,0,1.5,lw(5),lc(blue) ) ,
+         ex1(f2(x),x,0,1.5,lw(5),lc(red) ) ]$
+(%i6) xv:float(makelist(i,i,1,99)/100)$
+(%i7) (vv:[],for x in xv do
+        vv:cons(line(x,f2(x),x,f1(x),lw(1),lc(khaki) ),vv),
+        vv:reverse(vv) )$
+(%i8) qdlist : append(vv,qdlist)$
+(%i9) apply('qdraw, qdlist)$
+\end{myVerbatim}
+which produces the result
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=0.7]{ch7p10.eps} }
+	\caption{$\mathbf{\sqrt{x}}$ (blue) and $\mathbf{x^{3/2}}$ (red)}
+\end{figure}
+% eps code for plot of two curves with shaded area
+%(%i21) qdlist : [xr(-.5,1.5), yr(-.5,1.5),
+%        line( -.5,0,1.5,0 ),
+%         line(0,-.5,0,1.5 ),
+%         ex1(f1(x),x,0,1.5,lw(5),lc(blue) ) ,
+%         ex1(f2(x),x,0,1.5,lw(5),lc(red) ),
+%         pic(eps,"ch7p10",font("Times-Bold",20) ) ]$
+%(%i22) qdlist : append(vv,qdlist)$
+%(%i23) apply('qdraw,qdlist)$
+%
+%\newpage
+
+\noindent If we did not know the intersection location of the two
+  curves, we could use \textbf{solve} or \mv|find_root| for example.
+\begin{myVerbatim}
+(%i10) solve( f1(x) = f2(x),x );
+(%o10)                          [x = 0, x = 1]
+\end{myVerbatim} 
+Once we know the interval to use for adding up the area
+  and we know that in this interval $\mathbf{f_{1}(x) > f_{2}(x)}$,
+  we simply sum the infinitesimal areas given by
+  $\mathbf{( f_{1}(x) - f_{2}(x) )\,dx}$ (base $\mathbf{dx}$ columns) over
+  the interval $\mathbf{0 \leq x \leq 1}$.
+\begin{myVerbatim}
+(%i11) integrate(f1(x) - f2(x),x,0,1);
+                                       4
+(%o11)                                ----
+                                       15
+\end{myVerbatim} 
+so the area equals $\mathbf{4/15}$.
+\begin{equation}
+\mathbf{\int_{0}^{1} (\sqrt{x} - x^{3/2})\,dx = 4/15 }
+\end{equation}
+\newpage
+\subsubsection*{Example 2}
+As a second example we consider two polynomial functions: \\
+ $\mathbf{f_{1}(x) = (3/10)\,x^5 - 3\,x^4 + 11\,x^3 - 18\,x^2 + 12\, x + 1}$ \\
+ and $\mathbf{f_{2}(x) = -4\,x^3 + 28\,x^2 - 56\,x + 32}$.
+We first make a simple plot for orientation.
+\begin{myVerbatim}
+(%i1) f1(x) := (3/10)*x^5 -3*x^4 + 11*x^3 -18*x^2 + 12*x + 1$
+(%i2) f2(x) := -4*x^3 + 28*x^2 -56*x + 32$
+(%i3) (load(draw),load(qdraw) )$
+               qdraw(...), qdensity(...), syntax: type qdraw(); 
+
+(%i4) qdraw(yr(-20,20),ex1(f1(x),x,-1,5,lc(blue) ),
+               ex1(f2(x),x,-1,5,lc(red)))$
+\end{myVerbatim} 
+which produces the plot
+\begin{figure} [h]
+   \centerline{\includegraphics[scale=0.7]{ch7p11.eps} }
+	\caption{$\mathbf{f_{1}(x)}$ (blue) and $\mathbf{f_{2}(x)}$ (red)}
+\end{figure}   
+% qdraw(yr(-20,20),ex1(f1(x),x,-1,5,lw(5),lc(blue) ),
+%         ex1(f2(x),x,-1,5,lw(5),lc(red)),
+%         line(-1,0,5,0 ),line(0,-20,0,20 ),
+%          pic(eps,"ch7p11",font("Times-Bold",20) ))$
+
+\noindent Using the cursor on the plot, and working from left to right,
+  $\mathbf{f_{1}}$ becomes larger than $\mathbf{f_{2}}$ at about $\mathbf{(0.76,3.6)}$, 
+  becomes less than $\mathbf{f_{2}}$ at about $\mathbf{(2.3, 2.62)}$, and
+  becomes greater than $\mathbf{f_{2}}$ at about $\mathbf{(3.86,2.98)}$.  
+The \textbf{solve} function is not able to produce an analytic 
+  solution, but returns a polynomial whose roots are the solutions
+  we want.
+\begin{myVerbatim}
+(%i5) solve(f1(x) = f2(x),x);
+                     5       4        3        2
+(%o5)        [0 = 3 x  - 30 x  + 150 x  - 460 x  + 680 x - 310]
+(%i6) grind(%)$
+[0 = 3*x^5-30*x^4+150*x^3-460*x^2+680*x-310]$
+\end{myVerbatim} 
+By selecting and copying the \textbf{grind(..)} output, we can use that
+  result to paste in the definition of a function $\mathbf{p(x)}$ which we can then use with
+  \mv|find_root|.
+\begin{myVerbatim}
+(%i7) p(x) := 3*x^5-30*x^4+150*x^3-460*x^2+680*x-310$
+(%i8) x1 : find_root(p(x),x,.7,1);
+(%o8)                         0.77205830452781
+(%i9) x2 : find_root(p(x),x,2.2,2.4);
+(%o9)                         2.291819210962957
+(%i10) x3 : find_root(p(x),x,3.7,3.9);
+(%o10)                         3.865127100061791
+(%i11) map('p, [x1,x2,x3] );
+(%o11)                [0.0, 0.0, 9.0949470177292824E-13]
+(%i12) [y1,y2,y3] : map('f1, [x1,x2,x3] );
+(%o12)     [3.613992056691179, 2.575784006305792, 2.882949345140702]
+\end{myVerbatim} 
+We have checked the solutions by seeing how close to zero $\mathbf{p(x)}$ is when $\mathbf{x}$
+  is one of the three roots $\mathbf{[x1, x2, x3]}$.
+We now split up the integration into the two separate regions where
+ one or the other function is larger.
+\begin{myVerbatim}
+(%i13) ratprint:false$
+(%i14) i1 : integrate(f1(x) - f2(x),x,x1,x2);
+                                   41875933
+(%o14)                             --------
+                                   7947418
+(%i15) i2 : integrate(f2(x)-f1(x),x,x2,x3);
+                                   12061231
+(%o15)                             --------
+                                   1741444
+(%i16) area : i1 + i2;
+                                  30432786985
+(%o16)                            -----------
+                                  2495489252
+(%i17) area : float(area);
+(%o17)                         12.19511843643877								   
+\end{myVerbatim} 
+Hence the total area enclosed is about $\mathbf{12.195}$.
+Maxima tries to calculate exactly, replacing floating point
+  numbers with ratios of integers, and the default is to warn the
+  user about these replacements.
+Hence we have used \mv|ratprint : false$| to turn off this
+  warning.
+\subsection{Arc Length of an Ellipse}
+Consider an ellipse whose equation is 
+\begin{equation}
+\mathbf{\frac{x^2}{a^2} + \frac{y^2}{b^2} = 1}.
+\end{equation}
+  in which we assume $\mathbf{a}$ is the semi-major axis of the ellipse so $\mathbf{a > b}$.
+In the first quadrant ($\mathbf{0 \leq x \leq a}$ and $\mathbf{0 \leq y \leq b}$), we can solve
+  for $\mathbf{y}$ as a function of $\mathbf{x}$ :
+\begin{equation}
+\mathbf{y(x) = b\,\sqrt{1 - (x/a)^2}}.
+\end{equation}
+If $\mathbf{S}$ is the arc length of the ellipse, then, by symmetry, one fourth of the
+  arclength can be calculated using the first quadrant integral
+\begin{equation}
+\mathbf{\frac{S}{4} = \int_{0}^{a} \sqrt{ 1 + \left( \frac{dy}{dx} \right)^{2} } \, dx}
+\end{equation}
+We will start working with the argument of the square root, making a change of
+  variable $\mathbf{x \rightarrow z}$, with $\mathbf{x = a\,z}$, so $\mathbf{dx = a\, dz}$,
+  and $\mathbf{a}$ will come outside the integral from the transformation of $\mathbf{dx}$.
+The integration limits using the $\mathbf{z}$ variable are $\mathbf{0 \leq z \leq 1}$.\\  
+
+\noindent We will then replace the semi-minor axis $\mathbf{b}$ by an expression depending on
+  the ellipse eccentricity $\mathbf{e}$, which has $\mathbf{0 < e \leq 1}$,
+  and whose square is given by
+\begin{equation}
+\mathbf{ e^2 = 1 -  \left( \frac{b}{a} \right)^2  \leq  1 }
+\end{equation}
+(since $\mathbf{b < a}$), so
+\begin{equation}
+ \mathbf{b = a\, \sqrt{1 - e^{2}} } 
+\end{equation}
+\begin{myVerbatim}
+(%i1) assume(a>0,b>0,a>b,e>0,e<1 )$
+(%i2) y:b*sqrt(1 - (x/a)^2)$
+(%i3) dydx : diff(y,x)$
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i4) e1 : 1 + dydx^2;
+                                    2  2
+                                   b  x
+(%o4)                           ----------- + 1
+                                         2
+                                 4      x
+                                a  (1 - --)
+                                         2
+                                        a
+(%i5) e2 : ( subst( [x = a*z,b = a*sqrt(1-e^2)],e1 ),ratsimp(%%) );
+                                    2  2
+                                   e  z  - 1
+(%o5)                              ---------
+                                     2
+                                    z  - 1
+(%i6) e3 : (-num(e2))/(-denom(e2));
+                                        2  2
+                                   1 - e  z
+(%o6)                              ---------
+                                         2
+                                    1 - z
+(%i7) e4 : dz*sqrt(num(e3))/sqrt(denom(e3));
+                                           2  2
+                              dz sqrt(1 - e  z )
+(%o7)                         ------------------
+                                           2
+                                 sqrt(1 - z )
+\end{myVerbatim} 
+The two substitutions give us expression \mv|e2|, and we use a desperate device
+  to multiply the top and bottom by $\mathbf{(-1)}$ to get \mv|e3|.
+We then ignore the factor $\mathbf{a}$ which comes outside the integral and consider
+  what is now inside the integral sign (with the required square root).\\  
+
+\noindent We now make another change of variables, with $\mathbf{z \rightarrow u}$,
+ $\mathbf{z = \boldsymbol{\sin}(u)}$,
+  so $\mathbf{dz = \boldsymbol{\cos}(u) \, du}$.
+The lower limit of integration $\mathbf{z = 0 = \boldsymbol{\sin}(u)}$
+  transforms into $\mathbf{u = 0}$, and the upper limit $\mathbf{z = 1 = \boldsymbol{\sin}(u)}$
+  transforms into $\mathbf{u = \boldsymbol{\pi}/2}$.
+\begin{myVerbatim}
+(%i8) e5 : subst( [z = sin(u), dz = cos(u)*du ],e4 );
+                                            2    2
+                        du cos(u) sqrt(1 - e  sin (u))
+(%o8)                   ------------------------------
+                                          2
+                              sqrt(1 - sin (u))
+\end{myVerbatim} 
+We now use \textbf{trigsimp} but help Maxima out with an \textbf{assume} statement
+  about $\mathbf{\boldsymbol{\cos}(u)}$ and $\mathbf{\boldsymbol{\sin}(u)}$.
+\begin{myVerbatim}
+(%i9) assume(cos(u)>0, sin(u) >0)$
+(%i10) e6 : trigsimp(e5);
+                                         2    2
+(%o10)                      du sqrt(1 - e  sin (u))
+\end{myVerbatim} 
+We then have
+\begin{equation}
+\mathbf{\frac{S}{4} = a \, \int_{0}^{\boldsymbol{\pi}/2} \sqrt{1 - e^{2} \, \boldsymbol{\sin}^{2}u } \, du }
+\end{equation}
+Although \textbf{integrate} cannot return an expression for this integral in
+  terms of elementary functions, in this form one is able to recognise the standard
+  trigonometric form of the complete elliptic integral of the second kind,
+  (a function tabulated numerous places and also available via Maxima).\\  
+
+\noindent Let
+\begin{equation}
+\mathbf{ E(k) = E(\boldsymbol{\phi} = \boldsymbol{\pi}/2,k) = 
+   \int_{0}^{\boldsymbol{\pi}/2} \sqrt{1 - k^{2} \, \boldsymbol{\sin}^{2}u } \, du }
+\end{equation}
+  be the definition of the complete elliptic integral of the second kind.\\
+
+\noindent The "incomplete" elliptic integral of the second kind (with two arguments) is
+\begin{equation}
+\mathbf{E(\boldsymbol{\phi},k) = \int_{0}^{\boldsymbol{\phi}} \sqrt{1 - k^{2} \, \boldsymbol{\sin}^{2}u } \, du}.
+\end{equation}
+Hence we have for the arc length of our ellipse
+\begin{equation}
+\mathbf{S = 4 \, a \, E(e) = 4 \, a \, E(\boldsymbol{\pi}/2,e) = 4 \, a \,
+ \int_{0}^{\boldsymbol{\pi}/2} \sqrt{1 - e^{2} \, \boldsymbol{\sin}^{2}u } \, du}
+\end{equation}
+We can evaluate numerical values using \textbf{elliptic\_ec}, where\\
+  $\mathbf{E(k) = elliptic\_ec(k^2)}$, so $\mathbf{S = 4 \, a\, elliptic\_ec(e^{2}) }$. \\
+  
+\noindent As a numerical example, take $\mathbf{a = 3}$, $\mathbf{ b = 2}$, so $\mathbf{e^2 = 5/9}$, and
+\begin{myVerbatim}
+(%i11) float(12*elliptic_ec(5/9));
+(%o11)                         15.86543958929059
+\end{myVerbatim} 
+We can check this numerical value using \mv|quad_qags|:
+\begin{myVerbatim}
+(%i12) first( quad_qags(12*sqrt(1 - (5/9)*sin(u)^2),u,0,%pi/2) );
+(%o12)                          15.86543958929059
+\end{myVerbatim}  
+\subsection{Double Integrals and the Area of an Ellipse} \label{symdbl}
+Maxima has no core function which will compute a symbolic double definite integral,
+  (although it would be easy to construct one).
+Instead of constructing such a homemade function, to evaluate the
+  double integral
+\begin{equation}
+\mathbf{\int_{u1}^{u2} du \, \int_{v1(u)}^{v2(u)} dv\,f(u,v)  \equiv 
+  \int_{u1}^{u2} \left( \int_{v1(u)}^{v2(u)} f(u,v) \, dv \right) \, du}
+\end{equation}
+  we use the Maxima code
+\begin{myVerbatim2}
+       integrate( integrate( f(u,v),v,v1(u),v2(u) ), u, u1,u2 )
+\end{myVerbatim2} 
+in which $\mathbf{f(u,v)}$ can either be an expression depending on the
+  variables $\mathbf{u}$ and $\mathbf{v}$, or  a Maxima function, and
+  likewise $\mathbf{v1(u)}$ and $\mathbf{v2(u)}$ can either be expressions depending
+  on $\mathbf{u}$ or Maxima functions. 
+Both $\mathbf{u}$ and $\mathbf{v}$ are "dummy variables", since the value of the
+  resulting double integral does not depend on our choice of symbols for
+  the integration variables; we could just as well use $\mathbf{x}$ and $\mathbf{y}$.
+\subsubsection*{Example 1: Area of a Unit Square}
+ The area of a unit square (the sides have length $\mathbf{1}$) is:  
+\begin{equation}
+\mathbf{\int_{0}^{1} dx \,  \int_{0}^{1} dy   \equiv
+  \int_{0}^{1}  \left( \int_{0}^{1} dy\,\right) \, dx}
+\end{equation}
+which is done in Maxima as:
+\begin{myVerbatim}
+(%i1) integrate( integrate(1,y,0,1), x,0,1 );
+(%o1)                                  1
+\end{myVerbatim} 
+\subsubsection*{Example 2: Area of an Ellipse}
+We seek the area of the ellipse such that points $\mathbf{(x,y)}$ on the boundary must satisfy:
+\begin{equation}
+\mathbf{\frac{x^2}{a^2} + \frac{y^2}{b^2} = 1}.
+\end{equation}
+The area will be four times the area of the first quadrant.
+The "first quadrant" refers to the region $\mathbf{0 \leq x \leq a}$ and
+  $\mathbf{0 \leq y \leq b}$.
+For a given value of $\mathbf{y > 0}$, the region inside the arc of the ellipse in the
+  first quadrant is determined by $\mathbf{0 \leq x \leq x_{max}}$, where
+   $\mathbf{x_{max} = (a/b)\, \sqrt{b^2 - y^2}}$.
+For a given value of $\mathbf{x > 0}$, the region inside the arc of the ellipse in the
+  first quadrant is determined by $\mathbf{0 \leq y \leq y_{max}}$, where  
+  $\mathbf{y_{max} = (b/a)\, \sqrt{a^2 - x^2}}$.\\
+
+\noindent One way to find the area of the first quadrant of this ellipse is to sum the values
+  of $\mathbf{dA = dx\,dy}$ by "rows", fixing $\mathbf{y}$ and summing over $\mathbf{x}$
+  from $\mathbf{0}$ to $\mathbf{x_{max}}$ (which depends on the $\mathbf{y}$ chosen). 
+That first sum over the $\mathbf{x}$ coordinate accumulates the area of that row, located at $\mathbf{y}$
+  and having width $\mathbf{dy}$.
+To get the total area (of the first quadrant) we then sum over rows, by letting
+  $\mathbf{y}$ vary from $\mathbf{0}$ to $\mathbf{b}$.\\
+This method corresponds to the formula
+\begin{equation}
+\mathbf{\frac{A}{4} = \int_{0}^{b}  \left( \int_{0}^{ (a/b)\,\sqrt{b^2 - y^2} } dx \, \right) \,dy }.
+\end{equation}
+Here we calculate the first quadrant area using this
+   method of summing over the area of each row.
+\begin{myVerbatim}
+(%i1) facts();
+(%o1)                                 []
+(%i2) assume(a > 0, b > 0, x > 0, x < a, y > 0,y < b )$
+(%i3) facts();
+(%o3)             [a > 0, b > 0, x > 0, a > x, y > 0, b > y]
+(%i4) [xmax : (a/b)*sqrt(b^2 - y^2),ymax : (b/a)*sqrt(a^2-x^2)]$
+(%i5) integrate( integrate( 1,x,0,xmax), y,0,b );
+                                    %pi a b
+(%o5)                               -------
+                                       4
+\end{myVerbatim} 
+which implies that the area interior to the complete ellipse is $\mathbf{\boldsymbol{\pi}\,a\,b}$.\\
+
+\noindent Note that we have tried to be "overly helpful" to Maxima's \textbf{integrate}
+  function by constructing an "assume list" with everything we can think of
+  about the variables and parameters in this problem.
+The main advantage of doing this is to reduce the number of questions
+  which \textbf{integrate} decides it has to ask the user.\\ 
+
+\noindent You might think that \textbf{integrate} would not ask for the sign of $\mathbf{(y - b)}$,
+  or the sign of $\mathbf{(x - a)}$, since it should infer that sign from the integration limits.
+However, the \textbf{integrate} algorithm is "super cautious" in trying to never
+  present you with a wrong answer.
+The general philosophy is that the user should be willing to work with \textbf{integrate}
+  to assure a correct answer, and if that involves answering questions, then so be it.\\
+
+\noindent The second way to find the area of the first quadrant of this ellipse is to sum the values
+  of $\mathbf{dA = dx\,dy}$ by "columns", fixing $\mathbf{x}$ and summing over
+  $\mathbf{y}$ from $\mathbf{0}$ to $\mathbf{y_{max}}$
+  (which depends on the $\mathbf{x}$ chosen). 
+That first sum over the $\mathbf{y}$ coordinate accumulates the area of that column, located at $\mathbf{x}$
+  and having width $\mathbf{dx}$.
+To get the total area (of the first quadrant) we then sum over columns, by letting
+  $\mathbf{x}$ vary from $\mathbf{0}$ to $\mathbf{a}$.  \\
+
+\noindent This method corresponds to the formula
+\begin{equation}
+\mathbf{\frac{A}{4} = \int_{0}^{a}  \left( \int_{0}^{ (b/a)\,\sqrt{a^2 - x^2} } dy \, \right) \, dx }
+\end{equation}
+and is implemented by
+\begin{myVerbatim}
+(%i6) integrate( integrate( 1,y,0,ymax), x,0,a ); 
+                                    %pi a b
+(%o6)                               -------
+                                       4
+\end{myVerbatim}
+\subsubsection*{Example 3: Moment of Inertia for Rotation about the x-axis}
+We next calculate the moment of inertia for rotation of an elliptical lamina 
+  (having semi-axes $\mathbf{a, b}$) about the $\mathbf{x}$ axis.
+We will call this quantity $\mathbf{I_x}$.
+Each small element of area $\mathbf{dA = dx\,dy}$ has a mass $\mathbf{dm}$ given by
+ $\mathbf{\boldsymbol{\sigma} \,dA}$,
+  where $\boldsymbol{\sigma}$ is the mass per unit area, which we assume is a constant independent of
+  where we are on the lamina, and which we can express in terms of the total mass $\mathbf{m}$
+  of the elliptical lamina, and the total area $\mathbf{A = \boldsymbol{\pi}\,a\,b}$ as
+\begin{equation}
+\mathbf{\boldsymbol{\sigma} = \frac{total\: mass}{total\: area} = \frac{m}{\boldsymbol{\pi}\,a\,b} }
+\end{equation}
+Each element of mass $\mathbf{dm}$ contributes an amount $\mathbf{y^2\,dm}$ to
+ the moment of inertia $\mathbf{I_x}$, where $\mathbf{y}$ is the distance of
+ the mass element from the $\mathbf{x}$ axis.
+The complete value of $\mathbf{I_x}$ is then found by summing this quantity over the whole elliptical
+  laminate, or because of the symmetry, by summing this quantity over the first
+  quadrant and multiplying by $\mathbf{4}$.
+\begin{equation}
+\mathbf{I_x = \int \int_{ellipse} y^2\,dm =
+                \int \int_{ellipse} y^2\,\boldsymbol{\sigma} \, dx\,dy =
+                4\,\boldsymbol{\sigma} \, \int \int_{first \: quadrant} y^2\,dx\,dy }
+\end{equation}
+Here we use the method of summing over rows:
+\begin{myVerbatim}
+(%i7) sigma : m/(%pi*a*b)$
+(%i8) 4*sigma*integrate( integrate(y^2,x,0,xmax),y,0,b );
+                                      2
+                                     b  m
+(%o8)                                ----
+                                      4
+\end{myVerbatim} 
+Hence we have derived $\mathbf{I_x = m\,b^2/4}$ for the moment of inertia of an elliptical
+  laminate having semi-axes $\mathbf{a, b}$ for rotation about the $\mathbf{x}$ axis.
+\newpage
+\noindent Finally, let's use \textbf{forget} to remove our list of assumptions,
+  to show you the types of questions which can arise.
+We try calculating the area of the first quadrant, using the method of
+  summing over rows, without any assumptions provided:
+\begin{myVerbatim}
+(%i9) forget(a > 0, b > 0, x > 0, x < a, y > 0,y < b )$
+(%i10) facts();
+(%o10)                                []
+(%i11) integrate( integrate(1,x,0,xmax),y,0,b);
+Is  (y - b) (y + b)  positive, negative, or zero?
+n;
+     2    2
+Is  b  - y   positive or zero?
+p;
+Is  b  positive, negative, or zero?
+p;
+                                    %pi a b
+(%o11)                              -------
+                                       4
+\end{myVerbatim} 
+and if we just tell Maxima that \mv|b| is positive:
+\begin{myVerbatim}
+(%i12) assume(b>0)$
+(%i13) integrate( integrate(1,x,0,xmax),y,0,b);
+Is  (y - b) (y + b)  positive, negative, or zero?
+n;
+     2    2
+Is  b  - y   positive or zero?
+p;
+                                    %pi a b
+(%o13)                              -------
+                                       4
+\end{myVerbatim} 
+This may give you some feeling for the value of providing some help to \textbf{integrate}.
+%\newpage
+\subsection{Triple Integrals: Volume and Moment of Inertia of a Solid Ellipsoid}
+Consider an ellipsoid with semi-axes $\mathbf{(a,b,c)}$ such that $\mathbf{-a \leq x \leq a}$,
+  $\mathbf{-b \leq y \leq b}$, and $\mathbf{-c \leq z \leq c}$.
+We also assume here that $\mathbf{a > b > c}$.
+Points $\mathbf{(x,y,z)}$ which live on the surface of this ellipsoid satisfy the
+  equation of the surface  
+\begin{equation}
+\mathbf{\frac{x^{2}}{a^{2}} + \frac{y^{2}}{b^{2}} + \frac{z^{2}}{c^{2}} = 1 }.
+\end{equation}
+\subsubsection*{Volume}
+The volume of this ellipsoid will be $\mathbf{8}$ times the volume of the first octant,
+  defined by $\mathbf{0 \leq x \leq a}$, $\mathbf{0 \leq y \leq b}$, and $\mathbf{0 \leq z \leq c}$.
+To determine the volume of the first octant we pick fixed values of $\mathbf{(x,y)}$ somewhere
+  in the first octant, and sum the elementary volume $\mathbf{dV(x,y,z) = dx\,dy\,dz}$ over all
+  accessible values of $\mathbf{z}$ in this first octant,
+  $\mathbf{0 \leq z \leq c\,\sqrt{1-(x/a)^{2} -(y/b)^{2}}}$.  
+The result will still be proportional to $\mathbf{dx\,dy}$, and we sum the z-direction cylinders over
+  the entire range of $\mathbf{y}$ (accessible in the first octant), again holding $\mathbf{x}$ fixed as before,
+  so for given $\mathbf{x}$, we have $\mathbf{0 \leq y \leq b\,\sqrt{1 - (x/a)^{2}}}$.
+We now have a result proportional to $\mathbf{dx}$ (a sheet of thickness $\mathbf{dx}$ whose normal is in
+  the direction of the $\mathbf{x}$ axis) which we sum over all values of $\mathbf{x}$ accessible in
+  the first octant (with no restrictions): $\mathbf{0 \leq x \leq a}$.
+Thus we need to evaluate the triple integral
+\begin{equation}
+\mathbf{\frac{V}{8} =  \int_{0}^{a} dx \, \int_{0}^{ymax(x)} dy \, \int_{0}^{zmax(x,y)} dz \equiv 
+  \int_{0}^{a} \left[ \int_{0}^{ymax(x)} \left( \int_{0}^{zmax(x,y)} dz \right)  dy \, \right] dx }
+\end{equation}
+Here we call on \textbf{integrate} to do these integrals.
+\begin{myVerbatim}
+(%i1) assume(a>0,b>0,c>0,a>b,a>c,b>c)$
+(%i2) assume(x>0,x<a,y>0,y<b,z>0,z<c)$
+(%i3) zmax:c*sqrt(1-x^2/a^2-y^2/b^2)$
+(%i4) ymax:b*sqrt(1-x^2/a^2)$
+(%i5) integrate( integrate( integrate(1,z,0,zmax),y,0,ymax),x,0,a );
+     2  2    2  2    2  2
+Is  a  y  + b  x  - a  b   positive, negative, or zero?
+
+n;
+                                   %pi a b c
+(%o5)                              ---------
+                                       6
+(%i6) vol : 8*%;
+                                  4 %pi a b c
+(%o6)                             -----------
+                                       3
+\end{myVerbatim} 
+To answer the sign question posed by Maxima, we can look at the special case $\mathbf{y = 0}$ 
+  and note that since $\mathbf{x^{2} \leq a^{2}}$, the expression will almost always be negative
+  (ie., except for points of zero measure).
+Hence the expression is negative for all points interior to the surface of the ellipsoid.
+We thus have the result that the volume of an ellipsoid having semi-axes $\mathbf{(a,b,c)}$
+  is given by
+\begin{equation}
+\mathbf{V = \frac{4\, \boldsymbol{\pi}}{3} a \,b \,c }
+\end{equation}
+We can now remove the assumption $\mathbf{a > b > c}$, since what we call the $\mathbf{x}$ axis is
+ up to us and we could have chosen any of the principal axis directions of the
+ ellipsoid the $\mathbf{x}$ axis.\\
+
+\noindent Of course we will get the correct answer if we integrate over the total volume:
+\begin{myVerbatim}
+(%i7) [zmin:-zmax,ymin:-ymax]$
+(%i8) integrate( integrate( integrate(1,z,zmin,zmax),y,ymin,ymax),x,-a,a );
+     2  2    2  2    2  2
+Is  a  y  + b  x  - a  b   positive, negative, or zero?
+
+n;
+                                  4 %pi a b c
+(%o8)                             -----------
+                                       3
+\end{myVerbatim} 
+%\newpage
+\subsubsection*{Moment of Inertia}
+\noindent If each small volume element $\mathbf{dV = dx\,dy\,dz}$ has a mass given by
+ $\mathbf{dm = \boldsymbol{\rho} \, dV}$,
+  where $\boldsymbol{\rho}$ is the mass density, and if $\boldsymbol{\rho}$ is a constant, then it is easy
+  to calculate the moment of inertia $\mathbf{I_{3}}$ for rotation of the ellipsoid about
+  the $\mathbf{z}$ axis:
+\begin{equation}
+\mathbf{I_{3} = \int \int \int (x^{2} + y^{2}) \, dm = 
+   \boldsymbol{\rho} \, \int \int \int (x^{2} +y^{2})\, dx\,dy\,dz }
+\end{equation}
+where the integration is over the volume of the ellipsoid.
+The constant mass density $\boldsymbol{\rho}$ is the mass of the ellipsoid divided by its volume.
+\newpage
+\noindent Here we define that constant density in terms of our previously found
+  volume \mvs|vol| and the mass \mvs|m|, and proceed to calculate the moment of inertia:
+\begin{myVerbatim}
+(%i9) rho:m/vol;
+                                      3 m
+(%o9)                             -----------
+                                  4 %pi a b c
+(%i10) i3:rho*integrate(integrate(integrate(x^2+y^2,z,zmin,zmax),
+                       y,ymin,ymax),x,-a,a );
+     2  2    2  2    2  2
+Is  a  y  + b  x  - a  b   positive, negative, or zero?
+
+n;
+                                 5  3          7
+                         (8 %pi a  b  + 8 %pi a  b) m
+(%o10)                   ----------------------------
+                                         5
+                                 40 %pi a  b
+(%i11) ratsimp(i3);
+                                    2    2
+                                  (b  + a ) m
+(%o11)                            -----------
+                                       5
+\end{myVerbatim} 
+Hence the moment of inertia for the rotation about the $\mathbf{z}$ axis of a solid ellipsoid 
+  having mass $\mathbf{m}$, and semi-axes $\mathbf{(a,b,c)}$ is:  
+\begin{equation}
+\mathbf{I_{3} = m\,(a^{2} + b^{2})/5}.
+\end{equation}
+\subsection{Derivative of a Definite Integral with Respect to a Parameter}
+\noindent Consider a definite integral in which the dummy integration variable
+  is $\mathbf{x}$ and the integrand $\mathbf{f\boldsymbol{(x,y)}}$ is a function of both $\mathbf{x}$
+  and some parameter $\mathbf{y}$.
+We also assume that the limits of integration $\mathbf{(a,b)}$ are also possibly
+  functions of the parameter $\mathbf{y}$.
+You can find the proof of the following result (which assumes some mild
+ restrictions on the funtions $\mathbf{f(x,y),\, a(y) \; \text{and} \; b(y)}$) in calculus texts:
+\begin{equation}
+\mathbf{\frac{d}{dy} \int_{a(y)}^{b(y)} f(x,y) \, dx =
+   \int_{a}^{b} \frac{\boldsymbol{\partial} \, f(x,y)}{\boldsymbol{\partial} \,y} \,dy  +
+   f(b(y),y) \,\frac{d\,b}{d\,y} - f(a(y),y) \, \frac{d\,a}{d\,y} }
+\end{equation}
+Here we ask Maxima for this result for arbitrary functions:
+\begin{myVerbatim}
+(%i1) expr : 'integrate(f(x,y),x,a(y),b(y) );
+                                b(y)
+                               /
+                               [
+(%o1)                          I     f(x, y) dx
+                               ]
+                               /
+                                a(y)
+(%i2) diff(expr,y);
+                                                         b(y)
+                                                        /
+                  d                        d            [      d
+(%o2) f(b(y), y) (-- (b(y))) - f(a(y), y) (-- (a(y))) + I     (-- (f(x, y))) dx
+                  dy                       dy           ]      dy
+                                                        /
+                                                         a(y)
+\end{myVerbatim} 
+and we see that Maxima assumes we have enough smoothness in the functions
+  involved to write down the formal answer in the correct form.\\
+\subsubsection*{Example 1}
+We next display a simple example and begin with the simplest case,
+ which is that the limits of integration do not depend on the parameter $\mathbf{y}$.
+\begin{myVerbatim}
+(%i3) expr : 'integrate(x^2 + 2*x*y, x,a,b);
+                               b
+                              /
+                              [            2
+(%o3)                         I  (2 x y + x ) dx
+                              ]
+                              /
+                               a
+(%i4) diff(expr,y);
+                                      b
+                                     /
+                                     [
+(%o4)                              2 I  x dx
+                                     ]
+                                     /
+                                      a
+(%i5) (ev(%,nouns), ratsimp(%%) );
+                                     2    2
+(%o5)                               b  - a
+(%i6) ev(expr,nouns);
+                              2      3      2      3
+                           3 b  y + b    3 a  y + a
+(%o6)                      ----------- - -----------
+                                3             3
+(%i7) diff(%,y);
+                                     2    2
+(%o7)                               b  - a
+\end{myVerbatim} 
+In the last two steps, we have verified the result by first doing the original integral
+  and then taking the derivative.
+\subsubsection*{Example 2}  
+As a second example, we use an arbitrary upper limit $\mathbf{b(y)}$, and then evaluate the
+  resulting derivative expression for $\mathbf{b(y) = y^{2}}$.
+\begin{myVerbatim}
+(%i1) expr : 'integrate(x^2 + 2*x*y, x,a,b(y) );
+                              b(y)
+                             /
+                             [               2
+(%o1)                        I     (2 x y + x ) dx
+                             ]
+                             /
+                              a
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i2) diff(expr,y);
+                                                     b(y)
+                                                    /
+                   2                 d              [
+(%o2)            (b (y) + 2 y b(y)) (-- (b(y))) + 2 I     x dx
+                                     dy             ]
+                                                    /
+                                                     a
+(%i3) ( ev(%,nouns,b(y)=y^2 ), expand(%%) );
+                                  5      4    2
+(%o3)                          2 y  + 5 y  - a
+(%i4) ev(expr,nouns);
+                         3           2         2      3
+                        b (y) + 3 y b (y)   3 a  y + a
+(%o4)                   ----------------- - -----------
+                                3                3
+(%i5) diff(%,y);
+              2     d                      d               2
+           3 b (y) (-- (b(y))) + 6 y b(y) (-- (b(y))) + 3 b (y)
+                    dy                     dy                      2
+(%o5)      ---------------------------------------------------- - a
+                                    3
+(%i6) ( ev(%,nouns,b(y)=y^2), (expand(%%) );
+                                  5      4    2
+(%o6)                          2 y  + 5 y  - a
+\end{myVerbatim} 
+We have again done the differentiation two ways as a check on consistency.\\
+\subsubsection*{Example 3}
+An easy example is to derive 
+\begin{equation}
+\mathbf{\frac{d}{d\,t} \int_{t}^{t^2} (2\,x+t) \,d\,x = 4\,t^3+3\,t^2 - 4\,t}
+\end{equation}
+\begin{myVerbatim}
+(%i7) expr : 'integrate(2*x + t,x,t,t^2);
+                                 2
+                                t
+                               /
+                               [
+(%o7)                         I   (2 x + t) dx
+                               ]
+                               /
+                                t
+(%i8) (diff(expr,t),expand(%%) );
+                                  3      2
+(%o8)                         4 t  + 3 t  - 4 t
+\end{myVerbatim}
+\newpage
+\subsubsection*{Example 4}
+Here is an example which shows a common use of the differentiation of an 
+  integral with respect to a parameter.
+The integral 
+\begin{equation}
+\mathbf{f_{1}(a,w) =  \int_{0}^{\infty} x\,e^{- a\,x} \, \boldsymbol{\cos}(w\,x)\,dx}
+\end{equation}
+can be done by Maxima with no questions asked, if we tell 
+  Maxima that $\mathbf{ a > 0}$ and $\mathbf{ w > 0}$.
+\begin{myVerbatim}
+(%i1) assume( a > 0, w > 0 )$
+(%i2) integrate(x*exp(-a*x)*cos(w*x),x,0,inf);
+                                      2    2
+                                     w  - a
+(%o2)                         - -----------------
+                                 4      2  2    4
+                                w  + 2 a  w  + a
+\end{myVerbatim} 
+But if we could not find this result directly as above, we could find the result
+  by setting $\mathbf{f_{1}(a,w) = - \partial f_{2}(a,w)/(\partial a) }$, where
+\begin{equation}
+\mathbf{f_{2}(a,w) = \int_{0}^{\infty} e^{- a\,x} \, \boldsymbol{\cos}(w\,x)\,dx}
+\end{equation}
+since the differentiation will result in the integrand being
+ multiplied by the  factor $\mathbf{(-x)}$ and produce the negative of the integral of interest.
+\begin{myVerbatim}
+(%i3) i1 : 'integrate(exp(-a*x)*cos(w*x),x,0,inf)$
+(%i4) i2 : ev(i1,nouns);
+                                       a
+(%o4)                               -------
+                                     2    2
+                                    w  + a
+(%i5) di2 : (diff(i2,a), ratsimp(%%) );
+                                     2    2
+                                    w  - a
+(%o5)                          -----------------
+                                4      2  2    4
+                               w  + 2 a  w  + a
+(%i6) result : (-1)*(diff(i1,a) = di2 );
+                inf
+               /                                    2    2
+               [        - a x                      w  - a
+(%o6)          I    x %e      cos(w x) dx = - -----------------
+               ]                               4      2  2    4
+               /                              w  + 2 a  w  + a
+                0
+\end{myVerbatim} 
+which reproduces the original result returned by \textbf{integrate}.
+\newpage
+\subsection{Integration by Parts}
+Suppose $\mathbf{f(x)}$ and $\mathbf{g(x)}$ are two continuously differentiable functions
+  in the interval of interest.
+Then the \textbf{integration by parts rule} states that given an interval with
+  endpoints $\mathbf{(a, b)}$, (and of course assuming the derivatives exist) one has  
+\begin{equation}
+\mathbf{\int_{a}^{b} f(x)\, g'(x)\, dx = [f(x)\,g(x)]_{a}^{b} - \int_{a}^{b} f'(x)\,g(x)\,dx}
+\end{equation}
+where the prime indicates differentiation.
+This result follows from the product rule of differentiation.
+This rule is often stated in the context of indefinite integrals as
+\begin{equation}
+\mathbf{\int f(x)\, g'(x)\, dx = f(x)\,g(x) - \int f'(x)\,g(x)\,dx}
+\end{equation}
+or in an even shorter form, with $\mathbf{u = f(x)}$, $\mathbf{du = f'(x)\,dx}$, $\mathbf{v = g(x)}$,
+  and $\mathbf{dv = g'(x)\,dx}$, as
+\begin{equation}
+\mathbf{\int u\,dv = u\,v - \int v\,du}
+\end{equation}
+In practice, we are confronted with an integral whose integrand can be viewed
+ as the product of two factors, which we will call $\mathbf{f(x)}$ and $\mathbf{h(x)}$:
+ \begin{equation}
+ \mathbf{\int f(x) \, h(x)\,dx}
+ \end{equation}
+ and we wish to use integration by parts to get an integral involving the
+   derivative of the first factor, $\mathbf{f(x)}$, which will hopefully result in a
+   simpler integral.
+We then identify $\mathbf{h(x) = g'(x)}$ and solve this equation for $\mathbf{g(x)}$ (by integrating;
+  this is also a choice based on the ease of integrating the second factor $\mathbf{h(x)}$
+  in the given integral).
+Having $\mathbf{g(x)}$ in hand we can then write out the result using the indefinite integral
+  integration by parts rule above.
+We can formalize this process for an \it indefinite integral \rm with the Maxima code:
+\begin{myVerbatim}
+(%i1) iparts(f,h,var):= block([g ],
+         g : integrate(h,var),
+         f*g - 'integrate(g*diff(f,var),var ) )$
+\end{myVerbatim} 
+Let's practice with the integral $\mathbf{\int x^2 \, \boldsymbol{\sin}(x) \,dx}$,
+ in which $\mathbf{f(x) = x^2}$ and $\mathbf{h(x) = \boldsymbol{\sin}(x)}$, so
+ we need to be able to integrate $\boldsymbol{\sin(x)}$ and want to
+  transfer a derivative on to $\mathbf{x^2}$, which will reduce the first factor to $\mathbf{2\,x}$.
+Notice that it is usually easier to work with "Maxima expressions" rather than
+  with "Maxima functions" in a problem like this.
+\begin{myVerbatim}
+(%i2) iparts(x^2,sin(x),x);
+                            /
+                            [                2
+(%o2)                    2 I x cos(x) dx - x  cos(x)
+                            ]
+                            /
+(%i3) (ev(%,nouns),expand(%%) );
+                                     2
+(%o3)                 2 x sin(x) - x  cos(x) + 2 cos(x)
+(%i4) collectterms(%,cos(x) );
+                                            2
+(%o4)                   2 x sin(x) + (2 - x ) cos(x)
+\end{myVerbatim} 
+If we were not using Maxima, but doing everything by hand, we would use two
+  integrations by parts (in succession) to remove the factor $\mathbf{x^{2}}$ entirely,
+  reducing the original problem to simply knowing the integrals of $\boldsymbol{\sin(x)}$
+  and $\boldsymbol{\cos(x)}$. 
+\newpage
+\noindent Of course, with an integral as simple as this example, there is no need to
+  help Maxima out by integrating by parts.
+\begin{myVerbatim}
+(%i5) integrate(x^2*sin(x),x);
+                                            2
+(%o5)                   2 x sin(x) + (2 - x ) cos(x)
+\end{myVerbatim} 
+%\newpage
+We can write a similar Maxima function to transform \tcbr{definite integrals} via
+  integration by parts.
+\begin{myVerbatim}
+(%i6) idefparts(f,h,var,v1,v2):= block([g ],
+         g : integrate(h,var),
+           'subst(v2,var, f*g)  - 'subst(v1,var, f*g ) -
+               'integrate(g*diff(f,var),var,v1,v2 ) )$
+(%i7) idefparts(x^2,sin(x),x,0,1);
+          1
+         /
+         [                                    2
+(%o7) 2 I  x cos(x) dx + substitute(1, x, - x  cos(x))
+         ]
+         /
+          0
+                                                                      2
+                                                - substitute(0, x, - x  cos(x))
+(%i8) (ev(%,nouns),expand(%%) );
+(%o8)                       2 sin(1) + cos(1) - 2
+(%i9) integrate(x^2*sin(x),x,0,1);
+(%o9)                       2 sin(1) + cos(1) - 2
+\end{myVerbatim} 
+\vspace{4cm}
+\subsection{Change of Variable and \textbf{changevar} }
+Many integrals can be evaluated most easily by making a change of variable of
+  integration.
+A simple example is:
+\begin{equation}
+\mathbf{\int 2 \, x \, (x^2+1)^3 \, dx = \int (x^2+1)^3\,d\,(x^2+1) = \int u^3\, du = u^4/4 = (x^2+1)^4/4}
+\end{equation}
+There is a function in Maxima, called \textbf{changevar} which will help you change variables
+  in a one-dimensional integral (either indefinite or definite).
+However, this function is buggy at present and it is safer to do the
+  change of variables "by hand".
+\begin{quote}
+Function: \textbf{changevar(integral-expression, g(x,u), u, x)}\\ 
+Makes the change of variable in a given \it noun form \rm \textbf{integrate}
+  expression such that the old variable of integration is $\mathbf{x}$, the
+  new variable of integration is $\mathbf{u}$, and $\mathbf{x}$ and $\mathbf{u}$ are
+  related by the equation $\mathbf{g(x,u) = 0}$. 
+\end{quote}
+\newpage
+\subsubsection*{Example 1}
+Here we use this Maxima function on the simple indefinite integral 
+   $\mathbf{\int 2\,x\,(x^{2}+1)^{3} \, dx}$ we have just done "by hand":  
+\begin{myVerbatim}
+(%i1) expr : 'integrate(2*x*(x^2+1)^3,x);
+                                /
+                                [     2     3
+(%o1)                         2 I x (x  + 1)  dx
+                                ]
+                                /
+(%i2) changevar(expr,x^2+1-u,u,x);
+                                    /
+                                    [  3
+(%o2)                               I u  du
+                                    ]
+                                    /
+(%i3) ev(%, nouns);
+                                       4
+                                      u
+(%o3)                                 --
+                                      4
+(%i4) ratsubst(x^2+1,u,%);
+                           8      6      4      2
+                          x  + 4 x  + 6 x  + 4 x  + 1
+(%o4)                     ---------------------------
+                                       4
+(%i5) subst(x^2+1,u,%o3);
+                                     2     4
+                                   (x  + 1)
+(%o5)                              ---------
+                                       4
+(%i6) subst(u=(x^2+1),%o3);
+                                     2     4
+                                   (x  + 1)
+(%o6)                              ---------
+                                       4									  
+\end{myVerbatim} 
+The original indefinite integral is a function of $\mathbf{x}$, which we obtain
+  by replacing $\mathbf{u}$ by its equivalent as a function of $\mathbf{x}$.
+We have shown three ways to make this replacement to get a function of $\mathbf{x}$,
+ using \textbf{subst}  and \textbf{ratsubst}.
+\subsubsection*{Example 2}
+As a second example, we use a change of variables
+   to find $\mathbf{\int \, \left[ \, (x+2)/\sqrt{x+1}\, \right] \, dx  }$.
+\begin{myVerbatim}
+(%i7) expr : 'integrate( (x+2)/sqrt(x+1),x);
+                               /
+                               [    x + 2
+(%o7)                          I ----------- dx
+                               ] sqrt(x + 1)
+                               /
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i8) changevar(expr,u - sqrt(x+1),u,x);
+Is  u  positive, negative, or zero?
+
+pos;
+                                /
+                                [     2
+(%o8)                           I (2 u  + 2) du
+                                ]
+                                /
+(%i9) ev(%, nouns);
+                                     3
+                                  2 u
+(%o9)                             ---- + 2 u
+                                   3
+(%i10) subst(u = sqrt(x+1),%);
+                                  3/2
+                         2 (x + 1)
+(%o10)                   ------------ + 2 sqrt(x + 1)
+                              3
+\end{myVerbatim} 
+Of course Maxima can perform the original integral in these two examples
+  without any help, as in:
+\begin{myVerbatim}
+(%i11) integrate((x+2)/sqrt(x+1),x);
+                                   3/2
+                            (x + 1)
+(%o11)                   2 (---------- + sqrt(x + 1))
+                                3
+\end{myVerbatim} 
+However, there are occasionally cases in which you can help Maxima find an
+  integral ( for which Maxima can only return the noun form) by
+  first making your own change of variables and then letting Maxima try again.
+\subsubsection*{Example 3}
+Here we use \textbf{changevar} with a \tcbr{definite integral}, using
+  the same integrand as in the previous example.
+For a definite integral, the variable of integration is a "dummy variable", and
+  the result is not a function of that dummy variable, so there is no issue
+  about replacing the new integration variable $\mathbf{u}$ by the original variable $\mathbf{x}$
+  in the result.
+\begin{myVerbatim}
+(%i12) expr : 'integrate( (x+2)/sqrt(x+1),x,0,1);
+                                1
+                               /
+                               [     x + 2
+(%o12)                         I  ----------- dx
+                               ]  sqrt(x + 1)
+                               /
+                                0
+\end{myVerbatim}
+\newpage
+\begin{myVerbatim}
+(%i13) changevar(expr,u - sqrt(x+1),u,x);
+Is  u  positive, negative, or zero?
+
+pos;
+                             sqrt(2)
+                            /
+                            [            2
+(%o13)                      I        (2 u  + 2) du
+                            ]
+                            /
+                             1
+(%i14) ev(%, nouns);
+                                10 sqrt(2)   8
+(%o14)                          ---------- - -
+                                    3        3
+\end{myVerbatim} 
+%\newpage
+\subsubsection*{Example 4}
+%\small
+We next discuss an example which shows that one needs to pay attention to the possible
+  introduction of obvious sign errors when using \textbf{changevar}.
+The example is the evaluation of the definite integral $\mathbf{\int_{0}^{1} e^{y^2}\,dy}$,
+  in which $\mathbf{y}$ is a real variable.
+Since the integrand is a positive (real) number over the interval $\mathbf{0 < y \leq 1}$, the
+  definite integral must be a positive (real) number.
+The answer returned directly by Maxima's \textbf{integrate} function is:
+\begin{myVerbatim}
+(%i1) fpprintprec:8$
+(%i2) i1:integrate (exp (y^2),y,0,1);
+                              sqrt(%pi) %i erf(%i)
+(%o2)                       - --------------------
+                                       2
+\end{myVerbatim}
+and \textbf{float} yields
+\begin{myVerbatim}
+(%i3) float(i1);
+(%o3)                        - 0.886227 %i erf(%i)
+\end{myVerbatim}
+so we see if we can get a numerical value from \mv|erf(%i)| by multiplying
+  \mv|%i| by a floating point number:
+\begin{myVerbatim}
+(%i4) erf(1.0*%i);
+(%o4)                            1.6504258 %i
+\end{myVerbatim}
+ so to get a numerical value for the integral we use the same trick
+\begin{myVerbatim}
+(%i5) float(subst(1.0*%i,%i,i1));
+(%o5)                              1.4626517
+\end{myVerbatim}
+Maxima's symbol \textbf{erf(z)} represents the error function $\mathbf{Erf(z)}$.
+We have discussed the Maxima function \textbf{erf(x)} for real $\mathbf{x}$ in Example 4
+  in Sec.(\ref{symbolic}).
+Here we have a definite integral result returned in terms of \mv|erf(%i)|, which
+  is the error function with a pure imaginary agument and we have just seen that 
+  \mv|erf(%i)| is purely imaginary with an approximate value \mv|1.65*%i|.\\
+
+\noindent We can confirm the numerical value of the integral \mv|i1| using 
+     the quadrature routine \mv|quad_qags|:
+\begin{myVerbatim}
+(%i6) quad_qags(exp(y^2),y,0,1);
+(%o6)                 [1.4626517, 1.62386965E-14, 21, 0]
+\end{myVerbatim}
+and we see agreement.\\
+
+\noindent Let's ask Maxima to change variables in this definite integral
+  from $\mathbf{y}$ to $\mathbf{u = y^2}$ in the following way:
+\begin{myVerbatim}
+(%i7) expr : 'integrate(exp(y^2),y,0,1);
+                                   1
+                                  /     2
+                                  [    y
+(%o7)                             I  %e   dy
+                                  ]
+                                  /
+                                   0
+(%i8) changevar(expr,y^2-u,u,y);
+                                   1
+                                  /      u
+                                  [    %e
+                                  I  ------- du
+                                  ]  sqrt(u)
+                                  /
+                                   0
+(%o8)                           - -------------
+                                        2
+(%i9) ev(%, nouns);
+                             sqrt(%pi) %i erf(%i)
+(%o9)                        --------------------
+                                      2
+(%i10) float(subst(1.0*%i,%i,%));
+(%o10)                            - 1.4626517									
+\end{myVerbatim}
+   which is the negative of the correct result.
+Evidently, Maxima uses \textbf{solve}$\mathbf{(y^2 = u,\,y)}$ to find $\mathbf{y(u)}$ and even though
+  there are two solutions $\mathbf{ y = \pm \sqrt{u} }$, Maxima picks the wrong solution
+  without asking the user a clarifying question.
+\textbf{We need to force Maxima to use the correct relation} between $\mathbf{y}$ and $\mathbf{u}$, as in:
+\begin{myVerbatim}
+(%i11) changevar(expr,y-sqrt(u),u,y);
+Is  y  positive, negative, or zero?
+
+pos;
+                                  1
+                                 /      u
+                                 [    %e
+                                 I  ------- du
+                                 ]  sqrt(u)
+                                 /
+                                  0
+(%o11)                           -------------
+                                       2
+(%i12) ev(%, nouns);
+                              sqrt(%pi) %i erf(%i)
+(%o12)                      - --------------------
+                                       2
+(%i13) float(subst(1.0*%i,%i,%));
+(%o13)                             1.4626517
+\end{myVerbatim}
+which is now the correct result with the correct sign.
+%\normalsize
+\subsubsection*{Example 5}
+We now discuss an example  of a change of variable in which \textbf{changevar} 
+   produces the wrong overall sign, even though we try to be very careful.
+We consider the indefinite integral $\mathbf{\int \left( \,x/\sqrt{x^{2}-4} \, \right)\, dx}$, which
+  \textbf{integrate} returns as:
+\begin{myVerbatim}
+(%i1) integrate(x/sqrt(x^2-4),x);
+                                       2
+(%o1)                            sqrt(x  - 4)
+\end{myVerbatim}
+Now consider the change of variable $\mathbf{x \rightarrow t}$ with
+ $\mathbf{x = 2/\boldsymbol{\cos}(t)}$.\\
+
+\noindent We will show first the \textbf{changevar} route (with its error) and then
+  how to do the change of variables "by hand", but with Maxima'a assistance.
+Here we begin with assumptions about the variables involved.
+\begin{myVerbatim}
+(%i2) assume(x > 2, t > 0, t < 1.5, cos(t) > 0, sin(t) > 0 );
+(%o2)           [x > 2, t > 0, t < 1.5, cos(t) > 0, sin(t) > 0]
+(%i3) nix : 'integrate(x/sqrt(x^2-4),x);
+                               /
+                               [      x
+(%o3)                          I ------------ dx
+                               ]       2
+                               / sqrt(x  - 4)
+(%i4) nixt : changevar(nix,x-2/cos(t), t, x) ;
+                    /
+                    [                  sin(t)
+(%o4)        - 2 %i I ----------------------------------------- dt
+                    ]                     2
+                    / sqrt(cos(t) - 1) cos (t) sqrt(cos(t) + 1)
+(%i5) nixt : rootscontract(nixt);
+                            /
+                            [          sin(t)
+(%o5)                - 2 %i I ------------------------- dt
+                            ]    2            2
+                            / cos (t) sqrt(cos (t) - 1)
+(%i6) nixt : scanmap('trigsimp,nixt);
+                                   /
+                                   [    1
+(%o6)                          - 2 I ------- dt
+                                   ]    2
+                                   / cos (t)
+(%i7) ev(nixt,nouns);
+(%o7)                             - 2 tan(t)
+\end{myVerbatim}
+Since we have assumed $\mathbf{t > 0}$, we have $\mathbf{\boldsymbol{\tan}(t) > 0}$,
+ so \textbf{changevar} is telling us the indefinite integral is a negative number
+ for the range of $\mathbf{t}$   assumed.\\
+  
+\noindent Since we are asking for an indefinite integral, and we want the result in terms
+  of the original variable $\mathbf{x}$, we would need to do some more work on this answer,
+  maintaing the assumptions we have made.
+We will do that work after we have repeated this change of variable, doing
+  it "by hand".
+  
+\newpage
+\noindent We work on the product $\mathbf{f(x)\,dx}$:
+\begin{myVerbatim}
+(%i8) ix : subst(x=2/cos(t),x/sqrt(x^2 - 4) )* diff(2/cos(t));
+                                4 sin(t) del(t)
+(%o8)                      -------------------------
+                                   4            3
+                           sqrt(------- - 4) cos (t)
+                                   2
+                                cos (t)
+(%i9) ix : trigsimp(ix);
+                                    2 del(t)
+(%o9)                            - -----------
+                                      2
+                                   sin (t) - 1
+(%i10) ix : ratsubst(1,cos(t)^2+sin(t)^2,ix);
+                                   2 del(t)
+(%o10)                              --------
+                                      2
+                                   cos (t)
+(%i11) integrate(coeff(ix,del(t) ) ,t);
+(%o11)                             2 tan(t)
+\end{myVerbatim}
+   which is the result \textbf{changevar} should have produced.
+%\newpage
+Now let's show how we can get back to the indefinite integral produced 
+  the direct use of \textbf{integrate}.
+\begin{myVerbatim}
+(%i12) subst(tan(t)= sqrt(sec(t)^2-1),2*tan(t) );
+                                        2
+(%o12)                         2 sqrt(sec (t) - 1)
+(%i13) subst(sec(t)=1/cos(t),%);
+                                        1
+(%o13)                         2 sqrt(------- - 1)
+                                        2
+                                     cos (t)
+(%i14) subst(cos(t)=2/x,%);
+                                        2
+                                       x
+(%o14)                           2 sqrt(-- - 1)
+                                       4
+(%i15) ratsimp(%);
+                                       2
+(%o15)                            sqrt(x  - 4)
+\end{myVerbatim}
+\normalsize
+This concludes our discussion of a change of variable of integration
+  and our discussion of symbolic integration.
+\end{document}
