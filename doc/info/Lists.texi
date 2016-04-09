@@ -6,19 +6,152 @@
 
 @menu
 * Introduction to Lists::
+* Internal representation of lists::
 * Functions and Variables for Lists::
 * Performance considerations for Lists::
 @end menu
 
 @c -----------------------------------------------------------------------------
-@node Introduction to Lists, Functions and Variables for Lists, Lists, Lists
+@node Introduction to Lists, Internal representation of lists, Lists, Lists
 @subsection Introduction to Lists
 @c -----------------------------------------------------------------------------
 
 Lists are the basic building block for Maxima and Lisp.  All data types
-other than arrays, hash tables and numbers are represented as Lisp lists,
-These Lisp lists have the form
+other than arrays, hash tables and numbers are represented as Lisp lists.
+The advantage of lists is that they can be constructed without knowing their
+final size and that they provide easy ways of appending objects.
+They can be traversed efficiently and provide easy ways of appending objects.
+The drawback of lists against declared arrays is that the time needed for
+Determining the length of a list and for accessing a random item is dependent
+on the number of items that have to be traversed during these operations.
 
+Examples:
+
+Lists are frequently returned from maxima commands that can offer more than one
+valid solution:
+@c ===beg===
+@c Pyth:a^2+b^2=c^2;
+@c solve(Pyth,a);
+@c solution:%[1];
+@c ===end===
+@example
+@group
+(%i1) Pyth:a^2+b^2=c^2;
+                           2    2    2
+(%o1)                     b  + a  = c
+@end group
+@group
+(%i2) solve(Pyth,a);
+                         2    2             2    2
+(%o2)       [a = - sqrt(c  - b ), a = sqrt(c  - b )]
+@end group
+@group
+(%i3) solution:%[1];
+                                   2    2
+(%o3)                  a = - sqrt(c  - b )
+@end group
+@end example
+
+Besides using commands like @mref{makelist} Lists can be constructed on-the-fly by putting
+comma-separated items between brackets:
+@c ===beg===
+@c mylist:[1,2,10,200,123,421];
+@c ===end===
+@example
+@group
+(%i1) mylist:[1,2,10,200,123,421];
+(%o1)               [1, 2, 10, 200, 123, 421]
+@end group
+@end example
+
+Lists can be used to hold physical values during purely symbolical calculations:
+@c ===beg===
+@c vals:[
+@c       R_1=1000,
+@c       R_2=2000,
+@c       C_1=1e-9];
+@c reff:R_Eff=R_1*R_2/(R_1+R_2);
+@c f_3db=1/(2*%pi*R_Eff*C_1);
+@c f3db:at(%,reff);
+@c at(f3db,vals);
+@c ===end===
+@example
+@group
+(%i1) vals:[
+      R_1=1000,
+      R_2=2000,
+      C_1=1e-9];
+(%o1)        [R_1 = 1000, R_2 = 2000, C_1 = 1.0e-9]
+@end group
+@group
+(%i2) reff:R_Eff=R_1*R_2/(R_1+R_2);
+                                 R_1 R_2
+(%o2)                   R_Eff = ---------
+                                R_2 + R_1
+@end group
+@group
+(%i3) f_3db=1/(2*%pi*R_Eff*C_1);
+                                    1
+(%o3)                f_3db = ---------------
+                             2 %pi C_1 R_Eff
+@end group
+@group
+(%i4) f3db:at(%,reff);
+                                R_2 + R_1
+(%o4)               f_3db = -----------------
+                            2 %pi C_1 R_1 R_2
+@end group
+@group
+(%i5) at(f3db,vals);
+                            749999.9999999999
+(%o5)               f_3db = -----------------
+                                   %pi
+@end group
+@end example
+
+Extracting a value from a list is possible using the @mref{at} command:
+@c ===beg===
+@c vals:[
+@c       R_1=1000,
+@c       R_2=2000,
+@c       C_1=1e-9];
+@c at(R_2,vals);
+@c ===end===
+@example
+@group
+(%i1) vals:[
+      R_1=1000,
+      R_2=2000,
+      C_1=1e-9];
+(%o1)        [R_1 = 1000, R_2 = 2000, C_1 = 1.0e-9]
+@end group
+@group
+(%i2) at(R_2,vals);
+(%o2)                         2000
+@end group
+@end example
+
+Trying to assign an element of a list that hasn't been created before
+doesn't result in the creation of a list, but rather in the creation
+of a hash array:
+@c ===beg===
+@c l[1]:2;
+@c arrayinfo(l);
+@c ===end===
+@example
+@group
+(%i1) l[1]:2;
+(%o1)                           2
+@end group
+@group
+(%i2) arrayinfo(l);
+(%o2)                   [hashed, 1, [1]]
+@end group
+@end example
+
+@node Internal representation of lists, Functions and Variables for Lists, Introduction to Lists, Lists
+@subsection Internal representation of lists
+Internally maxima lists are represented as Lisp lists that have the form
 @example
 ((MPLUS) $A 2)
 @end example
@@ -49,7 +182,7 @@ itself, since after it has been through the simplifier the list would become
 @end example
 
 @c -----------------------------------------------------------------------------
-@node Functions and Variables for Lists, Performance considerations for Lists ,Introduction to Lists, Lists
+@node Functions and Variables for Lists, Performance considerations for Lists, Internal representation of lists, Lists
 @subsection Functions and Variables for Lists
 @c -----------------------------------------------------------------------------
 

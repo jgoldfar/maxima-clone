@@ -3,6 +3,90 @@
 @node Arrays, Structures, Lists, Data Types and Structures
 @section Arrays
 @c -----------------------------------------------------------------------------
+In order to efficiently deal with arrays it is important to know
+that maxima provides several types of array-like objects:
+@itemize
+@item Lists that have been declared using @mref{makelist}. Lists can
+      easily be appended, can be traversed quite efficiently
+      (See @ref{Performance considerations for Lists}) and can    
+      hold any type of item. But determining their length and
+      accessing a random item is O(n)-complete.
+@item Undeclared arrays
+
+If the user assigns a value to an array element without declaring this
+variable as an array first, a hash array is created. Hash are quite
+general as they don't impose any requirements on the order in which
+the indices are declared and allow the indices to be pure symbols
+without any numerical value.
+@c The original documentation told that it is possible to change an
+@c undeclared array into a declared array but it didn't tell how.
+@c If there is in fact this possibility we should add it to the
+@c documentation but to me it seems like there isn't.
+If undeclared arrays are internally implemented using lisp
+hash arrays depends on the setting of the option variable @mref{use_fast_arrays}:
+@c ===beg===
+@c a[1]:1$
+@c a[2]:10$
+@c a[n]:100$
+@c a[1];
+@c a[2];
+@c a[n];
+@c arrayinfo(a);
+@c ===end===
+@example
+(%i1) a[1]:1$
+(%i2) a[2]:10$
+(%i3) a[n]:100$
+@group
+(%i4) a[1];
+(%o4)                           1
+@end group
+@group
+(%i5) a[2];
+(%o5)                          10
+@end group
+@group
+(%i6) a[n];
+(%o6)                          100
+@end group
+@group
+(%i7) arrayinfo(a);
+(%o7)              [hashed, 1, [1], [2], [n]]
+@end group
+@end example
+Note that the argument of the array is avaluated before the item is
+looked up in the hash array:
+@c ===beg===
+@c a[1]:1$
+@c a[n]:100$
+@c a[n];
+@c n:1;
+@c a[n];
+@c ===end===
+@example
+(%i1) a[1]:1$
+(%i2) a[n]:100$
+@group
+(%i3) a[n];
+(%o3)                          100
+@end group
+@group
+(%i4) n:1;
+(%o4)                           1
+@end group
+@group
+(%i5) a[n];
+(%o5)                           1
+@end group
+@end example
+@item Declared arrays
+
+Other than lists this kind of array can only be of rectangular shape
+and its dimensions need to be known when creating it. The advantage of
+a declared array over a list is that accessing elements in random order
+is quite efficient as is asking the array for its dimensions. Declared
+arrays also tend to be more memory-efficient than lists.
+@end itemize
 
 @menu
 * Functions and Variables for Arrays::  
@@ -34,20 +118,6 @@ for integers of limited size or @code{flonum} for floating-point numbers.
 @code{array ([@var{name_1}, ..., @var{name_m}], @var{dim_1}, ..., @var{dim_n})}
 creates @math{m} arrays, all of the same dimensions.
 @c SAME TYPE AS WELL ??
-
-@c THIS DISCUSSION OF UNDECLARED ARRAYS REALLY WANTS TO BE SOMEWHERE ELSE
-If the user assigns to a subscripted variable before declaring the
-corresponding array, an undeclared array is created.
-Undeclared arrays, otherwise known as hashed arrays (because hash
-coding is done on the subscripts), are more general than declared
-arrays.  The user does not declare their maximum size, and they grow
-dynamically by hashing as more elements are assigned values.  The
-subscripts of undeclared arrays need not even be numbers.  However,
-unless an array is rather sparse, it is probably more efficient to
-declare it when possible than to leave it undeclared.  The @code{array}
-function can be used to transform an undeclared array into a declared
-array.
-@c HOW DOES ONE CHANGE AN UNDECLARED ARRAY INTO A DECLARED ARRAY EXACTLY ??
 
 @opencatbox
 @category{Arrays}
@@ -321,11 +391,11 @@ Examples:
 @end group
 @group
 (%i11) A2 : make_array (fixnum, 10);
-(%o11)          @{Array:  #(0 0 0 0 0 0 0 0 0 0)@}
+(%o11)        @{Lisp Array: #(0 0 0 0 0 0 0 0 0 0)@}
 @end group
 @group
 (%i12) fillarray (A2, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-(%o12)          @{Array:  #(1 2 3 4 5 6 7 8 9 10)@}
+(%o12)        @{Lisp Array: #(1 2 3 4 5 6 7 8 9 10)@}
 @end group
 @group
 (%i13) arraymake ('A2, [8]);
@@ -387,7 +457,7 @@ Examples:
 @end group
 @group
 (%i4) dd : make_array ('any, 7);
-(%o4)       @{Array:  #(NIL NIL NIL NIL NIL NIL NIL)@}
+(%o4)     @{Lisp Array: #(NIL NIL NIL NIL NIL NIL NIL)@}
 @end group
 @group
 (%i5) arrays;
@@ -472,19 +542,19 @@ the extra elements are ignored.
 @example
 @group
 (%i1) a2 : make_array (fixnum, 8);
-(%o1)             @{Array:  #(0 0 0 0 0 0 0 0)@}
+(%o1)           @{Lisp Array: #(0 0 0 0 0 0 0 0)@}
 @end group
 @group
 (%i2) fillarray (a2, [1, 2, 3, 4, 5]);
-(%o2)             @{Array:  #(1 2 3 4 5 5 5 5)@}
+(%o2)           @{Lisp Array: #(1 2 3 4 5 5 5 5)@}
 @end group
 @group
 (%i3) fillarray (a2, [4]);
-(%o3)             @{Array:  #(4 4 4 4 4 4 4 4)@}
+(%o3)           @{Lisp Array: #(4 4 4 4 4 4 4 4)@}
 @end group
 @group
 (%i4) fillarray (a2, makelist (i, i, 1, 100));
-(%o4)             @{Array:  #(1 2 3 4 5 6 7 8)@}
+(%o4)           @{Lisp Array: #(1 2 3 4 5 6 7 8)@}
 @end group
 @end example
 
@@ -499,19 +569,19 @@ Multple-dimension arrays are filled in row-major order.
 @example
 @group
 (%i1) a3 : make_array (fixnum, 2, 5);
-(%o1)        @{Array:  #2A((0 0 0 0 0) (0 0 0 0 0))@}
+(%o1)      @{Lisp Array: #2A((0 0 0 0 0) (0 0 0 0 0))@}
 @end group
 @group
 (%i2) fillarray (a3, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-(%o2)        @{Array:  #2A((1 2 3 4 5) (6 7 8 9 10))@}
+(%o2)      @{Lisp Array: #2A((1 2 3 4 5) (6 7 8 9 10))@}
 @end group
 @group
 (%i3) a4 : make_array (fixnum, 5, 2);
-(%o3)     @{Array:  #2A((0 0) (0 0) (0 0) (0 0) (0 0))@}
+(%o3)   @{Lisp Array: #2A((0 0) (0 0) (0 0) (0 0) (0 0))@}
 @end group
 @group
 (%i4) fillarray (a4, a3);
-(%o4)     @{Array:  #2A((1 2) (3 4) (5 6) (7 8) (9 10))@}
+(%o4)   @{Lisp Array: #2A((1 2) (3 4) (5 6) (7 8) (9 10))@}
 @end group
 @end example
 
@@ -736,7 +806,7 @@ Examples:
 @example
 @group
 (%i1) A1 : make_array (fixnum, 10);
-(%o1)           @{Array:  #(0 0 0 0 0 0 0 0 0 0)@}
+(%o1)         @{Lisp Array: #(0 0 0 0 0 0 0 0 0 0)@}
 @end group
 @group
 (%i2) A1 [8] : 1729;
@@ -744,11 +814,11 @@ Examples:
 @end group
 @group
 (%i3) A1;
-(%o3)          @{Array:  #(0 0 0 0 0 0 0 0 1729 0)@}
+(%o3)        @{Lisp Array: #(0 0 0 0 0 0 0 0 1729 0)@}
 @end group
 @group
 (%i4) A2 : make_array (flonum, 10);
-(%o4) @{Array:  #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0)@}
+(%o4) @{Lisp Array: #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0)@}
 @end group
 @group
 (%i5) A2 [2] : 2.718281828;
@@ -757,31 +827,34 @@ Examples:
 @group
 (%i6) A2;
 (%o6) 
-     @{Array:  #(0.0 0.0 2.718281828 0.0 0.0 0.0 0.0 0.0 0.0 0.0)@}
+ @{Lisp Array: #(0.0 0.0 2.718281828 0.0 0.0 0.0 0.0 0.0 0.0 0.0)@}
 @end group
 @group
 (%i7) A3 : make_array (any, 10);
-(%o7) @{Array:  #(NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)@}
+(%o7) @{Lisp Array: #(NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)@}
 @end group
 @group
 (%i8) A3 [4] : x - y - z;
-(%o8)                      - z - y + x
+(%o8)                     (- z) - y + x
 @end group
 @group
 (%i9) A3;
-(%o9) @{Array:  #(NIL NIL NIL NIL ((MPLUS SIMP) $X ((MTIMES SIMP)\
- -1 $Y) ((MTIMES SIMP) -1 $Z))
-  NIL NIL NIL NIL NIL)@}
+(%o9) @{Lisp Array: #(NIL NIL NIL NIL
+               ((MPLUS SIMP) $X ((MTIMES SIMP) -1 $Y) ((MTIMES S\
+IMP) -1 $Z))
+               NIL NIL NIL NIL NIL)@}
 @end group
 @group
 (%i10) A4 : make_array (fixnum, 2, 3, 5);
-(%o10) @{Array:  #3A(((0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0)) ((0 0 \
-0 0 0) (0 0 0 0 0) (0 0 0 0 0)))@}
+(%o10) @{Lisp Array: #3A(((0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0))
+                 ((0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0)))@}
 @end group
 @group
 (%i11) fillarray (A4, makelist (i, i, 1, 2*3*5));
-(%o11) @{Array:  #3A(((1 2 3 4 5) (6 7 8 9 10) (11 12 13 14 15))
-    ((16 17 18 19 20) (21 22 23 24 25) (26 27 28 29 30)))@}
+(%o11) @{Lisp Array: #3A(((1 2 3 4 5) (6 7 8 9 10) (11 12 13 14 1\
+5))
+                 ((16 17 18 19 20) (21 22 23 24 25) (26 27 28 29\
+ 30)))@}
 @end group
 @group
 (%i12) A4 [0, 2, 1];
