@@ -151,7 +151,7 @@ of a hash array:
 
 @node Internal representation of lists, Functions and Variables for Lists, Introduction to Lists, Lists
 @subsection Internal representation of lists
-Internally maxima lists are represented as Lisp lists that have the form
+Internally maxima objects are represented as Lisp lists that have the form
 @example
 ((MPLUS) $A 2)
 @end example
