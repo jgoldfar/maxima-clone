@@ -1,0 +1,43 @@
+language: generic
+matrix:
+  include:
+    - os: linux
+      env: ARCH="i686"
+      addons:
+        apt:
+          packages:
+            - sbcl
+            - texinfo
+            - autoconf
+            - automake
+    - os: linux
+      env: ARCH="x86_64"
+      addons:
+        apt:
+          packages:
+            - sbcl
+            - texinfo
+            - autoconf
+            - automake
+    - os: osx
+      env: ARCH="x86_64"
+      osx_image: xcode8
+      addons:
+        homebrew:
+            packages:
+              - sbcl
+              - texinfo
+              - automake
+              - autoconf
+
+before_install:
+    - ./bootstrap
+    - ./configure --enable-sbcl --prefix=`pwd`/usr
+    
+script:
+    # compile / install Maxima
+    - make
+    # run tests
+    - make check
+    # Install (in particular, build docs)
+    - make install
