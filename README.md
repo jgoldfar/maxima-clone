@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/jgoldfar/maxima-clone.svg?branch=master)](https://travis-ci.org/jgoldfar/maxima-clone)
+[![Build Status](https://travis-ci.org/jgoldfar/maxima-clone.svg?branch=enable-travis-ci)](https://travis-ci.org/jgoldfar/maxima-clone)
 
 Maxima is a symbolic computation program.
 It is full featured, doing symbolic manipulation of polynomials, matrices, rational functions, integration, Todd-coxeter, graphing, bigfloats.
