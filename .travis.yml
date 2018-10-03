@@ -24,6 +24,7 @@ matrix:
       osx_image: xcode8
       addons:
         homebrew:
+            update: true
             packages:
               - sbcl
               - texinfo
