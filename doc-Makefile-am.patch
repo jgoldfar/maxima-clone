@@ -1,0 +1,10 @@
+diff --git a/doc/Makefile.am b/doc/Makefile.am
+index ad006e97b..e119e6650 100644
+--- a/doc/Makefile.am
++++ b/doc/Makefile.am
+@@ -1,4 +1,4 @@
+-SUBDIRS = info man intromax share emaxima
++SUBDIRS = man intromax share emaxima
+ 
+ genericdir = $(docdir)
+ 

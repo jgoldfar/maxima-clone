@@ -35,13 +35,14 @@ matrix:
               - autoconf
 
 before_install:
-    - ./bootstrap
-    - ./configure --enable-sbcl --prefix=`pwd`/usr --enable-quiet-build
+  - cat doc-Makefile-am.patch | patch -p0 doc/Makefile.am 
+  - ./bootstrap
+  - ./configure --enable-sbcl --prefix=`pwd`/usr --enable-quiet-build
     
 script:
-    # compile / install Maxima
-    - travis_wait 10 make > build.log
-    # run tests
-    - make check || echo "Tests failed."
-    # Install (in particular, build docs)
-    - make install
+  # compile / install Maxima
+  - travis_wait 10 make > build.log
+  # run tests
+  - (travis_wait 15 make check) || echo "Tests failed."
+  # Install (in particular, build docs)
+  - make install
