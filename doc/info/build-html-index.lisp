@@ -188,12 +188,17 @@
 ;; the section numbers, "Bessel Functions".  
 ;; Further subsections are ignored.
 ;; Conditional expression allows us to handle earlier versions of Texinfo.
-(defun match-toc (line)
-  (let ((regexp (cond 
-          ((>= *texinfo-version* (texinfo-version-number 6 8 )) (pregexp:pregexp "<a id=\"toc-.*\" href=\"([^#\"]+)(#([^\"]+))\">[[:digit:]]+\.[[:digit:]]+ ([^\"]+?)</a>"))
-          (t (pregexp:pregexp "<a (?:name|id)=\"toc-.*\" href=\"([^#\"]+)(#([^\"]+))\">[[:digit:]]+\\.[[:digit:]]+ ([^\"]+?)</a>(?!.*maxima_100.html)")))
-       ))
-    (let ((match (pregexp:pregexp-match regexp line)))
+(let ((regexp-texinfo>=6.8
+       (pregexp:pregexp "<a id=\"toc-.*\" href=\"([^#\"]+)(#([^\"]+))\">[[:digit:]]+\.[[:digit:]]+ ([^\"]+?)</a>"))
+      (regexp-texinfo<6.8
+       (pregexp:pregexp "<a (?:name|id)=\"toc-.*\" href=\"([^#\"]+)(#([^\"]+))\">[[:digit:]]+\\.[[:digit:]]+ ([^\"]+?)</a>(?!.*maxima_100.html)")))
+  (defun match-toc (line)
+    (let* ((regexp (cond 
+                   ((>= *texinfo-version* (texinfo-version-number 6 8))
+                    regexp-texinfo>=6.8)
+                   (t
+                    regexp-texinfo<6.8)))
+         (match (pregexp:pregexp-match regexp line)))
       (when match
 	(destructuring-bind (whole file item# id item)
 	    match
