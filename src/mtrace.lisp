@@ -525,7 +525,9 @@
                (trace-print `(,lev enter ,fun ,largs ,@info)))
               (t
                (trace-mprint lev
-                             (intl:gettext " Enter ")
+                             (if (eq (trace-type fun) 'operators)
+                                 (intl:gettext " Simp   ")
+                                 (intl:gettext " Call   "))
                              (mopstringnam fun)
                              " "
                              `((mlist) ,@largs)
@@ -541,7 +543,7 @@
 	(cond ((trace-option-p fun '$lisp_print)
 	       (trace-print `(,lev exit ,fun ,ret-val ,@info)))
 	      (t
-	       (trace-mprint lev (intl:gettext " Exit  ") (mopstringnam fun) " " ret-val
+	       (trace-mprint lev (intl:gettext " Return ") (mopstringnam fun) " " ret-val
 			     (if info " -> " "")
 			     (if info info "")))))))
 
