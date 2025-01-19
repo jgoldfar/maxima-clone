@@ -423,3 +423,123 @@ block ([stream : make_string_output_stream (),
 1 Exit  block 1
 ";
 
+block ([stream : make_string_output_stream (),
+        ret],
+  trace ("+"),
+
+  with_stdout (stream, 1 + 2 + 3),
+  ret : get_output_stream_string (stream),
+
+  untrace ("+"),
+
+  ret);
+"1 Enter \"+\" [1, 2, 3]
+1 Exit  \"+\" 6
+";
+
+block ([stream : make_string_output_stream (),
+        ret],
+  trace ("+"),
+
+  with_stdout (stream, (1 + 2) + 3),
+  ret : get_output_stream_string (stream),
+
+  untrace ("+"),
+
+  ret);
+"1 Enter \"+\" [1, 2]
+1 Exit  \"+\" 3
+1 Enter \"+\" [3, 3]
+1 Exit  \"+\" 6
+";
+
+block ([stream : make_string_output_stream (),
+        ret],
+  trace (block, "+"),
+
+  with_stdout (stream, block ([x : 1], x + 3 + 5)),
+  ret : get_output_stream_string (stream),
+
+  untrace (block, "+"),
+
+  ret);
+"1 Enter block [[x : 1], x + 3 + 5]
+ 1 Enter \"+\" [1, 3, 5]
+ 1 Exit  \"+\" 9
+1 Exit  block 9
+";
+
+block ([stream : make_string_output_stream (),
+        display2d : false,
+        ret],
+  trace (gamma),
+
+  with_stdout (stream, gamma (1/2)),
+  ret : get_output_stream_string (stream),
+
+  untrace (gamma),
+
+  ret);
+"1 Enter gamma [1/2]
+1 Exit  gamma sqrt(%pi)
+";
+
+block ([stream : make_string_output_stream (),
+        display2d : false,
+        gamma_expand : true,
+        ret],
+  trace (gamma),
+
+  with_stdout (stream, gamma (x + 3)),
+  ret : get_output_stream_string (stream),
+
+  untrace (gamma),
+
+  ret);
+"1 Enter gamma [x+3]
+ 2 Enter gamma [x]
+ 2 Exit  gamma gamma(x)
+1 Exit  gamma x*(x+1)*(x+2)*gamma(x)
+";
+
+block ([stream : make_string_output_stream (),
+        display2d : false,
+        ret],
+  local (simp_stepfn),
+
+  load ("simplifying"),
+
+  /* step function example from share package simplifying.lisp */
+
+  simp_stepfn(x):=
+    block([prederror:false],
+      if is(x<=0)=true then 0
+      elseif is(x>0)=true then 1
+      else simpfuncall('stepfn,x)),
+
+  simplifying('stepfn,'simp_stepfn),
+
+  trace (stepfn),
+
+  with_stdout (stream,
+    stepfn (-x^2),
+    stepfn (x^2 + 1),
+    stepfn (x^2)),
+  ret : get_output_stream_string (stream),
+
+  untrace (stepfn),
+
+  kill (stepfn),
+
+  ret);
+"1 Enter stepfn [-x^2]
+1 Exit  stepfn 0
+1 Enter stepfn [x^2+1]
+1 Exit  stepfn 1
+1 Enter stepfn [x^2]
+1 Exit  stepfn stepfn(x^2)
+";
+
+(kill (all), 0);
+0;
+
