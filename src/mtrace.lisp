@@ -424,6 +424,20 @@
 
 (defvar return-to-trace-handle nil)
 
+(defun trace/get-user-visible-args (fun iargs)
+  (case (trace-type fun)
+    ((mfexpr*)
+     (values (margs (car iargs)) (cdr iargs)))
+    (otherwise
+     (values iargs '()))))
+
+(defun trace/get-internal-args (fun uargs extras)
+  (case (trace-type fun)
+    ((mfexpr*)
+     (cons `((,fun) ,@uargs) extras))
+    (otherwise
+     uargs)))
+
 (defun trace-handler (fun largs)
   (if (or return-to-trace-handle
           (and (not (atom (car largs)))
@@ -442,15 +456,19 @@
 	(bind-sym level-sym level
 		  (do ((ret-vals)
 		       (continuation)
-		       (predicate-arglist))
+		       (predicate-arglist)
+		       (user-args)
+		       (extras))
 		      (nil)
-		    (setq predicate-arglist `(,level $enter ,fun ((mlist) ,@largs)))
-		    (setq largs (trace-enter-break fun level largs))
-		    (trace-enter-print fun level largs)
+		    (multiple-value-setq (user-args extras) (trace/get-user-visible-args fun largs))
+		    (setq predicate-arglist `(,level $enter ,fun ((mlist) ,@user-args)))
+		    (setq user-args (trace-enter-break fun level user-args))
+		    (trace-enter-print fun level user-args)
+		    (setq largs (trace/get-internal-args fun user-args extras))
 		    (cond ((trace-option-p fun '$errorcatch)
 			   (setq ret-vals (macsyma-errset (trace-apply fun largs)))
 			   (cond ((null ret-vals)
-				  (setq ret-vals (trace-error-break fun level largs))
+				  (setq ret-vals (trace-error-break fun level user-args))
 				  (setq continuation (car ret-vals)
 					ret-vals (cdr ret-vals)))
 				 (t
@@ -465,7 +483,7 @@
 		       (trace-exit-print fun level (car ret-vals))
 		       (return (values-list ret-vals)))
 		      ((retry)
-		       (setq largs ret-vals)
+		       (setq largs (trace/get-internal-args fun ret-vals extras))
 		       (mtell "TRACE-HANDLER: reapplying the function ~:@M~%" fun))
 		      ((maxima-error)
 		       (merror "~%TRACE-HANDLER: signaling 'maxima-error' for function ~:@M~%" fun))))))))
@@ -500,21 +518,18 @@
 
 
 (defun trace-enter-print (fun lev largs)
-  (let ((args (if (eq (trace-type fun) 'mfexpr*)
-		  (margs (car largs))
-		  largs)))
-    (if (not (trace-option-p fun '$noprint))
-	(let ((info (trace-option-p fun '$info)))
-	  (cond ((trace-option-p fun '$lisp_print)
-		 (trace-print `(,lev enter ,fun ,args ,@info)))
-		(t
-		 (trace-mprint lev
-			       (intl:gettext " Enter ")
-			       (mopstringnam fun)
-			       " "
-			       `((mlist) ,@args)
-			       (if info " -> " "")
-			       (if info info ""))))))))
+  (if (not (trace-option-p fun '$noprint))
+      (let ((info (trace-option-p fun '$info)))
+        (cond ((trace-option-p fun '$lisp_print)
+               (trace-print `(,lev enter ,fun ,largs ,@info)))
+              (t
+               (trace-mprint lev
+                             (intl:gettext " Enter ")
+                             (mopstringnam fun)
+                             " "
+                             `((mlist) ,@largs)
+                             (if info " -> " "")
+                             (if info info "")))))))
 
 (defun mopstringnam (x)
   (maknam (mstring (getop x))))
