@@ -376,3 +376,50 @@ f7 (error (), error (), error (), error ());
 
 (close (S), 0);
 0;
+
+block ([stream : make_string_output_stream (),
+        ret],
+  local (foo),
+
+  foo (x, [y]) := cons (x, y),
+
+  trace (foo),
+
+  with_stdout (stream, foo (1, 2, 3)),
+  ret : get_output_stream_string (stream),
+
+  untrace (foo),
+
+  ret);
+"1 Enter foo [1, 2, 3]
+1 Exit  foo [1, 2, 3]
+";
+
+block ([stream : make_string_output_stream (),
+        ret],
+  trace (block),
+
+  with_stdout (stream, block (1, 2, 3)),
+  ret : get_output_stream_string (stream),
+
+  untrace (block),
+
+  ret);
+"1 Enter block [1, 2, 3]
+1 Exit  block 3
+";
+
+block ([stream : make_string_output_stream (),
+        ret],
+  trace (block),
+
+  with_stdout (stream, block ([x : 1], x)),
+  ret : get_output_stream_string (stream),
+
+  untrace (block),
+
+  ret);
+"1 Enter block [[x : 1], x]
+1 Exit  block 1
+";
+
