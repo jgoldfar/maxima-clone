@@ -669,7 +669,8 @@
 (defmacro def-simplifier (base-name-and-options lambda-list &body body)
   (destructuring-bind (base-name &key
                                    (simpcheck :default)
-                                   (subfun-arglist nil))
+                                   (subfun-arglist nil)
+                                   (custom-defmfun nil))
       (if (symbolp base-name-and-options)
 	  (list base-name-and-options)
 	  base-name-and-options)
@@ -719,8 +720,9 @@
          ;; 
          `(progn
 	    ;; Define the noun function.
-	    (defmfun ,verb-name (,@lambda-list)
-	      (ftake ',noun-name ,@lambda-list))
+            ,@(unless custom-defmfun
+	       `((defmfun ,verb-name (,@lambda-list)
+	          (ftake ',noun-name ,@lambda-list))))
 
 	    ;; Set up properties
 	    (defprop ,noun-name ,simp-name operators)
