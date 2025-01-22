@@ -27,9 +27,12 @@
 
 (defmfun $realpart (xx) (car (trisplit xx)))
 
+#+nil
+(progn
 (defprop $realpart %realpart verb)
 (defprop %realpart $realpart noun)
 (defprop %realpart simp-realpart operators)
+)
 
 (defun risplit-signum (x) ;rectangular form for a signum expression
   (let*  ((z (risplit (cadr x))) (a (car z)) (b (cdr z)) (r)) ;signum(a+%i b), where a and b are real
@@ -42,6 +45,7 @@
 
 (setf (get '%signum 'risplit-function) 'risplit-signum)
 
+#+nil
 (defun simp-realpart (expr z simpflag)
   (oneargcheck expr)
   (setq z (simpcheck (cadr expr) simpflag))
@@ -57,10 +61,25 @@
           (t 
            (eqtest (list '(%realpart) z) expr)))))
 
+(def-simplifier (realpart :custom-defmfun t) (z)
+  (let ((sgn nil))
+    (cond ((mnump z) z)
+          ((eq (setq sgn ($csign z)) '$imaginary)
+           0)
+          ((eq sgn '$complex)
+           (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
+                  ($realpart z))
+                 (t
+                  (give-up))))
+          (t
+           (give-up)))))
+
 ;;; Imagpart gives the imaginary part of an expr.
 
 (defmfun $imagpart (xx) (cdr (trisplit xx)))
 
+#+nil
+(progn
 (defprop $imagpart %imagpart verb)
 (defprop %imagpart $imagpart noun)
 (defprop %imagpart simp-imagpart operators)
@@ -79,6 +98,20 @@
                   (eqtest (list '(%imagpart) z) expr))))
           (t 
            (eqtest (list '(%imagpart) z) expr)))))
+)
+
+(def-simplifier (imagpart :custom-defmfun t) (z)
+  (let ((sgn nil))
+    (cond ((mnump z) 0)
+          ((eq (setq sgn ($csign z)) '$imaginary)
+           (mul -1 '$%i z))
+          ((eq sgn '$complex)
+           (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
+                  ($imagpart z))
+                 (t
+                  (give-up))))
+          (t
+           (give-up)))))
 
 ;;; Rectform gives a result of the form a+b*%i.
 
