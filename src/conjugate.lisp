@@ -311,13 +311,13 @@
 		   (take '(%log_gamma) (take '($conjugate) z)) 
 		(list '($conjugate simp) (take '(%log_gamma) z))))
 
-;; For z ∈ C \ [1,∞) and n ∈ {1,2,3,...}, replace conjugate(li[n](z)) by li[n](conjugate(z)). 
+;; For z in C \ [1,infinity) and n in {1,2,3,...}, replace conjugate(li[n](z)) by li[n](conjugate(z)).
 ;; For all other cases, return a conjugate nounform.
 (defun conjugate-li (z)
    (let ((n (first z)) (zz (risplit (second z))))
           (if (and ($featurep n '$integer)
                    (eq t (mgrp n 0))
-                   ;; either the imagpart(z) ≠ 0 or the realpart(z) < 1
+                   ;; either the imagpart(z) <> 0 or the realpart(z) < 1
                    (or (eq t (mnqp (cdr zz) 0)) (eq t (mgrp 1 (car zz)))))
                        (subftake '$li (list n) (list (ftake '$conjugate (second z))))
                        ;; give up and return conjugate nounform
