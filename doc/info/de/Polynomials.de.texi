@@ -41,7 +41,7 @@ Variablen m@"ussen keine Atome sein.  Alle Ausdr@"ucke, die nicht die Operatoren
 @code{+}, @code{-}, @code{*}, @code{/} oder @code{^} enthalten, werden in einer
 CRE-Darstellung als "Variable" angenommen.  Zum Beispiel sind @code{x}, 
 @code{sqrt(x)} und @code{sin(x+1)} die CRE-Variablen des Ausdrucks
-@code{x+sin(x+1)+2*SQRT(x)+1}.  Wird vom Nutzer keine abweichende Ordnung der 
+@code{x+sin(x+1)+2*sqrt(x)+1}.  Wird vom Nutzer keine abweichende Ordnung der 
 Variablen mit der Funktion @mref{ratvars} definiert, nimmt Maxima eine 
 alphabetische Ordnung der Variablen an.
 

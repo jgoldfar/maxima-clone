@@ -41,7 +41,7 @@ subexpression whose main operator is not @code{+}, @code{-}, @code{*},
 @code{/} or @code{^} with integer power will be considered a "variable"
 of the expression (in CRE form) in which it occurs. For example the CRE
 variables of the expression @code{x+sin(x+1)+2*sqrt(x)+1} are @code{x},
-@code{sqrt(X)}, and @code{sin(x+1)}. If the user does not specify an
+@code{sqrt(x)}, and @code{sin(x+1)}. If the user does not specify an
 ordering of variables by using the @mref{ratvars} function Maxima will
 choose an alphabetic one.
 
