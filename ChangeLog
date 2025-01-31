@@ -104,6 +104,8 @@ Bug fixes for numbered bugs:
  * \#4430: solve calls eval on its arguments
  * \#4434: polydecomp documentation wrong
  * \#4441: gf_factor in ASDF build
+ * \#4475 min/max (%i,...)
+ * \#4474 "sign: argument cannot be imaginary" in simple substitution
 
 Unnumbered bugs fixed:
 ---------------------

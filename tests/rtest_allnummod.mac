@@ -1776,6 +1776,33 @@ rationalize(0.1b0*li[2](x));
 rationalize(li[1.5](x));
 li[3/2](x)$
 
+/* #4475 min/max (%i,...) */
+block([Z : min(-%i,%i)], not(mapatom(Z)) and op(Z) = 'min and args(Z) = [-%i,%i]);
+true$
+
+block([Z : max(-%i,%i)], not(mapatom(Z)) and op(Z) = 'max and args(Z) = [-%i,%i]);
+true$
+
+block([Z : min(-%i,%i,6,28,496,8128)], not(mapatom(Z)) and op(Z) = 'min and args(Z) = [6,-%i,%i]);
+true$
+
+block([Z : max(-%i,%i,6,28,496,8128)], not(mapatom(Z)) and op(Z) = 'max and args(Z) = [8128,-%i,%i]);
+true$
+
+block([Z : min(signum(x)*%i,signum(x)*-%i)], not(mapatom(Z)) and op(Z) = 'min and args(Z) = [-%i*signum(x), %i*signum(x)]);
+true$
+
+/* #4474 "sign: argument cannot be imaginary" in simple substitution */
+block([expr, W_subst],
+       expr: max((sqrt(1-(2-W^2)^2)),b),
+       W_subst:min(c,sqrt(x)),
+       subst(W=W_subst,expr));
+max(b,sqrt(1-(2-min(c,sqrt(x))^2)^2))$
+
+block([Z : max(sqrt(min(c, sqrt(x))), b)], not(mapatom(Z)) and op(Z)='max and args(Z) = [b,sqrt(min(c,sqrt(x)))]);
+true$
+
+/*Let's make sure that everything is tidy*/
 values;
 []$
 
