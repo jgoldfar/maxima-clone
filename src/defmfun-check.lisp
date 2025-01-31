@@ -289,7 +289,8 @@
 ;; used when printing out error messages for incorrect number of
 ;; arguments.
 
-(defmacro defun-checked-form ((name impl-name &key deprecated-p) lambda-list &body body)
+(defmacro defun-checked-form ((name impl-name &key deprecated-p inline-impl)
+                              lambda-list &body body)
   ;; Carefully check the number of arguments and print a nice message
   ;; if the number doesn't match the expected number.
   (multiple-value-bind (required-args
@@ -354,6 +355,8 @@
 	  (parse-body body nil t)
 	(setf doc-string (if doc-string (list doc-string)))
 	`(progn
+           ,@(when inline-impl
+               `((declaim (inline ,impl-name))))
 	   (defun ,impl-name ,lambda-list
 	     ,impl-doc
 	     ,@decls
@@ -483,7 +486,7 @@
   ;;
   ;; This will print a message stating that "foo" is deprecated and to
   ;; use "bar" instead.
-  (destructuring-bind (name &key properties deprecated-p)
+  (destructuring-bind (name &key properties deprecated-p inline-impl)
       (if (symbolp name-maybe-prop)
 	  (list name-maybe-prop)
 	  name-maybe-prop)
@@ -530,7 +533,10 @@
            (unless (char= #\$ (aref (string name) 0))
 	     (warn "First character of function name must start with $: ~S~%" name))
 	   `(progn
-	      (defun-checked-form (,name ,impl-name :deprecated-p ,deprecated-p) ,lambda-list
+	      (defun-checked-form (,name ,impl-name
+                                   :deprecated-p ,deprecated-p
+                                   :inline-impl ,inline-impl)
+                                  ,lambda-list
 		,@body)
 	      ,@(add-props)
 	      ,@(func-props)
