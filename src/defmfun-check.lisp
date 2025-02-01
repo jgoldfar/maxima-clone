@@ -272,6 +272,9 @@
 ;; function NAME is called the first time.  The value of :DEPRECATED-P
 ;; is a symbol naming the function that should be used instead.
 ;;
+;; If the keyword :INLINE-IMPL is specified, the impl function is
+;; declared to be an inline function.
+;;
 ;; For example:
 ;;
 ;;   (defun-checked-form ($foo foo-impl :deprecated-p $bar) ...)
@@ -289,7 +292,8 @@
 ;; used when printing out error messages for incorrect number of
 ;; arguments.
 
-(defmacro defun-checked-form ((name impl-name &key deprecated-p) lambda-list &body body)
+(defmacro defun-checked-form ((name impl-name &key deprecated-p inline-impl)
+                              lambda-list &body body)
   ;; Carefully check the number of arguments and print a nice message
   ;; if the number doesn't match the expected number.
   (multiple-value-bind (required-args
@@ -354,6 +358,8 @@
 	  (parse-body body nil t)
 	(setf doc-string (if doc-string (list doc-string)))
 	`(progn
+           ,@(when inline-impl
+               `((declaim (inline ,impl-name))))
 	   (defun ,impl-name ,lambda-list
 	     ,impl-doc
 	     ,@decls
@@ -463,14 +469,25 @@
 (defmacro defmfun (name-maybe-prop lambda-list &body body)
   ;; NAME-MAYBE-PROP can be either a symbol or a list.  If a symbol,
   ;; it's just the name of the function to be defined.  If a list, it
-  ;; must have the form (name &keyword :properties :deprecated-p)
+  ;; must have the form
+  ;;
+  ;;   (name &keyword properties deprecated-p inline-impl)
+  ;;
   ;; where NAME is the name of the function to be defined.  The
-  ;; keyword args control what is generated.  The value of :PROPERTIES
+  ;; keyword args control what is generated.
+  ;;
+  ;; The value of :PROPERTIES
   ;; is a list of lists denoting properties that are set for this
   ;; function.  Each element of the list must be of the form (PROPERTY
-  ;; VALUE).  The value of :DEPRECATED-P is a symbol (unquoted) naming
+  ;; VALUE).
+  ;;
+  ;; The value of :DEPRECATED-P is a symbol (unquoted) naming
   ;; the function that should be used instead of this function because
   ;; this function is deprecated.
+  ;;
+  ;; The value of :INLINE-IMPL determines if the generated impl
+  ;; function should be declared inline or not.  Default is NIL
+  ;; meaning no inline declaration.
   ;;
   ;;   (defmfun ($polarform :properties ((evfun t))) (xx) ...)
   ;;
@@ -483,7 +500,7 @@
   ;;
   ;; This will print a message stating that "foo" is deprecated and to
   ;; use "bar" instead.
-  (destructuring-bind (name &key properties deprecated-p)
+  (destructuring-bind (name &key properties deprecated-p inline-impl)
       (if (symbolp name-maybe-prop)
 	  (list name-maybe-prop)
 	  name-maybe-prop)
@@ -530,7 +547,10 @@
            (unless (char= #\$ (aref (string name) 0))
 	     (warn "First character of function name must start with $: ~S~%" name))
 	   `(progn
-	      (defun-checked-form (,name ,impl-name :deprecated-p ,deprecated-p) ,lambda-list
+	      (defun-checked-form (,name ,impl-name
+                                   :deprecated-p ,deprecated-p
+                                   :inline-impl ,inline-impl)
+                                  ,lambda-list
 		,@body)
 	      ,@(add-props)
 	      ,@(func-props)
