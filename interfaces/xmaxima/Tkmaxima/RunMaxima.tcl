@@ -4,7 +4,7 @@
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
 #     Modified by Jaime E. Villate                         #
-#     Time-stamp: "2024-04-11 16:34:14 villate"            #
+#     Time-stamp: "2025-02-01 18:28:07 villate"            #
 ############################################################
 proc textWindowWidth { w } {
     set font [$w cget -font]
@@ -257,7 +257,15 @@ proc maximaFilter { win sock } {
 	if { [regexp -indices "\n\\((C|%i)\[0-9\]+\\)" $plotPending  inds] } {
 	    set it [string range $plotPending [lindex $inds 0] end]
 	    set plotPending [string range $plotPending 0 [lindex $inds 0]]
-	    set data $plotPending
+            # Work around for ccl, which does not put a new-line character
+            # between the plot command and the ouput prompt
+            if { [regexp -indices "\[^\n\]\\((D|%o)\[0-9\]+\\)" $plotPending \
+                      inds] } {
+                append data [string range $plotPending 0 [lindex $inds 0]] \
+                    "\n" [string range $plotPending [lindex $inds 0]+1 end]
+            } else {
+                set data $plotPending
+            }
 	    unset plotPending
 	    # puts "itplot=<$it>,$inds"
 	    # puts "plotdata=<$data>"
