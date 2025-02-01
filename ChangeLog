@@ -107,7 +107,7 @@ Bug fixes for numbered bugs:
  * \#4441: gf_factor in ASDF build
  * \#4442 rationalize applied to subscripted
  * \#4474 "sign: argument cannot be imaginary" in simple substitution
- * \#4475 min/max (%i,...) 
+ * \#4475 min/max (%i,...)
  * \#4462 sign(1/sqrt(x))
 
 Unnumbered bugs fixed:
@@ -116,6 +116,7 @@ Unnumbered bugs fixed:
  * plotdf sliders hidden (reported on the mailing list on 2023/11/26)
  * mailing list 2023-11-25: Possibilities for basic image processing
  * mailing list 2023-09-25: Casting SPELs
+ * mailing list 2024-12-24: Typographic Error (xmaxima)
 
 Documentation:
 --------------
