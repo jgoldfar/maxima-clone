@@ -324,49 +324,49 @@ f7 (error (), error (), error (), error ());
 (trace (atom),
  with_default_2d_display(with_stdout (S, atom(1))),
  get_output_stream_string (S));
-"1 Enter atom [1]
-1 Exit  atom true
+"1 Call   atom [1]
+1 Return atom true
 ";
 
 (untrace (atom),
  trace (?rischint),
  with_stdout (S, block ([display2d: false], risch (2*x, x))),
  get_output_stream_string (S));
-"1 Enter rischint [2*x,x]
-1 Exit  rischint (2*x^2)/2
+"1 Call   rischint [2*x,x]
+1 Return rischint (2*x^2)/2
 ";
 
 (untrace (?rischint),
  trace (integrate, defint, limit, ?antideriv),
  with_stdout (S, block ([display2d: false], integrate (exp(-x)*cos(x), x, 0, inf))),
  get_output_stream_string (S));
-"1 Enter integrate [%e^-x*cos(x),x,0,inf]
- 1 Enter defint [%e^-x*cos(x),x,0,inf]
-  1 Enter limit [0]
-  1 Exit  limit 0
-  1 Enter limit [%e^-x,x,inf]
-  1 Exit  limit 0
-  1 Enter limit [0]
-  1 Exit  limit 0
-  1 Enter antideriv [%e^-x*cos(x),x]
-  1 Exit  antideriv (%e^-x*(sin(x)-cos(x)))/2
-  1 Enter limit [0]
-  1 Exit  limit 0
-  1 Enter limit [(%e^-x*sin(x))/2-(%e^-x*cos(x))/2,x,0,plus]
-  1 Exit  limit -(1/2)
-  1 Enter limit [(%e^-x*sin(x))/2-(%e^-x*cos(x))/2,x,inf,minus]
-  1 Exit  limit 0
- 1 Exit  defint 1/2
-1 Exit  integrate 1/2
+"1 Call   integrate [%e^-x*cos(x),x,0,inf]
+ 1 Call   defint [%e^-x*cos(x),x,0,inf]
+  1 Call   limit [0]
+  1 Return limit 0
+  1 Call   limit [%e^-x,x,inf]
+  1 Return limit 0
+  1 Call   limit [0]
+  1 Return limit 0
+  1 Call   antideriv [%e^-x*cos(x),x]
+  1 Return antideriv (%e^-x*(sin(x)-cos(x)))/2
+  1 Call   limit [0]
+  1 Return limit 0
+  1 Call   limit [(%e^-x*sin(x))/2-(%e^-x*cos(x))/2,x,0,plus]
+  1 Return limit -(1/2)
+  1 Call   limit [(%e^-x*sin(x))/2-(%e^-x*cos(x))/2,x,inf,minus]
+  1 Return limit 0
+ 1 Return defint 1/2
+1 Return integrate 1/2
 ";
 
 (untrace (limit, defint),
  with_stdout (S, block ([display2d: false], integrate (exp(-x)*cos(x), x, 0, inf))),
  get_output_stream_string (S));
-"1 Enter integrate [%e^-x*cos(x),x,0,inf]
- 1 Enter antideriv [%e^-x*cos(x),x]
- 1 Exit  antideriv (%e^-x*(sin(x)-cos(x)))/2
-1 Exit  integrate 1/2
+"1 Call   integrate [%e^-x*cos(x),x,0,inf]
+ 1 Call   antideriv [%e^-x*cos(x),x]
+ 1 Return antideriv (%e^-x*(sin(x)-cos(x)))/2
+1 Return integrate 1/2
 ";
 
 (untrace (integrate, ?antideriv),
@@ -376,3 +376,170 @@ f7 (error (), error (), error (), error ());
 
 (close (S), 0);
 0;
+
+block ([stream : make_string_output_stream (),
+        ret],
+  local (foo),
+
+  foo (x, [y]) := cons (x, y),
+
+  trace (foo),
+
+  with_stdout (stream, foo (1, 2, 3)),
+  ret : get_output_stream_string (stream),
+
+  untrace (foo),
+
+  ret);
+"1 Call   foo [1, 2, 3]
+1 Return foo [1, 2, 3]
+";
+
+block ([stream : make_string_output_stream (),
+        ret],
+  trace (block),
+
+  with_stdout (stream, block (1, 2, 3)),
+  ret : get_output_stream_string (stream),
+
+  untrace (block),
+
+  ret);
+"1 Call   block [1, 2, 3]
+1 Return block 3
+";
+
+block ([stream : make_string_output_stream (),
+        ret],
+  trace (block),
+
+  with_stdout (stream, block ([x : 1], x)),
+  ret : get_output_stream_string (stream),
+
+  untrace (block),
+
+  ret);
+"1 Call   block [[x : 1], x]
+1 Return block 1
+";
+
+block ([stream : make_string_output_stream (),
+        ret],
+  trace ("+"),
+
+  with_stdout (stream, 1 + 2 + 3),
+  ret : get_output_stream_string (stream),
+
+  untrace ("+"),
+
+  ret);
+"1 Simp   \"+\" [1, 2, 3]
+1 Return \"+\" 6
+";
+
+block ([stream : make_string_output_stream (),
+        ret],
+  trace ("+"),
+
+  with_stdout (stream, (1 + 2) + 3),
+  ret : get_output_stream_string (stream),
+
+  untrace ("+"),
+
+  ret);
+"1 Simp   \"+\" [1, 2]
+1 Return \"+\" 3
+1 Simp   \"+\" [3, 3]
+1 Return \"+\" 6
+";
+
+block ([stream : make_string_output_stream (),
+        ret],
+  trace (block, "+"),
+
+  with_stdout (stream, block ([x : 1], x + 3 + 5)),
+  ret : get_output_stream_string (stream),
+
+  untrace (block, "+"),
+
+  ret);
+"1 Call   block [[x : 1], x + 3 + 5]
+ 1 Simp   \"+\" [1, 3, 5]
+ 1 Return \"+\" 9
+1 Return block 9
+";
+
+block ([stream : make_string_output_stream (),
+        display2d : false,
+        ret],
+  trace (gamma),
+
+  with_stdout (stream, gamma (1/2)),
+  ret : get_output_stream_string (stream),
+
+  untrace (gamma),
+
+  ret);
+"1 Simp   gamma [1/2]
+1 Return gamma sqrt(%pi)
+";
+
+block ([stream : make_string_output_stream (),
+        display2d : false,
+        gamma_expand : true,
+        ret],
+  trace (gamma),
+
+  with_stdout (stream, gamma (x + 3)),
+  ret : get_output_stream_string (stream),
+
+  untrace (gamma),
+
+  ret);
+"1 Simp   gamma [x+3]
+ 2 Simp   gamma [x]
+ 2 Return gamma gamma(x)
+1 Return gamma x*(x+1)*(x+2)*gamma(x)
+";
+
+block ([stream : make_string_output_stream (),
+        display2d : false,
+        ret],
+  local (simp_stepfn),
+
+  load ("simplifying"),
+
+  /* step function example from share package simplifying.lisp */
+
+  simp_stepfn(x):=
+    block([prederror:false],
+      if is(x<=0)=true then 0
+      elseif is(x>0)=true then 1
+      else simpfuncall('stepfn,x)),
+
+  simplifying('stepfn,'simp_stepfn),
+
+  trace (stepfn),
+
+  with_stdout (stream,
+    stepfn (-x^2),
+    stepfn (x^2 + 1),
+    stepfn (x^2)),
+  ret : get_output_stream_string (stream),
+
+  untrace (stepfn),
+
+  kill (stepfn),
+
+  ret);
+"1 Simp   stepfn [-x^2]
+1 Return stepfn 0
+1 Simp   stepfn [x^2+1]
+1 Return stepfn 1
+1 Simp   stepfn [x^2]
+1 Return stepfn stepfn(x^2)
+";
+
+(kill (all), 0);
+0;
+

@@ -23,8 +23,9 @@ above 10 to 20 terms for IEEE-754 double precision arithmetic).
 
 This package has two functions that address these sources of error. 
 
-Function @mref{levin_u_sum} uses rational arithmetic with a fixed number
-of terms.  This eliminates rounding error.
+Function @mref{levin_u_sum} (by default) uses rational arithmetic with a
+fixed number
+of terms.  This eliminates rounding error if the terms are known exactly.
 
 Function @mref{bflevin_u_sum} uses bigfloat precision.
 It uses error estimates to increase the number of terms and the bigfloat
@@ -360,6 +361,8 @@ with anti-limit equal to log(3) = 1.0986122886681098...
 @node References for levin,  , Examples for levin, Package levin
 @section References for levin
 
+The t, u and v Levin transformations are introduced in:
+
 @itemize
 
 @item @anchor{levin-1973}
@@ -369,6 +372,23 @@ with anti-limit equal to log(3) = 1.0986122886681098...
   International Journal of Computer Mathematics 3 (1973): 371–88.
   @url{https://doi.org/10.1080/00207167308803075,
   doi:10.1080/00207167308803075}
+
+@item
+  Levin, David, and Avram Sidi.
+  Two New Classes of Nonlinear Transformations for Accelerating the
+  Convergence of Infinite Integrals and Series,
+  Applied Mathematics and Computation 9, no. 3 (October 1981): 175–215.
+  @url{https://doi.org/10.1016/0096-3003(81)90028-X,
+  doi:10.1016/0096-3003(81)90028-X}
+
+@end itemize
+
+Smith and Ford compared the performance of series acceleration
+algorithms in a series of papers.  In conjunction with Fessler
+they published algorithms and code that implement the u-transformation
+with estimates of truncation and round-off errors.
+
+@itemize
 
 @item @anchor{smith-ford-1979}
   (Smith and Ford 1979)
@@ -386,10 +406,48 @@ with anti-limit equal to log(3) = 1.0986122886681098...
   @url{https://doi.org/10.1090/S0025-5718-1982-0645665-1,
   doi:10.1090/S0025-5718-1982-0645665-1}
 
+@item 
+  Fessler, Theodore, William F. Ford, and David A. Smith.
+  HURRY: An Acceleration Algorithm for Scalar Sequences and Series.
+  ACM Transactions on Mathematical Software 9, no. 3 (1 September 1983): 346–54.
+  @url{https://doi.org/10.1145/356044.356051,
+  doi:10.1145/356044.356051}
+
+@item
+  Fessler, Theodore, David A. Smith, and William Ford.
+  Algorithm 602: HURRY: An Acceleration Algorithm for Scalar
+  Sequences and Series.
+  ACM Transactions on Mathematical Software (TOMS) 9, no. 3
+  (September 1983): 355–57.
+  @url{https://doi.org/10.1145/356044.356052,
+  doi:10.1145/356044.356052}
+
+@end itemize
+
+
+Sidi (2003) discusses u transformations and more
+recent extensions.
+
+@itemize
+
 @item @anchor{sidi-2003}
   (Sidi 2003) Sidi, Avram.
   Practical Extrapolation Methods: Theory and Applications,
   Cambridge University Press, 2003,
   @url{https://doi.org/10.1017/CBO9780511546815, ISBN 9780521661591}
+
+@end itemize
+
+Bender and Orszag (1978), Chapter 8 Summation of Series,
+provides general background on motivation and methods, but does
+not cover Levin transformations.
+@itemize
+
+@item @anchor{bender-orszag}
+(Bender and Orszag, 1978)
+Bender, Carl, and Steven Orszag.
+Advanced Mathematical Methods for Scientists and Engineers,
+McGraw-Hill, 1978,
+ISBN 978-0-07-004452-4
 
 @end itemize

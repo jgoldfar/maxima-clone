@@ -93,17 +93,27 @@ option(WITH_CCL64 "Include CCL64 in the installer." NO)
 #    trigger this => Setting SBCL to be the default.
 #  - ABCL (optional) is a Java based Lisp.
 #  - CCL64 (optional) support is very new.
+
+# ABCL_STYLE/CCL64 style is used for licenses.html
+# ABCL_ENABLED/CCL64_ENABLE for lispselector.tcl
 if(WITH_ABCL)
-    set(WITH_DEFAULT_LISP "sbcl" CACHE STRING "Which Lisp should be used by default (clisp/sbcl/abcl)?")
-    set_property(CACHE WITH_DEFAULT_LISP PROPERTY STRINGS "clisp" "sbcl" "abcl")
     set(ABCL_STYLE "")
     set(ABCL_ENABLED 1)
 else()
-    set(WITH_DEFAULT_LISP "sbcl" CACHE STRING "Which Lisp should be used by default (clisp/sbcl)?")
-    set_property(CACHE WITH_DEFAULT_LISP PROPERTY STRINGS "clisp" "sbcl")
     set(ABCL_STYLE "display: none;")
     set(ABCL_ENABLED 0)
 endif()
+
+if(WITH_CCL64)
+    set(CCL64_STYLE "")
+    set(CCL64_ENABLED 1)
+else()
+    set(CCL64_STYLE "display: none;")
+    set(CCL64_ENABLED 0)
+endif()
+
+set(WITH_DEFAULT_LISP "sbcl" CACHE STRING "Which Lisp should be used by default?")
+set_property(CACHE WITH_DEFAULT_LISP PROPERTY STRINGS "clisp" "sbcl" "abcl" "ccl64")
 
 # If you want to use a updated version of a program,
 # update the version number and the checksum.

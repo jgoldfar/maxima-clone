@@ -10,6 +10,18 @@
 # Calling from a cronjob does not work (don't know why),
 # so call it from a screen session (which you can detach)
 # and do everything in a loop.
+#
+# If you want to run that on your own server (maybe with
+# the same configuration as here, where the build server is
+# not the same, as the web server), where the results can be
+# downloaded, you must change the user and servernane and
+# the ssh key at the end to your own server.
+# OF COURSE the ssh key is NOT part of the git repository,
+# I am not silly and provide ssh keys, where one can log in
+# to *my* servers.
+# That setup is specific for the public nightly windows builds
+# and test results at:
+# https://wolfgang.dautermann.at/maxima/nightlybuild/
 
 # do everything in English:
 LANG=C.UTF-8
