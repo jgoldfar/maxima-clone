@@ -386,7 +386,7 @@ The t, u and v Levin transformations are introduced in:
 Smith and Ford compared the performance of series acceleration
 algorithms in a series of papers.  In conjunction with Fessler
 they published algorithms and code that implement the u-transformation
-with estimates truncation and round-off errors.
+with estimates of truncation and round-off errors.
 
 @itemize
 
@@ -447,7 +447,7 @@ not cover Levin transformations.
 (Bender and Orszag, 1978)
 Bender, Carl, and Steven Orszag.
 Advanced Mathematical Methods for Scientists and Engineers,
-McGraw-Hill, 1978
+McGraw-Hill, 1978,
 ISBN 978-0-07-004452-4
 
 @end itemize
