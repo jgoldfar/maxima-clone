@@ -112,6 +112,7 @@
       ;; Bigfloats representing 1 are of the form '((BIGFLOAT ... n) 2^(n-1) 1).
       (and (= 1 (caddr x)) (= (ash 1 (1- (car (last (car x))))) (cadr x))))))
 
+(declaim (inline mnump))
 (defun mnump (x)
   "Returns non-NIL if X is a Lisp number or if it is a Maxima rational
   form or a bigfloat form"
