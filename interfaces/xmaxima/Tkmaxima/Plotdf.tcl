@@ -4,7 +4,7 @@
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
 #     Modified by Jaime E. Villate                         #
-#     Time-stamp: "2024-03-28 14:51:52 villate"            #
+#     Time-stamp: "2025-02-01 16:35:14 villate"            #
 ############################################################
 
 global plotdfOptions
@@ -356,15 +356,15 @@ proc drawDF { win tinitial } {
 	set xbound [expr {$x1-0.08*$width}]
     }
     $c create text $xbound [expr {($y1+$y2)/2.0}] -anchor center -angle 90 \
-       -text [oget $win yaxislabel] -font {helvetica 16 normal} -tags axislabel
+       -text [oget $win yaxislabel] -font {TkDefaultFont 16 normal} -tags axislabel
     if {$nobox != 0  && $ymin*$ymax < 0  && ($axes == {x} || $axes == {xy})} {
 	$c create text [expr {$x2-0.01*$width}] \
             [expr { [$rtosy 0]+0.02*$height}] -anchor ne -tags axislabel \
-            -text [oget $win xaxislabel] -font {helvetica 16 normal}
+            -text [oget $win xaxislabel] -font {TkDefaultFont 16 normal}
     } else {
 	$c create text [expr {($x1 + $x2)/2}] [expr {$y2 + 0.08*$height}] \
 	    -anchor center -text [oget $win xaxislabel] \
-	    -font {helvetica 16 normal} -tags axislabel
+	    -font {TkDefaultFont 16 normal} -tags axislabel
     }
 }
 
