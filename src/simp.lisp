@@ -92,12 +92,14 @@
        (consp (car x))
        (eq (caar x) 'bigfloat)))
 
+(declaim (inline zerop1))
 (defun zerop1 (x)
   "Returns non-NIL if X is an integer, float, or bfloat that is equal
   to 0"
-  (or (and (integerp x) (= 0 x))
-      (and (floatp x) (= 0.0 x))
-      (and ($bfloatp x) (= 0 (second x)))))
+  (cond
+    ((integerp x) (= 0 x))
+    ((floatp x) (= 0.0 x))
+    (($bfloatp x) (= 0 (cadr x)))))
 
 (defun onep1 (x)
   "Returns non-NIL if X is an integer, float, or bfloat that is equal
