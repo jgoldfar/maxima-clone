@@ -86,7 +86,7 @@
 (defprop $equal t binary)
 (defprop $notequal t binary)
 
-(defmfun $bfloatp (x)
+(defmfun ($bfloatp :inline-impl t) (x)
   "Returns true if X is a bigfloat"
   (and (consp x)
        (consp (car x))
