@@ -86,26 +86,33 @@
 (defprop $equal t binary)
 (defprop $notequal t binary)
 
-(defmfun $bfloatp (x)
+(defmfun ($bfloatp :inline-impl t) (x)
   "Returns true if X is a bigfloat"
   (and (consp x)
        (consp (car x))
        (eq (caar x) 'bigfloat)))
 
+(declaim (inline zerop1))
 (defun zerop1 (x)
   "Returns non-NIL if X is an integer, float, or bfloat that is equal
   to 0"
-  (or (and (integerp x) (= 0 x))
-      (and (floatp x) (= 0.0 x))
-      (and ($bfloatp x) (= 0 (second x)))))
+  (cond
+    ((integerp x) (= 0 x))
+    ((floatp x) (= 0.0 x))
+    (($bfloatp x) (= 0 (cadr x)))))
 
+(declaim (inline onep1))
 (defun onep1 (x)
   "Returns non-NIL if X is an integer, float, or bfloat that is equal
   to 1"
-  (or (and (integerp x) (= 1 x))
-      (and (floatp x) (= 1.0 x))
-      (and ($bfloatp x) (zerop1 (sub x 1)))))
+  (cond
+    ((integerp x) (= 1 x))
+    ((floatp x) (= 1.0 x))
+    (($bfloatp x)
+      ;; Bigfloats representing 1 are of the form '((BIGFLOAT ... n) 2^(n-1) 1).
+      (and (= 1 (caddr x)) (= (ash 1 (1- (car (last (car x))))) (cadr x))))))
 
+(declaim (inline mnump))
 (defun mnump (x)
   "Returns non-NIL if X is a Lisp number or if it is a Maxima rational
   form or a bigfloat form"
