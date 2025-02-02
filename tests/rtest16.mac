@@ -2989,3 +2989,22 @@ map(orderlessp,
 /* Bug #4458: orderlessp(A, B) with unsimplified A can modify A in place by marking it as simplified, when it's not */
 block([simp : false, a], a : %e^(z/1), orderlessp(a, (simp : true, -log(z+1))), a^2);
 %e^(2*z);
+
+/* Ordering of bigfloats: Check that (COMPARE-BIGFLOATS x y) returns signum(x - y). */
+block (
+	[R, L, P, A, B],
+	R : make_random_state(false),               /* Save random state, restore later. */
+	set_random_state(make_random_state(31137)), /* Random numbers, but same every time. */
+	L : makelist(
+		block (
+			[fpprec : 100 + random(101)],
+			bfloat(random(21) - 10) * bfloat(%e) ^ (random(200.0) - 100.0)
+		), i, 1, 100
+	),
+	set_random_state(R),
+	P : cartesian_product_list(L, L),
+	A : map(lambda([pair], ?compare\-bigfloats(first(pair), second(pair))), P),
+	B : map(lambda([pair], round(signum(first(pair) - second(pair)))), P),
+	is(A = B)
+);
+true;

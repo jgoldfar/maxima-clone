@@ -92,6 +92,32 @@
        (consp (car x))
        (eq (caar x) 'bigfloat)))
 
+(declaim (inline decompose-bigfloat))
+(defun decompose-bigfloat (x)
+  "Returns precision, mantissa and exponent of bigfloat X"
+  (values
+    (car (last (car x))) ; precision
+    (cadr x)             ; mantissa
+    (caddr x)))          ; exponent
+
+(declaim (inline bigfloat-as-m/2^n))
+(defun bigfloat-as-m/2^n (x)
+  "For bigfloat X, returns m, n such that X = m/(2^n)"
+  (multiple-value-bind (precision mantissa exponent) (decompose-bigfloat x)
+    (if (> exponent 0)
+      (values (ash mantissa exponent) precision)
+      (values mantissa (- precision exponent)))))
+
+(defun compare-bigfloats (x y)
+  "For bigfloats X and Y, returns signum(X-Y) without computing X-Y"
+  (multiple-value-bind (xm xn) (bigfloat-as-m/2^n x)
+    (multiple-value-bind (ym yn) (bigfloat-as-m/2^n y)
+      (let ((n-diff (- xn yn)))
+        (cond
+          ((> n-diff 0) (signum (- xm (ash ym n-diff))))
+          ((< n-diff 0) (signum (- (ash xm (- n-diff)) ym)))
+          (t (signum (- xm ym))))))))
+
 (declaim (inline zerop1))
 (defun zerop1 (x)
   "Returns non-NIL if X is an integer, float, or bfloat that is equal
@@ -3032,7 +3058,13 @@
 	((or (member (caar x) '(mtimes mplus mexpt %del))
 	     (member (caar y) '(mtimes mplus mexpt %del)))
 	 (ordfn x y))
-	((and (eq (caar x) 'bigfloat) (eq (caar y) 'bigfloat)) (mgrp x y))
+	((and (eq (caar x) 'bigfloat) (eq (caar y) 'bigfloat))
+	  ;; Order bigfloats by value. If they represent the same value, order by precision.
+	  (let ((diff-signum (compare-bigfloats x y)))
+	    (cond
+		  ((eql 1 diff-signum) t)
+		  ((eql -1 diff-signum) nil)
+		  (t (> (car (last (car x))) (car (last (car y))))))))
 	((or (eq (caar x) 'mrat) (eq (caar y) 'mrat))
 	 (error "GREAT: internal error: unexpected MRAT argument"))
 	(t (do ((x1 (margs x) (cdr x1)) (y1 (margs y) (cdr y1))) (())

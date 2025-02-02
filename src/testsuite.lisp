@@ -24,7 +24,7 @@
         ;; ACL 10.1 cannot load stringproc as it has no (get-encoding) function.
         #-allegro
         ((mlist simp) "rtest1"
-	 ((mlist simp) 183 185 186))
+	 ((mlist simp) 183 186))
         ((mlist simp) "rtest1a" ((mlist simp) 33))
         ((mlist simp) "rtest2" ((mlist simp) 86 95))
 	"rtest4"
