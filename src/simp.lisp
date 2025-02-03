@@ -92,31 +92,13 @@
        (consp (car x))
        (eq (caar x) 'bigfloat)))
 
-(declaim (inline decompose-bigfloat))
-(defun decompose-bigfloat (x)
-  "Returns precision, mantissa and exponent of bigfloat X"
-  (values
-    (car (last (car x))) ; precision
-    (cadr x)             ; mantissa
-    (caddr x)))          ; exponent
-
-(declaim (inline bigfloat-as-m/2^n))
-(defun bigfloat-as-m/2^n (x)
-  "For bigfloat X, returns m, n such that X = m/(2^n)"
-  (multiple-value-bind (precision mantissa exponent) (decompose-bigfloat x)
-    (if (> exponent 0)
-      (values (ash mantissa exponent) precision)
-      (values mantissa (- precision exponent)))))
-
 (defun compare-bigfloats (x y)
-  "For bigfloats X and Y, returns signum(X-Y) without computing X-Y"
-  (multiple-value-bind (xm xn) (bigfloat-as-m/2^n x)
-    (multiple-value-bind (ym yn) (bigfloat-as-m/2^n y)
-      (let ((n-diff (- xn yn)))
-        (cond
-          ((> n-diff 0) (signum (- xm (ash ym n-diff))))
-          ((< n-diff 0) (signum (- (ash xm (- n-diff)) ym)))
-          (t (signum (- xm ym))))))))
+  "For bigfloats X and Y, returns signum(X-Y). X and Y must be bigfloats."
+  (macrolet ((precision (f) `(car (last (car ,f)))))
+    (let ((fpprec (max (precision x) (precision y))))
+      ;; (BIGFLOATP X) returns X with precision adjusted to current precision.
+      ;; FPDIFFERENCE operates on mantissa and exponent, precisions assumed equal.
+      (signum (car (fpdifference (cdr (bigfloatp x)) (cdr (bigfloatp y))))))))
 
 (declaim (inline zerop1))
 (defun zerop1 (x)
