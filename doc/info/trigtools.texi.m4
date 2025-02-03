@@ -31,6 +31,10 @@ trigonometric expessions. List of functions in trigtools package:
 @item @mref{atan_contract}
 @end itemize
 
+@opencatbox{Categories:}
+@category{Trigonometric functions}
+@category{Package trigtools}
+@closecatbox
 
 @node Functions and Variables for trigtools, References, Introduction to trigtools, Package trigtools
 @section Functions and Variables for trigtools
@@ -61,6 +65,8 @@ The function c2cos converts the expression
 m4_math(<<<a\cos x + b\sin x>>>, <<<@math{ a*cos(x)+b*sin(x)}>>>) 
 to
 m4_mathdot(<<<r\cos(x-\phi)>>>, <<<@math{r*cos(x-phi)}>>>)
+
+@code{load("trigtools")} loads these functions.
 
 Examples:
 @example
@@ -148,6 +154,11 @@ m4_mathcomma(<<<x_1 = \tan^{-1}{3\over 4} + \cos^{-1}{2\over 5}>>>,
 <<<x1 = atan(3/4)+acos(2/5)>>>)
 for @math{k} any integer.
 
+@opencatbox{Categories:}
+@category{Trigonometric functions}
+@category{Hyperbolic functions}
+@category{Package trigtools}
+@closecatbox
 @end deffn
 
 @node Convert to Trignometric Functions, Convert to Hyperbolic Functions, Convert to sin and cos, Functions and Variables for trigtools
@@ -157,6 +168,8 @@ for @math{k} any integer.
 @deffn {Function} c2trig (@var{x})
 The function c2trig (convert to trigonometric) reduce expression with hyperbolic functions
 sinh, cosh, tanh, coth to trigonometric expression with sin, cos, tan, cot.
+
+@code{load("trigtools")} loads these functions.
 
 Examples:
 
@@ -235,6 +248,11 @@ coth(x)=c2trig(coth(x));
 @end example
 @end enumerate
 
+@opencatbox{Categories:}
+@category{Trigonometric functions}
+@category{Package trigtools}
+@closecatbox
+
 @end deffn
 
 @node Convert to Hyperbolic Functions, Factor Sums of sin and cos Functions, Convert to Trignometric Functions, Functions and Variables for trigtools
@@ -244,6 +262,8 @@ coth(x)=c2trig(coth(x));
 @deffn {Function} c2hyp (@var{x})
 The function c2hyp (convert to hyperbolic) convert expression with exp function
 to expression with hyperbolic functions sinh, cosh.
+
+@code{load("trigtools")} loads this function.
 
 Examples:
 
@@ -259,6 +279,11 @@ Examples:
                 2 (sinh(y) + cosh(y)) - 3 (sinh(z) + cosh(z))
 @end example
 
+@opencatbox{Categories:}
+@category{Trigonometric functions}
+@category{Hyperbolic functions}
+@category{Package trigtools}
+@closecatbox
 @end deffn
 
 @node Factor Sums of sin and cos Functions, Solve Trignometric Equations, Convert to Hyperbolic Functions, Functions and Variables for trigtools
@@ -269,6 +294,8 @@ Examples:
 The function trigfactor factors expresions of
 form 
 m4_mathdot(<<<\pm \sin x \pm \cos y>>>, <<<+-sin(x)+-cos(y)>>>)
+
+@code{load("trigtools")} loads this function.
 
 Examples:
 
@@ -380,6 +407,10 @@ Examples:
 @end example
 @end enumerate
 
+@opencatbox{Categories:}
+@category{Trigonometric functions}
+@category{Package trigtools}
+@closecatbox
 @end deffn
 
 @node Solve Trignometric Equations, Evaluation of Trignometric Functions, Factor Sums of sin and cos Functions, Functions and Variables for trigtools
@@ -390,6 +421,9 @@ Examples:
 The function trigsolve find solutions of trigonometric equation from
 interval 
 m4_mathdot(<<<[a,b)>>>, <<<[a, b)>>>)
+
+@code{load("trigtools")} loads this function.
+
 
 Examples:
 @enumerate
@@ -588,6 +622,11 @@ m4_mathcomma(<<<x = a + 2\pi k>>>, <<<x = a+2*%pi*k>>>)
 where @math{a} any from @math{S}, @math{k} any integer.
 
 @end enumerate
+
+@opencatbox{Categories:}
+@category{Trigonometric functions}
+@category{Package trigtools}
+@closecatbox
 @end deffn
 
 @node Evaluation of Trignometric Functions, Contract atan Functions, Solve Trignometric Equations, Functions and Variables for trigtools
@@ -622,6 +661,8 @@ m4_math(<<<\cot
 {m\pi\over n}>>>, <<<cot(m*%pi/n)>>>) 
 in radicals.
 @end deffn
+
+@code{load("trigtools")} loads these functions.
 
 Examples:
 @enumerate
@@ -801,6 +842,11 @@ x = -------------------- + -----------------]
 @end example
 @end enumerate
 
+@opencatbox{Categories:}
+@category{Trigonometric functions}
+@category{Package trigtools}
+@closecatbox
+
 @node Contract atan Functions,  , Evaluation of Trignometric Functions, Functions and Variables for trigtools
 @subsection Contract atan Functions
 
@@ -809,6 +855,9 @@ x = -------------------- + -----------------]
 The function atan_contract(r) contracts atan functions. We
 assume: 
 m4_mathdot(<<<|r| < {\pi\over 2}>>>, <<<abs(r)<%pi/2>>>)
+
+@code{load("trigtools")} loads this function.
+
 
 Examples:
 @example
@@ -852,6 +901,11 @@ Examples:
                 49            57           239            110443     4
 @end example
 @end enumerate
+
+@opencatbox{Categories:}
+@category{Trigonometric functions}
+@category{Package trigtools}
+@closecatbox
 
 @end deffn
 
