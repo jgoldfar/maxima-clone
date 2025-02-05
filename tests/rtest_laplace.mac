@@ -664,6 +664,21 @@ s^((-%i*v)-u-1)*gamma(%i*v+u+1);
 assuming(a > 0, laplace(delta(t - a) * sin(b*t), t, s));
 -(((%i*%e^(2*%i*a*b)-%i)*%e^(-(a*s)-%i*a*b))/2);
 
+/* Bug in 5.47.0 reported on the mailing-list on 22/01/2025 */
+laplace (cos (t)*unit_step (t-%pi), t, s);
+-s*exp (-%pi*s)/(s^2+1);
+
+/* Test for the pwilt function (examples from the manual) */
+pwilt (exp(-s)*s/(s^3-2*s-s+2), s, t);
+hstep(t-1)*(((t-1)*%e^(t-1))/3-(2*%e^-(2*(t-1)))/9);
+
+pwilt ((s^2+2)/(s^2-1), s, t);
+delta(t)+(3*%e^t)/2-(3*%e^-t)/2;
+
+/* function hstep should be accepted instead of unit_step */
+laplace (cos (t)*hstep (t-%pi), t, s);
+-((s*%e^-(%pi*s))/(s^2+1));
+
 (kill (z),
  declare (z, complex), assume (realpart (z) > -1), 0);
 0;
