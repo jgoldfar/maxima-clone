@@ -632,6 +632,12 @@ wrapper for this."
 	      (if (and f (or (not (eq x y))
 			     (member f '(neverset) :test #'eq)))
 		  (if (eq (funcall f x y) 'munbindp) (return nil))))
+            (let ((f (get x 'setter-method)))
+              (when f
+                ;; There's a setter method defined.  Call it and assign
+                ;; the result to the variable.
+                (return (setf (symbol-value x)
+                              (funcall f x y)))))
 	    (cond ((and (not (boundp x))
 			(not dsksetp))
 		   (add2lnc x $values))

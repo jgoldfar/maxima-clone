@@ -69,6 +69,12 @@
         - A list of values that can be assigned to the variable.  An
           error is signaled if an attempt to assign a different value
           is done.
+    :SETTER-METHOD
+        - A function (symbol or lambda) of one argument specifying the
+          value that the variable is to be set to.  It should return a
+          value that will be assigned ot the variable.  This allows
+          checking of the value, like :SETTING-PREDICATE, but the
+          returned value is assigned to the variable.
     :DEPRECATED-P
         - The variable is marked as deprecated.  The option is a
           string to be printed when this deprecated variable is used.
@@ -105,8 +111,10 @@
         maybe-set-props
 	maybe-predicate
         maybe-boolean-predicate
+        maybe-setter-method
 	setting-predicate-p
 	setting-list-p
+        setter-method-p
 	assign-property-p
 	deprecated-p)
 
@@ -221,6 +229,11 @@
 		   `((putprop ',var ,assign-func 'assign)))))
 	 ;; Skip over the values.
 	 (setf opts (rest opts)))
+        (:setter-method
+         (setf setter-method-p t)
+         (setf maybe-setter-method
+               `((putprop ',var ,(second opts) 'setter-method)))
+         (setf opts (rest opts)))
         ((see-also modified-commands)
          ;; Not yet supported, but we need to skip over the following
          ;; item too which is the parameter for this option.
@@ -264,13 +277,17 @@
           ;; Check that boolean predicate isn't used with any other
           ;; predicate.  The other predicates supersede boolean.
           (setf maybe-predicate maybe-boolean-predicate)))
-      
+    (when (> (count t (list setting-predicate-p setting-list-p setter-method-p))
+             1)
+      (error "Only one of :SETTING-PREDICATE, :SETTING-LIST, or :SETTING-METHOD maybe be specified.)"))
+    
     `(progn
        ,@maybe-reset
        ,@maybe-declare-type
        ,(if doc `(defvar ,var ,val ,doc) `(defvar ,var ,val))
        ,@maybe-set-props
-       ,@maybe-predicate)))
+       ,@maybe-predicate
+       ,@maybe-setter-method)))
 
 ;; For the symbol SYM, add to the plist the property INDIC with a
 ;; value of VAL.
@@ -1540,12 +1557,27 @@
   ...,<s_n>)', '%%' is the value of the previous statement."
   no-reset)
 
+(defun assign-prompts (var val)
+  "Handles setting inchar/outchar.  The VALUE must be a string or symbol.
+  The result is an appropriate symbol that can be assigned to VAR."
+  (typecase val
+    (string
+     ;; Always add a $ as prefix.  Then intern the string
+     (intern-invert-case (concatenate 'string "$" val)))
+    (symbol
+     val)
+    (otherwise
+     (mseterr var val "must be a string or symbol"))))
+
+
 (defmvar $inchar '$%i
-  "The alphabetic prefix of the names of expressions typed by the user.")
+  "The alphabetic prefix of the names of expressions typed by the user."
+  :setter-method 'assign-prompts)
 
 (defmvar $outchar '$%o
   "The alphabetic prefix of the names of expressions returned by the
-  system.")
+  system."
+  :setter-method 'assign-prompts)
 
 (defmvar $linechar '$%t
   "The alphabetic prefix of the names of intermediate displayed
