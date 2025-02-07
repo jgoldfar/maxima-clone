@@ -70,11 +70,10 @@
           error is signaled if an attempt to assign a different value
           is done.
     :SETTER-METHOD
-        - A function (symbol or lambda) of one argument specifying the
-          value that the variable is to be set to.  It should return a
-          value that will be assigned ot the variable.  This allows
-          checking of the value, like :SETTING-PREDICATE, but the
-          returned value is assigned to the variable.
+        - A function (symbol or lambda) of two arguments specifying the
+          variable and the value that the variable is to be set to.
+          This function is responsible for assigning the variable the
+          correct value.
     :DEPRECATED-P
         - The variable is marked as deprecated.  The option is a
           string to be printed when this deprecated variable is used.
@@ -1559,15 +1558,17 @@
 
 (defun assign-prompts (var val)
   "Handles setting inchar/outchar.  The VALUE must be a string or symbol.
-  The result is an appropriate symbol that can be assigned to VAR."
-  (typecase val
-    (string
-     ;; Always add a $ as prefix.  Then intern the string
-     (intern-invert-case (concatenate 'string "$" val)))
-    (symbol
-     val)
-    (otherwise
-     (mseterr var val "must be a string or symbol"))))
+  Symbols are assigned as is, but strings are converted to symbols and
+  then assigned."
+  (setf (symbol-value var)
+        (typecase val
+          (string
+           ;; Always add a $ as prefix.  Then intern the string
+           (intern-invert-case (concatenate 'string "$" val)))
+          (symbol
+           val)
+          (otherwise
+           (mseterr var val "must be a string or symbol")))))
 
 
 (defmvar $inchar '$%i

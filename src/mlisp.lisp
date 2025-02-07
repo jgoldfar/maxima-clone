@@ -634,10 +634,10 @@ wrapper for this."
 		  (if (eq (funcall f x y) 'munbindp) (return nil))))
             (let ((f (get x 'setter-method)))
               (when f
-                ;; There's a setter method defined.  Call it and assign
-                ;; the result to the variable.
-                (return (setf (symbol-value x)
-                              (funcall f x y)))))
+                ;; There's a setter method defined.  Call it to set
+                ;; the variable to the appropriate value.
+                (funcall f x y)
+                (return nil)))
 	    (cond ((and (not (boundp x))
 			(not dsksetp))
 		   (add2lnc x $values))
