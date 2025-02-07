@@ -689,36 +689,48 @@ DESTINATION is an actual stream (rather than nil for a string)."
 
 (defmfun $system (&rest args)
   ;; If XMaxima is running, direct output from command into *SOCKET-CONNECTION*.
-  ;; From what I can tell, GCL, ECL, and Clisp cannot redirect the output into an existing stream. Oh well.
   (let ((s (and (boundp '*socket-connection*) *socket-connection*))
 	shell shell-opt)
-    #+(or gcl ecl lispworks)
-    (declare (ignore s))
-    (declare (ignorable shell shell-opt))
 
     (cond ((string= *autoconf-windows* "true")
 	   (setf shell "cmd") (setf shell-opt "/c"))
 	  (t (setf shell "/bin/sh") (setf shell-opt "-c")))
 
-    #+gcl (system::system (apply '$sconcat args))
-    #+ecl (si:system (apply '$concat args))
-    #+clisp (let ((output (ext:run-shell-command (apply '$sconcat args)
-                                                 :wait t :output :stream)))
+    #+gcl (let ((output (si:run-process (first args) (rest args))))
               (loop for line = (read-line output nil)
                  while line do
-                   (format (or s t) "~a~%" line)))
-    #+(or cmu scl) (ext:run-program shell (list shell-opt (apply '$sconcat args)) :output (or s t))
-    #+allegro (excl:run-shell-command (apply '$sconcat args) :wait t :output (or s nil))
+                   (format (or s *standard-output*) "~a~%" line)))
+    #+ecl (ext:run-program shell (list shell-opt (apply '$sconcat args)) :output (or s *standard-output*))
+    #+clisp (let ((output (ext:run-shell-command (apply '$sconcat args) :wait t :output :stream)))
+              (loop for line = (read-line output nil)
+                 while line do
+                   (format (or s *standard-output*) "~a~%" line)))
+    #+(or cmu scl) (ext:run-program shell (list shell-opt (apply '$sconcat args)) :output (or s *standard-output*))
+    #+allegro (multiple-value-bind (output-stream error-stream pid)
+                (excl:run-shell-command (apply '$sconcat args) :wait nil :output :stream)
+                (declare (ignore error-stream pid))
+                (loop for line = (read-line output-stream nil)
+                      while line do (format (or s *standard-output*) "~a~%" line)))
     #+sbcl (sb-ext:run-program shell
 			       #+(or win32 win64) (cons shell-opt (mapcar '$sconcat args))
 			       #-(or win32 win64) (list shell-opt (apply '$sconcat args))
-			       :search t :output (or s t))
-    #+openmcl (ccl::run-program shell
-				#+windows (cons shell-opt (mapcar '$sconcat args))
-				#-windows (list shell-opt (apply '$sconcat args))
-				:output (or s t))
+			       :search t :output (or s *standard-output*))
+    #+openmcl (let ((process (ccl::run-program shell
+                               #+windows (cons shell-opt (mapcar '$sconcat args))
+                               #-windows (list shell-opt (apply '$sconcat args))
+                               :wait nil :output :stream)))
+                (let ((output-stream (ccl:external-process-output-stream process)))
+                  (loop for line = (read-line output-stream nil)
+                        while line do (format (or s *standard-output*) "~a~%" line))))
     #+abcl (extensions::run-shell-command (apply '$sconcat args) :output (or s *standard-output*))
-    #+lispworks (system:run-shell-command (apply '$sconcat args) :wait t)))
+    #+lispworks (multiple-value-bind (output-stream error-stream pid)
+                  (system:run-shell-command (apply '$sconcat args) :wait nil :output :stream)
+                  (declare (ignore error-stream pid))
+                  (loop for line = (read-line output-stream nil)
+                        while line do (format (or s *standard-output*) "~a~%" line))))
+
+    #-(or gcl ecl clisp cmu scl allegro sbcl openmcl abcl lispworks)
+      (merror (intl:gettext "system: not defined for this Lisp implementation (~m)") (lisp-implementation-type)))
 
 (defmfun $room (&optional (arg nil arg-p))
   (if (and arg-p (member arg '(t nil) :test #'eq))
