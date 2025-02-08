@@ -2260,9 +2260,10 @@ trigonometric functions defined in Maxima are: @mref{acos},
 @mref{sec}, @mref{sech}, @mref{sin}, @mref{sinh}, @mref{tan},
 and @mref{tanh}.  There are a number of commands especially for
 handling trigonometric functions, see @mref{trigexpand},
-@mref{trigreduce}, and the switch @mref{trigsign}.  Two share
+@mref{trigreduce}, and the switch @mref{trigsign}.  Three share
 packages extend the simplification rules built into Maxima,
-@mref{ntrig} and @mref{atrig1}.  Do @code{describe(@var{command})}
+@mref{ntrig}, @mref{atrig1} and @ref{Introduction to trigtools}.
+Do @code{describe(@var{command})}
 for details.
 
 @opencatbox{Categories:}
