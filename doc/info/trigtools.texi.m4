@@ -645,6 +645,12 @@ and
 m4_math(<<<\cot
 {m\pi\over n}>>>, <<<cot(m*%pi/n)>>>) 
 in radicals.
+
+@code{trigvalue} is essentially an internal function.
+Use function @mref{trigeval} in preference.
+
+@code{load("trigtools")} loads this function.
+
 @end deffn
 
 @anchor{trigeval}
@@ -662,7 +668,7 @@ m4_math(<<<\cot
 in radicals.
 @end deffn
 
-@code{load("trigtools")} loads these functions.
+@code{load("trigtools")} loads this function.
 
 Examples:
 @enumerate
