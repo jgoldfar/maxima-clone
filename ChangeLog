@@ -92,9 +92,9 @@ Bug fixes for numbered bugs:
  * \#4287: 2d pretty printer ignores successive empty lines
  * \#4307: partswitch affects op and operatorp
  * \#4325: Maxima can't differentiate beta function
- * \#4355: documentation for trigvalue etc
  * \#4349: user-defined rules apply to expressions with square brackets as well as parentheses
  * \#4350: arrayinfo complains "not an array" when supplied a Lisp array or hash table
+ * \#4355: documentation for trigvalue etc
  * \#4356: support tracing simplifying functions
  * \#4386: quad_qagi doesn't recognize -inf as equivalent to minf
  * \#4388: tex() output under simp:false, incorrect placement of `+`
