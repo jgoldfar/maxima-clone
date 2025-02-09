@@ -59,9 +59,8 @@
 	;; bug #329. Fixed post-16.1.3.
 	;; Test 50 still sometimes fails in ecl 16.1.2
         ((mlist simp) "rtest16"
-	 #-(or ecl allegro) ((mlist simp) 525 526)
-	 #+ecl ((mlist simp) 525 526)
-	 #+allegro ((mlist simp) 50 242 525 526))
+	 #-allegro ((mlist simp))
+	 #+allegro ((mlist simp) 50 242))
         "rtestode"
 	"rtestode_zp"
         ((mlist simp) "rtest3" ((mlist simp) 146))
@@ -154,8 +153,8 @@
         "rtest_gcd"
 	;; The tests that failed with abcl 1.5.0
 	((mlist simp) "rtest_hg"
-	 #+(or gcl abcl) ((mlist simp) 87 120)
-	 #-(or gcl abcl) ((mlist simp) 87))
+	 #+(or gcl abcl) ((mlist simp) 120)
+	 #-(or gcl abcl) ((mlist simp)))
 	((mlist simp) "rtest_nfloat"
 	 #-gcl((mlist simp) 25))
 	((mlist simp) "rtest_ilt")

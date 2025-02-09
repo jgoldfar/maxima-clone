@@ -1995,12 +1995,15 @@ errcatch(elliptic_f(2,1));
 map(lambda([x], featurep(x, 'irrational)),[42,%pi,%phi,%e]);
 [false, true, true, true]$
 
-/* #2501 %pi/8 is definitely not an integer */
+/* #2501 %pi/8 is definitely not an integer
+  A better answer is %pi*log(2))/8, but this is correct.*/
 integrate(log(cot(x)-1),x,0,%pi/4);
-(%i*li[2]((%i+1)/2)-%i*li[2](-((%i-1)/2)))/2 -(%i*(2*li[2](%i+1)-2*li[2](1-%i))+%pi*log(2))/4$
+-((%i*li[2]((1-%i)/2))/2)+(%i*li[2](-((-%i-1)/2)))/2 +((4*%pi*log(2)+%i*%pi^2+16*%catalan)/4
+    +(4*%pi*log(2)-%i*%pi^2+16*%catalan)/4-2*%pi*log(2))/8$
 
+/* A better answer is -%pi*log(4)/4, but this is correct.*/
 integrate(log(cos(x)),x,0,%pi/2);
-%i*%pi^2/24-(6*%pi*log(4)+%i*%pi^2)/24$
+(%i*%pi^2)/24-(2*%pi*log(4)+(%i*%pi^2)/3)/8$
 
 map(lambda([x], featurep(x, noninteger)),[sqrt(5),%pi,%pi/3, %pi/8,log(42),99/2013]);
 [true,true,true,true,true,true]$
