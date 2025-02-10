@@ -1556,33 +1556,33 @@
   ...,<s_n>)', '%%' is the value of the previous statement."
   no-reset)
 
-(defun assign-prompts (var val)
-  "Handles setting inchar/outchar.  The VALUE must be a string or symbol.
+(flet ((assign-prompts (var val)
+	 "Handles setting inchar/outchar.  The VALUE must be a string or symbol.
   Symbols are assigned as is, but strings are converted to symbols and
   then assigned."
-  (setf (symbol-value var)
-        (typecase val
-          (string
-           ;; Always add a $ as prefix.  Then intern the string
-           (intern-invert-case (concatenate 'string "$" val)))
-          (symbol
-           val)
-          (otherwise
-           (mseterr var val "must be a string or symbol")))))
+	 (setf (symbol-value var)
+               (typecase val
+		 (string
+		  ;; Always add a $ as prefix.  Then intern the string
+		  (intern-invert-case (concatenate 'string "$" val)))
+		 (symbol
+		  val)
+		 (otherwise
+		  (mseterr var val (intl:gettext "Must be a string or symbol")))))))
 
+  (defmvar $inchar '$%i
+    "The alphabetic prefix of the names of expressions typed by the user."
+    :setter-method #'assign-prompts)
 
-(defmvar $inchar '$%i
-  "The alphabetic prefix of the names of expressions typed by the user."
-  :setter-method 'assign-prompts)
-
-(defmvar $outchar '$%o
-  "The alphabetic prefix of the names of expressions returned by the
+  (defmvar $outchar '$%o
+    "The alphabetic prefix of the names of expressions returned by the
   system."
-  :setter-method 'assign-prompts)
+    :setter-method #'assign-prompts)
 
-(defmvar $linechar '$%t
-  "The alphabetic prefix of the names of intermediate displayed
-  expressions.")
+  (defmvar $linechar '$%t
+    "The alphabetic prefix of the names of intermediate displayed
+  expressions."
+    :setter-method #'assign-prompts))
 
 (defmvar $linenum 1
   "The line number of the last expression."
