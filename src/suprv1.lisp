@@ -87,7 +87,8 @@
 (defun makelabel10 (x)
   (let (*print-radix*
 	(*print-base* 10.))
-    ($concat '|| x $linenum)))
+    ;; x should be a symbol (one of $inchar, $outchar, $linechar)
+    ($concat x $linenum)))
 (defun makelabel (x)
   (setq *linelabel* (makelabel10 x))
   (unless $nolabels
