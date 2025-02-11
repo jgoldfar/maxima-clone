@@ -1,16 +1,19 @@
 ;; Author: Barton Willis with help from Richard Fateman
+;; Updated Feb 2025
 
 #|
 To simplify a sum with n terms, the standard simplus function calls
 great O(n^2) times. By using sorting more effectively, this code
 reduces the calls to O(n log_2(n)).
 
-Also, this code tries to be "infinity correct" for addition. By this I
-mean inf + inf --> inf, inf + number --> inf, and inf + minf --> und.
-Since -1 * inf does not simplify to minf, this code doesn't simplify
+When the option variable `use_extended_real_arithmetic` is true, 
+this code tries to be "infinity correct" for addition. By this I
+mean inf + inf --> inf, inf + number --> inf, inf + minf --> und, 
+and so on. Since -1 * inf does not simplify to minf, this code doesn't simplify
 inf - inf to und; consequently, this portion of the code is largely
-untested. There are other problems too.  For one, this code does
-f(inf) - f(inf) --> 0 (comment from Stavros Macrakis). I don't know
+untested. There are other problems too.  For one, arguably 
+f(x) - f(x) --> 0 is wrong unless we know that the range of 'f' excludes
+an infinity (comment from Stavros Macrakis). I don't know
 how far we can go with such things without making a mess. You could
 argue that Maxima should do
 
@@ -37,66 +40,31 @@ of this code is due to Barton Willis.
 
 #| 
 
-As of late May 2021, altsimp (with use_extended_real_arithmetic set to false), runs 
-the testsuite + the share testsuite with nine failures; the failures are
-
- rtest11.mac problems (4 8)
- rtest14.mac problem: (62)
- rtest_expintegral.mac problems: (173 174)
- rtest_dgesv.mac problem: (5)
- rtest_to_poly_solve.mac problem: (241)
-
-Additionally, rtest3 #146 fails (errcatch(integrate(exp(2^(3/2)*x^2-sqrt(2)*x^2),x))), but 
-actually, altsimp fixes this bug. This is due to the fact that with altsimp, exp(2^(3/2)*x^2-sqrt(2)*x^2) 
-simplifies to %e^(sqrt(2)*x^2).
-
-Reasons for these failures include:
-
-* Possible differences in ordering of addition of floating point numbers.
-
-Using CCL 1.12.1 (64 bit) and altsimp, timings are:
-
-took 752,166,000 microseconds (752.166000 seconds) to run.
-      12,556,790 microseconds ( 12.556790 seconds, 1.67%) of which was spent in GC.
-During that period, and with 4 available CPU cores,
-     687,062,500 microseconds (687.062500 seconds) were spent in user mode
-      38,109,375 microseconds ( 38.109375 seconds) were spent in system mode
-87,194,237,408 bytes of memory allocated.
-
-And timings for standard Maxima are:
-
-took 689,231,000 microseconds (689.231000 seconds) to run.
-      11,857,789 microseconds ( 11.857789 seconds, 1.72%) of which was spent in GC.
-During that period, and with 4 available CPU cores,
-     644,234,375 microseconds (644.234400 seconds) were spent in user mode
-      23,062,500 microseconds ( 23.062500 seconds) were spent in system mode
- 77,100,115,920 bytes of memory allocated.
-
- Compared to standard Maxima, altsimp runs the testsuites more slowly and uses more
- memory. Using sbcl 2.0, the results are similar, but faster and more memory.
-
-Using CCL 1.12.1 (64 bit) and use_extended_real_arithmetic set to true, the
-testsuites give 45 failures:
+As of Feb 2025, altsimp (using SBCL and with use_extended_real_arithmetic set to false) runs the
+testsuite with eight failures and one success:
 
 Error(s) found:
-  rtest11.mac problems:  (4 8)
-  rtest14.mac problem: (62)
-  rtest16.mac problems:  (457 459)
-  rtest3.mac problem: (146)
-  rtest_expintegral.mac problems: (173 174)
-  rtest_powerseries.mac problems: (53 63)
-  solve_rec/rtest_simplify_sum.mac problems: (3 4 5 6 7 10 11 12 13 14 16 17 19 
-  20 21 22 23 28 29 53 67 68 69 70 71 72)
-  rtest_dgesv.mac problem: (5)
-  rtest_linalg.mac problems: (92 94)
-  rtest_abs_integrate.mac problems: (75 76 77 132 140)
-  rtest_to_poly_solve.mac problem: (241)
+   /rtest11.mac problems:    (4 8)
+   /rtest14.mac problems:    (62 153)
+   /rtest_gamma.mac problems:    (384 390)
+   /rtest_expintegral.mac problems:    (175 176)
 
-Most of these additional failures are due to dispatching sign on und.
+Tests that were expected to fail but passed:
+   /rtest3.mac problem:    (146)
 
+All the failures are syntactic or tiny floating point errors. The two rtest_gamma failures are
+present without using simplus, so only six failures are due to simplus. 
 
+Running the full testsuite (including the share tests) causes Maxima to terminate with the error
+"Heap exhausted during garbage collection" somewhere in the test rtest_to_poly_solve. But in May
+2021, the share testsuite ran OK. The specific test that causes the trouble is
 
-Speculation on how to speed up simplification of sums:
+block([algebraic : true], to_poly_solve(x^(3/2) = (1/2 + sqrt(3) * %i/2),x, simpfuncs = ['rectform]));
+
+Using Maxima 5.47, this test finishes, but gives an incorrect result. I'm guessing that the 
+apparent infinite loop with version post 5.47 is due to changes to either 'great' or to 'simptimes.'
+
+ Speculation on how to speed up simplification of sums:
 
 The altsimp algorithm uses sorting to speed up simplification of expressions with a 
 large number of summands, but at least for running the testsuites, simplus is mostly 
@@ -229,14 +197,11 @@ would possibly speed the code.
                 (if x (car x) (merror "Attempt to add noncomformable matrices"))))
         (t (list (get 'mplus 'msimpind) x l))))
 
-;; Return a + b, where a, b in {minf, inf, ind, und, infinity}. I should
-;; extend this to allow zeroa and zerob (but I'm not sure zeroa and zerob
-;; are supposed to be allowed outside the limit code). Internally, Maxima
-;; uses prin-inf (see defint.lisp) to represent $inf. We could include
-;; prin-inf as an extended real.
-
-;;We use a hashtable to represent the addition table--this should be easy 
-;; to extend and to modify.
+;; We use a hashtable to represent the addition table for extended reals. Currently, this
+;; table suports the extended reals {minf, inf, ind, und, infinity}. Extending this table 
+;; to include zeroa and zerob is an easy exercise, but doing so results in about 50 testsuite 
+;; failures, some of them being bad bugs. Internally, Maxima uses prin-inf (see defint.lisp) 
+;; to represent $inf. I haven't tried, but we could include prin-inf as an extended real.
 (defvar *extended-real-add-table* (make-hash-table :test #'equal :size 16))
 
 (mapcar #'(lambda (a) (setf (gethash (list (first a) (second a)) *extended-real-add-table*) (third a)))
