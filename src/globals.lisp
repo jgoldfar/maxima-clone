@@ -1557,9 +1557,9 @@
   no-reset)
 
 (flet ((assign-prompts (var val)
-	 "Handles setting inchar/outchar.  The VALUE must be a string or symbol.
-  Symbols are assigned as is, but strings are converted to symbols and
-  then assigned."
+	 "Handles setting inchar/outchar.  The VALUE must be a string or
+	 symbol. Symbols are assigned as is, but strings are converted
+	 to symbols and then assigned."
 	 (setf (symbol-value var)
                (typecase val
 		 (string
