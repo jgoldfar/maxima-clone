@@ -636,7 +636,10 @@ wrapper for this."
               (when f
                 ;; There's a setter method defined.  Call it to set
                 ;; the variable to the appropriate value.
-                (return (funcall f x y))))
+                (funcall f x y)
+                ;; Return y so that any other assignments get the
+                ;; value that was assigned to x.
+                (return y)))
 	    (cond ((and (not (boundp x))
 			(not dsksetp))
 		   (add2lnc x $values))
