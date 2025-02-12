@@ -28,7 +28,7 @@ example.
 
 In short, this code is highly experimental; you should not use it for
 anything that is important. I place it in /share/contrib because
-others encouraged me too; also I thought it might be useful to others
+others encouraged me to; also I thought it might be useful to others
 who would like to experiment with similar code. Since a great deal of
 work has gone into the current simplus code, I'm not sure that a total
 rewrite is the best route.
@@ -110,13 +110,13 @@ would possibly speed the code.
               (setq q ($denom p))
               (setq p ($num p))         
               (setq n (floor p q))
-              (cons (take '(mexpt) a (sub (caddr x) n)) (take '(mexpt) a n))))
+              (cons (ftake 'mexpt a (sub (caddr x) n)) (ftake 'mexpt a n))))
           ((generalized-surd-p x) ; x = ((mexpt) a ((mplus) n a1 a2 ...)))
            (let ((a (second x)) (n (second (third x))) (p) (q))
               (setq p ($num n))
               (setq q ($denom n))
               (setq n (floor p q))
-              (cons (take '(mexpt) a (sub (third x) n)) (take '(mexpt) a n))))            
+              (cons (ftake 'mexpt a (sub (third x) n)) (ftake 'mexpt a n))))            
 
           (t (cons x 1))))
   
@@ -145,17 +145,18 @@ would possibly speed the code.
 
 	          (if (null (cdr x)); if only one more item, that's it.
 		              (cons (car x) c)
-		              (cons (cons (get 'mtimes 'msimpind) x) c)))
+		              (cons (fapply 'mtimes x) c)))
           (t (cons x 1)))))
 
 ;; Previously there was a specialized function for multiplying a number times an expression. The
 ;; motivation was, I think, speed. But the specialized function was responsible for 22 testsuite
 ;; failures (May 2021) and it didn't contribute to running the testsuite any faster. So let us 
-;; replace the specialized function with a call to mul. 
-
+;; replace the specialized function. But, due to recent changes (circa Feb 2025), sometimes
+;; the second argument to `number-times-expr` isn't simplified, and this causes trouble. Thus for
+;; now, this code calls ftake* instead of ftake. This extra simplification slows down the code.
 (defun number-times-expr (cf e)
-  (mul cf e))
-
+  (ftake* 'mtimes cf e))
+ 
 ;; Add an expression x to a list of equalities l.
 (defun add-expr-mequal (x l)
   (setq l (mapcar 'cdr l))
@@ -267,7 +268,7 @@ would possibly speed the code.
   ;; simplify and flatten
     (dolist (li l)
     	(setq li (simplifya li z))
-     ;; When numer is true, simplifya converts %pi & %phi to their binary64 value,
+     ;; When numer is true, simplifya converts %pi & %phi to their binary64 values,
      ;; but only converts %e when both numer & %enumer are true. Here we convert
      ;; %e to its binary64 value.
      (when (and $numer (atom li) (eq li '$%e)) ; $%e --> 2.718...
