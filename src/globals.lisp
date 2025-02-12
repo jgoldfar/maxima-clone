@@ -73,7 +73,8 @@
         - A function (symbol or lambda) of two arguments specifying the
           variable and the value that the variable is to be set to.
           This function is responsible for assigning the variable the
-          correct value.
+          correct value.  It MUST also return the value that is
+          actually assigned to the variable.
     :DEPRECATED-P
         - The variable is marked as deprecated.  The option is a
           string to be printed when this deprecated variable is used.

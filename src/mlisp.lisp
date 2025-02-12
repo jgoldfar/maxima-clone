@@ -635,11 +635,9 @@ wrapper for this."
             (let ((f (get x 'setter-method)))
               (when f
                 ;; There's a setter method defined.  Call it to set
-                ;; the variable to the appropriate value.
-                (funcall f x y)
-                ;; Return y so that any other assignments get the
-                ;; value that was assigned to x.
-                (return y)))
+                ;; the variable to the appropriate value.  Return
+                ;; whatever the setter returns.
+                (return (funcall f x y))))
 	    (cond ((and (not (boundp x))
 			(not dsksetp))
 		   (add2lnc x $values))
