@@ -41,30 +41,41 @@ of this code is due to Barton Willis.
 #| 
 
 As of Feb 2025, altsimp (using SBCL and with use_extended_real_arithmetic set to false) runs the
-testsuite with eight failures and one success:
+testsuite with seven failures and one success:
 
+Error summary:
 Error(s) found:
-   /rtest11.mac problems:    (4 8)
-   /rtest14.mac problems:    (62 153)
-   /rtest_gamma.mac problems:    (384 390)
-   /rtest_expintegral.mac problems:    (175 176)
+  rtest14.mac problems:  (62 153)
+  rtest_gamma.mac problems:  (384 390)
+  rtest_expintegral.mac problems:  (175 176)
+  rtest_vect.mac problem:   (74)
 
 Tests that were expected to fail but passed:
-   /rtest3.mac problem:    (146)
+  rtest3.mac problem:   (146)
 
-All the failures are syntactic or tiny floating point errors. The two rtest_gamma failures are
-present without using simplus, so only six failures are due to simplus. 
+7 tests failed out of 19,012 total tests.
 
-Running the full testsuite (including the share tests) causes Maxima to terminate with the error
-"Heap exhausted during garbage collection" somewhere in the test rtest_to_poly_solve. But in May
-2021, the share testsuite ran OK. The specific test that causes the trouble is
+The two rtest_gamma failures are present without using simplus, so only five failures are due to simplus. 
 
-block([algebraic : true], to_poly_solve(x^(3/2) = (1/2 + sqrt(3) * %i/2),x, simpfuncs = ['rectform]));
+And with use_extended_real_arithmetic set to true:
 
-Using Maxima 5.47, this test finishes, but gives an incorrect result. I'm guessing that the 
-apparent infinite loop with version post 5.47 is due to changes to either 'great' or to 'simptimes.'
+Error(s) found:
+   rtest14.mac problems:    (62 153)
+   rtest_gamma.mac problems:    (384 390)
+   rtest_expintegral.mac problems:    (175 176)
+   rtest_powerseries.mac problems:    (53 63)
+   rtest_simplify_sum.mac problems:
+    (3 4 5 6 7 10 11 12 13 14 16 17 19 20 21 22 23 28 29 53 67 68 69 70 71 72)
+  linearalgebra/rtest_linalg.mac problems:    (92 94)
+  rtest_abs_integrate.mac problems:    (74 89 139)
+  vector/rtest_vect.mac problem:    (74)
 
- Speculation on how to speed up simplification of sums:
+Tests that were expected to fail but passed:
+   rtest3.mac problem:   (146)
+   rtest_maxmin.mac problem:   (109)
+   rtest_limit_extra.mac problem:  (125)
+
+Speculation on how to speed up simplification of sums:
 
 The altsimp algorithm uses sorting to speed up simplification of expressions with a 
 large number of summands, but at least for running the testsuites, simplus is mostly 
