@@ -173,7 +173,7 @@ would possibly speed the code.
   (setq l (mapcar 'cdr l))
   (push (list x x) l)
   (setq l (list (reduce #'add (mapcar 'first l)) (reduce #'add (mapcar 'second l))))
-  (simplifya (cons '(mequal) l) t))
+  (fapply 'mequal l))
   
 (defun add-expr-mrat (x l)
   (ratf (cons '(mplus) (cons (ratf x) l))))
@@ -183,7 +183,7 @@ would possibly speed the code.
 
 (defun add-expr-mlist (x l)
   (setq l (if (cdr l) (reduce 'addmx l) (car l)))
-  (simplifya (cons (list 'mlist) (mapcar #'(lambda (s) (add x s)) (cdr l))) t))
+  (fapply 'mlist (mapcar #'(lambda (s) (add x s)) (cdr l))))
 
 ;; Simple demo showing how to define addition for a new object.
 ;; We could append simplification rules for intervals:
@@ -193,20 +193,19 @@ would possibly speed the code.
 (defun add-expr-interval (x l)
   (setq l (mapcar #'(lambda (s) `((mlist) ,@(cdr s))) l))
   (setq l (if (cdr l) (reduce #'addmx l) (car l)))
-  (simplifya (cons (list '$interval) (mapcar #'(lambda (s) (add x s)) (cdr l))) t))
+  (fapply '$interval (mapcar #'(lambda (s) (add x s)) (cdr l))))
  
 ;; Add an expression x to a list of matrices l. The Maxima function mxplusc
 ;; calls pls. Here is a version that doesn't call pls. I'm not sure I've captured all 
 ;; features of mxplusc.
 (defun add-expr-matrix (x l)
-  (setq l (if (cdr l) (reduce #'addmx l) (car l)))
+  "Add expression x to a CL list of matrices l."
+  (setq l (cond ((cdr l)
+                  (setq l (let (($errormsg nil)) (errcatch (reduce #'addmx l))))
+                  (if l (car l) (merror (intl:gettext "Attempt to add noncomformable matrices"))))
+                (t (car l))))
   (cond ((and $listarith ($matrixp l))
-          (let ((errset nil)
-		            (errcatch t)
-            		($errormsg nil)
-		            (*mdebug* nil))
-                (setq x (errset (simplifya (cons '($matrix) (cdr (add x ($args l)))) t)))
-                (if x (car x) (merror "Attempt to add noncomformable matrices"))))
+          (fapply '$matrix (cdr (add x ($args l)))))
         (t (list (get 'mplus 'msimpind) x l))))
 
 ;; We use a hashtable to represent the addition table for extended reals. Currently, this
