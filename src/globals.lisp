@@ -255,7 +255,7 @@
     `(progn
        ,@maybe-reset
        ,@maybe-declare-type
-       (defvar ,var ,val ,doc)
+       ,(if doc `(defvar ,var ,val ,doc) `(defvar ,var ,val))
        ,@maybe-set-props
        ,@maybe-predicate)))
 
