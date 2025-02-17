@@ -241,7 +241,11 @@ See comments to $adjust_external_format below for a detailed description.
 (defun $readline (stream)
   (unless (streamp stream) (io-error "readline" "the"))
   (let ((line (read-line stream nil nil)))
-    (if line line) ))
+    ;; Trim carriage return from end of string, if any.
+    ;; Notes. (1) CLHS says READ-LINE removes Newline; doesn't say anything about removing carriage return,
+    ;; and at least one ostensibly-conforming implementation (SBCL) does not remove carriage return.
+    ;; (2) CLHS doesn't require character 13 (ASCII carriage return) to have a name.
+    (when line (string-right-trim (list (code-char 13)) line))))
 
 
 (defun $readchar (stream) 
