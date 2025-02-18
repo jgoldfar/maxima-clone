@@ -229,7 +229,6 @@
 		       ;; we're called with vector that is longer than
 		       ;; we want.  Perfectly valid Fortran, though.)
 		       (let ((val (apply 'funcall fv (subseq (coerce x 'list) 0 n))))
-                         (format t "val = ~A~%" val)
 			 (replace fvec (mapcar #'(lambda (z)
 						   (cl:float z 1d0))
 					       (cdr val)))))
