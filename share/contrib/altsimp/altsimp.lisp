@@ -45,35 +45,34 @@ testsuite with seven failures and one success:
 
 Error summary:
 Error(s) found:
-  rtest14.mac problems:  (62 153)
-  rtest_gamma.mac problems:  (384 390)
-  rtest_expintegral.mac problems:  (175 176)
-  rtest_vect.mac problem:   (74)
-
+  rtest2.mac problems:    (310 311 312)
+  rtest14.mac problems:    (62 153)
+  rtest_gamma.mac problems:    (384 390)
+  rtest_vect.mac problem:    (74)
 Tests that were expected to fail but passed:
-  rtest3.mac problem:   (146)
-
-7 tests failed out of 19,012 total tests.
+ rtest3.mac problem:    (146)
+8 tests failed out of 19,015 total tests.
 
 The two rtest_gamma failures are present without using simplus, so only five failures are due to simplus. 
 
 And with use_extended_real_arithmetic set to true:
 
 Error(s) found:
+   rtest2.mac problems:    (310 311 312)
    rtest14.mac problems:    (62 153)
    rtest_gamma.mac problems:    (384 390)
-   rtest_expintegral.mac problems:    (175 176)
    rtest_powerseries.mac problems:    (53 63)
-   rtest_simplify_sum.mac problems:
+  C:/Users/barto/maxima-code-pure/maxima-code/share/solve_rec/rtest_simplify_sum.mac problems:
     (3 4 5 6 7 10 11 12 13 14 16 17 19 20 21 22 23 28 29 53 67 68 69 70 71 72)
-  linearalgebra/rtest_linalg.mac problems:    (92 94)
-  rtest_abs_integrate.mac problems:    (74 89 139)
-  vector/rtest_vect.mac problem:    (74)
-
+  rtest_linalg.mac problems:    (92 94)
+  rtest_abs_integrate.mac problems:   (74 89 139)
+  rtest_vect.mac problem:    (74)
 Tests that were expected to fail but passed:
-   rtest3.mac problem:   (146)
-   rtest_maxmin.mac problem:   (109)
-   rtest_limit_extra.mac problem:  (125)
+   rtest3.mac problem:    (146)
+   rtest_maxmin.mac problem:    (109)
+   rtest_limit_extra.mac problem:    (125)
+41 tests failed out of 19,015 total tests.
+
 
 Speculation on how to speed up simplification of sums:
 
@@ -98,14 +97,16 @@ would possibly speed the code.
 
 (define-modify-macro mincf (&optional (i 1)) addk)
 
-;; Return true if z = 0, 0.0, or a bigfloat zero.
+;; Running the testsuite calls this function about 10 million times. 
 (defun mzerop (z)
-  (and (mnump z)
-       (or (and (numberp z)(= z 0))
-	         (and (bigfloatp z)(= (cadr z) 0))))) ;bigfloat zeros may be diff precisions
+  "Return true iff z = 0, z = 0.0, z = -0.0, or is a bigfloat zero."
+   (cond ((integerp z) (eql z 0))
+         ((bigfloatp z) (eql (cadr z) 0))
+         ((floatp z) (or (eql z 0.0) (eql z -0.0))) ; allow negative zero to pass
+         (t nil)))
 
-;; Return true if x has the form integer^(rational)
 (defun surd-p (x)
+  "Return true iff x = integer^(rational)"
   (and (mexptp x) (integerp (cadr x)) ($ratnump (caddr x))))
 
 (defun generalized-surd-p (x)
@@ -209,10 +210,14 @@ would possibly speed the code.
         (t (list (get 'mplus 'msimpind) x l))))
 
 ;; We use a hashtable to represent the addition table for extended reals. Currently, this
-;; table suports the extended reals {minf, inf, ind, und, infinity}. Extending this table 
-;; to include zeroa and zerob is an easy exercise, but doing so results in about 50 testsuite 
-;; failures, some of them being bad bugs. Internally, Maxima uses prin-inf (see defint.lisp) 
-;; to represent $inf. I haven't tried, but we could include prin-inf as an extended real.
+;; table suports the extended reals {minf, inf, ind, und, infinity}. Here, we only define 
+;; the "upper half" of the table. The function `add-extended-real` uses commutivity to 
+;; automatically extend the table automatically 
+
+;; Extending this table requires modifying `add-expr-infinities`, and appending
+;; zerob and zeroa to the list of extended reals in 'simplus'. For a non-extended real 'x', we need 
+;; x + zeroa --> x + zeroa, for example. Also, internally, Maxima uses 'prin-inf' (see defint.lisp)  
+;; to represent $inf. I haven't tried, but we could include 'prin-inf' as an extended real.
 (defvar *extended-real-add-table* (make-hash-table :test #'equal :size 16))
 
 (mapcar #'(lambda (a) (setf (gethash (list (first a) (second a)) *extended-real-add-table*) (third a)))
@@ -237,13 +242,18 @@ would possibly speed the code.
          (list '$und '$und '$und)))
 
 (defun add-extended-real(a b)  
+  "Using hash table look up, add two extended real numbers. The supported extended real numbers are 'minf', 
+  'ind', 'und', 'inf', and 'infinity'.  If (a,b) isn't a hashtable key, this function looks for the key (b,a)"
   (gethash (list a b) *extended-real-add-table* (gethash (list b a) *extended-real-add-table* '$und)))
 
-;; Add an expression x to a list of infinities. We do explicit number + extended real --> extended real, 
-;; but for a general expression XXX we do XXX + extended real --> nounform.
 (defun add-expr-infinities (x l) 
-  (setq l (if l (reduce #'add-extended-real l) (car l)))
-  (if (mnump x) l (list (get 'mplus 'msimpind) x l)))
+  "Add an expression 'x' to a nonempty list `l` of extended real numbers. The supported extended real
+   numbers are 'minf', 'ind', 'und', 'inf', and 'infinity'. When it is certain that 'x' cannot be an
+   extended real, return the sum of the members of l; otherwise, return a sum nounform."
+  (setq l (reduce #'add-extended-real l))
+  ;; Arguably, we don't want to do 1/x + inf = inf (what if x = 0?). So when it is certain that 
+  ;; x is not an extended real, return l; otherwise return x + l. Here "certain" means a number.
+  (if (mnump x) l (cons (get 'mplus 'msimpind) (sort (list x l) #'great))))
 
 ;; The functions pls & plusin are parts of the standard simplus code. Let's issue
 ;; errors when these functions are called. Unfortunately, code in share\affine calls
@@ -257,7 +267,7 @@ would possibly speed the code.
    (merror "Error: called plusin ~%"))
 
 ;; I assumed that if a list of distinct members is sorted using great,
-;; then it's still sorted after multiplying each list member by a nonzero
+;; it's still sorted after multiplying each list member by a nonzero
 ;; maxima number. I'm not sure this is true.
 
 ;; If l has n summands, simplus calls great O(n log_2(n)) times. All
@@ -272,7 +282,7 @@ would possibly speed the code.
   
   (let ((acc nil) (cf) (x) (num-sum 0) (do-over nil) (mequal-terms nil) (mrat-terms nil) 
 	(inf-terms nil) (matrix-terms nil) (mlist-terms nil) (taylor-terms nil) (interval-terms nil) 
-  (op) (atom-hash (make-hash-table :test #'eq :size 8)))
+  (op) (expr-hash (make-hash-table :test #'equal :size 16)))
 
   (setq l (margs l))
   ;; simplify and flatten
@@ -305,25 +315,20 @@ would possibly speed the code.
 		                    ((eq op 'mlist)
 		                      (if $listarith (push li mlist-terms) (push (convert-to-coeff-form li) acc))))) 
 
-	            ;; Put non-infinite atoms into a hashtable; push infinite atoms into inf-terms.
-	            ((atom li)
-	                (if (and $use_extended_real_arithmetic (member li '($minf $inf $infinity $und $ind)))
-		                     (push li inf-terms)
-	                    (progn
-		                      (setq cf (gethash li atom-hash))
-		                      (setf (gethash li atom-hash) (if cf (1+ cf) 1)))))
+            ((and $use_extended_real_arithmetic (member li '($minf $inf $infinity $und $ind)))
+		            (push li inf-terms))
 
-	        (t (push (convert-to-coeff-form li) acc))))
-
-     ;; push atoms in the hashtable into the accumulator acc; sort acc.
-    (maphash #'(lambda (cf a) (push (cons cf a) acc)) atom-hash)
-    (setq l (sort acc 'great :key 'car))
+            (t
+              (setq li (convert-to-coeff-form li))
+              (setq cf (gethash (car li) expr-hash 0))
+              (setf (gethash (car li) expr-hash) (add (cdr li) cf)))))
+    ;; push expressions in the hashtable into the accumulator acc; sort acc.
+    (maphash #'(lambda (cf a) (push (cons cf a) acc)) expr-hash)
+    (setq l (sort acc 'great :key #'car))
  
     ;; common term crunch: when the new coefficient is -1 or 1 (for example, 5*a - 4*a),
-    ;; set the "do-over" flag to true. In this case, the sum needs to be re-simplified.
-    ;; Without the do over flag, a + 5*a - 4*a --> a + a. Last I checked, the testsuite
-    ;; does not test the do-over scheme.
-
+    ;; set the "do-over" flag to true. At one time, the sum needed to be re-simplified 
+    ;; when this happened. I'm not sure this is still true.
     (setq acc nil)
     (while l
       (setq x (pop l))
@@ -331,19 +336,21 @@ would possibly speed the code.
       (setq x (car x))
       (while (and l (like x (caar l)))
       	(mincf cf (cdr (pop l))))
-        (if (and (or (eql cf 1) (eql cf -1)) (mplusp x)) (setq do-over t))
+        (when (and (or (eql cf 1) (eql cf -1)) (mplusp x)) 
+          (setq do-over t))
         (setq x (number-times-expr cf x))
         (cond ((mnump x) (mincf num-sum x))
 	            ((not (mzerop x)) (push x acc))))
 
     ;; Do x + 0 --> x, x + 0.0 --> x, and x + 0.0b0 --> x.
-    (if (not (mzerop num-sum)) (push num-sum acc))
+    (when (not (mzerop num-sum)) 
+       (push num-sum acc))
    
     (setq acc
-	  (cond (do-over (simplifya `((mplus) ,@acc) nil))
+	  (cond (do-over (fapply 'mplus acc))
       		((null acc) num-sum)
 		      ((null (cdr acc)) (car acc))
-		      (t (cons '(mplus simp) acc))))
+		      (t (cons (get 'mplus 'msimpind) acc))))
     
     ;; special case dispatch
     (when mequal-terms
