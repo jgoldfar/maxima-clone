@@ -248,7 +248,7 @@
       (when (not (get x 'sysconst))
 	(remprop x 'lineinfo)
 	(remprop x 'mprops))
-      (dolist (u '(bindtest nonarray evfun evflag opers special mode))
+      (dolist (u '(bindtest nonarray evfun evflag opers mode))
 	(remprop x u))
       (dolist (u opers)
 	(when (and (remprop x u)
@@ -289,8 +289,14 @@
           (setf $structures (delete y $structures :count 1 :test #'equal))))
       (when (and (member x *builtin-symbols* :test #'equal)
 		 (gethash x *builtin-symbol-props*))
+        #+nil
+        (when (eq x '$inchar)
+          (format t "inchar plist before = ~A~%" (symbol-plist x)))
 	(setf (symbol-plist x)
-	      (copy-tree (gethash x *builtin-symbol-props*))))
+	      (copy-tree (gethash x *builtin-symbol-props*)))
+        #+nil
+        (when (eq x '$inchar)
+          (format t "inchar plist after = ~A~%" (symbol-plist x))))
       (when (member x *builtin-numeric-constants*)
 	(initialize-numeric-constant x))	;; reset db value for $%pi, $%e, etc
       (if z (kill1 z)))))
