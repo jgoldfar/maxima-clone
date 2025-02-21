@@ -289,14 +289,8 @@
           (setf $structures (delete y $structures :count 1 :test #'equal))))
       (when (and (member x *builtin-symbols* :test #'equal)
 		 (gethash x *builtin-symbol-props*))
-        #+nil
-        (when (eq x '$inchar)
-          (format t "inchar plist before = ~A~%" (symbol-plist x)))
 	(setf (symbol-plist x)
-	      (copy-tree (gethash x *builtin-symbol-props*)))
-        #+nil
-        (when (eq x '$inchar)
-          (format t "inchar plist after = ~A~%" (symbol-plist x))))
+	      (copy-tree (gethash x *builtin-symbol-props*))))
       (when (member x *builtin-numeric-constants*)
 	(initialize-numeric-constant x))	;; reset db value for $%pi, $%e, etc
       (if z (kill1 z)))))
