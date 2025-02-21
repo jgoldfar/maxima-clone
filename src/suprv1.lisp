@@ -384,7 +384,7 @@
 		    (setf (symbol-value x)
 			  (gethash x *builtin-symbol-values*)))
 		  t)
-		 ((get x 'special)
+		 ((get x 'reset-on-kill)
 		  (makunbound x)
 		  (when (member x *builtin-symbols-with-values* :test #'equal)
 		    (setf (symbol-value x)

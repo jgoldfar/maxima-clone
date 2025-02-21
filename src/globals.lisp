@@ -1574,19 +1574,19 @@
   (defmvar $inchar '$%i
     "The alphabetic prefix of the names of expressions typed by the user."
     :setter-method #'assign-prompts
-    :properties ((special t)))
+    :properties ((reset-on-kill t)))
 
   (defmvar $outchar '$%o
     "The alphabetic prefix of the names of expressions returned by the
   system."
     :setter-method #'assign-prompts
-    :properties ((special t)))
+    :properties ((reset-on-kill t)))
 
   (defmvar $linechar '$%t
     "The alphabetic prefix of the names of intermediate displayed
   expressions."
     :setter-method #'assign-prompts
-    :properties ((special t))))
+    :properties ((reset-on-kill t))))
 
 (defmvar $linenum 1
   "The line number of the last expression."
