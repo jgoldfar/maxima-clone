@@ -491,10 +491,11 @@
 	     #+scl (cdr (assoc var ext:*environment-list* :test 'string=))
 	     #+SBCL (sb-ext:posix-getenv var)
 	     #+Allegro (system:getenv var)
-	     #+LispWorks (hcl:getenv var)
+	     #+LispWorks (lw:environment-variable var)
 	     #+clisp (ext:getenv var)
 	     #+(or openmcl mcl) (ccl::getenv var)
-	     #+(or gcl ecl) (si::getenv var)))
+	     #+(or gcl ecl) (si::getenv var)
+	     #+abcl (ext:getenv envvar)))
     (if (equal val "") nil val)))
 
 (defun setlocale (&optional locale)
