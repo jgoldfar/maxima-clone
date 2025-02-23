@@ -801,8 +801,6 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
           :line-terminator (ext:encoding-line-terminator custom:*terminal-encoding*))
 	 custom:*default-file-encoding* custom:*terminal-encoding*)))
 
-(import 'cl-user::run)
-
 (defmfun $to_lisp ()
   (format t "~&Type (to-maxima) to restart, ($quit) to quit Maxima.~%")
   (let ((old-debugger-hook *debugger-hook*))
