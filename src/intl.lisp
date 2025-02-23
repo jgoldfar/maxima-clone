@@ -495,7 +495,7 @@
 	     #+clisp (ext:getenv var)
 	     #+(or openmcl mcl) (ccl::getenv var)
 	     #+(or gcl ecl) (si::getenv var)
-	     #+abcl (ext:getenv envvar)))
+	     #+abcl (ext:getenv var)))
     (if (equal val "") nil val)))
 
 (defun setlocale (&optional locale)
