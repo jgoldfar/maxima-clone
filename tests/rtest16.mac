@@ -3017,3 +3017,8 @@ true;
 /* "solve" does NOT distribute over bags, because giving it a list means solving a system of equations. */
 [member("distributes over bags", properties(sin)), member("distributes over bags", properties(solve))];
 [true, false];
+
+/* Bug #4500: "rectform of set" */
+/* Check that rectform, realpart, imagpart and polarform return noun forms for sets. */
+[rectform({}), realpart({}), imagpart({}), polarform({})];
+['rectform({}), 'realpart({}), 'imagpart({}), 'polarform({})];
