@@ -171,23 +171,23 @@ true;
  is (m2 = m5));
 true;
 
-(write_data (m2, sconcat (maxima_tempdir, "/tmp-matrix.data", 'comma)),
- m6 : read_matrix(sconcat (maxima_tempdir, "/tmp-matrix.data", 'comma)),
+(write_data (m2, sconcat (maxima_tempdir, "/tmp-matrix.data"), 'comma),
+ m6 : read_matrix(sconcat (maxima_tempdir, "/tmp-matrix.data"), 'comma),
  is (m2 = m6));
 true;
 
-(write_data (m2, sconcat (maxima_tempdir, "/tmp-matrix.data", ",")),
- m6a : read_matrix(sconcat (maxima_tempdir, "/tmp-matrix.data", ",")),
+(write_data (m2, sconcat (maxima_tempdir, "/tmp-matrix.data"), ","),
+ m6a : read_matrix(sconcat (maxima_tempdir, "/tmp-matrix.data"), ","),
  is (m2 = m6a));
 true;
 
-(write_data (m2, sconcat (maxima_tempdir, "/tmp-matrix-2.csv", 'space)),
- m7 : read_matrix(sconcat (maxima_tempdir, "/tmp-matrix-2.csv", 'space)),
+(write_data (m2, sconcat (maxima_tempdir, "/tmp-matrix-2.csv"), 'space),
+ m7 : read_matrix(sconcat (maxima_tempdir, "/tmp-matrix-2.csv"), 'space),
  is (m2 = m7));
 true;
 
-(write_data (m2, sconcat (maxima_tempdir, "/tmp-matrix-2.csv", " ")),
- m7a : read_matrix(sconcat (maxima_tempdir, "/tmp-matrix-2.csv", " ")),
+(write_data (m2, sconcat (maxima_tempdir, "/tmp-matrix-2.csv"), " "),
+ m7a : read_matrix(sconcat (maxima_tempdir, "/tmp-matrix-2.csv"), " "),
  is (m2 = m7a));
 true;
 
