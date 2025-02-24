@@ -3011,3 +3011,9 @@ block (
 	is(A = B)
 );
 true;
+
+/* Bug #4504: "properties shows properties with NIL value" */
+/* "sin" DOES distribute over bags. */
+/* "solve" does NOT distribute over bags, because giving it a list means solving a system of equations. */
+[member("distributes over bags", properties(sin)), member("distributes over bags", properties(solve))];
+[true, false];
