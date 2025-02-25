@@ -25,7 +25,7 @@
 
 ;;; Realpart gives the real part of an expr.
 
-(defmfun $realpart (xx) (cond (($setp xx) `((%realpart simp) ,xx)) (t (car (trisplit xx)))))
+(defmfun $realpart (xx) (car (trisplit xx)))
 
 (defprop $realpart %realpart verb)
 (defprop %realpart $realpart noun)
@@ -59,7 +59,7 @@
 
 ;;; Imagpart gives the imaginary part of an expr.
 
-(defmfun $imagpart (xx) (cond (($setp xx) `((%imagpart simp) ,xx)) (t (cdr (trisplit xx)))))
+(defmfun $imagpart (xx) (cdr (trisplit xx)))
 
 (defprop $imagpart %imagpart verb)
 (defprop %imagpart $imagpart noun)
@@ -83,20 +83,14 @@
 ;;; Rectform gives a result of the form a+b*%i.
 
 (defmfun ($rectform :properties ((evfun t))) (xx)
-  (cond
-    (($setp xx)
-      `((%rectform simp) ,xx))
-    (t
   (let ((ris (trisplit xx)))
-    (add (car ris) (mul (cdr ris) '$%i))))))
+    (add (car ris) (mul (cdr ris) '$%i))))
 
 ;;; Polarform gives a result of the form a*%e^(%i*b).
 
 (defmfun ($polarform :properties ((evfun t))) (xx)
   (cond ((mbagp xx)
 	 (cons (car xx) (mapcar #'$polarform (cdr xx))))
-	(($setp xx)
-	  `((%polarform simp) ,xx))
 	(t
 	 (let ((aas (absarg xx)) ($%emode nil))
 	   (mul (car aas) (powers '$%e (mul '$%i (cdr aas))))))))
