@@ -717,6 +717,10 @@
 
             (defun ,simp-name (,form-arg ,unused-arg ,z-arg)
 	      (declare (ignore ,unused-arg))
+              (subargcheck ,form-arg
+                           ,(length subfun-arglist)
+                           ,(length lambda-list)
+                           ',verb-name)
               (multiple-value-bind (,@subfun-arglist)
                   (values-list (mapcar #'(lambda (arg)
                                            (simpcheck arg ,z-arg))

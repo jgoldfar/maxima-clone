@@ -3017,3 +3017,7 @@ true;
 /* "solve" does NOT distribute over bags, because giving it a list means solving a system of equations. */
 [member("distributes over bags", properties(sin)), member("distributes over bags", properties(solve))];
 [true, false];
+
+/* Bug #4506: "Subscripted function simplifiers don't check subscript/argument count" */
+[errcatch(psi[0]()), errcatch(psi[0](x, y)), errcatch(psi[0, 1](x))];
+[[], [], []];
