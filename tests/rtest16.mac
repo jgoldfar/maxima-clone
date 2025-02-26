@@ -3021,3 +3021,7 @@ true;
 /* Bug #4506: "Subscripted function simplifiers don't check subscript/argument count" */
 [errcatch(psi[0]()), errcatch(psi[0](x, y)), errcatch(psi[0, 1](x))];
 [[], [], []];
+
+/* Bug #4507: "rectform uses conjugate when it doesn't help" */
+block([result], declare(z, complex), result : rectform(gamma(z)), kill(z), result);
+'realpart(gamma(z))+%i*'imagpart(gamma(z));

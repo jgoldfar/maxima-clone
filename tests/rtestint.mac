@@ -1352,9 +1352,9 @@ integrate((exp(3/2*log(x))+1)/sqrt(x),x);
 integrate(3*sqrt(x)*exp(3/2*log(x)),x);
 x^3;
 
-/* Someday this should return 2*%pi. And it does now. */
-block([ans : integrate(exp(cos(x))*cos(sin(x)),x,0,2*%pi)],[ans, ratsimp(ans)]);
-[%i*(-expintegral_ei(1)-%i*%pi)-%i*(%i*%pi-expintegral_ei(1)),2*%pi]$
+/* Someday this should return 2*%pi. And it does now. Now it really does! */
+integrate(exp(cos(x))*cos(sin(x)),x,0,2*%pi);
+2*%pi;
 
 /* Bug ID: 3039452 - integrate(sqrt(t^c)/(t*(b*t^c+a)),t) hangs
  */
