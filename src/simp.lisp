@@ -304,11 +304,6 @@
 (defun improper-arg-err (exp fn)
   (merror (intl:gettext "~:M: improper argument: ~M") fn exp))
 
-(defun subargcheck (form subsharp argsharp fun)
-  (if (or (not (= (length (subfunsubs form)) subsharp))
-	  (not (= (length (subfunargs form)) argsharp)))
-      (merror (intl:gettext "~:@M: wrong number of arguments or subscripts.") fun)))
-
 ;; Constructor and extractor primitives for subscripted functions, e.g.
 ;; F[1,2](X,Y).  SUBL is (1 2) and ARGL is (X Y).
 

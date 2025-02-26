@@ -717,10 +717,9 @@
 
             (defun ,simp-name (,form-arg ,unused-arg ,z-arg)
 	      (declare (ignore ,unused-arg))
-              (subargcheck ,form-arg
-                           ,(length subfun-arglist)
-                           ,(length lambda-list)
-                           ',verb-name)
+              (sub-arg-count-check ,(length subfun-arglist)
+                                   ,(length lambda-list)
+                                   ,form-arg)
               (multiple-value-bind (,@subfun-arglist)
                   (values-list (mapcar #'(lambda (arg)
                                            (simpcheck arg ,z-arg))
@@ -782,3 +781,29 @@
 		         ;; That would fit in better with giving up.
 		         (eqtest (list '(,noun-name) ,@lambda-list) ,form-arg)))
 	          ,@body)))))))))
+
+
+;; Helper function to check the number of subscripts and arguments to a
+;; subscripted function.
+;;
+(defun sub-arg-count-check(required-sub-count required-arg-count expr)
+  (let* ((subs (subfunsubs expr))
+         (args (subfunargs expr))
+         (sub-count (length subs))
+         (arg-count (length args))
+         (subs-wrong (not (= sub-count required-sub-count)))
+         (args-wrong (not (= arg-count required-arg-count))))
+    (cond
+      ((and subs-wrong args-wrong)
+        (merror (intl:gettext "~M: expected exactly ~M subscripts but got ~M: ~M; expected exactly ~M arguments but got ~M: ~M")
+         (subfunname expr)
+         required-sub-count sub-count `((mlist) ,@subs)
+         required-arg-count arg-count `((mlist) ,@args)))
+      (subs-wrong
+        (merror (intl:gettext "~M: expected exactly ~M subscripts but got ~M: ~M")
+         (subfunname expr)
+         required-sub-count sub-count `((mlist) ,@subs)))
+      (args-wrong
+        (merror (intl:gettext "~M: expected exactly ~M arguments but got ~M: ~M")
+         (subfunname expr)
+         required-arg-count arg-count `((mlist) ,@args))))))
