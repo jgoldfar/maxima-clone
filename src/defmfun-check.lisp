@@ -791,19 +791,20 @@
          (args (subfunargs expr))
          (sub-count (length subs))
          (arg-count (length args))
-         (subs-wrong (not (= sub-count required-sub-count)))
-         (args-wrong (not (= arg-count required-arg-count))))
+         (subs-ok (= sub-count required-sub-count))
+         (args-ok (= arg-count required-arg-count)))
     (cond
-      ((and subs-wrong args-wrong)
+      ((and subs-ok args-ok)) ; Handle the expected case first (fastest).
+      ((and (not subs-ok) (not args-ok))
         (merror (intl:gettext "~M: expected exactly ~M subscripts but got ~M: ~M; expected exactly ~M arguments but got ~M: ~M")
          (subfunname expr)
          required-sub-count sub-count `((mlist) ,@subs)
          required-arg-count arg-count `((mlist) ,@args)))
-      (subs-wrong
+      ((not subs-ok)
         (merror (intl:gettext "~M: expected exactly ~M subscripts but got ~M: ~M")
          (subfunname expr)
          required-sub-count sub-count `((mlist) ,@subs)))
-      (args-wrong
+      ((not args-ok)
         (merror (intl:gettext "~M: expected exactly ~M arguments but got ~M: ~M")
          (subfunname expr)
          required-arg-count arg-count `((mlist) ,@args))))))
