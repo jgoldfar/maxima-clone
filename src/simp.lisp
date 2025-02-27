@@ -1413,7 +1413,7 @@
               (consp y)
               (member (caar y) '(%product $product)))
          (let ((new-op (if (char= (get-first-char (caar y)) #\%) '%sum '$sum)))
-           (simplifya `((,new-op) ((%log) ,(cadr y)) ,@(cddr y)) t)))
+           (simplifya `((,new-op) ((%log) ,(cadr y)) ,@(cddr y)) nil)))
         ((and $lognegint
               (maxima-integerp y)
               (eq ($sign y) '$neg))
