@@ -1445,10 +1445,10 @@
 (defmfun $sqrt (z)
   (simplify (list '(%sqrt) z)))
 
-(defun simp-sqrt (x ignored z)
-  (declare (ignore ignored))
+(defun simp-sqrt (x y z)
   (oneargcheck x)
-  (simplifya (list '(mexpt) (cadr x) '((rat simp) 1 2)) z))
+  (setq y (list '(mexpt) (cadr x) '((rat simp) 1 2)))
+  (if z y (simplifya y nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1807,7 +1807,7 @@
 	y)
     (unless (or (= l1 2) (= l1 4) (= l1 5))
       (merror (intl:gettext "limit: wrong number of arguments.")))
-    (setq y (simpmap (cdr x) z))
+    (setq y (if z (cdr x) (simpmap (cdr x) nil)))
     (cond ((and (= l1 5) (not (member (cadddr y) '($plus $minus))))
            (merror (intl:gettext "limit: direction must be either 'plus' or 'minus': ~M") (cadddr y)))
 	  ((mnump (cadr y))
@@ -1823,7 +1823,7 @@
 	y)
     (unless (or (= l1 3) (= l1 5))
       (merror (intl:gettext "integrate: wrong number of arguments.")))
-    (setq y (simpmap (cdr x) z))
+    (setq y (if z (cdr x) (simpmap (cdr x) nil)))
     (cond ((mnump (cadr y))
 	   (merror (intl:gettext "integrate: variable must not be a number; found: ~M") (cadr y)))
 	  ((and (= l1 5) (alike1 (caddr y) (cadddr y)))
@@ -1865,10 +1865,10 @@
 (defmfun $exp-form (z)
   (list '(mexpt) '$%e z))
 
-(defun simp-exp (x ignored z)
-  (declare (ignore ignored))
+(defun simp-exp (x y z)
   (oneargcheck x)
-  (simplifya (list '(mexpt) '$%e (cadr x)) z))
+  (setq y (list '(mexpt) '$%e (cadr x)))
+  (if z y (simplifya y nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1956,7 +1956,7 @@
      (cond ((not (even (length x)))
 	    (cond ((and (cdr x) (null (cdddr x))) (nconc x '(1)))
 		  (t (wna-err '%derivative)))))
-     (setq w (cons '(%derivative) (simpmap (cdr x) z)))
+     (setq w (cons '(%derivative) (if z (cdr x) (simpmap (cdr x) nil))))
      (setq y (cadr w))
      (do ((u (cddr w) (cddr u))) ((null u))
        (cond ((mnump (car u))
@@ -2891,9 +2891,9 @@
 	   $scalarmatrixp
 	   (or (eq $scalarmatrixp '$all) (member 'mult (cdar x)))
 	   ($listp (cadr x)) (cdadr x) (null (cddadr x)))
-      (simplifya (cadadr x) z)
+      (if z (cadadr x) (simplifya (cadadr x) nil))
       (let ((badp (dolist (row (cdr x)) (if (not ($listp row)) (return t))))
-	    (args (simpmap (cdr x) z)))
+	    (args (if z (cdr x) (simpmap (cdr x) nil))))
 	(if (and args (not badp)) (matcheck args))
 	(cons (if badp '(%matrix simp) '($matrix simp)) args))))
 
@@ -2988,7 +2988,7 @@
 	(funcall simpfun exp y z)
 	(progn (setq u (simpargs exp z))
 	       (if (symbolp (cadr u))
-		   (simplifya (cons (cons (cadr u) (cdar u)) (cddr u)) z)
+		   (simplifya (cons (cons (cadr u) (cdar u)) (cddr u)) t)
 		   u)))))
 
 ;; TRUE, if the symbol e is declared to be $complex or $imaginary.

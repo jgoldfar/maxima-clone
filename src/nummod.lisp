@@ -51,7 +51,7 @@
 (defun simp-charfun (e yy z)
   (declare (ignore yy))
   (oneargcheck e)
-  (setq e (take '($is) (simplifya (specrepcheck (second e)) z)))
+  (setq e (take '($is) (maybe-simplifya (specrepcheck (second e)) z)))
   (let* (($prederror nil)
 	 (bool (mevalp e)))
     (cond ((eq t bool) 1)
@@ -189,7 +189,7 @@
 
 (defun simp-floor (e e1 z)
   (oneargcheck e)
-  (setq e (simplifya (specrepcheck (nth 1 e)) z))
+  (setq e (maybe-simplifya (specrepcheck (nth 1 e)) z))
 
   (cond ((numberp e) (floor e))
 
@@ -273,7 +273,7 @@
 
 (defun simp-ceiling (e e1 z)
   (oneargcheck e)
-  (setq e (simplifya (specrepcheck (nth 1 e)) z))
+  (setq e (maybe-simplifya (specrepcheck (nth 1 e)) z))
   (cond ((numberp e) (ceiling e))
 
 	((ratnump e) (ceiling (cadr e) (caddr e)))
@@ -346,8 +346,8 @@
 
 (defun simp-nummod (e e1 z)
   (twoargcheck e)
-  (let ((x (simplifya (specrepcheck (cadr e)) z))
-	(y (simplifya (specrepcheck (caddr e)) z)))
+  (let ((x (maybe-simplifya (specrepcheck (cadr e)) z))
+	(y (maybe-simplifya (specrepcheck (caddr e)) z)))
     (cond ((or (equal 0 y) (equal 0 x)) x)
 	  ((equal 1 y) (sub x (ftake* '$floor x)))
 	  ((and ($constantp x) ($constantp y))
