@@ -506,8 +506,7 @@
         ((and $distribute_over
               (get (caar x) 'distribute_over)
               ;; A function with the property 'distribute_over.
-              ;; Look, if we have a bag as argument to the function.
-              (distribute-over x)))
+              (distribute-over x y)))
 	((get (caar x) 'opers)
 	 (let ((opers-list *opers-list)) (oper-apply x y)))
 	((and (eq (caar x) 'mqapply)
@@ -569,16 +568,22 @@
 	  (t
 	   (rplaca x (cons (caar x) '(simp)))))))
 
-;; A function, which distributes of bags like a list, matrix, or equation.
-;; Check, if we have to distribute of one of the bags or any other operator.
-(defun distribute-over (expr)
+;; Resimplifies only the top-level operator of expr if it's not an mbag.
+(defun resimplify-top-non-mbag (expr)
+  (if (mbagp expr)
+    expr
+    (simplifya (cons (delsimp (car expr)) (cdr expr)) t)))
+
+;; A function which distributes over bags like a list, matrix, or equation,
+;; or any other operator.
+(defun distribute-over (expr args-simped)
   (cond ((= 1 (length (cdr expr)))
          ;; Distribute over for a function with one argument.
          (cond ((and (not (atom (cadr expr)))
                      (member (caaadr expr) (get (caar expr) 'distribute_over)))
-                (simplify
+                (resimplify-top-non-mbag
                   (cons (caadr expr)
-                        (mapcar #'(lambda (u) (simplify (list (car expr) u)))
+                        (mapcar #'(lambda (u) (simplifya (list (car expr) u) args-simped))
                                 (cdadr expr)))))
                 (t nil)))
         (t
@@ -591,16 +596,16 @@
                               (get (caar expr) 'distribute_over)))
              ;; Distribute the function over the arguments and simplify again.
              (return 
-               (simplify 
+               (resimplify-top-non-mbag
                  (cons (ncons (caar (car args)))
                        (mapcar #'(lambda (u) 
-                                   (simplify 
+                                   (simplifya
                                      (append 
                                        (append 
                                          (cons (ncons (caar expr))
                                                (reverse first-args))
                                          (ncons u))
-                                       (rest args))))
+                                       (rest args)) args-simped))
                                (cdr (car args)))))))
            (setq first-args (cons (car args) first-args))))))
 
