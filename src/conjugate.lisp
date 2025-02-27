@@ -31,6 +31,11 @@
 
 (defprop $conjugate simp-conjugate operators)
 
+;; As an alternative to using the commutes-with-conjugate property for collections,
+;; equations and inequations, let the simplifier distribute $conjugate over them.
+;; Use commutes-with-conjugate only for number-valued operators.
+(defprop $conjugate (mlist $matrix mequal $set mnotequal %transpose) distribute_over)
+
 ;; Maybe $conjugate should have a msimpind property. But with some Maxima versions,
 ;; kill(conjugate) eliminates the msimpind property; after that, conjugate gives rubbish.
 ;; Until this is resolved, $conjugate doesn't have a msimpind property.
@@ -42,7 +47,7 @@
       ;; Let's remove built-in symbols from list for user-defined properties.
       (setq $props (remove '$conjugate $props))))
 
-;; When a function commutes with the conjugate, give the function the
+;; When a number-valued function commutes with the conjugate, give the function the
 ;; commutes-with-conjugate property. The log function commutes with
 ;; the conjugate on all of C except on the negative real axis. Thus
 ;; log does not get the commutes-with-conjugate property.  Instead,
@@ -80,16 +85,22 @@
 (setf (get '$pochhammer 'commutes-with-conjugate) t)
 
 ;; Collections
+;;
+;; These used to have the commutes-with-conjugate property,
+;; but this caused problems with $rectform (see bug #4500: "rectform of set").
+;; Distributing over $set and mnotequal has been disabled for consistency with
+;; other operators that only distribute over lists, matrices and equations.
 
-(setf (get '$matrix 'commutes-with-conjugate) t)
-(setf (get 'mlist 'commutes-with-conjugate) t)
-(setf (get '$set 'commutes-with-conjugate) t)
+;(setf (get '$matrix 'commutes-with-conjugate) t)
+;(setf (get 'mlist 'commutes-with-conjugate) t)
+;(setf (get '$set 'commutes-with-conjugate) t)
 
 ;; Relations
+;; (see comment above)
 
-(setf (get 'mequal 'commutes-with-conjugate) t)
-(setf (get 'mnotequal 'commutes-with-conjugate) t)
-(setf (get '%transpose 'commutes-with-conjugate) t)
+;(setf (get 'mequal 'commutes-with-conjugate) t)
+;(setf (get 'mnotequal 'commutes-with-conjugate) t)
+;(setf (get '%transpose 'commutes-with-conjugate) t)
 
 ;; Oddball functions
 

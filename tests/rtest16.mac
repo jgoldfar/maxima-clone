@@ -3025,3 +3025,9 @@ true;
 /* Bug #4507: "rectform uses conjugate when it doesn't help" */
 block([result], declare(z, complex), result : rectform(gamma(z)), kill(z), result);
 'realpart(gamma(z))+%i*'imagpart(gamma(z));
+
+/* Bug #4500: "rectform of set" */
+rectform({1, %i});
+'realpart({1,%i})+%i*'imagpart({1,%i});
+rectform(1 # %i);
+'realpart(1 # %i)+%i*'imagpart(1 # %i);
