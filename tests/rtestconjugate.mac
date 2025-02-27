@@ -841,6 +841,14 @@ block([xxx : conjugate(product(f(x),x,%i,inf))], [op(xxx), args(first(xxx))]);
 block([xxx : conjugate(atanh(s))], [op(xxx), args(xxx)]);
  [conjugate, [atanh(s)]]$
 
+/* Bug #4505: "rectform(psi(x))"
+   Test that conjugate ignores subscripted functions without a subscript (psi)
+   and non-subscripted functions with a subscript (atan). */
+conjugate(psi(x));
+'conjugate(psi(x));
+conjugate(atan[i](x));
+'conjugate(atan[i](x));
+
 (forget(z,complex), forget(n,integer), forget(n > 0),forget(xx < 1),0);
 0$
 

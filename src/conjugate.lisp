@@ -432,11 +432,12 @@
 	((and (symbolp (mop e)) (get (mop e) 'commutes-with-conjugate))
 	 (simplify (cons (list (mop e)) (mapcar #'(lambda (s) (take '($conjugate) s)) (margs e)))))
 
-	((setq f (and (symbolp (mop e)) (get (mop e) 'conjugate-function)))
+    ;; non-subscripted functions (operator doesn't have the specsimp property)
+	((setq f (and (symbolp (mop e)) (not (get (mop e) 'specsimp)) (get (mop e) 'conjugate-function)))
       (funcall f (margs e)))
 	  
-  ;;subscripted functions	  
-	((setq f (and ($subvarp (mop e)) (get (caar (mop e)) 'conjugate-function)))
+  ;;subscripted functions (operator has the specsimp property)
+	((setq f (and ($subvarp (mop e)) (get (caar (mop e)) 'specsimp) (get (caar (mop e)) 'conjugate-function)))
 	 	 (funcall f (append (margs (mop e)) (margs e))))
 
 	(t 
