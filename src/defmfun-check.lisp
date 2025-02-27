@@ -717,9 +717,15 @@
 
             (defun ,simp-name (,form-arg ,unused-arg ,z-arg)
 	      (declare (ignore ,unused-arg))
-              (sub-arg-count-check ,(length subfun-arglist)
-                                   ,(length lambda-list)
-                                   ,form-arg)
+              (let ((pretty-name
+                      ;; The function signature in Maxima syntax so
+                      ;; the user knows what the function really is.
+                      `((mqapply) ((,',verb-name array) ,',@subfun-arglist)
+                        ,',@lambda-list)))
+                (sub-arg-count-check ,(length subfun-arglist)
+                                     ,(length lambda-list)
+                                     ,form-arg
+                                     pretty-name))
               (multiple-value-bind (,@subfun-arglist)
                   (values-list (mapcar #'(lambda (arg)
                                            (simpcheck arg ,z-arg))
@@ -786,7 +792,7 @@
 ;; Helper function to check the number of subscripts and arguments to a
 ;; subscripted function.
 ;;
-(defun sub-arg-count-check(required-sub-count required-arg-count expr)
+(defun sub-arg-count-check(required-sub-count required-arg-count expr pretty-name)
   (let* ((subs (subfunsubs expr))
          (args (subfunargs expr))
          (sub-count (length subs))
@@ -796,15 +802,16 @@
     (cond
       ((and subs-ok args-ok)) ; Handle the expected case first (fastest).
       ((and (not subs-ok) (not args-ok))
-        (merror (intl:gettext "~M: expected exactly ~M subscripts but got ~M: ~M; expected exactly ~M arguments but got ~M: ~M")
-         (subfunname expr)
+       (merror (intl:gettext "~M:~%    expected exactly ~M subscripts but got ~M: ~M;~%    ~
+                                  expected exactly ~M arguments but got ~M: ~M")
+         pretty-name
          required-sub-count sub-count `((mlist) ,@subs)
          required-arg-count arg-count `((mlist) ,@args)))
       ((not subs-ok)
         (merror (intl:gettext "~M: expected exactly ~M subscripts but got ~M: ~M")
-         (subfunname expr)
+         pretty-name
          required-sub-count sub-count `((mlist) ,@subs)))
       ((not args-ok)
         (merror (intl:gettext "~M: expected exactly ~M arguments but got ~M: ~M")
-         (subfunname expr)
+         pretty-name
          required-arg-count arg-count `((mlist) ,@args))))))
