@@ -3011,3 +3011,23 @@ block (
 	is(A = B)
 );
 true;
+
+/* Bug #4504: "properties shows properties with NIL value" */
+/* "sin" DOES distribute over bags. */
+/* "solve" does NOT distribute over bags, because giving it a list means solving a system of equations. */
+[member("distributes over bags", properties(sin)), member("distributes over bags", properties(solve))];
+[true, false];
+
+/* Bug #4506: "Subscripted function simplifiers don't check subscript/argument count" */
+[errcatch(psi[0]()), errcatch(psi[0](x, y)), errcatch(psi[0, 1](x))];
+[[], [], []];
+
+/* Bug #4507: "rectform uses conjugate when it doesn't help" */
+block([result], declare(z, complex), result : rectform(gamma(z)), kill(z), result);
+'realpart(gamma(z))+%i*'imagpart(gamma(z));
+
+/* Bug #4500: "rectform of set" */
+rectform({1, %i});
+'realpart({1,%i})+%i*'imagpart({1,%i});
+rectform(1 # %i);
+'realpart(1 # %i)+%i*'imagpart(1 # %i);

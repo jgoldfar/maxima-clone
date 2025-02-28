@@ -424,9 +424,9 @@
     
 (defun simpsum (x y z)
   (let (($ratsimpexpons t))
-    (setq y (simplifya (sum-arg x) z)))
-  (simpsum1 y (sum-index x) (simplifya (sum-lower x) z)
-	    (simplifya (sum-upper x) z)))
+    (setq y (maybe-simplifya (sum-arg x) z)))
+  (simpsum1 y (sum-index x) (maybe-simplifya (sum-lower x) z)
+	    (maybe-simplifya (sum-upper x) z)))
 
 ; This function was SIMPSUM1 until the sum/product code was revised Nov 2005.
 ; The revised code punts back to this function since this code knows

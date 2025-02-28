@@ -6316,3 +6316,9 @@ reset (domain);
 
 integrate ((log((x + 1)^p) + 1)^n, x);
 -((expintegral_e(-n,-((p*log(x+1)+1)/p))*%e^-(1/p)*(p*log(x+1)+1)^(n+1))/p);
+
+/* SourceForge bug #4502: "Antiderivative missing term 'x': integrate(x/(x+%e^x+1),x)" */
+[integrate(x/(x+%e^x+1),x), risch(x/(x+%e^x+1),x)];
+[x-log(%e^x+x+1), x-log(%e^x+x+1)];
+[integrate((x+2*%e^x+2)/(x+%e^x+1),x), risch((x+2*%e^x+2)/(x+%e^x+1),x)];
+[log(%e^x+x+1)+x, log(%e^x+x+1)+x];

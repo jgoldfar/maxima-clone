@@ -1199,15 +1199,14 @@ apply (arrayinfo, [L[2]]);
 /* SF bug #4471: "with_stdout doesn't capture output of command executed via system" */
 
 (S: make_string_output_stream (),
- with_stdout (S, system ("echo Hello")),
+ with_stdout (S, system ("echo", "Hello")),
  S1: get_output_stream_string (S),
  close (S),
- S1);
-"Hello
-";
+ readline (make_string_input_stream (S1)));
+"Hello";
 
 (S: openw (hello_file: sconcat (maxima_tempdir, "/hello.txt")),
- with_stdout (S, system ("echo Hello")),
+ with_stdout (S, system ("echo", "Hello")),
  close (S),
  S: openr (hello_file),
  S1: readline (S),
@@ -1215,7 +1214,7 @@ apply (arrayinfo, [L[2]]);
  S1);
 "Hello";
 
-(with_stdout (hello_file: sconcat (maxima_tempdir, "/hello.txt"), system ("echo Hello")),
+(with_stdout (hello_file: sconcat (maxima_tempdir, "/hello.txt"), system ("echo", "Hello")),
  S: openr (hello_file),
  S1: readline (S),
  close (S),

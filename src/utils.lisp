@@ -33,7 +33,7 @@
   #+sbcl    (sb-ext:posix-getenv envvar)
   #+clisp   (ext:getenv envvar)
   #+(or openmcl mcl)     (ccl::getenv envvar)
-  #+lispworks (hcl:getenv envvar)
+  #+lispworks (lw:environment-variable envvar)
   #+abcl (ext:getenv envvar)
   )
 

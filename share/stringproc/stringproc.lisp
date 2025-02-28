@@ -184,9 +184,9 @@ See comments to $adjust_external_format below for a detailed description.
                   (setq encoding-to-use inferred-encoding))
                 (setq encoding-to-use (setq encoding-from-argument (get-encoding enc "openr"))))))
           (let ((s (open file :external-format encoding-to-use)))
-            (when (eql (peek-char nil s nil) #+clisp #\ZERO_WIDTH_NO-BREAK_SPACE 
+            (when (eql (peek-char nil s nil) #+(or clisp allegro) #\ZERO_WIDTH_NO-BREAK_SPACE 
                                              #+(or abcl sbcl) #\UFEFF 
-                                             #-(or clisp abcl sbcl) #\U+FEFF)
+                                             #-(or clisp allegro abcl sbcl) #\U+FEFF)
               (read-char s))
             s)))
 
@@ -241,7 +241,11 @@ See comments to $adjust_external_format below for a detailed description.
 (defun $readline (stream)
   (unless (streamp stream) (io-error "readline" "the"))
   (let ((line (read-line stream nil nil)))
-    (if line line) ))
+    ;; Trim carriage return from end of string, if any.
+    ;; Notes. (1) CLHS says READ-LINE removes Newline; doesn't say anything about removing carriage return,
+    ;; and at least one ostensibly-conforming implementation (SBCL) does not remove carriage return.
+    ;; (2) CLHS doesn't require character 13 (ASCII carriage return) to have a name.
+    (when line (string-right-trim (list (code-char 13)) line))))
 
 
 (defun $readchar (stream) 
@@ -349,7 +353,8 @@ See comments to $adjust_external_format below for a detailed description.
      sb-impl::*default-external-format*
      #+cmucl
      stream:*default-external-format*
-     #-(or ecl ccl gcl sbcl cmucl)
+     #+lispworks :default
+     #-(or ecl ccl gcl sbcl cmucl lispworks)
      (stream-external-format *standard-output*))))
 
 

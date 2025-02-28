@@ -126,7 +126,7 @@
     ;; complex. The effort for this step is O(n).
     (when (> $maxmin_effort 0)
       (dolist (li l)
-          (setq li (simplifya (specrepcheck li) z))
+          (setq li (maybe-simplifya (specrepcheck li) z))
           (cond 
             ((max-p li)
               (setq acc (append acc (cdr li))))
@@ -234,7 +234,7 @@
   (let ((acc nil))
     (setq l (cdr l))
     (dolist (li l)
-      (setq li (simplifya (specrepcheck li) z)) 
+      (setq li (maybe-simplifya (specrepcheck li) z)) 
       ;; convert min(a, min(b,c)) --> min(a,b,c)
       (cond ((min-p li)
               (setq acc (append acc (cdr li))))

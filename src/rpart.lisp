@@ -493,14 +493,17 @@
                (decl-realp (mop l)))
            ;; Simplification for a real-valued function
            (cons l 0))
-          ((or (safe-get (mop l) 'commutes-with-conjugate)
-               (safe-get (mop l) 'conjugate-function))
-	   ;; A function with Mirror symmetry. The general expressions for
-	   ;; the realpart and imagpart simplifies accordingly.
-	   (cons (mul (div 1 2)
-		      (add (simplify (list '($conjugate) l)) l))
-		 (mul (div 1 2) '$%i
-		      (sub (simplify (list '($conjugate) l)) l))))
+      ((and (or (safe-get (mop l) 'commutes-with-conjugate)
+                (safe-get (mop l) 'conjugate-function))
+       ;; An operator that $conjugate may be able to simplify.
+       ;; If $conjugate simplifies l to something not involving '$conjugate,
+       ;; use Re(z) = (conjugate(z) + z) / 2, Im(z) = %i * (conjugate(z) - z) / 2.
+       ;; Possible improvement: Ignore instances of '$conjugate already occurring
+       ;; in the original expression l.
+       (let* ((conjugate (ftake '$conjugate l)))
+         (when (freeof '$conjugate conjugate)
+           (cons (mul (div 1 2) (add conjugate l))
+                 (mul (div 1 2) '$%i (sub conjugate l)))))))
 ;;; A MAJOR ASSUMPTION:
 ;;;  All random functions are pure real, regardless of argument.
 ;;;  This is evidently assumed by some of the integration functions.

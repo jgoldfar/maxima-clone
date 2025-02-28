@@ -151,6 +151,8 @@
   	       (if (fboundp x) (nconc l (list "system function")))))
 	 l)
 
+     ;; Only process properties with non-NIL values.
+     (when (cadr y)
       ;; TOP-LEVEL PROPERTIES
       (cond ((setq prop 
                    (assoc (car y)
@@ -226,7 +228,7 @@
   			   (do ((y (cdadr y) (cddr y))
   				(l (list '(mlist) "user properties")))
   			       ((null y) (list l))
-  			     (nconc l (list (car y)))))))))))))
+  			     (nconc l (list (car y))))))))))))))
 
 (defmspec $propvars (x)
   (setq x (fexprcheck x))

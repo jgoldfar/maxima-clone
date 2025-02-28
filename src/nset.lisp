@@ -120,7 +120,7 @@
 
 (defun simp-set (a yy z)
   (declare (ignore yy))
-  (setq a (mapcar #'(lambda (x) (simplifya x z)) (cdr a)))
+  (setq a (if z (cdr a) (mapcar #'(lambda (x) (simplifya x nil)) (cdr a))))
   (setq a (sorted-remove-duplicates (stable-sort a '$orderlessp)));FIXME consider a total order function with #'sort
   `(($set simp) ,@a))
 
@@ -953,8 +953,8 @@
 (defun simp-stirling1 (l yy z)
   (declare (ignore yy))
   (let* ((fn (car (pop l)))
-	 (n (if l (simplifya (pop l) z) (wna-err fn)))
-	 (k (if l (simplifya (pop l) z) (wna-err fn)))
+	 (n (if l (maybe-simplifya (pop l) z) (wna-err fn)))
+	 (k (if l (maybe-simplifya (pop l) z) (wna-err fn)))
 	 (n-is-nonnegative-int (nonnegative-integerp n)))
     (if l (wna-err fn))
     (cond ((and (integerp n) (integerp k) (> n -1) (> k -1))
@@ -1014,8 +1014,8 @@
 (defun simp-stirling2 (l yy z)
   (declare (ignore yy))
   (let* ((fn (car (pop l)))
-	 (n (if l (simplifya (pop l) z) (wna-err fn)))
-	 (k (if l (simplifya (pop l) z) (wna-err fn)))
+	 (n (if l (maybe-simplifya (pop l) z) (wna-err fn)))
+	 (k (if l (maybe-simplifya (pop l) z) (wna-err fn)))
 	 (n-is-nonnegative-int (nonnegative-integerp n))
 	 (n-is-positive-int (nonnegative-integerp (sub n 1))))
     (if l (wna-err fn))

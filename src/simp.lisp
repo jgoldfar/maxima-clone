@@ -304,11 +304,6 @@
 (defun improper-arg-err (exp fn)
   (merror (intl:gettext "~:M: improper argument: ~M") fn exp))
 
-(defun subargcheck (form subsharp argsharp fun)
-  (if (or (not (= (length (subfunsubs form)) subsharp))
-	  (not (= (length (subfunargs form)) argsharp)))
-      (merror (intl:gettext "~:@M: wrong number of arguments or subscripts.") fun)))
-
 ;; Constructor and extractor primitives for subscripted functions, e.g.
 ;; F[1,2](X,Y).  SUBL is (1 2) and ARGL is (X Y).
 
@@ -511,8 +506,7 @@
         ((and $distribute_over
               (get (caar x) 'distribute_over)
               ;; A function with the property 'distribute_over.
-              ;; Look, if we have a bag as argument to the function.
-              (distribute-over x)))
+              (distribute-over x y)))
 	((get (caar x) 'opers)
 	 (let ((opers-list *opers-list)) (oper-apply x y)))
 	((and (eq (caar x) 'mqapply)
@@ -574,16 +568,22 @@
 	  (t
 	   (rplaca x (cons (caar x) '(simp)))))))
 
-;; A function, which distributes of bags like a list, matrix, or equation.
-;; Check, if we have to distribute of one of the bags or any other operator.
-(defun distribute-over (expr)
+;; Resimplifies only the top-level operator of expr if it's not an mbag.
+(defun resimplify-top-non-mbag (expr)
+  (if (mbagp expr)
+    expr
+    (simplifya (cons (delsimp (car expr)) (cdr expr)) t)))
+
+;; A function which distributes over bags like a list, matrix, or equation,
+;; or any other operator.
+(defun distribute-over (expr args-simped)
   (cond ((= 1 (length (cdr expr)))
          ;; Distribute over for a function with one argument.
          (cond ((and (not (atom (cadr expr)))
                      (member (caaadr expr) (get (caar expr) 'distribute_over)))
-                (simplify
+                (resimplify-top-non-mbag
                   (cons (caadr expr)
-                        (mapcar #'(lambda (u) (simplify (list (car expr) u)))
+                        (mapcar #'(lambda (u) (simplifya (list (car expr) u) args-simped))
                                 (cdadr expr)))))
                 (t nil)))
         (t
@@ -596,16 +596,16 @@
                               (get (caar expr) 'distribute_over)))
              ;; Distribute the function over the arguments and simplify again.
              (return 
-               (simplify 
+               (resimplify-top-non-mbag
                  (cons (ncons (caar (car args)))
                        (mapcar #'(lambda (u) 
-                                   (simplify 
+                                   (simplifya
                                      (append 
                                        (append 
                                          (cons (ncons (caar expr))
                                                (reverse first-args))
                                          (ncons u))
-                                       (rest args))))
+                                       (rest args)) args-simped))
                                (cdr (car args)))))))
            (setq first-args (cons (car args) first-args))))))
 
@@ -1413,7 +1413,7 @@
               (consp y)
               (member (caar y) '(%product $product)))
          (let ((new-op (if (char= (get-first-char (caar y)) #\%) '%sum '$sum)))
-           (simplifya `((,new-op) ((%log) ,(cadr y)) ,@(cddr y)) t)))
+           (simplifya `((,new-op) ((%log) ,(cadr y)) ,@(cddr y)) nil)))
         ((and $lognegint
               (maxima-integerp y)
               (eq ($sign y) '$neg))
@@ -1445,10 +1445,10 @@
 (defmfun $sqrt (z)
   (simplify (list '(%sqrt) z)))
 
-(defun simp-sqrt (x ignored z)
-  (declare (ignore ignored))
+(defun simp-sqrt (x y z)
   (oneargcheck x)
-  (simplifya (list '(mexpt) (cadr x) '((rat simp) 1 2)) z))
+  (setq y (list '(mexpt) (cadr x) '((rat simp) 1 2)))
+  (if z y (simplifya y nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1807,7 +1807,7 @@
 	y)
     (unless (or (= l1 2) (= l1 4) (= l1 5))
       (merror (intl:gettext "limit: wrong number of arguments.")))
-    (setq y (simpmap (cdr x) z))
+    (setq y (if z (cdr x) (simpmap (cdr x) nil)))
     (cond ((and (= l1 5) (not (member (cadddr y) '($plus $minus))))
            (merror (intl:gettext "limit: direction must be either 'plus' or 'minus': ~M") (cadddr y)))
 	  ((mnump (cadr y))
@@ -1823,7 +1823,7 @@
 	y)
     (unless (or (= l1 3) (= l1 5))
       (merror (intl:gettext "integrate: wrong number of arguments.")))
-    (setq y (simpmap (cdr x) z))
+    (setq y (if z (cdr x) (simpmap (cdr x) nil)))
     (cond ((mnump (cadr y))
 	   (merror (intl:gettext "integrate: variable must not be a number; found: ~M") (cadr y)))
 	  ((and (= l1 5) (alike1 (caddr y) (cadddr y)))
@@ -1865,10 +1865,10 @@
 (defmfun $exp-form (z)
   (list '(mexpt) '$%e z))
 
-(defun simp-exp (x ignored z)
-  (declare (ignore ignored))
+(defun simp-exp (x y z)
   (oneargcheck x)
-  (simplifya (list '(mexpt) '$%e (cadr x)) z))
+  (setq y (list '(mexpt) '$%e (cadr x)))
+  (if z y (simplifya y nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1956,7 +1956,7 @@
      (cond ((not (even (length x)))
 	    (cond ((and (cdr x) (null (cdddr x))) (nconc x '(1)))
 		  (t (wna-err '%derivative)))))
-     (setq w (cons '(%derivative) (simpmap (cdr x) z)))
+     (setq w (cons '(%derivative) (if z (cdr x) (simpmap (cdr x) nil))))
      (setq y (cadr w))
      (do ((u (cddr w) (cddr u))) ((null u))
        (cond ((mnump (car u))
@@ -2891,9 +2891,9 @@
 	   $scalarmatrixp
 	   (or (eq $scalarmatrixp '$all) (member 'mult (cdar x)))
 	   ($listp (cadr x)) (cdadr x) (null (cddadr x)))
-      (simplifya (cadadr x) z)
+      (if z (cadadr x) (simplifya (cadadr x) nil))
       (let ((badp (dolist (row (cdr x)) (if (not ($listp row)) (return t))))
-	    (args (simpmap (cdr x) z)))
+	    (args (if z (cdr x) (simpmap (cdr x) nil))))
 	(if (and args (not badp)) (matcheck args))
 	(cons (if badp '(%matrix simp) '($matrix simp)) args))))
 
@@ -2988,7 +2988,7 @@
 	(funcall simpfun exp y z)
 	(progn (setq u (simpargs exp z))
 	       (if (symbolp (cadr u))
-		   (simplifya (cons (cons (cadr u) (cdar u)) (cddr u)) z)
+		   (simplifya (cons (cons (cadr u) (cdar u)) (cddr u)) t)
 		   u)))))
 
 ;; TRUE, if the symbol e is declared to be $complex or $imaginary.

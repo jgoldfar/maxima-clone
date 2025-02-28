@@ -237,7 +237,7 @@
      (dolist (rat risch-logptdx)
        (let (rischlogeprog-value)
 	 (setq risch-y
-	       (rischadd (multiple-value-setq (rischlogeprog-value risch-expint)
+	       (rischadd (multiple-value-setq (rischlogeprog-value risch-expint risch-expstuff)
 			   (rischlogeprog rat risch-ratform nil risch-intvar risch-expstuff
 					  risch-var risch-expflag risch-mainvar risch-expint))
 			 risch-y))))
@@ -416,7 +416,7 @@
 			      (maxima-substitute (get risch-var 'rischexpr) newvar new-int))))))
 	    (return (rischnoun p risch-ratform risch-intvar)))))
     (values (impl p risch-switch1)
-	    risch-expint)))
+	    risch-expint risch-expstuff)))
 
 
 (defun findint (exp)
