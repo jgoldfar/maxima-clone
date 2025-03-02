@@ -2311,7 +2311,8 @@ ignoring dummy variables and array indices."
 	;; the rectangular form of their sum. When gruntz1 is able to find the
 	;; limit, we modify the lists infinityl, minfl, ... accordingly.
     (when (and infinityl (cdr infinityl) (not (among '$li (cons '(mlist) infinityl))))
-	   (setq ans (risplit (fapply 'mplus infinityl)))
+      (let ((infinityl-sum (fapply 'mplus infinityl)))
+	   (setq ans (risplit infinityl-sum))
 	  
 	   (let ((re (car ans)) (im (cdr ans)))
 	   	 (setq re (car (errcatch (gruntz1 re var val))))
@@ -2325,13 +2326,13 @@ ignoring dummy variables and array indices."
 			 ((eq r nil) (throw 'limit t))
 			 (t 
 			   (setq infinityl nil)
-	           (cond ((eq r '$zerob) (push ans zerobl))
-			         ((eq r '$zeroa) (push ans zeroal))
-			         ((eq r '$ind) (push ans indl))
-			         ((eq r '$und) (push ans undl))
-			         ((eq r '$minf) (push ans minfl))
-					 ((eq r '$inf) (push ans infl))
-					 (t (push r sum))))))
+	           (cond ((eq r '$zerob) (push infinityl-sum zerobl))
+			         ((eq r '$zeroa) (push infinityl-sum zeroal))
+			         ((eq r '$ind) (push infinityl-sum indl))
+			         ((eq r '$und) (push infinityl-sum undl))
+			         ((eq r '$minf) (push infinityl-sum minfl))
+					 ((eq r '$inf) (push infinityl-sum infl))
+					 (t (push r sum)))))))
 					 
 	;; Unfortunately, this code does not handle the case of one or more
 	;; infinity terms and either a minf or inf term. So we throw an error.
