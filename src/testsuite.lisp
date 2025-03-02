@@ -21,8 +21,6 @@
 	((mlist simp) "rtest_rules"
 	 #+allegro ((mlist simp) 11 13))
         "rtestnset" 
-        ;; ACL 10.1 cannot load stringproc as it has no (get-encoding) function.
-        #-allegro
         ((mlist simp) "rtest1"
 	 ((mlist simp) 183 186))
         ((mlist simp) "rtest1a" ((mlist simp) 33))
@@ -191,15 +189,10 @@
 
     "rtest_odelin"
     "rtestezunits"
-    ;; ACL 10.1 cannot load stringproc as it has no (get-encoding) function.
-    #-allegro
     "rtest_numericalio"
     "rtest_simplify_sum"
     "rtest_solve_rec"
-    ;; ACL 10.1 cannot load stringproc as it has no (get-encoding) function.
-    #-allegro
     ((mlist simp) "rtest_stringproc")
-    #-allegro
     ((mlist simp) "rtest_md5sum")
     "rtest_opproperties"
     "rtest_stats"
@@ -311,8 +304,6 @@
      "rtest_fft"
      "rtest_rfft"
      "rtest_wrstcse"
-     ;; ACL 10.1 cannot load stringproc as it has no (get-encoding) function.
-     #-(or ecl abcl)
      "rtest_draw"
      ((mlist simp) "rtest_engineering_format"
       #+abcl
