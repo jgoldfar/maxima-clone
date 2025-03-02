@@ -4533,7 +4533,7 @@ the system definition, if provided."
 ;;; Fortran Language definitions.
 ;;; From Matlisp.
 
-(export '(*fortran-compiler* *fortran-options*))
+#-allegro (export '(*fortran-compiler* *fortran-options*))
 
 (defparameter *fortran-compiler* "g77")
 (defparameter *fortran-options* '("-O"))
@@ -4558,7 +4558,7 @@ the system definition, if provided."
 ;;; AR support.
 ;; How to create a library (archive) of object files
 
-(export '(*ar-program* build-lib))
+#-allegro (export '(*ar-program* build-lib))
 
 (defparameter *ar-program* "ar")
 
