@@ -76,7 +76,7 @@
 (defun $openr_binary (file) (open
 			     #+sbcl (sb-ext:native-namestring file)
 			     #-sbcl file
-			     :element-type '(unsigned-byte 8)))
+			     #-allegro :element-type #-allegro '(unsigned-byte 8)))
 
 ;; -------------------- read functions --------------------
 

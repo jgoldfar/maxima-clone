@@ -3041,12 +3041,17 @@
 	     (member (caar y) '(mtimes mplus mexpt %del)))
 	 (ordfn x y))
 	((and (eq (caar x) 'bigfloat) (eq (caar y) 'bigfloat))
-	  ;; Order bigfloats by value. If they represent the same value, order by precision.
+      ;; Order bigfloats by value. If they represent the same value, order by
+      ;; precision. If precisions are also equal, order by mantissa.
+      ;; If mantissas are also equal, then exponents must be equal, so there's
+      ;; no need to compare exponents.
 	  (let ((diff-signum (compare-bigfloats x y)))
-	    (cond
-		  ((eql 1 diff-signum) t)
-		  ((eql -1 diff-signum) nil)
-		  (t (> (car (last (car x))) (car (last (car y))))))))
+        (if (zerop diff-signum)
+          (let ((x-prec (car (last (car x)))) (y-prec (car (last (car y)))))
+            (if (= x-prec y-prec)
+              (> (cadr x) (cadr y))
+              (> x-prec y-prec)))
+          (= 1 diff-signum))))
 	((or (eq (caar x) 'mrat) (eq (caar y) 'mrat))
 	 (error "GREAT: internal error: unexpected MRAT argument"))
 	(t (do ((x1 (margs x) (cdr x1)) (y1 (margs y) (cdr y1))) (())
@@ -3081,6 +3086,16 @@
              (cond
               ((eq (caar x) 'mrat) (like x y))
               ((eq (caar x) 'mpois) (equal (cdr x) (cdr y)))
+              ((eq (caar x) 'bigfloat)
+                ;; Bigfloats need special treatment because their precision is
+                ;; stored in the "header", which would otherwise be ignored.
+                ;; Compare precision last, because it's a bit more expensive to
+                ;; extract, and most bigfloats will have the same precision.
+                ;; Should the layout of bigfloats change one day so that the
+                ;; precision is stored in the "body", this clause can be removed.
+                (and (= (cadr x) (cadr y))
+                     (= (caddr x) (caddr y))
+                     (= (car (last (car x))) (car (last (car y))))))
               ((eq (memqarr (cdar x)) (memqarr (cdar y)))
                (alike (cdr x) (cdr y)))
               (t nil))

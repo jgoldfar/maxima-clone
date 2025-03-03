@@ -2388,7 +2388,7 @@
 		   (fpone)))
          (x-lt-minus-1 (mevalp `((mlessp) ,x -1)))
          (x-gt-plus-1 (mevalp `((mgreaterp) ,x 1)))
-         (y-equals-0 (like y '((bigfloat) 0 0)))
+         (y-equals-0 (zerop (car fpy)))
 	 (x (fptimes* beta fpx))
 	 (y (fptimes* beta (fpminus fpy)))
 	 ;; Kahan has rho = 4/most-positive-float.  What should we do
