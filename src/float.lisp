@@ -2412,23 +2412,20 @@
 	 ;; Otherwise nu = 1/2*atan2(2*y,(1-x)*(1+x)-y^2)
 	 (nu (if y-equals-0
            (let* ((x-gt-plus-1 (minusp (car 1-x)))
-                 (x-lt-minus-1 (if x-gt-plus-1 nil (minusp (car (fpplus fpx fp1))))))
+                  (x-lt-minus-1 (if x-gt-plus-1 nil (minusp (car (fpplus fpx fp1)))))
+                  (fppi-val (fppi)))
 
-	         ;; Extra fpminus here to counteract fpminus in return
-	         ;; value because we don't support signed zeroes.
-	         (fpminus (if x-lt-minus-1
-			      (fptimes* (fppi) (cdr bfhalf))
+	         (if x-lt-minus-1
+			      (fptimes* fppi-val (cdr bfhalf))
 			      (if x-gt-plus-1
-			          (fptimes* (fppi) (cdr bfmhalf))
-			          '(0 0)))))
-	         (fptimes* (cdr bfhalf)
+			          (fptimes* fppi-val (cdr bfmhalf))
+			          '(0 0))))
+	         (fptimes* (cdr bfmhalf)
 		           (fpatan2 (fptimes* (intofp 2) y)
 				    (fpdifference (fptimes* 1-x (fpplus fp1 x))
 					          t1^2))))))
     (values (bcons (fptimes* beta eta))
-	    ;; Minus sign here because Kahan's algorithm assumed
-	    ;; signed zeroes, which we don't have in maxima.
-	    (bcons (fpminus (fptimes* beta nu))))))
+	    (bcons (fptimes* beta nu)))))
 
 (defun big-float-atanh (x &optional y)
   (if y
