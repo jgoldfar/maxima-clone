@@ -3095,6 +3095,7 @@
               (t nil))
            ;; (foo) and (foo) test non-alike because the car's aren't standard
            nil))
+        ((consp y) nil)
         ((or (symbolp x) (symbolp y)) nil)
         ((integerp x) (and (integerp y) (= x y)))
         ;; uncommon cases from here down
