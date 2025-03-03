@@ -3033,21 +3033,14 @@ rectform(1 # %i);
 'realpart(1 # %i)+%i*'imagpart(1 # %i);
 
 /* From mailing list discussion: "alike1 / great and bigfloats of different precisions" (2025-03-01)
-   Test that bigfloats with different internal representations, but same numerical value, are treated as being different. */
+   Test that bigfloat zeros with different precisions are treated as being different. */
 block(
 	[z16 : block([fpprec : 16], bfloat(0)),
-	 z17 : block([fpprec : 17], bfloat(0)),
-	 m10 : ?list(?list('?bigfloat, 56), 10, 10),
-	 m20 : ?list(?list('?bigfloat, 56), 20, 9)],
+	 z17 : block([fpprec : 17], bfloat(0))],
 	[is(z16 - z17 = 0.0b0),
 	 is(z16 = z17),
 	 is(z17 = z16),
 	 ordergreatp(z16, z17),
-	 ordergreatp(z17, z16),
-	 is(m10 - m20 = 0.0b0),
-	 is(m10 = m20),
-	 is(m20 = m10),
-	 ordergreatp(m10, m20),
-	 ordergreatp(m20, m10)]
+	 ordergreatp(z17, z16)]
 );
-[true, false, false, false, true, true, false, false, false, true];
+[true, false, false, false, true];

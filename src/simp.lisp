@@ -3041,16 +3041,10 @@
 	     (member (caar y) '(mtimes mplus mexpt %del)))
 	 (ordfn x y))
 	((and (eq (caar x) 'bigfloat) (eq (caar y) 'bigfloat))
-      ;; Order bigfloats by value. If they represent the same value, order by
-      ;; precision. If precisions are also equal, order by mantissa.
-      ;; If mantissas are also equal, then exponents must be equal, so there's
-      ;; no need to compare exponents.
+      ;; Order bigfloats first by value, then by precision.
 	  (let ((diff-signum (compare-bigfloats x y)))
         (if (zerop diff-signum)
-          (let ((x-prec (car (last (car x)))) (y-prec (car (last (car y)))))
-            (if (= x-prec y-prec)
-              (> (cadr x) (cadr y))
-              (> x-prec y-prec)))
+          (> (car (last (car x))) (car (last (car y))))
           (= 1 diff-signum))))
 	((or (eq (caar x) 'mrat) (eq (caar y) 'mrat))
 	 (error "GREAT: internal error: unexpected MRAT argument"))
