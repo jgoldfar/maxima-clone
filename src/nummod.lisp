@@ -385,7 +385,7 @@
 		  ub)
 		 ((eq sgn '$pos)
 		  lb)
-		 ((alike lb ub)
+		 ((alike1 lb ub)
 		  ;; For floats that are integers, this can
 		  ;; happen. Maybe featurep should catch this.
 		  lb)

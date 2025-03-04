@@ -2447,8 +2447,8 @@ first kind:
 	     ;; ratsimp(%),algebraic;
 	     ;;   = log(sqrt(2)+1)
 	     (ftake '%log (add 1 (power 2 1//2))))
-	    ((and (alike x '$%i)
-		  (alike y (add 1 '$%i)))
+	    ((and (alike1 x '$%i)
+		  (alike1 y (add 1 '$%i)))
 	     ;; rc(%i, %i+1) = 1/2*integrate(1/sqrt(t+%i)/(t+%i+1), t, 0, inf)
 	     ;;   = %pi/2-atan((-1)^(1/4))
 	     ;; ratsimp(logcontract(ratsimp(rectform(%o42)))),algebraic;
