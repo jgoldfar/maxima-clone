@@ -2993,21 +2993,16 @@ map(orderlessp,
 block([simp : false, a], a : %e^(z/1), orderlessp(a, (simp : true, -log(z+1))), a^2);
 %e^(2*z);
 
-/* Ordering of bigfloats: Check that (COMPARE-BIGFLOATS x y) returns signum(x - y). */
+/* Ordering of bigfloats: Check that bigfloats of the same precision are ordered numerically by ordergreatp. */
 block (
 	[R, L, P, A, B],
 	R : make_random_state(false),               /* Save random state, restore later. */
 	set_random_state(make_random_state(31137)), /* Random numbers, but same every time. */
-	L : makelist(
-		block (
-			[fpprec : 100 + random(101)],
-			bfloat(random(21) - 10) * bfloat(%e) ^ (random(200.0) - 100.0)
-		), i, 1, 100
-	),
+	L : makelist(bfloat(random(21) - 10) * bfloat(%e) ^ (random(200.0) - 100.0), i, 1, 100),
 	set_random_state(R),
 	P : cartesian_product_list(L, L),
-	A : map(lambda([pair], ?compare\-bigfloats(first(pair), second(pair))), P),
-	B : map(lambda([pair], round(signum(first(pair) - second(pair)))), P),
+	A : map(lambda([pair], ordergreatp(first(pair), second(pair))), P),
+	B : map(lambda([pair], is(first(pair) > second(pair))), P),
 	is(A = B)
 );
 true;
@@ -3044,3 +3039,39 @@ block(
 	 ordergreatp(z17, z16)]
 );
 [true, false, false, false, true];
+
+/* Test that orderlessp is a total ordering on binary bigfloats. */
+block(
+	[L : [], fpprec : fpprec],
+	local(totalorderp),
+	
+	/* totalorderp by Stavros Macrakis */
+	totalorderp(func, domain) := block(
+		[ord, i, j, res : []],
+		ord : sort(domain, func),
+		i : 0,
+		for eli in ord do (
+			i : i + 1,
+			j : 0,
+			for elj in ord do (
+				j : j + 1,
+				if func(eli, elj) # is(i < j) and not(eli = elj) then push([i, j, eli, elj], res)
+			)
+		),
+		res
+	),
+	
+	for i : -4 thru 4 do (
+		for fpprec : 1 thru 11 step 2 do (
+			push(bfloat(25 * i), L),
+			push(bfloat(5 * i), L),
+			push(bfloat(i), L),
+			push(bfloat(i / 5), L),
+			push(bfloat(i / 25), L)
+		)
+	),
+	
+	/* Test for total order. */
+	totalorderp(orderlessp, L)
+);
+[];
