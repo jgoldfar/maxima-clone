@@ -3081,15 +3081,20 @@
               ((eq (caar x) 'mrat) (like x y))
               ((eq (caar x) 'mpois) (equal (cdr x) (cdr y)))
               ((eq (caar x) 'bigfloat)
-                ;; Bigfloats need special treatment because their precision is
-                ;; stored in the "header", which would otherwise be ignored.
-                ;; Compare precision last, because it's a bit more expensive to
-                ;; extract, and most bigfloats will have the same precision.
-                ;; Should the layout of bigfloats change one day so that the
-                ;; precision is stored in the "body", this clause can be removed.
-                (and (= (cadr x) (cadr y))
-                     (= (caddr x) (caddr y))
-                     (= (car (last (car x))) (car (last (car y))))))
+                ;; Bigfloats need special treatment because their precision
+                ;; and an optional DECIMAL flag are stored in the CAR,
+                ;; which would otherwise be ignored.
+                ;; A bigfloat looks like this, [...] means optional:
+                ;; ((BIGFLOAT [SIMP] <PRECISION> [DECIMAL]) <MANTISSA> <EXPONENT>)
+                ;; Compare mantissas and exponents first.
+                (when (and (= (cadr x) (cadr y)) (= (caddr x) (caddr y)))
+                  ;; Mantissas and exponents are the same.
+                  ;; Still need to compare precision and maybe radix (binary/decimal).
+                  ;; If there's a SIMP flag, it must be ignored.
+                  (let ((rest-x (if (eq 'simp (cadar x)) (cddar x) (cdar x)))
+                        (rest-y (if (eq 'simp (cadar y)) (cddar y) (cdar y))))
+                    (and (= (car rest-x) (car rest-y))
+                         (eq (cadr rest-x) (cadr rest-y))))))
               ((eq (memqarr (cdar x)) (memqarr (cdar y)))
                (alike (cdr x) (cdr y)))
               (t nil))
