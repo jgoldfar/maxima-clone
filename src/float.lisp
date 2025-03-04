@@ -2383,47 +2383,49 @@
 (defun complex-atanh (x y)
   (let* ((fpx (cdr (bigfloatp x)))
 	 (fpy (cdr (bigfloatp y)))
+     (fp1 (fpone))
+     (fp4 (intofp 4))
 	 (beta (if (minusp (car fpx))
-		   (fpminus (fpone))
-		   (fpone)))
-         (x-lt-minus-1 (mevalp `((mlessp) ,x -1)))
-         (x-gt-plus-1 (mevalp `((mgreaterp) ,x 1)))
+		   (fpminus fp1)
+		   fp1))
          (y-equals-0 (zerop (car fpy)))
 	 (x (fptimes* beta fpx))
 	 (y (fptimes* beta (fpminus fpy)))
 	 ;; Kahan has rho = 4/most-positive-float.  What should we do
 	 ;; here about that?  Our big floats don't really have a
 	 ;; most-positive float value.
-	 (rho (intofp 0))
-	 (t1 (fpplus (fpabs y) rho))
-	 (t1^2 (fptimes* t1 t1))
-	 (1-x (fpdifference (fpone) x))
+	 ;(rho (intofp 0))
+	 ;(t1 (fpplus (fpabs y) rho))
+	 ;(t1^2 (fptimes* t1 t1))
+     (t1^2 (fptimes* y y))
+	 (1-x (fpdifference fp1 x))
+
 	 ;; eta = log(1+4*x/((1-x)^2+y^2))/4
 	 (eta (fpquotient
-	       (fplog1p (fpquotient (fptimes* (intofp 4) x)
+	       (fplog1p (fpquotient (fptimes* fp4 x)
 				    (fpplus (fptimes* 1-x 1-x)
 					    t1^2)))
-	       (intofp 4)))
+	       fp4))
          ;; If y = 0, then Im atanh z = %pi/2 or -%pi/2 or 0 depending
          ;; on whether x > 1, x < -1 or |x| <=1, respectively.
          ;;
 	 ;; Otherwise nu = 1/2*atan2(2*y,(1-x)*(1+x)-y^2)
 	 (nu (if y-equals-0
-	         ;; Extra fpminus here to counteract fpminus in return
-	         ;; value because we don't support signed zeroes.
-	         (fpminus (if x-lt-minus-1
-			      (cdr ($bfloat '((mquotient) $%pi 2)))
+           (let* ((x-gt-plus-1 (minusp (car 1-x)))
+                  (x-lt-minus-1 (if x-gt-plus-1 nil (minusp (car (fpplus fpx fp1)))))
+                  (fppi-val (fppi)))
+
+	         (if x-lt-minus-1
+			      (fptimes* fppi-val (cdr bfhalf))
 			      (if x-gt-plus-1
-			          (cdr ($bfloat '((mminus) ((mquotient) $%pi 2))))
+			          (fptimes* fppi-val (cdr bfmhalf))
 			          '(0 0))))
-	         (fptimes* (cdr bfhalf)
+	         (fptimes* (cdr bfmhalf)
 		           (fpatan2 (fptimes* (intofp 2) y)
-				    (fpdifference (fptimes* 1-x (fpplus (fpone) x))
+				    (fpdifference (fptimes* 1-x (fpplus fp1 x))
 					          t1^2))))))
     (values (bcons (fptimes* beta eta))
-	    ;; Minus sign here because Kahan's algorithm assumed
-	    ;; signed zeroes, which we don't have in maxima.
-	    (bcons (fpminus (fptimes* beta nu))))))
+	    (bcons (fptimes* beta nu)))))
 
 (defun big-float-atanh (x &optional y)
   (if y

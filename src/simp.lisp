@@ -92,14 +92,6 @@
        (consp (car x))
        (eq (caar x) 'bigfloat)))
 
-(defun compare-bigfloats (x y)
-  "For bigfloats X and Y, returns signum(X-Y). X and Y must be bigfloats."
-  (macrolet ((precision (f) `(car (last (car ,f)))))
-    (let ((fpprec (max (precision x) (precision y))))
-      ;; (BIGFLOATP X) returns X with precision adjusted to current precision.
-      ;; FPDIFFERENCE operates on mantissa and exponent, precisions assumed equal.
-      (signum (car (fpdifference (cdr (bigfloatp x)) (cdr (bigfloatp y))))))))
-
 (declaim (inline zerop1))
 (defun zerop1 (x)
   "Returns non-NIL if X is an integer, float, or bfloat that is equal
@@ -117,8 +109,12 @@
     ((integerp x) (= 1 x))
     ((floatp x) (= 1.0 x))
     (($bfloatp x)
-      ;; Bigfloats representing 1 are of the form '((BIGFLOAT ... n) 2^(n-1) 1).
-      (and (= 1 (caddr x)) (= (ash 1 (1- (car (last (car x))))) (cadr x))))))
+      ;; Binary bigfloat ones are of the form '((BIGFLOAT [SIMP] <P>) 2^(<P>-1) 1).
+      ;; Decimal bigfloat ones are of the form '((BIGFLOAT [SIMP] <P> DECIMAL) 1 0).
+      ;; The SIMP flag is optional.
+      (if (eq 'decimal (car (last (car x))))
+        (and (= 1 (cadr x)) (zerop (caddr x)))
+        (and (= 1 (caddr x)) (= (ash 1 (1- (car (last (car x))))) (cadr x)))))))
 
 (declaim (inline mnump))
 (defun mnump (x)
@@ -3041,17 +3037,7 @@
 	     (member (caar y) '(mtimes mplus mexpt %del)))
 	 (ordfn x y))
 	((and (eq (caar x) 'bigfloat) (eq (caar y) 'bigfloat))
-      ;; Order bigfloats by value. If they represent the same value, order by
-      ;; precision. If precisions are also equal, order by mantissa.
-      ;; If mantissas are also equal, then exponents must be equal, so there's
-      ;; no need to compare exponents.
-	  (let ((diff-signum (compare-bigfloats x y)))
-        (if (zerop diff-signum)
-          (let ((x-prec (car (last (car x)))) (y-prec (car (last (car y)))))
-            (if (= x-prec y-prec)
-              (> (cadr x) (cadr y))
-              (> x-prec y-prec)))
-          (= 1 diff-signum))))
+      (ordbfloat x y))
 	((or (eq (caar x) 'mrat) (eq (caar y) 'mrat))
 	 (error "GREAT: internal error: unexpected MRAT argument"))
 	(t (do ((x1 (margs x) (cdr x1)) (y1 (margs y) (cdr y1))) (())
@@ -3087,20 +3073,26 @@
               ((eq (caar x) 'mrat) (like x y))
               ((eq (caar x) 'mpois) (equal (cdr x) (cdr y)))
               ((eq (caar x) 'bigfloat)
-                ;; Bigfloats need special treatment because their precision is
-                ;; stored in the "header", which would otherwise be ignored.
-                ;; Compare precision last, because it's a bit more expensive to
-                ;; extract, and most bigfloats will have the same precision.
-                ;; Should the layout of bigfloats change one day so that the
-                ;; precision is stored in the "body", this clause can be removed.
-                (and (= (cadr x) (cadr y))
-                     (= (caddr x) (caddr y))
-                     (= (car (last (car x))) (car (last (car y))))))
+                ;; Bigfloats need special treatment because their precision
+                ;; and an optional DECIMAL flag are stored in the CAR,
+                ;; which would otherwise be ignored.
+                ;; A bigfloat looks like this, [...] means optional:
+                ;; ((BIGFLOAT [SIMP] <PRECISION> [DECIMAL]) <MANTISSA> <EXPONENT>)
+                ;; Compare mantissas and exponents first.
+                (when (and (= (cadr x) (cadr y)) (= (caddr x) (caddr y)))
+                  ;; Mantissas and exponents are the same.
+                  ;; Still need to compare precision and maybe radix (binary/decimal).
+                  ;; If there's a SIMP flag, it must be ignored.
+                  (let ((rest-x (if (eq 'simp (cadar x)) (cddar x) (cdar x)))
+                        (rest-y (if (eq 'simp (cadar y)) (cddar y) (cdar y))))
+                    (and (= (car rest-x) (car rest-y))
+                         (eq (cadr rest-x) (cadr rest-y))))))
               ((eq (memqarr (cdar x)) (memqarr (cdar y)))
                (alike (cdr x) (cdr y)))
               (t nil))
            ;; (foo) and (foo) test non-alike because the car's aren't standard
            nil))
+        ((consp y) nil)
         ((or (symbolp x) (symbolp y)) nil)
         ((integerp x) (and (integerp y) (= x y)))
         ;; uncommon cases from here down
@@ -3250,6 +3242,60 @@
 	((mnump (caddr x)) (great (cadr x) y))
 	(t (great (simpln1 x)
 		  (ftake '%log y)))))
+
+(defun ordbfloat (x y)
+  "'Greater than' predicate (in the expression ordering, not numerical sense)
+  for two bigfloats, which can differ in presence of a SIMP flag, precision and
+  presence of a DECIMAL flag (radix).
+  Bigfloats of the same precision and radix are sorted numerically among each other,
+  but only based on their internal representation, without subtracting them.
+  For bigfloats with different precision and/or radix, the sorting order is well
+  defined, but not related to their numerical value."
+  (let* ((mant-x (cadr x))
+         (mant-y (cadr y))
+         (sgn-mant-x (signum mant-x))
+         (sgn-mant-y (signum mant-y)))
+    (cond
+      ((= sgn-mant-x sgn-mant-y)
+        ;; Equal mantissa signs, compare exponents next.
+        (let ((exp-x (caddr x))
+              (exp-y (caddr y)))
+          (cond
+            ((= exp-x exp-y)
+              ;; Equal exponents, compare mantissas next.
+              (cond
+                ((= mant-x mant-y)
+                  ;; Equal mantissas, compare precisions next.
+                  ;; An optional SIMP flag must be ignored.
+                  (let* ((rest-x (if (eq 'simp (cadar x)) (cddar x) (cdar x)))
+                         (rest-y (if (eq 'simp (cadar y)) (cddar y) (cdar y)))
+                         (prec-x (car rest-x))
+                         (prec-y (car rest-y)))
+                    (cond
+                      ((= prec-x prec-y)
+                        ;; Equal precisions.
+                        ;; Finally, let decimal bigfloats "win" over binary bigfloats.
+                        (and (eq 'decimal (cadr rest-x))
+                             (not (eq 'decimal (cadr rest-y)))))
+                      (t
+                        ;; Different precisions, directly compare (greater "wins").
+                        (> prec-x prec-y)))))
+                (t
+                  ;; Different mantissas, directly compare (greater "wins").
+                  (> mant-x mant-y))))
+            (t
+              ;; Different exponents, directly compare.
+              ;; For positive mantissas, the greater exponent "wins",
+              ;; for negative mantissas, the smaller exponent "wins".
+              ;; The case of a zero mantissa doesn't need to be handled here,
+              ;; because the bigfloat package makes sure to also set the exponent
+              ;; to zero if the mantissa is zero.
+              (if (plusp sgn-mant-x)
+                (> exp-x exp-y)
+                (< exp-x exp-y))))))
+      (t
+        ;; Different mantissa signs, directly compare.
+        (> sgn-mant-x sgn-mant-y)))))
 
 (defmfun $multthru (e1 &optional e2)
   (let (arg1 arg2)

@@ -49,7 +49,9 @@
   (let ((a (let ((*islinp* t))
              (sdiff expr var1))))
     (if (freeof var1 a)
-        (cons a (maxima-substitute 0 var1 expr)))))
+      (let ((b (no-err-sub-var 0 expr var1)))
+       (if (eq b t) nil
+        (cons a b))))))
 
 (defmfun $partition (e var1)
   (let ((e (mratcheck e))
