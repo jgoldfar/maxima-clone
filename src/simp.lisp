@@ -117,8 +117,12 @@
     ((integerp x) (= 1 x))
     ((floatp x) (= 1.0 x))
     (($bfloatp x)
-      ;; Bigfloats representing 1 are of the form '((BIGFLOAT ... n) 2^(n-1) 1).
-      (and (= 1 (caddr x)) (= (ash 1 (1- (car (last (car x))))) (cadr x))))))
+      ;; Binary bigfloat ones are of the form '((BIGFLOAT [SIMP] <P>) 2^(<P>-1) 1).
+      ;; Decimal bigfloat ones are of the form '((BIGFLOAT [SIMP] <P> DECIMAL) 1 0).
+      ;; The SIMP flag is optional.
+      (if (eq 'decimal (car (last (car x))))
+        (and (= 1 (cadr x)) (zerop (caddr x)))
+        (and (= 1 (caddr x)) (= (ash 1 (1- (car (last (car x))))) (cadr x)))))))
 
 (declaim (inline mnump))
 (defun mnump (x)
