@@ -361,6 +361,18 @@
 
 (defvar *collect-errors* t)
 
+(defun print-test-batch-problem (out filename problem-no problem-lineno input)
+  (let* ((center
+          (format nil (intl:gettext " ~A: Problem ~A~A ")
+            filename problem-no
+            (if problem-lineno (format nil (intl:gettext " (line ~S)") problem-lineno) "")))
+         (stars-count (- $linel (length center)))
+         (stars-left (make-string (max 10 (ceiling stars-count 2)) :initial-element #\*))
+         (stars-right (make-string (max 10 (floor stars-count 2)) :initial-element #\*)))
+    (format out "~%~A~A~A~%" stars-left center stars-right)
+    (format out (intl:gettext "~%Input:~%"))
+    (displa input)))
+
 ;; Execute the code in FILENAME as a batch file.  If EXPECTED-ERRORS
 ;; is non-NIL, it is a list of numbers denoting which tests in this
 ;; file are expected to fail.  OUT specifies the stream where any
@@ -406,7 +418,8 @@
 	(test-start-real-time 0)
 	(test-end-real-time 0)
 	(*query-io* *query-io*)
-	(*standard-input* *standard-input*))
+	(*standard-input* *standard-input*)
+    (filename-basename (unix-like-basename filename)))
     
     (cond (*collect-errors*
 	   (setq error-log
@@ -432,6 +445,8 @@
 	    (setq problem-lineno (if (and (consp problem-lineinfo) (integerp (first problem-lineinfo)))
 				     (1+ (first problem-lineinfo))))
 	    (incf i)
+        (when show-all
+          (print-test-batch-problem out filename-basename i problem-lineno (third expr)))
 	    (setf tmp-output (make-string-output-stream))
 	    (setf save-output *standard-output*)
 	    (setf *standard-output* tmp-output)
@@ -457,10 +472,8 @@
 		   (pass (or correct expected-error)))
 	      (when (or show-all (not pass) (and correct expected-error)
 			(and expected-error show-expected))
-		(format out (intl:gettext "~%********************** Problem ~A~A***************")
-			i (if problem-lineno (format nil " (line ~S) " problem-lineno) " "))
-		(format out (intl:gettext "~%Input:~%"))
-		(displa (third expr))
+        (unless show-all
+          (print-test-batch-problem out filename-basename i problem-lineno (third expr)))
 		(format out (intl:gettext "~%~%Result:~%"))
 		(format out "~a" (get-output-stream-string tmp-output))
 		(displa $%)
