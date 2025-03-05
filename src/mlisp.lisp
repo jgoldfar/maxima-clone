@@ -1994,7 +1994,7 @@ wrapper for this."
 		       (mtell (intl:gettext "define: warning: redefining built-in subscripted function ~:M~%")
 			      fnname)))
 	    ((prog2 (setq fnname (caar fun))
-		 (or (mopp fnname) (member fnname '($all $allbut $%) :test #'eq)))
+		 (or (mopp fnname) (member fnname '(t nil $all $allbut $%) :test #'eq)))
 	     (merror (intl:gettext "define: function name cannot be a built-in operator or special symbol; found: ~:@M") fnname))
 	    ((setq ary (member 'array (cdar fun) :test #'eq)) (setq subs (cdr fun)))
 	    (t
