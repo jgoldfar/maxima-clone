@@ -23,6 +23,15 @@
 
 (defmvar factorresimp nil "If `t' resimplifies factor(x-y) to x-y")
 
+(defvar *use-readable-gensyms* :debug
+  "Controls the use of readable gensyms in some internal CRE functions. Readable
+  gensym names begin with a textual representation of the expression that the
+  symbol represents, e.g. SIN(SQRT(X))1234. This can be useful for debugging, but
+  it can also severely degrade performance due to the overhead involved.
+  If :DEBUG (default), use readable gensyms only when debug mode is enabled.
+  If NIL, never use readable gensyms.
+  If T or any other value, always use readable gensyms.")
+
 (defun mrateval (x)
   (let ((varlist (caddar x)))
     (cond ((and evp $infeval) (meval ($ratdisrep x)))
@@ -500,11 +509,14 @@
     (setq mv (max mv (porder (cadr p))))))
 
 (defun gensym-readable (name)
+ (if (or (and (eq *use-readable-gensyms* :debug) (not *mdebug*))
+         (not *use-readable-gensyms*))
+  (gensym)
   (cond ((symbolp name)
 	 (gensym (string-trim "$" (string name))))
 	(t
 	 (setq name (aformat nil "~:M" name))
-	 (if name (gensym name) (gensym)))))
+	 (if name (gensym name) (gensym))))))
 
 (defun orderpointer (l)
   (loop for v in l
