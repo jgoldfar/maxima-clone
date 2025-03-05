@@ -39,7 +39,8 @@
 
 (defmspec $makelist (x)
   (setq x (cdr x))
-  (prog (n form arg a b c d lv)
+  (simplifya
+    (prog (n form arg a b c d lv)
      (setq n (length x))
      (cond
        ((= n 0) (return '((mlist))))
@@ -105,7 +106,8 @@
 	 (push (meval `(($ev)
 			,@(list (list '(mquote) form)
 				(list '(mequal) arg (car lv)))))
-	       ans)))))
+	       ans))))
+    t))
 
 (defun interval2 (i s d)
   (do ((nn i (meval `((mplus) ,s ,nn)))
