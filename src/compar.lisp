@@ -841,7 +841,7 @@
 				  (or (eq epskind 'epsilon)
 				      (eq epskind '$zeroa)))
 			     (and (eq eps-coef '$neg)
-				  (or (alike epskind (mul2* -1 'epsilon))
+				  (or (alike1 epskind (mul2* -1 'epsilon))
 				      (eq epskind '$zerob))))
 			 '$pos)
 			(t '$neg)))

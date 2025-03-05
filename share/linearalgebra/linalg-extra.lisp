@@ -95,7 +95,7 @@
 (defun order-of-root (p x pt)
   (let ((order 0))
     (setq p ($expand p))
-    (while (and (alike 0 ($substitute pt x p)) (not (alike 0 p)))
+    (while (and (alike1 0 ($substitute pt x p)) (not (alike1 0 p)))
       (incf order)
       (setq p ($expand ($diff p x))))
     order))

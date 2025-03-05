@@ -111,7 +111,7 @@
 ;; is an indefinite integral.
 (defun indefinite-integral-p (e x)
 	(cond (($mapatom e) nil)
-	      ((and (eq (caar e) '%integrate) (alike x (third e)))
+	      ((and (eq (caar e) '%integrate) (alike1 x (third e)))
 		    (null (fourth e)))
 		  (t 
 		    (some #'(lambda (q) (indefinite-integral-p q x)) (cdr e)))))
@@ -360,7 +360,7 @@
    (cond 
     ((mapatom e) t) ;mapatoms are OK
     ;; return nil for an indefinite integral
-    ((and (eq (caar e) '%integrate) (alike x (third e)) (null (fourth e))) nil)
+    ((and (eq (caar e) '%integrate) (alike1 x (third e)) (null (fourth e))) nil)
 	;; Return true for integrate(X,z,a,b) provided (a) freeof(x,X) (b) limit-ok(a,x)
 	;; and (c) limit-ok(b,x). The function simplim%integrate does not recognize
 	;; $limsubst, but this function does.
