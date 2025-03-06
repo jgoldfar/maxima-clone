@@ -351,6 +351,7 @@
 	      (return name)))))
 
 (defmspec $tellsimp (form)
+  (twoargcheck form)
   (let ((meta-prop-p nil))
     (proc-$tellsimp (cdr form))))
 
@@ -457,6 +458,7 @@
 
 
 (defmspec $tellsimpafter (form)
+  (twoargcheck form)
   (let ((meta-prop-p nil))
     (proc-$tellsimpafter (cdr form))))
 
