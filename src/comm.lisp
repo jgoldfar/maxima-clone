@@ -994,6 +994,9 @@
 (defun getop (x)
   (or (and (symbolp x) (get x 'op)) x))
 
+(defun has-simp-flag-p (x)
+  (if (member 'simp (cdar x)) t))
+
 (defmfun $listp (x)
   (and (not (atom x))
        (not (atom (car x)))
@@ -1001,24 +1004,24 @@
 
 (defmfun $cons (x e)
   (atomchk (setq e (format1 e)) '$cons t)
-  (mcons-exp-args e (cons x (margs e))))
+  (simplifya (mcons-exp-args e (cons x (margs e))) (has-simp-flag-p e)))
 
 (defmfun $endcons (x e)
   (atomchk (setq e (format1 e)) '$endcons t)
-  (mcons-exp-args e (append (margs e) (ncons x))))
+  (simplifya (mcons-exp-args e (append (margs e) (ncons x))) (has-simp-flag-p e)))
 
 (defmfun $reverse (e)
   (atomchk (setq e (format1 e)) '$reverse nil)
-  (mcons-exp-args e (reverse (margs e))))
+  (simplifya (mcons-exp-args e (reverse (margs e))) (has-simp-flag-p e)))
 
 (defmfun $append (&rest args)
   (if (null args)
-      '((mlist simp))
+      (simplifya '((mlist)) t)
       (let ((arg1 (specrepcheck (first args))) op arrp)
 	(atomchk arg1 '$append nil)
 	(setq op (mop arg1)
 	      arrp (if (member 'array (cdar arg1) :test #'eq) t))
-	(mcons-exp-args
+	(simplifya (mcons-exp-args
 	 arg1
 	 (apply #'append
 		(mapcar #'(lambda (u)
@@ -1027,7 +1030,8 @@
 					 (eq arrp (if (member 'array (cdar u) :test #'eq) t)))
 			      (merror (intl:gettext "append: operators of arguments must all be the same.")))
 			    (margs u))
-			args))))))
+			args)))
+      (every #'has-simp-flag-p args)))))
 
 (defun mcons-exp-args (e args)
   (if (eq (caar e) 'mqapply)
