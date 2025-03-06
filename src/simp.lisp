@@ -564,12 +564,6 @@
 	  (t
 	   (rplaca x (cons (caar x) '(simp)))))))
 
-;; Resimplifies only the top-level operator of expr if it's not an mbag.
-(defun resimplify-top-non-mbag (expr)
-  (if (mbagp expr)
-    expr
-    (simplifya (cons (delsimp (car expr)) (cdr expr)) t)))
-
 ;; A function which distributes over bags like a list, matrix, or equation,
 ;; or any other operator.
 (defun distribute-over (expr args-simped)
@@ -577,10 +571,11 @@
          ;; Distribute over for a function with one argument.
          (cond ((and (not (atom (cadr expr)))
                      (member (caaadr expr) (get (caar expr) 'distribute_over)))
-                (resimplify-top-non-mbag
+                (simplifya
                   (cons (caadr expr)
                         (mapcar #'(lambda (u) (simplifya (list (car expr) u) args-simped))
-                                (cdadr expr)))))
+                                (cdadr expr)))
+                  t))
                 (t nil)))
         (t
          ;; A function with more than one argument.
@@ -592,7 +587,7 @@
                               (get (caar expr) 'distribute_over)))
              ;; Distribute the function over the arguments and simplify again.
              (return 
-               (resimplify-top-non-mbag
+               (simplifya
                  (cons (ncons (caar (car args)))
                        (mapcar #'(lambda (u) 
                                    (simplifya
@@ -602,7 +597,8 @@
                                                (reverse first-args))
                                          (ncons u))
                                        (rest args)) args-simped))
-                               (cdr (car args)))))))
+                               (cdr (car args))))
+                 t)))
            (setq first-args (cons (car args) first-args))))))
 
 (defun rulechk (x) (or (mget x 'oldrules) (get x 'rules)))
