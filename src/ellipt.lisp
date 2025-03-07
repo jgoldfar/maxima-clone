@@ -2271,8 +2271,8 @@ first kind:
 ;; elliptic_pi(n,m)
 ;;   = Rf(0, 1-m,1) + Rj(0,1-m,1-n)*n/3;
 (defun elliptic-pi-complete (n m)
-  (to (bigfloat:+ (bigfloat::bf-rf 0 (- 1 m) 1)
-	 (bigfloat:* 1/3 n (bigfloat::bf-rj 0 (- 1 m) 1 (- 1 n))))))
+  (bigfloat:+ (bigfloat::bf-rf 0 (- 1 m) 1)
+	      (bigfloat:* 1/3 n (bigfloat::bf-rj 0 (- 1 m) 1 (- 1 n)))))
 
 ;; To compute elliptic_pi for all z, we use the property
 ;; (http://functions.wolfram.com/08.06.16.0002.01)
