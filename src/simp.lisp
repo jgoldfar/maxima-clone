@@ -2159,8 +2159,8 @@
 (defun simpexpt (x y z)
   (prog (gr pot check res *rulesw* w mlpgr mlppot)
      (setq check x)
-     (cond (z (setq gr (cadr x) pot (caddr x)) (go cont)))
      (twoargcheck x)
+     (cond (z (setq gr (cadr x) pot (caddr x)) (go cont)))
      (setq gr (simplifya (cadr x) nil))
      (setq pot
            (let (($%enumer $numer))
