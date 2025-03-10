@@ -104,7 +104,7 @@
 ;; list, return a.
 
 (defmfun $listify (a)
-  (if ($setp a) `((mlist simp) ,@(cdr a)) a))
+  (if ($setp a) (simplifya `((mlist) ,@(cdr a)) t) a))
 
 ;; full_listify(a) converts all sets in a into lists.
 
