@@ -86,11 +86,6 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
 ;; of it would imply modifying init-cl.lisp when this variable is set.
 (defvar *maxima-plotdir* "")
 
-;; *ROT* AND FRIENDS ($ROT, $ROTATE_PTS, $ROTATE_LIST) CAN PROBABLY GO AWAY !!
-;; THEY ARE UNDOCUMENTED AND UNUSED !!
-;; (defvar *rot* (make-array 9 :element-type 'flonum))
-;; (defvar $rot nil)
-
 ;; Global plot options list; this is a property list.. It is not a
 ;; Maxima variable, to discourage users from changing it directly; it
 ;; should be changed via set_plot_option
@@ -416,36 +411,6 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
       ((mlist simp) ,(- (*  sinph costh))
        ,(* sinph sinth)
        ,cosph))))
-   
-;; pts is a vector of bts [x0,y0,z0,x1,y1,z1,...] and each tuple xi,yi,zi is rotated
-#-abcl (defmfun $rotate_pts(pts rotation-matrix)
-  (or ($matrixp rotation-matrix) (merror (intl:gettext "rotate_pts: second argument must be a matrix.")))
-  (let* ((rot *rot*)
-         (l (length pts))
-         (x 0.0) (y 0.0) (z 0.0)
-         )
-    (declare (type flonum  x y z))
-    (declare (type (cl:array flonum) rot))
-    ($copy_pts rotation-matrix *rot* 0)
-        
-    (loop with j = 0
-           while (< j l)
-           do
-           (setq x (aref pts j))
-           (setq y (aref pts (+ j 1)))
-           (setq z (aref pts (+ j 2)))
-           (loop for i below 3 with a of-type flonum = 0.0
-                  do
-                  (setq a (* x (aref rot (+ (* 3 i) 0))))
-                  (setq a (+ a (* y (aref rot (+ (* 3 i) 1)))))
-                  (setq a (+ a (* z (aref rot (+ (* 3 i) 2)))))
-                  (setf (aref pts (+ j i )) a))
-           (setf j (+ j 3)))))
-
-(defmfun $rotate_list (x)
-  (cond ((and ($listp x) (not (mbagp (second x))))
-         ($list_matrix_entries (ncmul2  $rot x)))
-        ((mbagp x) (cons (car x) (mapcar '$rotate_list (cdr x))))))
 
 (defmfun $get_range (pts k &aux (z 0.0) (max +most-negative-flonum+) (min +most-positive-flonum+))
   (declare (type flonum z max min))
