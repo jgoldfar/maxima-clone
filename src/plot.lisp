@@ -2338,7 +2338,7 @@ plot2d ( x^2+y^2 = 1, [x, -2, 2], [y, -2 ,2]);
   ;; the xrange option is mandatory and will provide the name of
   ;; the horizontal axis and the values of xmin and xmax.
   (let ((xrange-required nil) (bounds-required nil) (yrange-required nil)
-        small huge prange)
+        small huge)
     #-clisp (setq small (- (/ +most-positive-flonum+ 1024)))
     #+clisp (setq small (- (/ most-positive-double-float 1024.0)))
     #-clisp (setq huge (/ +most-positive-flonum+ 1024))
@@ -2355,7 +2355,7 @@ plot2d ( x^2+y^2 = 1, [x, -2, 2], [y, -2 ,2]);
                  ;; prematurely clipped. Don't use most-positive-flonum
                  ;; because draw2d will overflow.
                  (setf (getf options '$xbounds) (list small huge)))
-               (setq prange (check-range ($fourth f))))
+               (check-range ($fourth f)))
               ($contour
                (setq xrange (check-range xrange))
                (setq xrange-required t)
