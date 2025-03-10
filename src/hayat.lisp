@@ -2224,7 +2224,7 @@
 	;; If TSDIFF returns NIL, it means that the derivative is wrt to some variable
 	;; other than one of the taylor variables.
 	;; If so, keep going and handle E as if it were a general expression.
-	((and (eq (caar e) '%derivative) (tsdiff (cadr e) (cddr e) e)))
+	((and (eq (caar e) '%derivative) (tsdiff (cadr e) (cddr e))))
 	((or (eq (caar e) '%at)
 	     (do ((l (mapcar 'car tlist) (cdr l)))
 		 ((null l) t)
@@ -2980,7 +2980,7 @@
 			(return ans)
 			(setq ans (psplus ans a))))))))))
 
-(defun tsdiff (e l check)
+(defun tsdiff (e l)
 	(*bind* ((n) (v) (u))
 	      (do ((l l (cddr l)))
 		  ((null l))
