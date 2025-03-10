@@ -1822,7 +1822,7 @@ in the interval of integration.")
 
 ;; integrate(a*sc(r*x)^k/x^n,x,0,inf).
 (defun ssp (exp ivar ll ul)
-  (prog (u n c arg)
+  (prog (n c arg)
      ;; Get the argument of the involved trig function.
      (when (null (setq arg (involve-var exp ivar '(%sin %cos))))
        (return nil))
