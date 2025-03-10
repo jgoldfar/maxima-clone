@@ -108,6 +108,7 @@
   (prog ($%e_to_numlog $logsimp risch-y z risch-var risch-ratform risch-liflag
 	 risch-mainvar varlist genvar $ratfac $ratalgdenom risch-degree
 	 rischform-value risch-trigint risch-hypertrigint risch-operator)
+     (declare (ignorable rischform-value))
      (if (specrepp exp)
 	 (setq exp (specdisrep exp)))
      (if (specrepp risch-intvar)
