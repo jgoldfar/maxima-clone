@@ -56,10 +56,10 @@
 		 (multout (findroots (psqfr (pabs (unipoly exp exp1)))
 				     (makrat eps)))))
 	  (t
-	   (multiple-value-bind (soln equations)
+	   (let ((equations (nth-value 1
 	       (solve2 (findroots (psqfr (pabs (unipoly exp exp1)))
 				  (makrat eps))
-		       nil)
+		       nil))))
 	     (cons '(mlist) equations))))))
 
 ;;(declare-top (unspecial equations))
