@@ -1125,8 +1125,8 @@
       ($rest e (- m n)))))
 
 (defmfun $args (e)
-  (atomchk (setq e (format1 e)) '$args nil)
-	 (cons '(mlist) (margs e)))
+  (atomchk (setq formatted (format1 e)) '$args nil)
+	 (simplifya (cons '(mlist) (margs formatted)) (eq e formatted)))
 
 (defmfun $delete (x l &optional (n -1 n?))
   (when (and n? (or (not (fixnump n)) (minusp n))) ; if n is set, it must be a nonneg fixnum
