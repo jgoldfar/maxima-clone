@@ -672,7 +672,7 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
 
 (defun coerce-maxima-function-or-maxima-lambda
     (args expr &key (float-fun '$float))
-  (let ((gensym-args (loop for x in args collect (gensym))))
+  (let ((gensym-args (loop for nil in args collect (gensym))))
     (coerce
       `(lambda ,gensym-args (declare (special ,@gensym-args))
          ;; Just always try to convert the result with
@@ -694,7 +694,7 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
 
 (defun coerce-lisp-function-or-lisp-lambda
     (args expr &key (float-fun '$float))
-  (let ((gensym-args (loop for x in args collect (gensym))))
+  (let ((gensym-args (loop for nil in args collect (gensym))))
     (coerce
       `(lambda ,gensym-args (declare (special ,@gensym-args))
          (let* (($ratprint nil)
