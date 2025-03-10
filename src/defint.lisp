@@ -770,8 +770,8 @@ in the interval of integration.")
 (defun make-defint-assumptions (ask-or-not ivar ll ul)
   (values
    (cond ((null
-           (multiple-value-setq (result ll ul)
-             (order-limits ask-or-not ivar ll ul)))
+           (let ((result)) (multiple-value-setq (result ll ul)
+             (order-limits ask-or-not ivar ll ul)) result))
           ())
 	 (t (mapc 'forget *defint-assumptions*)
 	    (setq *defint-assumptions* ())
