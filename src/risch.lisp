@@ -237,6 +237,7 @@
 		      risch-expflag risch-mainvar risch-expint risch-degree))
      (dolist (rat risch-logptdx)
        (let (rischlogeprog-value)
+         (declare (ignorable rischlogeprog-value))
 	 (setq risch-y
 	       (rischadd (multiple-value-setq (rischlogeprog-value risch-expint risch-expstuff)
 			   (rischlogeprog rat risch-ratform nil risch-intvar risch-expstuff
