@@ -1326,7 +1326,7 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
 ;; points have real values.
 ;; Currently there are no plot options relevant to draw2d-discrete.
 (defun draw2d-discrete (f)
-  (let ((x (third f)) (y (fourth f)) (n-clipped 0) data gaps)
+  (let ((x (third f)) (y (fourth f)) data gaps)
    (cond
       (($listp x)            ; x is a list
        (cond
