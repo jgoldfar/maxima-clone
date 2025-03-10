@@ -377,6 +377,7 @@
           (format st "} ")))))))
 
 (defmethod plot3d-command ((plot xmaxima-plot) functions options titles)
+  (declare (ignore titles))
   (let ((i 0) fun xrange yrange lvars trans)
     (setf
      (slot-value plot 'data)
@@ -437,6 +438,7 @@
         (format $pstream "}~%"))))))
 
 (defmethod plot-shipout ((plot xmaxima-plot) options &optional output-file)
+  (declare (ignore options))
   (let ((file (plot-file-path (format nil "~a.xmaxima" (random-name 16)))))
     (cond ($show_openplot
            (with-open-file (fl
