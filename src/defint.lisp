@@ -3326,7 +3326,7 @@ in the interval of integration.")
 
 ;;; given (b*x^n+a)^m returns (m a n b)
 (defun bxm (e ind ivar)
-  (let (m r)
+  (let (r)
     (cond ((or (atom e)
 	       (mnump e)
 	       (involve-var e ivar '(%log %sin %cos %tan))
