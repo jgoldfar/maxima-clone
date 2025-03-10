@@ -64,6 +64,7 @@
 
 (defun dsksetup (x fn fname)
   (let (list maxima-error (errset *dsksetup-errset-value*))
+    (declare (ignorable maxima-error))
     (setq savefile
 	  (if (or (eq $file_output_append '$true) (eq $file_output_append t))
 	      (open fname :direction :output :if-exists :append :if-does-not-exist :create)
