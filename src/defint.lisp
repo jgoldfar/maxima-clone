@@ -516,7 +516,7 @@ in the interval of integration.")
 
 (defun method-by-limits (exp ivar ll ul)
   (let ((old-assumptions *defint-assumptions*))
-    (multiple-value-bind (*current-assumptions* ll ul)
+    (multiple-value-setq (*current-assumptions* ll ul)
         (make-defint-assumptions 'noask ivar ll ul))
 
     ;;Should be a PROG inside of unwind-protect, but Multics has a compiler
