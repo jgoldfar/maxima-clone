@@ -1364,6 +1364,7 @@ in the interval of integration.")
 	  (t nil))))
 
 (defun ztoinf (grand ivar ll ul)
+  (assert (and (zerop1 ll) (eq ul '$inf)))
   (prog (n d sn sd varlist
 	 s nc dc
 	 ans r $savefactors *checkfactors* temp test-var
@@ -1506,6 +1507,7 @@ in the interval of integration.")
 	   (setq exp (mapcar 'pdis (cdr (oddelm (cdr exp)))))))))
 
 (defun mtoinf (grand ivar ll ul)
+  (assert (and (eq ll '$minf) (eq ul '$inf)))
   (prog (ans ans1 sd sn pp pe n d s nc dc $savefactors *checkfactors* temp
          nn-var dn-var)
      (setq $savefactors t)
@@ -1515,7 +1517,7 @@ in the interval of integration.")
 	   ((involve-var grand ivar '(%sin %cos))
 	    (cond ((and (evenfn grand ivar)
 			(or (setq temp (scaxn grand ivar))
-			    (setq temp (ssp grand ivar ll ul))))
+			    (setq temp (ssp grand ivar 0 ul))))
 		   (return (m*t 2. temp)))
 		  ((setq temp (mtosc grand ivar))
 		   (return temp))
@@ -1822,6 +1824,7 @@ in the interval of integration.")
 
 ;; integrate(a*sc(r*x)^k/x^n,x,0,inf).
 (defun ssp (exp ivar ll ul)
+  (assert (and (zerop1 ll) (eq ul '$inf)))
   (prog (n c arg)
      ;; Get the argument of the involved trig function.
      (when (null (setq arg (involve-var exp ivar '(%sin %cos))))
@@ -1886,6 +1889,7 @@ in the interval of integration.")
 ;;
 (defun scmp (c n ivar ll ul)
   ;; Compute sign(r)*r^(n-1)*integrate(sin(y)^k/y^n,y,0,inf)
+  (assert (and (zerop1 ll) (eq ul '$inf)))
   (destructuring-bind (mult r k)
       c
     (let ((recursion (sinsp k n)))
