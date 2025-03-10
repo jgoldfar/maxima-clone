@@ -186,7 +186,7 @@
 (defun display-html-topics (wanted)
   (when maxima::*debug-display-html-help*
     (format *debug-io* "wanted = ~S~%" wanted))
-  (loop for (dir entry) in wanted
+  (loop for (nil entry) in wanted
 	do (display-html-help (car entry))))
   
 (defun display-text-topics (wanted)
