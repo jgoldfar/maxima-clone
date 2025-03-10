@@ -986,19 +986,22 @@ in the interval of integration.")
 (defun whole-intsubs (e a b ivar)
   (cond ((easy-subs e a b ivar))
 	(t
-         (let (new-ll new-ul)
            ;; Note: MAKE-DEFINT-ASSUMPTIONS may reorder the limits A
            ;; and B, but I (rtoy) don't think that's should ever
            ;; happen because the limits should already be in the
            ;; correct order when this function is called.  We don't
            ;; check for that, though.
-           (multiple-value-setq (*current-assumptions* new-ll new-ul)
+           ;; UPDATE: We do now. In integrate(exp(-x^2-1/x^2),x,-inf,inf), the
+           ;; limits were changed by MAKE-DEFINT-ASSUMPTIONS.
+           ;; Ignoring that didn't lead to a wrong result, maybe by "luck".
+           ;; So just always use the limits returned by MAKE-DEFINT-ASSUMPTIONS.
+           (multiple-value-setq (*current-assumptions* a b)
 	       (make-defint-assumptions 'ask ivar a b)) ;get forceful!
          
 	   (let (($algebraic t))
 	     (setq e (sratsimp e))
 	     (cond ((limit-subs e a b ivar))
-		   (t (same-sheet-subs e a b ivar))))))))
+		   (t (same-sheet-subs e a b ivar)))))))
 
 ;; Try easy substitutions.  Return NIL if we can't.
 (defun easy-subs (e ll ul ivar)
