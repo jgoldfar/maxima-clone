@@ -1043,7 +1043,7 @@
       ;; the expansion point is INF, MINF,etc.
       (let* ((lim (gvar-lim (gvar ps)))
 	     (strongest-term
-	      (if (member lim '($inf $minf) :test #'eq) (ps-gt ps) (ps-lt ps))))
+	      (if (member lim '($inf $minf)) (ps-gt ps) (ps-lt ps))))
 	 (if (ezerop (e strongest-term))
 	     (ps-lim-infp (c strongest-term))
 	     (progn
@@ -1051,19 +1051,19 @@
 	       (and (lim-infp lim) (not (eq lim '$infinity))))))))
 
 (defun lim-zerop (lim)
-  (if (member lim '($zeroa $zerob $zeroim) :test #'eq) t))
+  (if (member lim '($zeroa $zerob $zeroim)) t))
 
 (defun lim-plusp (lim)
-  (if (member lim '($zeroa $pos $inf $finite) :test #'eq) t))
+  (if (member lim '($zeroa $pos $inf $finite)) t))
 
 (defun lim-finitep (lim)
-  (if (member lim '($pos $neg $im $finite) :test #'eq) t))
+  (if (member lim '($pos $neg $im $finite)) t))
 
 (defun lim-infp (lim)
-  (if (member lim '($inf $minf $infinity) :test #'eq) t))
+  (if (member lim '($inf $minf $infinity)) t))
 
 (defun lim-imagp (lim)
-  (if (member lim '($im $infinity) :test #'eq) t))
+  (if (member lim '($im $infinity)) t))
 
 (defun lim-minus (lim)
   (cdr (assoc lim '(($zeroa . $zerob) ($zerob . $zeroa) ($pos . $neg) ($zero . $zero)

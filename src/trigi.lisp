@@ -29,12 +29,10 @@
   (power (add (power x 2) (power y 2)) 1//2))
 
 (defun trigp (func)
-  (if (member func '(%sin %cos %tan %csc %sec %cot %sinh %cosh %tanh %csch %sech %coth)
-	  :test #'eq) t))
+  (if (member func '(%sin %cos %tan %csc %sec %cot %sinh %cosh %tanh %csch %sech %coth)) t))
 
 (defun arcp (func)
-  (if (member func '(%asin %acos %atan %acsc %asec %acot %asinh %acosh %atanh %acsch %asech %acoth)
-	  :test #'eq) t))
+  (if (member func '(%asin %acos %atan %acsc %asec %acot %asinh %acosh %atanh %acsch %asech %acoth)) t))
 
 ;;; The trigonometric functions distribute of lists, matrices and equations.
 
