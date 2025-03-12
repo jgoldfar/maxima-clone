@@ -28,9 +28,10 @@
   gensym names begin with a textual representation of the expression that the
   symbol represents, e.g. SIN(SQRT(X))1234. This can be useful for debugging, but
   it can also severely degrade performance due to the overhead involved.
-  If :DEBUG (default), use readable gensyms only when debug mode is enabled.
-  If NIL, never use readable gensyms.
-  If T or any other value, always use readable gensyms.")
+  - If :DEBUG (default), use readable gensyms only when debug mode is enabled,
+    that is, when *MDEBUG* is non-NIL or *DEBUGGER-HOOK* is NIL.
+  - If NIL, never use readable gensyms.
+  - If T or any other value, always use readable gensyms.")
 
 (defun mrateval (x)
   (let ((varlist (caddar x)))
@@ -509,7 +510,7 @@
     (setq mv (max mv (porder (cadr p))))))
 
 (defun gensym-readable (name)
- (if (or (and (eq *use-readable-gensyms* :debug) (not *mdebug*))
+ (if (or (and (eq *use-readable-gensyms* :debug) (not *mdebug*) *debugger-hook*)
          (not *use-readable-gensyms*))
   (gensym)
   (cond ((symbolp name)
