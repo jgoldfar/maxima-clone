@@ -540,7 +540,7 @@
                result))
 
 	  ;; extension for pdiff.
-	  ((and (get '$pderivop 'operators) (funcall 'sdiffgrad-pdiff e x)))
+	  ((and (get '$pderivop 'operators) (mfuncall 'sdiffgrad-pdiff e x)))
 
 	  ;; two line extension for hypergeometric.
 	  ((and (equal fun '%hypergeometric) (get '%hypergeometric 'operators))
