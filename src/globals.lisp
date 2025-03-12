@@ -17,7 +17,7 @@
 ;; See also function DISPLAY2D-UNICODE-ENABLED in src/init-cl.lisp.
 
 #+(or unicode sb-unicode openmcl-unicode-strings abcl (and allegro ics))
-(push :lisp-unicode-capable *features*)
+(pushnew :lisp-unicode-capable *features*)
 
 (defvar *variable-initial-values* (make-hash-table)
   "Hash table containing all Maxima defmvar variables and their
