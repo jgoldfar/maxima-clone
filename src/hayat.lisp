@@ -1051,19 +1051,19 @@
 	       (and (lim-infp lim) (not (eq lim '$infinity))))))))
 
 (defun lim-zerop (lim)
-  (member lim '($zeroa $zerob $zeroim) :test #'eq))
+  (if (member lim '($zeroa $zerob $zeroim) :test #'eq) t))
 
 (defun lim-plusp (lim)
-  (member lim '($zeroa $pos $inf $finite) :test #'eq))
+  (if (member lim '($zeroa $pos $inf $finite) :test #'eq) t))
 
 (defun lim-finitep (lim)
-  (member lim '($pos $neg $im $finite) :test #'eq))
+  (if (member lim '($pos $neg $im $finite) :test #'eq) t))
 
 (defun lim-infp (lim)
-  (member lim '($inf $minf $infinity) :test #'eq))
+  (if (member lim '($inf $minf $infinity) :test #'eq) t))
 
 (defun lim-imagp (lim)
-  (member lim '($im $infinity) :test #'eq))
+  (if (member lim '($im $infinity) :test #'eq) t))
 
 (defun lim-minus (lim)
   (cdr (assoc lim '(($zeroa . $zerob) ($zerob . $zeroa) ($pos . $neg) ($zero . $zero)
