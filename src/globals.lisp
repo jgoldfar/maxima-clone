@@ -19,6 +19,19 @@
 #+(or unicode sb-unicode openmcl-unicode-strings abcl (and allegro ics))
 (pushnew :lisp-unicode-capable *features*)
 
+;; Determine which of the CL floating point types are distinct types in this
+;; Lisp implementation, and create features accordingly. These features can be
+;; used with #+ and #- to enable/disable code parts that specifically handle
+;; certain floating point types.
+(when (eq 'short-float (type-of 1s0))
+  (pushnew :has-distinct-short-float *features*))
+(when (eq 'single-float (type-of 1f0))
+  (pushnew :has-distinct-single-float *features*))
+(when (eq 'double-float (type-of 1d0))
+  (pushnew :has-distinct-double-float *features*))
+(when (eq 'long-float (type-of 1l0))
+  (pushnew :has-distinct-long-float *features*))
+
 (defvar *variable-initial-values* (make-hash-table)
   "Hash table containing all Maxima defmvar variables and their
   initial values")

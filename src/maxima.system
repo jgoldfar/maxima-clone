@@ -557,7 +557,7 @@
 	     (:file "logarc")
 	     (:file "rpart")))
    (:module numeric-bigfloat :source-pathname ""
-	    :depends-on ("defmfun" #-gcl "package"
+	    :depends-on ("globals" "defmfun" #-gcl "package"
 			       #+gcl "proclaim")
 	    :components
 	    ((:file "numeric")))
