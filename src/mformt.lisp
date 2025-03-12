@@ -29,7 +29,6 @@
 (def-mformat-var |:-FLAG| nil t)
 (def-mformat-var |@-FLAG| nil t)
 (def-mformat-var parameter 0 t)	; Who can read "~33,34,87A" ?
-(def-mformat-var parameter-p nil t)
 (def-mformat-var text nil nil)
 (def-mformat-var text-temp nil nil)
 (def-mformat-var displa-p nil nil)
