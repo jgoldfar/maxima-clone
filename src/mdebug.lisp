@@ -263,6 +263,14 @@
 		 (eof-value nil) repeat-if-newline  &aux tem  ch
 		 (mprompt *mread-prompt*) (*mread-prompt* ""))
   (if (and *need-prompt* (> (length mprompt) 0))
+#+clisp
+    (progn
+      (finish-output *standard-output*)
+      (fresh-line stream)
+      (princ mprompt stream)
+      (finish-output stream)
+      (setf *prompt-on-read-hang* nil))
+#-clisp
     (progn
       (fresh-line *standard-output*)
       (princ mprompt *standard-output*)
