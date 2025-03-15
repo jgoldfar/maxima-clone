@@ -160,17 +160,17 @@
 (def%tr $makelist (form)
   (setq form (cdr form))
   (cond 
-    ((= (length form) 0) '($any . '((mlist))))
+    ((= (length form) 0) '($any . (simplifya '((mlist)) t)))
     ((= (length form) 1)
      (destructuring-let
       (((exp) form))
-      `($any . (list '(mlist) ,(cdr (tr-local-exp exp))))))
+      `($any . (simplifya (list '(mlist) ,(cdr (tr-local-exp exp))) t))))
     ((= (length form) 2)
      (destructuring-let
       (((exp n) form) (sum (tr-gensym)) (nn (tr-gensym)) (|0| (tr-gensym)))
       (setq n (dtranslate n))
       `($any .
-             ((lambda (,nn)
+             (simplifya ((lambda (,nn)
                 (setq ,nn ($float ,nn))
                 (if (numberp ,nn)
                     (do ((,|0| 1 (add 1 ,|0|)) (,sum nil))
@@ -179,13 +179,13 @@
                             (cons ,(cdr (tr-local-exp exp)) ,sum)))
                     (merror
                      (intl:gettext "makelist: second argument must evaluate to a number; found: ~M") ,nn)))
-              ,n))))
+              ,n) t))))
     ((= (length form) 3)
      (destructuring-let
       (((exp x n) form) (sum (tr-gensym)) (nn (tr-gensym)) (lil (tr-gensym)))
       (setq n (dtranslate n))
       `($any .
-             ((lambda (,nn)
+             (simplifya ((lambda (,nn)
                 (if ($listp ,nn)
                    (do ((,lil (cdr ,nn) (cdr ,lil))
                         (,sum nil) (,x))
@@ -207,14 +207,14 @@
                            (declare (special ,x)))
                          (merror
                           (intl:gettext "makelist: third argument must be a number or a list; found: ~M") ,nn)))))
-              ,n))))
+              ,n) t))))
     ((= (length form) 4)
      (destructuring-let
       (((exp x |0| n) form) (|00| (tr-gensym)) (nn (tr-gensym))
        (sum (tr-gensym)) (ii (tr-gensym)))
       (setq |0| (dtranslate |0|) n (dtranslate n))
       `($any .
-             ((lambda (,|00| ,nn)
+             (simplifya ((lambda (,|00| ,nn)
                 (setq ,nn ($float (sub ,nn ,|00|)))
                 (if (numberp ,nn)
                     (do ((,x ,|00| (add 1 ,x)) (,ii 0 (add 1 ,ii))
@@ -227,14 +227,14 @@
                     (merror
                      (intl:gettext "makelist: the fourth argument minus the third one must evaluate to a number; found: ~M")
                      ,nn)))
-              ,|0| ,n))))
+              ,|0| ,n) t))))
     ((= (length form) 5)
      (destructuring-let
       (((exp x |0| n s) form) (|00| (tr-gensym)) (nn (tr-gensym))
        (ss (tr-gensym)) (sum (tr-gensym)) (ii (tr-gensym)))
       (setq |0| (dtranslate |0|) n (dtranslate n) s (dtranslate s))
       `($any .
-             ((lambda (,|00| ,nn ,ss)
+             (simplifya ((lambda (,|00| ,nn ,ss)
                 (setq ,nn ($float (div (sub ,nn ,|00|) ,ss)))
                 (if (numberp ,nn)
                     (do ((,x ,|00| (add ,ss ,x)) (,ii 0 (add 1 ,ii))
@@ -247,7 +247,7 @@
                     (merror
                      (intl:gettext "makelist: the fourth argument minus the third one, divided by the fifth one must evaluate to a number; found: ~M")
                      ,nn)))
-              ,|0| ,n ,s))))
+              ,|0| ,n ,s) t))))
     (t
      (tr-format (intl:gettext "makelist: maximum 5 arguments allowed; found: ~M.~%makelist: to create a list with sublists, use nested makelist commands.~%")
                 (length form))
