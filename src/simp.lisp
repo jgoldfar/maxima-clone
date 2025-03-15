@@ -605,6 +605,12 @@
 
 (defun resimplify (x) (let ((dosimp t)) (simplifya x nil)))
 
+(defmfun ($resimplify :inline-impl t) (expr)
+  "Resimplifies the expression EXPR based on the current environment.
+  This function is useful when the fact database, option variables,
+  or tellsimp rules have changed since the expression was last simplified."
+  (resimplify expr))
+
 (defun unsimplify (x)
   (if (or (atom x) (specrepp x))
       x
