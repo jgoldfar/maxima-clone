@@ -1532,6 +1532,56 @@ See also @mrefdot{lassociative}
 @c NEEDS CLARIFICATION, EXAMPLES
 
 @c -----------------------------------------------------------------------------
+@anchor{resimplify}
+@deffn {Function} resimplify (@var{expr})
+
+Resimplifies the expression @var{expr} based on the current environment.  This
+function is useful when the fact database, option variables, or tellsimp rules
+have changed since the expression was last simplified.
+
+Example:
+
+@c ===beg===
+@c expr : sin(x)^2 + cos(x)^2;
+@c exponentialize : true;
+@c expr;
+@c resimplify(%);
+@c ratsimp(%);
+@c ===end===
+@example
+@group
+(%i1) expr : sin(x)^2 + cos(x)^2;
+                                  2         2
+(%o1)                          sin (x) + cos (x)
+@end group
+@group
+(%i2) exponentialize : true;
+(%o2)                                true
+@end group
+@group
+(%i3) expr;
+                                  2         2
+(%o3)                          sin (x) + cos (x)
+@end group
+@group
+(%i4) resimplify(%);
+                     %i x     - %i x 2      %i x     - %i x 2
+                  (%e     + %e      )    (%e     - %e      )
+(%o4)             -------------------- - --------------------
+                           4                      4
+@end group
+@group
+(%i5) ratsimp(%);
+(%o5)                                  1
+@end group
+@end example
+
+@opencatbox{Categories:}
+@category{Simplification functions}
+@closecatbox
+@end deffn
+
+@c -----------------------------------------------------------------------------
 @anchor{scsimp}
 @deffn {Function} scsimp (@var{expr}, @var{rule_1}, @dots{}, @var{rule_n})
 
@@ -1621,56 +1671,6 @@ assignment has occurred during the evaluation phase of the expression.
 @category{Evaluation flags}
 @closecatbox
 @end defvr
-
-@c -----------------------------------------------------------------------------
-
-@deffn {Function} resimplify (@var{expr})
-
-Resimplifies the expression @var{expr} based on the current environment.  This
-function is useful when the fact database, option variables, or tellsimp rules
-have changed since the expression was last simplified.
-
-Example:
-
-@c ===beg===
-@c expr : sin(x)^2 + cos(x)^2;
-@c exponentialize : true;
-@c expr;
-@c resimplify(%);
-@c ratsimp(%);
-@c ===end===
-@example
-@group
-(%i1) expr : sin(x)^2 + cos(x)^2;
-                                  2         2
-(%o1)                          sin (x) + cos (x)
-@end group
-@group
-(%i2) exponentialize : true;
-(%o2)                                true
-@end group
-@group
-(%i3) expr;
-                                  2         2
-(%o3)                          sin (x) + cos (x)
-@end group
-@group
-(%i4) resimplify(%);
-                     %i x     - %i x 2      %i x     - %i x 2
-                  (%e     + %e      )    (%e     - %e      )
-(%o4)             ──────────────────── - ────────────────────
-                           4                      4
-@end group
-@group
-(%i5) ratsimp(%);
-(%o5)                                  1
-@end group
-@end example
-
-@opencatbox{Categories:}
-@category{Simplification functions}
-@closecatbox
-@end deffn
 
 @c NEEDS CLARIFICATION, EXAMPLES
 

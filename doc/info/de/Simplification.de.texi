@@ -870,6 +870,36 @@ Siehe auch die Eigenschaft @mref{lassociative} und die Funktion
 @mrefdot{declare}
 @end defvr
 
+@c -----------------------------------------------------------------------------
+@anchor{resimplify}
+@deffn {Function} resimplify (@var{expr})
+
+Vereinfacht den Ausdruck @var{expr} erneut basierend auf der aktuellen Umgebung.
+Diese Funktion ist n@"utzlich, wenn die Faktendatenbank, Optionsvariablen oder
+tellsimp-Regeln ge@"andert wurden, seitdem der Ausdruck zuletzt vereinfacht
+wurde.
+
+Beispiel:
+
+@example
+(%i1) expr : sin(x)^2 + cos(x)^2;
+                                  2         2
+(%o1)                          sin (x) + cos (x)
+(%i2) exponentialize : true;
+(%o2)                                true
+(%i3) expr;
+                                  2         2
+(%o3)                          sin (x) + cos (x)
+(%i4) resimplify(%);
+                     %i x     - %i x 2      %i x     - %i x 2
+                  (%e     + %e      )    (%e     - %e      )
+(%o4)             -------------------- - --------------------
+                           4                      4
+(%i5) ratsimp(%);
+(%o5)                                  1
+@end example
+@end deffn
+
 @c --- 12.11.2010 DK -----------------------------------------------------------
 @anchor{scsimp}
 @deffn {Funktion} scsimp (@var{expr}, @var{rule_1}, @dots{}, @var{rule_n})
@@ -929,36 +959,6 @@ Auswertungsphase des Ausdrucks vorgenommen wurde.
 ((%SIN) 1.0)
 @end example
 @end defvr
-
-@c -----------------------------------------------------------------------------
-
-@deffn {Function} resimplify (@var{expr})
-
-Vereinfacht den Ausdruck @var{expr} erneut basierend auf der aktuellen Umgebung.
-Diese Funktion ist n@"utzlich, wenn die Faktendatenbank, Optionsvariablen oder
-tellsimp-Regeln ge@"andert wurden, seitdem der Ausdruck zuletzt vereinfacht
-wurde.
-
-Beispiel:
-
-@example
-(%i1) expr : sin(x)^2 + cos(x)^2;
-                                  2         2
-(%o1)                          sin (x) + cos (x)
-(%i2) exponentialize : true;
-(%o2)                                true
-(%i3) expr;
-                                  2         2
-(%o3)                          sin (x) + cos (x)
-(%i4) resimplify(%);
-                     %i x     - %i x 2      %i x     - %i x 2
-                  (%e     + %e      )    (%e     - %e      )
-(%o4)             ──────────────────── - ────────────────────
-                           4                      4
-(%i5) ratsimp(%);
-(%o5)                                  1
-@end example
-@end deffn
 
 @c --- 09.10.2010 DK -----------------------------------------------------------
 @anchor{symmetric}
