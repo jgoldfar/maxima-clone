@@ -139,4 +139,5 @@
 	(displa object))))
 
 (defun mtell (&rest l)
-  (apply #'mformat nil l))
+ (let ((*print-base* 10))
+  (apply #'mformat nil l)))
