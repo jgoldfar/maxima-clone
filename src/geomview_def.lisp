@@ -19,10 +19,12 @@
 (in-package :maxima)
 
 (defmethod plot-preamble ((plot geomview-plot) options)
+  (declare (ignore options))
   (setf (slot-value plot 'data) (format nil "LIST~%"))
   (values))
 
 (defmethod plot3d-command ((plot geomview-plot) functions options titles)
+  (declare (ignore titles))
   (let ((i 0) fun xrange yrange lvars trans)
     (setf
      (slot-value plot 'data)
@@ -81,6 +83,7 @@
             (format $pstream "}~%"))))))))
 
 (defmethod plot-shipout ((plot geomview-plot) options &optional output-file)
+  (declare (ignore options))
   (let ((file (plot-file-path (format nil "maxout~d.geomview" (getpid)))))
     (with-open-file (fl
                      #+sbcl (sb-ext:native-namestring file)

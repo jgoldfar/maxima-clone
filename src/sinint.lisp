@@ -230,7 +230,7 @@
 
 (defun eprog (p sinint-ratform sinint-var sinint-switch1)
   (prog (p1e p2e a1e a2e a3e discrim repart sign ncc dcc allcc xx deg
-	 sinint-parnumer sinint-pardenom sinint-wholepart)
+	 sinint-parnumer sinint-pardenom)
      (if (or (equal p 0) (equal (car p) 0))
 	 (return 0))
      (setq p1e (ratnumerator p)
@@ -396,7 +396,7 @@
      (setq sinint-parnumer nil
 	   sinint-pardenom a1e
 	   sinint-switch1 t)
-     (multiple-value-setq (sinint-parnumer sinint-wholepart)
+     (setq sinint-parnumer
        (cprog p1e p2e sinint-var sinint-pardenom))
      (setq a2e
 	   (mapcar #'(lambda (j k)

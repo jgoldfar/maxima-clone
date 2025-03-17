@@ -588,19 +588,10 @@
 		     (rplaca y (* -1 (car y))))
 		    (t (fpration1 x))))
     (when $ratprint
-      (princ "`rat' replaced ")
-      (when sign (princ "-"))
-      (princ (maknam (fpformat (cons (car x) (fpabs (cdr x))))))
-      (princ " by ")
-      (princ (car exp))
-      (write-char #\/)
-      (princ (cdr exp))
-      (princ " = ")
-      (setq x ($bfloat (list '(rat simp) (car exp) (cdr exp))))
-      (when sign (princ "-"))
-      (princ (maknam (fpformat (cons (car x) (fpabs (cdr x))))))
-      (terpri)
-      (finish-output))
+      (let ((sign-str (if sign "-" "")))
+        (mtell (intl:gettext "~&rat: replaced ~A~A by") sign-str (maknam (fpformat (cons (car x) (fpabs (cdr x))))))
+        (setq x ($bfloat (list '(rat simp) (car exp) (cdr exp))))
+        (mtell " ~A/~A = ~A~A~%" (car exp) (cdr exp) sign-str (maknam (fpformat (cons (car x) (fpabs (cdr x))))))))
     exp))
 
 (defun fpration1 (x)
@@ -642,9 +633,16 @@
 (defun extreme-float-values (x)
   ;; BLECHH, I HATE ENUMERATING CASES. IS THERE A BETTER WAY ??
   (typecase x ;gcl returns an atomic list type with type-of
+    ;; The main purpose of the #+ read-time conditionals is to prevent
+    ;; compiler warnings on Lisp implementations that don't have distinct types
+    ;; for all floating point types defined by Common Lisp.
+    #+has-distinct-short-float
     (short-float (values most-negative-short-float most-positive-short-float))
+    #+has-distinct-single-float
     (single-float (values most-negative-single-float most-positive-single-float))
+    #+has-distinct-double-float
     (double-float (values most-negative-double-float most-positive-double-float))
+    #+has-distinct-long-float
     (long-float (values most-negative-long-float most-positive-long-float))
     ;; NOT SURE THE FOLLOWING REALLY WORKS
     ;; #+(and cmu double-double)

@@ -1043,7 +1043,7 @@
       ;; the expansion point is INF, MINF,etc.
       (let* ((lim (gvar-lim (gvar ps)))
 	     (strongest-term
-	      (if (member lim '($inf $minf) :test #'eq) (ps-gt ps) (ps-lt ps))))
+	      (if (member lim '($inf $minf)) (ps-gt ps) (ps-lt ps))))
 	 (if (ezerop (e strongest-term))
 	     (ps-lim-infp (c strongest-term))
 	     (progn
@@ -1051,19 +1051,19 @@
 	       (and (lim-infp lim) (not (eq lim '$infinity))))))))
 
 (defun lim-zerop (lim)
-  (member lim '($zeroa $zerob $zeroim) :test #'eq))
+  (if (member lim '($zeroa $zerob $zeroim)) t))
 
 (defun lim-plusp (lim)
-  (member lim '($zeroa $pos $inf $finite) :test #'eq))
+  (if (member lim '($zeroa $pos $inf $finite)) t))
 
 (defun lim-finitep (lim)
-  (member lim '($pos $neg $im $finite) :test #'eq))
+  (if (member lim '($pos $neg $im $finite)) t))
 
 (defun lim-infp (lim)
-  (member lim '($inf $minf $infinity) :test #'eq))
+  (if (member lim '($inf $minf $infinity)) t))
 
 (defun lim-imagp (lim)
-  (member lim '($im $infinity) :test #'eq))
+  (if (member lim '($im $infinity)) t))
 
 (defun lim-minus (lim)
   (cdr (assoc lim '(($zeroa . $zerob) ($zerob . $zeroa) ($pos . $neg) ($zero . $zero)
@@ -2224,7 +2224,7 @@
 	;; If TSDIFF returns NIL, it means that the derivative is wrt to some variable
 	;; other than one of the taylor variables.
 	;; If so, keep going and handle E as if it were a general expression.
-	((and (eq (caar e) '%derivative) (tsdiff (cadr e) (cddr e) e)))
+	((and (eq (caar e) '%derivative) (tsdiff (cadr e) (cddr e))))
 	((or (eq (caar e) '%at)
 	     (do ((l (mapcar 'car tlist) (cdr l)))
 		 ((null l) t)
@@ -2980,7 +2980,7 @@
 			(return ans)
 			(setq ans (psplus ans a))))))))))
 
-(defun tsdiff (e l check)
+(defun tsdiff (e l)
 	(*bind* ((n) (v) (u))
 	      (do ((l l (cddr l)))
 		  ((null l))

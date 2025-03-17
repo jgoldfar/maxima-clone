@@ -1160,6 +1160,7 @@ Examples:
 @anchor{makelist}
 @deffn  {Function} makelist @
 @fname{makelist} () @
+@fname{makelist} (@var{expr}) @
 @fname{makelist} (@var{expr}, @var{n}) @
 @fname{makelist} (@var{expr}, @var{i}, @var{i_max}) @
 @fname{makelist} (@var{expr}, @var{i}, @var{i_0}, @var{i_max}) @

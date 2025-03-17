@@ -362,7 +362,8 @@
 (defvar *collect-errors* t)
 
 (defun print-test-batch-problem (out filename problem-no problem-lineno input)
-  (let* ((center
+  (let* ((*print-base* 10)
+         (center
           (format nil (intl:gettext " ~A: Problem ~A~A ")
             filename problem-no
             (if problem-lineno (format nil (intl:gettext " (line ~S)") problem-lineno) "")))
@@ -502,8 +503,9 @@
 		     (push i all-differences)
 		     (displa next-result)
 		     (cond ((and *collect-errors* error-log)
+               (let ((*print-base* 10))
 			    (format error-log (intl:gettext "/* Problem ~A~A */~%")
-                                    i (if problem-lineno (format nil (intl:gettext " (line ~S)") problem-lineno) ""))
+                                    i (if problem-lineno (format nil (intl:gettext " (line ~S)") problem-lineno) "")))
 			    (mgrind (third expr) error-log)
 			    (list-variable-bindings (third expr) error-log)
 			    (format error-log ";~%")
@@ -520,7 +522,8 @@
 	   (or (streamp *collect-errors*)
 	       (close error-log))))
     (let*
-      ((n-expected-errors (length expected-errors))
+      ((*print-base* 10)
+       (n-expected-errors (length expected-errors))
        (expected-errors-trailer
 	 (if (= n-expected-errors 0)
 	    ""

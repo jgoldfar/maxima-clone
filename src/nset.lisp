@@ -90,7 +90,7 @@
 ;; isn't a list, signal an error. 
 
 (defmfun $setify (a)
-  (simplifya `(($set) ,@(require-list a '$setify)) nil))
+  (simplifya `(($set) ,@(copy-list (require-list a '$setify))) t))
 
 ;; When a is a list, convert a and all of its elements that are lists
 ;; into sets.  When a isn't a list, return a.
@@ -104,7 +104,7 @@
 ;; list, return a.
 
 (defmfun $listify (a)
-  (if ($setp a) `((mlist simp) ,@(cdr a)) a))
+  (if ($setp a) (simplifya `((mlist) ,@(cdr a)) t) a))
 
 ;; full_listify(a) converts all sets in a into lists.
 

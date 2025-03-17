@@ -118,11 +118,11 @@
 
 (declaim (inline mnump))
 (defun mnump (x)
-  "Returns non-NIL if X is a Lisp number or if it is a Maxima rational
-  form or a bigfloat form"
+  "Returns T if X is a Lisp number or if it is a Maxima rational
+  form or a bigfloat form, NIL otherwise"
   (or (numberp x)
       (and (not (atom x)) (not (atom (car x)))
-	   (member (caar x) '(rat bigfloat)))))
+	   (member (caar x) '(rat bigfloat)) t)))
 
 ;; Does X or a subexpression match PREDICATE?
 ;;
@@ -257,7 +257,7 @@
 
 (defun specrepp (e)
   (and (not (atom e))
-       (member (caar e) '(mrat mpois))))
+       (member (caar e) '(mrat mpois)) t))
 
 (defun specdisrep (e)
   (cond ((eq (caar e) 'mrat) (ratdisrep e))
@@ -418,18 +418,18 @@
 
 (defun mbagp (x)
   (and (not (atom x))
-       (member (caar x) '(mequal mlist $matrix))))
+       (member (caar x) '(mequal mlist $matrix)) t))
 
 (defun mequalp (x) (and (not (atom x)) (eq (caar x) 'mequal)))
 
 (defun mxorlistp (x)
   (and (not (atom x))
-       (member (caar x) '(mlist $matrix))))
+       (member (caar x) '(mlist $matrix)) t))
 
 (defun mxorlistp1 (x)
   (and (not (atom x))
        (or (eq (caar x) '$matrix)
-	   (and (eq (caar x) 'mlist) $listarith))))
+	   (and $listarith (eq (caar x) 'mlist)))))
 
 (defun constmx (const x)
   (simplifya (fmapl1 #'(lambda (ign)
@@ -604,6 +604,12 @@
 (defun rulechk (x) (or (mget x 'oldrules) (get x 'rules)))
 
 (defun resimplify (x) (let ((dosimp t)) (simplifya x nil)))
+
+(defmfun ($resimplify :inline-impl t) (expr)
+  "Resimplifies the expression EXPR based on the current environment.
+  This function is useful when the fact database, option variables,
+  or tellsimp rules have changed since the expression was last simplified."
+  (resimplify expr))
 
 (defun unsimplify (x)
   (if (or (atom x) (specrepp x))
@@ -1418,7 +1424,7 @@
 ;;; in infinite recursion.
 ;;;
 (defun simpln1 (w)
-  (let ((simped (member 'simp (cdar w))))
+  (let ((simped (and (member 'simp (cdar w)) t)))
     (simplifya (list '(mtimes) (caddr w) ; Don't lie to SIMPLIFYA (2nd arg)!
       (simplifya (list '(%log) (cadr w)) simped)) simped)))
 
@@ -2159,8 +2165,8 @@
 (defun simpexpt (x y z)
   (prog (gr pot check res *rulesw* w mlpgr mlppot)
      (setq check x)
-     (cond (z (setq gr (cadr x) pot (caddr x)) (go cont)))
      (twoargcheck x)
+     (cond (z (setq gr (cadr x) pot (caddr x)) (go cont)))
      (setq gr (simplifya (cadr x) nil))
      (setq pot
            (let (($%enumer $numer))
@@ -2507,11 +2513,11 @@
 
 (defun apparently-complex-to-judge-by-$csign-p (e)
   (let ((s ($csign e)))
-    (member s '($complex $imaginary))))
+    (and (member s '($complex $imaginary)) t)))
 
 (defun apparently-real-to-judge-by-$csign-p (e)
   (let ((s ($csign e)))
-    (member s '($pos $neg $zero $pn $pnz $pz $nz))))
+    (and (member s '($pos $neg $zero $pn $pnz $pz $nz)) t)))
 
 ;; Basically computes log of m base b.  Except if m is not a power
 ;; of b, we return nil.  m is a positive integer and base an integer
@@ -2968,7 +2974,7 @@
 ;; This function is not called in Maxima core or share code
 ;; and can be cut out.
 (defun noneg (p)
-  (and (free p '$%i) (member ($sign p) '($pos $pz $zero))))
+  (and (free p '$%i) (member ($sign p) '($pos $pz $zero)) t))
 
 (defun radmabs (e)
   (if (and limitp (free e '$%i)) (asksign-p-or-n e))
@@ -3713,3 +3719,4 @@
 
 (defun nthkdr (x c)
   (if (zerop c) x (nthkdr (kdr x) (1- c))))
+

@@ -83,7 +83,9 @@
 (defmacro tr (u)
   (and (consp u)
        (eq (car u) 'quote)
-       (bind-transl-state (translate-macexpr-toplevel (second u)))))
+       (bind-transl-state
+         (declare (ignorable defined_variables *local*))
+         (translate-macexpr-toplevel (second u)))))
 
 (defmacro maset (val ar &rest inds)
   (if (or (eq ar 'mqapply)

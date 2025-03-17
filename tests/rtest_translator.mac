@@ -457,14 +457,18 @@ if build_info()@lisp_name # "ECL" then
  */
 
 (kill(all),
+ f0() := makelist (),
  f1(n) := makelist (1, n),
  f2(n) := makelist (i^2, i, n),
  f3(l) := makelist (i^3, i, l),
  f4(n) := makelist (i^4, i, 1, n),
  f5(m, n) := makelist (i^5, i, 1, n, m),
- translate_or_lose(f1, f2, f3, f4, f5),
+ translate_or_lose(f0, f1, f2, f3, f4, f5),
  0);
 0;
+
+f0();
+[];
 
 f1(5);
 [1,1,1,1,1];

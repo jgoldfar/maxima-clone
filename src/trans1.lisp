@@ -160,7 +160,7 @@
 (def%tr $makelist (form)
   (setq form (cdr form))
   (cond 
-    ((= (length form) 0) '(simplifya ($any . '((mlist))) t))
+    ((= (length form) 0) '($any . (simplifya '((mlist)) t)))
     ((= (length form) 1)
      (destructuring-let
       (((exp) form))

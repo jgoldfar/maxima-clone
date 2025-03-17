@@ -3075,3 +3075,13 @@ block(
 	totalorderp(orderlessp, L)
 );
 [];
+
+block(
+	[expr, exponentialize : false, L : []],
+	push(expr : sin(x) ^ 2 + cos(x) ^ 2, L),
+	exponentialize : true,
+	push(expr, L),
+	push(ratsimp(resimplify(expr)), L),
+	reverse(L)
+);
+[sin(x)^2+cos(x)^2,sin(x)^2+cos(x)^2,1];

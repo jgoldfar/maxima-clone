@@ -118,7 +118,8 @@
 	 (throw 'macsyma-quit 'maxima-error)))))
 
 (defun mwarning (&rest l)
-  (format *error-output* "Warning: ~{~a~^ ~}~%" (mapcar #'$sconcat l)))
+ (let ((*print-base* 10))
+  (format *error-output* "Warning: ~{~a~^ ~}~%" (mapcar #'$sconcat l))))
 
 (defmvar $error_syms '((mlist) $errexp1 $errexp2 $errexp3)
   "Symbols to bind the too-large `maxima-error' expressions to"
@@ -167,7 +168,7 @@
   (let ((the-jig (process-error-argl (cddr $error))))
     (mapc #'(lambda (v x) (setf (symbol-value v) x)) (car the-jig) (cadr the-jig))
     (fresh-line)
-    (let ((errset nil))
+    (let ((errset nil) (*print-base* 10))
       (if (null (errset
 		 (apply #'mformat nil
 			(cadr $error) (caddr the-jig))))
