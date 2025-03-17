@@ -767,7 +767,9 @@
       (putonvlist x)))
 
 (defun fr1 (x varlist)		    ;put radicands on initial varlist?
-  (prog (genvar $norepeat *ratsimp* radlist vlist nvarlist ovarlist genpairs)
+  (if (or (symbolp x) (and (integerp x) (not modulus)))
+   x ; early exit for symbols and integers (when no modulus is set)
+   (prog (genvar $norepeat *ratsimp* radlist vlist nvarlist ovarlist genpairs)
      (newvar1 x)
      (setq nvarlist (mapcar #'fr-args vlist))
      (cond ((not *ratsimp*)	;*ratsimp* not set for initial varlist
@@ -791,7 +793,7 @@
        (cond (radlist			;rational radicands
 	      (setq *ratsimp* nil)
 	      (setq x (ratsimp (simplify x) nil nil)))))
-     (return x)))
+     (return x))))
 
 (defun ratsimp (x varlist genvar) ($ratdisrep (ratf x)))
 
