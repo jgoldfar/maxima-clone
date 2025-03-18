@@ -114,7 +114,7 @@
         ((mlist simp) "rtest_elliptic"
 	 #-allegro ((mlist simp) 135)
 	 #+allegro ((mlist simp) 92 135))
-        "rtest_integrate"
+        ((mlist simp) "rtest_integrate" ((mlist simp) 826 827))
         "rtest_integrate_special"
         ((mlist simp) "rtest_sqrt"
 	 ((mlist simp) 89))

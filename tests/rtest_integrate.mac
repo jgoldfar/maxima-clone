@@ -6322,3 +6322,18 @@ integrate ((log((x + 1)^p) + 1)^n, x);
 [x-log(%e^x+x+1), x-log(%e^x+x+1)];
 [integrate((x+2*%e^x+2)/(x+%e^x+1),x), risch((x+2*%e^x+2)/(x+%e^x+1),x)];
 [log(%e^x+x+1)+x, log(%e^x+x+1)+x];
+
+/* SF bug #3906: "integration error 0 to negative exponent" */
+
+(f:x^2*asin(1/3*sqrt(-x^2 + 1)/sqrt(-1/9*x^2 + 1/9)),
+ 0);
+0;
+
+risch (f, x);
+(%pi*x^3)/6;
+
+integrate (f, x);
+(%pi*x^3)/6;
+
+integrate (f, x, 0, 1);
+%pi/6;
