@@ -32,7 +32,7 @@
 			   (member (caaadr x) '(mand mor mnot mcond mprog) :test #'eq)))
 		  (improper-arg-err (cadr x) '$matchdeclare)))
 	   (meta-add2lnc (car x) '$props)
-	   (meta-mputprop (car x) (ncons (cadr x)) 'matchdeclare))
+	   (meta-mputprop (car x) (list (cadr x)) 'matchdeclare))
 	  ((not ($listp (car x)))
 	   (improper-arg-err (car x) '$matchdeclare))
 	  (t (do ((l (cdar x) (cdr l))) ((null l))
@@ -654,8 +654,8 @@
                 (if (atom p-op)
                   ; P-OP is the name of a function. Try to generate a Lisp function call.
                   (if (and (fboundp p-op) (not (get p-op 'translated)))   ; WHY THE TEST FOR TRANSLATED PROPERTY ??
-                    `(eq t (,p-op ,@(ncons match-against)))
-                    `(definitely-so '((,p-op) ,@(ncons match-against))))
+                    `(eq t (,p-op ,match-against))
+                    `(definitely-so '((,p-op) ,match-against)))
 
                   ; Otherwise P-OP is something like ((<op>) <args>).
                   (progn
@@ -664,12 +664,12 @@
                       ((eq (caar p-op) 'lambda)
                        `(definitely-so (mapply1 ',p-op (list ,match-against) t nil)))
                       ((eq (caar p-op) 'mqapply)
-                       `(definitely-so (meval ',(append p-op (ncons match-against)))))
+                       `(definitely-so (meval ',(append p-op (list match-against)))))
                       ; Otherwise P-OP must be a function call with the last arg missing.
                       (t
                         (if (and (consp (car p-op)) (mget (caar p-op) 'mmacro))
-                          `(definitely-so (cons ',(car p-op) ,(append '(list) (mapcar 'memqargs p-args) (ncons match-against))))
-                          `(definitely-so (cons ',(car p-op) ',(append (mapcar 'memqargs p-args) (ncons match-against))))))))))
+                          `(definitely-so (cons ',(car p-op) ,(append '(list) (mapcar 'memqargs p-args) (list match-against))))
+                          `(definitely-so (cons ',(car p-op) ',(append (mapcar 'memqargs p-args) (list match-against))))))))))
 
           `(cond
              (,test-expr (msetq ,pattern-variable ,match-against))
