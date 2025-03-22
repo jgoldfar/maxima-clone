@@ -158,7 +158,7 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
     (setq *maxima-plotdir*   (combine-path maxima-prefix "plotting"))))
 
 (defun default-userdir ()
-  (let ((home-env (maxima-getenv "HOME"))
+  (let ((home-env (or (maxima-getenv "HOME") (maxima-getenv "USERPROFILE")))
 	(base-dir "")
 	(maxima-dir (if (string= *autoconf-windows* "true")
 			"maxima"
