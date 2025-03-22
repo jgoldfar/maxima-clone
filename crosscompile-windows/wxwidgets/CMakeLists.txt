@@ -10,8 +10,8 @@
 # If no further patches are needed, you should get a
 # updated setup-file automatically.
 
-set(WXWIDGETSVERSION "3.2.6")
-set(WXWIDGETS_MD5 "41d54fffc953936bb92ae45d81ded60c")
+set(WXWIDGETSVERSION "3.2.7")
+set(WXWIDGETS_MD5 "fca970158930c96144dba1bfef42a0d7")
 set(WXWIDGETS_URL "https://github.com/wxWidgets/wxWidgets/releases/download/v${WXWIDGETSVERSION}/wxWidgets-${WXWIDGETSVERSION}.tar.bz2")
 
 # Build wxWidgets static library (required for wxMaxima)
