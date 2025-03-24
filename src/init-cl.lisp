@@ -385,8 +385,11 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
     (when (equal (subseq pathstring (- len 1) len) "/")
       (decf len)
       (setf pathstring (subseq pathstring 0 len)))
-    (subseq pathstring 0 (or (position #\/ pathstring :from-end t)
-			     (position #\\ pathstring :from-end t) 0))))
+    (let ((last-slash (or (position #\/ pathstring :from-end t)
+			              (position #\\ pathstring :from-end t))))
+      (if last-slash
+        (subseq pathstring 0 last-slash)
+        "."))))
 
 (defun list-avail-action ()
   (let* ((maxima-verpkglibdir (if (maxima-getenv "MAXIMA-VERPKGLIBDIR")
