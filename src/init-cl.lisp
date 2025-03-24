@@ -377,7 +377,7 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
       (decf len)
       (setf pathstring (subseq pathstring 0 len)))
     (subseq pathstring (1+ (or (position #\/ pathstring :from-end t)
-			       (position #\\ pathstring :from-end t))) len)))
+			       (position #\\ pathstring :from-end t) -1)) len)))
 
 (defun unix-like-dirname (path)
   (let* ((pathstring (namestring path))
@@ -386,7 +386,7 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
       (decf len)
       (setf pathstring (subseq pathstring 0 len)))
     (subseq pathstring 0 (or (position #\/ pathstring :from-end t)
-			     (position #\\ pathstring :from-end t)))))
+			     (position #\\ pathstring :from-end t) 0))))
 
 (defun list-avail-action ()
   (let* ((maxima-verpkglibdir (if (maxima-getenv "MAXIMA-VERPKGLIBDIR")
