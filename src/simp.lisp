@@ -151,18 +151,22 @@
 
 ;; Predicates to determine if X satisfies some condition.
 
+(declaim (inline ratnump))
 (defun ratnump (x)
   "Determines if X is a Maxima rational form:  ((rat ...) a b)"
   (and (not (atom x)) (eq (caar x) 'rat)))
 
+(declaim (inline mplusp))
 (defun mplusp (x)
   "Determines if X is a Maxima sum form: ((mplus ...) ...)"
   (and (not (atom x)) (eq (caar x) 'mplus)))
 
+(declaim (inline mtimesp))
 (defun mtimesp (x)
   "Determines if X is a Maxima product form: ((mtimes ...) ...)"
   (and (not (atom x)) (eq (caar x) 'mtimes)))
 
+(declaim (inline mexptp))
 (defun mexptp (x)
   "Determines if X is a Maxima exponential form: ((mexpt ...) ...)"
   (and (not (atom x)) (eq (caar x) 'mexpt)))
