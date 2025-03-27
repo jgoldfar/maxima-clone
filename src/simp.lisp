@@ -469,6 +469,7 @@
 
 
 (defun simplifya (x y)
+ (let (op)
   (cond ((not $simp) x)
         ((atom x)
          (cond ((and $%enumer $numer (eq x '$%e))
@@ -487,25 +488,25 @@
 		x)
 	       (t (cons (car x)
 			(mapcar #'(lambda (x) (simplifya x y)) (cdr x))))))
-	((eq (caar x) 'rat) (*red1 x))
+	((eq (setq op (caar x)) 'rat) (*red1 x))
 	;; Enforced resimplification: Reset dosimp and strip 'simp tags from x.
 	(dosimp (let ((dosimp nil)) (simplifya (unsimplify x) y)))
 	((member 'simp (cdar x)) x)
-	((eq (caar x) 'mrat) x)
-	((stringp (caar x))
-	 (simplifya (cons (cons ($verbify (caar x)) (rest (car x))) (rest x)) y))
-	((not (atom (caar x)))
+	((eq op 'mrat) x)
+	((stringp op)
+	 (simplifya (cons (cons ($verbify op) (rest (car x))) (rest x)) y))
+	((not (atom op))
 	 (cond ((or (eq (caaar x) 'lambda)
 		    (and (not (atom (caaar x))) (eq (caaaar x) 'lambda)))
-		(mapply1 (caar x) (cdr x) (caar x) x))
+		(mapply1 op (cdr x) op x))
 	       (t (merror (intl:gettext "simplifya: operator is neither an atom nor a lambda expression: ~S") x))))
         ((and $distribute_over
-              (get (caar x) 'distribute_over)
+              (get op 'distribute_over)
               ;; A function with the property 'distribute_over.
               (distribute-over x y)))
-	((get (caar x) 'opers)
+	((get op 'opers)
 	 (let ((opers-list *opers-list)) (oper-apply x y)))
-	((and (eq (caar x) 'mqapply)
+	((and (eq op 'mqapply)
 	      (or (atom (cadr x))
 		  (and (eq substp 'mqapply)
 		       (or (eq (car (cadr x)) 'lambda)
@@ -515,12 +516,12 @@
 	       ((or (not (member 'array (cdar x))) (not $subnumsimp))
 		(merror (intl:gettext "simplifya: I don't know how to simplify this operator: ~M") x))
 	       (t (cadr x))))
-	(t (let ((w (get (caar x) 'operators)))
+	(t (let ((w (get op 'operators)))
 	     (cond ((and w
 	                 (or (not (member 'array (cdar x)))
-	                     (rulechk (caar x))))
+	                     (rulechk op)))
 		    (funcall w x 1 y))
-		   (t (simpargs x y)))))))
+		   (t (simpargs x y))))))))
 
 ;; EQTEST returns an expression which is the same as X
 ;; except that it is marked with SIMP and maybe other flags from CHECK.
@@ -3067,14 +3068,15 @@
   ;; everything else is rare
   (cond ((eq x y) t)
         ((consp x)
+         (let (car-x car-y op)
          (if (and (consp y)
-                  (not (atom (car x)))
-                  (not (atom (car y)))
-                  (eq (caar x) (caar y)))
+                  (not (atom (setq car-x (car x))))
+                  (not (atom (setq car-y (car y))))
+                  (eq (setq op (car car-x)) (car car-y)))
              (cond
-              ((eq (caar x) 'mrat) (like x y))
-              ((eq (caar x) 'mpois) (equal (cdr x) (cdr y)))
-              ((eq (caar x) 'bigfloat)
+              ((eq op 'mrat) (like x y))
+              ((eq op 'mpois) (equal (cdr x) (cdr y)))
+              ((eq op 'bigfloat)
                 ;; Bigfloats need special treatment because their precision
                 ;; and an optional DECIMAL flag are stored in the CAR,
                 ;; which would otherwise be ignored.
@@ -3093,7 +3095,7 @@
                (alike (cdr x) (cdr y)))
               (t nil))
            ;; (foo) and (foo) test non-alike because the car's aren't standard
-           nil))
+           nil)))
         ((consp y) nil)
         ((or (symbolp x) (symbolp y)) nil)
         ((integerp x) (and (integerp y) (= x y)))
