@@ -504,7 +504,7 @@
 			(mapcar #'(lambda (x) (simplifya x y)) (cdr x))))))
 	((eq (setq op (caar x)) 'rat) (*red1 x))
 	;; Enforced resimplification: Reset dosimp and strip 'simp tags from x.
-	(dosimp (let ((dosimp nil)) (simplifya (unsimplify x) y)))
+	(dosimp (let ((dosimp nil)) (simplifya (unsimplify x) nil)))
 	((member-eq 'simp (cdar x)) x)
 	((eq op 'mrat) x)
 	((stringp op)
