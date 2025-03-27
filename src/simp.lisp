@@ -467,6 +467,20 @@
      ((atom l) (return (free l free-var)))	;; second element of a pair
      ((not (free (car l) free-var)) (return nil)))))
 
+(declaim (inline find-member-eq))
+(defun find-member-eq (m l)
+  "This function behaves like (IF (MEMBER M L :TEST #'EQ) M).
+  When inlined, this function is so small that there is almost no code size
+  overhead compared to a MEMBER call, but it is faster because no CALL
+  instruction is required."
+  (prog ()
+    loop
+    (unless l
+      (return nil))
+    (when (eq (car l) m)
+      (return m))
+    (setq l (cdr l))
+    (go loop)))
 
 (defun simplifya (x y)
  (let (op)
@@ -491,7 +505,7 @@
 	((eq (setq op (caar x)) 'rat) (*red1 x))
 	;; Enforced resimplification: Reset dosimp and strip 'simp tags from x.
 	(dosimp (let ((dosimp nil)) (simplifya (unsimplify x) y)))
-	((member 'simp (cdar x)) x)
+	((find-member-eq 'simp (cdar x)) x)
 	((eq op 'mrat) x)
 	((stringp op)
 	 (simplifya (cons (cons ($verbify op) (rest (car x))) (rest x)) y))
@@ -513,12 +527,12 @@
 			   (eq (caar (cadr x)) 'lambda)))))
 	 (cond ((or (symbolp (cadr x)) (not (atom (cadr x))))
 		(simplifya (cons (cons (cadr x) (cdar x)) (cddr x)) y))
-	       ((or (not (member 'array (cdar x))) (not $subnumsimp))
+	       ((or (not (find-member-eq 'array (cdar x))) (not $subnumsimp))
 		(merror (intl:gettext "simplifya: I don't know how to simplify this operator: ~M") x))
 	       (t (cadr x))))
 	(t (let ((w (get op 'operators)))
 	     (cond ((and w
-	                 (or (not (member 'array (cdar x)))
+	                 (or (not (find-member-eq 'array (cdar x)))
 	                     (rulechk op)))
 		    (funcall w x 1 y))
 		   (t (simpargs x y))))))))
@@ -541,14 +555,14 @@
     (cond ((or (atom x)
 	       (eq (caar x) 'rat)
 	       (eq (caar x) 'mrat)
-	       (member 'simp (cdar x)))
+	       (find-member-eq 'simp (cdar x)))
 	   x)
 	  ((and (eq (caar x) (caar check))
 		(equal (cdr x) (cdr check)))
 	   (cond ((and (null (cdar check))
 		       (setq y (get (caar check) 'msimpind)))
 		  (cons y (cdr check)))
-		 ((member 'simp (cdar check))
+		 ((find-member-eq 'simp (cdar check))
 		  check)
 		 (t
 		  (cons (cons (caar check)
@@ -558,9 +572,9 @@
 			(cdr check)))))
 	  ((setq y (get (caar x) 'msimpind))
 	   (rplaca x y))
-	  ((or (member 'array (cdar x))
+	  ((or (find-member-eq 'array (cdar x))
 	       (and (eq (caar x) (caar check))
-		    (member 'array (cdar check))))
+		    (find-member-eq 'array (cdar check))))
 	   (rplaca x (cons (caar x) '(simp array))))
 	  (t
 	   (rplaca x (cons (caar x) '(simp)))))))
@@ -3053,12 +3067,6 @@
 		   ((not (alike1 (car x1) (car y1)))
 		    (return (great (car x1) (car y1)))))))))
 
-;; Trivial function used only in ALIKE1.
-;; Should be defined as an open-codable subr.
-
-(defmacro memqarr (l)
-  `(if (member 'array ,l) t))
-
 ;; Compares two Macsyma expressions ignoring SIMP flags and all other
 ;; items in the header except for the ARRAY flag.
 
@@ -3091,7 +3099,7 @@
                         (rest-y (if (eq 'simp (cadar y)) (cddar y) (cdar y))))
                     (and (= (car rest-x) (car rest-y))
                          (eq (cadr rest-x) (cadr rest-y))))))
-              ((eq (memqarr (cdar x)) (memqarr (cdar y)))
+              ((eq (find-member-eq 'array (cdar x)) (find-member-eq 'array (cdar y)))
                (alike (cdr x) (cdr y)))
               (t nil))
            ;; (foo) and (foo) test non-alike because the car's aren't standard
