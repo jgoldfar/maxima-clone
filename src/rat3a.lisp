@@ -783,6 +783,7 @@
           (list* (pt-le u) (pt-lc u)
                  (ptpt-subtract-powered-product (pt-red u) v q k))))))))
 
+(declaim (inline algord))
 (defun algord (var)
   (and $algebraic (get var 'algord)))
 
