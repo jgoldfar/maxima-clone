@@ -185,19 +185,25 @@
         (setq base (rem (* base base) modulus))
         (when (oddp pow) (setq s (rem (* s base) modulus))))))
 
+(defun normalized-modulus (n)
+  "Normalizes the number N with respect to MODULUS,
+  returning a number in (-MODULUS/2, MODULUS/2]."
+  (declare (type number n))
+  (let ((rem (mod n modulus)))
+    (if (<= (* 2 rem) modulus)
+      rem
+      (- rem modulus))))
+
 ;; CMOD
 ;;
 ;; When MODULUS is null, this is the identity. Otherwise, it normalises N, which
 ;; should be a number, to lie in the range (-modulus/2, modulus/2].
+(declaim (inline cmod))
 (defun cmod (n)
   (declare (type number n))
-  (if (not modulus)
-      n
-      (let ((rem (mod n modulus)))
-        (if (<= (* 2 rem) modulus)
-            rem
-            (- rem modulus)))))
+  (if modulus (normalized-modulus n) n))
 
+(declaim (inline cplus ctimes cdifference))
 (defun cplus       (a b) (cmod (+ a b)))
 (defun ctimes      (a b) (cmod (* a b)))
 (defun cdifference (a b) (cmod (- a b)))

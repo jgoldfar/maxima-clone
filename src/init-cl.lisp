@@ -158,7 +158,7 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
     (setq *maxima-plotdir*   (combine-path maxima-prefix "plotting"))))
 
 (defun default-userdir ()
-  (let ((home-env (maxima-getenv "HOME"))
+  (let ((home-env (or (maxima-getenv "HOME") (maxima-getenv "USERPROFILE")))
 	(base-dir "")
 	(maxima-dir (if (string= *autoconf-windows* "true")
 			"maxima"
@@ -377,7 +377,7 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
       (decf len)
       (setf pathstring (subseq pathstring 0 len)))
     (subseq pathstring (1+ (or (position #\/ pathstring :from-end t)
-			       (position #\\ pathstring :from-end t))) len)))
+			       (position #\\ pathstring :from-end t) -1)) len)))
 
 (defun unix-like-dirname (path)
   (let* ((pathstring (namestring path))
@@ -385,8 +385,11 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
     (when (equal (subseq pathstring (- len 1) len) "/")
       (decf len)
       (setf pathstring (subseq pathstring 0 len)))
-    (subseq pathstring 0 (or (position #\/ pathstring :from-end t)
-			     (position #\\ pathstring :from-end t)))))
+    (let ((last-slash (or (position #\/ pathstring :from-end t)
+			              (position #\\ pathstring :from-end t))))
+      (if last-slash
+        (subseq pathstring 0 last-slash)
+        "."))))
 
 (defun list-avail-action ()
   (let* ((maxima-verpkglibdir (if (maxima-getenv "MAXIMA-VERPKGLIBDIR")

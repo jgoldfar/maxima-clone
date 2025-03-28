@@ -1014,5 +1014,16 @@ limit (integrate (baz(0, x) * foo(x), x), x, 1);
  contexts;
  [initial,global]$
 
+/* SF bug #3927: "tlimit(exp(x)/x^5,x,inf) = 0" */
+
+block([lhospitallim : 1], tlimit(exp(x)/x^5,x,inf));
+inf$
+
+block([lhospitallim : 1], tlimit(exp(x)/x^46,x,inf));
+inf$
+
+block([lhospitallim : 1], tlimit(exp(x)/x^107,x,inf));
+inf$
+
 (kill(facts),0);
 0$

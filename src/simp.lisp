@@ -151,18 +151,22 @@
 
 ;; Predicates to determine if X satisfies some condition.
 
+(declaim (inline ratnump))
 (defun ratnump (x)
   "Determines if X is a Maxima rational form:  ((rat ...) a b)"
   (and (not (atom x)) (eq (caar x) 'rat)))
 
+(declaim (inline mplusp))
 (defun mplusp (x)
   "Determines if X is a Maxima sum form: ((mplus ...) ...)"
   (and (not (atom x)) (eq (caar x) 'mplus)))
 
+(declaim (inline mtimesp))
 (defun mtimesp (x)
   "Determines if X is a Maxima product form: ((mtimes ...) ...)"
   (and (not (atom x)) (eq (caar x) 'mtimes)))
 
+(declaim (inline mexptp))
 (defun mexptp (x)
   "Determines if X is a Maxima exponential form: ((mexpt ...) ...)"
   (and (not (atom x)) (eq (caar x) 'mexpt)))
@@ -467,8 +471,19 @@
      ((atom l) (return (free l free-var)))	;; second element of a pair
      ((not (free (car l) free-var)) (return nil)))))
 
+(declaim (inline member-eq))
+(defun member-eq (m l)
+  "This function behaves like (MEMBER M L :TEST #'EQ).
+  When inlined, this function is so small that there is almost no code size
+  overhead compared to a MEMBER call, but it is faster because no CALL
+  instruction is required."
+  (while l
+    (when (eq m (car l))
+      (return l))
+    (setq l (cdr l))))
 
 (defun simplifya (x y)
+ (let (op)
   (cond ((not $simp) x)
         ((atom x)
          (cond ((and $%enumer $numer (eq x '$%e))
@@ -487,40 +502,40 @@
 		x)
 	       (t (cons (car x)
 			(mapcar #'(lambda (x) (simplifya x y)) (cdr x))))))
-	((eq (caar x) 'rat) (*red1 x))
+	((eq (setq op (caar x)) 'rat) (*red1 x))
 	;; Enforced resimplification: Reset dosimp and strip 'simp tags from x.
-	(dosimp (let ((dosimp nil)) (simplifya (unsimplify x) y)))
-	((member 'simp (cdar x)) x)
-	((eq (caar x) 'mrat) x)
-	((stringp (caar x))
-	 (simplifya (cons (cons ($verbify (caar x)) (rest (car x))) (rest x)) y))
-	((not (atom (caar x)))
+	(dosimp (let ((dosimp nil)) (simplifya (unsimplify x) nil)))
+	((member-eq 'simp (cdar x)) x)
+	((eq op 'mrat) x)
+	((stringp op)
+	 (simplifya (cons (cons ($verbify op) (rest (car x))) (rest x)) y))
+	((not (atom op))
 	 (cond ((or (eq (caaar x) 'lambda)
 		    (and (not (atom (caaar x))) (eq (caaaar x) 'lambda)))
-		(mapply1 (caar x) (cdr x) (caar x) x))
+		(mapply1 op (cdr x) op x))
 	       (t (merror (intl:gettext "simplifya: operator is neither an atom nor a lambda expression: ~S") x))))
         ((and $distribute_over
-              (get (caar x) 'distribute_over)
+              (get op 'distribute_over)
               ;; A function with the property 'distribute_over.
               (distribute-over x y)))
-	((get (caar x) 'opers)
+	((get op 'opers)
 	 (let ((opers-list *opers-list)) (oper-apply x y)))
-	((and (eq (caar x) 'mqapply)
+	((and (eq op 'mqapply)
 	      (or (atom (cadr x))
 		  (and (eq substp 'mqapply)
 		       (or (eq (car (cadr x)) 'lambda)
 			   (eq (caar (cadr x)) 'lambda)))))
 	 (cond ((or (symbolp (cadr x)) (not (atom (cadr x))))
 		(simplifya (cons (cons (cadr x) (cdar x)) (cddr x)) y))
-	       ((or (not (member 'array (cdar x))) (not $subnumsimp))
+	       ((or (not (member-eq 'array (cdar x))) (not $subnumsimp))
 		(merror (intl:gettext "simplifya: I don't know how to simplify this operator: ~M") x))
 	       (t (cadr x))))
-	(t (let ((w (get (caar x) 'operators)))
+	(t (let ((w (get op 'operators)))
 	     (cond ((and w
-	                 (or (not (member 'array (cdar x)))
-	                     (rulechk (caar x))))
+	                 (or (not (member-eq 'array (cdar x)))
+	                     (rulechk op)))
 		    (funcall w x 1 y))
-		   (t (simpargs x y)))))))
+		   (t (simpargs x y))))))))
 
 ;; EQTEST returns an expression which is the same as X
 ;; except that it is marked with SIMP and maybe other flags from CHECK.
@@ -540,14 +555,14 @@
     (cond ((or (atom x)
 	       (eq (caar x) 'rat)
 	       (eq (caar x) 'mrat)
-	       (member 'simp (cdar x)))
+	       (member-eq 'simp (cdar x)))
 	   x)
 	  ((and (eq (caar x) (caar check))
 		(equal (cdr x) (cdr check)))
 	   (cond ((and (null (cdar check))
 		       (setq y (get (caar check) 'msimpind)))
 		  (cons y (cdr check)))
-		 ((member 'simp (cdar check))
+		 ((member-eq 'simp (cdar check))
 		  check)
 		 (t
 		  (cons (cons (caar check)
@@ -557,9 +572,9 @@
 			(cdr check)))))
 	  ((setq y (get (caar x) 'msimpind))
 	   (rplaca x y))
-	  ((or (member 'array (cdar x))
+	  ((or (member-eq 'array (cdar x))
 	       (and (eq (caar x) (caar check))
-		    (member 'array (cdar check))))
+		    (member-eq 'array (cdar check))))
 	   (rplaca x (cons (caar x) '(simp array))))
 	  (t
 	   (rplaca x (cons (caar x) '(simp)))))))
@@ -3056,7 +3071,7 @@
 ;; Should be defined as an open-codable subr.
 
 (defmacro memqarr (l)
-  `(if (member 'array ,l) t))
+  `(if (member-eq 'array ,l) t))
 
 ;; Compares two Macsyma expressions ignoring SIMP flags and all other
 ;; items in the header except for the ARRAY flag.
@@ -3067,14 +3082,15 @@
   ;; everything else is rare
   (cond ((eq x y) t)
         ((consp x)
+         (let (car-x car-y op)
          (if (and (consp y)
-                  (not (atom (car x)))
-                  (not (atom (car y)))
-                  (eq (caar x) (caar y)))
+                  (not (atom (setq car-x (car x))))
+                  (not (atom (setq car-y (car y))))
+                  (eq (setq op (car car-x)) (car car-y)))
              (cond
-              ((eq (caar x) 'mrat) (like x y))
-              ((eq (caar x) 'mpois) (equal (cdr x) (cdr y)))
-              ((eq (caar x) 'bigfloat)
+              ((eq op 'mrat) (like x y))
+              ((eq op 'mpois) (equal (cdr x) (cdr y)))
+              ((eq op 'bigfloat)
                 ;; Bigfloats need special treatment because their precision
                 ;; and an optional DECIMAL flag are stored in the CAR,
                 ;; which would otherwise be ignored.
@@ -3093,7 +3109,7 @@
                (alike (cdr x) (cdr y)))
               (t nil))
            ;; (foo) and (foo) test non-alike because the car's aren't standard
-           nil))
+           nil)))
         ((consp y) nil)
         ((or (symbolp x) (symbolp y)) nil)
         ((integerp x) (and (integerp y) (= x y)))
