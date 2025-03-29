@@ -1880,9 +1880,8 @@
 
 ;;; Only called by intform.
 (defun ratlog (var2 form)
-  (prog (b c d y z)
+  (prog (c d y z)
      (setq y form)
-     (setq b (cdr (assoc 'b y :test #'eq)))
      (setq c (cdr (assoc 'c y :test #'eq)))
      (setq y (integrator c var2))
      (when (finds y) (return nil))
