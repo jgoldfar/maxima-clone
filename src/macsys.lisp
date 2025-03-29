@@ -691,7 +691,9 @@ DESTINATION is an actual stream (rather than nil for a string)."
   ;; If XMaxima is running, direct output from command into *SOCKET-CONNECTION*.
   (let ((s (and (boundp '*socket-connection*) *socket-connection*))
 	shell shell-opt)
-
+    #-(or ecl cmu scl sbcl openmcl)
+    (declare (ignore shell shell-opt))
+    #+(or ecl cmu scl sbcl openmcl)
     (cond ((string= *autoconf-windows* "true")
 	   (setf shell "cmd") (setf shell-opt "/c"))
 	  (t (setf shell "/bin/sh") (setf shell-opt "-c")))
