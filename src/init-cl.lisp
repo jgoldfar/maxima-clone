@@ -362,35 +362,6 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
 	     (not (probe-file (combine-path *maxima-infodir* *maxima-lang-subdir* "maxima-index.lisp"))))
     (setq *maxima-lang-subdir* nil)))
 
-(defun get-dirs (path &aux (ns (namestring path)))
-  (directory (concatenate 'string
-                          ns
-                          (if (eql #\/ (char ns (1- (length ns)))) "" "/")
-                          "*"
-                          #+(or :clisp :sbcl :ecl :openmcl :gcl) "/")
-             #+openmcl :directories #+openmcl t))
-
-(defun unix-like-basename (path)
-  (let* ((pathstring (namestring path))
-	 (len (length pathstring)))
-    (when (equal (subseq pathstring (- len 1) len) "/")
-      (decf len)
-      (setf pathstring (subseq pathstring 0 len)))
-    (subseq pathstring (1+ (or (position #\/ pathstring :from-end t)
-			       (position #\\ pathstring :from-end t) -1)) len)))
-
-(defun unix-like-dirname (path)
-  (let* ((pathstring (namestring path))
-	 (len (length pathstring)))
-    (when (equal (subseq pathstring (- len 1) len) "/")
-      (decf len)
-      (setf pathstring (subseq pathstring 0 len)))
-    (let ((last-slash (or (position #\/ pathstring :from-end t)
-			              (position #\\ pathstring :from-end t))))
-      (if last-slash
-        (subseq pathstring 0 last-slash)
-        "."))))
-
 (defun list-avail-action ()
   (let* ((maxima-verpkglibdir (if (maxima-getenv "MAXIMA-VERPKGLIBDIR")
 				  (maxima-getenv "MAXIMA-VERPKGLIBDIR")

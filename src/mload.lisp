@@ -20,6 +20,35 @@
   (let ((errset nil))
     (errset (pathname x))))
 
+(defun get-dirs (path &aux (ns (namestring path)))
+  (directory (concatenate 'string
+                          ns
+                          (if (eql #\/ (char ns (1- (length ns)))) "" "/")
+                          "*"
+                          #+(or :clisp :sbcl :ecl :openmcl :gcl) "/")
+             #+openmcl :directories #+openmcl t))
+
+(defun unix-like-basename (path)
+  (let* ((pathstring (namestring path))
+	 (len (length pathstring)))
+    (when (equal (subseq pathstring (- len 1) len) "/")
+      (decf len)
+      (setf pathstring (subseq pathstring 0 len)))
+    (subseq pathstring (1+ (or (position #\/ pathstring :from-end t)
+			       (position #\\ pathstring :from-end t) -1)) len)))
+
+(defun unix-like-dirname (path)
+  (let* ((pathstring (namestring path))
+	 (len (length pathstring)))
+    (when (equal (subseq pathstring (- len 1) len) "/")
+      (decf len)
+      (setf pathstring (subseq pathstring 0 len)))
+    (let ((last-slash (or (position #\/ pathstring :from-end t)
+			              (position #\\ pathstring :from-end t))))
+      (if last-slash
+        (subseq pathstring 0 last-slash)
+        "."))))
+
 (defmfun $filename_merge (&rest file-specs)
   (when (or (null file-specs) (cddr file-specs))
     (wna-err '$filename_merge))
