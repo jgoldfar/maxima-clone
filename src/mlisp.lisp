@@ -254,7 +254,7 @@ is EQ to FNNAME if the latter is non-NIL."
 			 (destructuring-bind (msg . val)
 			     info
 			   (mwarning (aformat nil (intl:gettext msg) form))
-			   (set form val))))
+			   (setf (symbol-value form) val))))
 		      (bindtest-value
                        (merror (intl:gettext "evaluation: unbound variable ~:M")
                                form))
