@@ -2249,6 +2249,9 @@ TDNEG TDZERO TDPN) to store it, and also sets SIGN."
 	sign (cond ((eq x y) '$zero)
 		   ((or (eq '$inf x) (eq '$minf y)) '$pos)
 		   ((or (eq '$minf x) (eq '$inf y)) '$neg)
+		   ((or (and (symbolp x) (null (get x 'data)))
+                (and (symbolp y) (null (get y 'data))))
+             '$pnz) ; fast track for symbols without database information
 		   (t (dcomp x y)))))
 
 (defun dcomp (x y)
