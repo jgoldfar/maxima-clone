@@ -1259,6 +1259,29 @@ tlimit(subst(h=-h,xxx),h,0);
 tlimit(subst(h=h*cos(h),xxx),h,0);
 1/(1+x^2)$
 
+/* Tests for #4530 limit(floor( 1/2 + sin(1/x)/10), x, 0) returns ind but should be 0 */
+
+limit(floor(1/2 + sin(1/x)/10), x, 0);
+0$
+
+limit(floor(1/2 + cos(1/x)/10), x, 0);
+0$
+
+limit(floor(1/2 + 10*cos(1/x)/(21)), x, 0);
+0$
+
+limit(ceiling(1/2 + sin(1/x)/10), x, 0);
+1$
+
+limit(ceiling(1/2 + cos(1/x)/10), x, 0);
+1$
+
+limit(round(1/2 + sin(1/x)/10), x, 0);
+ind$
+
+limit(round(1/2 + cos(1/x)/10), x, 0);
+ind$
+
 /* clean up*/
 (kill(values),0);
 0$

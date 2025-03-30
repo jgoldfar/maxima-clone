@@ -1,5 +1,5 @@
 ;; Maxima functions for floor, ceiling, and friends
-;; Copyright (C) 2004, 2005, 2007 Barton Willis
+;; Copyright (C) 2004, 2005, 2007, 2025 Barton Willis
 
 ;; Barton Willis
 ;; Department of Mathematics
@@ -251,9 +251,14 @@
 (defun simplim%floor (expr var val)
   (let* ((arg (cadr expr))
 	 (b (behavior arg var val))
-	 (arglimab (limit arg var val 'think)) ; with $zeroa $zerob
+	 (arglimab (let ((preserve-direction t)) (limit arg var val 'think))) ; with $zeroa $zerob
 	 (arglim (ridofab arglimab)))
-    (cond ((and (= b -1)
+    (cond 
+	  ((eq arglim '$ind) (throw 'limit nil))
+	  ((eq arglim '$infinity) (throw 'limit nil))
+	  ((eq arglim '$minf) '$minf)
+	  ((eq arglim '$inf) '$inf)
+	  ((and (= b -1)
 		(maxima-integerp arglim))
 	   (m- arglim 1))
 	  ((and (= b 1)
@@ -261,7 +266,7 @@
 	   arglim)
 	  ((and ($constantp arglim)
 		(not (maxima-integerp arglim)))
-	   (simplify (list '($floor) arglim)))
+	   (ftake '$floor arglim))
 	  (t
 	   (throw 'limit nil)))))
 
@@ -318,9 +323,14 @@
 (defun simplim%ceiling (expr var val)
   (let* ((arg (cadr expr))
 	 (b (behavior arg var val))
-	 (arglimab (limit arg var val 'think)) ; with $zeroa $zerob
+	 (arglimab (let ((preserve-direction t)) (limit arg var val 'think))) ; with $zeroa $zerob
 	 (arglim (ridofab arglimab)))
-    (cond ((and (= b -1)
+    (cond 
+	  ((eq arglim '$ind) (throw 'limit nil))
+	  ((eq arglim '$infinity) (throw 'limit nil))
+	  ((eq arglim '$minf) '$minf)
+	  ((eq arglim '$inf) '$inf)
+	  ((and (= b -1)
 		(maxima-integerp arglim))
 	   arglim)
 	  ((and (= b 1)
@@ -328,7 +338,7 @@
 	   (m+ arglim 1))
 	  ((and ($constantp arglim)
 		(not (maxima-integerp arglim)))
-	   (simplify (list '($ceiling) arglim)))
+	   (ftake '$ceiling arglim))
 	  (t
 	   (throw 'limit nil)))))
 
@@ -403,9 +413,14 @@
 (defun simplim%round (expr var val)
   (let* ((arg (cadr expr))
 	 (b (behavior arg var val))
-	 (arglimab (limit arg var val 'think)) ; with $zeroa $zerob
+	 (arglimab (let ((preserve-direction t)) (limit arg var val 'think))) ; with $zeroa $zerob
 	 (arglim (ridofab arglimab)))
-    (cond ((and (= b -1)
+    (cond
+	  ((eq arglim '$ind) (throw 'limit nil))
+	  ((eq arglim '$infinity) (throw 'limit nil))
+	  ((eq arglim '$minf) '$minf)
+	  ((eq arglim '$inf) '$inf)
+	  ((and (= b -1)
 		(maxima-integerp (m+ 1//2 arglim)))
 	   (m- arglim 1//2))
 	  ((and (= b 1)
@@ -413,7 +428,7 @@
 	   (m+ arglim 1//2))
 	  ((and ($constantp arglim)
 		(not (maxima-integerp (m+ 1//2 arglim))))
-	   (simplify (list '(%round) arglim)))
+	   (ftake '%round arglim))
 	  (t
 	   (throw 'limit nil)))))
 
