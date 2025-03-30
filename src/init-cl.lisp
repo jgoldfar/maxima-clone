@@ -16,22 +16,6 @@
 
 (in-package :maxima)
 
-;;; Locations of various types of files. These variables are discussed
-;;; in more detail in the file doc/implementation/dir_vars.txt. Since
-;;; these are already in the maxima package, the maxima- prefix is
-;;; redundant. It is kept for consistency with the same variables in
-;;; shell scripts, batch scripts and environment variables.
-;;; jfa 02/07/04
-
-(defvar *maxima-topdir*)        ;; top-level installation or build directory
-(defvar *maxima-imagesdir*)
-(defvar *maxima-sharedir*)
-(defvar *maxima-srcdir*)
-(defvar *maxima-docdir*)
-(defvar *maxima-layout-autotools*)
-(defvar *maxima-demodir*)
-(defvar *maxima-objdir*)		;; Where to store object (fasl) files.
-
 (defvar *verify-html-index* nil
   "If non-NIL, verify the contents of the html index versus the text
   index.  Set via the command-line option --verify-html-index.")
@@ -80,19 +64,6 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
     (format t "~a:~25t~a~%"
             (string-trim "*" (string-downcase var))
             (symbol-value var))))
-
-(defvar *maxima-lispname*
-        #+clisp "clisp"
-	#+cmu "cmucl"
-	#+scl "scl"
-	#+sbcl "sbcl"
-	#+gcl "gcl"
-	#+allegro "acl"
-	#+openmcl "openmcl"
-	#+abcl "abcl"
-	#+lispworks "lispworks"
-	#+ecl "ecl"
-	#-(or clisp cmu scl sbcl gcl allegro openmcl abcl lispworks ecl) "unknownlisp")
 
 (defun maxima-parse-dirstring (str)
   (let ((sep "/"))
@@ -232,14 +203,6 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
                  (setq *maxima-lang-subdir* language))
                 (t  (setq *maxima-lang-subdir* nil))))))))
 
-(flet ((sanitize-string (s)
-	 (map 'string (lambda(x) (if (alphanumericp x) x #\_))
-	      (subseq s 0 (min 142 (length s))))))
-  (defun lisp-implementation-version1 ()
-    (sanitize-string (lisp-implementation-version)))
-  (defun maxima-version1 ()
-    (sanitize-string *autoconf-version*)))
-
 (defun setup-search-lists ()
   "Set up the default values for $file_search_lisp, $file_search_maxima,
   $file_search_demo, $file_search_usage, and $file_search_test."
@@ -361,35 +324,6 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
   (when (and *maxima-lang-subdir*
 	     (not (probe-file (combine-path *maxima-infodir* *maxima-lang-subdir* "maxima-index.lisp"))))
     (setq *maxima-lang-subdir* nil)))
-
-(defun get-dirs (path &aux (ns (namestring path)))
-  (directory (concatenate 'string
-                          ns
-                          (if (eql #\/ (char ns (1- (length ns)))) "" "/")
-                          "*"
-                          #+(or :clisp :sbcl :ecl :openmcl :gcl) "/")
-             #+openmcl :directories #+openmcl t))
-
-(defun unix-like-basename (path)
-  (let* ((pathstring (namestring path))
-	 (len (length pathstring)))
-    (when (equal (subseq pathstring (- len 1) len) "/")
-      (decf len)
-      (setf pathstring (subseq pathstring 0 len)))
-    (subseq pathstring (1+ (or (position #\/ pathstring :from-end t)
-			       (position #\\ pathstring :from-end t) -1)) len)))
-
-(defun unix-like-dirname (path)
-  (let* ((pathstring (namestring path))
-	 (len (length pathstring)))
-    (when (equal (subseq pathstring (- len 1) len) "/")
-      (decf len)
-      (setf pathstring (subseq pathstring 0 len)))
-    (let ((last-slash (or (position #\/ pathstring :from-end t)
-			              (position #\\ pathstring :from-end t))))
-      (if last-slash
-        (subseq pathstring 0 last-slash)
-        "."))))
 
 (defun list-avail-action ()
   (let* ((maxima-verpkglibdir (if (maxima-getenv "MAXIMA-VERPKGLIBDIR")

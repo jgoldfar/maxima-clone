@@ -1652,6 +1652,35 @@
 (defvar $file_search_tests nil
   "Directories to search for maxima test suite")
 
+(defvar *maxima-lispname*
+  #+clisp "clisp"
+  #+cmu "cmucl"
+  #+scl "scl"
+  #+sbcl "sbcl"
+  #+gcl "gcl"
+  #+allegro "acl"
+  #+openmcl "openmcl"
+  #+abcl "abcl"
+  #+lispworks "lispworks"
+  #+ecl "ecl"
+  #-(or clisp cmu scl sbcl gcl allegro openmcl abcl lispworks ecl) "unknownlisp")
+
+;;; Locations of various types of files. These variables are discussed
+;;; in more detail in the file doc/implementation/dir_vars.txt. Since
+;;; these are already in the maxima package, the maxima- prefix is
+;;; redundant. It is kept for consistency with the same variables in
+;;; shell scripts, batch scripts and environment variables.
+;;; jfa 02/07/04
+
+(defvar *maxima-topdir*)        ;; top-level installation or build directory
+(defvar *maxima-imagesdir*)
+(defvar *maxima-sharedir*)
+(defvar *maxima-srcdir*)
+(defvar *maxima-docdir*)
+(defvar *maxima-layout-autotools*)
+(defvar *maxima-demodir*)
+(defvar *maxima-objdir*)		;; Where to store object (fasl) files.
+
 (defvar *maxima-prefix*)
 (defvar *maxima-infodir*)
 (defvar *maxima-htmldir*)
@@ -1666,6 +1695,19 @@
   "When non-NIL, the init files are not loaded.")
 (defvar *maxima-tempdir*)
 (defvar *maxima-lang-subdir* nil)
+
+(defun sanitize-string-for-path (s)
+  (map
+    'string
+    (lambda (x) (if (alphanumericp x) x #\_))
+    (subseq s 0 (min 142 (length s)))))
+
+(defun lisp-implementation-version1 ()
+  (sanitize-string-for-path (lisp-implementation-version)))
+
+(defun maxima-version1 ()
+  (sanitize-string-for-path *autoconf-version*))
+
 (defvar $maxima_frontend nil
   "The frontend maxima is used with.")
 (defvar $maxima_frontend_version nil
