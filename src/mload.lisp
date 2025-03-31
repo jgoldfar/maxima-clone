@@ -671,6 +671,376 @@
 		  when (setq tem  (new-file-search1 name begin (cons v (cdr lis))))
 		  do (return tem)))))
 
+(defmvar $file_search_cache '$auto
+  "Controls the use of a cache by $FILE_SEARCH (used by $LOAD and $BATCH) to
+  speed up file searches.
+  - If '$AUTO (default), use the cache if a one-time test shows that the
+    filesystem in *MAXIMA-USERDIR* and the Lisp implementation's DIRECTORY
+    function behave as expected.
+  - If NIL, never use the cache.
+  - If T or any other value, always use the cache."
+  :setting-list (nil t $auto))
+
+(defvar *directory-cache* (make-hash-table :test #'equal)
+  "The hash table that holds the cache for the DIRECTORY-CACHED function.")
+
+(defvar *directory-cache-mdelta* 3
+  "If a directory within a search path has been modified within the last
+  N seconds, where N is the value of this variable, then DIRECTORY-CACHED will
+  not use its cache for that search path.
+  This is to account for the limited resolution of modification timestamps
+  in Common Lisp (1 second) and some filesystems. For example, some FAT
+  filesystems may have a modification timestamp resolution of 2 seconds.
+  Without this logic, successive directory modifications in short intervals
+  could result in new files not being found by DIRECTORY-CACHED.")
+
+(defvar *test-directory-cached-result* :unknown
+  "Stores the result of the TEST-DIRECTORY-CACHED function.")
+
+(defvar *debug-directory-cached* nil
+  "If non-NIL, print debug information for the DIRECTORY-CACHED function.")
+
+(defun max-nil-safe (list-of-values)
+  "Returns the maximum of LIST-OF-VALUES or NIL if any value is NIL."
+  (if (member nil list-of-values)
+    nil
+    (apply #'max list-of-values)))
+
+(defun file-mtime (path)
+  "Returns the modification time of the file/directory PATH."
+  #+clisp
+  ;; CLISP's FILE-WRITE-DATE only works for regular files, not directories.
+  (nth-value 2 (ext:probe-pathname path))
+  #-clisp
+  (file-write-date path))
+
+(defun create-empty-file (&rest path)
+  "Creates an empty file whose path is combined from PATH using COMBINE-PATH."
+  (with-open-file (stream
+                   (apply #'combine-path path)
+                   :direction :output
+                   :if-exists :supersede
+                   :if-does-not-exist :create)
+    (declare (ignorable stream))))
+
+(defun test-directory-cached-dir ()
+  "Returns the path of the directory that will be used for tests."
+  (combine-path *maxima-userdir*
+                "test-directory-cached"
+                (maxima-version1)
+                *maxima-lispname*
+                (lisp-implementation-version1)))
+
+(defun test-directory-cached ()
+  "Tests whether the directory cache can be used.
+  It checks that creating a file/directory within a parent directory updates the
+  parent directory's modification timestamp.
+  It also checks that the Lisp implementation's DIRECTORY function lists only
+  (sub)directories and no regular files when giving it a path like '/foo/**/'.
+  The special return value :TRY-LATER means that the test cannot be performed
+  reliably at the moment due to limited timestamp precision."
+  (macrolet ((dbg (string &rest args)
+               `(when *debug-directory-cached*
+                  (format *debug-io*
+                    (concatenate 'string "test-directory-cached: " ,string "~%")
+                    ,@args))))
+    (let* ((userdir-mtime (ignore-errors (file-mtime *maxima-userdir*)))
+           (now (get-universal-time))
+           (mtime-threshold (- now *directory-cache-mdelta*))
+           parent-dir
+           file-to-create)
+      (cond
+        (userdir-mtime
+          ;; The Maxima user directory exists already. We can create a test file
+          ;; in there and observe whether the directory's modification timestamp
+          ;; changes - unless it has already been changed too recently.
+          (dbg "Maxima user directory \"~A\" exists" *maxima-userdir*)
+          (setq parent-dir *maxima-userdir*
+                file-to-create
+                  (combine-path *maxima-userdir*
+                                (format nil "test-directory-cached-~A-~A"
+                                        now (get-internal-real-time)))))
+        (t
+          ;; The Maxima user directory doesn't exist yet, or there was an error.
+          ;; We will try to create the directory and observe whether the parent
+          ;; directory's modification timestamp changes.
+          (dbg "could not get mtime of Maxima user directory \"~A\"" *maxima-userdir*)
+          (setq parent-dir (combine-path *maxima-userdir* ".."))))
+      (let ((parent-dir-mtime (ignore-errors (file-mtime parent-dir))))
+        (cond
+          ((not parent-dir-mtime)
+            ;; The parent directory doesn't exist, or there was an error.
+            (dbg "could not get mtime of parent directory \"~A\"" parent-dir)
+            (return-from test-directory-cached nil))
+          ((> parent-dir-mtime mtime-threshold)
+            ;; The parent directory has been modified (or created) too recently.
+            ;; We cannot reliably test right now, try again later.
+            (dbg "parent directory modified too recently, retry later")
+            (return-from test-directory-cached :try-later)))
+        ;; The parent directory exists and hasn't been modified too recently.
+        ;; Create the Maxima user directory or test file.
+        (dbg "parent directory mtime before: ~A" parent-dir-mtime)
+        (dbg "ensure Maxima user directory \"~A\" exists" *maxima-userdir*)
+        (ensure-directories-exist (combine-path *maxima-userdir* ""))
+        (when file-to-create
+          ;; Create the test file and delete it afterwards.
+          (dbg "create and delete test file \"~A\"" file-to-create)
+          (create-empty-file file-to-create)
+          (delete-file file-to-create))
+        ;; Now the parent directory's modification timestamp should have changed.
+        (setq parent-dir-mtime (file-mtime parent-dir))
+        (dbg "parent directory mtime after: ~A" parent-dir-mtime)
+        (cond
+          ((> parent-dir-mtime mtime-threshold)
+            ;; It worked!
+            (dbg "test succeeded"))
+          (t
+            ;; It didn't work!
+            (dbg "test failed")
+            (return-from test-directory-cached nil)))
+        ;; Create nested subdirectories inside *MAXIMA-USERDIR* and files
+        ;; in them. Make sure that DIRECTORY finds only the (sub)directories,
+        ;; not the files, when giving it a path that ends with "/**/".
+        ;; Some Lisp implementations (like ABCL, ACL and LispWorks) always list
+        ;; everything.
+        (let ((test-dir (test-directory-cached-dir)))
+          (dbg "create test directories and files in \"~A\"" test-dir)
+          (ensure-directories-exist (combine-path test-dir "dir" ""))
+          (create-empty-file test-dir "file")
+          (create-empty-file test-dir "dir" "file")
+          (dbg "list test directories")
+          (let ((dirs (directory (combine-path test-dir "**" ""))))
+            (cond
+              ((and (= (length dirs) 2) (every #'apparently-a-directory-p dirs))
+                ;; It worked!
+                (dbg "test succeeded"))
+              (t
+                ;; It didn't work!
+                (dbg "test failed")
+                (return-from test-directory-cached nil))))
+          ;; If we made it till here, everything works as expected.
+          ;; Unfortunately, there's no Common Lisp way to delete directories.
+          (dbg "all tests succeeded")
+          t)))))
+
+(defun check-directory-cached ()
+  "Checks for a previous result of TEST-DIRECTORY-CACHED stored as a file in
+  (TEST-DIRECTORY-CACHED-DIR), which is specific to the Maxima version and Lisp
+  implementation/version.
+  If no stored result is found, call TEST-DIRECTORY-CACHED and store the result,
+  if it is T or NIL."
+  (macrolet ((dbg (string &rest args)
+               `(when *debug-directory-cached*
+                  (format *debug-io*
+                          (concatenate 'string "check-directory-cached: " ,string "~%")
+                          ,@args))))
+    (let* ((test-dir (test-directory-cached-dir))
+           (successful-file (combine-path test-dir "successful"))
+           (unsuccessful-file (combine-path test-dir "unsuccessful"))
+           (successful (file-exists-p successful-file))
+           (unsuccessful (file-exists-p unsuccessful-file)))
+      (dbg "checking for previous test result")
+      (dbg "\"successful\" file exists? ~A" successful)
+      (dbg "\"unsuccessful\" file exists? ~A" unsuccessful)
+      (cond
+        ((and successful (not unsuccessful))
+          ;; The cache can be used.
+          (dbg "previous test successful, using cache")
+          t)
+        ((not (or successful unsuccessful))
+          ;; Test whether we can use the directory cache.
+          ;; Use IGNORE-ERRORS to make sure that if the test itself produces
+          ;; an error that isn't caught, it doesn't prevent Maxima from working.
+          (dbg "no previous test result, testing whether cache can be used")
+          (let ((result (ignore-errors (test-directory-cached))))
+            (dbg "test successful? ~A" result)
+            ;; If the test result was T or NIL (it could also be :TRY-LATER),
+            ;; remember it by creating the appropriate file.
+            (case result
+              ((t)
+                (dbg "create \"successful\" file")
+                (ignore-errors (create-empty-file successful-file)))
+              ((nil)
+                (dbg "create \"unsuccessful\" file")
+                (ignore-errors (create-empty-file unsuccessful-file))))
+            result))
+        (t
+          ;; The cache can not be used.
+          (dbg "previous test unsuccessful, not using cache")
+          nil)))))
+
+(defun directory-cached (path mtime-cache)
+  "Behaves like DIRECTORY, but speeds up certain cases, which are common when
+  loading files in Maxima, using a cache.
+  When searching for a file whose name doesn't contain wildcards, but the
+  directory does contain wildcards, e.g. '/home/username/.maxima/**/package.mac',
+  then a list of all directories, their modification timestamps and a hash
+  table of previous searches inside these directories are cached.
+  When querying the cache, the current modification timestamps are compared to
+  the cached ones. Only if they match, the cache can be used.
+  If any directory was modified within the last *DIRECTORY-CACHE-MDELTA*
+  seconds, then the cache is not used (see documentation for
+  *DIRECTORY-CACHE-MDELTA*).
+  The actual file search is implemented by iterating over the list of
+  directories and testing whether a file with the given name exists there."
+  (macrolet ((dbg (string &rest args)
+               `(when *debug-directory-cached*
+                  (format *debug-io*
+                    (concatenate 'string "directory-cached @ \"~A\": " ,string "~%")
+                    path
+                    ,@args))))
+    (labels ((file-mtime-safe-cached (path)
+               (multiple-value-bind (entry cached) (gethash path mtime-cache)
+                 (if cached
+                   entry
+                   (setf (gethash path mtime-cache) (ignore-errors (file-mtime path))))))
+             (make-dirs (paths)
+               (remove-if-not #'cdr
+                 (mapcar #'(lambda (path) (cons path (file-mtime-safe-cached path))) paths)))
+             (some-mtime-gt (dirs mtime)
+               (some #'(lambda (dir) (> (cdr dir) mtime)) dirs)))
+      (when (and (eq $file_search_cache '$auto)
+                 (not (member *test-directory-cached-result* '(t nil))))
+        ;; Check whether the cache can be used.
+        (setq *test-directory-cached-result* (check-directory-cached)))
+      (cond
+        ((or (not $file_search_cache) (eq *test-directory-cached-result* nil))
+          ;; Cache disabled, use regular DIRECTORY.
+          (directory path))
+        ((wild-pathname-p path)
+          ;; At least one wildcard appears in the path. Get the filename part.
+          (let ((query-file (make-pathname :name (pathname-name path)
+                                           :type (pathname-type path)
+                                           :version (pathname-version path))))
+            (cond
+              ((wild-pathname-p query-file)
+                ;; We only handle cases without wildcards in the filename part.
+                ;; Let the regular DIRECTORY function handle cases like "/dir/foo.*".
+                ;; When loading files in Maxima with $LOAD, this case typically
+                ;; doesn't occur.
+                (dbg "using DIRECTORY (wildcard in filename)")
+                (directory path))
+              (t
+                (let ((query-dir (make-pathname :host (pathname-host path)
+                                                :device (pathname-device path)
+                                                :directory (pathname-directory path)))
+                      (do-cache t)
+                      (mtime-threshold (- (get-universal-time) *directory-cache-mdelta*))
+                      dirs
+                      rcache)
+                  ;; Look up the cache for the directory part of the path.
+                  (multiple-value-bind (entry cached) (gethash query-dir *directory-cache*)
+                    (cond
+                      (cached
+                        ;; Cache hit! The cache entry is of the form:
+                        ;; ((DIRECTORY . MTIME)* . RCACHE)
+                        ;; DIRECTORY is any directory to be searched for the file.
+                        ;; MTIME is the directory's modification timestamp.
+                        ;; RCACHE is a hash table for caching individual file search results.
+                        (dbg "hit")
+                        (destructuring-bind (cached-dirs . cached-rcache) entry
+                          ;; Update the directory information, getting the current
+                          ;; modification timestamps and removing directories that
+                          ;; no longer exist.
+                          (setq dirs (make-dirs (mapcar #'car cached-dirs)))
+                          (cond
+                            ((null dirs)
+                              ;; No directories from the cache entry exist any more.
+                              ;; Possibly, the search root directory was deleted/renamed/moved.
+                              ;; Don't use the cache entry (it will be removed).
+                              (dbg "invalid (no directories exist any more)")
+                              (setq cached nil))
+                            ((some-mtime-gt dirs mtime-threshold)
+                              ;; Some directory was modified too recently (within the
+                              ;; last *DIRECTORY-CACHE-MDELTA* seconds). We cannot use
+                              ;; the cache entry (it will be removed) and won't create
+                              ;; a new cache entry at this time.
+                              (dbg "invalid (some directory modified too recently)")
+                              (setq cached nil
+                                    do-cache nil))
+                            ((not (equal dirs cached-dirs))
+                              ;; Some directory has had its modification time changed.
+                              ;; A file or directory may have been added, renamed or
+                              ;; deleted. We cannot use the cache entry (it will be removed).
+                              (dbg "invalid (some directory modified)")
+                              (setq cached nil))
+                            (t
+                              ;; All directories are still there, and they still have the
+                              ;; same modification timestamps as in the cache entry.
+                              ;; This means that there are no new, renamed or deleted
+                              ;; files or directories inside. We can use the cache entry.
+                              (dbg "valid")
+                              (setq rcache cached-rcache)))
+                          (unless cached
+                            ;; The cache entry cannot be used - remove it.
+                            (dbg "remove")
+                            (remhash query-dir *directory-cache*))))
+                      (t
+                        ;; Cache miss!
+                        (dbg "miss")))
+                    (unless cached
+                      ;; We don't have a cache entry or cannot use it.
+                      ;; Get the current list of directories using DIRECTORY.
+                      ;; This is the expensive operation that we're trying to minimize.
+                      (setq dirs (make-dirs (directory query-dir)))
+                      (cond
+                        ((null dirs)
+                          ;; There are no directories, so there can be no files.
+                          ;; Return NIL immediately, don't cache this.
+                          (dbg "no directories exist")
+                          (return-from directory-cached nil))
+                        ((some-mtime-gt dirs mtime-threshold)
+                          ;; Some directory was modified too recently, don't cache.
+                          (dbg "don't cache (some directory modified too recently)")
+                          (setq do-cache nil)))
+                      (cond
+                        (do-cache
+                          ;; Write into the cache.
+                          (dbg "write")
+                          (setq rcache (make-hash-table :test #'equal))
+                          (setf (gethash query-dir *directory-cache*) (cons dirs rcache)))
+                        (t
+                          ;; Don't write into the cache.
+                          (dbg "no-write"))))
+                    ;; Check if the search result for the given filename is cached in RCACHE
+                    ;; (but no need to check if RCACHE has just been created).
+                    (multiple-value-bind (entry cached) (if cached
+                                                          (gethash query-file rcache)
+                                                          (values nil nil))
+                      (cond
+                        (cached
+                          ;; Cache hit! Return the cached result.
+                          (dbg "result hit")
+                          entry)
+                        (t
+                          ;; Cache miss! Perform the file search by looping over all
+                          ;; directories and testing whether a file with the given name
+                          ;; exists in there. Build a list of all files found.
+                          (dbg "result miss")
+                          (let (result)
+                            (dolist (dir dirs)
+                              (let* ((dir-path (car dir))
+                                     (merged (merge-pathnames query-file dir-path)))
+                                (when (file-exists-p merged)
+                                  (dbg "found in \"~A\"" dir-path)
+                                  (push (truename merged) result))))
+                            (cond
+                              (do-cache
+                                ;; Store the result (list of files found) in the cache entry's
+                                ;; result cache. Return a copy of the list, since
+                                ;; destructive modification may be used on the list.
+                                (dbg "result write")
+                                (copy-list (setf (gethash query-file rcache) result)))
+                              (t
+                                (dbg "result no-write")
+                                result))))))))))))
+        (t
+          ;; A path entirely without wildcards, e.g. "/dir/foo.mac".
+          ;; No need for extra work, just check directly whether the file exists.
+          (if (file-exists-p path)
+            (list (truename path))
+            nil))))))
+
 (defvar *debug-new-file-search* nil)
 
 ;; Search for a file named NAME.  If the file exists, return it.
@@ -680,11 +1050,18 @@
 (defun new-file-search (name template)
   (cond ((file-exists-p name))
 	(t
-	 (let ((filename (pathname name)))
-	   (dolist (path template)
-	     (let ((pathnames (directory (merge-pathnames filename path))))
+	 (let* ((filename (pathname name))
+            (merged-pathnames
+              ;; Use DELETE-DUPLICATES to avoid searching for the same thing
+              ;; twice when the filename contains a type (e.g. '.mac').
+              (delete-duplicates
+                (mapcar #'(lambda (p) (merge-pathnames filename p)) template)
+                :test #'equal))
+            (mtime-cache (make-hash-table :test #'equal)))
+	   (dolist (path merged-pathnames)
+	     (let ((pathnames (directory-cached path mtime-cache)))
 	       (when *debug-new-file-search*
-		 (format *debug-io* "wildpath ~S~%" (merge-pathnames filename path)))
+		 (format *debug-io* "wildpath ~S~%" path))
 	       (when pathnames
 		 ;; We MUST sort the results in alphabetical order
 		 ;; because that's how the old search paths were
