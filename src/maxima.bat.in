@@ -174,7 +174,7 @@ if "%layout_autotools%" == "true" goto clisp_autotools
 goto :EOF
 
 :clisp_autotools
-set "path=%maxima_imagesdir%/binary-%lisp%;%maxima_prefix%/clisp-2.49/base;%path%"
+set "path=%maxima_imagesdir%/binary-%lisp%;%maxima_prefix%/clisp-2.49;%path%"
 rem set codepage to unicode
 chcp 65001 >nul
 @CLISP_NAME@ %lisp_options% -q -M "%maxima_image_base%.mem" "" -- %*
