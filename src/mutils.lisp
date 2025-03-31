@@ -34,7 +34,7 @@
                      (intl:gettext "assoc: second argument must be a nonatomic expression; found: ~:M") 
                      ielist))))
     (if (every #'(lambda (x) (and (listp x) (= 3 (length x)))) elist)
-	(let ((found (find key elist :test #'alike1 :key #'second)))
+	(let ((found (find key elist :test (if (symbolp key) #'eq #'alike1) :key #'second)))
 	  (if found (third found) default))
 	(merror (intl:gettext "assoc: every argument must be an expression of two parts; found: ~:M") ielist))))
 
@@ -46,8 +46,10 @@
 ;;;  Meta-Synonym:	(ASS #'ALIKE1 ITEM ALIST)
 
 (defun assol (item alist)
+ (if (symbolp item)
+  (and alist (assoc item alist :test #'eq))
   (dolist (pair alist)
-    (if (alike1 item (car pair)) (return pair))))
+    (if (alike1 item (car pair)) (return pair)))))
 
 (defun assolike (item alist) 
   (cdr (assol item alist)))
@@ -65,9 +67,11 @@
 ;;;  except that MEMALIKE requires a list rather than a general sequence, so the
 ;;;  host lisp can probably generate faster code.
 (defun memalike (x l)
+ (if (symbolp x)
+  (and l (member x l :test #'eq))
   (do ((l l (cdr l)))
       ((null l))
-    (when (alike1 x (car l)) (return l))))
+    (when (alike1 x (car l)) (return l)))))
 
 ;;; Return the first duplicate element of the list LIST, or NIL if there
 ;;; are no duplicates present in LIST.  The function KEY is applied to
