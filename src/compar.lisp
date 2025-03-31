@@ -2059,10 +2059,15 @@ TDNEG TDZERO TDPN) to store it, and also sets SIGN."
 (setf (get 'mabs 'maps-integers-to-integers) t)
 (setf (get '$max 'maps-integers-to-integers) t)
 (setf (get '$min 'maps-integers-to-integers) t)
+(setf (get '%signum 'maps-integers-to-integers) t)
 
 (setf (get '$floor 'integer-valued) t)
+(setf (get '%floor 'integer-valued) t)
 (setf (get '$ceiling 'integer-valued) t)
+(setf (get '%ceiling 'integer-valued) t)
 (setf (get '$charfun 'integer-valued) t)
+(setf (get '%unit_step 'integer-valued) t)
+(setf (get '$unit_step 'integer-valued) t)
 
 (defun maxima-integerp (x)
   (cond ((integerp x))
