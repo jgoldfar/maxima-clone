@@ -358,6 +358,19 @@
 	  (parse-body body nil t)
 	(setf doc-string (if doc-string (list doc-string)))
 	`(progn
+       ,(cond
+	      (keywords-present-p
+	       `(define-compiler-macro ,name (&rest ,rest-name)
+		  ,(format nil "Compiler-macro to convert calls to ~S to ~S" name impl-name)
+		  (let ((args (append (subseq ,rest-name 0 ,required-len)
+				      (defmfun-keywords ',pretty-fname
+					  (nthcdr ,required-len ,rest-name)
+					',maxima-keywords))))
+		    `(,',impl-name ,@args))))
+	      (t
+	       `(define-compiler-macro ,name (&rest ,rest-name)
+		  ,(format nil "Compiler-macro to convert calls to ~S to ~S" name impl-name)
+		  `(,',impl-name ,@,rest-name))))
            ,@(when inline-impl
                `((declaim (inline ,impl-name))))
 	   (defun ,impl-name ,lambda-list
@@ -425,20 +438,7 @@
 				  (nthcdr ,required-len ,args)
 				',maxima-keywords))))
 		    (t
-		     `(apply #',impl-name ,args))))))
-	   ,(cond
-	      (keywords-present-p
-	       `(define-compiler-macro ,name (&rest ,rest-name)
-		  ,(format nil "Compiler-macro to convert calls to ~S to ~S" name impl-name)
-		  (let ((args (append (subseq ,rest-name 0 ,required-len)
-				      (defmfun-keywords ',pretty-fname
-					  (nthcdr ,required-len ,rest-name)
-					',maxima-keywords))))
-		    `(,',impl-name ,@args))))
-	      (t
-	       `(define-compiler-macro ,name (&rest ,rest-name)
-		  ,(format nil "Compiler-macro to convert calls to ~S to ~S" name impl-name)
-		  `(,',impl-name ,@,rest-name)))))))))
+		     `(apply #',impl-name ,args)))))))))))
 
 ;; Define a Lisp function that should check the number of arguments to
 ;; a function and print out a nice Maxima error message instead of
