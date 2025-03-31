@@ -1362,7 +1362,33 @@
 	  x)
     (list (nreverse sp) (nreverse nsp))))
 
+(defun conformable-matrices-p (x1 x2)
+  (and (= (length x1) (length x2)) (or (and (null (rest x1)) (null (rest x2))) (= (length (second x1)) (length (second x2))))))
+
 (defun addmx (x1 x2)
+
+  ;; When maperror = true, ensure that arguments are conformable, in the sense of not causing an error in fullmap.
+  ;; In practice this means the following:
+  ;; (1) both arguments are lists, and of the same length.
+  ;; (2) both arguments are matrices, and of the same number of rows and columns.
+  ;; (3) one argument is a list and the other is a matrix.
+  ;;     The matrix must have a number of rows equal to the length of the list.
+  ;; Otherwise, maperror = false; fullmap will smash the arguments together somehow
+  ;; ("truncating one or more arguments" as it says), so,
+  ;; in the interest of preserving existing behavior, just let it.
+
+  (when $maperror
+    (unless
+      (if (and ($listp x1) ($listp x2))
+        (= (length x1) (length x2))
+        (if (and ($matrixp x1) ($matrixp x2))
+          (conformable-matrices-p x1 x2)
+          ;; One argument is a list and the other is a matrix.
+          ;; Test for (length of list) = (number of rows of matrix).
+          ;; The following works whether X1 is the matrix and X2 is the list or vice versa.
+          (= (length x1) (length x2))))
+      (merror (intl:gettext "addition: non-conformable list or matrix arguments."))))
+
   (let (($doscmxops t) ($domxmxops t) ($listarith t))
     (simplify (fmapl1 'mplus x1 x2))))
 
