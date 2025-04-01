@@ -675,7 +675,7 @@
   "Controls the use of a cache by $FILE_SEARCH (used by $LOAD and $BATCH) to
   speed up file searches.
   - If '$AUTO (default), use the cache if a one-time test shows that the
-    filesystem in *MAXIMA-USERDIR* and the Lisp implementation's DIRECTORY
+    file system in *MAXIMA-USERDIR* and the Lisp implementation's DIRECTORY
     function behave as expected.
   - If NIL, never use the cache.
   - If T or any other value, always use the cache."
@@ -689,8 +689,8 @@
   N seconds, where N is the value of this variable, then DIRECTORY-CACHED will
   not use its cache for that search path.
   This is to account for the limited resolution of modification timestamps
-  in Common Lisp (1 second) and some filesystems. For example, some FAT
-  filesystems may have a modification timestamp resolution of 2 seconds.
+  in Common Lisp (1 second) and some file systems. For example, some FAT
+  file systems may have a modification timestamp resolution of 2 seconds.
   Without this logic, successive directory modifications in short intervals
   could result in new files not being found by DIRECTORY-CACHED.")
 
@@ -884,7 +884,13 @@
   seconds, then the cache is not used (see documentation for
   *DIRECTORY-CACHE-MDELTA*).
   The actual file search is implemented by iterating over the list of
-  directories and testing whether a file with the given name exists there."
+  directories and testing whether a file with the given name exists there.
+  MTIME-CACHE must be a hash table. It will be used to cache modification
+  timestamps of directories. NEW-FILE-SEARCH can call DIRECTORY-CACHED multiple
+  times per search. This cache allows to minimize the number of file system
+  queries, but the same cache should only be used during 'atomic' operations,
+  i.e. not persist across multiple searches. Otherwise, file system modifications
+  could go unnoticed."
   (macrolet ((dbg (string &rest args)
                `(when *debug-directory-cached*
                   (format *debug-io*
@@ -892,7 +898,7 @@
                     path
                     ,@args))))
     (labels ((file-mtime-or-nil-cached (path)
-               "Cached version of FILE-MTIME-OR-NIL, uses MTIME-CACHE hash table."
+               "Cached version of FILE-MTIME-OR-NIL, uses the MTIME-CACHE hash table."
                (multiple-value-bind (entry cached) (gethash path mtime-cache)
                  (if cached
                    entry
