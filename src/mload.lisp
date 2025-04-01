@@ -913,9 +913,7 @@
           (directory path))
         ((wild-pathname-p path)
           ;; At least one wildcard appears in the path. Get the filename part.
-          (let ((query-file (make-pathname :name (pathname-name path)
-                                           :type (pathname-type path)
-                                           :version (pathname-version path))))
+          (let ((query-file (make-pathname :host nil :device nil :directory nil :defaults path)))
             (cond
               ((wild-pathname-p query-file)
                 ;; We only handle cases without wildcards in the filename part.
@@ -925,9 +923,7 @@
                 (dbg "using DIRECTORY (wildcard in filename)")
                 (directory path))
               (t
-                (let ((query-dir (make-pathname :host (pathname-host path)
-                                                :device (pathname-device path)
-                                                :directory (pathname-directory path)))
+                (let ((query-dir (make-pathname :name nil :type nil :version nil :defaults path))
                       (do-cache t)
                       (mtime-threshold (- (get-universal-time) *directory-cache-mdelta*))
                       dirs
