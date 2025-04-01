@@ -709,7 +709,8 @@
   (file-write-date path))
 
 (defun file-mtime-or-nil (path)
-  "Like FILE-MTIME, but returns NIL in the case of an error."
+  "Like FILE-MTIME, but returns NIL in the case of an error, the most likely
+  error being that the file/directory doesn't exist."
   (ignore-errors (file-mtime path)))
 
 (defun create-empty-file (&rest path)
@@ -888,11 +889,16 @@
                     path
                     ,@args))))
     (labels ((file-mtime-or-nil-cached (path)
+               "Cached version of FILE-MTIME-OR-NIL, uses MTIME-CACHE hash table."
                (multiple-value-bind (entry cached) (gethash path mtime-cache)
                  (if cached
                    entry
                    (setf (gethash path mtime-cache) (file-mtime-or-nil path)))))
-             (make-dirs (paths)
+             (existing-path-mtime-pairs (paths)
+               "Returns a list of (PATH . MTIME) items for the list of paths PATHS.
+               Entries with an MTIME of NIL are removed. The assumption is that
+               FILE-WRITE-DATE failing means that the file/directory doesn't exist.
+               While that's not strictly true, it shouldn't make a practical difference."
                (remove-if-not #'cdr
                  (mapcar #'(lambda (path) (cons path (file-mtime-or-nil-cached path))) paths)))
              (some-mtime-gt (dirs mtime)
@@ -940,7 +946,7 @@
                           ;; Update the directory information, getting the current
                           ;; modification timestamps and removing directories that
                           ;; no longer exist.
-                          (setq dirs (make-dirs (mapcar #'car cached-dirs)))
+                          (setq dirs (existing-path-mtime-pairs (mapcar #'car cached-dirs)))
                           (cond
                             ((null dirs)
                               ;; No directories from the cache entry exist any more.
@@ -980,7 +986,7 @@
                       ;; We don't have a cache entry or cannot use it.
                       ;; Get the current list of directories using DIRECTORY.
                       ;; This is the expensive operation that we're trying to minimize.
-                      (setq dirs (make-dirs (directory query-dir)))
+                      (setq dirs (existing-path-mtime-pairs (directory query-dir)))
                       (cond
                         ((null dirs)
                           ;; There are no directories, so there can be no files.
