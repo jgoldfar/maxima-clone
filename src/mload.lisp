@@ -708,6 +708,10 @@
   #-clisp
   (file-write-date path))
 
+(defun file-mtime-or-nil (path)
+  "Like FILE-MTIME, but returns NIL in the case of an error."
+  (ignore-errors (file-mtime path)))
+
 (defun create-empty-file (&rest path)
   "Creates an empty file whose path is combined from PATH using COMBINE-PATH."
   (with-open-file (stream
@@ -738,7 +742,7 @@
                   (format *debug-io*
                     (concatenate 'string "test-directory-cached: " ,string "~%")
                     ,@args))))
-    (let* ((userdir-mtime (ignore-errors (file-mtime *maxima-userdir*)))
+    (let* ((userdir-mtime (file-mtime-or-nil *maxima-userdir*))
            (now (get-universal-time))
            (mtime-threshold (- now *directory-cache-mdelta*))
            parent-dir
@@ -760,7 +764,7 @@
           ;; directory's modification timestamp changes.
           (dbg "could not get mtime of Maxima user directory \"~A\"" *maxima-userdir*)
           (setq parent-dir (combine-path *maxima-userdir* ".."))))
-      (let ((parent-dir-mtime (ignore-errors (file-mtime parent-dir))))
+      (let ((parent-dir-mtime (file-mtime-or-nil parent-dir)))
         (cond
           ((not parent-dir-mtime)
             ;; The parent directory doesn't exist, or there was an error.
@@ -782,10 +786,10 @@
           (create-empty-file file-to-create)
           (delete-file file-to-create))
         ;; Now the parent directory's modification timestamp should have changed.
-        (setq parent-dir-mtime (file-mtime parent-dir))
+        (setq parent-dir-mtime (file-mtime-or-nil parent-dir))
         (dbg "parent directory mtime after: ~A" parent-dir-mtime)
         (cond
-          ((> parent-dir-mtime mtime-threshold)
+          ((and parent-dir-mtime) (> parent-dir-mtime mtime-threshold)
             ;; It worked!
             (dbg "test succeeded"))
           (t
@@ -883,14 +887,14 @@
                     (concatenate 'string "directory-cached @ \"~A\": " ,string "~%")
                     path
                     ,@args))))
-    (labels ((file-mtime-safe-cached (path)
+    (labels ((file-mtime-or-nil-cached (path)
                (multiple-value-bind (entry cached) (gethash path mtime-cache)
                  (if cached
                    entry
-                   (setf (gethash path mtime-cache) (ignore-errors (file-mtime path))))))
+                   (setf (gethash path mtime-cache) (file-mtime-or-nil path)))))
              (make-dirs (paths)
                (remove-if-not #'cdr
-                 (mapcar #'(lambda (path) (cons path (file-mtime-safe-cached path))) paths)))
+                 (mapcar #'(lambda (path) (cons path (file-mtime-or-nil-cached path))) paths)))
              (some-mtime-gt (dirs mtime)
                (some #'(lambda (dir) (> (cdr dir) mtime)) dirs)))
       (when (and (eq $file_search_cache '$auto)
