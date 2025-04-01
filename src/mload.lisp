@@ -700,12 +700,6 @@
 (defvar *debug-directory-cached* nil
   "If non-NIL, print debug information for the DIRECTORY-CACHED function.")
 
-(defun max-nil-safe (list-of-values)
-  "Returns the maximum of LIST-OF-VALUES or NIL if any value is NIL."
-  (if (member nil list-of-values)
-    nil
-    (apply #'max list-of-values)))
-
 (defun file-mtime (path)
   "Returns the modification time of the file/directory PATH."
   #+clisp
