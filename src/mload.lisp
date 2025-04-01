@@ -808,9 +808,10 @@
           (create-empty-file test-dir "file")
           (create-empty-file test-dir "dir" "file")
           (dbg "list test directories")
-          (let ((dirs (directory (combine-path test-dir "**" ""))))
+          (let ((items (directory (combine-path test-dir "**" ""))))
+            (dbg "items listed: ~A" (length items))
             (cond
-              ((and (= (length dirs) 2) (every #'apparently-a-directory-p dirs))
+              ((and (= (length items) 2) (every #'apparently-a-directory-p items))
                 ;; It worked!
                 (dbg "test succeeded"))
               (t
@@ -858,10 +859,12 @@
             (case result
               ((t)
                 (dbg "create \"successful\" file")
-                (ignore-errors (create-empty-file successful-file)))
+                (ignore-errors (create-empty-file successful-file))
+                (dbg "file created? ~A" (file-exists-p successful-file)))
               ((nil)
                 (dbg "create \"unsuccessful\" file")
-                (ignore-errors (create-empty-file unsuccessful-file))))
+                (ignore-errors (create-empty-file unsuccessful-file))
+                (dbg "file created? ~A" (file-exists-p unsuccessful-file))))
             result))
         (t
           ;; The cache can not be used.
