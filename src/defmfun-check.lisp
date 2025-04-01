@@ -379,7 +379,11 @@
 	     (block ,name
 	       (let ((%%pretty-fname ',pretty-fname))
 		 (declare (ignorable %%pretty-fname))
-		 ,@forms)))
+           (flet ((,name (&rest args)
+                    ,(format nil "Proxy function to forward ~S calls to ~S" name impl-name)
+                    (apply #',impl-name args)))
+             (declare (ignorable #',name) (inline ,name))
+		     ,@forms))))
 
 	   (let ,(when deprecated-p `((,warning-done-var nil)))
 	     (defun ,name (&rest ,args)
