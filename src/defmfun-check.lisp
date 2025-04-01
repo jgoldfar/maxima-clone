@@ -385,7 +385,7 @@
            ;; as that would cause infinite recursive inlining.
            ;; This mechanism catches direct and indirect (e.g. MAPCAR) recursion
            ;; avoids having to go through $FOO with argument checking each time.
-           ,@(if (and nil required-args
+           ,@(if (and required-args
                       (null optional-args)
                       (not restp)
                       (not keywords-present-p)
