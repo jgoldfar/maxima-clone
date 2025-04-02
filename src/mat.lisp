@@ -152,29 +152,29 @@
 
 ;; To debug, delete the comments around PRINT and BREAK statements.
 
-(declare-top (special permsign rank delta nrow nvar n m variableorder
-		      dependentrows inconsistentrows k))
+(declare-top (special permsign rank delta nrow nvar *n* *m* variableorder
+		      dependentrows inconsistentrows))
 
-(defun tfgeli1 (ax n m)
+(defun tfgeli1 (ax *n* *m*)
   (prog (k l delta variableorder inconsistentrows
 	 dependentrows nrow nvar rank permsign result)
      (setq ax (get-array-pointer ax))
-     (setq *col* (make-array (1+ m) :initial-element 0))
-     (setq *row* (make-array (1+ n) :initial-element 0))
-     (setq *colinv* (make-array (1+ m) :initial-element 0))
+     (setq *col* (make-array (1+ *m*) :initial-element 0))
+     (setq *row* (make-array (1+ *n*) :initial-element 0))
+     (setq *colinv* (make-array (1+ *m*) :initial-element 0))
      ;; (PRINT 'ONESTEP-LIPSON-WITH-PIVOTING)
-     (setq nrow n)
-     (setq nvar (cond (*rank* m) (*det* m) (*inv* n) (*ech* m) (*tri* m) (t (1- m))))
+     (setq nrow *n*)
+     (setq nvar (cond (*rank* *m*) (*det* *m*) (*inv* *n*) (*ech* *m*) (*tri* *m*) (t (1- *m*))))
      (do ((i 1 (1+ i)))
-	 ((> i n))
+	 ((> i *n*))
        (setf (aref *row* i) i))
      (do ((i 1 (1+ i)))
-	 ((> i m))
+	 ((> i *m*))
        (setf (aref *col* i) i) (setf (aref *colinv* i) i))
      (setq result
 	   (cond (*rank* (forward t) rank)
 		 (*det* (forward t)
-			(cond ((= nrow n) (cond (permsign  (pminus delta))
+			(cond ((= nrow *n*) (cond (permsign  (pminus delta))
 						(t delta)))
 			      (t 0)))
 		 (*inv* (forward t) (backward) (recoverorder1))
@@ -191,14 +191,14 @@
   (setq delta 1)		  ;DELTA HOLDS THE CURRENT DETERMINANT
   (do ((k 1 (1+ k))
        (nvar nvar)   ;PROTECTS AGAINST TEMPORARAY RESETS DONE IN PIVOT
-       (m m))
+       (*m* *m*))
       ((or (> k nrow) (> k nvar)))
     (cond ((pivot ax k *cpivot) (return nil)))
     ;; PIVOT IS T IF THERE IS NO MORE NON-ZERO ROW LEFT. THEN GET OUT OF THE LOOP
     (do ((i (1+ k) (1+ i)))
 	((> i nrow))
       (do ((j (1+ k) (1+ j)))
-	  ((> j m))
+	  ((> j *m*))
 	(setf (aref ax (aref *row* i) (aref *col* j))
 	       (pquotient (pdifference (ptimes (aref ax (aref *row* k) (aref *col* k))
 					       (aref ax (aref *row* i) (aref *col* j)))
@@ -210,16 +210,16 @@
       (setf (aref ax (aref *row* i) (aref *col* k)) 0))
     (setq delta (aref ax (aref *row* k) (aref *col* k))))
   ;; UNDOES COLUMN HACK IN PIVOT.
-  (or *cpivot (do ((i 1 (1+ i))) ((> i m)) (setf (aref *col* i) i)))
+  (or *cpivot (do ((i 1 (1+ i))) ((> i *m*)) (setf (aref *col* i) i)))
   (setq rank (min nrow nvar)))
 
 ;; BACKWARD SUBSTITUTION
 (defun backward ()
-  (declare(special ax delta m rank))
+  (declare(special ax delta *m* rank))
   (do ((i (1- rank) (1- i)))
       ((< i 1))
     (do ((l (1+ rank) (1+ l)))
-    ((> l m))
+    ((> l *m*))
       (setf (aref ax (aref *row* i) (aref *col* l))
     (let ((mess1  (pdifference
              (ptimes (aref ax (aref *row* i) (aref *col* l))
@@ -253,21 +253,21 @@
       ((= i 0))
     (setq variableorder (cons i variableorder)))
   (do ((i (1+ rank) (1+ i)))
-      ((> i n))
-    (cond ((equal (aref ax (aref *row* i) (aref *col* m)) 0)
+      ((> i *n*))
+    (cond ((equal (aref ax (aref *row* i) (aref *col* *m*)) 0)
 	   (setq dependentrows (cons (aref *row* i) dependentrows)))
 	  (t (setq inconsistentrows (cons (aref *row* i) inconsistentrows)))))
   (do ((i 1 (1+ i)))
-      ((> i n))
+      ((> i *n*))
     (cond ((not (= (aref *row* (aref *colinv* i)) i))
-	   (prog (l)
-	      (moverow ax n m i 0)
+	   (prog (k l)
+	      (moverow ax *n* *m* i 0)
 	      (setq l i)
 	      loop
 	      (setq k (aref *row* (aref *colinv* l)))
 	      (setf (aref *row* (aref *colinv* l)) l)
-	      (cond ((= k i) (moverow ax n m 0 l))
-		    (t (moverow ax n m k l)
+	      (cond ((= k i) (moverow ax *n* *m* 0 l))
+		    (t (moverow ax *n* *m* k l)
 		       (setq l k)
 		       (go loop))))))))
 
@@ -276,44 +276,44 @@
       ((= i 0))
     (setq variableorder (cons (aref *col* i) variableorder)))
   (do ((i (1+ rank) (1+ i)))
-      ((> i n))
-    (cond ((equal (aref ax (aref *row* i) (aref *col* m)) 0)
+      ((> i *n*))
+    (cond ((equal (aref ax (aref *row* i) (aref *col* *m*)) 0)
 	   (setq dependentrows (cons (aref *row* i) dependentrows)))
 	  (t (setq inconsistentrows (cons (aref *row* i) inconsistentrows)))))
   (do ((i 1 (1+ i)))
-      ((> i n))
+      ((> i *n*))
     (cond ((not (= (aref *row* i) i))
-	   (prog (l)
-	      (moverow ax n m i 0)
+	   (prog (k l)
+	      (moverow ax *n* *m* i 0)
 	      (setq l i)
 	      loop
 	      (setq k (aref *row* l))
 	      (setf (aref *row* l) l)
-	      (cond ((= k i) (moverow ax n m 0 l))
-		    (t (moverow ax n m k l)
+	      (cond ((= k i) (moverow ax *n* *m* 0 l))
+		    (t (moverow ax *n* *m* k l)
 		       (setq l k)
 		       (go loop)))))))
   (do ((i 1 (1+ i)))
       ((> i nvar))
     (cond ((not (= (aref *col* i) i))
-	   (prog ()
-	      (movecol ax n m i 0)
+	   (prog (k l)
+	      (movecol ax *n* *m* i 0)
 	      (setq l i)
 	      loop2
 	      (setq k (aref *col* l))
 	      (setf (aref *col* l) l)
-	      (cond ((= k i) (movecol ax n m 0 l))
-		    (t (movecol ax n m k l)
+	      (cond ((= k i) (movecol ax *n* *m* 0 l))
+		    (t (movecol ax *n* *m* k l)
 		       (setq l k)
 		       (go loop2))))))))
 
 ;;THIS PROGRAM IS USED IN REARRANGEMENT
-(defun moverow (ax n m i j)
-  (do ((k 1 (1+ k))) ((> k m))
+(defun moverow (ax *n* *m* i j)
+  (do ((k 1 (1+ k))) ((> k *m*))
     (setf (aref ax j k) (aref ax i k))))
 
-(defun movecol (ax n m i j)
-  (do ((k 1 (1+ k))) ((> k n))
+(defun movecol (ax *n* *m* i j)
+  (do ((k 1 (1+ k))) ((> k *n*))
     (setf (aref ax k j) (aref ax k i))))
 
 ;;COMPLEXITY IS DEFINED AS FOLLOWS
@@ -368,7 +368,7 @@
 	 ((> i nrow))
        (cond ((or *cpivot (not (equal (aref ax (aref *row* i) (aref *col* k)) 0)))
 	      (cond ((> complexity/i/min
-			(setq complexity/i (complexity/row ax i k m)))
+			(setq complexity/i (complexity/row ax i k *m*)))
 		     (setq row/optimal i complexity/i/min complexity/i))))))
      ;; EXCHANGE THE ROWS K AND ROW/OPTIMAL
      (exchangerow k row/optimal)
@@ -381,7 +381,7 @@
 		   (return nil))
 		  (t (do ((i k (1+ i))) ((= i nvar))
 		       (setf (aref *col* i) (aref *col* (1+ i))))
-		     (setq nvar (1- nvar) m (1- m))
+		     (setq nvar (1- nvar) *m* (1- *m*))
 		     (go findrow)))))
 
      ;;STEP3 ... FIND THE OPTIMAL COLUMN
@@ -397,11 +397,11 @@
 			      (complexity (aref ax (aref *row* k) (aref *col* j)))))
 		     (setq col/optimal j
 			   complexity/det/min complexity/det
-			   complexity/j/min (complexity/col ax j (1+ k) n)))
+			   complexity/j/min (complexity/col ax j (1+ k) *n*)))
 		    ((equal complexity/det/min complexity/det)
 		     (cond ((> complexity/j/min
 			       (setq complexity/j
-				     (complexity/col ax j (1+ k) n)))
+				     (complexity/col ax j (1+ k) *n*)))
 			    (setq col/optimal j
 				  complexity/det/min complexity/det
 				  complexity/j/min complexity/j))))))))
@@ -456,5 +456,5 @@
 	  (t (putprop *linelabel* t 'nodisp)))
     *linelabel*))
 
-(declare-top (unspecial permsign rank delta nrow nvar n m variableorder
+(declare-top (unspecial permsign rank delta nrow nvar *n* *m* variableorder
 			dependentrows inconsistentrows))
