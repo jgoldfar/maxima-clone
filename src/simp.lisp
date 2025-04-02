@@ -86,6 +86,23 @@
 (defprop $equal t binary)
 (defprop $notequal t binary)
 
+(defmfun $ratp (x)
+  (and (not (atom x))
+       (consp (car x))
+       (eq (caar x) 'mrat)))
+
+(defmfun $ratnump (x)
+  (or (integerp x)
+      (ratnump x)
+      (and ($ratp x)
+	   (not (member 'trunc (car x)))
+	   (integerp (cadr x))
+	   (integerp (cddr x)))))
+
+(defmfun $floatnump (x)
+  (or (floatp x)
+      (and ($ratp x) (floatp (cadr x)) (onep1 (cddr x)))))
+
 (defmfun ($bfloatp :inline-impl t) (x)
   "Returns true if X is a bigfloat"
   (and (consp x)
@@ -233,23 +250,6 @@
   (cond ((integerp x) (evenp x))
 	(($integerp x) (not (oddp (cadr x))))))
 
-(defmfun $floatnump (x)
-  (or (floatp x)
-      (and ($ratp x) (floatp (cadr x)) (onep1 (cddr x)))))
-
-(defmfun $ratnump (x)
-  (or (integerp x)
-      (ratnump x)
-      (and ($ratp x)
-	   (not (member 'trunc (car x)))
-	   (integerp (cadr x))
-	   (integerp (cddr x)))))
-
-(defmfun $ratp (x)
-  (and (not (atom x))
-       (consp (car x))
-       (eq (caar x) 'mrat)))
-
 (defmfun $taylorp (x)
   (and (not (atom x))
        (eq (caar x) 'mrat)
@@ -331,9 +331,6 @@
 	((mnump (cadr x)) (cadr x))
 	(t 1)))
 
-(defun scalar-or-constant-p (x flag)
-  (if flag (not ($nonscalarp x)) ($scalarp x)))
-
 (defmfun $constantp (x)
   (cond ((atom x) (or ($numberp x) (kindp x '$constant)))
 	((member (caar x) '(rat bigfloat)) t)
@@ -353,11 +350,15 @@
   (or (numberp x)
       (and (symbolp x) (kindp x '$constant))))
 
-(defun consttermp (x) (and ($constantp x) (not ($nonscalarp x))))
-
 (defmfun $scalarp (x) (or (consttermp x) (eq (scalarclass x) '$scalar)))
 
 (defmfun $nonscalarp (x) (eq (scalarclass x) '$nonscalar))
+
+(defun scalar-or-constant-p (x flag)
+  (if flag (not ($nonscalarp x)) ($scalarp x)))
+
+
+(defun consttermp (x) (and ($constantp x) (not ($nonscalarp x))))
 
 (defun scalarclass (exp) ;  Returns $SCALAR, $NONSCALAR, or NIL (unknown).
   (cond ((mnump exp)
