@@ -31,7 +31,7 @@
 		      *indicator numer denom exp var val
 		      taylored logcombed
 		      $exponentialize lhp? lhcount
-		      loginprod? a context limit-assumptions
+		      loginprod? context limit-assumptions
 		      limit-top))
 
 (defconstant +behavior-count+ 4)

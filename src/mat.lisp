@@ -152,7 +152,7 @@
 
 ;; To debug, delete the comments around PRINT and BREAK statements.
 
-(declare-top (special permsign a rank delta nrow nvar n m variableorder
+(declare-top (special permsign rank delta nrow nvar n m variableorder
 		      dependentrows inconsistentrows k))
 
 (defun tfgeli1 (ax n m)
@@ -456,5 +456,5 @@
 	  (t (putprop *linelabel* t 'nodisp)))
     *linelabel*))
 
-(declare-top (unspecial permsign a rank delta nrow nvar n m variableorder
+(declare-top (unspecial permsign rank delta nrow nvar n m variableorder
 			dependentrows inconsistentrows))
