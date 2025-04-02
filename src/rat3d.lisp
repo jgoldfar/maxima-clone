@@ -66,33 +66,43 @@
     (list tcont (pquotient p tcont))))
 
 (defun pmindegvec (p)
-  (minlist (let ((*odr* (putodr (reverse genvar)))
+  (minlist-in-place
+   (let ((*odr* (putodr (reverse genvar)))
 		 (nn* (1+ (length genvar)))
 		 (*min* t))
 	     (degvector nil 1 p))))
 
 (defun pdegreevector (p)
-  (maxlist (let ((*odr* (putodr (reverse genvar)))
+  (maxlist-in-place
+   (let ((*odr* (putodr (reverse genvar)))
 		 (nn* (1+ (length genvar)))
 		 (*mx* t))
 	     (degvector nil 1 p))))
 
-(defun maxlist(l) (maxminl l t))
-
-(defun minlist(l) (maxminl l nil))
-
-(defun maxminl (l switch)
-  (do ((l1 (copy-list (car l)))
+(defmacro maxminl (l do-max &optional in-place)
+ "Given a list of lists ((A1 ... An) (B1 ... Bn) (C1 ... Cn) ...), which should
+ all have the same length and contain REAL numbers, MAXMINL returns a list
+ ((OP A1 B1 C1 ...) (OP A2 B2 C2 ...) ... (OP An Bn Cn ...)), where OP is either
+ MAX (when DO-MAX is non-NIL) or MIN.
+ If IN-PLACE is non-NIL, the first sublist will be destructively modified
+ to contain the result."
+ (let ((op (if do-max '> '<)))
+ `(do ((l1 ,(if in-place '(car l) '(copy-list (car l))))
        (ll (cdr l) (cdr ll)))
       ((null ll) l1)
     (do ((v1 l1 (cdr v1))
-	 (v2 (car ll) (cdr v2)))
-	((null v1))
-      (cond (switch
-	     (cond ((> (car v2) (car v1))
-		    (rplaca v1 (car v2)))))
-	    (t (cond ((< (car v2) (car v1))
-		      (rplaca v1 (car v2)))))))))
+	  (v2 (car ll) (cdr v2)))
+	  ((null v1))
+	  (when (,op (car v2) (car v1))
+	    (rplaca v1 (car v2)))))))
+
+(defun maxlist(l) (maxminl l t))
+
+(defun maxlist-in-place(l) (maxminl l t t))
+
+(defun minlist(l) (maxminl l nil))
+
+(defun minlist-in-place(l) (maxminl l nil t))
 
 (defun quick-sqfr-check (p var)
   (let ((gv (delete var (listovars p) :test #'equal))

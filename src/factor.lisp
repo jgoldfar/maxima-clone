@@ -411,8 +411,8 @@
    loop (cond ((null c) (return ans)))
    (setq ans
 	 (nconc (degvector (cons (car c) lf) (1+ j) (cadr c)) ans))
-   (cond (*mx* (setq ans (ncons (maxlist ans))))
-	 (*min* (setq ans (ncons (minlist ans)))))
+   (cond (*mx* (setq ans (ncons (maxlist-in-place ans))))
+	 (*min* (setq ans (ncons (minlist-in-place ans)))))
    (setq c (cddr c))
    (go loop)))
 
