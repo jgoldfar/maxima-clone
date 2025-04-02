@@ -61,6 +61,19 @@
   "If TRUE allows DIFF(X~Y,T) to work where ~ is defined in
 	  SHARE;VECT where VECT_CROSS is set to TRUE.")
 
+(defmfun $listp (x)
+  (and (not (atom x))
+       (not (atom (car x)))
+       (eq (caar x) 'mlist)))
+
+(defun atomchk (e fun 2ndp)
+  (if (or (atom e) (eq (caar e) 'bigfloat))
+      (merror (intl:gettext "~:M: ~Margument must be a non-atomic expression; found ~M") fun (if 2ndp "2nd " "") e)))
+
+(defmfun $member (x e)
+  (atomchk (setq e ($totaldisrep e)) '$member t)
+  (if (memalike ($totaldisrep x) (margs e)) t))
+
 (defmfun $substitute (new old &optional (expr nil three-arg?))
   (cond (three-arg? (maxima-substitute new old expr))
 	(t
@@ -994,11 +1007,6 @@
 (defun getop (x)
   (or (and (symbolp x) (get x 'op)) x))
 
-(defmfun $listp (x)
-  (and (not (atom x))
-       (not (atom (car x)))
-       (eq (caar x) 'mlist)))
-
 (defmfun $cons (x e)
   (atomchk (setq e (format1 e)) '$cons t)
   (simplifya (mcons-exp-args e (cons x (margs e))) t))
@@ -1034,14 +1042,6 @@
   (if (eq (caar e) 'mqapply)
       (list* (delsimp (car e)) (cadr e) args)
       (cons (delsimp (car e)) args)))
-
-(defmfun $member (x e)
-  (atomchk (setq e ($totaldisrep e)) '$member t)
-  (if (memalike ($totaldisrep x) (margs e)) t))
-
-(defun atomchk (e fun 2ndp)
-  (if (or (atom e) (eq (caar e) 'bigfloat))
-      (merror (intl:gettext "~:M: ~Margument must be a non-atomic expression; found ~M") fun (if 2ndp "2nd " "") e)))
 
 (defun format1 (e)
   (cond (($listp e) e)
