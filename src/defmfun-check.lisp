@@ -379,7 +379,24 @@
 	     (block ,name
 	       (let ((%%pretty-fname ',pretty-fname))
 		 (declare (ignorable %%pretty-fname))
-		 ,@forms)))
+           ;; For simple functions with only required arguments, locally define
+           ;; an inlined proxy function $FOO that forwards to FOO-IMPL.
+           ;; Within the proxy function, prevent FOO-IMPL from being inlined,
+           ;; as that would cause infinite recursive inlining.
+           ;; This mechanism catches direct and indirect (e.g. MAPCAR) recursion
+           ;; avoids having to go through $FOO with argument checking each time.
+           ,@(if (and required-args
+                      (null optional-args)
+                      (not restp)
+                      (not keywords-present-p)
+                      (not allow-other-keys-p))
+               `((flet ((,name ,required-args
+                          ,(format nil "Proxy function to forward ~S calls to ~S" name impl-name)
+                          (declare (notinline ,impl-name))
+                          (,impl-name ,@required-args)))
+                   (declare (ignorable #',name) (inline ,name))
+		           ,@forms))
+               forms))))
 
 	   (let ,(when deprecated-p `((,warning-done-var nil)))
 	     (defun ,name (&rest ,args)
