@@ -153,7 +153,7 @@
 ;; To debug, delete the comments around PRINT and BREAK statements.
 
 (declare-top (special permsign a rank delta nrow nvar n m variableorder
-		      dependentrows inconsistentrows l k))
+		      dependentrows inconsistentrows k))
 
 (defun tfgeli1 (ax n m)
   (prog (k l delta variableorder inconsistentrows
@@ -260,7 +260,7 @@
   (do ((i 1 (1+ i)))
       ((> i n))
     (cond ((not (= (aref *row* (aref *colinv* i)) i))
-	   (prog ()
+	   (prog (l)
 	      (moverow ax n m i 0)
 	      (setq l i)
 	      loop
@@ -283,7 +283,7 @@
   (do ((i 1 (1+ i)))
       ((> i n))
     (cond ((not (= (aref *row* i) i))
-	   (prog ()
+	   (prog (l)
 	      (moverow ax n m i 0)
 	      (setq l i)
 	      loop
@@ -457,4 +457,4 @@
     *linelabel*))
 
 (declare-top (unspecial permsign a rank delta nrow nvar n m variableorder
-			dependentrows inconsistentrows l k))
+			dependentrows inconsistentrows))

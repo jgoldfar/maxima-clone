@@ -28,7 +28,7 @@
 (declare-top (special *stop* trl* *xn sharpcont subvar1 anotype invc fctc
 		      subval1 var mcflag alcinv *ab* monic* intbs*
 		      *prime *g* modulu* plim listelm many* *inl3
-		      *sharpa *sharpb limk split* alc ind p l *odr*
+		      *sharpa *sharpb limk split* alc ind *odr*
 		      *i* mcflag elm ne res fact1 fact2 subvar
 		      subval ovarlist valist dlp df1 df2 fcs* uu*))
 
@@ -477,8 +477,6 @@
      (incf limk)
      (go test)))
 
-(declare-top (special b b2))
-
 (defun cpberl (u)
   (prog (ql d)
      (setq ql (catch 'splt (cpber1 u)) u (caddr ql))
@@ -683,8 +681,6 @@
        (setq p d) (return a))
      inl  (setq a (increaselist a n))
      (go loop)))
-
-(declare-top (unspecial p))
 
 (defun fixvl1 (l r)
   (prog nil
