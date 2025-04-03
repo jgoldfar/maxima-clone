@@ -712,8 +712,18 @@
 ;; always be a positive power of 2, this number will not always be in lowest
 ;; terms.
 
+(defvar *bfloat-header* nil
+  "Current header ('BIGFLOAT 'SIMP FPPREC) for new bigfloats")
+
+(defvar *bfloat-header-prec* nil
+  "Precision of current bigfloat header")
+
 (defun bcons (s)
-  `((bigfloat simp ,fpprec) . ,s))
+  (unless (eql fpprec *bfloat-header-prec*)
+    ;; Precision was changed, make a new header.
+    (setq *bfloat-header* `(bigfloat simp ,fpprec)
+          *bfloat-header-prec* fpprec))
+  (cons *bfloat-header* s))
 
 (defmfun ($bfloat :properties ((evfun t))) (x)
   (let (y)

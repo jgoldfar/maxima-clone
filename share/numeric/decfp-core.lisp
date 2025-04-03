@@ -268,6 +268,19 @@ is (sum+1/10^50=1.0L0) ;  should be true
 	  (scale-float mantissa e))))
     ))
 
+(defvar *decbfloat-header* nil
+  "Current header ('BIGFLOAT 'SIMP $FPPREC 'DECIMAL) for new decimal bigfloats")
+
+(defvar *decbfloat-header-prec* nil
+  "Precision of current bigfloat header")
+
+(defun decbcons (s)
+  (unless (eql $fpprec *decbfloat-header-prec*)
+    ;; Precision was changed, make a new header.
+    (setq *decbfloat-header* `(bigfloat simp ,$fpprec decimal)
+          *decbfloat-header-prec* $fpprec))
+  (cons *decbfloat-header* s))
+
 (defun decbcons (s)
   `((bigfloat simp ,$fpprec decimal) . ,(decimalfptrim s)))
 
