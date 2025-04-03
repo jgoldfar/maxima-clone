@@ -188,11 +188,10 @@
 (defun normalized-modulus (n)
   "Normalizes the number N with respect to MODULUS,
   returning a number in (-MODULUS/2, MODULUS/2]."
-  (declare (type number n))
-  (let ((rem (mod n modulus)))
-    (if (<= (* 2 rem) modulus)
+  (let* ((m modulus) (rem (mod n m)))
+    (if (<= (* 2 rem) m)
       rem
-      (- rem modulus))))
+      (- rem m))))
 
 ;; CMOD
 ;;
