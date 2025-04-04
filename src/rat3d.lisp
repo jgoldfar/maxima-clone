@@ -49,8 +49,8 @@
 	((memalike (pdis (make-poly y)) $dontfactor) t)))
 
 (defun removealg (l)
-  (loop for var in l
-	 unless (algv var) collect var))
+  (loop for var2 in l
+	 unless (algv var2) collect var2))
 
 (defun degvecdisrep (degl)
   (do ((l degl (cdr l))
@@ -101,8 +101,8 @@
   (defun minlist(l)          (maxminl nil nil))
   (defun minlist-in-place(l) (maxminl nil t)))
 
-(defun quick-sqfr-check (p var)
-  (let ((gv (delete var (listovars p) :test #'equal))
+(defun quick-sqfr-check (p var2)
+  (let ((gv (delete var2 (listovars p) :test #'equal))
 	(modulus (or modulus *alpha))
 	(l) (p0))
     (if $algebraic (setq gv (removealg gv)))
@@ -118,7 +118,7 @@
 	(t (list* (pget (car p)) (cadr p) (monom->facl (caddr p))))))
 
 (defun psqfr (p)
-  (prog (r varl var mult factors)
+  (prog (r varl var2 mult factors)
      (cond ((pcoefp p) (return (cfactor p)))
 	   ((pminusp p) (return (cons -1 (cons 1 (psqfr (pminus p)))))))
      (desetq (factors p) (ptermcont p))
@@ -126,18 +126,18 @@
      (cond ((pcoefp p) (go end)))
      (setq varl (sort (listovars p) 'pointergp))
      setvar
-     (setq var (car varl) varl (cdr varl) mult 0)
-     (cond ((pointergp var (car p)) (go nextvar))
-	   ((dontfactor var)
+     (setq var2 (car varl) varl (cdr varl) mult 0)
+     (cond ((pointergp var2 (car p)) (go nextvar))
+	   ((dontfactor var2)
 	    (setq factors (cons p (cons 1 factors))
 		  p 1)
 	    (go end)))
-     (cond ((quick-sqfr-check p var)	;QUICK SQFR CHECK BY SUBST.
+     (cond ((quick-sqfr-check p var2)	;QUICK SQFR CHECK BY SUBST.
 	    (setq r (oldcontent p))
 	    (setq p (car r) factors (cons (cadr r)
 					  (cons 1 factors)))
 	    (go nextvar)))
-     (setq r (pderivative p var))
+     (setq r (pderivative p var2))
      (cond ((pzerop r) (go nextvar)))
      (cond ((and modulus (not (pcoefp r))) (pmonicize (cdr r))))
      (setq p (pgcdcofacts p r))
@@ -266,14 +266,14 @@
 (defun pnthroot (poly n)
   (cond ((equal n 1) poly)
 	((pcoefp poly) (cnthroot poly n))
-	(t (let* ((var (p-var poly))
-		  (ans (make-poly var (cquotient (p-le poly) n)
+	(t (let* ((var2 (p-var poly))
+		  (ans (make-poly var2 (cquotient (p-le poly) n)
 				  (pnthroot (p-lc poly) n)))
 		  (ae (p-terms (pquotient (pctimes n (leadterm poly)) ans))))
-	     (do ((p (psimp var (p-red poly))
+	     (do ((p (psimp var2 (p-red poly))
 		     (pdifference poly (pexpt ans n))))
 		 ((pzerop p) ans)
-	       (cond ((or (pcoefp p) (not (eq (p-var p) var))
+	       (cond ((or (pcoefp p) (not (eq (p-var p) var2))
 			  (> (car ae) (p-le p)))
                       (rat-error "pnthroot error (should have been caught)")))
 	       (setq ans (nconc ans (ptptquotient (cdr (leadterm p)) ae)))

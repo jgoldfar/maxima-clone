@@ -894,15 +894,15 @@
       p
       (pdisrep+ (pdisrep2 (cdr p) (get (car p) 'disrep)))))
 
-(defun pdisrep! (n var)
+(defun pdisrep! (n var2)
   (cond ((zerop n) 1)
-	((equal n 1) (cond ((atom var) var)
-                           ((or (eq (caar var) 'mtimes)
-                                (eq (caar var) 'mplus))
-                            (copy-list var))
-                           (t var)))
-	((eql var 1) 1)
-	(t (list '(mexpt ratsimp) var n))))
+	((equal n 1) (cond ((atom var2) var2)
+                           ((or (eq (caar var2) 'mtimes)
+                                (eq (caar var2) 'mplus))
+                            (copy-list var2))
+                           (t var2)))
+	((eql var2 1) 1)
+	(t (list '(mexpt ratsimp) var2 n))))
 
 (defun pdisrep+ (p)
   (cond ((null (cdr p)) (car p))
@@ -920,10 +920,10 @@
 (defun pdisrep*chk (a)
   (if (mtimesp a) (cdr a) (ncons a)))
 
-(defun pdisrep2 (p var)
+(defun pdisrep2 (p var2)
   (cond ((null p) nil)
-	($ratexpand (pdisrep2expand p var))
-	(t (do ((l () (cons (pdisrep* (pdisrep (cadr p)) (pdisrep! (car p) var)) l))
+	($ratexpand (pdisrep2expand p var2))
+	(t (do ((l () (cons (pdisrep* (pdisrep (cadr p)) (pdisrep! (car p) var2)) l))
 		(p p (cddr p)))
 	       ((null p) (nreverse l))))))
 
@@ -945,10 +945,10 @@
 						  (pdisrep*chk b)))))
 		   (cdr a)))))
 
-(defun pdisrep2expand (p var)
+(defun pdisrep2expand (p var2)
   (cond ((null p) nil)
-	(t (nconc (pdisrep*expand (pdisrep (cadr p)) (pdisrep! (car p) var))
-		  (pdisrep2expand (cddr p) var)))))
+	(t (nconc (pdisrep*expand (pdisrep (cadr p)) (pdisrep! (car p) var2))
+		  (pdisrep2expand (cddr p) var2)))))
 
 
 (defmvar $ratdenomdivide t)
