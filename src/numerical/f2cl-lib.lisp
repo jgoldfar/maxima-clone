@@ -1059,8 +1059,6 @@ causing all pending operations to be flushed"
 	,(if err `(unless ,result (go ,(f2cl-lib::make-label err))))
 	,(if iostat `(setf ,iostat (if ,result 0 1))))))
 
-(declaim (ftype (function (t) stream) lun->stream))
-
 (defmacro fformat (dest-lun format-cilist &rest args)
   (let ((stream (gensym)))
     `(let ((,stream (lun->stream ,dest-lun)))
