@@ -183,6 +183,7 @@
 	    ((:file "generr")
 	     (:file "clmacs")))
    (:module defmfun :source-pathname ""
+        :depends-on ("globals")
 	    :components
 	    ((:file "defmfun-check")))
    (:module float-properties :source-pathname ""
