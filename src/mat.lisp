@@ -156,7 +156,7 @@
 		      dependentrows inconsistentrows))
 
 (defun tfgeli1 (ax *n* *m*)
-  (prog (k l delta variableorder inconsistentrows
+  (prog (delta variableorder inconsistentrows
 	 dependentrows nrow nvar rank permsign result)
      (setq ax (get-array-pointer ax))
      (setq *col* (make-array (1+ *m*) :initial-element 0))

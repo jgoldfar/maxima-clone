@@ -1723,6 +1723,7 @@
 
 ;; returns series expansion of %expintegral_si up to term with x^pw
 (defun exp_%expintegral_si (pw l)
+  (declare (ignore l))
   (expsi_series 1
 		1
 		1
