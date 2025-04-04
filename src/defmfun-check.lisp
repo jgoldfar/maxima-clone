@@ -384,7 +384,7 @@
            ;; Within the proxy function, prevent FOO-IMPL from being inlined,
            ;; as that would cause infinite recursive inlining.
            ;; This mechanism catches direct and indirect (e.g. MAPCAR) recursion
-           ;; avoids having to go through $FOO with argument checking each time.
+           ;; and avoids going through $FOO with argument checking each time.
            ,@(if (and required-args
                       (null optional-args)
                       (not restp)
