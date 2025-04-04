@@ -79,30 +79,27 @@
 		 (*mx* t))
 	     (degvector nil 1 p))))
 
-(defmacro maxminl (l do-max &optional in-place)
- "Given a list of lists ((A1 ... An) (B1 ... Bn) (C1 ... Cn) ...), which should
- all have the same length and contain REAL numbers, MAXMINL returns a list
- ((OP A1 B1 C1 ...) (OP A2 B2 C2 ...) ... (OP An Bn Cn ...)), where OP is either
- MAX (when DO-MAX is non-NIL) or MIN.
- If IN-PLACE is non-NIL, the first sublist will be destructively modified
- to contain the result."
- (let ((op (if do-max '> '<)))
- `(do ((l1 ,(if in-place '(car l) '(copy-list (car l))))
-       (ll (cdr l) (cdr ll)))
-      ((null ll) l1)
-    (do ((v1 l1 (cdr v1))
-	  (v2 (car ll) (cdr v2)))
-	  ((null v1))
-	  (when (,op (car v2) (car v1))
-	    (rplaca v1 (car v2)))))))
-
-(defun maxlist(l) (maxminl l t))
-
-(defun maxlist-in-place(l) (maxminl l t t))
-
-(defun minlist(l) (maxminl l nil))
-
-(defun minlist-in-place(l) (maxminl l nil t))
+(macrolet
+  ((maxminl (do-max in-place)
+    "Generates code for a function that operates on a list L of lists of REALs,
+    L = ((A1 ... An) (B1 ... Bn) (C1 ... Cn) ...), returns a list
+    ((OP A1 B1 C1 ...) (OP A2 B2 C2 ...) ... (OP An Bn Cn ...)), where OP is
+    either MAX (when DO-MAX is non-NIL) or MIN.
+    If IN-PLACE is non-NIL, the first sublist will be destructively modified
+    to contain the result."
+    (let ((op (if do-max '> '<)))
+    `(do ((l1 ,(if in-place '(car l) '(copy-list (car l))))
+          (ll (cdr l) (cdr ll)))
+         ((null ll) l1)
+       (do ((v1 l1 (cdr v1))
+      (v2 (car ll) (cdr v2)))
+      ((null v1))
+      (when (,op (car v2) (car v1))
+        (rplaca v1 (car v2))))))))
+  (defun maxlist(l)          (maxminl t nil))
+  (defun maxlist-in-place(l) (maxminl t t))
+  (defun minlist(l)          (maxminl nil nil))
+  (defun minlist-in-place(l) (maxminl nil t)))
 
 (defun quick-sqfr-check (p var)
   (let ((gv (delete var (listovars p) :test #'equal))
