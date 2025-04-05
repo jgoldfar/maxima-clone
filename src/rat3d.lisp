@@ -79,27 +79,27 @@
 		 (*mx* t))
 	     (degvector nil 1 p))))
 
-(macrolet
-  ((maxminl (do-max in-place)
-    "Generates code for a function that operates on a list L of lists of REALs,
-    L = ((A1 ... An) (B1 ... Bn) (C1 ... Cn) ...), returns a list
-    ((OP A1 B1 C1 ...) (OP A2 B2 C2 ...) ... (OP An Bn Cn ...)), where OP is
-    either MAX (when DO-MAX is non-NIL) or MIN.
-    If IN-PLACE is non-NIL, the first sublist will be destructively modified
-    to contain the result."
-    (let ((op (if do-max '> '<)))
-    `(do ((l1 ,(if in-place '(car l) '(copy-list (car l))))
-          (ll (cdr l) (cdr ll)))
-         ((null ll) l1)
-       (do ((v1 l1 (cdr v1))
-      (v2 (car ll) (cdr v2)))
-      ((null v1))
-      (when (,op (car v2) (car v1))
-        (rplaca v1 (car v2))))))))
-  (defun maxlist(l)          (maxminl t nil))
-  (defun maxlist-in-place(l) (maxminl t t))
-  (defun minlist(l)          (maxminl nil nil))
-  (defun minlist-in-place(l) (maxminl nil t)))
+(defmacro maxminl-impl (do-max in-place)
+  "Generates code for a function that operates on a list L of lists of REALs,
+  L = ((A1 ... An) (B1 ... Bn) (C1 ... Cn) ...), returns a list
+  ((OP A1 B1 C1 ...) (OP A2 B2 C2 ...) ... (OP An Bn Cn ...)), where OP is
+  either MAX (when DO-MAX is non-NIL) or MIN.
+  If IN-PLACE is non-NIL, the first sublist will be destructively modified
+  to contain the result."
+  (let ((op (if do-max '> '<)))
+  `(do ((l1 ,(if in-place '(car l) '(copy-list (car l))))
+        (ll (cdr l) (cdr ll)))
+       ((null ll) l1)
+     (do ((v1 l1 (cdr v1))
+    (v2 (car ll) (cdr v2)))
+    ((null v1))
+    (when (,op (car v2) (car v1))
+      (rplaca v1 (car v2)))))))
+
+(defun maxlist(l)          (maxminl-impl t nil))
+(defun maxlist-in-place(l) (maxminl-impl t t))
+(defun minlist(l)          (maxminl-impl nil nil))
+(defun minlist-in-place(l) (maxminl-impl nil t))
 
 (defun quick-sqfr-check (p var2)
   (let ((gv (delete var2 (listovars p) :test #'equal))
