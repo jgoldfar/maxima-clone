@@ -394,7 +394,9 @@
                           ,(format nil "Proxy function to forward ~S calls to ~S" name impl-name)
                           (declare (notinline ,impl-name))
                           (,impl-name ,@required-args)))
-                   (declare (ignorable #',name) (inline ,name))
+                   #-gcl ; GCL doesn't like the IGNORABLE declaration
+                   (declare (ignorable #',name))
+                   (declare (inline ,name))
 		           ,@forms))
                forms))))
 
