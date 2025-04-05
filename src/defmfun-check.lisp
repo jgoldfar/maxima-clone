@@ -385,6 +385,7 @@
            ;; as that would cause infinite recursive inlining.
            ;; This mechanism catches direct and indirect (e.g. MAPCAR) recursion
            ;; and avoids going through $FOO with argument checking each time.
+           #-ecl ; ECL doesn't like the NOTINLINE declaration
            ,@(if (and required-args
                       (null optional-args)
                       (not restp)
