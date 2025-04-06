@@ -47,8 +47,8 @@
   #+allegro            (excl:exit exit-code :quiet t)
   #+(or mcl openmcl)   (ccl:quit exit-code)
   #+ecl                (si:quit exit-code)
-  #+lispworks          (lispworks:quit)
-  #+abcl               (ext:quit :status code)
+  #+lispworks          (lispworks:quit :status exit-code)
+  #+abcl               (ext:quit :status exit-code)
   #+gcl                (lisp::bye exit-code)
   #+cmucl
   (handler-case (ext:quit nil exit-code)
