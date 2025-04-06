@@ -46,11 +46,10 @@
   #+sbcl               (sb-ext:quit :unix-status exit-code)
   #+allegro            (excl:exit exit-code :quiet t)
   #+(or mcl openmcl)   (ccl:quit exit-code)
-  #+gcl                (system::quit exit-code)
   #+ecl                (si:quit exit-code)
   #+lispworks          (lispworks:quit)
   #+abcl               (cl-user::quit)
-  #+gcl                (lisp::bye)
+  #+gcl                (lisp::bye exit-code)
   #+cmucl
   (handler-case (ext:quit nil exit-code)
     ;; Only the most recent versions of cmucl support an exit code.
