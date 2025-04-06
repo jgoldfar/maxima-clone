@@ -79,27 +79,31 @@
 		 (*mx* t))
 	     (degvector nil 1 p))))
 
-(defmacro maxminl-impl (do-max in-place)
-  "Generates code for a function that operates on a list L of lists of REALs,
-  L = ((A1 ... An) (B1 ... Bn) (C1 ... Cn) ...), returns a list
-  ((OP A1 B1 C1 ...) (OP A2 B2 C2 ...) ... (OP An Bn Cn ...)), where OP is
-  either MAX (when DO-MAX is non-NIL) or MIN.
-  If IN-PLACE is non-NIL, the first sublist will be destructively modified
-  to contain the result."
-  (let ((op (if do-max '> '<)))
-  `(do ((l1 ,(if in-place '(car l) '(copy-list (car l))))
-        (ll (cdr l) (cdr ll)))
-       ((null ll) l1)
-     (do ((v1 l1 (cdr v1))
-    (v2 (car ll) (cdr v2)))
-    ((null v1))
-    (when (,op (car v2) (car v1))
-      (rplaca v1 (car v2)))))))
-
-(defun maxlist(l)          (maxminl-impl t nil))
-(defun maxlist-in-place(l) (maxminl-impl t t))
-(defun minlist(l)          (maxminl-impl nil nil))
-(defun minlist-in-place(l) (maxminl-impl nil t))
+(macrolet
+  ((defun-maxminl (do-max in-place)
+    "Defines the function (MAX|MIN)LIST(-IN-PLACE)?"
+    (let ((fun-name (intern (concatenate 'string (if do-max "MAX" "MIN") "LIST"
+                                                 (if in-place "-IN-PLACE"))))
+          (op (if do-max '> '<)))
+      `(defun ,fun-name (l)
+         ,(format nil
+"For L, a list of lists of REALs with the same length N,
+L = ((A_1 ... A_N) (B_1 ... B_N) (C_1 ... C_N) ...), returns a list
+((~A A_1 B_1 C_1 ...) (~:*~A A_2 B_2 C_2 ...) ... (~:*~A A_n B_n C_n ...)).~@[~%~A~:*~]"
+            (if do-max "MAX" "MIN")
+            (if in-place "The first sublist is modified to contain the result."))
+         (do ((l1 ,(if in-place '(car l) '(copy-list (car l))))
+              (ll (cdr l) (cdr ll)))
+             ((null ll) l1)
+           (do ((v1 l1 (cdr v1))
+                (v2 (car ll) (cdr v2)))
+               ((null v1))
+             (when (,op (car v2) (car v1))
+               (rplaca v1 (car v2)))))))))
+  (defun-maxminl t nil)
+  (defun-maxminl t t)
+  (defun-maxminl nil nil)
+  (defun-maxminl nil t))
 
 (defun quick-sqfr-check (p var2)
   (let ((gv (delete var2 (listovars p) :test #'equal))
