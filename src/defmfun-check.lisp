@@ -385,19 +385,17 @@
            ;; as that would cause infinite recursive inlining.
            ;; This mechanism catches direct and indirect (e.g. MAPCAR) recursion
            ;; and avoids going through $FOO with argument checking each time.
-           #-ecl ; ECL doesn't like the NOTINLINE declaration
            ,@(if (and required-args
                       (null optional-args)
                       (not restp)
                       (not keywords-present-p)
                       (not allow-other-keys-p))
                `((flet ((,name ,required-args
-                          ,(format nil "Proxy function to forward ~S calls to ~S" name impl-name)
                           (declare (notinline ,impl-name))
+                          ,(format nil "Proxy function to forward ~S calls to ~S" name impl-name)
                           (,impl-name ,@required-args)))
-                   #-gcl ; GCL doesn't like the IGNORABLE declaration
-                   (declare (ignorable #',name))
-                   (declare (inline ,name))
+                   ;; GCL doesn't like the IGNORABLE declaration.
+                   (declare #-gcl (ignorable #',name) (inline ,name))
 		           ,@forms))
                forms))))
 
