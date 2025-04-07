@@ -509,15 +509,15 @@
 	 (putprop (car l) t 'algord)))
     (setq mv (max mv (porder (cadr p))))))
 
-(defun gensym-readable (name)
+(defun gensym-readable (symname)
  (if (or (and (eq *use-readable-gensyms* :debug) (not *mdebug*) *debugger-hook*)
          (not *use-readable-gensyms*))
   (gensym)
-  (cond ((symbolp name)
-	 (gensym (string-trim "$" (string name))))
+  (cond ((symbolp symname)
+	 (gensym (string-trim "$" (string symname))))
 	(t
-	 (setq name (aformat nil "~:M" name))
-	 (if name (gensym name) (gensym))))))
+	 (setq symname (aformat nil "~:M" symname))
+	 (if symname (gensym symname) (gensym))))))
 
 (defun orderpointer (l)
   (loop for v in l
