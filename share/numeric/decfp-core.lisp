@@ -279,10 +279,7 @@ is (sum+1/10^50=1.0L0) ;  should be true
     ;; Precision was changed, make a new header.
     (setq *decbfloat-header* `(bigfloat simp ,$fpprec decimal)
           *decbfloat-header-prec* $fpprec))
-  (cons *decbfloat-header* s))
-
-(defun decbcons (s)
-  `((bigfloat simp ,$fpprec decimal) . ,(decimalfptrim s)))
+  (cons *decbfloat-header* (decimalfptrim s)))
 
 ;; probably not useful.  We only allow new decimal bigfloats
 ;; if they are typed in as 1.2L0 etc  Or maybe if they are integers??
@@ -318,7 +315,7 @@ is (sum+1/10^50=1.0L0) ;  should be true
   (cond 
    ((decimalfpp x) 
     (if (null $rounddecimalfloats) x	; just return it
-      (decbcons (decimalfptrim (cdr x))))); possibly chop/round it
+      (decbcons (cdr x)))); possibly chop/round it
    
    
    ((numberp x)  ;; favors decimal conversion for CL numbers
@@ -338,7 +335,7 @@ is (sum+1/10^50=1.0L0) ;  should be true
 (defun decfppower (ba e)  ;ba^e,  e is nonneg int
   (let ((ans '(1 0))
 	(b (cdr ba)))
-    (dotimes (i e (decbcons (decimalfptrim ans))) (setf ans (decfptimes ans b)))))
+    (dotimes (i e (decbcons ans)) (setf ans (decfptimes ans b)))))
 
 (defmfun $binarybfloat (x &aux (y nil))
     (cond ((setf y (bigfloatp x)) y )
