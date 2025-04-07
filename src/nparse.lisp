@@ -90,7 +90,7 @@
 			 (n 1                                  (1+ n)))
 			((or (null p) (>= p fp))
 			 (cons n (- fp o)))
-            (declare (ignore l))))
+            (declare (ignorable l))))
 		   (t '())))
 	   (column ()
 	     (let ((n (get '*parse-window* 'length))
