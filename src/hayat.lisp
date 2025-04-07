@@ -672,11 +672,11 @@
        ((null ul) a)
       (setq a (psplus a (pstimes (lc ul) (psexpt v (le ul)))))))
 
-(defun get-series (func trunc var e c)
+(defun get-series (func trunc var2 e c)
    (let ((pw (e// trunc e)))
       (setq e (if (and (equal e (rcone)) (equal c (rcone)))
-		  (getexp-fun func var pw)
-		 (psmonsubst (getexp-fun func var pw) trunc e c)))
+		  (getexp-fun func var2 pw)
+		 (psmonsubst (getexp-fun func var2 pw) trunc e c)))
       (if (and $float $keepfloat) (psfloat e) e)))
 
 (defun psmonsubst (p trunc e c)
@@ -999,10 +999,10 @@
 					       (n-term (terms p))))))))))
 
 (defun gvar-logp (gvar)
-   (let ((var (get-inverse gvar)))
-      (and (consp var) (eq (caar var) 'mexpt) (equal (caddr var) -1)
-	   (consp (setq var (cadr var))) (eq (caar var) '%log)
-	   var)))
+   (let ((var2 (get-inverse gvar)))
+      (and (consp var2) (eq (caar var2) 'mexpt) (equal (caddr var2) -1)
+	   (consp (setq var2 (cadr var2))) (eq (caar var2) '%log)
+	   var2)))
 
 (defun c*logs (p)
    (if (pscoefp p) ()
@@ -1169,9 +1169,9 @@
 				(invert-terms ps-terms))))))))))
 
 (defun key-var-pow (g)
-   (let ((var (get-key-var g)) datum)
-      (when var
-	 (setq datum (get-datum var))
+   (let ((var2 (get-key-var g)) datum)
+      (when var2
+	 (setq datum (get-datum var2))
 	 (if (eq g (setq g (data-gvar datum))) (cons g (rcone))
 	    (cons g (rcmone))))))
 
@@ -1243,7 +1243,7 @@
       (rplacd (data-gvar-o (car tlist*))
 	      (1+ (cdr (data-gvar-o (car tlist*)))))))
 
-(defun tvar? (var) (or (atom var) (member 'array (cdar var) :test #'eq)))
+(defun tvar? (var2) (or (atom var2) (member 'array (cdar var2) :test #'eq)))
 
 ;; Needs to be extended to handle singular tvars in > 1 var's.
 
@@ -1584,33 +1584,33 @@
 
 (defun pslog-monom (monom)
   (let* ((gvar (gvar monom))
-	 (datum (gvar-data gvar)) var pt logvar c)
+	 (datum (gvar-data gvar)) var2 pt logvar c)
     (if (switch 'multivar datum)
 	(pslog (ps-lc monom))
 	(progn
-	  (setq var (datum-var datum))
-	  (if (tvar? var)
+	  (setq var2 (datum-var datum))
+	  (if (tvar? var2)
 	      (if (not (member (setq pt (exp-pt datum)) '($inf $minf) :test #'eq))
-		  (setq logvar (adjoin-tvar `((%log) ,(m- var pt))))
+		  (setq logvar (adjoin-tvar `((%log) ,(m- var2 pt))))
 		  (progn
 		    ;; At x = inf: log(c (1/x)^n) -> log(c) - n log(x)
 		    ;; At x = minf: log(c (-1/x)^n) -> log(c (-1)^n) - n log(x)
-		    (setq logvar (psminus (adjoin-tvar `((%log) ,var))))
+		    (setq logvar (psminus (adjoin-tvar `((%log) ,var2))))
 		    (when (eq pt '$minf)
 		      (setq c (rcexpt (rcmone) (ps-le monom))))))
-	      (if (eq (caar var) 'mexpt)
-		  (if (equal (caddr var) -1);; var must be 1/log(y)
+	      (if (eq (caar var2) 'mexpt)
+		  (if (equal (caddr var2) -1);; var2 must be 1/log(y)
 		      ;; Try to keep inf's real. Here we want
 		      ;; log(c (1/log(x))^n) -> log(c (-1)^n) - n log(-log(x))
-		      (if (equal (tvar-lim (cadr var)) '$minf)
+		      (if (equal (tvar-lim (cadr var2)) '$minf)
 			  (setq c (rcexpt (rcmone) (ps-le monom))
 				logvar
 				(psminus (adjoin-tvar
-					  `((%log) ,(m- (cadr var))))))
+					  `((%log) ,(m- (cadr var2))))))
 			  (setq logvar (psminus
-					(adjoin-tvar `((%log) ,(cadr var))))))
-		      (if (equal (cadr var) '$%e)
-			  (setq logvar (taylor2 (caddr var)))
+					(adjoin-tvar `((%log) ,(cadr var2))))))
+		      (if (equal (cadr var2) '$%e)
+			  (setq logvar (taylor2 (caddr var2)))
 			  (break "Unhandled gvar in `pslog-of-gvar'")))))
 	  (psplus (pslog (if c (pstimes c (ps-lc monom)) (ps-lc monom)))
 		  (pstimes (ps-le monom) logvar))))))
@@ -2035,15 +2035,15 @@
 	(return
 	 (if (atom (car ans)) (tay-error (car ans) (cadr ans)) ans))))
 
-(defun transform-tvar (var data)
-   (if (not (tvar? var)) var
+(defun transform-tvar (var2 data)
+   (if (not (tvar? var2)) var2
       (cond ((and (signp e (exp-pt data)) (null (switch '$asymp data)))
-	     var)	;Simple case
+	     var2)	;Simple case
 	    ((member (exp-pt data) '($inf infinity) :test #'eq)
-	     (m^ var -1))
+	     (m^ var2 -1))
 	    ((eq (exp-pt data) '$minf)
-	     (m- (m^ var -1)))
-	    ((let ((temp (m- var (exp-pt data))))
+	     (m- (m^ var2 -1)))
+	    ((let ((temp (m- var2 (exp-pt data))))
 		(if (switch '$asymp data) (m^ temp -1) temp))))))
 
 (defun taylor_simplifier_caller (exp)
@@ -2051,13 +2051,13 @@
 
 (defun taylor_simplify_recurse (ps)
    (if (pscoefp ps) (taylor2 (funcall taylor_simplifier (rcdisrep ps)))
-      (let ((datum (ps-data ps)) (var () ))
+      (let ((datum (ps-data ps)) (var2 () ))
 	 ;; We must treat multivars like 1, since they'll reappear again
 	 ;; when we call taylor2 on their disrep'd coeff's.
 	 (if (switch 'multivar datum)
 	     (setq datum '())
 	     (progn
-	       (setq var (getdisrep (gvar-o ps)))
+	       (setq var2 (getdisrep (gvar-o ps)))
 	       ;; Don't push pw's < 0, else constants will be truncated
 	       (push-pw datum (emax (trunc-lvl ps) (rczero)))))
 	 (do ((terms (terms ps) (n-term terms))
@@ -2262,33 +2262,33 @@
 (defun re-taylor-recurse (ps)
   (declare (special old-tlist old-ivars))
    (if (not (psp ps)) (taylor2 (rcdisrep ps))
-      (let (var (datum () ))
-	 (setq var (cdr (assoc (gvar ps) old-ivars :test #'eq)))
+      (let (var2 (datum () ))
+	 (setq var2 (cdr (assoc (gvar ps) old-ivars :test #'eq)))
 	 ;; We must treat multivars like 1, since they'll reappear again
 	 ;; when we call taylor2 or var-expand below.
-	 (if (switch 'multivar (assoc var old-tlist :test #'equal))
-	     (setq var () )
-	    (when (setq datum (var-data var))
+	 (if (switch 'multivar (assoc var2 old-tlist :test #'equal))
+	     (setq var2 () )
+	    (when (setq datum (var-data var2))
 	       (push-pw datum (trunc-lvl ps))))
 	 (prog1
 	  (do ((terms (terms ps) (n-term terms))
 	       (ans (rczero)
-		    (psplus (if (null var) (re-taylor-recurse (lc terms))
+		    (psplus (if (null var2) (re-taylor-recurse (lc terms))
 			       (pstimes (re-taylor-recurse (lc terms))
 					(if datum
 					    (var-expand (car datum)
 							(edisrep (le terms))
 							() )
 					   (taylor2
-					    (m^t var (edisrep (le terms)))))))
+					    (m^t var2 (edisrep (le terms)))))))
 			    ans)))
 	      ((null terms) ans))
 	  (when datum (pop-pw datum))))))
 
-(defun var-expand (var exp dont-truncate?)
+(defun var-expand (var2 exp dont-truncate?)
   (let (($keepfloat) ($float) (modulus))
      (setq exp (prep1 exp)))		;; exp must be a rational integer
-  (let ((temp (get-datum var 't)))
+  (let ((temp (get-datum var2 't)))
      (cond ((null temp) (merror "VAR-EXPAND: invalid call."))
 	   ((member (exp-pt temp) '($inf $minf $infinity) :test #'eq)
 	    (cond ((switch '$asymp temp)
@@ -2620,10 +2620,10 @@
 		 (psplus ans (taylor2 (car l)))))
 	   ((null l) ans)))
 
-(defun ts-formula (form var pw)
-   (let ((datum (get-datum (get-key-var (car var)))))
+(defun ts-formula (form var2 pw)
+   (let ((datum (get-datum (get-key-var (car var2)))))
       (let-pw datum pw
-	 (taylor2 (subst (get-inverse (car var)) 'sp2var form)))))
+	 (taylor2 (subst (get-inverse (car var2)) 'sp2var form)))))
 
 (defmacro next-series (l) `(cdadr ,l))
 
@@ -3017,10 +3017,10 @@
     (let ((ans (catch 'errorsw (eval x))))
       (if (eq ans t) (unfam-sing-err) ans))))
 
-;; evaluate deriv at location var=pt
-(defun eval-deriv (deriv var pt)
+;; evaluate deriv at location var2=pt
+(defun eval-deriv (deriv var2 pt)
   (let ((errorsw t))
-    (let ((ans (no-sing-err `(meval '(($at) ,deriv ((mequal) ,var ,pt))))))
+    (let ((ans (no-sing-err `(meval '(($at) ,deriv ((mequal) ,var2 ,pt))))))
       ans)))
 
 (defun check-inf-sing (pt-list) ; don't know behavior of random fun's @ inf
@@ -3032,16 +3032,16 @@
   (cond ((not l) exp)
 	(t
 	 (setq exp (diff-expand exp (cdr l)))
-	 (do ((deriv (sdiff exp (caar l)) (sdiff deriv var))
-	      (var (caar l))
+	 (do ((deriv (sdiff exp (caar l)) (sdiff deriv var2))
+	      (var2 (caar l))
 	      (coef 1 (* coef (1+ cnt)))
 	      (cnt 1 (1+ cnt))
 	      (pt (exp-pt (car l)))
 	      (lim (rcdisrep (current-trunc (car l))))
 	      (ans (list (no-sing-err `(meval '(($at) ,exp ((mequal) ,(caar l) ,(exp-pt (car l)))))))
 		   (cons `((mtimes) ((rat simp) 1 ,coef)
-			   ,(eval-deriv deriv var pt)
-			   ((mexpt) ,(sub* var pt) ,cnt))
+			   ,(eval-deriv deriv var2 pt)
+			   ((mexpt) ,(sub* var2 pt) ,cnt))
 			 ans)))
 	     ((or (great cnt lim) (equal deriv 0)) (cons '(mplus) ans))))))
 
@@ -3077,20 +3077,20 @@
 		     '(mplus exact)))
       (rcdisrep p)))
 
-(defun psdisrep^ (n var)
-   ;; If var = () then it is an internal var generated in a multivariate
-   ;; expansion so it shouldn't be displayed. If var = 1 then it probably
+(defun psdisrep^ (n var2)
+   ;; If var2 = () then it is an internal var generated in a multivariate
+   ;; expansion so it shouldn't be displayed. If var2 = 1 then it probably
    ;; resulted from the substitution in srdisrep, so it depends on an
    ;; internal var and likewise shouldn't be displayed.
-   (cond ((or (rczerop n) (null var) (equal var 1)) 1)
-	 ((equal n (rcone)) var)
-	 ((and (mexptp var) (equal (caddr var) -1))
+   (cond ((or (rczerop n) (null var2) (equal var2 1)) 1)
+	 ((equal n (rcone)) var2)
+	 ((and (mexptp var2) (equal (caddr var2) -1))
 	  ;; This used to be conditioned on ps-bmt-disrep which was
 	  ;; always true.  But I (rtoy) can't find a case where it
 	  ;; would have made a difference.  The testsuite doesn't have
 	  ;; any examples.
-	  (psdisrep^ (e- n) (cadr var)))
-	 ('t `((mexpt ratsimp) ,var ,(edisrep n)))))
+	  (psdisrep^ (e- n) (cadr var2)))
+	 ('t `((mexpt ratsimp) ,var2 ,(edisrep n)))))
 
 ;;; There used to be a hack below that would print a series consisting
 ;;; of merely one term as exact polynomial (i.e. no trailing "..."'s).
@@ -3119,16 +3119,16 @@
 	       (t (cons '(mtimes ratsimp)
 			(nconc (striptimes a) (striptimes b))))))
 
-(defun psdisrep2 (p var trunc)
-   (if (or $ratexpand $psexpand) (psdisrep2expand p var)
-      (do ((a () (cons (psdisrep* (psdisrep (lc p)) (psdisrep^ (le p) var))
+(defun psdisrep2 (p var2 trunc)
+   (if (or $ratexpand $psexpand) (psdisrep2expand p var2)
+      (do ((a () (cons (psdisrep* (psdisrep (lc p)) (psdisrep^ (le p) var2))
 		       a))
 	   (p p (cdr p)))
 	  ((or (null p) (e> (le p) trunc)) a))))
 
-(defun psdisrep2expand (p var)
+(defun psdisrep2expand (p var2)
    (do ((p p (cdr p))
-	(l () (nconc (psdisrep*expand (psdisrep (lc p)) (psdisrep^ (le p) var))
+	(l () (nconc (psdisrep*expand (psdisrep (lc p)) (psdisrep^ (le p) var2))
 		     l)))
        ((null p) l)))
 
@@ -3155,11 +3155,11 @@
 
 (defun psdisexcnt (p l n)
   (if (psp p)
-      (do ((var (getdisrep (gvar-o p))) (ll (terms p) (n-term ll)))
+      (do ((var2 (getdisrep (gvar-o p))) (ll (terms p) (n-term ll)))
 	  ((null ll) ())
 	(if (rczerop (le ll)) (psdisexcnt (lc ll) l n)
 	    (psdisexcnt (lc ll)
-			(cons (psdisrep^ (le ll) var) l)
+			(cons (psdisrep^ (le ll) var2) l)
 			(e+ (le ll) n))))
       (psans-add (cond ((not l) (rcdisrep p))
 		       (t (psdisrep* (rcdisrep p)
