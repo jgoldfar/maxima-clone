@@ -650,12 +650,12 @@
         ($derivative $diff) ($prod $product)
 	($bothcoeff $bothcoef)))
 
-(defun amperchk (name)
+(defun amperchk (name2)
   (cond
-    ((symbolp name) name)
-    ((stringp name)
-     (getalias (or (getopr0 name) (implode (cons #\$ (coerce name 'list))))))
-    (t name)))
+    ((symbolp name2) name2)
+    ((stringp name2)
+     (getalias (or (getopr0 name2) (implode (cons #\$ (coerce name2 'list))))))
+    (t name2)))
 
 (defmspec $stringout (x)
   (setq x (cdr x))
