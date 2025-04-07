@@ -129,9 +129,9 @@
 ;;;     else store the value under the appropriate property.
 ;;;
 
-(defun cput (bas val sel)
+(defun cput (base val sel)
   (cond ((null val)
-	 (zl-remprop bas sel)
+	 (zl-remprop base sel)
 	 nil)
 	(t
-	 (putprop bas val sel))))
+	 (putprop base val sel))))

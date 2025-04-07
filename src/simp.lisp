@@ -2648,38 +2648,38 @@
                         (or (ratnump (car x))
                             (and (integerp (car x))
                                  (not (onep (car x))))))
-                   ;; Multiplying bas^k * num/den
+                   ;; Multiplying base^k * num/den
                    (let ((num (num1 (car x)))
                          (den (denom1 (car x)))
-                         (bas (second (cadr fm))))
-                     (cond ((and (integerp bas)
-                                 (not (eql 1 (abs bas)))
-                                 (setq expo (exponent-of (abs num) bas)))
-                            ;; We have bas^m*bas^k = bas^(k+m).
-                            (setq temp (power bas
+                         (base (second (cadr fm))))
+                     (cond ((and (integerp base)
+                                 (not (eql 1 (abs base)))
+                                 (setq expo (exponent-of (abs num) base)))
+                            ;; We have base^m*base^k = base^(k+m).
+                            (setq temp (power base
                                               (add (third (cadr fm)) expo)))
                             ;; Set fm to have 1/denom term.
                             (setq x (mul (car y)
                                          (div (div num
-                                                   (exptrl bas expo))
+                                                   (exptrl base expo))
                                               den))))
-                           ((and (integerp bas)
-                                 (not (eql 1 (abs bas)))
-                                 (setq expo (exponent-of den bas)))
+                           ((and (integerp base)
+                                 (not (eql 1 (abs base)))
+                                 (setq expo (exponent-of den base)))
                             (setq expo (- expo))
-                            ;; We have bas^(-m)*bas^k = bas^(k-m).
-                            (setq temp (power bas
+                            ;; We have base^(-m)*base^k = base^(k-m).
+                            (setq temp (power base
                                               (add (third (cadr fm)) expo)))
                             ;; Set fm to have the numerator term.
                             (setq x (mul (car y)
                                          (div num
                                               (div den
-                                                   (exptrl bas (- expo)))))))
+                                                   (exptrl base (- expo)))))))
                            (t
                             ;; Next term in list of products.
                             (setq fm (cdr fm))
                             (go start)))
-                     ;; Add in the bas^(k+m) term or bas^(k-m)
+                     ;; Add in the base^(k+m) term or base^(k-m)
                      (setf y (rplaca y 1))
                      (rplacd fm (cddr fm))
                      (rplacd fm (cons temp (cdr fm)))
@@ -2808,25 +2808,25 @@
                  (not (onep1 (car y)))
                  (or (integerp (car y))
                      (ratnump (car y))))
-            ;; Multiplying bas^k * num/den.
+            ;; Multiplying base^k * num/den.
             (let ((num (num1 (car y)))
                   (den (denom1 (car y)))
-                  (bas (car x)))
-              (cond ((and (integerp bas)
-                          (not (eql 1 (abs bas)))
-                          (setq expo (exponent-of (abs num) bas)))
-                     ;; We have bas^m*bas^k.
-                     (setq temp (power bas (add (cadr x) expo)))
+                  (base (car x)))
+              (cond ((and (integerp base)
+                          (not (eql 1 (abs base)))
+                          (setq expo (exponent-of (abs num) base)))
+                     ;; We have base^m*base^k.
+                     (setq temp (power base (add (cadr x) expo)))
                      ;; Set fm to have 1/denom term.
-                     (setq x (div (div num (exptrl bas expo)) den)))
-                    ((and (integerp bas)
-                          (not (eql 1 (abs bas)))
-                          (setq expo (exponent-of den bas)))
+                     (setq x (div (div num (exptrl base expo)) den)))
+                    ((and (integerp base)
+                          (not (eql 1 (abs base)))
+                          (setq expo (exponent-of den base)))
                      (setq expo (- expo))
-                     ;; We have bas^(-m)*bas^k.
-                     (setq temp (power bas (add (cadr x) expo)))
+                     ;; We have base^(-m)*base^k.
+                     (setq temp (power base (add (cadr x) expo)))
                      ;; Set fm to have the numerator term.
-                     (setq x (div num (div den (exptrl bas (- expo))))))
+                     (setq x (div num (div den (exptrl base (- expo))))))
                     (t
                      ;; The rational doesn't contain any (simple) powers of
                      ;; the exponential term.  We're done.
