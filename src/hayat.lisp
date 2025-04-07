@@ -2051,13 +2051,12 @@
 
 (defun taylor_simplify_recurse (ps)
    (if (pscoefp ps) (taylor2 (funcall taylor_simplifier (rcdisrep ps)))
-      (let ((datum (ps-data ps)) (var2 () ))
+      (let ((datum (ps-data ps)))
 	 ;; We must treat multivars like 1, since they'll reappear again
 	 ;; when we call taylor2 on their disrep'd coeff's.
 	 (if (switch 'multivar datum)
 	     (setq datum '())
 	     (progn
-	       (setq var2 (getdisrep (gvar-o ps)))
 	       ;; Don't push pw's < 0, else constants will be truncated
 	       (push-pw datum (emax (trunc-lvl ps) (rczero)))))
 	 (do ((terms (terms ps) (n-term terms))
