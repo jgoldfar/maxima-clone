@@ -2316,13 +2316,17 @@ ignoring dummy variables and array indices."
 	   (setq ans (risplit infinityl-sum))
 	  
 	   (let ((re (car ans)) (im (cdr ans)))
-	   	 (setq re (car (errcatch (gruntz1 re var val))))
-		 (setq im (car (errcatch (gruntz1 im var val))))
+	        (setq re (catch 'taylor-catch
+                  (let ((silent-taylor-flag t)) (gruntz1 re var val))))
+        
+             (setq im (catch 'taylor-catch
+                  (let ((silent-taylor-flag t)) (gruntz1 im var val))))
 		 (setq r
 		     (cond ((or (null re) (null im)) nil)
 			       ((infinityp im) '$infinity)
 				   ((infinityp re) re)
 				   (t (add re (mul '$%i im))))))
+
 	   (cond ((eq r '$infinity) (list (fapply 'mplus infinityl)))
 			 ((eq r nil) (throw 'limit t))
 			 (t 
