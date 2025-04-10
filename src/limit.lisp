@@ -3322,38 +3322,55 @@ ignoring dummy variables and array indices."
         (ylim)
         (xlim-z)
         (ylim-z)
+		(dir)
         (q))
-    (setq xlim (limit x v pt 'think))
-    (setq ylim (limit y v pt 'think))
+    (setq xlim (let ((preserve-direction t)) (limit x v pt 'think)))
+    (setq ylim (let ((preserve-direction t)) (limit y v pt 'think)))
+
+	(when (eql 0 xlim)
+		(setq dir (behavior x v pt))
+		;(mtell "x = ~M ; dir = ~M ~%" x dir)
+		(cond ((eql dir 1) (setq xlim '$zeroa))
+		      ((eql dir -1) (setq xlim '$zerob))))
+
+	(when (eql 0 ylim)
+		(setq dir (behavior y v pt))
+		;(mtell "dir  = ~M ~%" dir)
+		(cond ((eql dir 1) (setq ylim '$zeroa))
+		      ((eql dir -1) (setq ylim '$zerob))))
+
     (setq xlim-z (ridofab xlim)
-	  ylim-z (ridofab ylim))
+	      ylim-z (ridofab ylim))
     ;; For cases for which direct substitution fails, normalize 
     ;; x & y and try again.
     (setq q (cond ((eq xlim '$inf) x)
-		  ((eq xlim '$minf)
-                   (mul -1 x))
-		  ((eq ylim '$inf) y)
-		  ((eq ylim '$minf)
-                   (mul -1 y))
-                  ((and (eq xlim '$zerob) (zerop2 ylim))
-                   (mul -1 x))
-		  ((and (eq xlim '$zeroa) (zerop2 ylim))
-                   x)
-		  ((and (eq ylim '$zerob) (zerop2 xlim))
-                   (mul -1 y))
-		  ((and (eq ylim '$zeroa) (zerop2 xlim))
-                   y) 
-		  (t 1)))
+		          ((eq xlim '$minf) (mul -1 x))
+		          ((eq ylim '$inf) y)
+		          ((eq ylim '$minf) (mul -1 y))
+		          (t 1)))
 
-    (when (not (eql q 1))
-      (setq x (div x q))
+    (when (not (eql q 1)) 
+	  (setq x (div x q))
       (setq y (div y q))
       (setq xlim (limit x v pt 'think))
       (setq ylim (limit y v pt 'think))
       (setq xlim-z (ridofab xlim)
-	    ylim-z (ridofab ylim)))		  	  
-				
+	        ylim-z (ridofab ylim)))
+
     (cond
+
+      ((and (eq xlim '$zeroa) (eq ylim '$zeroa)) ; in quadrant I
+	    (limit (ftake '%atan (div y x)) v pt 'think))
+    
+      ((and (eq xlim '$zerob) (eq ylim '$zeroa)) ; in quadrant II
+	    (add '$%pi (limit (ftake '%atan (div y x)) v pt 'think)))
+
+	  ((and (eq xlim '$zerob) (eq ylim '$zerob)) ; in quadrant III
+	    (sub (limit (ftake '%atan (div y x)) v pt 'think) '$%pi)) 
+
+      ((and (eq xlim '$zeroa) (eq ylim '$zerob)) ; in quadrant IV
+	    (limit (ftake '%atan (div y x)) v pt 'think))  
+
       ((and (eq '$zerob ylim) (eq t (mgrp 0 xlim)))
        (mul -1 '$%pi))
       ((and (eq '$zerob ylim) (eq t (mgrp xlim 0)))

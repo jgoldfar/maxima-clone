@@ -1333,6 +1333,11 @@ atan(1/5)-%pi$
 is(subst(x=-1.0e-8, float(abs(atan2(exp(x)-1, 5*sin(x)) - atan(1/5)+%pi))) < 1.0e-8);
 true$
 
+/* #4536 atan2(0,0) undefined error while evaluating a limit 
+   This is fix for *just one* of two bugs mentioned in ticket 4536. */
+limit(atan2(exp(x)-cos(x), -x*sin(x)),x,0,minus);
+-%pi/2$   
+
 /* clean up*/
 (kill(values),0);
 0$
