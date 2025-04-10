@@ -490,6 +490,11 @@
 ;; atan2 distributes over lists, matrices, and equations
 (defprop %atan2 (mlist $matrix mequal) distribute_over)
 
+;; I have locally set `limitp` to `nil` in two calls to `$sign`. This change
+;; resolves bug #4529: `atan2` limit issue with `radexpand: false`.
+;; Specifically, it resolves the bug when computing the limit:
+;; `block([radexpand: false], limit(atan2(x^2 - 2, x^3 - 3*x), x, sqrt(2), minus))`.
+;; Arguably, this fix is inelegant and should be revisited. (Barton Willis, April 2025)
 (def-simplifier atan2 (y x)
   (let (signy signx)
     (cond ((and (zerop1 y) (zerop1 x))
@@ -529,8 +534,8 @@
                (alike1 y '((mtimes -1 $inf))))
            ;; Simplify atan2(minf,x) -> -%pi/2
            (div '$%pi -2))
-          ((and (free x '$%i) (setq signx ($sign x))
-                (free y '$%i) (setq signy ($sign y))
+          ((and (free x '$%i) (setq signx (let ((limitp nil)) ($sign x)))
+                (free y '$%i) (setq signy (let ((limitp nil)) ($sign y)))
                 (cond ((zerop1 y)
                        ;; Handle atan2(0, x) which is %pi or -%pi
                        ;; depending on the sign of x.  We assume that

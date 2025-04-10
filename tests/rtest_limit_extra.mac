@@ -1282,6 +1282,57 @@ ind$
 limit(round(1/2 + cos(1/x)/10), x, 0);
 ind$
 
+/* #4529 atan2 limit with radexpand : false */
+block([radexpand : false], limit(atan2(x^2-2, x^3-3*x),x,sqrt(2),minus));
+-%pi$
+
+block([radexpand : true], limit(atan2(x^2-2, x^3-3*x),x,sqrt(2),minus));
+-%pi$
+
+/* tests for atan2(zeroa/b, zeroa/b) */
+
+limit(atan2(exp(x)-1, sin(x)),x,0,plus);
+%pi/4$
+
+is(subst(x=1.0e-8, float(abs(atan2(exp(x)-1, sin(x)) - %pi/4) < 1.0e-8)));
+true$
+
+limit(atan2(exp(x)-1, 8*sin(x)),x,0,plus);
+atan(1/8)$
+
+is(subst(x=1.0e-8, float(abs(atan2(exp(x)-1,8*sin(x)) - atan(1/8))) < 1.0e-8));
+true$
+
+limit(atan2(exp(x)-1, -sin(x)),x,0,minus);
+-%pi/4$
+
+is(subst(x=-1.0e-8, float(abs(atan2(exp(x)-1,-sin(x)) + %pi/4)) < 1.0e-8));
+true$
+
+limit(atan2(exp(x)-1, -sin(x)),x,0,plus);
+3*%pi/4$
+
+is(subst(x=1.0e-8, float(abs(atan2(exp(x)-1,-sin(x)) - 3*%pi/4)) < 1.0e-8));
+true$
+
+limit(atan2(exp(x)-1, -107*sin(x)),x,0,plus);
+%pi - atan(1/107)$
+
+is(subst(x=1.0e-8, float(abs(atan2(exp(x)-1, -107*sin(x)) - (%pi - atan(1/107)))) < 1.0e-8));
+true$
+
+limit(atan2(exp(x)-1, sin(x)),x,0,minus);
+-3*%pi/4$
+
+is(subst(x=-1.0e-8, float(abs(atan2(exp(x)-1, sin(x)) + 3*%pi/4)) < 1.0e-8));
+true$
+
+limit(atan2(exp(x)-1, 5*sin(x)),x,0,minus);
+atan(1/5)-%pi$
+
+is(subst(x=-1.0e-8, float(abs(atan2(exp(x)-1, 5*sin(x)) - atan(1/5)+%pi))) < 1.0e-8);
+true$
+
 /* clean up*/
 (kill(values),0);
 0$
