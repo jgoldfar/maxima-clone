@@ -419,7 +419,7 @@ block([domain : 'complex],limit(2/5*((3/4)^m - 1)*(a - 10) + 1/5*(3*(3/4)^m + 2)
  -((%pi^2-6*%gamma^2)/6)$
 
  limit(e,x,1);
- %gamma^2-%pi^2/6$
+-((%pi^2-6*%gamma^2)/6)$
 
 /* #2877 Limits behave incorrectly when applied to derivatives */
 (dg: diff(g(x), x),0);
@@ -690,16 +690,16 @@ limit(X,t,1,'minus);
 log(sqrt(2)+1)-log(1-sqrt(2))-sqrt(2)$
 
 limit(X,t,1,'plus);
-log(sqrt(2)+1)-log(1-sqrt(2))-sqrt(2)$
+ log(sqrt(2)+1)+(-(2*log(sqrt(2)-1))-2*%i*%pi)/2-sqrt(2)$
 
 limit(X,t,1);
-log(sqrt(2)+1)-log(1-sqrt(2))-sqrt(2)$
+log(sqrt(2)+1)+(-(2*log(sqrt(2)-1))-2*%i*%pi)/2-sqrt(2)$
 
 tlimit(X,t,1);
 log(sqrt(2)+1)-log(1-sqrt(2))-sqrt(2)$
 
 block([algebraic : true], limit(ratsimp(X),t,1));
-log(sqrt(2)+1)-log(1-sqrt(2))-sqrt(2)$
+log(sqrt(2)+1)+(-(2*log(sqrt(2)-1))-2*%i*%pi)/2-sqrt(2)$
 
 (remvalue(X),0);
 0$
@@ -1083,11 +1083,11 @@ block([xxx : integrate((x-%i)/((x-2*%i)*(x^2+1)),x)],
 0$ 
 
 limit(ratsimp(X),t,1);
-log(sqrt(2)+1)-log(1-sqrt(2))-sqrt(2)$
+ log(sqrt(2)+1)-log(sqrt(2)-1)-%i*%pi-sqrt(2)$
 
 /* doesn't finish! */
 limit(X,t,1);
-log(sqrt(2)+1)-log(1-sqrt(2))-sqrt(2)$
+log(sqrt(2)+1)+(-(2*log(sqrt(2)-1))-2*%i*%pi)/2-sqrt(2)$
 
 (remvalue(X),0);
 0$

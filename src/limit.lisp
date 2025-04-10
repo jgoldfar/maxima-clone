@@ -2312,7 +2312,7 @@ ignoring dummy variables and array indices."
 	;; the rectangular form of their sum. When gruntz1 is able to find the
 	;; limit, we modify the lists infinityl, minfl, ... accordingly.
     (when (and infinityl (cdr infinityl) (not (among '$li (cons '(mlist) infinityl))))
-      (let ((infinityl-sum (fapply 'mplus infinityl)))
+      (let (($radexpand nil) (infinityl-sum (fapply 'mplus infinityl)))
 	   (setq ans (risplit infinityl-sum))
 	  
 	   (let ((re (car ans)) (im (cdr ans)))
@@ -3147,36 +3147,43 @@ ignoring dummy variables and array indices."
 	   '$infinity)
 	  ((eq arglim '$zeroa) '$minf)  ;log(zeroa) = minf
       ;; log(ind) = ind when ind > 0 else und
+	  ((eq arglim '$zerob) '$infinity)
+      ;; If expr doesn't vanish, log(ind) = ind; otherwise log(ind) = und.
 	  ((eq arglim '$ind)
 	      (if (eq t (mgrp (cadr expr) 0)) '$ind '$und))
 	  ;; log(und) = und
 	  ((eq arglim '$und) '$und)
 	  ((member arglim '($ind $und)) '$und)
           ;; log(1^(-)) = zerob, log(1^(+)) = zeroa & log(1)=0
-	  ((eql arglim 1)
-	   (if (or (eq val '$zerob) (eq var '$zeroa)) val 0))
+	  ((eql (ridofab arglim) 1)
+	    (cond (preserve-direction
+                 (setq dir (behavior (cadr expr) var val))
+		         (cond ((eql dir -1) '$zerob)
+		               ((eql dir 1) '$zeroa)
+			           (t 0)))
+			  (t 0)))
 	  ;; Special case of arglim = 0
 	  ((eql arglim 0)
 	   (setq dir (behavior (cadr expr) var val))
 	   (cond ((eql dir -1) '$infinity)
 		 ((eql dir 0) '$infinity)
 		 ((eql dir 1) '$minf)))
-          ;; When arglim is off the negative real axis, use direct substitution
-	  ((off-negative-real-axisp arglim) 
-           (ftake '%log arglim))
-	  (t
-	   ;; We know that arglim is a negative real number, say xx.
-	   ;; When the imaginary part of (cadr expr) near var is negative,
-	   ;; return log(-x) - %i*pi; when the imaginary part of (cadr expr) 
-	   ;; near var is positive return log(-x) + %i*pi; and when
-	   ;; we cannot determine the behavior of the imaginary part,
-	   ;; return a nounform. The value of val (either zeroa or zerob)
-	   ;; determines what is meant by "near" (smaller than var when 
-	   ;; val is zerob and larger than var when val is zeroa).
-	   (setq dir (behavior ($imagpart (cadr expr)) var val))
-           (cond  ((or (eql dir 1) (eql dir -1))
-	           (add (ftake '%log (mul -1 arglim)) (mul dir '$%i '$%pi)))
-	          (t (throw 'limit nil))))))) ;do a nounform return
+
+	    (t
+	       (let* ((z (trisplit arglim)) (xx (car z)) (yy (cdr z)))
+	        (cond 
+		    ;; When arglim is off the negative real axis, use direct substitution
+		    ((or (eq t (mnqp yy 0)) (eq t (mgrp xx 0)))
+		  		(ftake '%log arglim))
+			(t
+			  ;; For arglim on the negative real axis, we need to examine the imaginary
+			  ;; part of 'expr' to see if the imaginary part of 'expr' vanishes, or if it
+			  ;; approaches zero from above or below.
+			  (let ((yy (cdr (trisplit (cadr expr)))))
+					 (setq dir (if (eq t (meqp yy 0)) 1 (behavior yy var val)))
+					 (cond ((eql dir 0) (throw 'limit t))
+				           (t
+	                        (add (ftake '%log (mul -1 arglim)) (mul dir '$%i '$%pi))))))))))))
 (setf (get '%log 'simplim%function) 'simplimln)
 (setf (get '%plog 'simplim%function) 'simplimln)
 

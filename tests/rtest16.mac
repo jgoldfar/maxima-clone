@@ -1998,8 +1998,11 @@ map(lambda([x], featurep(x, 'irrational)),[42,%pi,%phi,%e]);
 /* #2501 %pi/8 is definitely not an integer
   A better answer is %pi*log(2))/8, but this is correct.*/
 integrate(log(cot(x)-1),x,0,%pi/4);
-(%i*li[2]((%i+1)/2)-%i*li[2](-((%i-1)/2)))/2 +((4*%pi*log(2)+%i*%pi^2+16*%catalan)/4
-  +(4*%pi*log(2)-%i*%pi^2+16*%catalan)/4-2*%pi*log(2))/8$
+-((%i*li[2]((1-%i)/2))/2)+(%i*li[2](-((-%i-1)/2)))/2
+                               +((4*%pi*log(2)+%i*%pi^2+16*%catalan)/4
+                                +(4*%pi*log(2)-%i*%pi^2+16*%catalan)/4
+                                -2*%pi*log(2))
+                                /8$
 
 /* A better answer is -%pi*log(4)/4, but this is correct.*/
 integrate(log(cos(x)),x,0,%pi/2);
