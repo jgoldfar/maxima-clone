@@ -2105,7 +2105,8 @@ ignoring dummy variables and array indices."
 	 (or (equal 1. bl) (equal bl -1.)))
 	(t (equal (getsignl (m1- `((mabs) ,bl))) 0))))
 
-(defun simplimit (exp var val &aux op)
+(defun simplimit (exp var val)
+ (let ((preserve-direction t) (op nil))
   (cond
     ((eq var exp) val)
     ((or (atom exp) (mnump exp)) exp)
@@ -2170,7 +2171,7 @@ ignoring dummy variables and array indices."
 			   (mapcar #'(lambda (a)
 				       (limit a var val 'think))
 				   (cdr exp))))
-	   (throw 'limit t))))) 
+	   (throw 'limit t)))))) 
   
 (defun liminv (e)
   (setq e (resimplify (subst (m// 1 var) var e)))

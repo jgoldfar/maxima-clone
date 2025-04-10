@@ -599,8 +599,8 @@ integrate(log(abs(sin(x))),x);
  x*log(abs(sin(x)))-(x*log(sin(x)^2+cos(x)^2+2*cos(x)+1) +x*log(sin(x)^2+cos(x)^2-2*cos(x)+1)
                     +2*%i*x*atan2(sin(x),cos(x)+1) -2*%i*x*atan2(sin(x),1-cos(x))-2*%i*li[2](%e^(%i*x))-2*%i*li[2](-%e^(%i*x))-%i*x^2)/2$
 
-integrate(log(abs(sin(x))),x,0,%pi/2);
-%i*li[2](%i)+%i*li[2](-%i)-(%pi*log(2))/2+(%i*%pi^2)/24$
+block([ans : integrate(log(abs(sin(x))),x,0,%pi/2)], [ans, expand(ans)]);
+[-((6*%pi*log(2)-%i*%pi^2)/12)-(%i*%pi^2)/12,-((%pi*log(2))/2)]$
 
 /* Tests for January 2015 extensions. */
 
@@ -813,9 +813,9 @@ integrate(abs(cos(x)),x,0,%pi);
 
 /* #2853 abs_integrate hangs after encountering log(0) */
  ii : integrate(log(abs(sin(x))), x, 0, %pi/2);
-  %i*li[2](%i)+%i*li[2](-%i)-(%pi*log(2))/2+(%i*%pi^2)/24$
+ -((6*%pi*log(2)-%i*%pi^2)/12)-(%i*%pi^2)/12$
 
- ratsubst(-%pi^2/24, li[2](%i) +  li[2](-%i) , ii);
+ expand(ii);
  -(%pi*log(2))/2$
 
  /* #2823 Yet another abs_integrate problem */
