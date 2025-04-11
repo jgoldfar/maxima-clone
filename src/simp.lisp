@@ -86,134 +86,6 @@
 (defprop $equal t binary)
 (defprop $notequal t binary)
 
-(defmfun $ratp (x)
-  (and (not (atom x))
-       (consp (car x))
-       (eq (caar x) 'mrat)))
-
-(defmfun $ratnump (x)
-  (or (integerp x)
-      (ratnump x)
-      (and ($ratp x)
-	   (not (member 'trunc (car x)))
-	   (integerp (cadr x))
-	   (integerp (cddr x)))))
-
-(defmfun $floatnump (x)
-  (or (floatp x)
-      (and ($ratp x) (floatp (cadr x)) (onep1 (cddr x)))))
-
-(defmfun ($bfloatp :inline-impl t) (x)
-  "Returns true if X is a bigfloat"
-  (and (consp x)
-       (consp (car x))
-       (eq (caar x) 'bigfloat)))
-
-(declaim (inline zerop1))
-(defun zerop1 (x)
-  "Returns non-NIL if X is an integer, float, or bfloat that is equal
-  to 0"
-  (cond
-    ((integerp x) (= 0 x))
-    ((floatp x) (= 0.0 x))
-    (($bfloatp x) (= 0 (cadr x)))))
-
-(declaim (inline onep1))
-(defun onep1 (x)
-  "Returns non-NIL if X is an integer, float, or bfloat that is equal
-  to 1"
-  (cond
-    ((integerp x) (= 1 x))
-    ((floatp x) (= 1.0 x))
-    (($bfloatp x)
-      ;; Binary bigfloat ones are of the form '((BIGFLOAT [SIMP] <P>) 2^(<P>-1) 1).
-      ;; Decimal bigfloat ones are of the form '((BIGFLOAT [SIMP] <P> DECIMAL) 1 0).
-      ;; The SIMP flag is optional.
-      (if (eq 'decimal (car (last (car x))))
-        (and (= 1 (cadr x)) (zerop (caddr x)))
-        (and (= 1 (caddr x)) (= (ash 1 (1- (car (last (car x))))) (cadr x)))))))
-
-(declaim (inline mnump))
-(defun mnump (x)
-  "Returns T if X is a Lisp number or if it is a Maxima rational
-  form or a bigfloat form, NIL otherwise"
-  (or (numberp x)
-      (and (not (atom x)) (not (atom (car x)))
-	   (member (caar x) '(rat bigfloat)) t)))
-
-;; Does X or a subexpression match PREDICATE?
-;;
-;; If X is a tree then we recurse depth-first down its arguments. The specrep
-;; check is because rat forms are built rather differently from normal Maxima
-;; expressions so we need to unpack them for the recursion to work properly.
-(defun subexpression-matches-p (predicate x)
-  (or (funcall predicate x)
-      (and (consp x)
-           (if (specrepp x)
-               (subexpression-matches-p predicate (specdisrep x))
-               (some (lambda (arg) (subexpression-matches-p predicate arg))
-                     (cdr x))))))
-
-;; Is there a bfloat anywhere in X?
-(defun some-bfloatp (x) (subexpression-matches-p '$bfloatp x))
-
-;; Is there a float anywhere in X?
-(defun some-floatp (x) (subexpression-matches-p 'floatp x))
-
-;; EVEN works for any arbitrary lisp object since it does an integer
-;; check first.  In other cases, you may want the Lisp EVENP function
-;; which only works for integers.
-
-(defun even (a) (and (integerp a) (not (oddp a))))
-
-;; Predicates to determine if X satisfies some condition.
-
-(declaim (inline ratnump))
-(defun ratnump (x)
-  "Determines if X is a Maxima rational form:  ((rat ...) a b)"
-  (and (not (atom x)) (eq (caar x) 'rat)))
-
-(declaim (inline mplusp))
-(defun mplusp (x)
-  "Determines if X is a Maxima sum form: ((mplus ...) ...)"
-  (and (not (atom x)) (eq (caar x) 'mplus)))
-
-(declaim (inline mtimesp))
-(defun mtimesp (x)
-  "Determines if X is a Maxima product form: ((mtimes ...) ...)"
-  (and (not (atom x)) (eq (caar x) 'mtimes)))
-
-(declaim (inline mexptp))
-(defun mexptp (x)
-  "Determines if X is a Maxima exponential form: ((mexpt ...) ...)"
-  (and (not (atom x)) (eq (caar x) 'mexpt)))
-
-(defun mnctimesp (x) (and (not (atom x)) (eq (caar x) 'mnctimes)))
-
-(defun mncexptp (x) (and (not (atom x)) (eq (caar x) 'mncexpt)))
-
-(defun mlogp (x)
-  "Determines if X is a Maxima log form: ((%log ...) ...)"
-  (and (not (atom x)) (eq (caar x) '%log)))
-
-(defun mmminusp (x)
-  "Determines if X is a Maxima negative form: ((mminus ...) ...)
-
-   This generally only happens on input forms like a - b:
-     ((mplus) $a ((mminus) $b)).  
-   After simplification a - b becomes 
-     ((mplus) $a ((mtimes) -1 $b))"
-  
-  (and (not (atom x)) (eq (caar x) 'mminus)))
-
-(defun mnegp (x)
-  "Determines if X is negative if X is a Lisp number or a Maxima rat
-  form or bigfloat form"
-  (cond ((realp x) (minusp x))
-        ((or (ratnump x) ($bfloatp x)) (minusp (cadr x)))))
-
-(defun mqapplyp (e) (and (not (atom e)) (eq (caar e) 'mqapply)))
-
 (defun ratdisrep (e) (simplifya ($ratdisrep e) nil))
 
 (defun sratsimp (e) (simplifya ($ratsimp e) nil))
@@ -227,33 +99,6 @@
              (simplifya e nil)))))
 
 (defun mratcheck (e) (if ($ratp e) (ratdisrep e) e))
-
-(defmfun $numberp (e)
-  "Returns true if E is a Maxima rational, a float, or a bigfloat number"
-  (or ($ratnump e) ($floatnump e) ($bfloatp e)))
-
-(defmfun $integerp (x)
-  (or (integerp x)
-      (and ($ratp x)
-	   (not (member 'trunc (car x)))
-	   (integerp (cadr x))
-	   (equal (cddr x) 1))))
-
-;; The call to $INTEGERP in the following two functions checks for a CRE
-;; rational number with an integral numerator and a unity denominator.
-
-(defmfun $oddp (x)
-  (cond ((integerp x) (oddp x))
-	(($integerp x) (oddp (cadr x)))))
-
-(defmfun $evenp (x)
-  (cond ((integerp x) (evenp x))
-	(($integerp x) (not (oddp (cadr x))))))
-
-(defmfun $taylorp (x)
-  (and (not (atom x))
-       (eq (caar x) 'mrat)
-       (member 'trunc (cdar x)) t))
 
 (defun specrepcheck (e) (if (specrepp e) (specdisrep e) e))
 
@@ -270,58 +115,6 @@
 (defmfun $polysign (x)
   (setq x (cadr (ratf x)))
   (cond ((equal x 0) 0) ((pminusp x) -1) (t 1)))
-
-;; These check for the correct number of operands within Macsyma expressions,
-;; not arguments in a procedure call as the name may imply.
-
-(defun arg-count-check (required-arg-count expr)
-  (unless (= required-arg-count (length (rest expr)))
-    (wna-err expr required-arg-count)))
-
-(defun oneargcheck (expr)
-  (arg-count-check 1 expr))
-
-(defun twoargcheck (expr)
-  (arg-count-check 2 expr))
-
-;; WNA-ERR: Wrong Number of Arguments error
-;;
-;; If REQUIRED-ARG-COUNT is non-NIL, then we check that EXPR has the
-;; correct number of arguments. A informative error message is shown
-;; if the number of arguments is not given.
-;;
-;; Otherwise, EXPR must be a symbol and a generic message is printed.
-;; (This is for backward compatibility for existing uses of WNA-ERR.)
-(defun wna-err (exprs &optional required-arg-count)
-  (if required-arg-count
-      (let ((op (caar exprs))
-	    (actual-count (length (rest exprs))))
-	(merror (intl:gettext "~M: expected exactly ~M arguments but got ~M: ~M")
-		op required-arg-count actual-count (list* '(mlist) (rest exprs))))
-      (merror (intl:gettext "~:@M: wrong number of arguments.")
-	      exprs)))
-
-(defun improper-arg-err (exp fn)
-  (merror (intl:gettext "~:M: improper argument: ~M") fn exp))
-
-;; Constructor and extractor primitives for subscripted functions, e.g.
-;; F[1,2](X,Y).  SUBL is (1 2) and ARGL is (X Y).
-
-;; These will be flushed when NOPERS is finished.  They will be macros in
-;; NOPERS instead of functions, so we have to be careful that they aren't
-;; mapped or applied anyplace.  What we really want is open-codable routines.
-
-(defun subfunmakes (fun subl argl)
-  `((mqapply simp) ((,fun simp array) . ,subl) . ,argl))
-
-(defun subfunmake (fun subl argl)
-  `((mqapply) ((,fun simp array) . ,subl) . ,argl))
-
-(defun subfunname (exp) (caaadr exp))
-
-(defun subfunsubs (exp) (cdadr exp))
-
-(defun subfunargs (exp) (cddr exp))
 
 (defmfun $numfactor (x)
   (setq x (specrepcheck x))
@@ -421,21 +214,6 @@
 		   ((and (eq sc-car '$scalar) (eq sc-cdr '$scalar))
 		    '$scalar))))))
 
-(defun mbagp (x)
-  (and (not (atom x))
-       (member (caar x) '(mequal mlist $matrix)) t))
-
-(defun mequalp (x) (and (not (atom x)) (eq (caar x) 'mequal)))
-
-(defun mxorlistp (x)
-  (and (not (atom x))
-       (member (caar x) '(mlist $matrix)) t))
-
-(defun mxorlistp1 (x)
-  (and (not (atom x))
-       (or (eq (caar x) '$matrix)
-	   (and $listarith (eq (caar x) 'mlist)))))
-
 (defun constmx (const x)
   (simplifya (fmapl1 #'(lambda (ign)
 			 (declare (ignore ign))
@@ -471,17 +249,6 @@
     (cond
      ((atom l) (return (free l free-var)))	;; second element of a pair
      ((not (free (car l) free-var)) (return nil)))))
-
-(declaim (inline member-eq))
-(defun member-eq (m l)
-  "This function behaves like (MEMBER M L :TEST #'EQ).
-  When inlined, this function is so small that there is almost no code size
-  overhead compared to a MEMBER call, but it is faster because no CALL
-  instruction is required."
-  (while l
-    (when (eq m (car l))
-      (return l))
-    (setq l (cdr l))))
 
 (defun simplifya (x y)
  (let (op)
@@ -3736,30 +3503,11 @@
 	 ($ratdisrep (cons disrep-ratform (cons l 1))))
 	(t ($ratdisrep (cons disrep-ratform l)))))
 
-;; The following was formerly in MATRUN.  This code was placed here because
-;; MATRUN is now an out-of-core file on MC, and this code is needed in-core
-;; so that MACSYMA SAVE files will work. - JPG
-
-(defun matcherr ()
-  (throw 'match nil))
-
-(defun kar (x) (if (atom x) (matcherr) (car x)))
-
-(defun kaar (x) (kar (kar x)))
-
-(defun kdr (x) (if (atom x) (matcherr) (cdr x)))
-
 (defun simpargs1 (a vestigial c)
   (declare (ignore vestigial))
   (simpargs a c))
 
-(defun *kar (x)
-  (if (not (atom x)) (car x)))
-
 (defquote retlist (&rest l)
   (cons '(mlist simp)
 	(mapcar #'(lambda (z) (list '(mequal simp) z (meval z))) l)))
-
-(defun nthkdr (x c)
-  (if (zerop c) x (nthkdr (kdr x) (1- c))))
 

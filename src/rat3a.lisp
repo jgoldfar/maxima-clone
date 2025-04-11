@@ -185,28 +185,6 @@
         (setq base (rem (* base base) modulus))
         (when (oddp pow) (setq s (rem (* s base) modulus))))))
 
-(defun normalized-modulus (n)
-  "Normalizes the number N with respect to MODULUS,
-  returning a number in (-MODULUS/2, MODULUS/2]."
-  (let* ((m modulus) (rem (mod n m)))
-    (if (<= (* 2 rem) m)
-      rem
-      (- rem m))))
-
-;; CMOD
-;;
-;; When MODULUS is null, this is the identity. Otherwise, it normalises N, which
-;; should be a number, to lie in the range (-modulus/2, modulus/2].
-(declaim (inline cmod))
-(defun cmod (n)
-  (declare (type number n))
-  (if modulus (normalized-modulus n) n))
-
-(declaim (inline cplus ctimes cdifference))
-(defun cplus       (a b) (cmod (+ a b)))
-(defun ctimes      (a b) (cmod (* a b)))
-(defun cdifference (a b) (cmod (- a b)))
-
 ;; SET-MODULUS
 ;;
 ;; Set the base in which the rational function package works. This does
