@@ -125,7 +125,7 @@
     (
      (:module packages :pathname ""
       :components
-      ((:file "f2cl-package")
+      ((:file "f2cl-lib-package")
        (:file "slatec")))
      (:module f2cl-lib :pathname ""
       :depends-on (packages)

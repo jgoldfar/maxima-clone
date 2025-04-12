@@ -273,7 +273,7 @@
 	    :components
 	    ((:module packages :source-pathname ""
 		      :components
-		      ((:file "f2cl-package")
+		      ((:file "f2cl-lib-package")
 		       (:file "slatec")))
 	     (:module f2cl-lib :source-pathname ""
 		      :components

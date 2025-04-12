@@ -6,7 +6,7 @@
 (in-package :f2cl-lib)
 
 (defparameter *f2cl-macros-version*
-  "$Id: macros.l,v 3fe93de3be82 2012/05/06 02:17:14 toy $")
+  "$Id: f2cl-lib.lisp 28d107d | 2025-04-12 14:27:31 +0000 | Raymond Toy  $")
 
 (eval-when
     (:compile-toplevel :load-toplevel :execute)
@@ -750,6 +750,18 @@ is not included")
 (defun len (s)
   (length s))
 
+;; Fortran 95
+;; Length of a character entity without trailing blank characters
+(defun len_trim (s)
+  ;; Find the position of the last blank.  If there is one, then the
+  ;; length is one more than that.  Otherwise, the length is 0.
+  (let ((p (position-if #'(lambda (c)
+			    (char/= c #\space))
+			s)))
+    (if p
+	(1+ p)
+	0)))
+
 ;; From http://www.fortran.com/fortran/F77_std/rjcnf0001-sh-15.html#sh-15.10:
 ;;
 ;; INDEX(a1 ,a2) returns an integer value indicating the starting
@@ -1250,7 +1262,13 @@ causing all pending operations to be flushed"
 	   (arg-list
 	    (apply #'append
 		   (map 'list #'(lambda (x)
-				  (cond ((bigfloat:numberp x)
+                                  ;; For maxima, use BIGFLOAT:NUMBERP
+                                  ;; instead of CL:NUMBERP.
+				  (cond #+#.(cl:if (cl:find-package "BIGFLOAT") '(and) '(or))
+                                        ((bigfloat:numberp x)
+                                         (list x))
+                                        #-#.(cl:if (cl:find-package "BIGFLOAT") '(and) '(or))
+                                        ((numberp x)
 					 (list x))
 					((stringp x)
 					 (list x))
@@ -1544,7 +1562,7 @@ causing all pending operations to be flushed"
 ;;;-------------------------------------------------------------------------
 ;;; end of macros.l
 ;;;
-;;; $Id: macros.l,v 3fe93de3be82 2012/05/06 02:17:14 toy $
+;;; $Id: f2cl-lib.lisp 28d107d | 2025-04-12 14:27:31 +0000 | Raymond Toy  $
 ;;; $Log$
 ;;; Revision 1.117  2011/02/28 22:21:07  rtoy
 ;;; When opening an old file, we should set :if-exists to :overwrite to
@@ -1572,7 +1590,7 @@ causing all pending operations to be flushed"
 ;;; Revision 1.113  2010/02/23 00:59:12  rtoy
 ;;; Support the Fortran capability of passing an array of one type
 ;;; to a routine expecting a different type.  Currently only supports REAL
-;;; and COMPLEX arrays (and their double precision versions).
+;;; and COMPLEX arrays (and their double precison versions).
 ;;;
 ;;; NOTES:
 ;;; o Update
@@ -1650,7 +1668,7 @@ causing all pending operations to be flushed"
 ;;; Oops.  Forgot one place to conditionalize on gcl.
 ;;;
 ;;; Revision 1.103  2008/08/21 20:16:49  rtoy
-;;; Gcl does not like ~/ format specifier, so rearrange things so we don't
+;;; Gcl doesn' like ~/ format specifier, so rearrange things so we don't
 ;;; use it.  (Should we just do the same for every one?)
 ;;;
 ;;; Revision 1.102  2008/03/26 13:19:52  rtoy
@@ -1678,7 +1696,7 @@ causing all pending operations to be flushed"
 ;;; Revision 1.98  2008/03/06 20:04:10  rtoy
 ;;; Use ~G for list-directed I/O so that numbers come out reasonably.
 ;;; (F77 standard says E or F is used, depending on the magnitude of the
-;;; number.  The parameters for E and F are processor dependent as is the
+;;; number.  The parameters for E and F are processer dependent as is the
 ;;; magnitude used to select between E or F.  This is pretty close to how
 ;;; ~G works in Lisp.)
 ;;;
@@ -1805,7 +1823,7 @@ causing all pending operations to be flushed"
 ;;;   left.
 ;;;
 ;;; Revision 1.81  2007/09/23 20:51:43  rtoy
-;;; Previous checking changed how character strings are initialized.
+;;; Previous checkin changed how character strings are initialized.
 ;;; Modify code accordingly.  (This needs to be rethought and made less
 ;;; fragile.)
 ;;;
@@ -1943,7 +1961,7 @@ causing all pending operations to be flushed"
 ;;;   is multi-dimensional.
 ;;;
 ;;; Revision 1.64  2006/01/04 17:53:40  rtoy
-;;; We were not correctly processing initialization of string arrays in
+;;; We were not correctly processing intialization of string arrays in
 ;;; data statements.
 ;;;
 ;;; src/f2cl1.l:
@@ -2116,7 +2134,7 @@ causing all pending operations to be flushed"
 ;;; Add a version of I1MACH.
 ;;;
 ;;; Revision 1.32  2001/04/26 17:49:19  rtoy
-;;; o SIGN and DIM are Fortran generic intrinsics.  Make it so.
+;;; o SIGN and DIM are Fortran generic instrinsics.  Make it so.
 ;;; o Added D1MACH and R1MACH because they're very common in Fortran
 ;;;   libraries.
 ;;;
@@ -2148,8 +2166,8 @@ causing all pending operations to be flushed"
 ;;; o Declaim most of the intrinsics as inline so we don't have an
 ;;;   additional function call for simple things.
 ;;; o Add some compiler macros for Fortran max/min functions to call the
-;;;   Lisp max/min functions without using #'apply.
-;;; o Try to declare the args to functions with branches appropriately,
+;;;   Lisp max/min functions withouth using #'apply.
+;;; o Try to declare the args to functions with branchs appropriately,
 ;;;   even in the face of signed zeroes.
 ;;;
 ;;; Revision 1.25  2000/07/28 22:10:05  rtoy
