@@ -1567,7 +1567,7 @@ done;
 /* SF bug #3399: "trigreduce gives malformed property list error" */
 
 trigreduce (atan (tan (x + y + z)));
-x + y + z;
+atan (tan (x + y + z));
 
 /* this is the original example from the bug report;
  * verify that it doesn't trigger an error, but do not inspect the result itself
@@ -1579,6 +1579,88 @@ block ([expr, A, B, a, b, x, y],
   errcatch (trigreduce(expr)),
   if %% = [] then 'failed('trigreduce(expr)) else true);
 true;
+
+/* SF bug #3579: "Overly eager simplification in trigreduce" */
+
+/* first verify that trigreduce honors global flag triginverses */
+
+(reset (triginverses), triginverses);
+true;
+
+trigreduce (atan (tan (x + y + z)));
+atan (tan (x + y + z));
+
+trigreduce (tan (atan (x + y + z)));
+x + y + z;
+
+block ([triginverses: all], trigreduce (atan (tan (x + y + z))));
+x + y + z;
+
+block ([triginverses: all], trigreduce (tan (atan (x + y + z))));
+x + y + z;
+
+block ([triginverses: false], trigreduce (atan (tan (x + y + z))));
+atan (tan (x + y + z));
+
+block ([triginverses: false], trigreduce (tan (atan (x + y + z))));
+tan (atan (x + y + z));
+
+/* examples from #3579 */
+
+trigreduce (atan(tan(x)));
+atan(tan(x));
+
+trigreduce (atan(sin(x)/cos(x)));
+atan(tan(x));
+
+trigreduce(atan( tan(7*%pi/13) ));
+-6*%pi/13;
+
+trigreduce(atan( sin(7*%pi/13) / cos(7*%pi/13) ));
+-6*%pi/13;
+
+carg( cos(7*%pi/13) + %i*sin(7*%pi/13) );
+atan(sin((7*%pi)/13)/cos((7*%pi)/13))+%pi;
+
+trigreduce(carg( cos(7*%pi/13) + %i*sin(7*%pi/13) ));
+7*%pi/13;
+
+(z: cos ( 13 * %pi / 15 ) + %i * sin ( 13 * %pi / 15 ),
+ carg ( z ));
+atan(sin((13*%pi)/15)/cos((13*%pi)/15))+%pi;
+
+atan ( tan ( 13 * %pi / 15 ) ) + %pi;
+13*%pi/15;
+
+trigreduce ( carg ( z ) );
+13*%pi/15;
+
+/* example from SF bug #3981: "Trigreduce doesn't return principal value of atan(tan(...))" */
+
+(c:3*(cos(5*%pi/13)+%i*sin(5*%pi/13)),
+ d:4*(cos(7*%pi/13)+%i*sin(7*%pi/13)),
+ carg(c*d),
+ trigreduce(%%));
+12*%pi/13;
+
+/* examples from SF bug #4208: "Error with complex numbers - example with trigreduce" */
+
+trigreduce(carg(c/d));
+24*%pi/13;
+
+trigreduce(carg(cos(3*%pi/5)+%i * sin(3*%pi/5)));
+3*%pi/5;
+
+/* examples from SF bug #4418: "arctan and trigreduce error" */
+
+trigreduce(atan(tan((3*%pi)/5)));
+-2*%pi/5;
+
+trigreduce(atan(sin((3*%pi)/5)/cos((3*%pi)/5)));
+-2*%pi/5;
+
+trigreduce(carg(cos((3*%pi)/5)+%i*sin((3*%pi)/5)));
+3*%pi/5;
 
 /* SF bug #3413: "false in definite integral of rational"
  * SF bug #2644: "integrate(1/(1+s^7),s,0,%pi) includes a 'false' term"
