@@ -201,7 +201,7 @@ in the interval of integration.")
 		 (*sin-cos-recur* ())  (*dintexp-recur* ())  (*dintlog-recur* 0.)
 		 (ans nil)  (orig-exp exp)  (orig-var ivar)
 		 (orig-ll ll)  (orig-ul ul)
-		 (*pcprntd* nil)  (*nodiverg* nil)  ($logabs t)  ; (limitp t)
+		 (*pcprntd* nil)  (*nodiverg* nil)  ($logabs nil)  ; (limitp t)
 		 (rp-polylogp ())
                  ($%edispflag nil) ; to get internal representation
 		 ($m1pbranch ())) ;Try this out.
@@ -296,12 +296,15 @@ in the interval of integration.")
 	  t)))
 
 (defun antideriv (a ivar)
-  (let ((limitp ())
-	(ans ())
-	(generate-atan2 ()))
-    (setq ans (sinint a ivar))
-    (cond ((among '%integrate ans)  nil)
-	  (t (simplify ans)))))
+"Either return an explicit antiderivative (not an integral nounform) of 'a' with 
+ respect to 'ivar' or return nil when Maxima is unable to find an antiderivative."
+  (let ((limitp nil) ;setting limitp to true causes testsuite failures and asksign called on gensyms
+        (ans nil)
+		($numer nil)
+        ($logabs nil)
+        (generate-atan2 nil))
+      (setq ans (sinint a ivar))
+      (if (among '%integrate ans) nil ans)))
 
 ;; This routine tries to take a limit a couple of ways.
 (defun get-limit (exp ivar val &optional (dir '$plus dir?))
@@ -416,7 +419,8 @@ in the interval of integration.")
 (defun defint (exp ivar ll ul)
   (let ((old-assumptions *defint-assumptions*)  
         (*current-assumptions* ())
-        (limitp t))
+        (limitp t)
+		($logabs nil))
     (unwind-protect
 	 (prog ()
             (multiple-value-setq (*current-assumptions* ll ul)
@@ -593,15 +597,21 @@ in the interval of integration.")
 		(setq result (cv exp ivar ll ul))))
 	  (t ()))))
 
+(defun symmetric-intervalp (ll ul)
+ "Return true iff the interval with endpoints 'll' (lower limit) and 'ul' (upper limit)
+   is symmetric."
+   (and (or (alike1 ul (neg ll)) (and (eq ul '$inf) (eq ll '$minf)))))
+
 (defun principal-value-integral (exp ivar ll ul poles)
-  (let ((anti-deriv ()))
-    (cond ((not (null (setq anti-deriv (antideriv exp ivar))))
+  (let ((anti-deriv nil))
+    (cond ((and (symmetric-intervalp ll ul) (oddfn exp ivar)) 0) ;odd integrand, symmetric interval
+	((not (null (setq anti-deriv (antideriv exp ivar))))
 	   (cond ((not (null poles))
 		  (multiple-value-bind (ignore new-ll new-ul)
                       (order-limits 'ask ivar ll ul)
                     (declare (ignore ignore))
 		    (cond ((take-principal anti-deriv new-ll new-ul ivar poles))
-			  (t ())))))))))
+			  (t nil)))))))))
 
 ;; adds up integrals of ranges between each pair of poles.
 ;; checks if whole thing is divergent as limits of integration approach poles.

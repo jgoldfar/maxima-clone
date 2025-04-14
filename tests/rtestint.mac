@@ -1997,5 +1997,19 @@ integrate(sin(nn*x)*sin(mm*x),x,0,2*%pi);
 integrate(cos(nn*x)*cos(mm*x),x, 0, 2*%pi);
 %pi;
 
-(reset(), 0);
-0;
+/* #4522 in definite integrals each log(expr) is erroneously evaluated as log(abs(expr)) */
+(remvalue(I),0);
+0$
+
+(reset(),0);
+0$
+
+integrate(-1/17*sqrt(-52/17*I + 47/17)/(2*x - sqrt(4*I + 1) - 1),x,0,1);
+-((sqrt(47/17-(52*I)/17)*(log(1-sqrt(4*I+1))/2-log(-sqrt(4*I+1)-1)/2))/17)$
+
+(kill(values),0);
+0$
+
+(killcontext(learndata), contexts);
+[initial, global]$
+
