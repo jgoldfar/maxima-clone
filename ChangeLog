@@ -110,6 +110,7 @@ Bug fixes for numbered bugs:
  * \#4474 "sign: argument cannot be imaginary" in simple substitution
  * \#4475 min/max (%i,...)
  * \#4462 sign(1/sqrt(x))
+ * \#4539 some limits of expintegral_ci 
 
 Unnumbered bugs fixed:
 ---------------------

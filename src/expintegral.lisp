@@ -1356,11 +1356,15 @@
 
 (defprop %expintegral_si simplim%expintegral_si simplim%function)
 
-(defun simplim%expintegral_si (expr var val)
-  ;; Look for the limit of the argument.
-  (let ((z (limit (cadr expr) var val 'think)))
-    ;; All cases are handled by the simplifier of the function.
-    (take '(%expintegral_si) z)))
+(defun simplim%expintegral_si (e x pt)
+ (let ((lim (limit (cadr e) x pt 'think)))
+	(cond ((eq lim '$infinity) (throw 'limit t))
+		    ((eq lim '$ind) '$ind)
+		    ((eq lim '$zerob) '$zerob)
+		    ((eq lim '$zeroa) '$zeroa)
+	      ((eq lim '$und) (throw 'limit nil))
+        ;;The expintegral_si simplifier handles expintegral_si(minf & inf)
+        (t (ftake '%expintegral_si lim)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1685,18 +1689,22 @@
 
 (defprop %expintegral_ci simplim%expintegral_ci simplim%function)
 
-(defun simplim%expintegral_ci (expr var val)
-  ;; Look for the limit of the argument.
-  (let ((z (limit (cadr expr) var val 'think)))
-  (cond
-    ;; Handle an argument 0 at this place
-    ((or (zerop1 z)
-         (eq z '$zeroa)
-         (eq z '$zerob))
-     '$minf)
-    (t
-     ;; All other cases are handled by the simplifier of the function.
-     (take '(%expintegral_ci) z)))))
+(defun simplim%expintegral_ci (e x pt)
+ (let ((lim (limit (cadr e) x pt 'think)))
+	(cond ((eq lim '$infinity) 
+		     ;; Is the limit +/- %i x inf?
+         (setq lim (limit (div (cadr e) '$%i) x pt 'think))
+		 	   (cond ((eq lim '$inf) '$inf)
+			         ((eq lim '$minf) '$inf)
+				       (t (throw 'limit nil))))
+		    ((eq lim '$ind)
+		  	   (if (eq t (mgrp (cadr e) 0)) '$ind (throw 'limit nil)))
+		    ((eq lim '$zerob) '$minf)
+		    ((eq lim '$zeroa) '$minf)
+		    ((eql lim 0) '$minf)
+	      ((eq lim '$und) (throw 'limit nil))
+        ;; The general simplifier for expintegral_ci handles inputs minf & inf
+		    (t (ftake '%expintegral_ci lim)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

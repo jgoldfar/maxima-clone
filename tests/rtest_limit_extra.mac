@@ -1338,6 +1338,34 @@ true$
 limit(atan2(exp(x)-cos(x), -x*sin(x)),x,0,minus);
 -%pi/2$   
 
+/* #4539 some limits of expintegral_ci  */
+limit(expintegral_ci(%i*x),x,inf);
+inf$
+
+limit(expintegral_ci(%i*x),x,minf);
+inf$
+
+limit(expintegral_ci(5+cos(x)),x,inf);
+ind$
+
+limit(expintegral_ci(x*sin(x)),x,0);
+minf$
+
+limit(expintegral_ci(x),x,0,'minus);
+minf$
+
+limit(expintegral_ci(x),x,0,'plus);
+minf$
+
+limit(expintegral_ci(x),x,inf);
+0$
+
+limit(expintegral_ci(x),x,minf);
+%i*%pi$
+
+limit(expintegral_si(sin(x)),x,inf);
+ind$
+
 /* clean up*/
 (kill(values),0);
 0$
