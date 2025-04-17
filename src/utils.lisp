@@ -49,7 +49,7 @@
   #+ecl                (si:quit exit-code)
   #+lispworks          (lispworks:quit :status exit-code)
   #+abcl               (ext:quit :status exit-code)
-  #+gcl                (lisp::bye exit-code)
+  #+gcl                (system:bye exit-code)
   #+cmucl
   (handler-case (ext:quit nil exit-code)
     ;; Only the most recent versions of cmucl support an exit code.
