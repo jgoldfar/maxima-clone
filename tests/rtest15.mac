@@ -312,7 +312,7 @@ f(x):=x+3;
 kill(f);
 done;
 
-/* trignometric and hyperbolic functions of complex arguments */
+/* trigonometric and hyperbolic functions of complex arguments */
 sin(%i*z);
 %i*sinh(z);
 cos(%i*z);

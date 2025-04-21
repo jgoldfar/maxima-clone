@@ -873,7 +873,7 @@ specint(bessel_y(0,a*t)*exp(-p*t),t);
  *
  *       = 2/%pi/(p^2+a^2)*(1-p/sqrt(p^2+a^2)*log((p+sqrt(p^2+a^2))/a))
  *
- * The Legendre Q function simplifes accordingly.
+ * The Legendre Q function simplifies accordingly.
  */
 factor(specint(t*bessel_y(0,a*t)*exp(-p*t),t));
 /*-2/%pi/(p^2+a^2)*legendre_q(1,p/sqrt(p^2+a^2)) $*/
@@ -1204,7 +1204,7 @@ specint(8*t^1*exp(3*t)*bessel_y(8,7*t^(3/2))*exp(-p*t),t);
 'specint(8*bessel_y(8,7*t^(3/2))*t*%e^(3*t-p*t),t);
 
 /* The additionally phase factor in the calculation vanish, because of
-   the modificaton of the transformation to Bessel J in the code. DK.
+   the modification of the transformation to Bessel J in the code. DK.
 */
 (assume(t>0,v2>1), radcan(specint(bessel_i(-v2,t)*exp(-p*t),t)));
 /*'specint((%e^((%i*%pi*v2-2*p*t)/2)*bessel_i(-v2,t))/(-1)^(v2/2),t);*/

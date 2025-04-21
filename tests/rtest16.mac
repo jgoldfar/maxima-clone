@@ -636,7 +636,7 @@ ode2('diff(y,x)-%i*y-sin(x),y,x);
 y = (%c-%i*(x-%i*%e^-(2*%i*x)/2)/2)*%e^(%i*x);
 
 /*
- * Bug ID: 826623 "simplifer returns %i*%i"
+ * Bug ID: 826623 "simplifier returns %i*%i"
  * 
  * Some examples to show simplification of expressions of the form
  * (a*b*...)^q*(a*b*...)^r, where q+r=1

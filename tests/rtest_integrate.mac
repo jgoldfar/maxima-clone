@@ -855,7 +855,7 @@ integrate(%e^asec(z),z);
 integrate(%e^(a*asec(z)),z);
 'integrate(%e^(a*asec(z)),z);
 
-/* Arguments invovling inverse hyperbolic functions ------------------------- */
+/* Arguments involving inverse hyperbolic functions ------------------------- */
 
 /* Problem 180: NEW 12/2009 */
 integrate(%e^asinh(z),z);
@@ -1708,7 +1708,7 @@ integrate(%e^(c*x)*(%e^(a*x+b))^v,x);
 
 /* ----- %e^(c*z+d)*(%e^(a*z+b))^v ------------------------------------------ */
 
-/* Problem 314: (OK) wrong simplifcation 
+/* Problem 314: (OK) wrong simplification
  * Change example to a real variable x.
  */
 integrate(%e^(c*x+d)*(%e^(a*x+b))^v,x);
@@ -6245,7 +6245,7 @@ integrate(z^3/(c+b*%e^(d*z)+a*%e^(2*d*z)),z);
 forget(4*a*c>b^2);
 [4*a*c>b^2];
 
-/* ----- Involing z^n*(a+b*c^(d*z)^p ---------------------------------------- */
+/* ----- Involving z^n*(a+b*c^(d*z)^p ---------------------------------------- */
 
 /* Problem 806: NOUN */
 integrate(z*(b*c^(d*z)+a)^p,z);
@@ -6259,7 +6259,7 @@ integrate(z^2*(b*c^(d*z)+a)^p,z);
 integrate(z^3*(b*c^(d*z)+a)^p,z);
 'integrate((b*c^(d*z)+a)^p*z^3,z);
 
-/* ----- Involing z^n*%e^(f*z)*(a+b*c^(d*z)^p ------------------------------- */
+/* ----- Involving z^n*%e^(f*z)*(a+b*c^(d*z)^p ------------------------------- */
 
 /* Problem 809: NOUN */
 integrate(z*%e^(f*z)*(b*c^(d*z)+a)^p,z);

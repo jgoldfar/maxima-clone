@@ -159,7 +159,7 @@ factcomb((n+1)*(n+2)*(n+3)*n!);
 factcomb(n!/(n*(n-1)*(n-2)));
 (n-3)!;
 
-/* No simplifcation for infinities and undeterminates 
+/* No simplification for infinities and undeterminates
    with the exception of inf! -> inf */
 
 map(factorial, [inf,minf,infinity,und,ind]);
@@ -355,7 +355,7 @@ double_factorial(conjugate(z));
 conjugate(double_factorial(x+%i*y));
 double_factorial(x-%i*y);
 
-/* No simplifcation for infinities and undeterminates 
+/* No simplification for infinities and undeterminates 
    with the exception of inf: inf! -> inf */
 
 map(factorial, [inf,minf,infinity,und,ind]);
@@ -807,7 +807,7 @@ errcatch(gamma(175.0));  /* should overflow */
 errcatch(gamma(250.0));  /* should overflow */
 [];
 
-/* Simplifcation for infinities and undeterminates only for inf */
+/* Simplification for infinities and undeterminates only for inf */
 
 map('gamma, [inf,minf,infinity,und,ind]);
 [inf,gamma(minf),gamma(infinity),gamma(und),gamma(ind)];
@@ -1634,7 +1634,7 @@ relerror(
   1b-32);
 true;
 
-/* Further tests after modication of the code */
+/* Further tests after modification of the code */
 
 fpprec:35;
 35;
@@ -2835,7 +2835,7 @@ limit(fresnel_s(x),x,minf);
 -1/2;
 
 /* Simplification of infinities 
-   The rules for an odd function and the simplifaction for imaginary
+   The rules for an odd function and the simplification for imaginary
    arguments are applied too.
 */
 
@@ -3703,7 +3703,7 @@ relerror(
 true;
 
 
-/* From the mailing list.  This should not signal an error and should give a simplifed answer */
+/* From the mailing list.  This should not signal an error and should give a simplified answer */
 relerror(
  expand(bfloat(erf((sqrt(2)*%i-sqrt(2))/2))),
  4.74147636640994245161681b-1 * %i - 9.69264211944215930381491b-1,

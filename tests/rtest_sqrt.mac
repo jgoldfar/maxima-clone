@@ -388,7 +388,7 @@ done;
 
 /* --- Exponent of arguments --- */
 
-/* Maxima simplifes immediately sqrt(exp(z)) -> exp(z/2) 
+/* Maxima simplifies immediately sqrt(exp(z)) -> exp(z/2)
  * That is wrong for imagpart(z) > %pi or < -%pi
  * We give an example.
  */

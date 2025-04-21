@@ -183,7 +183,7 @@ here are two related limit problems. */
 
 /* Once the next two tests were slow (7 seconds) with the default value for 
   lhospitallim. At that time, locally these tests set lhospitallim : 1. These
-  tests are no longer slow with the defaulty value of lhospitallim. */
+  tests are no longer slow with the default value of lhospitallim. */
  limit(rectform(asin(3+%i*x)),x,0,'plus);
  %pi/2-(%i*log(17-3*2^(5/2)))/2$
 
@@ -859,8 +859,8 @@ log(400)$
 block([logexpand : false], gruntz(log(x^2),x,-20,minus));
 log(400)$
 
-/* #2389 incorect limit
-Commented out for now becuase it calls asksign when it should not
+/* #2389 incorrect limit
+Commented out for now because it calls asksign when it should not
 block([ans],
   assume(k>2),
   declare(k,integer),
