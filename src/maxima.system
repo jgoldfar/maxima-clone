@@ -128,7 +128,7 @@
 	    :load-only t
 	    :components
 	    ((:file "maxima-package")
-	     (:file "numerical/f2cl-package")
+	     (:file "numerical/f2cl-lib-package")
 	     (:file "numerical/slatec")
 	     (:file "command-line")
 	     (:file "pregexp")
