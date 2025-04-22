@@ -1625,13 +1625,13 @@
     ;; The main purpose of the #+ read-time conditionals is to prevent
     ;; compiler warnings on Lisp implementations that don't have distinct types
     ;; for all floating point types defined by Common Lisp.
-    #+has-distinct-short-float
+;;    #+has-distinct-short-float
     (short-float short-float-epsilon)
-    #+has-distinct-single-float
+;;    #+has-distinct-single-float
     (single-float single-float-epsilon)
-    #+has-distinct-double-float
+;;    #+has-distinct-double-float
     (double-float double-float-epsilon)
-    #+has-distinct-long-float
+;;    #+has-distinct-long-float
     (long-float long-float-epsilon)))
 
 (defmethod epsilon ((x cl:complex))

@@ -636,13 +636,13 @@
     ;; The main purpose of the #+ read-time conditionals is to prevent
     ;; compiler warnings on Lisp implementations that don't have distinct types
     ;; for all floating point types defined by Common Lisp.
-    #+has-distinct-short-float
+;;    #+has-distinct-short-float
     (short-float (values most-negative-short-float most-positive-short-float))
-    #+has-distinct-single-float
+;;    #+has-distinct-single-float
     (single-float (values most-negative-single-float most-positive-single-float))
-    #+has-distinct-double-float
+;;    #+has-distinct-double-float
     (double-float (values most-negative-double-float most-positive-double-float))
-    #+has-distinct-long-float
+;;    #+has-distinct-long-float
     (long-float (values most-negative-long-float most-positive-long-float))
     ;; NOT SURE THE FOLLOWING REALLY WORKS
     ;; #+(and cmu double-double)
