@@ -998,8 +998,10 @@
 #+(or clisp cormanlisp ecl (and gcl defpackage) sbcl ccl)
 (defpackage "MAKE" (:use "COMMON-LISP") (:nicknames "MK"))
 
-#-(or :sbcl :cltl2 :lispworks :ecl :scl :abcl :ccl)
+#-(or :gcl :sbcl :cltl2 :lispworks :ecl :scl :abcl :ccl)
 (in-package :make :nicknames '("MK"))
+#+gcl
+(in-package :make)
 
 ;;; For CLtL2 compatible lisps...
 #+(and :excl :allegro-v4.0 :cltl2)
