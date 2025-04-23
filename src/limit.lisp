@@ -329,17 +329,16 @@
     (when (eq lb '$und) (return-from both-side '$und))
     (let ((ra (ridofab la))
           (rb (ridofab lb)))
-      (cond ((eq t (meqp ra rb))
-             ra)
-            ((and (eq ra '$ind)
-                  (eq rb '$ind))
-             ; Maxima does not consider equal(ind,ind) to be true, but
-             ; if both one-sided limits are ind then we want to call
-             ; the two-sided limit ind (e.g., limit(sin(1/x),x,0)).
-             '$ind)
-            ((or (not (free la '%limit))
+        ;; We test for equality of `ra` and `rb`. Since `equal` does not consider 
+		;; `equal(ind, ind)` to be true, we need an explicit test for the `ind, ind`
+		;; case. Instead of returning `ra`, we could return the expression with the 
+		;; smallest `conssize`.
+	    (cond 
+		   ((or (and (eq ra '$ind) (eq rb '$ind)) (eq t (meqp ra rb))) ra)
+       
+	        ((or (not (free la '%limit))
                  (not (free lb '%limit)))
-             ())
+             nil)
             (t
              (let ((infa (infinityp la))
                    (infb (infinityp lb)))
@@ -1948,13 +1947,16 @@ ignoring dummy variables and array indices."
 	   (if (and (not (member term-value '($inf $minf $und $ind $infinity)))
 	            (eq t (mnqp term-value 0))) term-value term)))))
 
+;; Previously, there was a call to tansc on bas, but I don't think it is needed.
 (defun bylog (expo bas)
-  (simplimexpt '$%e
-	       (setq bas
-		     (try-lhospital-quit (simplify `((%log) ,(tansc bas)))
-					 (m^ expo -1)
-					 nil))
-	       '$%e bas))
+  "Attempts to evaluate limit(bas^expo, var val) using the l'Hospital rule
+  applied to log(bas)/(1/expo). When `ans` is an extended real, the call to the 
+   one argument limit function simplifies the result (but it misses the case
+   limit(exp(ind)) = ind)."
+	(let ((ans (try-lhospital-quit (ftake '%log bas) (div 1 expo) nil)))
+	(if ans
+       ($radcan ($limit (ftake 'mexpt '$%e ans)))
+	   nil)))
 
 (defun simplimexpt (bas expo bl el)
   (cond ((or (eq bl '$und) (eq el '$und)) '$und)
@@ -2109,7 +2111,15 @@ ignoring dummy variables and array indices."
  (let ((preserve-direction t) (op nil))
   (cond
     ((eq var exp) val)
-    ((or (atom exp) (mnump exp)) exp)
+	
+	((not (freeof '$und exp))
+      (if (eq exp '$und) '$und (throw 'limit nil)))
+
+    ;; When exp is freeof var, optionally apply simplify followed by simpinf. Yes, the
+	;; call to simplify is needed: sometimes exp has the form XXX^1, for example.
+	((freeof var exp)
+	  (if (or (atom exp) (mnump exp)) exp (simpinf (simplify exp))))
+
     ;; Lookup and dispatch a simplim%function from the property list  
     ((setq op (safe-get (mop exp) 'simplim%function))
      (funcall op exp var val))
