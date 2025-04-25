@@ -956,7 +956,8 @@
 (defmfun $ratdisrep (x)
   (cond ((mbagp x)
          ;; Distribute over lists, equations, and matrices.
-         (cons (car x) (mapcar #'$ratdisrep (cdr x))))
+         ;; Remove a SIMP flag to allow elements to be simplified.
+         (cons (delsimp (car x)) (mapcar #'$ratdisrep (cdr x))))
         ((not ($ratp x)) x)
         (t
          (setq x (ratdisrepd x))
