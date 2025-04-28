@@ -2957,8 +2957,8 @@
   (cond ((numberp a)
 	 (or (not (eq (caar e) 'rat))
 	     (> (cadr e) (* (caddr e) a))))
-        ((and (constant a)
-              (not (member (caar e) '(mplus mtimes mexpt))))
+        ((and (not (member (caar e) '(mplus mtimes mexpt)))
+              (constant a))
 	 (not (member (caar e) '(rat bigfloat))))
 	((eq (caar e) 'mrat)) ;; all MRATs succeed all atoms
 	((null (margs e)) nil)
