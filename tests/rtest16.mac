@@ -3088,3 +3088,7 @@ block(
 	reverse(L)
 );
 [sin(x)^2+cos(x)^2,sin(x)^2+cos(x)^2,1];
+
+/* Bug #4548: float(10^400) returns false on GCL */
+errcatch(float(10^400));
+[];
