@@ -2004,7 +2004,11 @@ integrate(cos(nn*x)*cos(mm*x),x, 0, 2*%pi);
 (reset(),0);
 0$
 
-integrate(-1/17*sqrt(-52/17*I + 47/17)/(2*x - sqrt(4*I + 1) - 1),x,0,1);
+block([ans],
+  assume(sqrt(4*I + 1) > 1),
+  ans : integrate(-1/17*sqrt(-52/17*I + 47/17)/(2*x - sqrt(4*I + 1) - 1),x,0,1),
+  forget(sqrt(4*I + 1) > 1),
+  ans);
 -((sqrt(47/17-(52*I)/17)*(log(1-sqrt(4*I+1))/2-log(-sqrt(4*I+1)-1)/2))/17)$
 
 (kill(values),0);

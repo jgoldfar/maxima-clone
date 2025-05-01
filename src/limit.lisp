@@ -2068,6 +2068,11 @@ ignoring dummy variables and array indices."
         ((eq el '$ind)  '$ind)
         ((zerop2 el) 1)
           ((zerop2 el) 1)
+
+        ;; direct substitution for el = -1
+		((eql el -1)
+			(ftake 'mexpt bl el))
+
 		;; When bl is off the negative real axis, use direct substitution
 		((off-negative-real-axisp bl) (ftake 'mexpt bl el))
         (t 
@@ -3147,53 +3152,88 @@ ignoring dummy variables and array indices."
 	   (t (return ($radcan (ridofab (subin val e))))))
      (return (simplimtimes (list n1 d1)))))
 
+(defun maybe-asksign (e)
+  "Return the sign of `e` in a super context where `zerob < 0` and `zeroa > 0`.
+   When `*getsignl-asksign-ok*` is true, call `asksign`, otherwise call `csign`."
+  (let ((cntx ($supcontext)))
+    (unwind-protect
+        (progn
+          ;; Set up assumptions for the super context
+          (assume (ftake 'mgreaterp '$zeroa 0))
+          (assume (ftake 'mgreaterp 0 '$zerob))
+          ;; Determine which function to call based on *getsignl-asksign-ok*
+          (if *getsignl-asksign-ok*
+              ($asksign e)
+              ($csign e)))
+      ;; remove the super context
+      ($killcontext cntx))))
+
 ;;; Limit(log(XXX), var, 0, val), where val is either zerob (limit from below)
 ;;; or zeroa (limit from above).
 (defun simplimln (expr var val)
-  (let ((arglim (limit (cadr expr) var val 'think)) (dir)) 
-    (cond ((eq arglim '$inf) '$inf)     ;log(inf) = inf
-          ;;log(minf,infinity,zerob) = infinity & log(0) = infinity
-	  ((or (member arglim '($minf $infinity $zerob)))
+  (let ((arglim (let ((preserve-direction t)) (limit (cadr expr) var val 'think))) (dir))
+    ;; When arglim is 0, try using behavior to determine if the limit is zerob or zeroa.
+    (when (eql arglim 0)
+		(setq dir (behavior expr var val))
+		(cond ((eql dir -1) (setq arglim '$zerob))
+		      ((eql dir 1) (setq arglim '$zeroa))))
+    (cond 
+	  ((eq arglim '$inf) '$inf)     ;log(inf) = inf
+
+      ;;log(minf,infinity,zerob) = infinity
+	  ((member arglim '($minf $infinity $zerob))
 	   '$infinity)
+
 	  ((eq arglim '$zeroa) '$minf)  ;log(zeroa) = minf
-      ;; log(ind) = ind when ind > 0 else und
-	  ((eq arglim '$zerob) '$infinity)
+
+	  ;; Special case of arglim = 0
+	  ((eql arglim 0) '$infinity)
+	
       ;; If expr doesn't vanish, log(ind) = ind; otherwise log(ind) = und.
 	  ((eq arglim '$ind)
-	      (if (eq t (mgrp (cadr expr) 0)) '$ind '$und))
-	  ;; log(und) = und
-	  ((eq arglim '$und) '$und)
-	  ((member arglim '($ind $und)) '$und)
-          ;; log(1^(-)) = zerob, log(1^(+)) = zeroa & log(1)=0
+	      (if (eq t (mnqp (cadr expr) 0)) '$ind '$und))
+
+	  ;; This case should be caught by simplimit, but in case simplimln is called
+	  ;; from outside simplimit, we'll leave this case here for now 
+	  ((eq arglim '$und) 
+	    (throw 'limit nil))
+
+      ;; log(1^(-)) = zerob, log(1^(+)) = zeroa & log(1)=0
 	  ((eql (ridofab arglim) 1)
-	    (cond (preserve-direction
-                 (setq dir (behavior (cadr expr) var val))
-		         (cond ((eql dir -1) '$zerob)
-		               ((eql dir 1) '$zeroa)
-			           (t 0)))
-			  (t 0)))
-	  ;; Special case of arglim = 0
-	  ((eql arglim 0)
-	   (setq dir (behavior (cadr expr) var val))
-	   (cond ((eql dir -1) '$infinity)
-		 ((eql dir 0) '$infinity)
-		 ((eql dir 1) '$minf)))
+	      ;; it can happen that arglim is 1 + zeroa, for example. For such cases,
+		  ;; we'll apply maybe-asksign; when that doesn't yield a sign, we'll use
+		  ;; dispatch behavior.
+		  (let ((sgn (maybe-asksign (sub arglim 1))))
+		   (cond ((eq sgn '$neg) '$zerob)
+		         ((eq sgn '$pos) '$zeroa)
+				 (t
+                   (setq dir (behavior (cadr expr) var val))
+		           (cond ((eql dir -1) '$zerob)
+		                 ((eql dir 1) '$zeroa)
+			             (t 0))))))
 
 	    (t
-	       (let* ((z (trisplit arglim)) (xx (car z)) (yy (cdr z)))
+	       (let* ((z (trisplit arglim)) (xx (car z))  (yy (cdr z)) (sgn))
+           ;; When yy vanishes, find the sign of xx. But when the sign is 'pnz', 
+		   ;; use asksign. We could use 'meqp' or 'askequal' to  test for a vanishing yy,
+		   ;; but for now, we'll test for a syntatic zero 
+			(when (eql 0 yy)
+				(setq sgn (maybe-asksign xx))
+				(when (eq sgn '$pnz)
+		   	      (setq sgn (let ((*getsignl-asksign-ok* t)) (maybe-asksign xx)))))
+
 	        (cond 
-		    ;; When arglim is off the negative real axis, use direct substitution
-		    ((or (eq t (mnqp yy 0)) (eq t (mgrp xx 0)))
-		  		(ftake '%log arglim))
-			(t
-			  ;; For arglim on the negative real axis, we need to examine the imaginary
-			  ;; part of 'expr' to see if the imaginary part of 'expr' vanishes, or if it
-			  ;; approaches zero from above or below.
-			  (let ((yy (cdr (trisplit (cadr expr)))))
+  		  	  ((and (eql 0 yy) (eq sgn '$neg)) ; arglim on the negative real axis
+			    ;; For arglim on the negative real axis, we need to examine the imaginary
+		  	    ;; part of 'expr' to see if the imaginary part of 'expr' vanishes, or if it
+			    ;; approaches zero from above or below.
+			   (let ((yy (cdr (trisplit (cadr expr)))))
 					 (setq dir (if (eq t (meqp yy 0)) 1 (behavior yy var val)))
-					 (cond ((eql dir 0) (throw 'limit t))
-				           (t
-	                        (add (ftake '%log (mul -1 arglim)) (mul dir '$%i '$%pi))))))))))))
+					 (if (eql dir 0) 
+					     (throw 'limit t)
+	                     (add (ftake '%log (mul -1 arglim)) (mul dir '$%i '$%pi)))))
+			  ((and (eql 0 yy) (eq sgn '$zero)) '$infinity)
+			  (t  (ftake '%log arglim))))))))
 (setf (get '%log 'simplim%function) 'simplimln)
 (setf (get '%plog 'simplim%function) 'simplimln)
 

@@ -378,7 +378,10 @@ limit(log(-1+x*%i), x, 0, plus);
 limit(log(-1+x*%i), x, 0, minus);
 -%i*%pi;
 
-limit((log(y+h)-log(y))/h,h,0,plus);
+block([ans], assume(y>0), 
+             ans : limit((log(y+h)-log(y))/h,h,0,plus),
+             forget(y>0),
+             ans);
 1/y;
 
 /* Bug 3587 */

@@ -403,9 +403,8 @@ block([domain : 'complex],limit(2/5*((3/4)^m - 1)*(a - 10) + 1/5*(3*(3/4)^m + 2)
  27/26$
 
  /* #2953 limit loops endlessly */
- block([ans : limit((a/x^b + (1-a)/y^b)^(-1/b),b,0)],
-  [ans, ratsimp(ans)]);
- [(x^(a-1)*%e^((log(x)/log(y)+1)*log(y)))/y^a,x^a*y^(1-a)]$
+ limit((a/x^b + (1-a)/y^b)^(-1/b),b,0);
+ x^a*y^(1-a)$
 
  /* #2899 Limit that once worked is broken */
  limit((1+sqrt(n+1))^(-n-1)/(1+sqrt(n))^(-n),n,inf);
@@ -705,9 +704,8 @@ log(sqrt(2)+1)+(-(2*log(sqrt(2)-1))-2*%i*%pi)/2-sqrt(2)$
 0$
 
 /* #2953 limit loops endlessly */
-block([ans : limit((a/x^b + (1-a)/y^b)^(-1/b),b,0)],
-  [ans, ratsimp(ans)]);
- [(x^(a-1)*%e^((log(x)/log(y)+1)*log(y)))/y^a,x^a*y^(1-a)]$
+limit((a/x^b + (1-a)/y^b)^(-1/b),b,0);
+ x^a*y^(1-a)$
 
 /* #2706 Limit runs forever, never returning (simplified bug) */
 block([ans1,ans2, ans3],
@@ -1365,6 +1363,57 @@ limit(expintegral_ci(x),x,minf);
 
 limit(expintegral_si(sin(x)),x,inf);
 ind$
+
+/* #4546 limit of a log of a rational trig polynomial */
+limit(log((5*%i*sin(4*x)+5*cos(4*x)-10*%i*sin(2*x)-10*cos(2*x)+1)/(5*%i*sin(4*x)+5*cos(4*x)-50*%i*sin(2*x)-50*cos(2*x)+25)),x,t);
+log((%i*sin(4*t))/(%i*sin(4*t)+cos(4*t)-10*%i*sin(2*t)-10*cos(2*t)+5)
+            +cos(4*t)/(%i*sin(4*t)+cos(4*t)-10*%i*sin(2*t)-10*cos(2*t)+5)
+            -(2*%i*sin(2*t))/(%i*sin(4*t)+cos(4*t)-10*%i*sin(2*t)-10*cos(2*t)
+                                         +5)
+            -(2*cos(2*t))/(%i*sin(4*t)+cos(4*t)-10*%i*sin(2*t)-10*cos(2*t)+5)
+            +1/(5*(%i*sin(4*t)+cos(4*t)-10*%i*sin(2*t)-10*cos(2*t)+5)))$
+
+limit( log((sin(x)+cos(x))/(%i*sin(x)+cos(x)+2)) , x, t);
+log(sin(t)/(%i*sin(t)+cos(t)+2)+cos(t)/(%i*sin(t)+cos(t)+2))$
+
+block([ans], assume(t > 0),
+            ans : limit ( log((log(x)+exp(x))/(%i*exp(x)+log(x)+2)), x, t),
+            forget(t >0),
+            ans);
+log(log(t)/(log(t)+%i*%e^t+2)+%e^t/(log(t)+%i*%e^t+2))$
+
+limit(log(-2+%i*y),y,0, 'minus);
+log(2) - %i*%pi$
+
+limit(log(-2+%i*y),y,0, 'plus);
+log(2) + %i*%pi$
+
+limit(log(-2+%i*y),y,0);
+ind$
+
+limit(log(2+%i*y),y,0,'minus);
+log(2)$
+
+limit(log(2+%i*y),y,0,'plus);
+log(2)$
+
+(assume(a > 0),0);
+0$
+
+limit(log(a+%i*y),y,0,'minus);
+log(a)$
+
+limit(log(a+%i*y),y,0,'plus);
+log(a)$
+
+limit(log(-a+%i*y),y,0,'minus);
+log(a) - %i*%pi$
+
+limit(log(-a+%i*y),y,0,'plus);
+log(a) + %i*%pi$
+
+(forget(a>0),0);
+0$
 
 /* clean up*/
 (kill(values),0);
