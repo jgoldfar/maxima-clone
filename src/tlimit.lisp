@@ -51,6 +51,14 @@
 			  ($freeof x e))
 		    (every #'(lambda (q) (tlimp q x)) (cdr e)))))
 
+(defun logarc-atan2 (e)
+"Use `logarc` to transform all occurrences of `%atan2` subexpression in `e`, but do not 
+ transform other log-like functions."
+  (cond (($mapatom e) e)
+        ((eq (caar e) '%atan2)
+    	    (logarc '%atan2 (list (logarc-atan2 (second e)) (logarc-atan2 (third e)))))
+        (t (recur-apply #'logarc-atan2 e))))
+
 ;; Dispatch Taylor, but recurse on the order until either the recursion
 ;; depth reaches 15 or the Taylor polynomial is nonzero. If Taylor 
 ;; fails to find a nonzero Taylor polynomial or the recursion depth 
@@ -70,19 +78,24 @@
 ;; to  #'(lambda (q) (sratsimp (extra-simp q)))), but that doesn't seem to be needed,
 ;; so this version doesn't set a value for this option variable.
 
-;; Also previously, this code applied partial-logarc before calling $taylor. This
-;; too doesn't seem to be needed, so it has been removed.	
-
 ;; There is no compelling reason to default the Taylor order to 
 ;; lhospitallim, but this is documented in the user documentation.
 
+;; Since `taylor` fails on some `atan2` expressions, we convert `atan2` expressions to
+;; log form. An example where `taylor` fails is `taylor(atan2(exp(x)-cos(x), -x*sin(x)),x,0,4)`.
+;; Of course, we should fix `taylor`, but until that happens, we'll convert use this workaround.
 (defun tlimit-taylor (e x pt n &optional (d 0))
+"Compute the Taylor series expansion of `e` at `pt` with respect to `x`. When the expansion 
+ vanishes and the recurison depth `d` is less than 16, retry the expansion with increased 
+ order. When the recursion depth exceeds 16 or when the expansion fails, return nil; otherwise, 
+ return the taylor expansion."
 	(let ((ee) 
 	      (silent-taylor-flag t) 
 	      ($taylordepth 8)
 		  ($radexpand nil)
 		  ($taylor_logexpand t)
 		  ($logexpand t))
+		(setq e (logarc-atan2 e))
 	    (setq ee (catch 'taylor-catch (ratdisrep ($taylor e x pt n))))
 		(cond ((and ee (not (alike1 ee 0))) ee)
 			  ;; Retry if taylor returns zero and depth is less than 16
