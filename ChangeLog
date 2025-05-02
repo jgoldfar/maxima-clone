@@ -110,8 +110,10 @@ Bug fixes for numbered bugs:
  * \#4474 "sign: argument cannot be imaginary" in simple substitution
  * \#4475 min/max (%i,...)
  * \#4462 sign(1/sqrt(x))
+ * \#4536 atan2(0,0) undefined error while evaluating a limit
  * \#4539 some limits of expintegral_ci 
-
+ * \#4546 limit of a log of a rational trig polynomial
+ 
 Unnumbered bugs fixed:
 ---------------------
  * Correct failing test in share/contrib/diffequations/tests
