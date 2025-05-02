@@ -353,7 +353,7 @@
   (cond ((= 1 (length (cdr expr)))
          ;; Distribute over for a function with one argument.
          (cond ((and (not (atom (cadr expr)))
-                     (member (caaadr expr) (get (caar expr) 'distribute_over)))
+                     (member (caaadr expr) (get (caar expr) 'distribute_over) :test #'eq))
                 (simplifya
                   (cons (caadr expr)
                         (mapcar #'(lambda (u) (simplifya (list (car expr) u) args-simped))
@@ -367,7 +367,7 @@
              ((null args) nil)
            (when (and (not (atom (car args)))
                       (member (caar (car args))
-                              (get (caar expr) 'distribute_over)))
+                              (get (caar expr) 'distribute_over) :test #'eq))
              ;; Distribute the function over the arguments and simplify again.
              (return 
                (simplifya
