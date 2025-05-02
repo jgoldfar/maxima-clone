@@ -254,7 +254,7 @@
  (let (op)
   (cond ((not $simp) x)
         ((atom x)
-         (cond ((and $%enumer $numer (eq x '$%e))
+         (cond ((and (eq x '$%e) $%enumer $numer)
                 ;; Replace $%e with its numerical value,
                 ;; when %enumer and $numer TRUE
                 (setq x %e-val))
@@ -849,7 +849,7 @@
 (defun pls (x out)
   (prog (fm *plusflag*)
      (if (mtimesp x) (setq x (testtneg x)))
-     (when (and $numer (atom x) (eq x '$%e))
+     (when (and (eq x '$%e) $numer)
        ;; Replace $%e with its numerical value, when $numer is TRUE
        (setq x %e-val))
      (cond ((null out)
