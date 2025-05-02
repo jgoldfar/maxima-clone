@@ -32,11 +32,15 @@
                    (margs ielist)
                    (merror 
                      (intl:gettext "assoc: second argument must be a nonatomic expression; found: ~:M") 
-                     ielist))))
-    (if (every #'(lambda (x) (and (listp x) (= 3 (length x)))) elist)
-	(let ((found (find key elist :test (if (symbolp key) #'eq #'alike1) :key #'second)))
-	  (if found (third found) default))
-	(merror (intl:gettext "assoc: every argument must be an expression of two parts; found: ~:M") ielist))))
+                     ielist)))
+        found)
+    (dolist (i elist)
+      (unless (and (listp i) (= 3 (length i)))
+        (merror (intl:gettext "assoc: elements of the second argument must be an expression of two parts; found: ~:M") i))
+      (when (alike1 key (second i))
+        (setq found i)
+        (return)))
+    (if found (third found) default)))
 
 ;;; (ASSOL item A-list)
 ;;;

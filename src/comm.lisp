@@ -71,8 +71,11 @@
       (merror (intl:gettext "~:M: ~Margument must be a non-atomic expression; found ~M") fun (if 2ndp "2nd " "") e)))
 
 (defmfun $member (x e)
-  (atomchk (setq e ($totaldisrep e)) '$member t)
-  (if (memalike ($totaldisrep x) (margs e)) t))
+  (atomchk e '$member t)
+  (setq x (specrepcheck x))
+  (dolist (i (margs e))
+    (when (alike1 x (specrepcheck i))
+      (return t))))
 
 (defmfun $substitute (new old &optional (expr nil three-arg?))
   (cond (three-arg? (maxima-substitute new old expr))
