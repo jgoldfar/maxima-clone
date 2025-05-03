@@ -2893,13 +2893,18 @@
                 ;; Compare mantissas and exponents first.
                 (when (and (= (cadr x) (cadr y)) (= (caddr x) (caddr y)))
                   ;; Mantissas and exponents are the same.
-                  ;; Still need to compare precision and maybe radix (binary/decimal).
+                  ;; If the CARs are EQ (see BCONS), we're done. Otherwise, we
+                  ;; still need to compare precision and maybe radix (binary/decimal).
                   ;; If there's a SIMP flag, it must be ignored.
+                  (if (eq car-x car-y)
+                  t
                   (let ((rest-x (if (eq 'simp (cadar x)) (cddar x) (cdar x)))
                         (rest-y (if (eq 'simp (cadar y)) (cddar y) (cdar y))))
                     (and (= (car rest-x) (car rest-y))
-                         (eq (cadr rest-x) (cadr rest-y))))))
-              ((eq (memqarr (cdar x)) (memqarr (cdar y)))
+                         (eq (cadr rest-x) (cadr rest-y)))))))
+              ;; General case: First check for CARs being EQ (see EQTEST).
+              ;; If not, just check whether both have or don't have the ARRAY flag.
+              ((or (eq car-x car-y) (eq (memqarr (cdar x)) (memqarr (cdar y))))
                (alike (cdr x) (cdr y)))
               (t nil))
            ;; (foo) and (foo) test non-alike because the car's aren't standard
