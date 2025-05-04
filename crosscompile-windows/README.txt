@@ -59,6 +59,10 @@ in the installer.
 One can also include CCL64 (Clozure Common Lisp) with the option:
 -DWITH_CCL64=YES
 
+By default CLISP and SBCL will be included, if you want, you can exclude
+them with -DWITH_SBCL=NO or -DWITH_CLISP=NO. Of course you need to select
+at least one Lisp.
+
 If you want to change the default Lisp, which will be used, you can
 use the option "-DWITH_DEFAULT_LISP=clisp" (or abcl/ccl64) in the cmake call
 (otherwise SBCL would be the default).

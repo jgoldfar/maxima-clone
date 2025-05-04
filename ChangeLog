@@ -53,6 +53,8 @@ Changes in the Windows installer:
    if one is building Maxima on Windows (native) and uses
    special paths to the Lisp compilers.
  * Fix calculation of %maxima_prefix% in maxima.bat.in.
+ * Allow building an installer with any (supported) Lisp.
+   Before, CLISP and SBCL was always included.
 
 Bug fixes for numbered bugs:
 ----------------------------
