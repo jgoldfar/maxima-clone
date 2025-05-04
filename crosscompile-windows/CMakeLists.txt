@@ -236,14 +236,10 @@ if(WITH_CLISP)
     set(CLISP_CONFIGURE --enable-clisp --with-clisp=${CMAKE_BINARY_DIR}/wine-clisp.sh --with-clisp-runtime=${CMAKE_BINARY_DIR}/wine-lisp.sh)
     set(CLISP_DEPENDS "clisp")
     set(CLISP_ENABLED 1)
-    set(CLISP_DEP_CORR1 $(MAKE) -C src clisp-depends.mk)
-    set(CLISP_DEP_CORR2 sed -i s+\\\\+/+g src/clisp-depends.mk)
 else()
     set(CLISP_CONFIGURE "")
     set(CLISP_DEPENDS "")
     set(CLISP_ENABLED 0)
-    set(CLISP_DEP_CORR1 "")
-    set(CLISP_DEP_CORR2 "")
 endif()
 
 if(WITH_SBCL)
@@ -291,12 +287,9 @@ externalproject_add(maxima
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND sh -c "test -x ./bootstrap && ./bootstrap || return 0"
             COMMAND PATH=${CMAKE_BINARY_DIR}/texinfo-installroot/bin:$ENV{PATH} LANG=C ./configure --host=${HOST} ${CLISP_CONFIGURE} ${SBCL_CONFIGURE} ${ABCL_CONFIGURE} ${CCL64_CONFIGURE} --with-default-lisp=${WITH_DEFAULT_LISP} --prefix=${WINDOWS_DRIVELETTER}:/maxima-${MAXIMAVERSION}
-  # clisp-depends.mk is generated with "\" as path separator, not "/" - correct that... (${CLISP_DEP_CORR1+2})
   # during the crosscompiling procedure, we call configure with shell scripts (wine-xyz.sh) to use the Windows versions.
   # change that after compiliation to the real binaries (clisp.exe for CLISP, sbcl.exe for SBCL, wx86cl64.exe for CCL64).
-  BUILD_COMMAND ${CLISP_DEP_CORR1}
-        COMMAND ${CLISP_DEP_CORR2}
-        COMMAND PATH=${CMAKE_BINARY_DIR}/texinfo-installroot/bin:$ENV{PATH} LANG=C $(MAKE)
+  BUILD_COMMAND PATH=${CMAKE_BINARY_DIR}/texinfo-installroot/bin:$ENV{PATH} LANG=C $(MAKE)
         COMMAND PATH=${CMAKE_BINARY_DIR}/texinfo-installroot/bin:$ENV{PATH} LANG=C $(MAKE) pdf
         COMMAND sed -i s+^.*wine-clisp.sh+clisp.exe+g src/maxima.bat
         COMMAND sed -i s+^.*wine-sbcl.sh+sbcl.exe+g src/maxima.bat
