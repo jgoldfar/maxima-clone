@@ -1258,8 +1258,7 @@
 			      ($float `((%log) ,(third n)))))))
 		 ((complex-number-p n 'integerp)
 		  ;; float(log(n+m*%i)).
-		  (let ((re ($realpart n))
-			(im ($imagpart n)))
+		  (destructuring-bind (re . im) (trisplit n)
 		    (to (or (try-float-computation #'(lambda ()
 						       (log (complex (float re)
 								     (float im)))))
@@ -1275,11 +1274,12 @@
 		  ;;
 		  ;; where s = lcm(d1, d2), n and m are integers
 		  ;;
-		  (let* ((s (lcm ($denom ($realpart n))
-				 ($denom ($imagpart n))))
-			 (p ($expand (mul s n))))
+          (destructuring-bind (re . im) (trisplit n)
+		   (let* ((s (lcm ($denom re)
+			 	  ($denom im)))
+			      (p ($expand (mul s n))))
 		    (add ($float `((%log) ,s))
-			 ($float `((%log) ,p))))))))
+			 ($float `((%log) ,p)))))))))
 	((and (eq (caar e) '%erf)
 	      (eq (second e) '$%i))
 	 ;; Handle like erf(%i).  float(%i) (via recur-apply below)
