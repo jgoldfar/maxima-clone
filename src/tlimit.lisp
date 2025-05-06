@@ -97,7 +97,7 @@
 		  ($logexpand t))
 		(setq e (logarc-atan2 e))
 	    (setq ee (catch 'taylor-catch (ratdisrep ($taylor e x pt n))))
-		(cond ((and ee (not (alike1 ee 0))) ee)
+		(cond ((and ee (not (eql ee 0))) ee)
 			  ;; Retry if taylor returns zero and depth is less than 16
               ((and ee (< d 16))
 			    (tlimit-taylor e x pt (* 4 (max 1 n)) (1+ d)))

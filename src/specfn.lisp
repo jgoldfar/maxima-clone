@@ -115,7 +115,7 @@
          (add (div (take '(%zeta) 2) 2)
               (mul '((rat simp) -1 2)
                    (power (take '(%log) 2) 2))))
-        ((alike1 arg 2)
+        ((eql arg 2)
          ;; li[2](2) = %pi^2/4 - %i*%pi*log(2)
          ;;
          ;; See http://functions.wolfram.com/10.07.03.0007.01.  But
@@ -127,7 +127,7 @@
          (sub (div (power '$%pi 2)
                    4)
               (mul '$%pi '$%i (ftake '%log 2))))
-        ((alike1 arg '$%i)
+        ((eq arg '$%i)
          ;; li[2](%i) = %i*%catalan - %pi^2/48
          ;;
          ;; See http://functions.wolfram.com/10.07.03.0008.01
@@ -664,7 +664,7 @@
   (cond ((equal x 0) 0)
 	((equal x 0.0) 0.0)
 	((zerop1 x) ($bfloat 0))	;bfloat case
-	((alike1 x '$%e)
+	((eq x '$%e)
 	 ;; W(%e) = 1
 	 1)
 	((alike1 x '((mtimes simp) ((rat simp) -1 2) ((%log simp) 2)))
