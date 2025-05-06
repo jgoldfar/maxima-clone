@@ -45,7 +45,7 @@
 (defun polynomialp (p vars coeffp exponp)
   (or
    (mfuncall coeffp p)
-   (if (member p vars :test #'alike1) t nil)
+   (if (memalike p vars) t nil)
    (and (op-equalp p 'mtimes 'mplus)
 	(every #'(lambda (s) (polynomialp s vars coeffp exponp)) (margs p)))
    (and (op-equalp p 'mexpt) (polynomialp (car (margs p)) vars coeffp exponp)
