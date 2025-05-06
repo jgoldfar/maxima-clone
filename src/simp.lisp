@@ -2216,7 +2216,7 @@
               (when (and (not (member 'simp (car x)))
                          (complex-number-p pot 'bigfloat-or-number-p))
                 (destructuring-bind (x . y) (trisplit pot)
-                  (cond ((and ($bfloatp x) (like 0 y))
+                  (cond ((and ($bfloatp x) (eql 0 y))
                          (return ($bfloat `((mexpt simp) $%e ,pot))))
                         ((or ($bfloatp x) ($bfloatp y))
                          (let ((z (add ($bfloat x) (mul '$%i ($bfloat y)))))
