@@ -1082,6 +1082,7 @@ See also @mrefcomma{for} @mrefcomma{while} @mref{do} and @mref{block}.
 @deffn {Function} scanmap @
 @fname{scanmap} (@var{f}, @var{expr}) @
 @fname{scanmap} (@var{f}, @var{expr}, bottomup)
+@fname{scanmap} (@var{f}, @var{expr}, topdown)
 
 Recursively applies @var{f} to @var{expr}, in a top
 down manner.  This is most useful when complete factorization is
@@ -1129,6 +1130,9 @@ scanmap(f,a*x+b,bottomup) -> f(a)*f(x)+f(b)
 
 In this case, you get the same answer both
 ways.
+
+@code{scanmap (@var{f}, @var{expr}, topdown)} has the same effect as calling
+@code{scanmap (@var{f}, @var{expr})}.
 
 @opencatbox{Categories:}
 @category{Function application}

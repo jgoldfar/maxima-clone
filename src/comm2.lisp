@@ -661,12 +661,12 @@
     (resimplify (apply #'scanmap1 (mmapev l)))))
 
 (defun scanmap1 (func e &optional (flag nil flag?))
+  (when (and flag? (not (member flag '($bottomup $topdown))))
+    (merror (intl:gettext "scanmap: third argument must be 'bottomup' or 'topdown', if present; found ~M") flag))
   (let ((arg2 (specrepcheck e)) newarg2)
     (cond ((eq func '$rat)
 	   (merror (intl:gettext "scanmap: cannot apply 'rat'.")))
-	  (flag?
-	   (unless (eq flag '$bottomup)
-	     (merror (intl:gettext "scanmap: third argument must be 'bottomup', if present; found ~M") flag))
+	  ((eq flag '$bottomup)
 	   (if (mapatom arg2)
 	       (funcer func (ncons arg2))
 	       (subst0 (funcer func
