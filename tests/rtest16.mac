@@ -3092,3 +3092,18 @@ block(
 /* Bug #4548: float(10^400) returns false on GCL */
 errcatch(float(10^400));
 [];
+
+/* Various cases from SourceForge tickets that have been closed, but where
+   we don't know which commit fixed them: */
+limit(asin(3+%i*x),x,0,plus);
+%pi-asin(3);
+limit(asin(3+%i*x),x,0,minus);
+asin(3);
+limit(rectform(asin(3+%i*x)),x,0,plus);
+%pi/2-(%i*log(17-3*2^(5/2)))/2;
+limit((cos(x)-1)/(sin(x)+sqrt(2-2*cos(x))),x,0,plus);
+0;
+limit(rr*cos(rr)/sqrt(1-cos(rr)^2),rr,0);
+ind;
+listp(splitfield(x^4+x^2+1,x));
+true;
