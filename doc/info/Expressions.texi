@@ -1017,8 +1017,8 @@ Also, setting @code{inflag} to @code{true} and calling @mref{part} or
 Functions affected by the setting of @code{inflag} are: @mrefcomma{part}@w{}
 @mrefcomma{substpart} @mrefcomma{first} @mrefcomma{rest} @mrefcomma{last}@w{}
 @mrefcomma{length} the @mref{for} @dots{} @code{in} construct,
-@mrefcomma{map} @mrefcomma{fullmap} @mrefcomma{maplist} @mref{reveal} and
-@mrefdot{pickapart}
+@mrefcomma{map} @mrefcomma{fullmap} @mrefcomma{maplist} @mrefcomma{reveal}
+@mrefcomma{pickapart} @mref{args} and @mrefdot{op}
 
 @c NEED EXAMPLES HERE
 @opencatbox{Categories:}
