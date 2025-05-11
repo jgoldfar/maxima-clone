@@ -100,7 +100,7 @@
         ((mlist simp) "rtest_map"
 	 ((mlist simp) 2 3 4))
         ((mlist simp) "rtest_sign"
-	 ((mlist simp) 21 25 30 40 65 145 180))
+	 ((mlist simp) 21 25 30 40 145))
         "rtest_algebraic"
 	;; Using the gcl version 2.6.14 the tests pass.
 	;;

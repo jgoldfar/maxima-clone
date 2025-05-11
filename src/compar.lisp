@@ -1494,6 +1494,26 @@ TDNEG TDZERO TDPN) to store it, and also sets SIGN."
 		((zerop1 (add xrhs -1))				;; c = -1
 		 (setq sgn '$nz))))
     
+    ;; sign(cosh(x)+c)
+    (when (and (not (atom xlhs))
+               (eq (caar xlhs) '%cosh)
+               (zerop1 ($imagpart (cadr xlhs))))
+      (cond
+        ((eq (sign* (add xrhs -1)) '$neg)
+          (setq sgn '$pos))
+        ((zerop1 (add xrhs -1))
+          (setq sgn '$pz))))
+
+    ;; sign(sech(x)+c)
+    (when (and (not (atom xlhs))
+               (eq (caar xlhs) '%sech)
+               (zerop1 ($imagpart (cadr xlhs))))
+      (cond
+        ((eq (sign* (add xrhs -1)) '$pos)
+          (setq sgn '$neg))
+        ((zerop1 (add xrhs -1))
+          (setq sgn '$nz))))
+    
     ;; sign(signum(x)+c)
     (when (and (not (atom xlhs))
 	          (eq (caar xlhs) '%signum)
