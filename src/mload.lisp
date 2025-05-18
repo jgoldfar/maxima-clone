@@ -106,7 +106,7 @@
        (meval-fcn (symbol-function (if autoloading-p 'meval 'meval*)))
        (expr nil))
       (declare (special *prompt-on-read-hang*))
-      (when $loadprint
+      (when (and $loadprint (not *maxima-quiet*))
         (format t (intl:gettext "~&read and interpret ~A~&") in-stream-string-rep))
       (cleanup)
       (newline in-stream)
@@ -232,7 +232,8 @@
           (format nil "~A" in-stream)))
        (*query-io* (if $batch_answers_from_file
 		       (make-two-way-stream in-stream (make-string-output-stream)) *query-io*)))
-      (format t (intl:gettext "~%read and interpret ~A~%") in-stream-string-rep)
+      (when (not *maxima-quiet*)
+        (format t (intl:gettext "~%read and interpret ~A~%") in-stream-string-rep))
       (catch 'macsyma-quit (continue :stream in-stream :batch-or-demo-flag demo))
       (incf $linenum)
       in-stream-string-rep)))
