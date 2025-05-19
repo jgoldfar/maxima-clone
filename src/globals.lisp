@@ -1714,6 +1714,8 @@
   "The version of the maxima frontend.")
 (defvar $maxima_frontend_bugreportinfo nil
   "The bug report info the maxima frontend comes with.")
+(defvar *suppress-input-echo* nil
+  "Do not print input expressions when processing noninteractively.")
 (defvar *quit-on-error* nil
   "If non-NIL, Maxima will quit on the first error.")
 

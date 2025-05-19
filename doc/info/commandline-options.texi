@@ -100,6 +100,10 @@ The following command line options are available for Maxima:
 
 
 @need 150
+@item     --suppress-input-echo
+        Do not print input expressions when processing noninteractively.
+
+@need 150
 @item     -u <version>, --use-version=<version>
         Use maxima version <version>.
 

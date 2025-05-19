@@ -526,6 +526,12 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
 						    port-string))
                                      (setf input-stream *standard-input*))
 			 :help-string "Connect Maxima to server on <port>.")
+	 (make-cl-option :names '("--suppress-input-echo")
+			 :action #'(lambda ()
+				     (declare (special *suppress-input-echo*))
+				     (setq *suppress-input-echo* t))
+			 :help-string
+			 "Do not print input expressions when processing noninteractively.")
 	 (make-cl-option :names '("-u" "--use-version")
 			 :argument "<version>"
 			 :action nil
