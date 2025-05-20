@@ -116,6 +116,7 @@ Bug fixes for numbered bugs:
  * \#4536: atan2(0,0) undefined error while evaluating a limit
  * \#4539: some limits of expintegral_ci 
  * \#4546: limit of a log of a rational trig polynomial
+ * \#4560: integrals of the form integrate((a*z+a*b)^p*%e^(c*z+d),z)
  
 Unnumbered bugs fixed:
 ---------------------

@@ -127,6 +127,12 @@
   (let ((ex (simplify ($factor x))))
     (if (not (alike1 ex x)) ex)))
 
+(defun expand-base-of-exp (e x)
+  (cond (($mapatom e) e)
+        ((and (mexptp e) (not (freeof x e)))
+          (ftake 'mexpt ($expand (second e) 1 0) (third e)))
+        (t (recur-apply #'(lambda (q) (expand-base-of-exp q x)) e))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Stage II of the Integrator
@@ -2538,10 +2544,10 @@
           (take '(%gamma_incomplete)
                 (div (add v 1) r)
                 (mul -1 a u (power var2 r)))))
-
-    ((m2-exp-type-3 (facsum-exponent expr var2) var2)
-     (a b c d p)
-     (when *debug-integrate*
+    
+    ((m2-exp-type-3 (expand-base-of-exp (facsum-exponent expr var2) var2) var2)
+      (a b c d p)
+      (when *debug-integrate*
        (format t "~&Type 3: (a*z+b)^p*%e^(c*z+d) : w = ~A~%" w))
      (mul
       const

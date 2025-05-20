@@ -3178,3 +3178,14 @@ false;
 /* Bug #1768 */
 csign(sqrt(x));
 complex;
+
+/* #4560 integrals of the form integrate((a*z+a*b)^p*%e^(c*z+d),z) */
+integrate((a*z+a*b)^p*%e^(c*z+d),z);
+-((%e^(d-b*c)*expintegral_e(-p,-((c*(a*z+a*b))/a))*(a*z+a*b)^(p+1))/a)$
+
+(kill(values),kill(facts), 0);
+0$
+
+contexts;
+[initial, global]$
+
