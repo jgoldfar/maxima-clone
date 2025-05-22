@@ -266,9 +266,15 @@
 #+clisp
     (progn
       (finish-output *standard-output*)
-      (fresh-line stream)
-      (princ mprompt stream)
-      (finish-output stream)
+      (if (output-stream-p stream)
+        (progn
+          (fresh-line stream)
+          (princ mprompt stream)
+          (finish-output stream))
+        (progn
+          (fresh-line *standard-output*)
+          (princ mprompt *standard-output*)
+          (finish-output *standard-output*)))
       (setf *prompt-on-read-hang* nil))
 #-clisp
     (progn
