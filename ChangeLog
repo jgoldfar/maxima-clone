@@ -114,16 +114,17 @@ Bug fixes for numbered bugs:
  * \#4474: "sign: argument cannot be imaginary" in simple substitution
  * \#4475: min/max (%i,...)
  * \#4536: atan2(0,0) undefined error while evaluating a limit
- * \#4539: some limits of expintegral_ci 
+ * \#4539: some limits of expintegral_ci
  * \#4546: limit of a log of a rational trig polynomial
  * \#4560: integrals of the form integrate((a*z+a*b)^p*%e^(c*z+d),z)
- 
+
 Unnumbered bugs fixed:
 ---------------------
  * Correct failing test in share/contrib/diffequations/tests
  * plotdf sliders hidden (reported on the mailing list on 2023/11/26)
  * mailing list 2023-11-25: Possibilities for basic image processing
  * mailing list 2023-09-25: Casting SPELs
+ * recover option xfun of plotdf which was no longer working (2024-03-16)
  * mailing list 2024-12-24: Typographic Error (xmaxima)
 
 Documentation:
