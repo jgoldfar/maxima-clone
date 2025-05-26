@@ -138,6 +138,10 @@ The following command line options are available for Maxima:
         Do not verify on startup that the set of html topics is consistent with
         text topics.
 
+@need 150
+@item     --suppress-input-echo
+        Do not print input expressions when processing noninteractively.
+
 
 @end table
 
