@@ -1,6 +1,8 @@
 # -*- mode: rpm-spec -*-
 
-# By default, this spec file will generate RPMs for clisp
+%global debug_package %{nil}
+
+# By default, this spec file will generate RPMs for gcl
 # This can be changed by modifying the variables below.
 %define enable_clisp 0
 %define clisp_flags --disable-clisp-exec
@@ -224,7 +226,7 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %{_datadir}/applications
 %{_datadir}/bash-completion
-%{_datadir}/pixmaps
+%{_datadir}/icons
 %{_datadir}/mime
 %{_datadir}/metainfo/
 %dir %{_libexecdir}/maxima
