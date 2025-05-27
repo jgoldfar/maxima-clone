@@ -45,6 +45,8 @@ Changes in Xmaxima:
 -------------------
  * Line clipping in plot2d  and plotdf
  * Better integration algorithm for plotdf
+ * new options tstep and algorithm for plotdf
+ * plot linewidths and arrow lengths change when a plot window is resized
 
 Changes in the Windows installer:
 ---------------------------------
@@ -129,13 +131,14 @@ Bug fixes for numbered bugs:
 
 Unnumbered bugs fixed:
 ---------------------
- * Correct failing test in share/contrib/diffequations/tests
- * plotdf sliders hidden (reported on the mailing list on 2023/11/26)
  * mailing list 2023-11-25: Possibilities for basic image processing
+ * mailing list 2023-11-26: plotdf sliders hidden
  * mailing list 2023-09-25: Casting SPELs
- * recover option xfun of plotdf which was no longer working (2024-03-16)
  * mailing list 2024-12-24: Typographic Error (xmaxima)
  * mailing list 2025-03-04: trigsolve requires to_poly_solve to work
+ * correct failing test in share/contrib/diffequations/tests
+ * recovers option xfun of plotdf which was no longer working
+ * fixes narrows option of plotdf (narrows should remain after window resizing)
  * unreported bug: Clisp error when standard input is not writeable
  * unreported bug: Function 'system': fix problems encountered when testing on Windows
 
