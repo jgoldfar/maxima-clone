@@ -4,7 +4,7 @@
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
 #     Modified by Jaime E. Villate                         #
-#     Time-stamp: "2025-02-01 16:35:14 villate"            #
+#     Time-stamp: "2025-05-27 10:19:14 villate"            #
 ############################################################
 
 global plotdfOptions
@@ -107,8 +107,8 @@ proc doIntegrate { win x0 y0 } {
     set linewidth [expr {$linewidth*[vectorlength $width $height]/1000.}]
     set arrowshape [scalarTimesVector $linewidth {3 5 2}]
 
-    # method can be rungeKutta, rungeKuttaA or adamsMoulton
-    set method {adamsMoulton}
+    # integrator can be rungeKutta, rungeKuttaA or adamsMoulton
+    set integrator {adamsMoulton}
     oset $win trajectory_at [format "%.10g  %.10g" $x0 $y0]
     lappend trajectoryStarts [list $x0 $y0]
     set didLast {}
@@ -150,7 +150,7 @@ proc doIntegrate { win x0 y0 } {
                         set arrow {last}
                         set coords {}}}}
             set h [expr {$sgn*$tstep}]
-            set form [list $method xff yff $tinitial $x0 $y0 $h $nsteps]
+            set form [list $integrator xff yff $tinitial $x0 $y0 $h $nsteps]
 
             # puts "doing: $form"
             # pts will be a list with values of t, x and y, at the initial
