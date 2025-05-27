@@ -4,7 +4,7 @@
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
 #     Modified by Jaime E. Villate                         #
-#     Time-stamp: "2025-05-27 10:19:14 villate"            #
+#     Time-stamp: "2025-05-27 10:54:55 villate"            #
 ############################################################
 
 global plotdfOptions
@@ -113,9 +113,9 @@ proc doIntegrate { win x0 y0 } {
     lappend trajectoryStarts [list $x0 $y0]
     set didLast {}
     # puts "doing at $trajectory_at"
-    # A reasonabel value of tstep has already been set up in drawDF by
-    # using the maximum length of the field vectors. This is just in case.
-    if {$tstep eq {}} {set tstep 0.1}
+    # Default value for tstep equal to the plot box's diagonal divided by 400
+    set steps $nsteps
+    set h $tstep
 
     set todo {1}
     switch -- $direction {
@@ -263,7 +263,7 @@ proc drawArrowScreen { c atx aty dfx dfy color } {
 proc drawDF { win tinitial } {
     global axisGray
     makeLocal  $win xmin xmax xcenter ycenter c ymin ymax transform vectors \
-        xaxislabel yaxislabel nobox axes width height narrows tstep
+        xaxislabel yaxislabel nobox axes width height narrows
     set rtosx rtosx$win
     set rtosy rtosy$win
     set storx storx$win
@@ -295,7 +295,6 @@ proc drawDF { win tinitial } {
 		append all " $len $dfx $dfy "
 		if { $min > $len } {set min $len}
                         if { $max < $len } {set max $len}}}
-        if {$tstep eq {}} {oset $win tstep [expr {$stepsize/(10.0*$max)}]}
 	set arrowmin [expr {0.25*$stepsize}]
 	set arrowrange [expr {0.85*$stepsize - $arrowmin}]
 	set s1 [expr {($arrowrange*$min+$arrowmin*$min-$arrowmin*$max)/($min-$max)}]
@@ -399,7 +398,10 @@ proc plotdf { args } {
     getOptions $plotdfOptions $args -usearray [oarray $win]
     oset $win didLast {}
     # Makes extra vertical space for sliders
-    linkLocal $win sliders height
+    linkLocal $win sliders height tstep xradius yradius
+    if { "$tstep" == "" } {
+	set tstep [expr {[vectorlength $xradius $yradius] / 200.0}]
+    }
     if {[string length $sliders] > 0} {
         oset $win height [expr {$height + 40*[llength [split $sliders ,]]}]}
 
@@ -471,7 +473,7 @@ proc doConfigdf { win } {
     pack $frdydx.dxdt  $frdydx.dydt -side bottom  -fill x -expand 1
     pack $frdydx.dydxbut $frdydx.dydtbut -side left -fill x -expand 1
 
-    foreach w {narrows parameters xfun linewidth xradius yradius xcenter ycenter tinitial versus_t nsteps direction curves vectors fieldlines } {
+    foreach w {narrows parameters xfun linewidth xradius yradius xcenter ycenter tinitial versus_t tstep nsteps direction curves vectors fieldlines } {
 	mkentry $wb1.$w [oloc $win $w] $w $buttonFont
 	pack $wb1.$w -side bottom -expand 1 -fill x
     }
