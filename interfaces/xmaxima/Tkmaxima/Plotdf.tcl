@@ -4,7 +4,7 @@
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
 #     Modified by Jaime E. Villate                         #
-#     Time-stamp: "2025-05-27 10:54:55 villate"            #
+#     Time-stamp: "2025-05-29 21:22:36 villate"            #
 ############################################################
 
 global plotdfOptions
@@ -23,6 +23,7 @@ set plotdfOptions {
     {xcenter 0.0 {(xcenter,ycenter) is the origin of the window}}
     {ycenter 0.0 "see xcenter"}
     {bbox "" "xmin ymin xmax ymax .. overrides the -xcenter etc"}
+    {algorithm "adamsMoulton" "can be rungeKutta, rungeKuttaA or adamsMoulton"}
     {tinitial 0.0 "The initial value of variable t"}
     {nsteps 300 "Number of steps to do in one pass"}
     {xfun "" "A semi colon separated list of functions to plot as well"}
@@ -100,22 +101,19 @@ proc doIntegrateScreen { win sx sy  } {
 }
 
 proc doIntegrate { win x0 y0 } {
-    makeLocal $win xradius yradius c dxdt dydt tinitial tstep nsteps \
+    makeLocal $win xradius yradius c dxdt dydt algorithm tinitial tstep nsteps \
         direction linewidth tinitial versus_t xmin xmax ymin ymax parameters \
         width height
     linkLocal $win didLast trajectoryStarts
     set linewidth [expr {$linewidth*[vectorlength $width $height]/1000.}]
     set arrowshape [scalarTimesVector $linewidth {3 5 2}]
 
-    # integrator can be rungeKutta, rungeKuttaA or adamsMoulton
-    set integrator {adamsMoulton}
     oset $win trajectory_at [format "%.10g  %.10g" $x0 $y0]
     lappend trajectoryStarts [list $x0 $y0]
     set didLast {}
     # puts "doing at $trajectory_at"
-    # Default value for tstep equal to the plot box's diagonal divided by 400
     set steps $nsteps
-    set h $tstep
+    set integrator $algorithm
 
     set todo {1}
     switch -- $direction {
@@ -399,6 +397,7 @@ proc plotdf { args } {
     oset $win didLast {}
     # Makes extra vertical space for sliders
     linkLocal $win sliders height tstep xradius yradius
+    # Default value for tstep equal to the plot box's diagonal divided by 400
     if { "$tstep" == "" } {
 	set tstep [expr {[vectorlength $xradius $yradius] / 200.0}]
     }
@@ -473,10 +472,21 @@ proc doConfigdf { win } {
     pack $frdydx.dxdt  $frdydx.dydt -side bottom  -fill x -expand 1
     pack $frdydx.dydxbut $frdydx.dydtbut -side left -fill x -expand 1
 
-    foreach w {narrows parameters xfun linewidth xradius yradius xcenter ycenter tinitial versus_t tstep nsteps direction curves vectors fieldlines } {
+    foreach w {narrows parameters xfun linewidth xradius yradius xcenter \
+        ycenter tinitial versus_t tstep nsteps direction curves vectors \
+        fieldlines} {
 	mkentry $wb1.$w [oloc $win $w] $w $buttonFont
 	pack $wb1.$w -side bottom -expand 1 -fill x
     }
+    radiobutton $wb1.rk -text "4th order Runge Kutta" \
+        -variable [oloc $win algorithm] -value rungeKutta -anchor w
+    radiobutton $wb1.rka -text "Adaptive-step Runge Kutta" \
+        -variable [oloc $win algorithm] -value rungeKuttaA -anchor w
+    radiobutton $wb1.am -text "Adams-Moulton" \
+        -variable [oloc $win algorithm] -value adamsMoulton -anchor w
+    pack $wb1.rk -side bottom -expand 1 -fill x
+    pack $wb1.rka -side bottom -expand 1 -fill x
+    pack $wb1.am -side bottom -expand 1 -fill x
     mkentry $wb1.trajectory_at [oloc $win trajectory_at] \
 	"Trajectory at" $buttonFont
     bind $wb1.trajectory_at.e <KeyPress-Return> \
