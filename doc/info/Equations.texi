@@ -2474,6 +2474,6 @@ z = -----------]]
    The Method of
    Resultants for Computing Real Solutions of Polynomial Systems, 
    SIAM Journal on Numerical Analysis, Vol 29 No 3, Jun 1992, pp 831-844
-   @url{https:/doi.org/10.1137/0729051, doi:10.1137/0729051}
+   @url{https://doi.org/10.1137/0729051, doi:10.1137/0729051}
 
 @end itemize
