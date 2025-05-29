@@ -1616,7 +1616,7 @@ The figure below shows the solution for
 (Ascher 1979a) U. Ascher, J. Christiansen and R. D. Russell,
     A collocation solver for mixed order systems of boundary value problems,
     Math. Comp. 33 (1979), 659-679,
-    @url{https:/doi.org/10.1090/S0025-5718-1979-0521281-7,
+    @url{https://doi.org/10.1090/S0025-5718-1979-0521281-7,
     doi:10.1090/S0025-5718-1979-0521281-7}
 
 @item @anchor{ascher-1979b}
@@ -1631,21 +1631,21 @@ The figure below shows the solution for
 (Ascher 1981a) U. Ascher, J. Christiansen and R. D. Russell,
     Collocation software for boundary-value odes,
     ACM Trans. Math Software 7 (1981), 209-222.
-    @url{https:/doi.org/10.1145/355945.355950,
+    @url{https://doi.org/10.1145/355945.355950,
     doi:10.1145/355945.355950}
 
 @item @anchor{ascher-1981b}
 (Ascher 1981b) U. Ascher, U., J. Christiansen, and R. D. Russell.
    ‘Algorithm 569: COLSYS: Collocation Software for Boundary-Value ODEs [D2]’.
    ACM Transactions on Mathematical Software 7, no. 2 (June 1981): 223–29.
-   @url{https:/doi.org/10.1145/355945.355951,
+   @url{https://doi.org/10.1145/355945.355951,
    doi:10.1145/355945.355951}
 
 @item @anchor{ascher-russell}
 (Ascher&Russell 1981) U. Ascher and R. D. Russell.
    ‘Reformulation of Boundary Value Problems into “Standard” Form’.
    SIAM Review 23, no. 2 (April 1981), 238–54,
-   @url{https:/doi.org/10.1137/1023039, doi:10.1137/1023039}
+   @url{https://doi.org/10.1137/1023039, doi:10.1137/1023039}
 
 @item @anchor{parker-wan}
 (Parker&Wan 1984) David F. Parker and Frederic Y. M. Wan,
