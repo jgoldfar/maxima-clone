@@ -87,12 +87,12 @@ vector on a form. The vector should be given on the left.
 @end deffn
 
 @anchor{ext_diff}
-@deffn {Function} ext_diff(@var{form})
+@deffn {Function} ext_diff (@var{form})
 The exterior derivative operator. It takes one argument, which should be a differential form.
 @end deffn
 
 @anchor{lie_diff}
-@deffn {Function} lie_diff(@var{vector1},[@var{vector2},@var{form}])
+@deffn {Function} lie_diff (@var{vector1},[@var{vector2},@var{form}])
 The Lie derivative operator. The first argument is a vector field. The
 second argument may be either a vector field or a differential form.
 @end deffn
