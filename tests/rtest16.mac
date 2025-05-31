@@ -3183,6 +3183,10 @@ complex;
 integrate((a*z+a*b)^p*%e^(c*z+d),z);
 -((%e^(d-b*c)*expintegral_e(-p,-((c*(a*z+a*b))/a))*(a*z+a*b)^(p+1))/a)$
 
+/* Bug #4451 */
+ratsimp(%e^(%i*sqrt(%pi+1)/2)/%pi), algebraic;
+%e^((%i*sqrt(%pi+1))/2)/%pi;
+
 (kill(values),kill(facts), 0);
 0$
 
