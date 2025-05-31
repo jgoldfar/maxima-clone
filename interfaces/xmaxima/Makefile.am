@@ -55,7 +55,6 @@ TKSOURCES = \
 	Tkmaxima/Plot3d.tcl \
 	Tkmaxima/scene.tcl \
 	Tkmaxima/NPlot3d.tcl \
-	Tkmaxima/EOctave.tcl \
 	Tkmaxima/EOpenplot.tcl \
 	Tkmaxima/EMaxima.tcl \
 	Tkmaxima/EHref.tcl \
