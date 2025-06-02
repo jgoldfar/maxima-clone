@@ -2,7 +2,7 @@
 EXTRA_DIST =\
  CMakeLists.txt\
  README.txt TODO.txt LICENSE_APPENDIX.txt\
- maxima-icon.bmp maxima-installerimage.bmp\
+ maxima-icon.bmp maxima-icon.ico maxima-icon.svg maxima-installerimage.bmp\
  wine-clisp.sh.tmpl wine-lisp.sh.tmpl wine-sbcl.sh.tmpl wine-ccl.sh.tmpl\
  sbcl.sh licenses.html\
  lispselector.bat lispselector.tcl\
