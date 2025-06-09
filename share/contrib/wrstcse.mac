@@ -143,3 +143,44 @@ wc_inputvalueranges(wc_x):=apply('matrix,
 
 wc_mintypmax2tol(wc_tol,wc_min,wc_typ,wc_max):=
     ((-2*wc_typ+wc_min+wc_max)*wc_tol^2)/2-((wc_min-wc_max)*wc_tol)/2+wc_typ;
+
+
+
+/* How many sigmas the range of tol[x]=-1...1 is assumed to be wide */
+wc_defaultsigma:6;
+defstruct(wc_gaussparams(sigma,mu));
+
+/* Determines the gauss parameters of the tolerance of x */
+wc_getgaussparams(x):=block([tols:[],derivates_linearized,sigmaval,meanval],
+    /* Compile a list of tolerances */
+    for i in listofvars(x) do
+        if not(freeof('tol,i)) then
+            push(i,tols),
+    /* Create the mean value */
+    meanval:wc_typicalvalues(x),
+    /* Create a list of derivatives, linearized over the point that all tol[x] are 0.*/
+    derivates_linearized:wc_typicalvalues(makelist(taytorat(taylor(diff(x,i),i,0,0)),i,tols)),
+    /* Compile the RMS value assuming that all input tolerances were 6-sigma ones*/
+    sigmaval:sqrt(lsum(i^2,i,derivates_linearized/meanval/wc_defaultsigma)),
+    return(new(wc_gaussparams(sigmaval,meanval)))
+);
+
+/* Estimate the tolerances of x assuming that all input value tolerances and the
+output tolerances are gauss curves. */
+wc_mintypmax_gauss(x,sigmas):=float(block([gaussparams:wc_getgaussparams(x)],
+    [
+        'min=gaussparams@mu*(1-sigmas*gaussparams@sigma),
+        'typ=gaussparams@mu,
+        'max=gaussparams@mu*(1+sigmas*gaussparams@sigma),
+        Fail=float(1-(erf(sigmas/sqrt(2))))*1e6*"ppm"
+    ]
+));
+
+/* Like wc_mintypmax_gauss, but output the tolerances in percent, not in abs values. */
+wc_mintypmax_gauss_percent(x,sigmas):=block([gaussparams:wc_getgaussparams(x)],
+    [
+        'min=((gaussparams@mu*(1-sigmas*gaussparams@sigma))/gaussparams@mu-1)*100*"%",
+        'max=((gaussparams@mu*(1-sigmas*gaussparams@sigma))/gaussparams@mu-1)*100*"%",
+        Fail=float(1-(erf(sigmas/sqrt(2))))*1e6*"ppm"
+    ]
+);
