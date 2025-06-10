@@ -161,7 +161,7 @@ wc_getgaussparams(x):=block([tols:[],derivates_linearized,sigmaval,meanval],
     /* Create a list of derivatives, linearized over the point that all tol[x] are 0.*/
     derivates_linearized:wc_typicalvalues(makelist(taytorat(taylor(diff(x,i),i,0,0)),i,tols)),
     /* Compile the RMS value assuming that all input tolerances were 6-sigma ones*/
-    sigmaval:sqrt(lsum(i^2,i,derivates_linearized/meanval/wc_defaultsigma)),
+    sigmaval:sqrt(lsum(i^2,i,derivates_linearized/wc_defaultsigma)),
     return(new(wc_gaussparams(sigmaval,meanval)))
 );
 
@@ -169,9 +169,9 @@ wc_getgaussparams(x):=block([tols:[],derivates_linearized,sigmaval,meanval],
 output tolerances are gauss curves. */
 wc_mintypmax_gauss(x,sigmas):=float(block([gaussparams:wc_getgaussparams(x)],
     [
-        'min=gaussparams@mu*(1-sigmas*gaussparams@sigma),
+        'min=gaussparams@mu-sigmas*gaussparams@sigma,
         'typ=gaussparams@mu,
-        'max=gaussparams@mu*(1+sigmas*gaussparams@sigma),
+        'max=gaussparams@mu+sigmas*gaussparams@sigma,
         Fail=float(1-(erf(sigmas/sqrt(2))))*1e6*"ppm"
     ]
 ));
@@ -179,8 +179,8 @@ wc_mintypmax_gauss(x,sigmas):=float(block([gaussparams:wc_getgaussparams(x)],
 /* Like wc_mintypmax_gauss, but output the tolerances in percent, not in abs values. */
 wc_mintypmax_gauss_percent(x,sigmas):=block([gaussparams:wc_getgaussparams(x)],
     [
-        'min=((gaussparams@mu*(1-sigmas*gaussparams@sigma))/gaussparams@mu-1)*100*"%",
-        'max=((gaussparams@mu*(1-sigmas*gaussparams@sigma))/gaussparams@mu-1)*100*"%",
+        'min=((gaussparams@mu-sigmas*gaussparams@sigma)/gaussparams@mu-1)*100*"%",
+        'max=((gaussparams@mu+sigmas*gaussparams@sigma)/gaussparams@mu-1)*100*"%",
         Fail=float(1-(erf(sigmas/sqrt(2))))*1e6*"ppm"
     ]
 );
