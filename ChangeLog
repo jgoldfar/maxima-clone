@@ -26,6 +26,7 @@ New items in share:
  * New package guess: guess a formula for a sequence of numbers
  * New package gamma_simp: simplification of gamma function
  * Package descriptive: function cov accepts optional argument for per-datum weights
+ * Package wrstcse: Support tolerance calculations using the RMS method
 
 Changes in core:
 ----------------
