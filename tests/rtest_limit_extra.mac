@@ -665,13 +665,13 @@ limit(atan2(0,1-3^x),x,0,'minus);
 
 /* #3895 limit */
 limit((x^x-a^a)/(x-a), x, a);
-a^a*log(a)+a^a$
+a^a*(log(a)+1)$
 
 limit((x^x-2^2)/(x-2), x, 2);
 4*log(2)+4$
 
 tlimit((x^x-a^a)/(x-a), x, a);
-a^a*log(a)+a^a$
+a^a*(log(a)+1)$
 
 /* #3844 Wrong limit involving gamma function */
 limit(gamma(1/x) - x, x, inf);
@@ -1423,20 +1423,10 @@ log(tan(x)^2+1)+2*%i*li[2](-((%i*((%i+1)*tan(x)+%i-1))/2))+2*%i*li[2](%i*tan(x)+
 0$
 
 limit(xxx,x,%pi/4,'minus);
-(4*%i*log(2)*log(sqrt(2)*%i+sqrt(2))
- -4*%i*log(2)^2
- +((4*%i+4)*%pi*log(2)+(1-%i)*%pi^2+16*%catalan*%i+16*%catalan)/(4*%i+4)
- +((4*%i-4)*%pi*log(2)+(-%i-1)*%pi^2+16*%catalan*%i-16*%catalan)/(4*%i-4)
- -%pi*log(2))
- /8$
+ (4*%i*log(2)*log(sqrt(2)*%i+sqrt(2))-4*%i*log(2)^2+%pi*log(2)+8*%catalan)/8$
 
 limit(xxx,x,%pi/4,'plus);
--((4*%i*log(2)*log(sqrt(2)*%i-sqrt(2))
- -4*%i*log(2)^2
- -(((4*%i+4)*%pi*log(2)+(1-%i)*%pi^2+16*%catalan*%i+16*%catalan)/(4*%i+4))
- -(((4*%i-4)*%pi*log(2)+(-%i-1)*%pi^2+16*%catalan*%i-16*%catalan)/(4*%i-4))
- -2*%pi*(log(2)+%i*%pi)+3*%pi*log(2))
- /8)$
+-((4*%i*log(2)*log(sqrt(2)*%i-sqrt(2))-4*%i*log(2)^2-%pi*log(2)-2*%i*%pi^2-8*%catalan)/8)$
 
  (remvalue(xxx),0);
  0$
@@ -1446,6 +1436,13 @@ limit(atan2(exp(x)-cos(x), -x*sin(x)),x,0,minus);
 
 limit(atan2((tan(x)-1)/2,-(tan(x)-1)/2),x,0);
 -%pi/4$
+
+/* #4563 limit of high degree polynomials*/
+limit((x-45)*(x-7)^100007 + 45*(x-45),x,45);
+0$
+
+limit((x-45)*(x-7)^100007 + 45*(x-45) + 107,x,45);
+107$
 
 /* clean up*/
 (kill(values),0);

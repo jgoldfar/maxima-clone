@@ -680,16 +680,13 @@ factor(integrate(1/(sin(x)^2+1),x,0,3*%pi));
  * Bug [1504505] integrate( 1/(x^8-1),x,0,1/2) => internal error
  *
  * Fixed in residu.lisp, 1.5.
- *
- * The call to factor is to get rid of some numerical factors.
  */
-ratsimp(ev(logcontract((integrate(1/(x^8-1),x,0,1/2))),algebraic) + 
-(sqrt(2)*log((2^(3/2)+5)/(2^(3/2)-5)/-1)
-      +2*sqrt(2)*atan((sqrt(2)+2)/2)
-      +2*sqrt(2)*atan((sqrt(2)-2)/2)+log(9)
-      +4*atan(1/2))
- /16);
-0;
+block([ans : integrate(1/(x^8-1),x,0,1/2)],[ans, expand(float(ans))]);
+[-(log((5*sqrt(2)+4)/2^(5/2))/2^(7/2))
+        +log((5*sqrt(2)-4)/2^(5/2))/2^(7/2)+atan((sqrt(2)-1)/sqrt(2))/2^(5/2)
+        +atan((-sqrt(2)-1)/sqrt(2))/2^(5/2)+(%i*%pi-log(2))/8-log(3/2)/8
+        -atan(1/2)/4-(%i*%pi)/8,-0.500217463872434]$
+
 
 /*
  * Bug [ 1582625 ] integrate(t^2*log(t)/((t^2-1)*(t^4+1)), t, 0, 1) wrong?

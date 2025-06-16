@@ -683,7 +683,16 @@ ignoring dummy variables and array indices."
 				  (null taylored)
 				  (tlimp exp var))
 			     (taylim exp var val *i*))
-			    ((ratp exp var) (ratlim exp))
+				;; Limit of a rational expression:
+                ;; For polynomial cases toward zero, the function `limit-of-polynomial` returns the limit 
+                ;; without expansion or other transformations. For non-polynomial cases, call `ratlim`.
+                ;; This special case addresses bugs such as #4563 limit of high degree polynomials.
+                ;; Additionally, it simplifies some testsuite cases.
+				((ratp exp var) 
+				   (or
+				     (limit-of-polynomial exp var val)
+					 (ratlim exp)))
+			  
 				((has-float exp) (simplimit exp var val))
 			    ((or (eq *i* t) (radicalp exp var))
 			     (limit1 exp var val))
@@ -1480,6 +1489,30 @@ ignoring dummy variables and array indices."
     (setq baslim (limit bas var val 'think))
     (setq expolim (limit expo var val 'think))
     (simplimexpt bas expo baslim expolim)))
+
+(defun zero-fixup (e x pt)
+  "Assuming `substitute(pt, x, e)` vanishes, attempt to determine if the zero is `zerob` or `zeroa`.
+   If determination is possible, return `zeroa` or `zerob`; otherwise, return 0."
+  (let* ((e ($totaldisrep ($taylor e x pt 1)))
+         (dir (behavior e x pt)))
+    (cond
+      ((eql dir -1) '$zerob)
+      ((eql dir 1) '$zeroa)
+      (t 0))))
+
+(defun limit-of-polynomial (e x pt)
+  "When `e` is an explicit polynomial in `x` and `pt` is either `zerob`, `zeroa` or 0, return limit(e,x,pt);
+   otherwise, return nil. When the limit vanishes, attempt to determine if the limit is `zerob` or
+   `zeroa` and return accordingly. For a polynomial to be `explicit`, the exponents must be explicit 
+   nonnegative integers, not declared integers."
+  (cond
+    ((and (or (eq pt '$zeroa) (eq pt '$zerob) (eql pt 0))
+          ($polynomialp e (ftake 'mlist x) #'(lambda (q) (freeof x q))))
+     (let ((ans (maxima-substitute 0 x e)))
+       (if (eql 0 ans)
+           (zero-fixup e x pt)
+           ans)))
+    (t nil)))
 
 ;; this function is responsible for the following bug:
 ;; limit(x^2 + %i*x, x, inf)  -> inf	(should be infinity)
