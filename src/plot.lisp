@@ -1,6 +1,6 @@
 ;;Copyright William F. Schelter 1990, All Rights Reserved
 ;;
-;; Time-stamp: "2025-06-17 07:20:43 toy"
+;; Time-stamp: "2025-06-17 07:31:01 toy"
 
 (in-package :maxima)
 
@@ -1740,22 +1740,12 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
              (setq ymax (car l)))))
     (list '(mlist) ymin ymax)))
 
-#||
-#+sbcl (defvar $gnuplot_view_args "-persist ~a")
-#-sbcl (defvar $gnuplot_view_args "-persist ~s")
-||#
-
 (defmvar $gnuplot_view_args
     #+sbcl "-persist ~a"
     #-sbcl "-persist ~s"
     "String of additional command-line options for gnuplot.  See the user
     manual."
     :setting-predicate #'string-predicate)
-
-#||
-#+(or sbcl openmcl) (defvar $gnuplot_file_args "~a")
-#-(or sbcl openmcl) (defvar $gnuplot_file_args "~s")
-||#
 
 (defmvar $gnuplot_file_args
     #+(or sbcl openmcl) "~a"
