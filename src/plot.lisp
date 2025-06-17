@@ -1,6 +1,6 @@
 ;;Copyright William F. Schelter 1990, All Rights Reserved
 ;;
-;; Time-stamp: "2024-03-26 21:44:42 villate"
+;; Time-stamp: "2025-06-17 07:34:28 toy"
 
 (in-package :maxima)
 
@@ -107,7 +107,7 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
 ;; We will then create such list with minimum content.
 ;; (TO-DO: check whether recent versions of Wxmaxima still require that)
 
-(defvar $plot_options 
+(defmvar $plot_options 
   '((mlist) ((mlist) $plot_format $gnuplot_pipes)))
 
 ;; $plot_realpart option is false by default but *plot-realpart* is true
