@@ -1,12 +1,25 @@
 ;;Copyright William F. Schelter 1990, All Rights Reserved
 ;;
-;; Time-stamp: "2025-06-17 07:34:28 toy"
+;; Time-stamp: "2025-06-21 06:45:44 toy"
 
 (in-package :maxima)
 
-(defvar $mgnuplot_command "mgnuplot")
-(defvar $geomview_command "geomview")
-(defvar $xmaxima_plot_command "xmaxima")
+;; For function defmvar :setting-predicate.  Checks that the argument
+;; is a string.  The second value is the message to use when the
+;; argument is not a string.
+(defun string-predicate (val)
+  (values (stringp val)
+          "must be a string"))
+
+(defmvar $mgnuplot_command "mgnuplot"
+  "The command (a string) that will run mgnuplot"
+  :setting-predicate #'string-predicate)
+(defmvar $geomview_command "geomview"
+  "The command (a string) that will run geomview"
+  :setting-predicate #'string-predicate)
+(defmvar $xmaxima_plot_command "xmaxima"
+  "The command (a string) that will run xmaxima"
+  :setting-predicate #'string-predicate)
 
 #|
 Examples
@@ -130,7 +143,9 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
 (defvar *gnuplot-stream* nil)
 (defvar *gnuplot-command* "")
 
-(defvar $gnuplot_command "gnuplot")
+(defmvar $gnuplot_command "gnuplot"
+  "The command (a string) that runs gnuplot"
+  :setting-predicate #'string-predicate)
 
 (defun start-gnuplot-process (path)
   ;; TODO: Forward gnuplot's stderr stream to maxima's stderr output
@@ -1725,11 +1740,19 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
              (setq ymax (car l)))))
     (list '(mlist) ymin ymax)))
 
-#+sbcl (defvar $gnuplot_view_args "-persist ~a")
-#-sbcl (defvar $gnuplot_view_args "-persist ~s")
+(defmvar $gnuplot_view_args
+    #+sbcl "-persist ~a"
+    #-sbcl "-persist ~s"
+    "String of additional command-line options for gnuplot.  See the user
+    manual."
+    :setting-predicate #'string-predicate)
 
-#+(or sbcl openmcl) (defvar $gnuplot_file_args "~a")
-#-(or sbcl openmcl) (defvar $gnuplot_file_args "~s")
+(defmvar $gnuplot_file_args
+    #+(or sbcl openmcl) "~a"
+    #-(or sbcl openmcl) "~s"
+    "Format string for printing the file name for gnuplot to use.  See the
+    user manual."
+    :setting-predicate #'string-predicate)
 
 ;; random-file-name
 ;; Creates a random word of 'count' alphanumeric characters
