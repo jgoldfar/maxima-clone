@@ -169,6 +169,10 @@ you may change the value of this variable. For instance,
 (%i1) geomview_command: "/usr/local/bin/my_geomview"$
 @end example
 
+This variable must contain a string.
+
+See also @mref{gnuplot_command} and @mrefdot{xmaxima_plot_command}
+
 @opencatbox{Categories:}
 @category{Plotting}
 @closecatbox
@@ -204,6 +208,10 @@ variable. For instance,
 @example
 (%i1) gnuplot_command: "/usr/local/bin/my_gnuplot"$
 @end example
+
+This variable must contain a string.
+
+See also @mref{geomview_command} and @mrefdot{xmaxima_plot_command}
 
 @opencatbox{Categories:}
 @category{Plotting}
@@ -1036,6 +1044,33 @@ transform them into x, y and z coordinates.
 @category{Plotting}
 @closecatbox
 @end deffn
+
+@c -----------------------------------------------------------------------------
+@anchor{xmaxima_plot_command}
+@defvr {System variable} xmaxima_plot_command
+
+This variable stores the name of the command used to run the xmaxima
+program when the plot format is @code{xmaxima}.
+Its default value is "xmaxima". If the xmaxima
+program is not found unless you give its complete path or if you want to
+try a different version of it, you may change the value of this
+variable. For instance,
+
+@c ===beg===
+@c xmaxima_plot_command: "/usr/local/bin/my_xmaxima"$
+@c ===end===
+@example
+(%i1) xmaxima_plot_command: "/usr/local/bin/my_xmaxima"$
+@end example
+
+This variable must contain a string.
+
+See also @mref{gnuplot_command} and @mrefdot{geomview_command}
+
+@opencatbox{Categories:}
+@category{Plotting}
+@closecatbox
+@end defvr
 
 @c -----------------------------------------------------------------------------
 @node Plotting Options, Gnuplot Options, Functions and Variables for Plotting, Plotting
