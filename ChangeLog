@@ -129,6 +129,7 @@ Bug fixes for numbered bugs:
  * \#4539: some limits of expintegral_ci
  * \#4546: limit of a log of a rational trig polynomial
  * \#4560: integrals of the form integrate((a*z+a*b)^p*%e^(c*z+d),z)
+ * \#4572: integration with subs of the form y = exp(X)
 
 Unnumbered bugs fixed:
 ---------------------
