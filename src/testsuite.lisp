@@ -84,8 +84,7 @@
         "rtest_diff_invtrig"
         "rtest_scalarp"
         "rtest_everysome"
-        ((mlist simp) "rtestint"
-	 ((mlist simp) 232))
+        ((mlist simp) "rtestint" ((mlist simp)))
         "rtest_numth"
         "rtestifactor"
         ((mlist simp) "rtest_equal"

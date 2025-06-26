@@ -49,12 +49,12 @@
 	       (t (merror "~&FREEVAR: variable of integration appeared in subscript."))))
 	(t (and (freevar (car a)) (freevar (cdr a))))))
 
-;; Same as varp, but the second arg specifiies the variable to be
+;; Same as varp, but the second arg specifies the variable to be
 ;; tested instead of using the special variable VAR.
 (defun varp2 (x var2)
   (alike1 x var2))
 
-;; Like freevar bug the second arg specifies the variable to be tested
+;; Like freevar but the second arg specifies the variable to be tested
 ;; instead of using the special variable VAR.
 (defun freevar2 (a var2)
   (cond ((atom a) (not (eq a var2)))
@@ -149,7 +149,7 @@
   ;; used only in INTFORM and INTEGRATOR.  I (rtoy) haven't been able
   ;; to figure out exactly how to do that.
 
-  (defun intform (expres var2 &aux w arg)
+  (defun intform (expres var2 &aux w arg ans)
     (declare (special *exp*))
     (cond ((freevar2 expres var2) nil)
           ((atom expres) nil)
@@ -252,8 +252,10 @@
         
           ;; Method 1: Elementary function of exponentials
           ((freevar2 (cadr expres) var2)
-           (cond ((setq w (m2-b*x+a (caddr expres) var2))
-                  (superexpt *exp* var2 (cadr expres) w))
+           (cond ((and (setq w (m2-b*x+a (caddr expres) var2))
+                       (setq ans (superexpt *exp* var2 (cadr expres) w))
+                       (freeof '%integrate ans)
+                       ans))
                  ((intform (caddr expres) var2))
                  ((and (eq '$%e (cadr expres))
                        (isinop (caddr expres) '%log))
