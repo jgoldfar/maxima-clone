@@ -535,7 +535,7 @@ dnl       Are these checks (especially Windows, Linux PPC64) okay?
 dnl Probably at the end we could check if another - CCL64 unsupported - OS was used.
 dnl
 dnl of course the ccl directory needs to be in the path.
-dnl another possibilty would be to default to "ccl64", which is - MAYBE - a platform independent
+dnl another possibility would be to default to "ccl64", which is - MAYBE - a platform independent
 dnl startscript in /usr/local/bin.
 case "${host_os}" in
     *linux-powerpc64*)
@@ -668,7 +668,7 @@ if test x"${enable_build_docs}" = xtrue ; then
 [makeinfo not found; Maxima needs makeinfo to build docs.
 If you have makeinfo installed somewhere not in PATH,
 specify where it is by using
-  ./configure MAKEINFO=/path/to/makinfo
+  ./configure MAKEINFO=/path/to/makeinfo
 Or disable building of the docs using
   ./configure --disable-build-docs
 ])
