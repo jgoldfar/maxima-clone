@@ -1,6 +1,5 @@
 ;;Copyright William F. Schelter 1990, All Rights Reserved
 ;;
-;; Time-stamp: "2025-06-21 06:45:44 toy"
 
 (in-package :maxima)
 

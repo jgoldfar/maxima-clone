@@ -1,6 +1,5 @@
 ;; gnuplot_def.lisp: routines for Maxima's interface to gnuplot
 ;; Copyright (C) 2007-2021 J. Villate
-;; Time-stamp: "2024-03-25 09:10:05 villate"
 ;; 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License
