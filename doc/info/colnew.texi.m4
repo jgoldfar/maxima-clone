@@ -92,9 +92,14 @@ The function arguments are:
 Number of differential equations   (ncomp ≤ 20)
 
 @item m
-Integer list of length @var{ncomp}.  m[j] is the order of the j-th
-differential equation, with @math{1 ≤ m[j] ≤ 4}
-and @math{mstar = sum(m[j]) ≤ 40}.
+Integer list of length @var{ncomp}.  
+m4_math(m_j, m[j]) 
+is the order of the @math{j}-th
+differential equation,
+with 
+m4_math(<<<1 \le m_j \le 4>>>, <<<@math{1 ≤ m[j] ≤ 4}>>>)
+and 
+m4_mathdot(<<<m^* = \sum_j m_j \le 40>>>, <<<@math{mstar = sum(m[j]) ≤ 40}>>>)
 
 @item aleft
 Left end of interval
@@ -103,10 +108,19 @@ Left end of interval
 Right end of interval
 
 @item zeta
-Real list of length @var{mstar}.  zeta[j] is the 
-j-th boundary or side condition point. The list zeta
+@var{zeta} 
+m4_math(<<<(\zeta)>>>, <<<>>>)
+is a real list of length 
+m4_mathdot(<<<m^*>>>,<<<@var{mstar}>>>)
+m4_math(<<<\zeta_j>>>, <<<@code{zeta[j]}>>>) 
+is the 
+@math{j}-th boundary or side condition point. The
+list 
+m4_math(\zeta, zeta) 
 must be ordered, 
-with  zeta[j] ≤ zeta[j+1]. All side condition
+with  
+m4_mathdot(<<<\zeta_j \le \zeta_{j+1}>>>, <<<zeta[j] ≤ zeta[j+1]>>>)
+All side condition
 points must be mesh points in all meshes used,
 see description of ipar[11] and fixpnt below.
 
@@ -120,36 +134,43 @@ A integer list of length 11.  The parameters in ipar are:
     @item 1, if the problem is nonlinear
   @end itemize
   
-  @item @var{ipar[2]} ( = k )@*
+  @item @var{ipar[2]} ( = @math{k} )@*
   Number of collocation points per subinterval , where
-  @math{max(m[i]) ≤ k ≤ 7}.@*
-  If @var{ipar[2]}=0 then colnew sets  k = max(max(m[i])+1, 5-max(m[i]))
+m4_mathdot(<<<\max_j m_j \le k \le 7>>>, <<<@math{max(m[i]) ≤ k ≤ 7}>>>)
+  If @var{ipar[2]}=0 then colnew sets 
+m4_mathdot(<<<k = \max\left(\max_i m_i + 5, 5 - \max_i m_i\right)>>>, <<<k = max(max(m[i])+1, 5-max(m[i]))>>>)
   
-  @item @var{ipar[3]}  ( = n )@*
+  @item @var{ipar[3]}  ( = @math{n} )@*
   Number of subintervals in the initial mesh.@*
-  If @var{ipar[3]} = 0 then colnew arbitrarily sets n = 5.
+  If @var{ipar[3]} = 0 then colnew arbitrarily sets @math{n = 5}.
   
   @item @var{ipar[4]} ( = ntol )@*
   Number of solution and derivative tolerances.@*
-  Require  0 < @var{ntol}  ≤ @var{mstar}.
+  Require 
+m4_mathdot(<<<0 < {\rm ntol} < m^*>>>, <<< 0 < @var{ntol}  ≤ @var{mstar}>>>)
   
   @item @var{ipar[5]}  ( = ndimf )@*
   The length of list @var{fspace}. Its size provides a constraint on @var{nmax}.
   Choose ipar[5] according to the formula
-  @math{ipar[5] ≥ nmax*nsizef} 
+m4_math(<<<{\rm ipar[5]} \ge {\rm nmax} \cdot {\rm nsizef}>>>, <<<@math{ipar[5] ≥ nmax*nsizef}>>>)
   where
-  @math{ nsizef = 4 + 3 * mstar + (5+kd) * kdm + (2*mstar-nrec) * 2*mstar}. 
+m4_mathdot(<<<{\rm nsizef} = 4 + 3m^* + (5 + {\rm kd})\times{\rm kdm} + (2m^* - {\rm nrec})\times 2 m^*>>>, <<<@math{ nsizef = 4 + 3 * mstar + (5+kd) * kdm + (2*mstar-nrec) * 2*mstar}>>>) 
   
   @item @var{ipar[6]} ( = ndimi )@*
   The length of list @var{ispace}. Its size provides a constraint on @var{nmax}, the maximum
   number of subintervals.  Choose @var{ipar[6]} according to the formula
-  @math{ipar[6] ≥ nmax*nsizei}
+m4_math(<<<{\rm ipar[6]} = {\rm nmax}\times {\rm nsizei}>>>, <<<@math{ipar[6] ≥ nmax*nsizei}>>>)
   where
-  @math{nsizei = 3 + kdm}
+m4_math(<<<{\rm nsizei} = 3 + {\rm kdm}>>>, <<<@math{nsizei = 3 + kdm}>>>)
   with
+m4_displaymath(<<<\eqalign{
+    {\rm kdm} &= {\rm kd} + m^* \cr
+    {\rm kd} &= k + {\rm ncomp} \cr
+    {\rm nrec} &= {\it number\, of\, right\, end\, boundary\, conditions} \cr
+  }>>>,<<<
     @math{kdm = kd + mstar}@*
     @math{kd = k * ncomp}@*
-    @math{nrec = number of right end boundary conditions}.
+    @math{nrec = number of right end boundary conditions}>>>).
   
   @item @var{ipar[7]} ( = iprint )@*
   output control
@@ -359,39 +380,73 @@ COLNEW is best learned by example.
 
 The problem describes a uniformly loaded beam of variable stiffness, simply supported at both ends.
 
-The problem from @ref{gawain-ball,, Gawain&Ball 1978} and is Example 1 from @ref{ascher-1981a,, Ascher 1981a}.
-The maxima code is in file share/colnew/prob1.mac and a Fortran implementation
-is in share/colnew/ex1. 
+The problem from @ref{gawain-bell,, Gawain&Bell 1978} and is Example 1 from @ref{ascher-1981a,, Ascher 1981a}.
+The maxima code is in file @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/prob1.mac, share/colnew/prob1.mac} and a Fortran implementation
+is in @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/ex1,share/colnew/ex1}.
+
 
 @noindent The differential equation is
 
-@center @math{(x^3 u'@w{}')'@w{}' = x^3 u'@w{}'@w{}'@w{}' + 6 x^2 u'@w{}'@w{}' + 6x u'@w{}' = 1} over @math{1 ≤ x  ≤ 2}
+
+m4_displaymath(
+<<<(x^3 u'')'' = x^3u'''' + 6x^2u''' + 6xu'' = 1 \quad {\rm over} \quad 1 \le x \le 2>>>,
+<<<@center @math{(x^3 u'@w{}')'@w{}' = x^3 u'@w{}'@w{}'@w{}' + 6 x^2 u'@w{}'@w{}' + 6x u'@w{}' = 1} over @math{1 ≤ x  ≤ 2}>>>)
 
 @noindent with boundary conditions
 
-@center @math{u(1) = 0, u'@w{}'(1) = 0, u(2) = 0, u'@w{}'(2) = 0}
+m4_displaymath(
+<<<\eqalign{
+u(1) &= 0 \cr
+u''(1) &= 0 \cr
+u(2) &= 0 \cr
+u''(2) &= 0}>>>,
+<<<@center @math{u(1) = 0, u'@w{}'(1) = 0, u(2) = 0, u'@w{}'(2) = 0}>>>)
 
 @noindent The exact solution is
 
-@center @math{u(x) = (1/4) (10 ln(2) - 3) (1-x) + (1/2) (1/x + (3+x) ln(x) - x)}
+m4_displaymath(
+<<<u(x) = {{10\log 2 - 3}\over 4}(1-x) + {1\over 2}\left({1\over x} + (3+x)\log x - x\right)>>>,
+<<<@center @math{u(x) = (1/4) (10 ln(2) - 3) (1-x) + (1/2) (1/x + (3+x) ln(x) - x)}>>>)
 
 @noindent There is @var{nconc} = 1 differential equation of fourth order. The list of orders
-@var{m} = [4] and @var{mstar} = sum(m[j]) = 4.
+m4_math(<<<m = [4]>>>, <<<@var{m} = [4]>>>) 
+and
+m4_mathdot(<<<m^* = \sum_j m_j = 4>>>, <<< @var{mstar} = sum(m[j]) = 4>>>)
 
-@noindent The unknown vector of length @var{mstar} is
+@noindent The unknown vector of length 
+m4_math(<<<m^*>>>, <<<@var{mstar}>>>)
+is
 
+m4_displaymath(
+<<<
+\eqalign{
+z(x) &= [z_1(x),z_2(x),z_3(x),z_4(x)] \cr
+     &= [u(x),u'(x),u''(x),u'''(x)]
+}>>>,
+<<<
 @center @math{z(x) = [z_1(x),z_2(x),z_3(x),z_4(x)]}
 
-@center @math{=[u(x),u'(x),u'@w{}'(x),u'@w{}'@w{}'(x)]}.
+@center @math{=[u(x),u'(x),u'@w{}'(x),u'@w{}'@w{}'(x)]}
+>>>)
 
 @noindent The differential equation is expressed as
 
+m4_displaymath(
+<<<
+u''''(x) = F(x,z_1,z_2,z_3,z_4) = 1 - 6 x^2 z_3 - 6x z_2>>>,
+<<<
 @center @math{u'@w{}'@w{}'@w{}'(x) = F(x,z_1,z_2,z_3,z_4) = 1 - 6 x^2 z_3 - 6x z_2}
+>>>)
 
-There are @var{mstar=4} boundary conditions. They are given by a
-function @math{G(z_1,z_2,z_3,z_4)} that returns a list of length mstar.
-The j-th boundary condition applies at @var{x = zeta[j]} and is satisfied
-when @var{g[j] = 0}.  We have
+There are 
+m4_math(<<<m^* = 4>>>, <<<@var{mstar=4}>>>) 
+boundary conditions. They are given by a
+function @math{G(z_1,z_2,z_3,z_4)} that returns a list of length 
+m4_mathdot(<<<m^*>>>, <<<@var{mstar}>>>)
+The @math{j}-th boundary condition applies at 
+m4_math(<<<x = \zeta_j>>>, <<<@var{x = zeta[j]}>>>)
+and is satisfied
+when @math{g[j] = 0}.  We have
 
 @c The {xxxxxx} set the column widths
 @multitable {xxxxxxxxx} {xxxxxxxxx} {xxxxxxxxxx} {xxxxxxxxx}
@@ -414,7 +469,8 @@ when @var{g[j] = 0}.  We have
 @tab @math{z_3}
 @end multitable
 
-giving  @math{zeta = [1.0,1,0,2.0,2.0]}
+giving  
+m4_math(<<<\zeta = [1.0,1,0,2.0,2.0]>>>, <<<@math{zeta = [1.0,1,0,2.0,2.0]}>>>)
 and @math{G(z_1,z_2,z_3,z_4) = [z_1, z_3, z_1, z_3]}.
 
 The Jacobians @var{df} and @var{dg} of @var{f} and @var{g} respectively
@@ -665,20 +721,35 @@ axisymmetric external pressure distribution superimposed on a uniform
 internal pressure distribution.
 The problem is described in @ref{parker-wan,,Parker&Wan 1984} and is Example 2
 from @ref{ascher-1981a,, Ascher 1981a}.
-The maxima code is in file share/colnew/prob2.mac and a Fortran
-implementation is in share/colnew/ex2.
+The maxima code is in file @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/prob2.mac,share/colnew/prob2.mac} and a Fortran
+implementation is in @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/ex2,share/colnew/ex2}.
+
 
 There are two nonlinear differential equations
 for @math{φ} and @math{ψ} over @math{0 < x < 1}.
 
-@math{
-(ε^4/μ)[φ'@w{}' + (1/x) φ' - (1/x^2) φ] + ψ (1-φ/x) - φ = - γ x (1-(1/2)x^2)
-}
+m4_displaymath(
+<<<\eqalign{
+{ε^4 \over μ}\left[φ'' + {1 \over x}φ' - {1\over x^2}φ\right] + ψ \left(1-{1\over x}φ\right) - φ &= - γ x\left(1-{x^2\over 2}\right) \cr
+\mu \left[ψ'@w{}' + {1\over x} ψ' - {1 \over x^2}ψ\right] - φ\left(1-{φ \over {2x}}\right) &= 0
+}>>>,
+<<<@example
+(ε^4/μ)[φ'@w{}' + (1/x) φ' - (1/x^2) φ] + ψ (1-φ/x) - φ =
+    - γ x (1-(1/2)x^2)
+μ [ψ'@w{}' + (1/x) ψ' - (1/x^2)ψ] - φ(1-φ/(2x)) = 0
+@end example
+>>>)
 
-@math{ μ [ψ'@w{}' + (1/x) ψ' - (1/x^2)ψ] - φ(1-φ/(2x)) = 0 }
+m4_dnl @c m4_displaymath(
+m4_dnl @c <<<(ε^4/μ)\left[φ'@w{}' + {1 \over x} φ' - {1\over x^2| φ\right] + ψ \left(1-{φ\over x}\right) - φ = - γ x \left(1-{1\over 2}x^2\right)>>>,
+m4_dnl @c <<<(ε^4/μ)[φ'@w{}' + (1/x) φ' - (1/x^2) φ] + ψ (1-φ/x) - φ = - γ x (1-(1/2)x^2)>>>)
+m4_dnl @c 
+m4_dnl @c m4_displaymath(
+m4_dnl @c <<<μ \left[ψ'@w{}' + {1\over x} ψ' - {1 \over x^2}ψ\right] - φ\left(1-{φ \over {2x}}\right) = 0}>>>,
+m4_dnl @c <<< μ [ψ'@w{}' + (1/x) ψ' - (1/x^2)ψ] - φ(1-φ/(2x)) = 0}>>>)
 
 subject to boundary conditions
-@math{φ = 0} and @math{x ψ' - 0.3 ψ + 0.7 x = 0} at x=0 and x=1.
+@math{φ = 0} and @math{x ψ' - 0.3 ψ + 0.7 x = 0} at @math{x=0} and @math{x=1}.
 
 
 For @math{ε = μ = 0.01}, two solutions exists.  These are obtained by
@@ -689,21 +760,44 @@ guess; and secondly, with the initial conditions given by the
 function @var{solutn}.
 
 There are @var{nconc} = 2 differential equations of second order.
-The list of orders @var{m} = [2,2] and
-@var{mstar} = sum(m[i]) = 4.
+The list of orders 
+m4_math(<<<m = [2,2]>>>, <<<@var{m} = [2,2]>>>)
+ and
+m4_mathdot(<<<m^* = \sum_i m_i = 4>>>, <<<@var{mstar} = sum(m[i]) = 4>>>)
 
-The vector of unknowns of length @var{mstar}=4 is
+The vector of unknowns of length 
+m4_math(<<<m^* = 4>>>, <<<@var{mstar}=4>>>) 
+is
 @math{z(x) = [ φ(x), φ'(x), ψ(x), ψ'(x)]}.
 
 The differential equation is expressed as
 
-@math{[φ'@w{}'(x), ψ'@w{}'(x)]}
+m4_displaymath(
+<<<\eqalign{
+F(x,z_1,z_2,z_3,z_4)
+  &= \left[
+       \matrix{
+         \phi''(x) \cr
+         \psi''(x)
+       }
+     \right]
+     \cr
+  &= \left[
+       \matrix{
+         \displaystyle{z_1 \over x^2} - {z_2 \over x} + \left[z_1-z_3 \left(1-{z_1\over x}\right) - γ x \left(1-{x^2 \over 2}\right)\right] {\mu \over \epsilon^4}
+         \cr 
+         \displaystyle{z_3 \over x^2} - {z_4 \over x} + {z_1 \over μ} \left(1-{z_1\over {2x}}\right)
+       }
+     \right]
+}>>>,
+<<<@math{[φ'@w{}'(x), ψ'@w{}'(x)]}
 
 @math{=F(x,z_1,z_2,z_3,z_4)}
 
 @math{=[z_1/x^2 - z_2/x + (z_1-z_3 (1-z_1/x) - γ x (1-x^2/2))/(ε^4/μ),
 z_3/x^2 - z_4/x + z_1 (1-z_1/(2x))/μ]}
-
+>>>
+)
 
 There are four boundary conditions given by list @math{zeta}
 and function @math{G(z_1,z_2,z_3,z_4)}.
@@ -728,11 +822,15 @@ and function @math{G(z_1,z_2,z_3,z_4)}.
 @tab @math{z_4 - 0.3@ z_3 + 0.7}
 @end multitable
 
-giving @math{zeta=[0.0,0.0,1.0,1.0]} and 
-@math{G(z_1,z_2,z_3,z_4)=[z_1, z_3, z_1, z_4-0.3*z_3+0.7]}
+giving 
+m4_math(<<<\zeta=[0.0,0.0,1.0,1.0]>>>, <<<@math{zeta=[0.0,0.0,1.0,1.0]}>>>)
+and 
+@math{G(z_1,z_2,z_3,z_4)=[z_1, z_3, z_1, z_4-0.3 z_3+0.7]}.
 
-Note that @var{x} is not an argument of function @var{G}.  The 
-value of @var{x=zeta[j]} must be substituted.
+Note that @math{x} is not an argument of function @math{G}.  The 
+value of 
+m4_math(<<<x = \zeta_j>>>, <<<@var{x=zeta[j]}>>>)
+must be substituted.
 
 @c ===beg===
 @c load("colnew")$
@@ -1178,11 +1276,35 @@ Example 3 from @ref{ascher-1981a,, Ascher 1981a} describes the velocities in the
 boundary layer produced by the rotating flow of a viscous incompressible
 fluid over a stationary infinite disk (@pxref{gawain-ball,,Gawain&Ball 1978}).
 
+The differential equations are:
+m4_displaymath(
+<<<\eqalign{
+G'' + {3-n\over 2} HG' + (n-1)H'G - s(G-1) &= 0 \cr
+H''' + {3-n\over 2} HH'' + n\left(H'\right)^2 - 1 + G^2 -sH' &= 0
+}>>>,
+<<<@example
+G'' + (3-n)/2*H*G'' + (n-1)*H'*G - s*(G-1) = 0
+H''' + (3-n)/2*H*H'' + n(H')^2 - 1 + G^2 - s*H' = 0
+@end example>>>)
+
+with the boundary conditions
+m4_displaymath(
+<<<\eqalign{
+G(0) &= H(0) = H'(0) = 0 \cr
+G(\infty) &= 1 \cr
+H'(\infty) &= 0
+}>>>,
+<<<@example
+G(0) = H(0) = H'(0) = 0
+G(inf) = 1
+H'(inf) = 0
+@end example>>>)
+
 The solution uses a number of techniques to obtain convergence.
 Refer to @ref{ascher-1981a,,Ascher 1981a} for details.
 
-The code is in directory share/colnew.  The maxima code is in file
-prob3.mac.  The reference Fortran implementation is in directory ex3. 
+The maxima code is in file
+@url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/prob3.mac, share/colnew/prob3.mac}.  The reference Fortran implementation is in @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/ex3, share/colnew/ex3}. 
 
 
 @subsection Example 4: Quantum Neumann equation
@@ -1193,45 +1315,78 @@ solution domain, provides an initial quess to the solution
 and uses continuation to solve the system of non-linear
 differential equations.
 
-The code is in directory share/colnew.  The maxima code is in file
-prob4.mac.  The Fortran
-implementation is in directory ex4. 
+The maxima code is in file
+@url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/prob4.mac, share/colnew/prob4.mac}.  The Fortran
+implementation is in @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/ex4, share/colnew/ex4}. 
 
 
 @subsection Example 5: Simple example of continuation 
 
 This example (@pxref{ascher-et-al,,Ascher et al@comma{} 1995@comma{} Example 9.2}) solves a numerically
 difficult boundary value problem using continuation.
-
+The maxima code is in file @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/prob5.mac,share/colnew/prob5.mac} and a Fortran
+implementation is in @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/ex5,share/colnew/ex5}.
 @noindent The linear differential equation is
-@center @math{ε u'@w{}' + x u' = -ε π^2 cos(πx) - (πx) sin(πx)}, @math{-1 < x < 1}
+m4_displaymath(
+<<<
+\epsilon u'' + x u' = -\epsilon \pi^2 \cos \pi x - \pi x\sin \pi x \quad -1 < x < 1
+>>>,
+<<<@center @math{ε u'@w{}' + x u' = -ε π^2 cos(πx) - (πx) sin(πx)}, @math{-1 < x < 1}>>>
+)
 
 @noindent with boundary conditions
-@center @math{u(-1)=-2} and @math{u(1)=0}
+m4_displaymath(
+<<<\eqalign{
+u(-1) &= -2 \cr
+u(1) &= 0
+}>>>,
+<<<@center @math{u(-1)=-2} and @math{u(1)=0}>>>)
 
 @noindent The exact solution is
-@center @math{u(x) = cos(πx) + erf(x/sqrt(2ε))/erf(1/sqrt(2ε))}
+m4_displaymath(
+<<<
+u(x) = \cos \pi x + {{\rm erf}\left(\displaystyle{x \over \sqrt{2\epsilon}}\right) \over
+{\rm erf}\left(\displaystyle{1 \over \sqrt{2\epsilon}}\right)}
+>>>,
+<<<@center @math{u(x) = cos(πx) + erf(x/sqrt(2ε))/erf(1/sqrt(2ε))}>>>)
 
 When @math{ε} is small the solution has a rapid transition near @math{x=0}
 and is difficult to solve numerically.  COLNEW is able to solve the
-problem for directly for @math{ε=1.0e-6}, but here we will use
-continuation to solve it succesively for
-@math{ε=[1e-2,1e-3,1e-4,1e-5,1e-6]}.
+problem for directly for 
+m4_mathcomma(<<<\epsilon = 10^{-6}>>>,<<<@math{ε=1.0e-6}>>>)
+but here we will use
+continuation to solve it succesively for 
+m4_mathdot(<<<\epsilon = [10^{-2}, 10^{-3}, 10^{-4}, 10^{-5}, 10^{-6}]>>>,
+<<<@math{ε=[1e-2,1e-3,1e-4,1e-5,1e-6]}>>>)
 
 There is @var{nconc} = 1 differential equation of second order.
 The list of orders
-@var{m} = [2] and @var{mstar} = sum(m[j]) = 2.
+m4_math(<<<m = [2]>>>, <<<@var{m} = [2]>>>) 
+and 
+m4_mathdot(<<<m^* = \sum_j m[j] = 2>>>, <<<@var{mstar} = sum(m[j]) = 2>>>)
 
-The unknown vector of length @var{mstar} is
+The unknown vector of length 
+m4_math(<<<m^*>>>, <<<@var{mstar}>>>)
+is
 @math{z(x) = [z_1(x),z_2(x)] = [u(x),u'(x)]}.
 
-The differential equation is expressed as 
-@math{[u'@w{}'(x)] = F(x,z_1,z_2) = [-(x/ε)z_2 - π^2cos(πx) - (πx/ε)sin(πx)]}
+The differential equation is expressed as
+m4_displaymath(
+<<<
+[u''(x)] = F(x,z_1,z_2) = \left[-{x\over \epsilon}z_2 - \pi^2\cos \pi x - {\pi x \over \epsilon}\sin \pi x\right]
+>>>,
+<<<
+@math{[u'@w{}'(x)] = F(x,z_1,z_2) = [-(x/ε)z_2 - π^2cos(πx) - (πx/ε)sin(πx)]}>>>)
 
-There are @var{mstar=2} boundary conditions. They are given by a
-function @math{G(z_1,z_2)} that returns a list of length mstar.
-The j-th boundary condition applies at @var{x = zeta[j]} and is satisfied
-when @var{g[j] = 0}.  We have
+There are 
+m4_math(<<<m^*=2>>>, <<<@var{mstar=2}>>>) 
+boundary conditions. They are given by a
+function @math{G(z_1,z_2)} that returns a list of length 
+m4_mathdot(<<<m^*>>>, @var{mstar})
+The @math{j}-th boundary condition applies at 
+m4_math(<<<x = \zeta_j>>>, <<<@var{x = zeta[j]}>>>) 
+and is satisfied
+when @math{g[j] = 0}.  We have
 
 @multitable {xxxxxxxxx} {xxxxxxxxx} {xxxxxxxxxx} {xxxxxxxxx}
 @headitem j@ @ @ @tab zeta[j]@  @tab Condition@  @tab g[j]
@@ -1245,7 +1400,8 @@ when @var{g[j] = 0}.  We have
 @tab @math{z_1}
 @end multitable
 
-giving  @math{zeta = [-1.0,1,0]}
+giving  
+m4_math(<<<\zeta = [-1.0,1,0]>>>, <<<@math{zeta = [-1.0,1,0]}>>>)
 and @math{G(z_1,z_2) = [z_1+2, z_1]}.
 
 The Jacobians @var{df} and @var{dg} of @var{f} and @var{g} respectively
