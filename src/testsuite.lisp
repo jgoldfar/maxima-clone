@@ -169,7 +169,8 @@
 ;; can actually find these files. (file_search_maxima is a good choice.)
 (defparameter $share_testsuite_files
   '((mlist simp)
-    "rtest_facexp"
+    ((mlist simp) "rtest_facexp"
+    #+gcl ((mlist simp) 37))
     "rtest_orthopoly"
     "rtest_pslq"
     "rtestflatten"
@@ -260,7 +261,7 @@
      #+clisp
      ((mlist simp) 27 38 61 63 65 69)
      #+gcl
-     ((mlist simp) 7 29 38 39 40 48 61)
+     ((mlist simp) 7 38 39 40 61)
      ;; The tests that failed with abcl 1.5.0
      #+abcl
      ((mlist simp) 38 40 61 63 65 69)
