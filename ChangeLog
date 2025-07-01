@@ -130,6 +130,7 @@ Bug fixes for numbered bugs:
  * \#4546: limit of a log of a rational trig polynomial
  * \#4560: integrals of the form integrate((a*z+a*b)^p*%e^(c*z+d),z)
  * \#4572: integration with subs of the form y = exp(X)
+ * \#4479: Setting inchar to empty string causes infinite lisp errors
 
 Unnumbered bugs fixed:
 ---------------------
@@ -150,6 +151,7 @@ Documentation:
  * \#4154: Some info nodes have bad headers (and no "Up"s)
  * HTML files for the manual now have the name of the corresponding section
  * Documentation for display2d_unicode in section "Command Line"
+ * HTML documentation supports syntax highlighting of examples
 
 Build system:
 -------------
