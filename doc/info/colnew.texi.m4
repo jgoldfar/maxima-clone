@@ -380,7 +380,7 @@ COLNEW is best learned by example.
 
 The problem describes a uniformly loaded beam of variable stiffness, simply supported at both ends.
 
-The problem from @ref{gawain-bell,, Gawain&Bell 1978} and is Example 1 from @ref{ascher-1981a,, Ascher 1981a}.
+The problem from @ref{gawain-ball,, Gawain&Ball 1978} and is Example 1 from @ref{ascher-1981a,, Ascher 1981a}.
 The maxima code is in file @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/prob1.mac, share/colnew/prob1.mac} and a Fortran implementation
 is in @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/ex1,share/colnew/ex1}.
 
