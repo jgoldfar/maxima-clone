@@ -4,7 +4,6 @@
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
 #     Modified by Jaime E. Villate                         #
-#     Time-stamp: "2025-02-01 18:28:07 villate"            #
 ############################################################
 proc textWindowWidth { w } {
     set font [$w cget -font]
@@ -367,11 +366,11 @@ proc runOneMaxima { win } {
     SetPlotFormat $maxima_priv(cConsoleText)
 
     set res [list [oget $win pid] $sock ]
-    global pdata
+    global pdata autoconf
     set pdata(maxima,socket) $sock
     fileevent $sock readable  [list maximaFilter $win $sock]
     sendMaxima $win ":lisp-quiet (setq \$maxima_frontend \"Xmaxima\")\n"
-    sendMaxima $win ":lisp-quiet (setq \$maxima_frontend_version *autoconf-version*)\n"
+    sendMaxima $win ":lisp-quiet (setq \$maxima_frontend_version \"$autoconf(version)\")\n"
     sendMaxima $win ":lisp-quiet (setq \$maxima_frontend_bugreportinfo \"XMaxima is part of maxima.\")\n"
     return $res
 
