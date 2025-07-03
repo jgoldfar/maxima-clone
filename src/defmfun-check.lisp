@@ -792,8 +792,11 @@
 	    (defun ,simp-name (,form-arg ,unused-arg ,z-arg)
 	      (declare (ignore ,unused-arg)
 		       (ignorable ,z-arg))
-	      (arg-count-check ,(length lambda-list)
-			       ,form-arg)
+              (let ((pretty-name (list* '(,noun-name) ',(rest (dollarify lambda-list)))))
+                ;;(format t "pretty-name = ~A~%" pretty-name)
+	        (arg-count-check ,(length lambda-list)
+			         ,form-arg
+                                 pretty-name))
 	      (let ,arg-forms
 	        ;; Allow args to give-up if the default args won't work.
 	        ;; Useful for the (rare?) case like genfact where we want
@@ -810,7 +813,7 @@
 ;; Helper function to check the number of subscripts and arguments to a
 ;; subscripted function.
 ;;
-(defun sub-arg-count-check(required-sub-count required-arg-count expr pretty-name)
+(defun sub-arg-count-check (required-sub-count required-arg-count expr pretty-name)
   (let* ((subs (subfunsubs expr))
          (args (subfunargs expr))
          (sub-count (length subs))
@@ -833,3 +836,44 @@
         (merror (intl:gettext "~M: expected exactly ~M arguments but got ~M: ~M")
          pretty-name
          required-arg-count arg-count `((mlist) ,@args))))))
+
+;;; ----------------------------------------------------------------------------
+;;; Utilities for argument error checking
+;;; ----------------------------------------------------------------------------
+
+;; WNA-ERR: Wrong Number of Arguments error
+;;
+;; If REQUIRED-ARG-COUNT is non-NIL, then we check that EXPR has the
+;; correct number of arguments. A informative error message is shown
+;; if the number of arguments is not given.
+;;
+;; Otherwise, EXPR must be a symbol and a generic message is printed.
+;; (This is for backward compatibility for existing uses of WNA-ERR.)
+(defun wna-err (exprs &optional required-arg-count (pretty-name (caar exprs)))
+  (if required-arg-count
+      (let ((op pretty-name)
+	    (actual-count (length (rest exprs))))
+	(merror (intl:gettext "~M: expected exactly ~M arguments but got ~M: ~M")
+		op required-arg-count actual-count (list* '(mlist) (rest exprs))))
+      (merror (intl:gettext "~:@M: wrong number of arguments.")
+	      exprs)))
+
+(defun improper-arg-err (exp fn)
+  (merror (intl:gettext "~:M: improper argument: ~M") fn exp))
+
+;; These check for the correct number of operands within Macsyma expressions,
+;; not arguments in a procedure call as the name may imply.
+
+(declaim (inline arg-count-check))
+(defun arg-count-check (required-arg-count expr &optional (pretty-name (caar expr)))
+  (unless (= required-arg-count (length (rest expr)))
+    (wna-err expr required-arg-count pretty-name)))
+
+(declaim (inline oneargcheck))
+(defun oneargcheck (expr)
+  (arg-count-check 1 expr))
+
+(declaim (inline twoargcheck))
+(defun twoargcheck (expr)
+  (arg-count-check 2 expr))
+
