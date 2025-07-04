@@ -2385,7 +2385,7 @@ plot2d ( x^2+y^2 = 1, [x, -2, 2], [y, -2 ,2]);
                  (setq yrange-required t)
                  (if (null extra-options)
                      (merror
-                      (intl:gettext "plot2d: Missing interval for variable 2."))
+                      (intl:gettext "plot2d: contour plots require intervals for the variables in the two axes; only one interval was given."))
                      (progn
                        (setq yrange (pop extra-options))
                        (setq yrange (check-range yrange))
@@ -2415,7 +2415,7 @@ plot2d ( x^2+y^2 = 1, [x, -2, 2], [y, -2 ,2]);
                 (setq yrange-required t)
                 (if (null extra-options)
                     (merror
-                     (intl:gettext "plot2d: Missing interval for variable 2."))
+                     (intl:gettext "plot2d: implicit function plots require intervals for the variables in the two axes; only one interval was given."))
                     (progn
                       (setq yrange (pop extra-options))
                       (setq yrange (check-range yrange))
