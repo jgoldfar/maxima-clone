@@ -325,13 +325,13 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
          (x 0.0)  ( y 0.0)
          (epsy (/ (- maxy miny) nyint))
          (nx (+ nxint 1))
-         (l 0)
+         (l 0) fval (fval-count 0)
          (ny (+ nyint 1))
          (ar (make-array  (+ 12         ; 12  for axes
                              (* 3 nx ny))  :fill-pointer (* 3 nx ny)
                              :element-type t :adjustable t)))
     (declare (type flonum x y epsy epsx)
-             (fixnum nx  ny l)
+             (fixnum nx ny l fval-count)
              (type (cl:array t) ar))
     (loop for j below ny
            initially (setq y miny)
@@ -340,11 +340,15 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
                   do
                   (setf (x-pt ar l) x)
                   (setf (y-pt ar l) y)
-                  (setf (z-pt ar l) (funcall f x y))
+                  (setq fval (funcall f x y))
+                  (if (floatp fval) (setq fval-count (1+ fval-count)))
+                  (setf (z-pt ar l) fval)
                   (incf l)
                   (setq x (+ x epsx))
                   )
            (setq y (+ y epsy)))
+    (if (< fval-count 1)
+        (merror (intl:gettext "plot3d: nothing to plot.~%")))
     (make-polygon  ar  (make-grid-vertices nxint nyint))))
 
 ;; ***** This comment refers to some unexistent function make-vertices ****
