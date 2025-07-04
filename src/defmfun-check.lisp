@@ -792,7 +792,7 @@
 	    (defun ,simp-name (,form-arg ,unused-arg ,z-arg)
 	      (declare (ignore ,unused-arg)
 		       (ignorable ,z-arg))
-              (let ((pretty-name (list* '(,noun-name) ',(rest (dollarify lambda-list)))))
+              (let ((pretty-name `((,',noun-name) ,@(rest (dollarify ',lambda-list)))))
                 ;;(format t "pretty-name = ~A~%" pretty-name)
 	        (arg-count-check ,(length lambda-list)
 			         ,form-arg
