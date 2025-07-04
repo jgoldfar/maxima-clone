@@ -297,16 +297,16 @@
          (setq terminal-command "set term dumb 79 22"))
      (if (getf plot-options '$gnuplot_out_file)
          (setq out-file (getf plot-options '$gnuplot_out_file))
-         (setq out-file (format nil "~a.txt" (random-name 16)))))
+       (setq out-file (format nil "~a.txt" (random-name 16)))))
     ((eq (getf plot-options '$gnuplot_term) '$default)
      (if (getf plot-options '$gnuplot_default_term_command)
          (setq terminal-command
                (getf plot-options '$gnuplot_default_term_command))
-         (setq terminal-command
-               (if (getf plot-options '$window)
-                   (format nil "set term GNUTERM ~d ~a~%"
-                           (getf plot-options '$window) gstrings)
-                   (format nil "set term GNUTERM ~a~%" gstrings)))))
+       (setq terminal-command
+             (if (getf plot-options '$window)
+                 (format nil "set term GNUTERM ~d ~a~%"
+                         (getf plot-options '$window) gstrings)
+               (format nil "set term GNUTERM ~a~%" gstrings)))))
     ((getf plot-options '$gnuplot_term)
      (setq
       terminal-command
@@ -319,7 +319,12 @@
           (format nil "maxplot.~(~a~)"
                   (get-gnuplot-term (getf plot-options '$gnuplot_term)))))))
 
-  (unless (null out-file) (setq out-file (plot-file-path out-file preserve-file plot-options)))
+  (when out-file
+    (setq out-file (plot-file-path out-file preserve-file plot-options))
+    ;; plots that create a file work better in gnuplot than gnuplot_pipes
+    (if (eq (getf plot-options '$plot_format) '$gnuplot_pipes)
+        (setf (getf plot-options '$plot_format) '$gnuplot)))
+    
   (list terminal-command out-file)))
 
 (defmethod plot-preamble ((plot gnuplot-plot) plot-options)

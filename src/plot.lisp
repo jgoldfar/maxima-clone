@@ -2108,10 +2108,6 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
          ($nognuplot_svg_background (setf (getf options '$gnuplot_svg_background) nil))
          (t
           (merror (intl:gettext "Unknown plot option \"~M\".") opt))))))
-  ;; plots that use ASCII art should not use gnuplot_pipes
-  (when (and (eq (getf options '$plot_format) '$gnuplot_pipes)
-             (eq (getf options '$gnuplot_term) '$dumb))
-    (setf (getf options '$plot_format) '$gnuplot))
   options)
 
 ;; natural numbers predicate
