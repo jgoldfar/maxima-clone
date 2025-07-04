@@ -36,6 +36,8 @@ Changes in core:
  * The default y-range for plots is determined only by points within x-range
  * Function chinese renamed to solve_congruences
  * Function 'system': capture output (e.g. with_stdout) from executed command
+ * When a plot is not displayed on the screen but saved to a file, gnuplot
+   format is now used instead of the default gnuplot_pipes.
 
 Changes in share:
 -----------------
@@ -110,6 +112,7 @@ Bug fixes for numbered bugs:
  * \#4350: arrayinfo complains "not an array" when supplied a Lisp array or hash table
  * \#4355: documentation for trigvalue etc
  * \#4356: support tracing simplifying functions
+ * \#4384: plot3d with no real values gives internal error
  * \#4386: quad_qagi doesn't recognize -inf as equivalent to minf
  * \#4388: tex() output under simp:false, incorrect placement of `+`
  * \#4408: letsimp doesn't simplify before returning result
