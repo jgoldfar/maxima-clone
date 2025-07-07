@@ -100,20 +100,10 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
 
 ;; Global plot options list; this is a property list.. It is not a
 ;; Maxima variable, to discourage users from changing it directly; it
-;; should be changed via set_plot_option
-
-(defvar *plot-options* 
-  '($plot_format $gnuplot_pipes
-    $grid (30 30) $run_viewer t $axes t
-    ;; With adaptive plotting, 29 nticks should be enough; adapt_depth
-    ;; controls the number of splittings adaptive-plotting will do.
-    $nticks 29 $adapt_depth 5
-    $color ($blue $red $green $magenta $black $cyan)
-    $point_type ($bullet $box $triangle $plus $times $asterisk)
-    $palette (((mlist) $hue 0.33333333 0.7 1 0.5)
-              ((mlist) $hue 0.8 0.7 1 0.4))   
-    $gnuplot_svg_background "white"
-    $gnuplot_preamble "" $gnuplot_term $default))
+;; should be changed via set_plot_option.
+;; The default values will bet set below, after the definition of
+;; function $reset_plot_options.
+(defvar *plot-options*)
 
 ;; Apparently Wxmaxima needs a default plot_options Maxima list pre-defined.
 ;; We will then create such list with minimum content.
@@ -281,6 +271,28 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
 (defmfun $set_plot_option (&rest value)
   (setq *plot-options* (plot-options-parser value *plot-options*))
   ($get_plot_option))
+
+;; Sets the default plotting options.
+(defmfun $reset_plot_options ()
+  (setq *plot-options* nil)
+  (setf (getf *plot-options* '$gnuplot_term) '$default)
+  (setf (getf *plot-options* '$gnuplot_preamble) "")
+  (setf (getf *plot-options* '$gnuplot_svg_background) "white")
+  (setf (getf *plot-options* '$palette)
+        '(((mlist) $hue 0.33333333 0.7 1 0.5) ((mlist) $hue 0.8 0.7 1 0.4)))
+  (setf (getf *plot-options* '$point_type)
+        '($bullet $box $triangle $plus $times $asterisk))
+  (setf (getf *plot-options* '$color)
+        '($blue $red $green $magenta $black $cyan))
+  (setf (getf *plot-options* '$adapt_depth) 5)
+  (setf (getf *plot-options* '$nticks) 29)
+  (setf (getf *plot-options* '$axes) t)
+  (setf (getf *plot-options* '$run_viewer) t)
+  (setf (getf *plot-options* '$grid) '(30 30))
+  (setf (getf *plot-options* '$plot_format) '$gnuplot_pipes)
+  t)
+
+($reset_plot_options)
 
 ;; Removes option "name" from current plotting options
 (defmfun $remove_plot_option (name)
