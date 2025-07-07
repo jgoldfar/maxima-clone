@@ -2085,7 +2085,6 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
          ($gnuplot_4_0 (setf (getf options '$gnuplot_4_0) t))
          ($gnuplot_pm3d (setf (getf options '$gnuplot_pm3d) t))
          ($gnuplot_strings (setf (getf options '$gnuplot_strings) t))
-         ($gnuplot_svg_background (setf (getf options '$gnuplot_svg_background) t))
          ($noaxes (setf (getf options '$axes) nil))
          ($nobox (setf (getf options '$box) nil))
          ($nocolor_bar (setf (getf options '$color_bar) nil))
