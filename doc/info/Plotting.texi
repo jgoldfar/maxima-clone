@@ -1,4 +1,4 @@
-@c Time-stamp: "2024-03-07 12:17:14 villate"
+@c Time-stamp: "2025-07-07 20:20:05 villate"
 @menu
 * Introduction to Plotting::
 * Plotting Formats::
@@ -87,8 +87,9 @@ The plotting formats are the following:
 @strong{gnuplot}
 
 Used to launch the external program gnuplot, which must be installed in
-your system.  All plotting commands and data are saved into the file
-@code{maxout_xxx.gnuplot}.
+your system.  All plotting commands and data are saved into a file
+@code{random-string.gnuplot} in the temporary directory, where
+@code{random-string} is a 16-character random string.
 
 @item
 @strong{gnuplot_pipes} (default value)
@@ -104,18 +105,18 @@ function @mref{gnuplot_replot} can be used to modify a plot that has
 already been displayed on the screen or to open again the graphic window
 after it was closed.
 
-This format does not work with some versions of Lisp under Windows and
-it is only used to plot to the screen; whenever graphic files are to be
-created, the format is silently switched to @code{gnuplot} and the
-commands needed to create the graphic file are saved with the data in
-file @code{maxout_xxx.gnuplot}.
+This format is only used to plot to the screen; whenever graphic files are
+to be created, the format is silently switched to @code{gnuplot} and the
+commands needed to create the graphic file are saved with the data into a
+file @code{random-string.gnuplot} in the temporary directory, where
+@code{random-string} is a 16-character random string.
 
 @item
 @strong{mgnuplot}
 
 Mgnuplot is a Tk-based wrapper around gnuplot. It is an old interface
 still included in the Maxima distribution, but it is currently disabled
-because it does not have most of the features introduced by the newer
+because it does not have most of the features introduced by recent
 versions of the plotting commands. Mgnuplot requires an external gnuplot
 installation and, in Unix systems, the Tcl/Tk system.
 
@@ -131,8 +132,10 @@ other parts of Maxima. If Maxima is being run from the Xmaxima console,
 the data and commands are passed to xmaxima through the same socket used
 for the communication between Maxima and the Xmaxima console. When used
 from a terminal or from graphical interfaces different from Xmaxima, the
-commands and data are saved in the file @code{maxout_xxx.xmaxima} and
-xmaxima is run with the name of that file as argument.
+commands and data are saved in a file @code{random-string.xmaxima} in
+the temporary directory, where @code{random-string} is a 16-character
+random string. The program xmaxima is run with the name of that file as
+argument.
 
 @item
 @strong{geomview}
@@ -733,7 +736,7 @@ A plot of discrete data points together with a continuous function:
 @image{figures/plotting16,8cm}
 @end ifnotinfo
 
-See also the section about Plotting Options.
+See also the @mref{Plotting Options} section.
 
 @opencatbox{Categories:}
 @category{Plotting}
@@ -967,10 +970,11 @@ See also @mrefdot{Plotting Options}
 @anchor{plot_options}
 @defvr {System variable} plot_options
 
-This option is being kept for compatibility with older versions, but its
-use is deprecated. To set global plotting options, see their current
+This variable is being kept for compatibility with older versions of Wxmaxima,
+but its use is deprecated. To set global plotting options, see their current
 values or remove options, use @mrefcomma{set_plot_option}
-@mref{get_plot_option} and @mrefdot{remove_plot_option}
+@mref{get_plot_option} @mrefcomma{remove_plot_option} and
+@mrefdot{reset_plot_options}
 
 @opencatbox{Categories:}
 @category{Plotting}
@@ -981,7 +985,7 @@ values or remove options, use @mrefcomma{set_plot_option}
 @anchor{remove_plot_option}
 @deffn {Function} remove_plot_option (@var{name})
 
-Removes the default value of an option. The name of the option must be given.
+Removes the global value of an option. The name of the option must be given.
 
 See also @mrefcomma{set_plot_option} @mref{get_plot_option} and
 @mref{Plotting Options}.
@@ -991,11 +995,23 @@ See also @mrefcomma{set_plot_option} @mref{get_plot_option} and
 @closecatbox
 @end deffn
 @c -----------------------------------------------------------------------------
+@anchor{reset_plot_options}
+@deffn {Function} reset_plot_options ()
+
+Sets the default global values of the plotting options. After changing
+the global values of some plotting options, this function is used to
+recovered the same values as when Maxima was started.
+
+@opencatbox{Categories:}
+@category{Plotting}
+@closecatbox
+@end deffn
+@c -----------------------------------------------------------------------------
 @anchor{set_plot_option}
 @deffn {Function} set_plot_option (@var{option})
 
-Accepts any of the options listed in the section Plotting Options, and
-saves them for use in plotting commands. The values of the options set
+Accepts any of the options listed in the section @mrefcomma{Plotting Options}
+and saves them for use in plotting commands. The values of the options set
 in each plotting command will have precedence, but if those options are
 not given, the default values set with this function will be used.
 
@@ -1004,7 +1020,7 @@ list of options (after modifying the option given). If called without
 any arguments, it will simply show the list of current default options.
 
 See also @mrefcomma{remove_plot_option} @mref{get_plot_option} and the section
-on Plotting Options.
+on @mrefdot{Plotting Options}
 
 Example:
 
@@ -1077,23 +1093,31 @@ See also @mref{gnuplot_command} and @mrefdot{geomview_command}
 @section Plotting Options
 @c -----------------------------------------------------------------------------
 
-All options consist of a list starting with one of the keywords in this
-section, followed by one or more values. If the option appears inside
-one of the plotting commands, its value will be local for that
-command. It the option is given as argument to
-@mrefcomma{set_plot_option} its value will be global and used in all
-plots, unless it is overridden by a local value.
+There is a variable plot_options which is kept for backward
+compatibility with old versions of Wxmaxima but it is not used by the
+plotting programs.  The global options used by the plotting programs are
+in a list which can only be accessed or modified in Maxima using
+functions @mrefcomma{set_plot_option} @mrefcomma{get_plot_option}
+@mrefcomma{remove_plot_option} and @mrefdot{reset_plot_options}
 
-Some of the options may have different effects in different plotting
-commands as it will be pointed out in the following list. The options
-that accept among their possible values true or false, can also be set
-to true by simply writing their names, and false by writing their names
-with the prefix no. For instance, typing @code{logx} as an option is
-equivalent to writing @code{[logx, true]} and @code{nobox} is equivalent
-to @code{[box, false]}. When just the name of the option is used for an
+Plotting options can also be included inside a plotting command, in which
+case they have effect only for that plotting command, without changing the
+global values of those options.
+
+Plotting options consist of a list starting with one of the keywords in
+this section, followed by one or more values.  The options that accept
+among their possible values true or false, can also be set to true by
+simply writing their names, and false by writing their names with the
+prefix no. For instance, typing @code{logx} as an option is equivalent
+to writing @code{[logx, true]} and @code{nobox} is equivalent to
+@code{[box, false]}. When just the name of the option is used for an
 option which cannot have a value @code{true}, it means that any value
 previously assigned to that option will be removed, leaving it to the
-graphic program to decide what to do.
+graphic program to decide what to do. There are also some abbreviations
+for some options as will be shown below.
+
+Some of the options may have different effects in different plotting
+commands as it will be pointed out for those particular options.
 
 @c -----------------------------------------------------------------------------
 @anchor{adapt_depth}
@@ -1245,6 +1269,30 @@ around the new z axis through an angle @mrefdot{azimuth} This option sets
 the value for the elevation, in degrees.
 
 See also @mrefdot{azimuth}
+
+@opencatbox{Categories:}
+@category{Plotting}
+@closecatbox
+@end defvr
+
+@c -----------------------------------------------------------------------------
+@anchor{gnuplot}
+@defvr {Plot option} gnuplot
+
+This is an abbreviation for @code{[plot_format, gnuplot]}. See
+@mrefdot{plot_format}
+
+@opencatbox{Categories:}
+@category{Plotting}
+@closecatbox
+@end defvr
+
+@c -----------------------------------------------------------------------------
+@anchor{gnuplot_pipes}
+@defvr {Plot option} gnuplot_pipes
+
+This is an abbreviation for @code{[plot_format, gnuplot_pipes]}. See
+@mrefdot{plot_format}
 
 @opencatbox{Categories:}
 @category{Plotting}
@@ -1482,13 +1530,17 @@ therefore, as being part of the curve to be plotted.
 
 @c -----------------------------------------------------------------------------
 @anchor{plot_format}
-@defvr {Plot option} plot_format [plot_format, @var{format}]
+@defvr {Plot option} plot_format [plot_format, @var{format}], @
+gnuplot, gnuplot_pipes, xmaxima
 
 Default value: @code{gnuplot}, in Windows systems, or @code{gnuplot_pipes} in
 other systems.
 
 Where @var{format} is one of the following: gnuplot, xmaxima, mgnuplot,
-gnuplot_pipes or geomview.
+gnuplot_pipes or geomview. The three possibilities:
+@code{[plot_format, gnuplot]}, @code{[plot_format, gnuplot_pipes]} and
+@code{[plot_format, xmaxima]}, can be abbreviated
+by the keywords @code{gnuplot}, @code{gnuplot_pipes} and @code{xmaxima}.
 
 It sets the format to be used for plotting as explained in
 @mrefdot{Plotting Formats}
@@ -1786,6 +1838,18 @@ previously defined.
 
 See @mrefcomma{make_transform} @mref{polar_to_xy} and
 @mrefdot{spherical_to_xyz}
+
+@opencatbox{Categories:}
+@category{Plotting}
+@closecatbox
+@end defvr
+
+@c -----------------------------------------------------------------------------
+@anchor{xmaxima}
+@defvr {Plot option} xmaxima
+
+This is an abbreviation for @code{[plot_format, xmaxima]}. See
+@mrefdot{plot_format}
 
 @opencatbox{Categories:}
 @category{Plotting}
