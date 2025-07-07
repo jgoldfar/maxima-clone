@@ -1,4 +1,3 @@
-@c Time-stamp: "2025-07-07 20:20:05 villate"
 @menu
 * Introduction to Plotting::
 * Plotting Formats::
