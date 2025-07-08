@@ -169,7 +169,7 @@ Example: @code{sin(n*%pi)} is simplified to zero, if @var{n} is an integer.
 @end example
 
 If automated simplification is not sufficient, you can consider a variety of 
-built-in, but explicitly called simplfication functions (@mrefcomma{ratsimp}
+built-in, but explicitly called simplification functions (@mrefcomma{ratsimp}
 @mrefcomma{expand} @mrefcomma{factor} @mref{radcan} and others). There are
 also flags that will push simplification into one or another direction.
 Given @code{demoivre:true} the simplifier rewrites 

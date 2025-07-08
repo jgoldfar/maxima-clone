@@ -388,7 +388,7 @@ this procedure should be applied to large samples.
 This is the difference of means @var{t}-test for two samples.
 Arguments @var{x1} and @var{x2} are lists or column matrices
 containing two independent samples. In case of different unknown variances
-(see options @code{'dev1}, @code{'dev2} and @code{'varequal} bellow),
+(see options @code{'dev1}, @code{'dev2} and @code{'varequal} below),
 the degrees of freedom are computed by means of the Welch approximation.
 It also performs an asymptotic test
 based on the @i{Central Limit Theorem} if option @code{'asymptotic} is
