@@ -1034,9 +1034,9 @@ Modification of the @mref{grid} values.
 [run_viewer, true], [axes, true], [nticks, 29], [adapt_depth, 5], 
 [color, blue, red, green, magenta, black, cyan], 
 [point_type, bullet, box, triangle, plus, times, asterisk], 
-[palette, [gradient, green, cyan, blue, violet], 
-[gradient, magenta, violet, blue, cyan, green, yellow, orange, 
-red, brown, black]], [gnuplot_preamble, ], [gnuplot_term, default]]
+[palette, [hue, 0.33333333, 0.7, 1, 0.5], 
+[hue, 0.8, 0.7, 1, 0.4]], [gnuplot_svg_background, white], 
+[gnuplot_preamble, ], [gnuplot_term, default]]
 @end example
 
 @opencatbox{Categories:}
