@@ -91,14 +91,16 @@ cmake -DBUILD_64BIT=NO ..
 make
 make package
 
+Currently the compilation of a 32 bit installer does not work on
+Ubuntu 24.04, use the older Ubuntu 22.04 to build a 32 bit installer.
 
 Example with Github actions
 ===========================
 
 If you want to see every required step and how it works:
 On Github there is a repository, where I set up everything which is
-needed to crosscompile Maxima using Github Workflows (currently
-using an Ubuntu 22.04).
+needed to crosscompile Maxima using Github workflows (currently
+using Ubuntu 24.04).
 https://github.com/daute/maxima-crosscompilation/
 
 
