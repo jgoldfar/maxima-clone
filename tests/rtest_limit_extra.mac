@@ -1444,6 +1444,16 @@ limit((x-45)*(x-7)^90000 + 45*(x-45),x,45);
 limit((x-45)*(x-7)^90000 + 45*(x-45) + 107,x,45);
 107$
 
+block ([display2d : false, stream : make_string_output_stream (),ans],
+  trace(?taylim),
+  with_stdout(stream, tlimit((1+sqrt(1+n))^(-n-1)/(1+sqrt(n))^-n,n,inf)),
+  ans : get_output_stream_string (stream),
+  untrace(?taylim),
+  ans);
+"1 Call   taylim [(sqrt(n)+1)^n*(sqrt(n+1)+1)^(-n-1),n,inf,think]
+1 Return taylim zeroa
+"$
+
 /* clean up*/
 (kill(values),0);
 0$
