@@ -162,3 +162,5 @@ Build system:
  * Install Maxima icons in an 'icons' subdirectory rather than 'pixmaps'
  * maxima.asd: load defsystem.lisp in order to load share packages which use it.
  * Various compatibility fixes for Allegro CL and LispWorks
+ * Configure supports new option `--enable-syntax-highlighting` that
+	   enables syntax highlighting of HTML version of the user manual.
