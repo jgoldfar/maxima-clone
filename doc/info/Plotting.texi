@@ -650,19 +650,20 @@ $g
 @image{figures/plotting10,8cm}
 @end ifnotinfo
 
-Plot of a circle, using its parametric representation, together with the
-function -@code{|@var{x}|}. The circle will only look like a circle if
-the scale in the two axes is the same, which is done with the option
-@mrefdot{same_xy}
+Plot of a circumference of radius 1 centered at the origin, together with the
+function @code{y=-|@var{x}|}. To prevent the circumference to look like an
+ellipse, option @mref{same_xy} is used to scale the two axes at the same
+rate. Option @mref{nolegend} is also used to remove the legend identifying
+the two functions.
 
 @c ===beg===
-@c plot2d([[parametric, cos(t), sin(t), [t,0,2*%pi]], -abs(x)],
-@c          [x, -sqrt(2), sqrt(2)], same_xy)$
+@c plot2d([x^2+y^2=1, -abs(x)], [x, -1.5, 1.5], [y, -2, 2], same_xy,
+@c         nolegend);
 @c ===end===
 @example
 @group
-(%i1) plot2d([[parametric, cos(t), sin(t), [t,0,2*%pi]], -abs(x)],
-         [x, -sqrt(2), sqrt(2)], same_xy)$
+(%i1) plot2d([x^2+y^2=1, -abs(x)], [x, -1.5, 1.5], [y, -2, 2], same_xy,
+             nolegend);
 @end group
 @end example
 
@@ -1360,6 +1361,7 @@ coordinates indicated after each label.
 
 @c -----------------------------------------------------------------------------
 @anchor{legend}
+@anchor{nolegend}
 @defvr {Plot option} legend [legend, @var{string_1}, @dots{}, @
 @var{string_n}], legend, nolegend
 
