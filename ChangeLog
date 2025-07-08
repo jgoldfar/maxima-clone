@@ -135,6 +135,7 @@ Bug fixes for numbered bugs:
  * \#4560: integrals of the form integrate((a*z+a*b)^p*%e^(c*z+d),z)
  * \#4572: integration with subs of the form y = exp(X)
  * \#4479: Setting inchar to empty string causes infinite lisp errors
+ * \#4561 taylim (non user level) exits non-locally
 
 Unnumbered bugs fixed:
 ---------------------
@@ -162,3 +163,5 @@ Build system:
  * Install Maxima icons in an 'icons' subdirectory rather than 'pixmaps'
  * maxima.asd: load defsystem.lisp in order to load share packages which use it.
  * Various compatibility fixes for Allegro CL and LispWorks
+ * Configure supports new option `--enable-syntax-highlighting` that
+	   enables syntax highlighting of HTML version of the user manual.

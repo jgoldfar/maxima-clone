@@ -10,12 +10,14 @@
 
 (in-package :maxima)
 
-(declare-top (special taylored))
+(declare-top (special taylored *getsignl-asksign-ok*))
 
 (macsyma-module tlimit)
 
 (load-macsyma-macros rzmac)
 
+;; For limits toward `inf`, assume that the limit variable exceeds `*large-positive-number*`
+(defmvar *large-positive-number* 4398046511104) ; 2^42 for no particular reason
 ;; TOP LEVEL FUNCTION(S): $TLIMIT $TLDEFINT
 
 (defmfun $tlimit (&rest args)
@@ -83,25 +85,30 @@
 
 ;; Since `taylor` fails on some `atan2` expressions, we convert `atan2` expressions to
 ;; log form. An example where `taylor` fails is `taylor(atan2(exp(x)-cos(x), -x*sin(x)),x,0,4)`.
-;; Of course, we should fix `taylor`, but until that happens, we'll convert use this workaround.
+;; Of course, we should fix `taylor`, but until that happens, we'll use this workaround.
 (defun tlimit-taylor (e x pt n &optional (d 0))
-"Compute the Taylor series expansion of `e` at `pt` with respect to `x`. When the expansion 
- vanishes and the recurison depth `d` is less than 16, retry the expansion with increased 
- order. When the recursion depth exceeds 16 or when the expansion fails, return nil; otherwise, 
- return the taylor expansion."
+  "Compute the Taylor series expansion of `e` at `pt` with respect to `x`. 
+   If the expansion vanishes and the recursion depth `d` is less than 16, 
+   retry with increased order. If recursion depth exceeds 16 or the expansion 
+   fails, return nil; otherwise, return the Taylor expansion."
 	(let ((ee) 
 	      (silent-taylor-flag t) 
 	      ($taylordepth 8)
 		  ($radexpand nil)
 		  ($taylor_logexpand t)
 		  ($logexpand t))
-		(setq e (logarc-atan2 e))
-	    (setq ee (catch 'taylor-catch (ratdisrep ($taylor e x pt n))))
-		(cond ((and ee (not (eql ee 0))) ee)
-			  ;; Retry if taylor returns zero and depth is less than 16
-              ((and ee (< d 16))
-			    (tlimit-taylor e x pt (* 4 (max 1 n)) (1+ d)))
-			  (t nil))))
+    
+    (cond
+      ((eq pt '$infinity) nil)
+      (t
+       (setq e (logarc-atan2 e))
+       (setq ee (catch 'taylor-catch ($totaldisrep ($taylor e x pt n))))
+       (cond
+         ((and ee (not (eql ee 0))) ee)
+         ;; Retry if Taylor returns zero and depth is less than 16
+         ((and ee (< d 16))
+          (tlimit-taylor e x pt (* 2 (max 1 n)) (1+ d)))
+         (t nil))))))
 
 ;; Previously, when the Taylor series failed, there was code to decide
 ;; whether to call limit1 or simplimit. The choice depended on the last
@@ -110,9 +117,95 @@
 ;; limit1 when Maxima is unable to find the Taylor polynomial. As a result, 
 ;; the last argument of taylim is now unused (orphaned).
 (defun taylim (e var val flag)
-    (declare (ignore flag))
-	(let ((et nil))
-	  (when (tlimp e var)
-		 (setq e (stirling0 e))
-	     (setq et (tlimit-taylor e var (ridofab val) $lhospitallim 0)))
-	  (if et (let ((taylored t)) (limit et var val 'think)) (limit1 e var val))))
+  "Attempt to compute the limit of `e` as `var` approaches `val` using a Taylor expansion.
+  When the Taylor expansion fails, fall back to using `limit1`. The `flag` argument is unused."
+  (declare (ignore flag))
+  (let ((et nil))
+    (when (tlimp e var)
+      (setq e (stirling0 e))
+      (setq et (tlimit-taylor e var (ridofab val) $lhospitallim 0)))
+    (if et
+        (let ((taylored t)) ; the special variable `taylored` prevents infinite looping
+          (or (limit-sum-of-powers et var val)
+              (limit et var val 'think)))
+        (limit1 e var val))))
+
+(defun power-of-x-p (e x)
+ "Return true if `e` is a monomial of the form `x^q`, where `q` is a rational number. Also returns true if `e` is `x`.
+  We allow `q` to be one. The case of `q=0` shouldn't happen unless the expression `e` is not simplified. The second
+  argument `x` should be a symbol, but that condition is not checked."
+   (or 
+      (eq e x)
+      (and (mexptp e)
+           (eq x (second e))
+           ($ratnump (third e)))))
+
+(defun sum-of-powers-p (e x)
+"Return true iff `e` is a linear combination of monomials of the form `x^q`, where `q` is a rational number. The
+exponent `q` can be zero, so a term that is free of `x` is acceptable. The second argument `x` should be a symbol, 
+but that condition is not checked."
+  (cond ((or ($mapatom e) (freeof x e)) t)
+        ((power-of-x-p e x))
+        ((mtimesp e) (every #'(lambda (q) (or (freeof x q) (power-of-x-p q x))) (cdr e)))
+        ((mplusp e) (every #'(lambda (q) (sum-of-powers-p q x)) (cdr e)))
+        (t nil)))
+
+(defun limit-sum-of-powers (e x pt)
+  "If `e` is a linear combination of terms like `x^q`, where `q` is an explicit rational number, 
+   return limit(e, x, pt); otherwise, return nil. The limit point `pt` must be one of `minf`, 
+   `zerob`, `zeroa`, `0`, or `inf`."
+  (let ((ee) (ll nil) (pk nil) (ck nil) (sgn))
+    (cond
+      ((sum-of-powers-p e x)
+       (cond
+         ((or (eq pt '$zeroa) (eq pt '$zerob) (eql pt 0))
+          ;; Try direct substitution
+          (let* (($errormsg nil) (ans (errcatch (maxima-substitute 0 x e))))
+            (cond
+              ((null ans)
+               ;; direct substitution failed, transform limit point to inf or minf and try again
+               (let ((cntx ($supcontext)) (g (gensym)))
+                 (unwind-protect
+                   (progn
+                      (putprop g t 'internal) ;ask no questions about the gensym variable
+                      (assume (ftake 'mgreaterp g *large-positive-number*))
+                      (limit-sum-of-powers 
+                          (resimplify (maxima-substitute (div 1 g) x e)) g (if (eq pt '$zeroa) '$inf '$minf)))
+                    ($killcontext cntx)))) 
+              (t
+               ;; direct substitution succeeded--when the limit is zero, use zero-fixup
+               (setq ans (car ans))
+               (if (eq t (meqp ans 0))
+                   (zero-fixup e x pt)
+                   ans)))))
+
+         ((or (eq pt '$minf) (eq pt '$inf))
+          ;; Set ee to a list of the additive terms of e
+          (setq ee (if (mplusp e) (cdr e) (list e)))
+          ;; Replace each term ck*x^pk of the the list `ee` by `ck . pk` and push them in the list `ll`
+          (dolist (ek ee)
+              (setq pk (sratsimp (mul x (div (sdiff ek x) ek))))
+              (setq ck (sratsimp (div ek (ftake 'mexpt x pk))))
+              (push (cons ck pk) ll))
+          ;; Sort the terms of `ll` and determine the highest power
+          (setq ll (sort ll #'(lambda (a b) (eq t (mgrp a b))) :key #'cdr))
+          (setq pk (cdr (first ll))) ;pk is now the largest power
+          ;; Process leading coefficients
+          (setq ll (mapcar #'(lambda (q) (if (eq t (meqp pk (cdr q))) (car q) 0)) ll))
+          (setq ck (fapply 'mplus ll)) ;ck is now the leading coefficient
+          (cond
+            ((eql pk 0) ck)  ;; Leading term is ck x^0, so limit is ck
+            ((eq t (mgrp pk 0)) ;; Leading term is ck x^pk where pk > 0
+             (setq sgn (let ((*getsignl-asksign-ok* t)) (maybe-asksign ck)))
+             (cond
+               ((eq sgn '$neg) (if (eq pt '$inf) '$minf '$inf))
+               ((eq sgn '$pos) (if (eq pt '$inf) '$inf '$minf))
+               ((eq sgn '$imaginary) '$infinity)
+               ((eq sgn '$complex) '$infinity)
+               (t nil)))
+            ((eq t (mgrp 0 pk)) ;leading term is ck x^pk where pk < 0
+              ;; the limit is a zero, so dispatch `zero-fixup`
+              (zero-fixup (mul ck (power x pk)) x pt))
+            (t nil))))) ;unexpected case
+      ;; not a sum of powers, return nil
+      (t nil))))
