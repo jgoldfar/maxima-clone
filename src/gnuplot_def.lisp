@@ -293,7 +293,7 @@
     ((eq (getf plot-options '$gnuplot_term) '$dumb)
      (if (getf plot-options '$gnuplot_dumb_term_command)
          (setq terminal-command
-               (getf plot-options '$gnuplot_ps_term_command))
+               (getf plot-options '$gnuplot_dumb_term_command))
          (setq terminal-command "set term dumb 79 22"))
      (if (getf plot-options '$gnuplot_out_file)
          (setq out-file (getf plot-options '$gnuplot_out_file))
