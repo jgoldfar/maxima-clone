@@ -4,7 +4,6 @@
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
 #     Modified by Jaime E. Villate                         #
-#     Time-stamp: "2024-03-25 21:11:14 villate"            #
 ############################################################
 
 proc makeFrame { w type } {

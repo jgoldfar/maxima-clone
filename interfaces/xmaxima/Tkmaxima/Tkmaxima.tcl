@@ -3,7 +3,6 @@
 # Copyright (C) 1998 William F. Schelter                   #
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
-#     Time-stamp: "2024-04-01 14:07:21 villate"            #
 ############################################################
 
 # The Header.tcl is created by autoconf to make the xmaxima script

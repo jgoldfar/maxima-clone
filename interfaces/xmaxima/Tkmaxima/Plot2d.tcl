@@ -4,8 +4,6 @@
 # For distribution under GNU public License.  See COPYING.tcl
 #
 #     Modified by Jaime E. Villate
-#     Time-stamp: "2025-02-01 16:34:56 villate"
-#
 ######################################################################
 
 global plot2dOptions

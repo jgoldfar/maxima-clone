@@ -4,7 +4,6 @@
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
 #     Modified by Jaime E. Villate                         #
-#     Time-stamp: "2025-05-29 21:22:36 villate"            #
 ############################################################
 
 global plotdfOptions

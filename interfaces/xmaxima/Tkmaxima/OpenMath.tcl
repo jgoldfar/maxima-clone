@@ -4,7 +4,6 @@
 # For distribution under GNU public License.  See COPYING.tcl
 #
 #     Modified by Jaime E. Villate                         #
-#     Time-stamp: "2024-03-25 21:06:23 villate"            #
 ########################################################################
 
 proc genSample { x n } {

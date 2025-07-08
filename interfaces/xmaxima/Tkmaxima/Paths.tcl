@@ -3,7 +3,6 @@
 # Copyright (C) 1998 William F. Schelter                   #
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
-#     Time-stamp: "2024-03-26 13:42:55 villate"            #
 ############################################################
 #
 # Attach this near the bottom of the xmaxima code to find the paths needed

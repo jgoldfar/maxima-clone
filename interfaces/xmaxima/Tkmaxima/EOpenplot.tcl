@@ -3,8 +3,6 @@
 # Copyright (C) 1998 William F. Schelter
 # For distribution under GNU public License.  See COPYING.tcl
 #
-#     Time-stamp: "2024-03-20 15:13:35 villate"
-#
 #################################################################
 
 #-----------------------------------------------------------------

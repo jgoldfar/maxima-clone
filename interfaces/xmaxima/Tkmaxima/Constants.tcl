@@ -4,7 +4,6 @@
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
 #     Modified by Jaime E. Villate                         #
-#     Time-stamp: "2024-04-01 14:13:26 villate"            #
 ############################################################
 
 proc cMAXINITBeforeIni {} {
