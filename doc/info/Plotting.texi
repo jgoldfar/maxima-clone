@@ -20,35 +20,47 @@ that graphic program. In some cases those commands and data are saved in
 a file and the graphic program is executed giving it the name of that
 file to be parsed.
 
-When a file is created, it will begiven the name
-@code{maxout_xxx.format}, where @code{xxx} is a number that is unique to
-every concurrently-running instance of Maxima and @code{format} is the
-name of the plotting format being used (@code{gnuplot}, @code{xmaxima},
-@code{mgnuplot} or @code{geomview}).
+If the format used is either @code{gnuplot}, @code{xmaxima} or
+@code{geomview}, the commands used to create the plot are placed in a
+file named @code{random-string.format}, where @code{random-string} is a
+16-character random string and @code{format} is the name of the plotting
+format being used (@code{gnuplot}, @code{xmaxima} or
+@code{geomview}). That file is then saved in the temporary directory and
+should be deleted after the maxima session ends.
+
+The temporary directory is specified by the system variable
+@mrefdot{maxima_tempdir} That location can be changed by changing the
+value of that variable (or using the environment variable
+@env{MAXIMA_TEMPDIR}). Its value must be a string that represents a
+valid directory where Maxima can create new files. In the case of the
+@code{gnuplot} format, option @mref{gnuplot_out_file} can be used to
+change the default name @code{random-string.gnuplot} for the output
+file. If the name given includes a directory name, it will saved in that
+directory instead of in the temporary directory, and it will not be
+removed after the Maxima session ends. For example, the
+plotting option:
+@example
+[gnuplot_out_file, "./my_gnuplotfile.txt"]
+@end example
+will save the commands to produce the plot in a file
+@code{my_gnuplotfile.txt} in the current directory.
 
 There are commands to save the plot in a graphic format file, rather
 than showing it in the screen. The default name for that graphic file is
-@code{maxplot.extension}, where @code{extension} is the extension
+@code{random-string.extension}, where @code{extension} is the extension
 normally used for the kind of graphic file selected, but that name can
 also be specified by the user.
 
-The @code{maxout_xxx.format} and @code{maxplot.extension} files are created
-in the directory specified by the system variable
-@mrefdot{maxima_tempdir} That location can be changed by assigning to
-that variable (or to the environment variable @env{MAXIMA_TEMPDIR}) a string
-that represents a valid directory where Maxima can create new files. The
-output of the Maxima plotting command will be a list with the names of
-the file(s) created, including their complete path, or empty if no files
-are created. Those files should be deleted after the maxima session ends.
-
-If the format used is either @code{gnuplot} or @code{xmaxima}, and the
-@code{maxout_xxx.gnuplot} or @code{maxout_xxx.xmaxima} was saved,
-@code{gnuplot} or @code{xmaxima} can be run, giving it the name of that
-file as argument, in order to view again a plot previously created in
-Maxima. Thus, when a Maxima plotting command fails, the format can be
-set to @code{gnuplot} or @code{xmaxima} and the plain-text file
-@code{maxout_xxx.gnuplot} (or @code{maxout_xxx.xmaxima}) can be
-inspected to look for the source of the problem.
+When a plotting command fails the file where the plotting commands were
+saved can be inspected to diagnose the problem. Since the
+@code{gnuplot_pipes} format does not create any file, if a plotting
+command fails while using that format it is recommended to repeat the
+same plotting command adding the @mref{gnuplot} option and ending the
+command with semicolon. That way, you can see the name of the file where
+the commands sent to Gnuplot were saved, which can be inspected to
+diagnose the problem (before it is deleted when the Maxima session ends
+or use @mref{gnuplot_out_file} as explained above to create a permanent
+file):
 
 The additional package @ref{draw} provides functions similar to the ones
 described in this section with some extra features, but it only works
@@ -247,7 +259,7 @@ passed to the gnuplot program when the plot format is
 @code{gnuplot}. Its default value is "-persist ~a" when SBCL or Openmcl
 are used, and "-persist ~s" with other Lisp variants, where "~a" or "~s"
 will be replaced with the name of the file where the gnuplot commands
-have been written (usually "maxout_xxx.gnuplot"). The option
+have been written (usually "random-string.gnuplot"). The option
 @code{-persist} tells gnuplot to exit after the commands in the file
 have been executed, without closing the window that displays the plot.
 
@@ -1668,14 +1680,14 @@ terminal is @code{default} or when the Gnuplot terminal is set to
 @code{dumb} (see @mref{gnuplot_term}) and can have a true or false
 value.
 
-If the terminal is @code{default}, a file @code{maxout_xxx.gnuplot} (or
+If the terminal is @code{default}, a file @code{random-string.gnuplot} (or
 other name specified with @mref{gnuplot_out_file}) is created with the
 gnuplot commands necessary to generate the plot. Option @code{run_viewer}
 controls whether or not Gnuplot will be launched to execute those
 commands and show the plot.
 
 If the terminal is @code{default}, gnuplot is run to execute the
-commands in @code{maxout_xxx.gnuplot}, producing another file
+commands in @code{random-string.gnuplot}, producing another file
 @code{maxplot.txt} (or other name specified with
 @mref{gnuplot_out_file}). Option @code{run_viewer} controls whether or
 not that file, with an ASCII representation of the plot, will be shown
@@ -2096,11 +2108,11 @@ gnuplot terminal used will be specified by the value of the option
 @item
 @strong{dumb}
 
-Gnuplot output is saved to a file @code{maxout_xxx.gnuplot} using "ASCII
+Gnuplot output is saved to a file @code{random-string.txt} using "ASCII
 art" approximation to graphics. If the option @mref{gnuplot_out_file} is
 set to @var{filename}, the plot will be saved there, instead of the
-default @code{maxout_xxx.gnuplot}. The settings for the ``dumb'' terminal of
-Gnuplot are given by the value of option
+default @code{random-string.gnuplot}. The settings for the ``dumb''
+terminal of Gnuplot are given by the value of option
 @mrefdot{gnuplot_dumb_term_command} If option @mref{run_viewer} is set
 to true and the plot_format is @code{gnuplot} that ASCII representation
 will also be shown in the Maxima or Xmaxima console.
@@ -2148,12 +2160,6 @@ path of the temporary directory. The complete name of the files created
 by the plotting commands is always sent as output of those commands so
 they can be seen if the command is ended by semi-colon.
 
-When used in conjunction with the @mref{gnuplot_term} option, it can be
-used to save the plot in a file, in one of the graphic formats supported
-by Gnuplot. To create PNG, PDF, Postscript or SVG, it is easier to use
-options @mrefcomma{png_file} @mrefcomma{pdf_file} @mrefcomma{ps_file}
-or @mrefdot{svg_file}
-
 @opencatbox{Categories:}
 @category{Plotting}
 @closecatbox
@@ -2182,29 +2188,28 @@ current directory.
 (%o1) ["./sin.gnuplot"]
 @end example
 
-In this example, @code{gnuplot_maxout_prt(@var{file})} is a function
-that takes the default file name, @var{file}. It constructs a full file
-name for the data file by interpolating a random 8-digit integer with a
-pad of zeros into the default file name (``maxout'' followed by the id
-number of the Maxima process, followed by ``.gnuplot''). The temporary
-directory is determined by @mref{maxima_tempdir} (it is ``/tmp'' in this
-example).
+In this example, @code{gnuplot_prt(@var{file})} is a function that takes
+the default file name, @var{file}. It constructs a full file name for
+the data file by interpolating a random 8-digit integer with a pad of
+zeros into the default file name (a 16-character random string followed
+by ``.gnuplot''). The temporary directory is determined by
+@mref{maxima_tempdir} (it is ``/tmp'' in this example).
 
 @example
-(%i1) gnuplot_maxout_prt(file) := block([beg,end],
+(%i1) gnuplot_prt(file) := block([beg,end],
         [beg,end] : split(file,"."),
         printf(false,"~a_~8,'0d.~a",beg,random(10^8-1),end)) $
 
-(%i2) plot2d( sin(x), [x,0,2*%pi], [gnuplot_script_file, gnuplot_maxout_prt]);
+(%i2) plot2d( sin(x), [x,0,2*%pi], [gnuplot_script_file, gnuplot_prt]);
 
-(%o2) ["/tmp/maxout68715_09606909.gnuplot"]
+(%o2) ["/tmp/e95avdudp3urz0gj_09606909.gnuplot"]
 @end example
 
 By default, the script would have been saved in a file named
-@code{maxoutXXXXX.gnuplot} (XXXXX=68715 in this example) in the temporary
-directory. If the print statement in function @code{gnuplot_maxout_prt}
-above included a directory path, the file would have been saved in that
-directory rather than in the temporary directory.
+@code{random-string.gnuplot} (random-string = e95avdudp3urz0gj in this
+example) in the temporary directory. If the print statement in function
+@code{gnuplot_prt} above included a directory path, the file would have
+been saved in that directory rather than in the temporary directory.
 
 @opencatbox{Categories:}
 @category{Plotting}
