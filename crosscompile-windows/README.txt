@@ -5,7 +5,7 @@ On a Ubuntu/Debian System enable the 32bit support and install some tools for cr
 
 dpkg --add-architecture i386
 
-apt-get install g++-mingw-w64-x86-64 cmake nsis wine wine64 automake texlive texlive-plain-generic texlive-xetex rsync p7zip-full g++ gettext python3 tcl pandoc po4a wine32 libgcc-s1:i386 libstdc++6:i386 bsdutils
+apt-get install g++-mingw-w64-x86-64 cmake nsis wine wine64 automake texlive texlive-plain-generic texlive-xetex rsync p7zip-full g++ gettext python3 tcl pandoc po4a wine32 libgcc-s1:i386 libstdc++6:i386 bsdutils mingw-w64-tools
 
 If you want to include CCL64 support, a recent wine installation (from winehq.org)
 is necessary.
@@ -91,8 +91,6 @@ cmake -DBUILD_64BIT=NO ..
 make
 make package
 
-Currently the compilation of a 32 bit installer does not work on
-Ubuntu 24.04, use the older Ubuntu 22.04 to build a 32 bit installer.
 
 Example with Github actions
 ===========================
