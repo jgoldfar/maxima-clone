@@ -656,13 +656,24 @@ Bigfloat version of the factorial (shifted gamma)
 function.  The second argument is how many digits to retain and return,
 it's a good idea to request a couple of extra.
 
-@example
+@c ===beg===
+@c bffac(1/2,16);
+@c (1/2)!,numer;
+@c bffac(1/2,32);
+@c ===end===
+@example maxima
+@group
 (%i1) bffac(1/2,16);
-(%o1)                        8.862269254527584b-1
+(%o1)                 8.862269254527584b-1
+@end group
+@group
 (%i2) (1/2)!,numer;
-(%o2)                          0.886226925452758
+(%o2)                   0.886226925452758
+@end group
+@group
 (%i3) bffac(1/2,32);
-(%o3)                 8.862269254527580136490837416707b-1
+(%o3)          8.862269254527580136490837416707b-1
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -689,19 +700,36 @@ These functions return bigfloat values.
 @c DISCUSSION OF THE PROPERTIES OF THIS FUNCTION, THIS STATEMENT SEEMS OUT OF PLACE.
 @c Note @code{-bfpsi0 (1, fpprec)} provides @code{%gamma} (Euler's constant) as a bigfloat.
 
-@example
+@c ===beg===
+@c bfpsi0(1/3, 15);
+@c bfpsi0(1/3, 32);
+@c bfpsi(0,1/3,32);
+@c psi[0](1/3);
+@c float(%);
+@c ===end===
+@example maxima
+@group
 (%i1) bfpsi0(1/3, 15);
-(%o1)                        - 3.13203378002081b0
+(%o1)                 - 3.13203378002081b0
+@end group
+@group
 (%i2) bfpsi0(1/3, 32);
-(%o2)                - 3.1320337800208063229964190742873b0
+(%o2)         - 3.1320337800208063229964190742873b0
+@end group
+@group
 (%i3) bfpsi(0,1/3,32);
-(%o3)                - 3.1320337800208063229964190742873b0
+(%o3)         - 3.1320337800208063229964190742873b0
+@end group
+@group
 (%i4) psi[0](1/3);
-                          3 log(3)       %pi
-(%o4)                  (- --------) - --------- - %gamma
-                             2        2 sqrt(3)
+                   3 log(3)      %pi
+(%o4)            - -------- - --------- - %gamma
+                      2       2 sqrt(3)
+@end group
+@group
 (%i5) float(%);
-(%o5)                         - 3.132033780020806
+(%o5)                  - 3.132033780020806
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -717,11 +745,19 @@ Complex bigfloat factorial.
 
 @code{load ("bffac")} loads this function.
 
-@example
+@c ===beg===
+@c cbffac(1+%i,16);
+@c (1+%i)!,numer;
+@c ===end===
+@example maxima
+@group
 (%i1) cbffac(1+%i,16);
-(%o1)           3.430658398165453b-1 %i + 6.529654964201666b-1
+(%o1)    3.430658398165453b-1 %i + 6.529654964201666b-1
+@end group
+@group
 (%i2) (1+%i)!,numer;
-(%o2)             0.3430658398165453 %i + 0.6529654964201667
+(%o2)      0.3430658398165453 %i + 0.6529654964201667
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -775,57 +811,92 @@ Examples:
 
 Simplification for integer, half integral, and rational numbers:
 
-@example
+@c ===beg===
+@c map('gamma,[1,2,3,4,5,6,7,8,9]);
+@c map('gamma,[1/2,3/2,5/2,7/2]);
+@c map('gamma,[2/3,5/3,7/3]);
+@c ===end===
+@example maxima
+@group
 (%i1) map('gamma,[1,2,3,4,5,6,7,8,9]);
 (%o1)        [1, 1, 2, 6, 24, 120, 720, 5040, 40320]
+@end group
+@group
 (%i2) map('gamma,[1/2,3/2,5/2,7/2]);
                     sqrt(%pi)  3 sqrt(%pi)  15 sqrt(%pi)
 (%o2)   [sqrt(%pi), ---------, -----------, ------------]
                         2           4            8
+@end group
+@group
 (%i3) map('gamma,[2/3,5/3,7/3]);
                                   2           1
                           2 gamma(-)  4 gamma(-)
                       2           3           3
 (%o3)          [gamma(-), ----------, ----------]
                       3       3           9
+@end group
 @end example
 
 Numerical evaluation for real and complex values:
 
-@example
-(%i4) map('gamma,[2.5,2.5b0]);
-(%o4)     [1.329340388179137, 1.3293403881791370205b0]
-(%i5) map('gamma,[1.0+%i,1.0b0+%i]);
-(%o5) [0.498015668118356 - .1549498283018107 %i, 
-          4.9801566811835604272b-1 - 1.5494982830181068513b-1 %i]
+@c ===beg===
+@c map('gamma,[2.5,2.5b0]);
+@c map('gamma,[1.0+%i,1.0b0+%i]);
+@c ===end===
+@example maxima
+@group
+(%i1) map('gamma,[2.5,2.5b0]);
+(%o1)       [1.329340388179137, 1.329340388179137b0]
+@end group
+@group
+(%i2) map('gamma,[1.0+%i,1.0b0+%i]);
+(%o2) [0.49801566811835596 - 0.15494982830181073 %i, 
+                  4.980156681183561b-1 - 1.549498283018107b-1 %i]
+@end group
 @end example
 
 @code{gamma} has mirror symmetry:
 
-@example
-(%i6) declare(z,complex)$
-(%i7) conjugate(gamma(z));
-(%o7)                  gamma(conjugate(z))
+@c ===beg===
+@c declare(z,complex)$
+@c conjugate(gamma(z));
+@c ===end===
+@example maxima
+(%i1) declare(z,complex)$
+@group
+(%i2) conjugate(gamma(z));
+(%o2)                  gamma(conjugate(z))
+@end group
 @end example
 
 Maxima expands @code{gamma(z+n)} and @code{gamma(z-n)}, when @mref{gamma_expand} 
 is @code{true}:
 
-@example
-(%i8) gamma_expand:true$
-
-(%i9) [gamma(z+1),gamma(z-1),gamma(z+2)/gamma(z+1)];
+@c ===beg===
+@c gamma_expand:true$
+@c [gamma(z+1),gamma(z-1),gamma(z+2)/gamma(z+1)];
+@c ===end===
+@example maxima
+(%i1) gamma_expand:true$
+@group
+(%i2) [gamma(z+1),gamma(z-1),gamma(z+2)/gamma(z+1)];
                                gamma(z)
-(%o9)             [z gamma(z), --------, z + 1]
+(%o2)             [z gamma(z), --------, z + 1]
                                 z - 1
+@end group
 @end example
 
 The derivative of @code{gamma}:
 
-@example
-(%i10) diff(gamma(z),z);
-(%o10)                  psi (z) gamma(z)
+@c ===beg===
+@c diff(gamma(z),z);
+@c ===end===
+@example maxima
+@group
+(%i1) diff(gamma(z),z);
+(%o1)                   psi (z) gamma(z)
                            0
+@end group
 @end example
 
 See also @mrefdot{makegamma}
@@ -843,13 +914,24 @@ The Euler-Mascheroni constant is @code{%gamma}.
 
 The natural logarithm of the gamma function.
 
-@example
+@c ===beg===
+@c gamma(6);
+@c log_gamma(6);
+@c log_gamma(0.5);
+@c ===end===
+@example maxima
+@group
 (%i1) gamma(6);
-(%o1)                                 120
+(%o1)                          120
+@end group
+@group
 (%i2) log_gamma(6);
-(%o2)                              log(120)
+(%o2)                       log(120)
+@end group
+@group
 (%i3) log_gamma(0.5);
-(%o3)                         0.5723649429247004
+(%o3)                  0.5723649429247004
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -984,37 +1066,55 @@ When @code{gamma_expand} is @code{true}, @code{gamma_incomplete(v,z)}
 is expanded in terms of
 @code{z}, @code{exp(z)}, and @mref{gamma_incomplete} or @mref{erfc} when possible.
 
-@example
+@c ===beg===
+@c gamma_incomplete(2,z);
+@c gamma_expand:true;
+@c gamma_incomplete(2,z);
+@c gamma_incomplete(3/2,z);
+@c gamma_incomplete(4/3,z);
+@c gamma_incomplete(a+2,z);
+@c gamma_incomplete(a-2, z);
+@c ===end===
+@example maxima
+@group
 (%i1) gamma_incomplete(2,z);
-(%o1)                       gamma_incomplete(2, z)
+(%o1)                gamma_incomplete(2, z)
+@end group
+@group
 (%i2) gamma_expand:true;
-(%o2)                                true
+(%o2)                         true
+@end group
+@group
 (%i3) gamma_incomplete(2,z);
-                                           - z
-(%o3)                            (z + 1) %e
+                                    - z
+(%o3)                     (z + 1) %e
+@end group
 @group
 (%i4) gamma_incomplete(3/2,z);
-                              - z   sqrt(%pi) erfc(sqrt(z))
-(%o4)               sqrt(z) %e    + -----------------------
-                                               2
+                       - z   sqrt(%pi) erfc(sqrt(z))
+(%o4)        sqrt(z) %e    + -----------------------
+                                        2
 @end group
 @group
 (%i5) gamma_incomplete(4/3,z);
-                                                    1
-                                   gamma_incomplete(-, z)
-                       1/3   - z                    3
-(%o5)                 z    %e    + ----------------------
-                                             3
+                                             1
+                            gamma_incomplete(-, z)
+                1/3   - z                    3
+(%o5)          z    %e    + ----------------------
+                                      3
 @end group
 @group
 (%i6) gamma_incomplete(a+2,z);
-             a               - z
-(%o6)       z  (z + a + 1) %e    + a (a + 1) gamma_incomplete(a, z)
+       a               - z
+(%o6) z  (z + a + 1) %e    + a (a + 1) gamma_incomplete(a, z)
+@end group
+@group
 (%i7) gamma_incomplete(a-2, z);
-        gamma_incomplete(a, z)    a - 2         z            1      - z
-(%o7)   ---------------------- - z      (--------------- + -----) %e
-           (1 - a) (2 - a)               (a - 2) (a - 1)   a - 2
-
+      gamma_incomplete(a, z)    a - 2         z            1
+(%o7) ---------------------- - z      (--------------- + -----)
+         (1 - a) (2 - a)               (a - 2) (a - 1)   a - 2
+                                                              - z
+                                                            %e
 @end group
 @end example
 
@@ -1054,17 +1154,28 @@ functions in @var{expr} into gamma functions.
 
 See also @mrefdot{makefact}
 
-@example
+@c ===beg===
+@c makegamma(binomial(n,k));
+@c makegamma(x!);
+@c makegamma(beta(a,b));
+@c ===end===
+@example maxima
+@group
 (%i1) makegamma(binomial(n,k));
-                                 gamma(n + 1)
-(%o1)                    -----------------------------
-                         gamma(k + 1) gamma(n - k + 1)
+                          gamma(n + 1)
+(%o1)             -----------------------------
+                  gamma(k + 1) gamma(n - k + 1)
+@end group
+@group
 (%i2) makegamma(x!);
-(%o2)                            gamma(x + 1)
+(%o2)                     gamma(x + 1)
+@end group
+@group
 (%i3) makegamma(beta(a,b));
-                               gamma(a) gamma(b)
-(%o3)                          -----------------
-                                 gamma(b + a)
+                        gamma(a) gamma(b)
+(%o3)                   -----------------
+                          gamma(b + a)
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1115,95 +1226,149 @@ Examples:
 
 Simplification, when one of the arguments is an integer:
 
-@example
+@c ===beg===
+@c [beta(2,3),beta(2,1/3),beta(2,a)];
+@c ===end===
+@example maxima
+@group
 (%i1) [beta(2,3),beta(2,1/3),beta(2,a)];
-                               1   9      1
-(%o1)                         [--, -, ---------]
-                               12  4  a (a + 1)
+                        1   9      1
+(%o1)                  [--, -, ---------]
+                        12  4  a (a + 1)
+@end group
 @end example
 
 Simplification for two rational numbers as arguments which sum to an integer:
 
-@example
-(%i2) [beta(1/2,5/2),beta(1/3,2/3),beta(1/4,3/4)];
-                          3 %pi   2 %pi
-(%o2)                    [-----, -------, sqrt(2) %pi]
-                            8    sqrt(3)
+@c ===beg===
+@c [beta(1/2,5/2),beta(1/3,2/3),beta(1/4,3/4)];
+@c ===end===
+@example maxima
+@group
+(%i1) [beta(1/2,5/2),beta(1/3,2/3),beta(1/4,3/4)];
+                   3 %pi   2 %pi
+(%o1)             [-----, -------, sqrt(2) %pi]
+                     8    sqrt(3)
+@end group
 @end example
 
 When setting @code{beta_args_sum_to_integer} to @code{true} more general 
 expression are simplified, when the sum of the arguments is an integer:
 
-@example
-(%i3) beta_args_sum_to_integer:true$
-(%i4) beta(a+1,-a+2);
-                                %pi (a - 1) a
-(%o4)                         ------------------
-                              2 sin(%pi (2 - a))
+@c ===beg===
+@c beta_args_sum_to_integer:true$
+@c beta(a+1,-a+2);
+@c ===end===
+@example maxima
+(%i1) beta_args_sum_to_integer:true$
+@group
+(%i2) beta(a+1,-a+2);
+                         %pi (a - 1) a
+(%o2)                  ------------------
+                       2 sin(%pi (2 - a))
+@end group
 @end example
 
 The possible results, when one of the arguments is a negative integer: 
 
-@example
-(%i5) [beta(-3,1),beta(-3,2),beta(-3,3)];
-                                    1  1    1
-(%o5)                            [- -, -, - -]
-                                    3  6    3
+@c ===beg===
+@c [beta(-3,1),beta(-3,2),beta(-3,3)];
+@c ===end===
+@example maxima
+@group
+(%i1) [beta(-3,1),beta(-3,2),beta(-3,3)];
+                             1  1    1
+(%o1)                     [- -, -, - -]
+                             3  6    3
+@end group
 @end example
 
 @code{beta(a+n,b)} or @code{beta(a-n,b)} with @code{n} an integer simplifies when 
 @mref{beta_expand} is @code{true}:
 
-@example
-(%i6) beta_expand:true$
-(%i7) [beta(a+1,b),beta(a-1,b),beta(a+1,b)/beta(a,b+1)];
-                    a beta(a, b)  beta(a, b) (b + a - 1)  a
-(%o7)              [------------, ----------------------, -]
-                       b + a              a - 1           b
-
+@c ===beg===
+@c beta_expand:true$
+@c [beta(a+1,b),beta(a-1,b),beta(a+1,b)/beta(a,b+1)];
+@c ===end===
+@example maxima
+(%i1) beta_expand:true$
+@group
+(%i2) [beta(a+1,b),beta(a-1,b),beta(a+1,b)/beta(a,b+1)];
+             a beta(a, b)  beta(a, b) (b + a - 1)  a
+(%o2)       [------------, ----------------------, -]
+                b + a              a - 1           b
+@end group
 @end example
 
 Beta is not defined, when one of the arguments is zero:
 
-@example
-(%i7) beta(0,b);
+@c ===beg===
+@c beta(0,b);
+@c ===end===
 beta: expected nonzero arguments; found 0, b
- -- an error.  To debug this try debugmode(true);
+ -- an error. To debug this try: debugmode(true);
+@example maxima
+(%i1) beta(0,b);
 @end example
 
 Numerical evaluation for real and complex arguments in float or bigfloat
 precision:
 
-@example
-(%i8) beta(2.5,2.3);
-(%o8) .08694748611299981
-
-(%i9) beta(2.5,1.4+%i);
-(%o9) 0.0640144950796695 - .1502078053286415 %i
-
-(%i10) beta(2.5b0,2.3b0);
-(%o10) 8.694748611299969b-2
-
-(%i11) beta(2.5b0,1.4b0+%i);
-(%o11) 6.401449507966944b-2 - 1.502078053286415b-1 %i
+@c ===beg===
+@c beta(2.5,2.3);
+@c beta(2.5,1.4+%i);
+@c beta(2.5b0,2.3b0);
+@c beta(2.5b0,1.4b0+%i);
+@c ===end===
+@example maxima
+@group
+(%i1) beta(2.5,2.3);
+(%o1)                  0.08694748611299981
+@end group
+@group
+(%i2) beta(2.5,1.4+%i);
+(%o2)     0.06401449507966957 - 0.15020780532864159 %i
+@end group
+@group
+(%i3) beta(2.5b0,2.3b0);
+(%o3)                 8.694748611299965b-2
+@end group
+@group
+(%i4) beta(2.5b0,1.4b0+%i);
+(%o4)    6.401449507966939b-2 - 1.502078053286414b-1 %i
+@end group
 @end example
 
 Beta is symmetric and has mirror symmetry:
 
-@example
-(%i14) beta(a,b)-beta(b,a);
-(%o14)                                 0
-(%i15) declare(a,complex,b,complex)$
-(%i16) conjugate(beta(a,b));
-(%o16)                 beta(conjugate(a), conjugate(b))
+@c ===beg===
+@c beta(a,b)-beta(b,a);
+@c declare(a,complex,b,complex)$
+@c conjugate(beta(a,b));
+@c ===end===
+@example maxima
+@group
+(%i1) beta(a,b)-beta(b,a);
+(%o1)                           0
+@end group
+(%i2) declare(a,complex,b,complex)$
+@group
+(%i3) conjugate(beta(a,b));
+(%o3)           beta(conjugate(a), conjugate(b))
+@end group
 @end example
 
 The derivative of the beta function wrt @code{a}:
 
-@example
-(%i17) diff(beta(a,b),a);
-(%o17)               - beta(a, b) (psi (b + a) - psi (a))
-                                      0             0
+@c ===beg===
+@c diff(beta(a,b),a);
+@c ===end===
+@example maxima
+@group
+(%i1) diff(beta(a,b),a);
+(%o1)         - beta(a, b) (psi (b + a) - psi (a))
+                               0             0
+@end group
 @end example
 
 @opencatbox{Categories:}
