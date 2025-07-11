@@ -730,7 +730,7 @@ if test x"${enable_build_docs}" = xtrue ; then
            TEXI_EXTRA_TAIL=''
         else
            TEXI_EXTRA_HEAD='texinfo_set_from_init_file("EXTRA_HEAD", '
-           HLJS_CSS_SELECTOR="'.example-preformatted'"
+           HLJS_CSS_SELECTOR="'.example.user-maxima .example-preformatted'"
            TEXI_EXTRA_TAIL=')'
         fi
         if test x${syntax_highlight} = xtrue; then

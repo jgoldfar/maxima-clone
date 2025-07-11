@@ -60,7 +60,7 @@ Some examples of elliptic functions:
 @c diff (jacobi_sn (u, m), u);
 @c diff (jacobi_sn (u, m), m);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) jacobi_sn (u, m);
 (%o1)                    jacobi_sn(u, m)
@@ -102,7 +102,7 @@ Some examples of elliptic integrals:
 @c diff (elliptic_f (phi, m), phi);
 @c diff (elliptic_f (phi, m), m);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) elliptic_f (phi, m);
 (%o1)                  elliptic_f(phi, m)
@@ -330,7 +330,7 @@ Some examples:
 @c jacobi_am(0.5, 1.5);
 @c jacobi_am(1.5b0, 1.5b0+%i);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) jacobi_am(z,0);
 (%o1)                           z
@@ -362,7 +362,7 @@ Some examples:
 @c ===beg===
 @c plot2d([jacobi_am(x,.4),jacobi_am(x,.7),jacobi_am(x,.99),jacobi_am(x,.999999)],[x,0,10*%pi]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) plot2d([jacobi_am(x,.4),jacobi_am(x,.7),jacobi_am(x,.99),jacobi_am(x,.999999)],[x,0,10*%pi]);
 (%o1)                         false
