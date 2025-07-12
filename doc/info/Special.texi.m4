@@ -2736,131 +2736,249 @@ For @code{expintrep} set to @code{expintegral_e1}:
 
 For @code{expintrep} set to @code{expintegral_ei}:
 
-@example
+@c ===beg===
+@c expintrep:'expintegral_ei;
+@c expintegral_e1(z);
+@c expintegral_ei(z);
+@c expintegral_li(z);
+@c expintegral_e(n,z);
+@c expintegral_si(z);
+@c expintegral_ci(z);
+@c expintegral_shi(z);
+@c expintegral_chi(z);
+@c ===end===
+@example maxima
+@group
 (%i1) expintrep:'expintegral_ei;
-(%o1)                           expintegral_ei
+(%o1)                    expintegral_ei
+@end group
+@group
 (%i2) expintegral_e1(z);
-                                          1
-                         log(- z) - log(- -)
-                                          z
-(%o2)       (- log(z)) + ------------------- - expintegral_ei(- z)
-                                  2
+                                  1
+                 log(- z) - log(- -)
+                                  z
+(%o2) - log(z) + ------------------- - expintegral_ei(- z)
+                          2
+@end group
+@group
 (%i3) expintegral_ei(z);
-(%o3)                          expintegral_ei(z)
+(%o3)                   expintegral_ei(z)
+@end group
+@group
 (%i4) expintegral_li(z);
-(%o4)                       expintegral_ei(log(z))
+(%o4)                expintegral_ei(log(z))
+@end group
+@group
 (%i5) expintegral_e(n,z);
-(%o5)                         expintegral_e(n, z)
+(%o5)                  expintegral_e(n, z)
+@end group
+@group
 (%i6) expintegral_si(z);
-(%o6) (%i (log(%i z) + 2 (expintegral_ei(- %i z) - expintegral_ei(%i z))
-                                                            %i          %i
-                                        - log(- %i z) + log(--) - log(- --)))/4
-                                                            z           z
+(%o6) (%i (log(%i z) + 2 (expintegral_ei(- %i z)
+                                              %i          %i
+  - expintegral_ei(%i z)) - log(- %i z) + log(--) - log(- --)))/4
+                                              z           z
+@end group
+@group
 (%i7) expintegral_ci(z);
-(%o7) ((- log(%i z)) + 2 (expintegral_ei(%i z) + expintegral_ei(- %i z))
-                                                    %i          %i
-                                - log(- %i z) + log(--) + log(- --))/4 + log(z)
-                                                    z           z
+(%o7) (- log(%i z) + 2 (expintegral_ei(%i z)
+                                               %i          %i
+ + expintegral_ei(- %i z)) - log(- %i z) + log(--) + log(- --))/4
+                                               z           z
+ + log(z)
+@end group
+@group
 (%i8) expintegral_shi(z);
-(%o8) ((- 2 log(z)) + 2 (expintegral_ei(z) - expintegral_ei(- z)) + log(- z)
-                                                                          1
-                                                                  - log(- -))/4
-                                                                          z
+(%o8) (- 2 log(z) + 2 (expintegral_ei(z) - expintegral_ei(- z))
+                                                            1
+                                         + log(- z) - log(- -))/4
+                                                            z
+@end group
+@group
 (%i9) expintegral_chi(z);
-(%o9) 
-                                                                             1
-   2 log(z) + 2 (expintegral_ei(z) + expintegral_ei(- z)) - log(- z) + log(- -)
-                                                                             z
-   ----------------------------------------------------------------------------
-                                        4
+(%o9) (2 log(z) + 2 (expintegral_ei(z) + expintegral_ei(- z))
+                                                            1
+                                         - log(- z) + log(- -))/4
+                                                            z
+@end group
 @end example
 
 For @code{expintrep} set to @code{expintegral_li}:
 
-@example
+@c ===beg===
+@c expintrep:'expintegral_li;
+@c expintegral_e1(z);
+@c expintegral_ei(z);
+@c expintegral_li(z);
+@c expintegral_e(n,z);
+@c expintegral_si(z);
+@c expintegral_ci(z);
+@c expintegral_shi(z);
+@c expintegral_chi(z);
+@c ===end===
+@example maxima
+@group
 (%i1) expintrep:'expintegral_li;
-(%o1)                           expintegral_li
+(%o1)                    expintegral_li
+@end group
+@group
 (%i2) expintegral_e1(z);
-                                                                 1
-                                                log(- z) - log(- -)
-                               - z                               z
-(%o2)      (- expintegral_li(%e   )) - log(z) + -------------------
-                                                         2
+                                                          1
+                                         log(- z) - log(- -)
+                         - z                              z
+(%o2) - expintegral_li(%e   ) - log(z) + -------------------
+                                                  2
+@end group
+@group
 (%i3) expintegral_ei(z);
-                                               z
-(%o3)                         expintegral_li(%e )
+                                        z
+(%o3)                  expintegral_li(%e )
+@end group
+@group
 (%i4) expintegral_li(z);
-(%o4)                          expintegral_li(z)
+(%o4)                   expintegral_li(z)
+@end group
+@group
 (%i5) expintegral_e(n,z);
-(%o5)                         expintegral_e(n, z)
+(%o5)                  expintegral_e(n, z)
+@end group
+@group
 (%i6) expintegral_si(z);
-                             %i z                     - %e z    %pi signum(z)
-        %i (expintegral_li(%e    ) - expintegral_li(%e      ) - -------------)
-                                                                      2
-(%o6) - ----------------------------------------------------------------------
-                                          2
+                              %i z                     - %e z
+(%o6) - (%i (expintegral_li(%e    ) - expintegral_li(%e      )
+                                                %pi signum(z)
+                                              - -------------))/2
+                                                      2
+@end group
+@group
 (%i7) expintegral_ci(z);
-                        %i z                     - %i z
-       expintegral_li(%e    ) + expintegral_li(%e      )
-(%o7)  ------------------------------------------------- - signum(z) + 1
-                               2
+                       %i z                     - %i z
+      expintegral_li(%e    ) + expintegral_li(%e      )
+(%o7) -------------------------------------------------
+                              2
+                                                  - signum(z) + 1
+@end group
+@group
 (%i8) expintegral_shi(z);
-                                   z                     - z
-                  expintegral_li(%e ) - expintegral_li(%e   )
-(%o8)             -------------------------------------------
-                                       2
+                            z                     - z
+           expintegral_li(%e ) - expintegral_li(%e   )
+(%o8)      -------------------------------------------
+                                2
+@end group
+@group
 (%i9) expintegral_chi(z);
-                                   z                     - z
-                  expintegral_li(%e ) + expintegral_li(%e   )
-(%o9)             -------------------------------------------
-                                       2
+                            z                     - z
+           expintegral_li(%e ) + expintegral_li(%e   )
+(%o9)      -------------------------------------------
+                                2
+@end group
 @end example
 
 For @code{expintrep} set to @code{expintegral_trig}:
 
-@example
+@c ===beg===
+@c expintrep:'expintegral_trig;
+@c expintegral_e1(z);
+@c expintegral_ei(z);
+@c expintegral_li(z);
+@c expintegral_e(n,z);
+@c expintegral_si(z);
+@c expintegral_ci(z);
+@c expintegral_shi(z);
+@c expintegral_chi(z);
+@c ===end===
+@example maxima
+@group
 (%i1) expintrep:'expintegral_trig;
-(%o1)                          expintegral_trig
+(%o1)                   expintegral_trig
+@end group
+@group
 (%i2) expintegral_e1(z);
-(%o2) log(%i z) - %i expintegral_si(%i z) - expintegral_ci(%i z) - log(z)
+(%o2) log(%i z) - %i expintegral_si(%i z) - expintegral_ci(%i z)
+                                                         - log(z)
+@end group
+@group
 (%i3) expintegral_ei(z);
-(%o3) (- log(%i z)) - %i expintegral_si(%i z) + expintegral_ci(%i z) + log(z)
+(%o3) - log(%i z) - %i expintegral_si(%i z)
+                                  + expintegral_ci(%i z) + log(z)
+@end group
+@group
 (%i4) expintegral_li(z);
-(%o4) (- log(%i log(z))) - %i expintegral_si(%i log(z))
-                                      + expintegral_ci(%i log(z)) + log(log(z))
+(%o4) - log(%i log(z)) - %i expintegral_si(%i log(z))
+                        + expintegral_ci(%i log(z)) + log(log(z))
+@end group
+@group
 (%i5) expintegral_e(n,z);
-(%o5)                         expintegral_e(n, z)
+(%o5)                  expintegral_e(n, z)
+@end group
+@group
 (%i6) expintegral_si(z);
-(%o6)                          expintegral_si(z)
+(%o6)                   expintegral_si(z)
+@end group
+@group
 (%i7) expintegral_ci(z);
-(%o7)                          expintegral_ci(z)
+(%o7)                   expintegral_ci(z)
+@end group
+@group
 (%i8) expintegral_shi(z);
-(%o8)                      - %i expintegral_si(%i z)
+(%o8)               - %i expintegral_si(%i z)
+@end group
+@group
 (%i9) expintegral_chi(z);
-(%o9)            (- log(%i z)) + expintegral_ci(%i z) + log(z)
+(%o9)      - log(%i z) + expintegral_ci(%i z) + log(z)
+@end group
 @end example
 
 For @code{expintrep} set to @code{expintegral_hyp}:
 
-@example
+@c ===beg===
+@c expintrep:'expintegral_hyp;
+@c expintegral_e1(z);
+@c expintegral_ei(z);
+@c expintegral_li(z);
+@c expintegral_e(n,z);
+@c expintegral_si(z);
+@c expintegral_ci(z);
+@c expintegral_shi(z);
+@c expintegral_chi(z);
+@c ===end===
+@example maxima
+@group
 (%i1) expintrep:'expintegral_hyp;
-(%o1)                           expintegral_hyp
+(%o1)                    expintegral_hyp
+@end group
+@group
 (%i2) expintegral_e1(z);
-(%o2)               expintegral_shi(z) - expintegral_chi(z)
+(%o2)        expintegral_shi(z) - expintegral_chi(z)
+@end group
+@group
 (%i3) expintegral_ei(z);
-(%o3)               expintegral_shi(z) + expintegral_chi(z)
+(%o3)        expintegral_shi(z) + expintegral_chi(z)
+@end group
+@group
 (%i4) expintegral_li(z);
-(%o4)          expintegral_shi(log(z)) + expintegral_chi(log(z))
+(%o4)   expintegral_shi(log(z)) + expintegral_chi(log(z))
+@end group
+@group
 (%i5) expintegral_e(n,z);
-(%o5)                         expintegral_e(n, z)
+(%o5)                  expintegral_e(n, z)
+@end group
+@group
 (%i6) expintegral_si(z);
-(%o6)                     - %i expintegral_shi(%i z)
+(%o6)              - %i expintegral_shi(%i z)
+@end group
+@group
 (%i7) expintegral_ci(z);
-(%o7)           (- log(%i z)) + expintegral_chi(%i z) + log(z)
+(%o7)     - log(%i z) + expintegral_chi(%i z) + log(z)
+@end group
+@group
 (%i8) expintegral_shi(z);
-(%o8)                         expintegral_shi(z)
+(%o8)                  expintegral_shi(z)
+@end group
+@group
 (%i9) expintegral_chi(z);
-(%o9)                         expintegral_chi(z)
+(%o9)                  expintegral_chi(z)
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -2876,25 +2994,42 @@ Expand @code{expintegral_e(n,z)} for half
 integral values in terms of @code{erfc} or @code{erf} and
 for positive integers in terms of @code{expintegral_ei}.
 
-@example
+@c ===beg===
+@c expintegral_e(1/2,z);
+@c expintegral_e(1,z);
+@c expintexpand:true;
+@c expintegral_e(1/2,z);
+@c expintegral_e(1,z);
+@c ===end===
+@example maxima
+@group
 (%i1) expintegral_e(1/2,z);
-                                            1
-(%o1)                         expintegral_e(-, z)
-                                            2
+                                     1
+(%o1)                  expintegral_e(-, z)
+                                     2
+@end group
+@group
 (%i2) expintegral_e(1,z);
-(%o2)                         expintegral_e(1, z)
+(%o2)                  expintegral_e(1, z)
+@end group
+@group
 (%i3) expintexpand:true;
-(%o3)                                true
+(%o3)                         true
+@end group
+@group
 (%i4) expintegral_e(1/2,z);
-                            sqrt(%pi) erfc(sqrt(z))
-(%o4)                       -----------------------
-                                    sqrt(z)
+                     sqrt(%pi) erfc(sqrt(z))
+(%o4)                -----------------------
+                             sqrt(z)
+@end group
+@group
 (%i5) expintegral_e(1,z);
-                               1
-                         log(- -) - log(- z)
-                               z
-(%o5)       (- log(z)) - ------------------- - expintegral_ei(- z)
-                                  2
+                       1
+                 log(- -) - log(- z)
+                       z
+(%o5) - log(z) - ------------------- - expintegral_ei(- z)
+                          2
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -3034,83 +3169,147 @@ modified.  When set to @code{erf}, all error functions (@mref{erfc},
 @code{erfi} converts the functions to @mref{erfi}.
 
 Converting to @mref{erf}:
-@example
+@c ===beg===
+@c erf_representation:erf;
+@c erfc(z);
+@c erfi(z);
+@c erf_generalized(z1,z2);
+@c fresnel_c(z);
+@c fresnel_s(z);
+@c ===end===
+@example maxima
+@group
 (%i1) erf_representation:erf;
-(%o1)                                true
+(%o1)                          erf
+@end group
+@group
 (%i2) erfc(z);
-(%o2)                               erfc(z)
+(%o2)                      1 - erf(z)
+@end group
+@group
 (%i3) erfi(z);
-(%o3)                               erfi(z)
+(%o3)                    - %i erf(%i z)
+@end group
+@group
 (%i4) erf_generalized(z1,z2);
-(%o4)                          erf(z2) - erf(z1)
+(%o4)                   erf(z2) - erf(z1)
+@end group
+@group
 (%i5) fresnel_c(z);
-                    sqrt(%pi) (%i + 1) z           sqrt(%pi) (1 - %i) z
-      (1 - %i) (erf(--------------------) + %i erf(--------------------))
-                             2                              2
-(%o5) -------------------------------------------------------------------
-                                       4
+                     sqrt(%pi) (%i + 1) z
+(%o5) ((1 - %i) (erf(--------------------)
+                              2
+                                        sqrt(%pi) (1 - %i) z
+                               + %i erf(--------------------)))/4
+                                                 2
+@end group
+@group
 (%i6) fresnel_s(z);
-                    sqrt(%pi) (%i + 1) z           sqrt(%pi) (1 - %i) z
-      (%i + 1) (erf(--------------------) - %i erf(--------------------))
-                             2                              2
-(%o6) -------------------------------------------------------------------
-                                       4
-
+                     sqrt(%pi) (%i + 1) z
+(%o6) ((%i + 1) (erf(--------------------)
+                              2
+                                        sqrt(%pi) (1 - %i) z
+                               - %i erf(--------------------)))/4
+                                                 2
+@end group
 @end example
 
 Converting to @mref{erfc}:
-@example
+@c ===beg===
+@c erf_representation:erfc;
+@c erf(z);
+@c erfc(z);
+@c erf_generalized(z1,z2);
+@c fresnel_s(c);
+@c fresnel_c(c);
+@c ===end===
+@example maxima
+@group
 (%i1) erf_representation:erfc;
-(%o1)                                erfc
+(%o1)                         erfc
+@end group
+@group
 (%i2) erf(z);
-(%o2)                             1 - erfc(z)
+(%o2)                      1 - erfc(z)
+@end group
+@group
 (%i3) erfc(z);
-(%o3)                               erfc(z)
+(%o3)                        erfc(z)
+@end group
+@group
 (%i4) erf_generalized(z1,z2);
-(%o4)                         erfc(z1) - erfc(z2)
+(%o4)                  erfc(z1) - erfc(z2)
+@end group
+@group
 (%i5) fresnel_s(c);
-                         sqrt(%pi) (%i + 1) c
-(%o5) ((%i + 1) ((- erfc(--------------------))
-                                  2
-                                                 sqrt(%pi) (1 - %i) c
-                                  - %i (1 - erfc(--------------------)) + 1))/4
-                                                          2
+                        sqrt(%pi) (%i + 1) c
+(%o5) ((%i + 1) (- erfc(--------------------)
+                                 2
+                                   sqrt(%pi) (1 - %i) c
+                    - %i (1 - erfc(--------------------)) + 1))/4
+                                            2
+@end group
+@group
 (%i6) fresnel_c(c);
-                         sqrt(%pi) (%i + 1) c
-(%o6) ((1 - %i) ((- erfc(--------------------))
-                                  2
-                                                 sqrt(%pi) (1 - %i) c
-                                  + %i (1 - erfc(--------------------)) + 1))/4
-                                                          2
+                        sqrt(%pi) (%i + 1) c
+(%o6) ((1 - %i) (- erfc(--------------------)
+                                 2
+                                   sqrt(%pi) (1 - %i) c
+                    + %i (1 - erfc(--------------------)) + 1))/4
+                                            2
+@end group
 @end example
 
 Converting to @mref{erfc}:
 
-@example
+@c ===beg===
+@c erf_representation:erfi;
+@c erf(z);
+@c erfc(z);
+@c erfi(z);
+@c erf_generalized(z1,z2);
+@c fresnel_s(z);
+@c fresnel_c(z);
+@c ===end===
+@example maxima
+@group
 (%i1) erf_representation:erfi;
-(%o1)                                erfi
+(%o1)                         erfi
+@end group
+@group
 (%i2) erf(z);
-(%o2)                           - %i erfi(%i z)
+(%o2)                    - %i erfi(%i z)
+@end group
+@group
 (%i3) erfc(z);
-(%o3)                          %i erfi(%i z) + 1
+(%o3)                   %i erfi(%i z) + 1
+@end group
+@group
 (%i4) erfi(z);
-(%o4)                               erfi(z)
+(%o4)                        erfi(z)
+@end group
+@group
 (%i5) erf_generalized(z1,z2);
-(%o5)                   %i erfi(%i z1) - %i erfi(%i z2)
+(%o5)            %i erfi(%i z1) - %i erfi(%i z2)
+@end group
+@group
 (%i6) fresnel_s(z);
-                            sqrt(%pi) %i (%i + 1) z
-(%o6) ((%i + 1) ((- %i erfi(-----------------------))
-                                       2
-                                                   sqrt(%pi) (1 - %i) %i z
-                                            - erfi(-----------------------)))/4
-                                                              2
+                           sqrt(%pi) %i (%i + 1) z
+(%o6) ((%i + 1) (- %i erfi(-----------------------)
+                                      2
+                                     sqrt(%pi) (1 - %i) %i z
+                              - erfi(-----------------------)))/4
+                                                2
+@end group
+@group
 (%i7) fresnel_c(z);
-(%o7) 
-                   sqrt(%pi) (1 - %i) %i z            sqrt(%pi) %i (%i + 1) z
-    (1 - %i) (erfi(-----------------------) - %i erfi(-----------------------))
-                              2                                  2
-    ---------------------------------------------------------------------------
-                                         4
+                      sqrt(%pi) (1 - %i) %i z
+(%o7) ((1 - %i) (erfi(-----------------------)
+                                 2
+                                     sqrt(%pi) %i (%i + 1) z
+                           - %i erfi(-----------------------)))/4
+                                                2
+@end group
 @end example
 @end defvr
 
@@ -3122,50 +3321,77 @@ Enables transformation to a Hypergeometric
 representation for @mref{fresnel_s} and @mref{fresnel_c} and other
 error functions.
 
-@example
+@c ===beg===
+@c hypergeometric_representation:true;
+@c fresnel_s(z);
+@c fresnel_c(z);
+@c erf(z);
+@c erfi(z);
+@c erfc(z);
+@c erf_generalized(z1,z2);
+@c ===end===
+@example maxima
+@group
 (%i1) hypergeometric_representation:true;
-(%o1)                                true
+(%o1)                         true
+@end group
+@group
 (%i2) fresnel_s(z);
-                                                      2  4
-                                     3    3  7     %pi  z    3
-                 %pi hypergeometric([-], [-, -], - -------) z
-                                     4    2  4       16
-(%o2)            ---------------------------------------------
-                                       6
+                                               2  4
+                              3    3  7     %pi  z    3
+          %pi hypergeometric([-], [-, -], - -------) z
+                              4    2  4       16
+(%o2)     ---------------------------------------------
+                                6
+@end group
+@group
 (%i3) fresnel_c(z);
-                                                    2  4
-                                   1    1  5     %pi  z
-(%o3)              hypergeometric([-], [-, -], - -------) z
-                                   4    2  4       16
+                                             2  4
+                            1    1  5     %pi  z
+(%o3)       hypergeometric([-], [-, -], - -------) z
+                            4    2  4       16
+@end group
+@group
 (%i4) erf(z);
-                                        1    3      2
-                      2 hypergeometric([-], [-], - z ) z
-                                        2    2
-(%o4)                 ----------------------------------
-                                  sqrt(%pi)
+                                                   2
+                                    3    2      - z
+             2 hypergeometric([1], [-], z ) z %e
+                                    2
+(%o4)        ---------------------------------------
+                            sqrt(%pi)
+@end group
+@group
 (%i5) erfi(z);
-                                         1    3    2
-                       2 hypergeometric([-], [-], z ) z
-                                         2    2
-(%o5)                  --------------------------------
-                                  sqrt(%pi)
+                                  1    3    2
+                2 hypergeometric([-], [-], z ) z
+                                  2    2
+(%o5)           --------------------------------
+                           sqrt(%pi)
+@end group
+@group
 (%i6) erfc(z);
-                                          1    3      2
-                        2 hypergeometric([-], [-], - z ) z
-                                          2    2
-(%o6)               1 - ----------------------------------
-                                    sqrt(%pi)
+                                                     2
+                                      3    2      - z
+               2 hypergeometric([1], [-], z ) z %e
+                                      2
+(%o6)      1 - ---------------------------------------
+                              sqrt(%pi)
+@end group
+@group
 (%i7) erf_generalized(z1,z2);
-                        1    3       2
-      2 hypergeometric([-], [-], - z2 ) z2
-                        2    2
-(%o7) ------------------------------------
-                   sqrt(%pi)
-                                                             1    3       2
-                                           2 hypergeometric([-], [-], - z1 ) z1
-                                                             2    2
-                                         - ------------------------------------
-                                                        sqrt(%pi)
+                                               2
+                             3     2       - z2
+      2 hypergeometric([1], [-], z2 ) z2 %e
+                             2
+(%o7) ------------------------------------------
+                      sqrt(%pi)
+                                                                2
+                                              3     2       - z1
+                       2 hypergeometric([1], [-], z1 ) z1 %e
+                                              2
+                     - ------------------------------------------
+                                       sqrt(%pi)
+@end group
 @end example
 
 @end defvr
@@ -3306,31 +3532,58 @@ expanded polynomial.
 
 Examples:
 
-@example
+@c ===beg===
+@c  hypergeometric([],[],x);
+@c ===end===
+@example maxima
+@group
 (%i1)  hypergeometric([],[],x);
-(%o1) %e^x
+                                 x
+(%o1)                          %e
+@end group
 @end example
 
 Polynomial cases automatically expand when @code{expand_hypergeometric} is true:
 
-@example
-(%i2) hypergeometric([-3],[7],x);
-(%o2) hypergeometric([-3],[7],x)
-
-(%i3) hypergeometric([-3],[7],x), expand_hypergeometric : true;
-(%o3) -x^3/504+3*x^2/56-3*x/7+1
+@c ===beg===
+@c hypergeometric([-3],[7],x);
+@c hypergeometric([-3],[7],x), expand_hypergeometric : true;
+@c ===end===
+@example maxima
+@group
+(%i1) hypergeometric([-3],[7],x);
+(%o1)             hypergeometric([- 3], [7], x)
+@end group
+@group
+(%i2) hypergeometric([-3],[7],x), expand_hypergeometric : true;
+                        3       2
+                       x     3 x    3 x
+(%o2)                - --- + ---- - --- + 1
+                       504    56     7
+@end group
 @end example
 
 Both double float and big float evaluation is supported:
 
-@example
-(%i4) hypergeometric([5.1],[7.1 + %i],0.42);
-(%o4)       1.346250786375334 - 0.0559061414208204 %i
-(%i5) hypergeometric([5,6],[8], 5.7 - %i);
-(%o5)     .007375824009774946 - .001049813688578674 %i
-(%i6) hypergeometric([5,6],[8], 5.7b0 - %i), fpprec : 30;
-(%o6) 7.37582400977494674506442010824b-3
+@c ===beg===
+@c hypergeometric([5.1],[7.1 + %i],0.42);
+@c hypergeometric([5,6],[8], 5.7 - %i);
+@c hypergeometric([5,6],[8], 5.7b0 - %i), fpprec : 30;
+@c ===end===
+@example maxima
+@group
+(%i1) hypergeometric([5.1],[7.1 + %i],0.42);
+(%o1)      1.3462507863753337 - 0.0559061414208204 %i
+@end group
+@group
+(%i2) hypergeometric([5,6],[8], 5.7 - %i);
+(%o2)    0.007375824009774945 - 0.0010498136885786736 %i
+@end group
+@group
+(%i3) hypergeometric([5,6],[8], 5.7b0 - %i), fpprec : 30;
+(%o3) 7.37582400977494674506442010824b-3
                           - 1.04981368857867315858055393376b-3 %i
+@end group
 @end example
 @end deffn
 
