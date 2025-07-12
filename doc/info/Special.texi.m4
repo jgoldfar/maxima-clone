@@ -1481,117 +1481,175 @@ Examples:
 
 Simplification for @var{a} a positive integer:
 
-@example
+@c ===beg===
+@c beta_incomplete(2,b,z);
+@c ===end===
+@example maxima
+@group
 (%i1) beta_incomplete(2,b,z);
-                                       b
-                            1 - (1 - z)  (b z + 1)
-(%o1)                       ----------------------
-                                  b (b + 1)
+                                b
+                     1 - (1 - z)  (b z + 1)
+(%o1)                ----------------------
+                           b (b + 1)
+@end group
 @end example
 
 Simplification for @var{b} a positive integer:
 
-@example
-(%i2) beta_incomplete(a,2,z);
-                                               a
-                              (a (1 - z) + 1) z
-(%o2)                         ------------------
-                                  a (a + 1)
+@c ===beg===
+@c beta_incomplete(a,2,z);
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete(a,2,z);
+                                        a
+                       (a (1 - z) + 1) z
+(%o1)                  ------------------
+                           a (a + 1)
+@end group
 @end example
 
 Simplification for @var{a} and @var{b} a positive integer:
 
-@example
-(%i3) beta_incomplete(3,2,z);
+@c ===beg===
+@c beta_incomplete(3,2,z);
+@c ===end===
+@example maxima
 @group
-                                               3
-                              (3 (1 - z) + 1) z
-(%o3)                         ------------------
-                                      12
+(%i1) beta_incomplete(3,2,z);
+                                        3
+                       (3 (1 - z) + 1) z
+(%o1)                  ------------------
+                               12
 @end group
 @end example
 
 @var{a} is a negative integer and @math{b<=(-a)}, Maxima simplifies:
 
-@example
-(%i4) beta_incomplete(-3,1,z);
-                                       1
-(%o4)                              - ----
-                                        3
-                                     3 z
+@c ===beg===
+@c beta_incomplete(-3,1,z);
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete(-3,1,z);
+                                1
+(%o1)                        - ----
+                                  3
+                               3 z
+@end group
 @end example
 
 For the specific values @math{z=0} and @math{z=1}, Maxima simplifies:
 
-@example
-(%i5) assume(a>0,b>0)$
-(%i6) beta_incomplete(a,b,0);
-(%o6)                                 0
-(%i7) beta_incomplete(a,b,1);
-(%o7)                            beta(a, b)
+@c ===beg===
+@c assume(a>0,b>0)$
+@c beta_incomplete(a,b,0);
+@c beta_incomplete(a,b,1);
+@c ===end===
+@example maxima
+(%i1) assume(a>0,b>0)$
+@group
+(%i2) beta_incomplete(a,b,0);
+(%o2)                           0
+@end group
+@group
+(%i3) beta_incomplete(a,b,1);
+(%o3)                      beta(a, b)
+@end group
 @end example
 
 Numerical evaluation in float or bigfloat precision:
 
-@example
-(%i8) beta_incomplete(0.25,0.50,0.9);
-(%o8)                          4.594959440269333
-(%i9)  fpprec:25$
-(%i10) beta_incomplete(0.25,0.50,0.9b0);
-(%o10)                    4.594959440269324086971203b0
+@c ===beg===
+@c beta_incomplete(0.25,0.50,0.9);
+@c fpprec:25$
+@c beta_incomplete(0.25,0.50,0.9b0);
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete(0.25,0.50,0.9);
+(%o1)                   4.594959440269333
+@end group
+(%i2) fpprec:25$
+@group
+(%i3) beta_incomplete(0.25,0.50,0.9b0);
+(%o3)             4.594959440269324086971216b0
+@end group
 @end example
 
 For @math{abs(z)>1} @code{beta_incomplete} returns a complex result:
 
-@example
-(%i11) beta_incomplete(0.25,0.50,1.7);
-(%o11)              5.244115108584249 - 1.45518047787844 %i
+@c ===beg===
+@c beta_incomplete(0.25,0.50,1.7);
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete(0.25,0.50,1.7);
+(%o1)       5.244115108584249 - 1.4551804778784403 %i
+@end group
 @end example
 
 Results for more general complex arguments:
 
-@example
-(%i14) beta_incomplete(0.25+%i,1.0+%i,1.7+%i);
-(%o14)             2.726960675662536 - .3831175704269199 %i
-(%i15) beta_incomplete(1/2,5/4*%i,2.8+%i);
-(%o15)             13.04649635168716 %i - 5.802067956270001
-(%i16) 
+@c ===beg===
+@c beta_incomplete(0.25+%i,1.0+%i,1.7+%i);
+@c beta_incomplete(1/2,5/4*%i,2.8+%i);
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete(0.25+%i,1.0+%i,1.7+%i);
+(%o1)      2.7269606756625384 - 0.38311757042691896 %i
+@end group
+@group
+(%i2) beta_incomplete(1/2,5/4*%i,2.8+%i);
+(%o2)      13.046496351687155 %i - 5.8020679562699975
+@end group
 @end example
 
 Expansion, when @mref{beta_expand} is @code{true}:
 
-@example
-(%i23) beta_incomplete(a+1,b,z),beta_expand:true;
-                                                       b  a
-                   a beta_incomplete(a, b, z)   (1 - z)  z
-(%o23)             -------------------------- - -----------
-                             b + a                 b + a
-
-(%i24) beta_incomplete(a-1,b,z),beta_expand:true;
-                                                       b  a - 1
-       beta_incomplete(a, b, z) (- b - a + 1)   (1 - z)  z
-(%o24) -------------------------------------- - ---------------
-                       1 - a                         1 - a
+@c ===beg===
+@c beta_incomplete(a+1,b,z),beta_expand:true;
+@c beta_incomplete(a-1,b,z),beta_expand:true;
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete(a+1,b,z),beta_expand:true;
+                                                b  a
+            a beta_incomplete(a, b, z)   (1 - z)  z
+(%o1)       -------------------------- - -----------
+                      b + a                 b + a
+@end group
+@group
+(%i2) beta_incomplete(a-1,b,z),beta_expand:true;
+                                                      b  a - 1
+      beta_incomplete(a, b, z) (- b - a + 1)   (1 - z)  z
+(%o2) -------------------------------------- - ---------------
+                      1 - a                         1 - a
+@end group
 @end example
  
 Derivative and integral for @code{beta_incomplete}:
 
-@example
-(%i34) diff(beta_incomplete(a, b, z), z);
+@c ===beg===
+@c diff(beta_incomplete(a, b, z), z);
+@c integrate(beta_incomplete(a, b, z), z);
+@c factor(diff(%, z));
+@c ===end===
+@example maxima
 @group
+(%i1) diff(beta_incomplete(a, b, z), z);
                               b - 1  a - 1
-(%o34)                 (1 - z)      z
+(%o1)                  (1 - z)      z
 @end group
-(%i35) integrate(beta_incomplete(a, b, z), z);
-              b  a
-       (1 - z)  z
-(%o35) ----------- + beta_incomplete(a, b, z) z
-          b + a
-                                       a beta_incomplete(a, b, z)
-                                     - --------------------------
-                                                 b + a
-(%i36) factor(diff(%, z));
-(%o36)              beta_incomplete(a, b, z)
+@group
+(%i2) integrate(beta_incomplete(a, b, z), z);
+(%o2) beta_incomplete(a, b, z) z - beta_incomplete(a + 1, b, z)
+@end group
+@group
+(%i3) factor(diff(%, z));
+(%o3)               beta_incomplete(a, b, z)
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1651,78 +1709,118 @@ Examples:
 
 Simplification for @var{a} or @var{b} a positive integer:
 
-@example
+@c ===beg===
+@c beta_incomplete_regularized(2,b,z);
+@c beta_incomplete_regularized(a,2,z);
+@c beta_incomplete_regularized(3,2,z);
+@c ===end===
+@example maxima
+@group
 (%i1) beta_incomplete_regularized(2,b,z);
-                                       b
-(%o1)                       1 - (1 - z)  (b z + 1)
-
+                                b
+(%o1)                1 - (1 - z)  (b z + 1)
+@end group
+@group
 (%i2) beta_incomplete_regularized(a,2,z);
-                                               a
-(%o2)                         (a (1 - z) + 1) z
-
+                                        a
+(%o2)                  (a (1 - z) + 1) z
+@end group
+@group
 (%i3) beta_incomplete_regularized(3,2,z);
-                                               3
-(%o3)                         (3 (1 - z) + 1) z
+                                        3
+(%o3)                  (3 (1 - z) + 1) z
+@end group
 @end example
 
 For the specific values @math{z=0} and @math{z=1}, Maxima simplifies:
 
-@example
-(%i4) assume(a>0,b>0)$
-(%i5) beta_incomplete_regularized(a,b,0);
-(%o5)                                 0
-(%i6) beta_incomplete_regularized(a,b,1);
-(%o6)                                 1
+@c ===beg===
+@c assume(a>0,b>0)$
+@c beta_incomplete_regularized(a,b,0);
+@c beta_incomplete_regularized(a,b,1);
+@c ===end===
+@example maxima
+(%i1) assume(a>0,b>0)$
+@group
+(%i2) beta_incomplete_regularized(a,b,0);
+(%o2)                           0
+@end group
+@group
+(%i3) beta_incomplete_regularized(a,b,1);
+(%o3)                           1
+@end group
 @end example
 
 Numerical evaluation for real and complex arguments in float and bigfloat 
 precision:
 
-@example
-(%i7) beta_incomplete_regularized(0.12,0.43,0.9);
-(%o7)                         .9114011367359802
-(%i8) fpprec:32$
-(%i9) beta_incomplete_regularized(0.12,0.43,0.9b0);
-(%o9)               9.1140113673598075519946998779975b-1
-(%i10) beta_incomplete_regularized(1+%i,3/3,1.5*%i);
-(%o10)             .2865367499935403 %i - 0.122995963334684
-(%i11) fpprec:20$
-(%i12) beta_incomplete_regularized(1+%i,3/3,1.5b0*%i);
-(%o12)      2.8653674999354036142b-1 %i - 1.2299596333468400163b-1
+@c ===beg===
+@c beta_incomplete_regularized(0.12,0.43,0.9);
+@c fpprec:32$
+@c beta_incomplete_regularized(0.12,0.43,0.9b0);
+@c beta_incomplete_regularized(1+%i,3/3,1.5*%i);
+@c fpprec:20$
+@c beta_incomplete_regularized(1+%i,3/3,1.5b0*%i);
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete_regularized(0.12,0.43,0.9);
+(%o1)                  0.9114011367359802
+@end group
+(%i2) fpprec:32$
+@group
+(%i3) beta_incomplete_regularized(0.12,0.43,0.9b0);
+(%o3)         9.1140113673598029169207248506439b-1
+@end group
+@group
+(%i4) beta_incomplete_regularized(1+%i,3/3,1.5*%i);
+(%o4)      0.2865367499935405 %i - 0.12299596333468409
+@end group
+(%i5) fpprec:20$
+@group
+(%i6) beta_incomplete_regularized(1+%i,3/3,1.5b0*%i);
+(%o6) 2.8653674999354031589b-1 %i - 1.2299596333468401976b-1
+@end group
 @end example
 
 Expansion, when @mref{beta_expand} is @code{true}:
 
-@example
-(%i13) beta_incomplete_regularized(a+1,b,z);
-                                                     b  a
-                                              (1 - z)  z
-(%o13) beta_incomplete_regularized(a, b, z) - ------------
-                                              a beta(a, b)
-(%i14) beta_incomplete_regularized(a-1,b,z);
-(%o14) beta_incomplete_regularized(a, b, z)
-                                                     b  a - 1
-                                              (1 - z)  z
-                                         - ----------------------
-                                           beta(a, b) (b + a - 1)
+@c ===beg===
+@c beta_incomplete_regularized(a+1,b,z);
+@c beta_incomplete_regularized(a-1,b,z);
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete_regularized(a+1,b,z);
+(%o1)       beta_incomplete_regularized(a + 1, b, z)
+@end group
+@group
+(%i2) beta_incomplete_regularized(a-1,b,z);
+(%o2)       beta_incomplete_regularized(a - 1, b, z)
+@end group
 @end example
 
 The derivative and the integral wrt @var{z}:
 
-@example
-(%i15) diff(beta_incomplete_regularized(a,b,z),z);
+@c ===beg===
+@c diff(beta_incomplete_regularized(a,b,z),z);
+@c integrate(beta_incomplete_regularized(a,b,z),z);
+@c ===end===
+@example maxima
+@group
+(%i1) diff(beta_incomplete_regularized(a,b,z),z);
                               b - 1  a - 1
                        (1 - z)      z
-(%o15)                 -------------------
+(%o1)                  -------------------
                            beta(a, b)
-(%i16) integrate(beta_incomplete_regularized(a,b,z),z);
-(%o16) beta_incomplete_regularized(a, b, z) z
-                                                           b  a
-                                                    (1 - z)  z
-          a (beta_incomplete_regularized(a, b, z) - ------------)
-                                                    a beta(a, b)
-        - -------------------------------------------------------
-                                   b + a
+@end group
+@group
+(%i2) integrate(beta_incomplete_regularized(a,b,z),z);
+(%o2) beta_incomplete_regularized(a, b, z) z
+                       a beta_incomplete_regularized(a + 1, b, z)
+                     - ------------------------------------------
+                                         b + a
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1797,103 +1895,158 @@ Examples:
 Maxima simplifies @code{beta_incomplete_generalized} for @var{a} and @var{b} a 
 positive integer:
 
-@example
+@c ===beg===
+@c beta_incomplete_generalized(2,b,z1,z2);
+@c beta_incomplete_generalized(a,2,z1,z2);
+@c beta_incomplete_generalized(3,2,z1,z2);
+@c ===end===
+@example maxima
+@group
 (%i1) beta_incomplete_generalized(2,b,z1,z2);
                    b                      b
            (1 - z1)  (b z1 + 1) - (1 - z2)  (b z2 + 1)
 (%o1)      -------------------------------------------
                             b (b + 1)
-(%i2) beta_incomplete_generalized(a,2,z1,z2);
+@end group
 @group
+(%i2) beta_incomplete_generalized(a,2,z1,z2);
                               a                      a
            (a (1 - z2) + 1) z2  - (a (1 - z1) + 1) z1
 (%o2)      -------------------------------------------
                             a (a + 1)
 @end group
+@group
 (%i3) beta_incomplete_generalized(3,2,z1,z2);
               2      2                       2      2
       (1 - z1)  (3 z1  + 2 z1 + 1) - (1 - z2)  (3 z2  + 2 z2 + 1)
 (%o3) -----------------------------------------------------------
                                   12
+@end group
 @end example
 
 Simplification for specific values @math{z1=0}, @math{z2=0}, @math{z1=1}, or 
 @math{z2=1}:
 
-@example
-(%i4) assume(a > 0, b > 0)$
-(%i5) beta_incomplete_generalized(a,b,z1,0);
-(%o5)                    - beta_incomplete(a, b, z1)
-
-(%i6) beta_incomplete_generalized(a,b,0,z2);
-(%o6)                    - beta_incomplete(a, b, z2)
-
-(%i7) beta_incomplete_generalized(a,b,z1,1);
-(%o7)              beta(a, b) - beta_incomplete(a, b, z1)
-
-(%i8) beta_incomplete_generalized(a,b,1,z2);
-(%o8)              beta_incomplete(a, b, z2) - beta(a, b)
+@c ===beg===
+@c assume(a > 0, b > 0)$
+@c beta_incomplete_generalized(a,b,z1,0);
+@c beta_incomplete_generalized(a,b,0,z2);
+@c beta_incomplete_generalized(a,b,z1,1);
+@c beta_incomplete_generalized(a,b,1,z2);
+@c ===end===
+@example maxima
+(%i1) assume(a > 0, b > 0)$
+@group
+(%i2) beta_incomplete_generalized(a,b,z1,0);
+(%o2)              - beta_incomplete(a, b, z1)
+@end group
+@group
+(%i3) beta_incomplete_generalized(a,b,0,z2);
+(%o3)              - beta_incomplete(a, b, z2)
+@end group
+@group
+(%i4) beta_incomplete_generalized(a,b,z1,1);
+(%o4)        beta(a, b) - beta_incomplete(a, b, z1)
+@end group
+@group
+(%i5) beta_incomplete_generalized(a,b,1,z2);
+(%o5)        beta_incomplete(a, b, z2) - beta(a, b)
+@end group
 @end example
 
 Numerical evaluation for real arguments in float or bigfloat precision:
 
-@example
-(%i9) beta_incomplete_generalized(1/2,3/2,0.25,0.31);
-(%o9)                        .09638178086368676
-
-(%i10) fpprec:32$
-(%i10) beta_incomplete_generalized(1/2,3/2,0.25,0.31b0);
-(%o10)               9.6381780863686935309170054689964b-2
+@c ===beg===
+@c beta_incomplete_generalized(1/2,3/2,0.25,0.31);
+@c fpprec:32$
+@c beta_incomplete_generalized(1/2,3/2,0.25,0.31b0);
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete_generalized(1/2,3/2,0.25,0.31);
+(%o1)                  0.09638178086368676
+@end group
+(%i2) fpprec:32$
+@group
+(%i3) beta_incomplete_generalized(1/2,3/2,0.25,0.31b0);
+(%o3)         9.6381780863686935309170054689964b-2
+@end group
 @end example
 
 Numerical evaluation for complex arguments in float or bigfloat precision:
 
-@example
-(%i11) beta_incomplete_generalized(1/2+%i,3/2+%i,0.25,0.31);
-(%o11)           - .09625463003205376 %i - .003323847735353769
-(%i12) fpprec:20$
-(%i13) beta_incomplete_generalized(1/2+%i,3/2+%i,0.25,0.31b0);
-(%o13)     - 9.6254630032054178691b-2 %i - 3.3238477353543591914b-3
+@c ===beg===
+@c beta_incomplete_generalized(1/2+%i,3/2+%i,0.25,0.31);
+@c fpprec:20$
+@c beta_incomplete_generalized(1/2+%i,3/2+%i,0.25,0.31b0);
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete_generalized(1/2+%i,3/2+%i,0.25,0.31);
+(%o1)   - 0.09625463003205387 %i - 0.0033238477353540463
+@end group
+(%i2) fpprec:20$
+@group
+(%i3) beta_incomplete_generalized(1/2+%i,3/2+%i,0.25,0.31b0);
+(%o3) - 9.6254630032054178691b-2 %i - 3.3238477353543591914b-3
+@end group
 @end example
 
 Expansion for @math{a+n} or @math{a-n}, @var{n} a positive integer, when 
 @mref{beta_expand} is @code{true}: 
 
-@example
-(%i14) beta_expand:true$
-
-(%i15) beta_incomplete_generalized(a+1,b,z1,z2);
-
-               b   a           b   a
-       (1 - z1)  z1  - (1 - z2)  z2
-(%o15) -----------------------------
-                   b + a
+@c ===beg===
+@c beta_expand:true$
+@c beta_incomplete_generalized(a+1,b,z1,z2);
+@c beta_incomplete_generalized(a-1,b,z1,z2);
+@c ===end===
+@example maxima
+(%i1) beta_expand:true$
+@group
+(%i2) beta_incomplete_generalized(a+1,b,z1,z2);
+              b   a           b   a
+      (1 - z1)  z1  - (1 - z2)  z2
+(%o2) -----------------------------
+                  b + a
                       a beta_incomplete_generalized(a, b, z1, z2)
                     + -------------------------------------------
                                          b + a
-(%i16) beta_incomplete_generalized(a-1,b,z1,z2);
-
-       beta_incomplete_generalized(a, b, z1, z2) (- b - a + 1)
-(%o16) -------------------------------------------------------
-                                1 - a
+@end group
+@group
+(%i3) beta_incomplete_generalized(a-1,b,z1,z2);
+      beta_incomplete_generalized(a, b, z1, z2) (- b - a + 1)
+(%o3) -------------------------------------------------------
+                               1 - a
                                     b   a - 1           b   a - 1
                             (1 - z2)  z2      - (1 - z1)  z1
                           - -------------------------------------
                                             1 - a
+@end group
 @end example
 
 Derivative wrt the variable @var{z1} and integrals wrt @var{z1} and @var{z2}:
 
-@example
-(%i17) diff(beta_incomplete_generalized(a,b,z1,z2),z1);
+@c ===beg===
+@c diff(beta_incomplete_generalized(a,b,z1,z2),z1);
+@c integrate(beta_incomplete_generalized(a,b,z1,z2),z1);
+@c integrate(beta_incomplete_generalized(a,b,z1,z2),z2);
+@c ===end===
+@example maxima
+@group
+(%i1) diff(beta_incomplete_generalized(a,b,z1,z2),z1);
                                b - 1   a - 1
-(%o17)               - (1 - z1)      z1
-(%i18) integrate(beta_incomplete_generalized(a,b,z1,z2),z1);
-(%o18) beta_incomplete_generalized(a, b, z1, z2) z1
+(%o1)                - (1 - z1)      z1
+@end group
+@group
+(%i2) integrate(beta_incomplete_generalized(a,b,z1,z2),z1);
+(%o2) beta_incomplete_generalized(a, b, z1, z2) z1
                                   + beta_incomplete(a + 1, b, z1)
-(%i19) integrate(beta_incomplete_generalized(a,b,z1,z2),z2);
-(%o19) beta_incomplete_generalized(a, b, z1, z2) z2
+@end group
+@group
+(%i3) integrate(beta_incomplete_generalized(a,b,z1,z2),z2);
+(%o3) beta_incomplete_generalized(a, b, z1, z2) z2
                                   - beta_incomplete(a + 1, b, z2)
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1967,23 +2120,43 @@ return an exact value.
 The function @mref{bfpsi} in the @code{bffac} package can compute
 numerical values.
 
-@example
+@c ===beg===
+@c psi[0](.25);
+@c psi[0](1/4);
+@c float(%);
+@c psi[2](0.75);
+@c psi[2](3/4);
+@c float(%);
+@c ===end===
+@example maxima
+@group
 (%i1) psi[0](.25);
-(%o1)                        - 4.227453533376265
+(%o1)                  - 4.227453533376265
+@end group
+@group
 (%i2) psi[0](1/4);
-                                        %pi
-(%o2)                    (- 3 log(2)) - --- - %gamma
-                                         2
+                                 %pi
+(%o2)               - 3 log(2) - --- - %gamma
+                                  2
+@end group
+@group
 (%i3) float(%);
-(%o3)                        - 4.227453533376265
+(%o3)                  - 4.227453533376265
+@end group
+@group
 (%i4) psi[2](0.75);
-(%o4)                        - 5.30263321633764
+(%o4)                 - 5.3026332163376395
+@end group
+@group
 (%i5) psi[2](3/4);
-                                   1         3
-(%o5)                         psi (-) + 4 %pi
-                                 2 4
+                             1         3
+(%o5)                   psi (-) + 4 %pi
+                           2 4
+@end group
+@group
 (%i6) float(%);
-(%o6)                        - 5.30263321633764
+(%o6)                 - 5.3026332163376395
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -2001,22 +2174,35 @@ m4_math(<<<\psi^{(n)}(m)>>>,<<<psi[n](x)>>>)
 gives an exact value for
 rational @math{x}.
 
-@example
+@c ===beg===
+@c psi[0](20);
+@c psi[0](21);
+@c psi[2](20);
+@c psi[2](21);
+@c ===end===
+@example maxima
+@group
 (%i1) psi[0](20);
-                             275295799
-(%o1)                        --------- - %gamma
-                             77597520
+                       275295799
+(%o1)                  --------- - %gamma
+                       77597520
+@end group
+@group
 (%i2) psi[0](21);
-(%o2)                             psi (21)
-                                     0
+(%o2)                       psi (21)
+                               0
+@end group
+@group
 (%i3) psi[2](20);
-                      1683118856778495358491487
-(%o3)              2 (------------------------- - zeta(3))
-                      1401731326612193601024000
+                1683118856778495358491487
+(%o3)        2 (------------------------- - zeta(3))
+                1401731326612193601024000
+@end group
+@group
 (%i4) psi[2](21);
-(%o4)                            psi (21)
-                                      2
-
+(%o4)                       psi (21)
+                               2
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -2039,27 +2225,40 @@ m4_math(<<<\psi^{(n)}(x)>>>,<<<psi[n](x)>>>)
 will not
 return simplified answer, even if it could.
 
-@example
+@c ===beg===
+@c psi[0](-100/9);
+@c psi[0](-100/11);
+@c psi[2](-100/9);
+@c psi[2](-100/11);
+@c ===end===
+@example maxima
+@group
 (%i1) psi[0](-100/9);
-                                        100
-(%o1)                            psi (- ---)
-                                    0    9
+                                  100
+(%o1)                      psi (- ---)
+                              0    9
+@end group
+@group
 (%i2) psi[0](-100/11);
-                         100 %pi         1     5231385863539
-(%o2)            %pi cot(-------) + psi (--) + -------------
-                           11          0 11    381905105400
-
+                   100 %pi         1     5231385863539
+(%o2)      %pi cot(-------) + psi (--) + -------------
+                     11          0 11    381905105400
+@end group
+@group
 (%i3) psi[2](-100/9);
-                                        100
-(%o3)                            psi (- ---)
-                                    2    9
+                                  100
+(%o3)                      psi (- ---)
+                              2    9
+@end group
+@group
 (%i4) psi[2](-100/11);
            3     100 %pi     2 100 %pi         1
 (%o4) 2 %pi  cot(-------) csc (-------) + psi (--)
                    11            11          2 11
-                                         74191313259470963498957651385614962459
-                                       + --------------------------------------
-                                          27850718060013605318710152732000000
+                           74191313259470963498957651385614962459
+                         + --------------------------------------
+                            27850718060013605318710152732000000
+@end group
 @end example
 @opencatbox{Categories:}
 @category{Gamma and factorial functions}
@@ -2078,25 +2277,42 @@ m4_math(<<<\psi^{(0)}(x)>>>,<<<@code{psi[0](x)}>>>)
 will not try to
 return a simplified value.
 
-@example
+@c ===beg===
+@c psi[0](3/4);
+@c psi[2](3/4);
+@c maxpsifracnum:2;
+@c psi[0](3/4);
+@c psi[2](3/4);
+@c ===end===
+@example maxima
+@group
 (%i1) psi[0](3/4);
-                                        %pi
-(%o1)                    (- 3 log(2)) + --- - %gamma
-                                         2
+                                 %pi
+(%o1)               - 3 log(2) + --- - %gamma
+                                  2
+@end group
+@group
 (%i2) psi[2](3/4);
-                                   1         3
-(%o2)                         psi (-) + 4 %pi
-                                 2 4
+                             1         3
+(%o2)                   psi (-) + 4 %pi
+                           2 4
+@end group
+@group
 (%i3) maxpsifracnum:2;
-(%o3)                                 2
+(%o3)                           2
+@end group
+@group
 (%i4) psi[0](3/4);
-                                        3
-(%o4)                              psi (-)
-                                      0 4
+                                  3
+(%o4)                        psi (-)
+                                0 4
+@end group
+@group
 (%i5) psi[2](3/4);
-                                   1         3
-(%o5)                         psi (-) + 4 %pi
-                                 2 4
+                             1         3
+(%o5)                   psi (-) + 4 %pi
+                           2 4
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -2116,25 +2332,42 @@ m4_math(<<<\psi^{(0)}(x)>>>,<<<@code{psi[@var{0}](@var{x})}>>>)
 will
 not try to return a simplified value.
 
-@example
+@c ===beg===
+@c psi[0](3/4);
+@c psi[2](3/4);
+@c maxpsifracdenom:2;
+@c psi[0](3/4);
+@c psi[2](3/4);
+@c ===end===
+@example maxima
+@group
 (%i1) psi[0](3/4);
-                                        %pi
-(%o1)                    (- 3 log(2)) + --- - %gamma
-                                         2
+                                 %pi
+(%o1)               - 3 log(2) + --- - %gamma
+                                  2
+@end group
+@group
 (%i2) psi[2](3/4);
-                                   1         3
-(%o2)                         psi (-) + 4 %pi
-                                 2 4
+                             1         3
+(%o2)                   psi (-) + 4 %pi
+                           2 4
+@end group
+@group
 (%i3) maxpsifracdenom:2;
-(%o3)                                 2
+(%o3)                           2
+@end group
+@group
 (%i4) psi[0](3/4);
-                                        3
-(%o4)                              psi (-)
-                                      0 4
+                                  3
+(%o4)                        psi (-)
+                                0 4
+@end group
+@group
 (%i5) psi[2](3/4);
-                                   1         3
-(%o5)                         psi (-) + 4 %pi
-                                 2 4
+                             1         3
+(%o5)                   psi (-) + 4 %pi
+                           2 4
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -2152,17 +2385,28 @@ functions in @var{expr} into factorials.
 
 See also @mrefdot{makegamma}
 
-@example
+@c ===beg===
+@c makefact(binomial(n,k));
+@c makefact(gamma(x));
+@c makefact(beta(a,b));
+@c ===end===
+@example maxima
+@group
 (%i1) makefact(binomial(n,k));
-                                      n!
-(%o1)                             -----------
-                                  k! (n - k)!
+                               n!
+(%o1)                      -----------
+                           k! (n - k)!
+@end group
+@group
 (%i2) makefact(gamma(x));
-(%o2)                              (x - 1)!
+(%o2)                       (x - 1)!
+@end group
+@group
 (%i3) makefact(beta(a,b));
-                               (a - 1)! (b - 1)!
-(%o3)                          -----------------
-                                 (b + a - 1)!
+                        (a - 1)! (b - 1)!
+(%o3)                   -----------------
+                          (b + a - 1)!
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -2179,15 +2423,23 @@ Returns the numerical factor multiplying the expression
 @c WHY IS content MENTIONED IN THIS CONTEXT ??
 @mref{content} returns the greatest common divisor (gcd) of all terms in a sum.
 
-@example
+@c ===beg===
+@c gamma (7/2);
+@c numfactor (%);
+@c ===end===
+@example maxima
+@group
 (%i1) gamma (7/2);
                           15 sqrt(%pi)
 (%o1)                     ------------
                                8
+@end group
+@group
 (%i2) numfactor (%);
                                15
 (%o2)                          --
                                8
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -2373,62 +2625,113 @@ function specified where @code{expintegral_trig} means
 means @mref{expintegral_shi} or @mref{expintegral_chi}.
 
 Here are some examples for @code{expintrep} set to @code{gamma_incomplete}:
-@example
+@c ===beg===
+@c expintrep:'gamma_incomplete;
+@c expintegral_e1(z);
+@c expintegral_ei(z);
+@c expintegral_li(z);
+@c expintegral_e(n,z);
+@c expintegral_si(z);
+@c expintegral_ci(z);
+@c expintegral_shi(z);
+@c expintegral_chi(z);
+@c ===end===
+@example maxima
+@group
 (%i1) expintrep:'gamma_incomplete;
-(%o1)                          gamma_incomplete
+(%o1)                   gamma_incomplete
+@end group
+@group
 (%i2) expintegral_e1(z);
-(%o2)                       gamma_incomplete(0, z)
+(%o2)                gamma_incomplete(0, z)
+@end group
+@group
 (%i3) expintegral_ei(z);
-(%o3)            log(z) - log(- z) - gamma_incomplete(0, - z)
+(%o3)     log(z) - log(- z) - gamma_incomplete(0, - z)
+@end group
+@group
 (%i4) expintegral_li(z);
-(%o4)     log(log(z)) - log(- log(z)) - gamma_incomplete(0, - log(z))
+(%o4) log(log(z)) - log(- log(z)) - gamma_incomplete(0, - log(z))
+@end group
+@group
 (%i5) expintegral_e(n,z);
-                                                   n - 1
-(%o5)                  gamma_incomplete(1 - n, z) z
+                                            n - 1
+(%o5)           gamma_incomplete(1 - n, z) z
+@end group
+@group
 (%i6) expintegral_si(z);
-(%o6) (%i ((- log(%i z)) + log(- %i z) - gamma_incomplete(0, %i z)
-                                              + gamma_incomplete(0, - %i z)))/2
+(%o6) (%i (- log(%i z) + log(- %i z) - gamma_incomplete(0, %i z)
+                                + gamma_incomplete(0, - %i z)))/2
+@end group
+@group
 (%i7) expintegral_ci(z);
-(%o7) log(z) - (log(%i z) + log(- %i z) + gamma_incomplete(0, %i z)
-                                               + gamma_incomplete(0, - %i z))/2
+(%o7) log(z) - (log(%i z) + log(- %i z)
+     + gamma_incomplete(0, %i z) + gamma_incomplete(0, - %i z))/2
+@end group
+@group
 (%i8) expintegral_shi(z);
-      log(z) - log(- z) + gamma_incomplete(0, z) - gamma_incomplete(0, - z)
-(%o8) ---------------------------------------------------------------------
-                                        2
+(%o8) (log(z) - log(- z) + gamma_incomplete(0, z)
+                                    - gamma_incomplete(0, - z))/2
+@end group
+@group
 (%i9) expintegral_chi(z);
-(%o9) 
-      (- log(z)) + log(- z) + gamma_incomplete(0, z) + gamma_incomplete(0, - z)
-    - -------------------------------------------------------------------------
-                                          2
+(%o9) - (- log(z) + log(- z) + gamma_incomplete(0, z)
+                                    + gamma_incomplete(0, - z))/2
+@end group
 @end example
 
 For @code{expintrep} set to @code{expintegral_e1}:
 
-@example
+@c ===beg===
+@c expintrep:'expintegral_e1;
+@c expintegral_ei(z);
+@c expintegral_li(z);
+@c expintegral_e(n,z);
+@c expintegral_si(z);
+@c expintegral_ci(z);
+@c expintegral_shi(z);
+@c expintegral_chi(z);
+@c ===end===
+@example maxima
+@group
 (%i1) expintrep:'expintegral_e1;
-(%o1)                           expintegral_e1
+(%o1)                    expintegral_e1
+@end group
+@group
 (%i2) expintegral_ei(z);
-(%o2)               log(z) - log(- z) - expintegral_e1(- z)
+(%o2)        log(z) - log(- z) - expintegral_e1(- z)
+@end group
+@group
 (%i3) expintegral_li(z);
-(%o3)       log(log(z)) - log(- log(z)) - expintegral_e1(- log(z))
+(%o3) log(log(z)) - log(- log(z)) - expintegral_e1(- log(z))
+@end group
+@group
 (%i4) expintegral_e(n,z);
-(%o4)                         expintegral_e(n, z)
+(%o4)                  expintegral_e(n, z)
+@end group
+@group
 (%i5) expintegral_si(z);
-(%o5) (%i ((- log(%i z)) - expintegral_e1(%i z) + log(- %i z)
-                                                   + expintegral_e1(- %i z)))/2
+(%o5) (%i (- log(%i z) - expintegral_e1(%i z) + log(- %i z)
+                                     + expintegral_e1(- %i z)))/2
+@end group
+@group
 (%i6) expintegral_ci(z);
-(%o6) log(z)
-          log(- %i z) (expintegral_e1(%i z) + expintegral_e1(- %i z)) log(%i z)
-        - ---------------------------------------------------------------------
-                                            2
+(%o6) log(z) - (log(- %i z) (expintegral_e1(%i z)
+                           + expintegral_e1(- %i z)) log(%i z))/2
+@end group
+@group
 (%i7) expintegral_shi(z);
-          log(z) + expintegral_e1(z) - log(- z) - expintegral_e1(- z)
-(%o7)     -----------------------------------------------------------
-                                       2
+      log(z) + expintegral_e1(z) - log(- z) - expintegral_e1(- z)
+(%o7) -----------------------------------------------------------
+                                   2
+@end group
+@group
 (%i8) expintegral_chi(z);
-         (- log(z)) + expintegral_e1(z) + log(- z) + expintegral_e1(- z)
-(%o8)  - ---------------------------------------------------------------
-                                        2
+(%o8) 
+    - log(z) + expintegral_e1(z) + log(- z) + expintegral_e1(- z)
+  - -------------------------------------------------------------
+                                  2
+@end group
 @end example
 
 For @code{expintrep} set to @code{expintegral_ei}:
