@@ -187,7 +187,7 @@ x_2 &= -{1\over \sqrt{2}}
 @c fmin_cobyla(x1*x2, [x1, x2], [1,1], 
 @c             constraints = [x1^2+x2^2<=1], iprint=1);
 @c ===end===
-@example
+@example maxima
 (%i1) load("fmin_cobyla")$
 @group
 (%i2) fmin_cobyla(x1*x2, [x1, x2], [1,1],
@@ -230,3 +230,7 @@ is, of course, violated.
 There are additional examples in the share/cobyla/ex directory and in
 share/cobyla/rtest_cobyla.mac.
 
+@c Local Variables: 
+@c mode: texinfo
+@c TeX-master: "include-maxima"
+@c End: 
