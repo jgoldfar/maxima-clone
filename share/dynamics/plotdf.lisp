@@ -145,22 +145,27 @@
     (let (data)
       (setq file (plot-file-path (format nil "~a.xmaxima" (random-name 16))))
       (cond ($show_openplot
-             (setq data (format nil "plotdf ~a ~a~%" cmd opts))
-             (with-open-file
-              (fl
-               #+sbcl (sb-ext:native-namestring file)
-               #-sbcl file
-               :direction :output :if-exists :supersede)
-              (princ data fl))
-             ($system (concatenate 'string *maxima-prefix* 
-                                   (if (string= *autoconf-windows* "true")
-                                       "\\bin\\" "/bin/") 
-                                   $xmaxima_plot_command)
-                      #-(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-                      (format nil " ~s &" file)
-                      #+(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-                      file)
-             (list '(mlist) file))
+             (let (command)
+               (setq data (format nil "plotdf ~a ~a~%" cmd opts))
+               (with-open-file (fl
+                                #+sbcl (sb-ext:native-namestring file)
+                                #-sbcl file
+                                :direction :output :if-exists :supersede)
+                               (princ data fl))
+               (setq command
+                     (concatenate
+                      'string *maxima-prefix* 
+                      (if (string= *autoconf-windows* "true")
+                          "\\bin\\" "/bin/") 
+                      $xmaxima_plot_command
+                      #+(or sbcl openmcl gcl)
+                      (format nil " ~a" file)
+                      #-(or sbcl openmcl gcl)
+                      (format nil " ~s" file)
+                      )
+                     )
+               ($system command)
+               (list '(mlist) file)))
             (t
              (setq data (format nil "{plotdf ~a ~a}" cmd opts))
              (princ data) "")))))
@@ -215,22 +220,27 @@
     (let (data)
       (setq file (plot-file-path (format nil "~a.xmaxima" (random-name 16))))
       (cond ($show_openplot
-             (setq data (format nil "plotdf ~a ~a~%" cmd opts))
-             (with-open-file
-              (fl
-               #+sbcl (sb-ext:native-namestring file)
-               #-sbcl file
-               :direction :output :if-exists :supersede)
-              (princ data fl))
-             ($system (concatenate 'string *maxima-prefix* 
-                                   (if (string= *autoconf-windows* "true")
-                                       "\\bin\\" "/bin/") 
-                                   $xmaxima_plot_command)
-                      #-(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-                      (format nil " ~s &" file)
-                      #+(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-                      file)
-             (list '(mlist) file))
+             (let (command)
+               (setq data (format nil "plotdf ~a ~a~%" cmd opts))
+               (with-open-file (fl
+                                #+sbcl (sb-ext:native-namestring file)
+                                #-sbcl file
+                                :direction :output :if-exists :supersede)
+                               (princ data fl))
+               (setq command
+                     (concatenate
+                      'string *maxima-prefix* 
+                      (if (string= *autoconf-windows* "true")
+                          "\\bin\\" "/bin/") 
+                      $xmaxima_plot_command
+                      #+(or sbcl openmcl gcl)
+                      (format nil " ~a" file)
+                      #-(or sbcl openmcl gcl)
+                      (format nil " ~s" file)
+                      )
+                     )
+               ($system command)
+               (list '(mlist) file)))
             (t
              (setq data (format nil "{plotdf ~a ~a}" cmd opts))
              (princ data) "")))))
