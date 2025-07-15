@@ -322,8 +322,10 @@
   (when out-file
     (setq out-file (plot-file-path out-file preserve-file plot-options))
     ;; plots that create a file work better in gnuplot than gnuplot_pipes
+   #-gcl
     (if (eq (getf plot-options '$plot_format) '$gnuplot_pipes)
-        (setf (getf plot-options '$plot_format) '$gnuplot)))
+        (setf (getf plot-options '$plot_format) '$gnuplot))
+  )
     
   (list terminal-command out-file)))
 
