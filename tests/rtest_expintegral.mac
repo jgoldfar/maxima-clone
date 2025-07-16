@@ -3254,6 +3254,27 @@ done;
 test_complex_table(lambda([z],z*%e^z*expintegral_e1(z)),'ec_1,838,1.25e-6);
 [];
 
+/* Check that expintexpand can only be set to these values and signals an error otherwise */
+(for e in [false, true, erf] do expintexpand:e, true);
+true;
+
+errcatch(expintexpand:42);
+[];
+
+(reset(expintexpand), expintexpand);
+false;
+
+/* Check that expintrep can only be set to these values and signals an error otherwise */
+(for e in [false, expintegral_e1, expintegral_ei, expintegral_li,
+     expintegral_trig, expintegral_hyp, gamma_incomplete] do expintrep:e, true);
+true;
+
+errcatch(expintrep:42);
+[];
+
+(reset(expintrep), expintrep);
+false;
+     
 kill(all);
 done;
 
