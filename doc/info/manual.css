@@ -13,11 +13,24 @@ div.titlebox {border: none; padding-top: 1em; padding-bottom: 1em;
 div.synopsisbox {
     border: none; padding-top: 1em; padding-bottom: 1em; padding-left: 2em;
     padding-right: 2em; background: rgb(255,220,255);}
-pre.example, pre.example-preformatted {border: 1px solid rgb(180,180,180); padding-top: 1em;
-    padding-bottom: 1em; padding-left: 1em; padding-right: 1em;
-    background-color: rgb(238,238,255)}
+pre.example, pre.example-preformatted {
+    border: 1px solid rgb(180,180,180);
+    padding-top: 1em;
+    padding-bottom: 1em;
+    padding-left: 1em;
+    padding-right: 1em;
+    background-color: rgb(238,238,255);
+    /* Add scrollbar for examples for narrow windows */
+    overflow: auto;
+}
+
 div.spacerbox {border: none; padding-top: 2em; padding-bottom: 2em}
 div.image {margin: 0; padding: 1em; text-align: center}
 div.categorybox {border: 1px solid gray; padding-top: 1em; padding-bottom: 1em;
     padding-left: 1em; padding-right: 1em; background: rgb(247,242,220)}
 img {max-width:80%; max-height: 80%; display: block; margin-left: auto; margin-right: auto}
+
+/* Put background color on the navigation bar */
+.nav-panel {
+    background-color: #DDDDFF;
+}
