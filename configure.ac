@@ -657,12 +657,13 @@ AS_IF([test "x$syntax_highlighting" = "xpygments"],
       AC_MSG_FAILURE(
         [--enable-syntax-highlighting set to "pygments" but pygmentize not found]))])
 
-AS_IF([test "x$syntax_highlight" = "xpygments"],
-  AC_CHECK_PROG([pygmentize], [pygmentize],
-    [true],
-    [false]),
-  AC_MSG_FAILURE(
-     [enable-syntax-highlighting set to pygments but pygmentize not found]))
+AS_IF([test "x$syntax_highlighting" = "xpygments"],
+  [AC_CHECK_PROG([pygmentize_found], [pygmentize],
+    true,
+    false)
+    AS_IF([test "x$pygmetize_found" = "xfalse"],
+      AC_MSG_FAILURE(
+        [--enable-syntax-highlighting set to "pygments" but pygmentize not found]))])
 
 AM_CONDITIONAL(ENABLE_BUILD_DOCS, test x$enable_build_docs = xtrue)
 
@@ -762,7 +763,7 @@ EOF
              AC_MSG_ERROR([Makeinfo version (${makeinfo_version_string}) too old to use pygments for syntax highlighting.  Disable or use highlightjs])
            fi
         fi
-        if test x${syntax_highlight} = xpygments; then
+        if test x${syntax_highlighting} = xpygments; then
            if test ${makeinfo_version} -ge 702; then
              USE_PYGMENTS=true
            else
