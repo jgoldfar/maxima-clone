@@ -657,6 +657,13 @@ AS_IF([test "x$syntax_highlighting" = "xpygments"],
       AC_MSG_FAILURE(
         [--enable-syntax-highlighting set to "pygments" but pygmentize not found]))])
 
+AS_IF([test "x$syntax_highlight" = "xpygments"],
+  AC_CHECK_PROG([pygmentize], [pygmentize],
+    [true],
+    [false]),
+  AC_MSG_FAILURE(
+     [enable-syntax-highlighting set to pygments but pygmentize not found]))
+
 AM_CONDITIONAL(ENABLE_BUILD_DOCS, test x$enable_build_docs = xtrue)
 
 AC_ARG_VAR([MAKEINFO], [The path to the 'makeinfo' executable to use])
@@ -753,6 +760,13 @@ EOF
              USE_PYGMENTS=true
            else
              AC_MSG_ERROR([Makeinfo version (${makeinfo_version_string}) too old to use pygments for syntax highlighting.  Disable or use highlightjs])
+           fi
+        fi
+        if test x${syntax_highlight} = xpygments; then
+           if test ${makeinfo_version} -ge 702; then
+             USE_PYGMENTS=true
+           else
+             AC_MSG_ERROR([Makeinfo version (${makeinfo_version_string}) to old to use pygments for syntax highlighting.  Disable or use highlightjs])
            fi
         fi
         AC_SUBST(TEXI_EXTRA_HEAD)
