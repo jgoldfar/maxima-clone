@@ -194,7 +194,7 @@ specint(t^(3/4)*%e^(-t^2/2/b)*%e^(-p*t),t);
  *    sqrt(%pi)/sqrt(p)*exp(a/p)*erfc(sqrt(a)/sqrt(p))
  */
 ratsimp(specint(t^(-1/2)*%e^(-2*a^(1/2)*t^(1/2))*%e^(-p*t),t));
--sqrt(%pi)*(erf(sqrt(a)/sqrt(p))-1)*%e^(a/p)/sqrt(p)$
+-((sqrt(%pi)*(%e^(a/p)*erf(sqrt(a)/sqrt(p))-%e^(a/p)))/sqrt(p))$
 
 /*
  * The Laplace transform of sin(a*t)*cosh(b*t^2) can be derived by
@@ -2207,4 +2207,13 @@ false;
 
 a[t], nouns;
 false;
+
+(remvalue(a,result,answer),0);
+0$
+
+(map(forget, facts()),0);
+0$
+
+contexts;
+[initial, global]$
 

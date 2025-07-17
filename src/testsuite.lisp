@@ -22,7 +22,7 @@
 	 #+allegro ((mlist simp) 11 13))
         "rtestnset" 
         ((mlist simp) "rtest1"
-	 ((mlist simp) 183 186))
+	 ((mlist simp)))
         ((mlist simp) "rtest1a" ((mlist simp) 33))
         ((mlist simp) "rtest2" ((mlist simp) 86 95))
 	"rtest4"
@@ -139,13 +139,15 @@
                          124 125 126 127 132 133 135 136 137
                          224 238 
                          239 240 241 242 243 244 245 246 249
-                         259 261 262 267 268 269 270 271 272
+                         261 262 267 268 269 270 271 272
                          280 281 282 357 358))
          ((mlist simp) "rtest_limit_gruntz"
           ((mlist simp) 20 25 28 29 30 36 37 38 39 86 96))
 
          ((mlist simp) "rtest_limit_wester"
           ((mlist simp) 12 13))
+
+         ((mlist simp) "rtest_great" ((mlist simp)))
           
         "rtest_gcd"
 	;; The tests that failed with abcl 1.5.0
