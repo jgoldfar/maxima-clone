@@ -167,3 +167,15 @@ div.highlight {
      */
     line-height: normal !important;
 }
+
+/* CSS for pygment highlighting */
+.example.user-maxima {
+    overflow-x: auto
+}
+
+.highlight.pre {
+    /* Lines for highlighted examples are too close by default with
+     *  pygments.  Make it larger.
+     */
+    line-height: 150% !important;
+}
