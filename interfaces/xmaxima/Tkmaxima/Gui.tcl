@@ -70,7 +70,7 @@ proc createConsole {cname} {
     $w mark set lastStart end
     $w mark gravity lastStart left
     bind $w <Configure> "resizeSubPlotWindows $w %w %h; resizeMaxima $w %w %h"
-    $w configure -background white
+    $w configure -background "#FFFAEE"
     $w configure -foreground "#008600"
     $w tag configure input -foreground blue
     $w tag configure output -foreground black
