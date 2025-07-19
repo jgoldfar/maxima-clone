@@ -277,7 +277,10 @@ proc toLocalFilename { url } {
 	    return [file join / [assoc dirname $url] [assoc filename $url] ]
 
 	}
-	default "unknown type: $type"
+        xmaxima {
+            return [assoc filename $url]
+        }
+	default {error "unknown type: $type"}
     }
 }
 
@@ -390,7 +393,11 @@ proc encodeURL { lis } {
 	    #	   appendSeparate ans "" [assoc filename $lis ""] ""
 	    appendSeparate ans "#" [assoc anchor $lis ""] ""
 	}
-	default "error unsupported url type: $type"
+        xmaxima {
+            appendSeparate ans "" $type :/
+            append ans  [dirnamePlusFilename $lis]
+        }
+	default {error "unsupported url type: $type"}
     }
     return $ans
 }
@@ -537,7 +544,14 @@ proc getURL { resolved type {mimeheader ""} {post ""} } {
 	}
 	file {
 	    set name [toLocalFilename $res]
-	    set fi [open $name r]
+            if {[file isfile $name]} {
+                set fi [open $name r]
+            } else {
+                set answer "<h1>Error</h1>\n<p>File: $name not found.</p>"
+                set contentType text/html
+                uplevel 1 set $type $contentType
+                return $answer
+            }
 	    set answer [read $fi]
 	    if { [regexp -nocase {[.]html?$} $name ] || [regexp -nocase "^(\[ \n\t\r\])*<html>" $answer] } {
 		set contentType text/html
@@ -555,6 +569,12 @@ proc getURL { resolved type {mimeheader ""} {post ""} } {
 	    close $fi
 	    return $answer
 	}
+        xmaxima {
+            set answer $maxima_priv(error)
+            set contentType text/html
+            uplevel 1 set $type $contentType
+            return $answer
+        }
 	default {
 	    #mike dirpath?
 	    error [concat [mc "not supported"] "[lindex $res 0]"]

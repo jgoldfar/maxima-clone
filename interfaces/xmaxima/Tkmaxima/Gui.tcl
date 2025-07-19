@@ -14,7 +14,14 @@ proc createBrowser {bname} {
     } else {
         toplevel $bname
         wm title $bname [mc {Xmaxima: browser}]
-        OpenMathOpenUrl $maxima_priv(firstUrl) -toplevel $bname
+        if {[file isfile $maxima_priv(firstUrl)]} {
+            OpenMathOpenUrl $maxima_priv(firstUrl) -toplevel $bname
+        } else {
+            set maxima_priv(error) \
+                "<h1>Error</h1>\
+                <p>Maxima primer not found in: $maxima_priv(firstUrl)</p>"
+             OpenMathOpenUrl "xmaxima://error" -toplevel $bname
+        }
         set maxima_priv(cBrowser) $bname
         set Maxima_default(browser) 1
         # Adds the menubar and the toolbar to the browser
