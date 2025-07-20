@@ -91,32 +91,39 @@ the rest of the template chain.
 
 Examples for general restructuring:
 @c ===beg===
+@c load("format")$
 @c format((a+b*x)*(c-x)^2,%poly(x),factor);
 @c format((1+2*eps*(q+r*cos(g))^2)^4,%series(eps,2),%trig(g),factor);
 @c format((1+2*a+a^2)*b + a*(1+2*b+b^2),%sum,%product,%factor);
 @c format(expand((a+x)^3-a^3),%f-a^3);
 @c ===end===
 @example
+(%i1) load("format")$
 @group
-(%i1) load("format.mac")$
 (%i2) format((a+b*x)*(c-x)^2,%poly(x),factor);
-                   3                2                        2
-(%o2)           b x  - (2 b c - a) x  + c (b c - 2 a) x + a c
+            3                2                        2
+(%o2)    b x  - (2 b c - a) x  + c (b c - 2 a) x + a c
+@end group
+@group
 (%i3) format((1+2*eps*(q+r*cos(g))^2)^4,%series(eps,2),%trig(g),factor);
                    2      2                2
 (%o3) 1 + eps (4 (r  + 2 q ) + 4 cos(2 g) r  + 16 cos(g) q r)
-      2        4       2  2      4                4                  3
- + eps  (3 (3 r  + 24 q  r  + 8 q ) + 3 cos(4 g) r  + 24 cos(3 g) q r
-                     2      2                 2   2      2
- + 24 cos(g) q r (3 r  + 4 q ) + 12 cos(2 g) r  (r  + 6 q )) + . . .
+      2        4       2  2      4                4
+ + eps  (3 (3 r  + 24 q  r  + 8 q ) + 3 cos(4 g) r
+                  3                     2      2
+ + 24 cos(3 g) q r  + 24 cos(g) q r (3 r  + 4 q )
+                2   2      2
+ + 12 cos(2 g) r  (r  + 6 q )) + . . .
+@end group
+@group
 (%i4) format((1+2*a+a^2)*b + a*(1+2*b+b^2),%sum,%product,%factor);
-                                     2          2
-(%o4)                       a (b + 1)  + (a + 1)  b
+                              2          2
+(%o4)                a (b + 1)  + (a + 1)  b
 @end group
 @group
 (%i5) format(expand((a+x)^3-a^3),%f-a^3);
-                                        3    3
-(%o5)                           (x + a)  - a
+                                 3    3
+(%o5)                     (x + a)  - a
 @end group
 @end example
 
@@ -237,6 +244,7 @@ equivalents of structuring templates using subtemplates.
 
 Example with simplification on subexpression:
 @c ===beg===
+@c load("format")$
 @c foo:x^2*sin(y)^4-2*x^2*sin(y)^2+x^4*cos(y)^4-2*x^4*cos(y)^2+x^4+x^2+1$
 @c trigsimp(foo);
 @c format(foo,%p(x),trigsimp);
@@ -246,14 +254,34 @@ Example with simplification on subexpression:
 @c format(m1,%equation,%matrix[%noop,%list[%noop,%factor]]);
 @c ===end===
 @example
+(%i1) load("format")$
+(%i2) foo:x^2*sin(y)^4-2*x^2*sin(y)^2+x^4*cos(y)^4-2*x^4*cos(y)^2+x^4+x^2+1$
 @group
-(%i1) foo:x^2*sin(y)^4-2*x^2*sin(y)^2+x^4*cos(y)^4-2*x^4*cos(y)^2+x^4+x^2+1$
-(%i2) trigsimp(foo);
-                     4    2     4         4    2       4
-(%o2)              (x  + x ) cos (y) - 2 x  cos (y) + x  + 1
-(%i3) format(foo,%p(x),trigsimp);
-                                4    4       2    4
-(%o3)                     x  sin (y) + x  cos (y) + 1
+(%i3) trigsimp(foo);
+              4    2     4         4    2       4
+(%o3)       (x  + x ) cos (y) - 2 x  cos (y) + x  + 1
+@end group
+@group
+(%i4) format(foo,%p(x),trigsimp);
+                    4    4       2    4
+(%o4)              x  sin (y) + x  cos (y) + 1
+@end group
+@group
+(%i5) format([a=b,c=d,e=f],%equation);
+(%o5)                 [a, c, e] = [b, d, f]
+@end group
+@group
+(%i6) format(%,%list);
+(%o6)                 [a = b, c = d, e = f]
+@end group
+(%i7) m1:matrix([a^2+2*a+1=q,b^2+2*b+1=r], [c^2+2*c+1=s,d^2+2*d+1=t])$
+@group
+(%i8) format(m1,%equation,%matrix[%noop,%list[%noop,%factor]]);
+            [  2             2           ]
+            [ a  + 2 a + 1  b  + 2 b + 1 ]   [ q  r ]
+(%o8)       [                            ] = [      ]
+            [  2                     2   ]   [ s  t ]
+            [ c  + 2 c + 1    (d + 1)    ]
 @end group
 @end example
 The following examples illustrate the usage with `bags.'
@@ -365,6 +393,7 @@ operations and is often considerably faster than @code{Taylor_coeffs}.
 
 Examples:
 @c ===beg===
+@c load("format")$
 @c cl1:coeffs((a+b*x)*(c-x)^2,x);
 @c map('first,rest(coeffs((a+b*x)*(c-x)^2=q0+q1*x+q2*x^2+q3*x^3,x)));
 @c trig_coeffs(2*(a+cos(x))*cos(x+3*y),x,y);
@@ -373,24 +402,37 @@ Examples:
 @c coeffs((a+log(b)*x)*(c-log(x))^2,operator(log));
 @c ===end===
 @example
+(%i1) load("format")$
 @group
-(%i1) cl1:coeffs((a+b*x)*(c-x)^2,x);
+(%i2) cl1:coeffs((a+b*x)*(c-x)^2,x);
                        2          2
-(%o1) [[%poly, x], [a c , 0], [b c  - 2 a c, 1], [a - 2 b c, 2], [b, 3]]
-(%i2) map('first,rest(coeffs((a+b*x)*(c-x)^2=q0+q1*x+q2*x^2+q3*x^3,x)));
-                2          2
-(%o2)       [a c  = q0, b c  - 2 a c = q1, a - 2 b c = q2, b = q3]
-(%i3) trig_coeffs(2*(a+cos(x))*cos(x+3*y),x,y);
-(%o3)      [[%trig, x, y], [], [[1, 0, 3], [2 a, 1, 3], [1, 2, 3]]]
-(%i4) series_coeffs((a+b*x)*(c-x)^2,x,2);
-                              2          2
-(%o4)   [[%series, x, 2], [a c , 0], [b c  - 2 a c, 1], [a - 2 b c, 2]]
-(%i5)  coeffs((a+b*x)*sin(x),x);
-(%o5)             [[%poly, x], [a sin(x), 0], [b sin(x), 1]]
-(%i6)  coeffs((a+log(b)*x)*(c-log(x))^2,operator(log));
+(%o2) [[%poly, x], [a c , 0], [b c  - 2 a c, 1], [a - 2 b c, 2], 
+                                                          [b, 3]]
+@end group
+@group
+(%i3) map('first,rest(coeffs((a+b*x)*(c-x)^2=q0+q1*x+q2*x^2+q3*x^3,x)));
+          2          2
+(%o3) [a c  = q0, b c  - 2 a c = q1, a - 2 b c = q2, b = q3]
+@end group
+@group
+(%i4) trig_coeffs(2*(a+cos(x))*cos(x+3*y),x,y);
+(%o4) [[%trig, x, y], [], [[1, 0, 3], [2 a, 1, 3], [1, 2, 3]]]
+@end group
+@group
+(%i5) series_coeffs((a+b*x)*(c-x)^2,x,2);
+                            2          2
+(%o5) [[%series, x, 2], [a c , 0], [b c  - 2 a c, 1], 
+                                                  [a - 2 b c, 2]]
+@end group
+@group
+(%i6) coeffs((a+b*x)*sin(x),x);
+(%o6)      [[%poly, x], [a sin(x), 0], [b sin(x), 1]]
+@end group
+@group
+(%i7) coeffs((a+log(b)*x)*(c-log(x))^2,operator(log));
                                     2           2
-(%o6) [[%poly, log(x), log(b)], [a c , 0, 0], [c  x, 0, 1], [- 2 a c, 1, 0], 
-                                         [- 2 c x, 1, 1], [a, 2, 0], [x, 2, 1]]
+(%o7) [[%poly, log(x), log(b)], [a c , 0, 0], [c  x, 0, 1], 
+          [- 2 a c, 1, 0], [- 2 c x, 1, 1], [a, 2, 0], [x, 2, 1]]
 @end group
 @end example
 
@@ -432,13 +474,15 @@ Analog to @code{partition_poly} for series.
 @noindent
 Example:
 @c ===beg===
+@c load("format")$
 @c partition_poly((a+b*x)*(c-x)^2,'evenp,x);
 @c ===end===
 @example
+(%i1) load("format")$
 @group
-(%i1)  partition_poly((a+b*x)*(c-x)^2,'evenp,x);
-                             2      2     3       2
-(%o1)          [(a - 2 b c) x  + a c , b x  + (b c  - 2 a c) x]
+(%i2) partition_poly((a+b*x)*(c-x)^2,'evenp,x);
+                      2      2     3       2
+(%o2)   [(a - 2 b c) x  + a c , b x  + (b c  - 2 a c) x]
 @end group
 @end example
 
@@ -463,17 +507,21 @@ Returns a list of all argument lists for calls to @var{functions} in @var{expr}.
 @noindent
 Examples:
 @c ===beg===
+@c load("format")$
 @c t2:(a+log(b)*x)*(c-log(x))^2$
 @c matching_parts(t2,constantp);
 @c function_calls(t2,log);
 @c ===end===
 @example
+(%i1) load("format")$
+(%i2) t2:(a+log(b)*x)*(c-log(x))^2$
 @group
-(%i1) t2:(a+log(b)*x)*(c-log(x))^2$
-(%i2) matching_parts(t2,constantp);
-(%o2)                             [2, - 1]
-(%i3) function_calls(t2,log);
-(%o3)                         [log(x), log(b)]
+(%i3) matching_parts(t2,constantp);
+(%o3)                       [2, - 1]
+@end group
+@group
+(%i4) function_calls(t2,log);
+(%o4)                   [log(x), log(b)]
 @end group
 @end example
 
