@@ -350,11 +350,11 @@ with anti-limit equal to log(3) = 1.0986122886681098...
 @end group
 @group
 (%i4) exact: log(3.0);
-(%o4)                  1.0986122886681098
+(%o4)                  1.0986122886681096
 @end group
 @group
 (%i5) s - exact;
-(%o5)                - 1.1131075616788166e-8
+(%o5)                - 1.1131075394743561e-8
 @end group
 @end example
 
