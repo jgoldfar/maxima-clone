@@ -272,8 +272,8 @@ Examples:
 @c cauchy_matrix([x1, x2]);
 @c ===end===
 @example
-(%i1) cauchy_matrix([x1, x2], [y1, y2]);
 @group
+(%i1) cauchy_matrix([x1, x2], [y1, y2]);
                       [    1        1    ]
                       [ -------  ------- ]
                       [ y1 + x1  y2 + x1 ]
@@ -282,7 +282,7 @@ Examples:
                       [ -------  ------- ]
                       [ y1 + x2  y2 + x2 ]
 @end group
-
+@group
 (%i2) cauchy_matrix([x1, x2]);
                       [   1         1    ]
                       [  ----    ------- ]
@@ -291,6 +291,7 @@ Examples:
                       [    1       1     ]
                       [ -------   ----   ]
                       [ x2 + x1   2 x2   ]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1091,18 +1092,17 @@ A matrix which has two eigenvectors for one eigenvalue (namely 2).
 @c ===end===
 @example
 @group
-(%i1) M1: matrix ([0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 2, 0],
-                  [0, 0, 0, 2]);
-                        [ 0  1  0  0 ]
-                        [            ]
-                        [ 0  0  0  0 ]
-(%o1)                   [            ]
-                        [ 0  0  2  0 ]
-                        [            ]
-                        [ 0  0  0  2 ]
+(%i1) M1 : matrix ([0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 2, 0], [0, 0, 0, 2]);
+                         [ 0  1  0  0 ]
+                         [            ]
+                         [ 0  0  0  0 ]
+(%o1)                    [            ]
+                         [ 0  0  2  0 ]
+                         [            ]
+                         [ 0  0  0  2 ]
 @end group
 @group
-(%i2) [vals, vecs]: eigenvectors (M1);
+(%i2) [vals, vecs] : eigenvectors (M1);
 (%o2) [[[0, 2], [2, 2]], [[[1, 0, 0, 0]], 
                                    [[0, 0, 1, 0], [0, 0, 0, 1]]]]
 @end group
