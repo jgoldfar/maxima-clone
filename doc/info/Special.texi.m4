@@ -237,11 +237,11 @@ Numerical evaluation:
 @example
 @group
 (%i1) hankel_1(1,0.5);
-(%o1)        0.24226845767487 - 1.471472392670243 %i
+(%o1)      0.24226845767487384 - 1.4714723926702433 %i
 @end group
 @group
 (%i2) hankel_1(1,0.5+%i);
-(%o2)       - 0.25582879948621 %i - 0.23957560188301
+(%o2)     - 0.2558287994862166 %i - 0.23957560188301597
 @end group
 @end example
 
@@ -2873,19 +2873,27 @@ Examples:
 @c ===end===
 @example
 (%i1) load ("hypergeometric") $
+@group
 (%i2) foo : [hypergeometric([1,1], [2], z), hypergeometric([1/2], [1], z)];
 (%o2) [hypergeometric([1, 1], [2], z), 
                                                      1
                                      hypergeometric([-], [1], z)]
                                                      2
+@end group
+@group
 (%i3) hypergeometric_simp (foo);
-                 log(1 - z)              z    z/2
-(%o3)         [- ----------, bessel_i(0, -) %e   ]
-                     z                   2
+                 log(1 - z)    z/2             z
+(%o3)         [- ----------, %e    bessel_i(0, -)]
+                     z                         2
+@end group
+@group
 (%i4) bar : hypergeometric([n], [m], z + 1);
 (%o4)            hypergeometric([n], [m], z + 1)
+@end group
+@group
 (%i5) hypergeometric_simp (bar);
 (%o5)            hypergeometric([n], [m], z + 1)
+@end group
 @end example
 
 @opencatbox{Categories:}
