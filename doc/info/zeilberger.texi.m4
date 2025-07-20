@@ -1,3 +1,4 @@
+@c -*- mode: texinfo -*-
 @menu
 * Introduction to zeilberger::
 * Functions and Variables for zeilberger::
@@ -131,10 +132,9 @@ Examples:
 (%i1) load ("zeilberger")$
 @group
 (%i2) GosperSum ((-1)^k*k / (4*k^2 - 1), k, 1, n);
-Dependent equations eliminated:  (1)
-                           3       n + 1
-                      (n + -) (- 1)
-                           2               1
+                           n + 1      3
+                      (- 1)      (n + -)
+                                      2    1
 (%o2)               - ------------------ - -
                                   2        4
                       2 (4 (n + 1)  - 1)
@@ -157,14 +157,13 @@ Dependent equations eliminated:  (1)
 @end group
 @group
 (%i5) GosperSum ((-1)^k*a! / (k!*(a - k)!), k, 1, n);
-                                n + 1
-                a! (n + 1) (- 1)              a!
+                     n + 1
+                (- 1)      a! (n + 1)         a!
 (%o5)       - ------------------------- - ----------
-              a (- n + a - 1)! (n + 1)!   a (a - 1)!
+              a (- n + a - 1)! (n + 1)!   (a - 1)! a
 @end group
 @group
 (%i6) GosperSum (k*k!, k, 1, n);
-Dependent equations eliminated:  (1)
 (%o6)                     (n + 1)! - 1
 @end group
 @group
