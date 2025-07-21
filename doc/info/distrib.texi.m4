@@ -5291,7 +5291,14 @@ Maxima knows the following kinds of discrete distributions
 
 @anchor{pdf_general_finite_discrete}
 @deffn {Function} pdf_general_finite_discrete (@var{x},@var{v})
-Returns the value at @var{x} of the probability function of a general finite discrete random variable, with vector probabilities @math{v}, such that @code{Pr(X=i) = v_i}. Vector @math{v} can be a list of nonnegative expressions, whose components will be normalized to get a vector of probabilities. To make use of this function, write first @code{load("distrib")}.
+Returns the value at @var{x} of the probability function of a general
+finite discrete random variable, with vector probabilities @math{v},
+such that @code{Pr(X=i) = v_i}. Vector @math{v} can be a list of
+nonnegative expressions whose components will be normalized to get a
+vector of probabilities. To make use of this function, write first
+@code{load("distrib")}.
+
+Note that @math{i=1} corresponds to the first element of @math{v}.
 
 @c ===beg===
 @c load ("distrib")$
