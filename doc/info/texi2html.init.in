@@ -1,5 +1,4 @@
 @TEXI_EXTRA_HEAD@ q{<link rel="icon" href="figures/favicon.ico">
-<link rel="stylesheet" type="text/css" href="manual.css">
 @HIGHLIGHT1@
 @HIGHLIGHT2@
 @NEED_MATHJAX@}
