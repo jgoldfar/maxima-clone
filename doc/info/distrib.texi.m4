@@ -5293,7 +5293,7 @@ Maxima knows the following kinds of discrete distributions
 @deffn {Function} pdf_general_finite_discrete (@var{x},@var{v})
 Returns the value at @var{x} of the probability function of a general
 finite discrete random variable, with vector probabilities @math{v},
-such that @code{Pr(X=i) = v_i}. Vector @math{v} can be a list of
+such that @math{Pr(X=i) = v_i}. Vector @math{v} can be a list of
 nonnegative expressions whose components will be normalized to get a
 vector of probabilities. To make use of this function, write first
 @code{load("distrib")}.
@@ -5332,7 +5332,7 @@ Note that @math{i=1} corresponds to the first element of @math{v}.
 @deffn {Function} cdf_general_finite_discrete (@var{x},@var{v})
 Returns the value at @var{x} of the cumulative distribution function of a general finite discrete random variable, with vector probabilities @math{v}.
 
-See @code{pdf_general_finite_discrete} for more details.
+See @ref{pdf_general_finite_discrete} for more details.
 
 @c ===beg===
 @c load ("distrib")$
@@ -5373,7 +5373,7 @@ See @code{pdf_general_finite_discrete} for more details.
 @deffn {Function} quantile_general_finite_discrete (@var{q},@var{v})
 Returns the @var{q}-quantile of a general finite discrete random variable, with vector probabilities @math{v}.
 
-See @code{pdf_general_finite_discrete} for more details.
+See @ref{pdf_general_finite_discrete} for more details.
 
 @opencatbox{Categories:}
 @category{Package distrib}
@@ -5386,7 +5386,7 @@ See @code{pdf_general_finite_discrete} for more details.
 @deffn {Function} mean_general_finite_discrete (@var{v})
 Returns the mean of a general finite discrete random variable, with vector probabilities @math{v}.
 
-See @code{pdf_general_finite_discrete} for more details.
+See @ref{pdf_general_finite_discrete} for more details.
 
 @opencatbox{Categories:}
 @category{Package distrib}
@@ -5399,7 +5399,7 @@ See @code{pdf_general_finite_discrete} for more details.
 @deffn {Function} var_general_finite_discrete (@var{v})
 Returns the variance of a general finite discrete random variable, with vector probabilities @math{v}.
 
-See @code{pdf_general_finite_discrete} for more details.
+See @ref{pdf_general_finite_discrete} for more details.
 
 @opencatbox{Categories:}
 @category{Package distrib}
@@ -5412,7 +5412,7 @@ See @code{pdf_general_finite_discrete} for more details.
 @deffn {Function} std_general_finite_discrete (@var{v})
 Returns the standard deviation of a general finite discrete random variable, with vector probabilities @math{v}.
 
-See @code{pdf_general_finite_discrete} for more details.
+See @ref{pdf_general_finite_discrete} for more details.
 
 @opencatbox{Categories:}
 @category{Package distrib}
@@ -5425,7 +5425,7 @@ See @code{pdf_general_finite_discrete} for more details.
 @deffn {Function} skewness_general_finite_discrete (@var{v})
 Returns the skewness coefficient of a general finite discrete random variable, with vector probabilities @math{v}.
 
-See @code{pdf_general_finite_discrete} for more details.
+See @ref{pdf_general_finite_discrete} for more details.
 
 @opencatbox{Categories:}
 @category{Package distrib}
@@ -5438,7 +5438,7 @@ See @code{pdf_general_finite_discrete} for more details.
 @deffn {Function} kurtosis_general_finite_discrete (@var{v})
 Returns the kurtosis coefficient of a general finite discrete random variable, with vector probabilities @math{v}.
 
-See @code{pdf_general_finite_discrete} for more details.
+See @ref{pdf_general_finite_discrete} for more details.
 
 @opencatbox{Categories:}
 @category{Package distrib}
@@ -5453,7 +5453,7 @@ See @code{pdf_general_finite_discrete} for more details.
 
 Returns a general finite discrete random variate, with vector probabilities @math{v}. Calling @code{random_general_finite_discrete} with a second argument @var{m}, a random sample of size @var{m} will be simulated.
 
-See @code{pdf_general_finite_discrete} for more details.
+See @ref{pdf_general_finite_discrete} for more details.
 
 @c ===beg===
 @c load ("distrib")$
