@@ -455,7 +455,7 @@ random variable, with @math{s>0}; in other words, this is the inverse of @mrefdo
 @end group
 @group
 (%i3) float(%);
-(%o3)                   1.644853626951472
+(%o3)                  1.6448536269514724
 @end group
 @end example
 
@@ -986,23 +986,23 @@ Sometimes an extra work is necessary to get the final result.
 (%i1) load ("distrib")$
 @group
 (%i2) expand(pdf_noncentral_student_t(3,5,0.1));
-rat: replaced 0.01889822365046136 by 15934951/843198350 = 0.01889822365046136
+rat: replaced 0.018898223650461364 by 15934951/843198350 = 0.018898223650461364
 
 rat: replaced -8.734356480209641 by -294697965/33740089 = -8.734356480209641
 
 rat: replaced 4.136255165816327 by 51033443/12338079 = 4.136255165816332
 
-rat: replaced 1.08061432164203 by 56754827/52520891 = 1.08061432164203
+rat: replaced 1.0806143216420299 by 49366521/45683756 = 1.0806143216420296
 
 rat: replaced 0.0565127306411839 by 5608717/99246965 = 0.05651273064118384
 
-rat: replaced -300.8069396896258 by -79782423/265228 = -300.8069396896256
+rat: replaced -300.8069396896258 by -79782423/265228 = -300.80693968962555
 
-rat: replaced 160.6269176184973 by 178374907/1110492 = 160.626917618497
-                           7/2                         7/2
-      0.04296414417400905 5      1.323650307289301e-6 5
-(%o2) ------------------------ + -------------------------
-         3/2   5/2                       sqrt(%pi)
+rat: replaced 160.62691761849732 by 178374907/1110492 = 160.62691761849703
+                            7/2                          7/2
+      0.042964144174009046 5      1.3236503072892878e-6 5
+(%o2) ------------------------- + --------------------------
+         3/2   5/2                        sqrt(%pi)
         2    14    sqrt(%pi)
                                                               7/2
                                          1.94793720435093e-4 5
@@ -1011,7 +1011,7 @@ rat: replaced 160.6269176184973 by 178374907/1110492 = 160.626917618497
 @end group
 @group
 (%i3) float(%);
-(%o3)                  0.02080593159405671
+(%o3)                 0.020805931594056706
 @end group
 @end example
 
@@ -1397,12 +1397,12 @@ m4_displaymath(
 (%i1) load ("distrib")$
 @group
 (%i2) pdf_chi2(x,n);
-                   n/2 - 1   - x/2
-                  x        %e      unit_step(x)
+                    - x/2  n/2 - 1
+                  %e      x        unit_step(x)
 (%o2)             -----------------------------
-                                n   n/2
-                          gamma(-) 2
-                                2
+                           n/2       n
+                          2    gamma(-)
+                                     2
 @end group
 @end example
 
@@ -1453,7 +1453,7 @@ where @math{Q(a,z)} is the @ref{gamma_incomplete_regularized} function.
 @end group
 @group
 (%i3) float(%);
-(%o3)                  0.4421745996289252
+(%o3)                  0.44217459962892525
 @end group
 @end example
 
@@ -2316,8 +2316,8 @@ f(x, m) = [
 (%i1) load ("distrib")$
 @group
 (%i2) pdf_exp(x,m);
-                         - m x
-(%o2)                m %e      unit_step(x)
+                       - m x
+(%o2)                %e      m unit_step(x)
 @end group
 @end example
 
@@ -4358,9 +4358,9 @@ f(x, b) = [
 (%i1) load ("distrib")$
 @group
 (%i2) pdf_rayleigh(x,b);
-                              2  2
-                     2     - b  x
-(%o2)             2 b  x %e        unit_step(x)
+                         2  2
+                      - b  x   2
+(%o2)             2 %e        b  x unit_step(x)
 @end group
 @end example
 
@@ -4438,9 +4438,9 @@ m4_Weibull_RV(2,1/b)
 (%i1) load ("distrib")$
 @group
 (%i2) quantile_rayleigh(0.99,b);
-                        2.145966026289347
-(%o2)                   -----------------
-                                b
+                       2.1459660262893467
+(%o2)                  ------------------
+                               b
 @end group
 @end example
 
@@ -5291,7 +5291,14 @@ Maxima knows the following kinds of discrete distributions
 
 @anchor{pdf_general_finite_discrete}
 @deffn {Function} pdf_general_finite_discrete (@var{x},@var{v})
-Returns the value at @var{x} of the probability function of a general finite discrete random variable, with vector probabilities @math{v}, such that @code{Pr(X=i) = v_i}. Vector @math{v} can be a list of nonnegative expressions, whose components will be normalized to get a vector of probabilities. To make use of this function, write first @code{load("distrib")}.
+Returns the value at @var{x} of the probability function of a general
+finite discrete random variable, with vector probabilities @math{v},
+such that @math{Pr(X=i) = v_i}. Vector @math{v} can be a list of
+nonnegative expressions whose components will be normalized to get a
+vector of probabilities. To make use of this function, write first
+@code{load("distrib")}.
+
+Note that @math{i=1} corresponds to the first element of @math{v}.
 
 @c ===beg===
 @c load ("distrib")$
@@ -5325,7 +5332,7 @@ Returns the value at @var{x} of the probability function of a general finite dis
 @deffn {Function} cdf_general_finite_discrete (@var{x},@var{v})
 Returns the value at @var{x} of the cumulative distribution function of a general finite discrete random variable, with vector probabilities @math{v}.
 
-See @code{pdf_general_finite_discrete} for more details.
+See @ref{pdf_general_finite_discrete} for more details.
 
 @c ===beg===
 @c load ("distrib")$
@@ -5366,7 +5373,7 @@ See @code{pdf_general_finite_discrete} for more details.
 @deffn {Function} quantile_general_finite_discrete (@var{q},@var{v})
 Returns the @var{q}-quantile of a general finite discrete random variable, with vector probabilities @math{v}.
 
-See @code{pdf_general_finite_discrete} for more details.
+See @ref{pdf_general_finite_discrete} for more details.
 
 @opencatbox{Categories:}
 @category{Package distrib}
@@ -5379,7 +5386,7 @@ See @code{pdf_general_finite_discrete} for more details.
 @deffn {Function} mean_general_finite_discrete (@var{v})
 Returns the mean of a general finite discrete random variable, with vector probabilities @math{v}.
 
-See @code{pdf_general_finite_discrete} for more details.
+See @ref{pdf_general_finite_discrete} for more details.
 
 @opencatbox{Categories:}
 @category{Package distrib}
@@ -5392,7 +5399,7 @@ See @code{pdf_general_finite_discrete} for more details.
 @deffn {Function} var_general_finite_discrete (@var{v})
 Returns the variance of a general finite discrete random variable, with vector probabilities @math{v}.
 
-See @code{pdf_general_finite_discrete} for more details.
+See @ref{pdf_general_finite_discrete} for more details.
 
 @opencatbox{Categories:}
 @category{Package distrib}
@@ -5405,7 +5412,7 @@ See @code{pdf_general_finite_discrete} for more details.
 @deffn {Function} std_general_finite_discrete (@var{v})
 Returns the standard deviation of a general finite discrete random variable, with vector probabilities @math{v}.
 
-See @code{pdf_general_finite_discrete} for more details.
+See @ref{pdf_general_finite_discrete} for more details.
 
 @opencatbox{Categories:}
 @category{Package distrib}
@@ -5418,7 +5425,7 @@ See @code{pdf_general_finite_discrete} for more details.
 @deffn {Function} skewness_general_finite_discrete (@var{v})
 Returns the skewness coefficient of a general finite discrete random variable, with vector probabilities @math{v}.
 
-See @code{pdf_general_finite_discrete} for more details.
+See @ref{pdf_general_finite_discrete} for more details.
 
 @opencatbox{Categories:}
 @category{Package distrib}
@@ -5431,7 +5438,7 @@ See @code{pdf_general_finite_discrete} for more details.
 @deffn {Function} kurtosis_general_finite_discrete (@var{v})
 Returns the kurtosis coefficient of a general finite discrete random variable, with vector probabilities @math{v}.
 
-See @code{pdf_general_finite_discrete} for more details.
+See @ref{pdf_general_finite_discrete} for more details.
 
 @opencatbox{Categories:}
 @category{Package distrib}
@@ -5446,7 +5453,7 @@ See @code{pdf_general_finite_discrete} for more details.
 
 Returns a general finite discrete random variate, with vector probabilities @math{v}. Calling @code{random_general_finite_discrete} with a second argument @var{m}, a random sample of size @var{m} will be simulated.
 
-See @code{pdf_general_finite_discrete} for more details.
+See @ref{pdf_general_finite_discrete} for more details.
 
 @c ===beg===
 @c load ("distrib")$
@@ -5461,7 +5468,7 @@ See @code{pdf_general_finite_discrete} for more details.
 @end group
 @group
 (%i3) random_general_finite_discrete([1,3,1,5], 10);
-(%o3)            [3, 4, 3, 4, 4, 4, 4, 2, 4, 4]
+(%o3)            [4, 4, 2, 4, 2, 2, 4, 2, 2, 4]
 @end group
 @end example
 
@@ -5774,7 +5781,7 @@ function.
 @end group
 @group
 (%i3) float(%);
-(%o3)                  0.2650259152973619
+(%o3)                  0.26502591529736186
 @end group
 @end example
 
@@ -5972,7 +5979,7 @@ m4_displaymath(
 (%i1) load ("distrib")$
 @group
 (%i2) pdf_bernoulli(1,p);
-(%o2)                           p
+(%o2) if equal(p, 0) then 0 elseif equal(p, 1) then 1 else p
 @end group
 @end example
 

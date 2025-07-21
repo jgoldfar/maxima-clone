@@ -1524,3 +1524,7 @@ if test x"${xmaxima_exe}" = xtrue ; then
      AC_MSG_WARN([A prerequisite for xmaxima.exe not found.  The missing components can be defined on the make command line.])
    fi
 fi
+
+if test -n "x$MAKEINFO"; then
+  echo "Using makeinfo ${MAKEINFO} to generate docs"
+fi

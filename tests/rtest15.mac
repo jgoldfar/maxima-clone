@@ -24,9 +24,11 @@ integrate(3^log(x),x);
 integrate(sqrt(x+1/x-2),x,0,1);
 4/3$
 
-/* bug reported by kevin ellwood.  fixed mar 11 2004 */
-integrate(exp(-k*t)/sqrt(k*t),t);
-sqrt(%pi)*erf(sqrt(k*t))/k$
+/* bug reported by kevin ellwood.  fixed mar 11 2004 
+Let's locally set `expintrep : gamma_incomplete` because it makes it easier to verify the answer is correct.
+*/
+block([expintrep : gamma_incomplete], integrate(exp(-k*t)/sqrt(k*t),t));
+-(gamma_incomplete(1/2,k*t)/k)$
 
 /* a bug in chebyf.  fixed 20 apr 2004. */
 
@@ -910,7 +912,7 @@ block ([foo],
     foo : integrate (cos(a*x)/(1 + x^2), x, 0, inf),
     forget (equal (a, 0)),
     foo);
-%e^-a * (%pi*%e^(2*a) + %pi)/4;
+(%e^-a*(%e^(2*a)+1)*%pi)/4$
 
 /* verify that verbified math functions are not evaluated to numbers
  * bug reported to mailing list 2007-11-19

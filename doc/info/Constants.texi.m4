@@ -128,8 +128,10 @@ Example:
 @c limit (sin(1/x), x, 0);
 @c ===end===
 @example
+@group
 (%i1) limit (sin(1/x), x, 0);
 (%o1)                          ind
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -279,13 +281,18 @@ Examples:
 @c ratsimp (%);
 @c ===end===
 @example
+@group
 (%i1) fibtophi (fib (n));
                            n             n
                        %phi  - (1 - %phi)
 (%o1)                  -------------------
                            2 %phi - 1
+@end group
+@group
 (%i2) fib (n-1) + fib (n) - fib (n+1);
 (%o2)          - fib(n + 1) + fib(n) + fib(n - 1)
+@end group
+@group
 (%i3) fibtophi (%);
             n + 1             n + 1       n             n
         %phi      - (1 - %phi)        %phi  - (1 - %phi)
@@ -295,8 +302,11 @@ Examples:
                                       %phi      - (1 - %phi)
                                     + ---------------------------
                                               2 %phi - 1
+@end group
+@group
 (%i4) ratsimp (%);
 (%o4)                           0
+@end group
 @end example
 
 By default, Maxima does not know the algebraic properties of @code{%phi}.
@@ -311,19 +321,29 @@ After evaluating @code{tellrat (%phi^2 - %phi - 1)} and @code{algebraic: true},
 @c ratsimp (e);
 @c ===end===
 @example
+@group
 (%i1) e : expand ((%phi^2 - %phi - 1) * (A + 1));
                  2                      2
 (%o1)        %phi  A - %phi A - A + %phi  - %phi - 1
+@end group
+@group
 (%i2) ratsimp (e);
                   2                     2
 (%o2)        (%phi  - %phi - 1) A + %phi  - %phi - 1
+@end group
+@group
 (%i3) tellrat (%phi^2 - %phi - 1);
                             2
 (%o3)                  [%phi  - %phi - 1]
+@end group
+@group
 (%i4) algebraic : true;
 (%o4)                         true
+@end group
+@group
 (%i5) ratsimp (e);
 (%o5)                           0
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -372,8 +392,10 @@ Example:
 @c limit (x*sin(x), x, inf);
 @c ===end===
 @example
+@group
 (%i1) limit (x*sin(x), x, inf);
 (%o1)                          und
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -400,10 +422,14 @@ Example:
 @c limit(zeroa+x);
 @c ===end===
 @example
+@group
 (%i1) limit(zeroa);
 (%o1)                           0
-(%i2) limit(x+zeroa);
+@end group
+@group
+(%i2) limit(zeroa+x);
 (%o2)                           x
+@end group
 @end example
 
 @opencatbox{Categories:}

@@ -507,8 +507,8 @@ n! * exp (- a*v) / v^(n + 1);
 makefact (laplace (u^n * exp (- b*u), u, v));
 n! / (v + b)^(n + 1);
 
-makefact (ratsimp (laplace ((u - a)^n * exp (- b*(u - a)) * unit_step (u - a), u, v)));
-n!/(v + b)^(n + 1) * exp (- a*v);
+laplace ((u - a)^n * exp (- b*(u - a)) * unit_step (u - a), u, v);
+(%e^(a*b)*gamma(n+1))/((v+b)^n*(%e^(a*v+a*b)*v+%e^(a*v+a*b)*b))$
 
 /* general power */
 
@@ -662,11 +662,11 @@ s^((-%i*v)-u-1)*gamma(%i*v+u+1);
 
 /* Bug 4398 */
 assuming(a > 0, laplace(delta(t - a) * sin(b*t), t, s));
--(((%i*%e^(2*%i*a*b)-%i)*%e^(-(a*s)-%i*a*b))/2);
+-(((%e^(2*%i*a*b)-1)*%e^(-(a*s)-%i*a*b)*%i)/2)$
 
 /* Bug in 5.47.0 reported on the mailing-list on 22/01/2025 */
 laplace (cos (t)*unit_step (t-%pi), t, s);
--s*exp (-%pi*s)/(s^2+1);
+ -(s/(%e^(%pi*s)*s^2+%e^(%pi*s)))$
 
 /* Test for the pwilt function (examples from the manual) */
 pwilt (exp(-s)*s/(s^3-2*s-s+2), s, t);
@@ -677,7 +677,7 @@ delta(t)+(3*%e^t)/2-(3*%e^-t)/2;
 
 /* function hstep should be accepted instead of unit_step */
 laplace (cos (t)*hstep (t-%pi), t, s);
--((s*%e^-(%pi*s))/(s^2+1));
+-(s/(%e^(%pi*s)*s^2+%e^(%pi*s)))$
 
 (kill (z),
  declare (z, complex), assume (realpart (z) > -1), 0);
@@ -698,3 +698,9 @@ done;
 
 (reset(assume_pos),1);
 1;
+
+contexts;
+[initial,global]$
+
+(map('forget, facts()),kill(values), 0);
+0$

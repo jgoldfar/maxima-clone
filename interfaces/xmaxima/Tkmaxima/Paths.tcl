@@ -311,18 +311,13 @@ proc setMaxDir {} {
 	# who cares
     }
     set file [file join $maxima_priv(maxima_xmaximadir) "intro.html"]
-    if {![file isfile $file]} {
-	tk_messageBox -title Warning -icon warning -message \
-            [mc "Starting documentation not found in '%s'" [file native $file]]
-	set maxima_priv(firstUrl) ""
-    } else {
-	if {$tcl_platform(platform) == "windows"} {
-	    # convert to unix
-	    set file [file dir $file]/[file tail $file]
-	}
-	# FIXME: This is bogus - need a FileToUrl
-	set maxima_priv(firstUrl) file:/$file
+    if {$tcl_platform(platform) == "windows"} {
+        # convert to unix
+        set file [file dir $file]/[file tail $file]
     }
+    # FIXME: This is bogus - need a FileToUrl
+    set maxima_priv(firstUrl) file:/$file
+
     # set up for autoloading
     global auto_path
     set dir [file join $maxima_priv(maxima_xmaximadir) Tkmaxima]

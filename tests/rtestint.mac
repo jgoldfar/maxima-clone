@@ -1259,7 +1259,7 @@ integrate(t^-2*exp(-t^-2),t,x,inf);
 integrate(t^-3*exp(-t^-2),t,x,inf);
 %e^-(1/x^2)*(%e^(1/x^2)-1)/2;
 integrate(t^-4*exp(-t^-2),t,x,inf);
--%e^-(1/x^2)*(sqrt(%pi)*(erfc(1/x)-1)*x*%e^(1/x^2)+2)/(4*x);
+-((%e^-(1/x^2)*(sqrt(%pi)*(%e^(1/x^2)*erfc(1/x)-%e^(1/x^2))*x+2))/(4*x));
 
 integrate(t^(1/2)*exp(-t^2),t,x,inf);
 gamma_incomplete(3/4,x^2)/2;
@@ -1269,29 +1269,26 @@ integrate(t^(2/3)*exp(-t^2),t,x,inf);
 gamma_incomplete(5/6,x^2)/2;
 
 integrate(exp(-t)*log(t),t,x,inf);
--%e^-x*((%e^x-1)*log(x)+(%gamma-hypergeometric_regularized([1,1],[2,2],-x)*x)
-                        *%e^x);
+-(%e^-x*((%e^x-1)*log(x)-%e^x*hypergeometric_regularized([1,1],[2,2],-x)*x
+                        +%e^x*%gamma));
 integrate(t*exp(-t)*log(t),t,x,inf);
--%e^-x*((%e^x-x-1)*log(x)+(-hypergeometric_regularized([2,2],[3,3],-x)*x^2
-                          +%gamma-1)
-                          *%e^x);
+%e^-x*((x-%e^x+1)*log(x)+%e^x*hypergeometric_regularized([2,2],[3,3],-x)*x^2
+                        -%e^x*%gamma+%e^x);
+
 integrate(t^2*exp(-t)*log(t),t,x,inf);
--%e^-x*((2*%e^x-x^2-2*x-2)*log(x)+(-4*hypergeometric_regularized(
-                                      [3,3],[4,4],-x)*x^3
-                                  +2*%gamma-3)
-                                  *%e^x);
+%e^-x*((x^2+2*x-2*%e^x+2)*log(x)+4*%e^x
+                                  *hypergeometric_regularized([3,3],[4,4],-x)
+                                  *x^3-2*%e^x*%gamma+3*%e^x);
 
 integrate(t*exp(-t)*log(t),t,x,inf);
--%e^-x*((%e^x-x-1)*log(x)+(-hypergeometric_regularized([2,2],[3,3],-x)*x^2
-                          +%gamma-1)
-                          *%e^x);
+%e^-x*((x-%e^x+1)*log(x)+%e^x*hypergeometric_regularized([2,2],[3,3],-x)*x^2
+                        -%e^x*%gamma+%e^x);
 integrate(t*exp(-t^(1/2))*log(t),t,x,inf);
-%e^-sqrt(x)*((-12*%e^sqrt(x)+6*x+12)*log(x)+sqrt(x)*(2*x+12)*log(x)
-                                           +(144
-                                            *hypergeometric_regularized(
-                                             [4,4],[5,5],-sqrt(x))*x^2
-                                            -24*%gamma+44)
-                                            *%e^sqrt(x));
+%e^-sqrt(x)*((6*x-12*%e^sqrt(x)+12)*log(x)+sqrt(x)*(2*x+12)*log(x)
+                                          +144*%e^sqrt(x)
+                                              *hypergeometric_regularized(
+                                               [4,4],[5,5],-sqrt(x))*x^2
+                                          -24*%e^sqrt(x)*%gamma+44*%e^sqrt(x));
 
 /* Integrals of the type: c*z^r*log(z)^n*(1-z)^s*log(1-z)^m */
 
@@ -1347,7 +1344,7 @@ integrate(sin(4*asin(x)),x);
 /* Bug ID: 3029610 - integrate and %e_to_numlog
 */
 integrate((exp(3/2*log(x))+1)/sqrt(x),x);
-2*(x^2/4+sqrt(x));
+(2*x^2+8*sqrt(x))/4;
 
 integrate(3*sqrt(x)*exp(3/2*log(x)),x);
 x^3;
@@ -1714,12 +1711,10 @@ integrate (1 / (sqrt (x) * (1 + sqrt (x))^2), x, 1, 4)$
       /((tau1*%e^(t/tau1)+%e^(t/tau1))
        *%e^(t/tau2)*tau3+%e^(t/tau2+t/tau1)),
  I_tau : integrate(expr_tau, t));
- -((tau1^2*tau2*tau3^2*%e^(-(t/tau3)-t/tau2-t/tau1+t))
- /(tau1^3*(tau2*(tau3^2-tau3)-tau3^2)+tau1^2*(-tau3^2-tau3-tau2)
-                                     +tau1*tau2*(-tau3^2-tau3)))
- -(tau1*%e^-(t/tau2)*(tau1*(tau2^2*(tau3-1)-tau2*tau3)-tau2^2*tau3))
-  /(tau1^3*(tau2*(tau3^2-tau3)-tau3^2)+tau1^2*(-tau3^2-tau3-tau2)
-                                      +tau1*tau2*(-tau3^2-tau3))$
+ -((%e^(-(t/tau3)-t/tau2-t/tau1+t)*tau1*tau2*tau3^2)
+ /(tau1^2*(tau2*(tau3^2-tau3)-tau3^2)+tau1*(-tau3^2-tau3-tau2)
+                                     +tau2*(-tau3^2-tau3)))
+ -(%e^-(t/tau2)*tau2*tau3)/(tau1*tau3^2+tau3^2+tau3)$
 
 is(equal(diff(I_tau, t), expr_tau));
 true;

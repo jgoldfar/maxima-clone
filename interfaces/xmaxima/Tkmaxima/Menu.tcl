@@ -303,23 +303,25 @@ proc vMAXAddSystemMenu {fr text} {
     # Xmaxima manual
     set xmaximahelpfile [file join $maxima_priv(maxima_verpkgdatadir) xmaxima html index.html]
     set xmaximahelpfile [file normalize $xmaximahelpfile]
-    if {[file isfile $xmaximahelpfile]} {
-	set xstate normal
-    } else {
-	set xstate disabled
-    }
+    set xstate normal
+    # if {[file isfile $xmaximahelpfile]} {
+    #     set xstate normal
+    # } else {
+    #     set xstate disabled
+    # }
     # Maxima manual
     set file $maxima_priv(pReferenceToc)
-    if {[file isfile $file]} {
-	set state normal
-	if {$tcl_platform(platform) == "windows"} {
-	    # decodeURL is broken and needs fixing
-	    # This is a workaround
-	    set file [file attrib $file -shortname]
-	}
-    } else {
-	set state disabled
+    if {$tcl_platform(platform) == "windows"} {
+        # decodeURL is broken and needs fixing
+        # This is a workaround
+        set file [file attrib $file -shortname]
     }
+    set state normal
+    # if {[file isfile $file]} {
+    #     set state normal
+    # } else {
+    #     set state disabled
+    # }
     if {$tcl_platform(platform) == "windows"} {
         if {[string match *maxima.chm* $file]} {
             $m add command -underline 1 -label [mc "Maxima Manual"] \
@@ -327,7 +329,7 @@ proc vMAXAddSystemMenu {fr text} {
 	            -command [list exec hh.exe $file & ]
         } else {
             $m add command -underline 1 -label [mc "Maxima Manual (xmaxima browser)"] \
-        	    -state $state \
+        	    -state normal \
 	            -command "OpenMathOpenUrl \"file:/$file\""
         }
         $m add command -underline 4 -label [mc "Xmaxima Manual (xmaxima browser)"] \

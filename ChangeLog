@@ -88,7 +88,6 @@ Bug fixes for numbered bugs:
  * \#4001: limit(sin(x)/​x + sin(x) + cos(x),x,inf) = 0
  * \#4003: limit bug with on-default values for ratsimpexpons and ratfac
  * \#4024: integrate(x*sin(x)*exp(-x^2),x,0, inf);
- * \#4035: Invisible characters should work better
  * \#4073: limit(log(sin(x)+9),x,inf) --> und could be ind
  * \#4079: gamma to factorial conversions in limit
  * \#4099: gruntz called on algebraic
@@ -203,6 +202,7 @@ Bug fixes for numbered bugs:
  * \#4442: rationalize applied to subscripted
  * \#4446: append doesn't know that structs are of fixed arity
  * \#4450: No tests for psi[s](p/​q)?
+ * \#4451: ratsimp(%e^(%i*sqrt(%pi+1)/​2)/​%pi), algebraic - endless loop/​recursion
  * \#4454: Support * in to_lisp() mode
  * \#4455: 'great' errors
  * \#4456: ?great(1.0, 1.0) -> T
@@ -215,6 +215,7 @@ Bug fixes for numbered bugs:
  * \#4471: with_stdout doesn't capture output of command executed via system
  * \#4474: "sign: argument cannot be imaginary" in simple substitution
  * \#4475: min/max (%i,...)
+ * \#4479: Setting inchar to empty string causes infinite lisp errors
  * \#4482: Internal code using user-level functions, e.g. $bfloatp
  * \#4483: Speed up onep1
  * \#4486: trigrat(atan2(1,sin(k))) gives error
@@ -226,6 +227,7 @@ Bug fixes for numbered bugs:
  * \#4500: rectform of set
  * \#4502: Antiderivative missing term "x": integrate(x/​(x+%e^x+1),x)
  * \#4504: properties shows properties with NIL value
+ * \#4505: rectform(psi(x))
  * \#4506: Subscripted function simplifiers don't check subscript/​argument count
  * \#4507: rectform uses conjugate when it doesn't help
  * \#4509: distribute-over does too little and too much simplification
@@ -242,13 +244,17 @@ Bug fixes for numbered bugs:
  * \#4536: atan2(0,0) undefined error while evaluating a limit
  * \#4537: simplimln sometimes exits non-locally when it doesn’t need to.
  * \#4539: some limits of expintegral_ci
+ * \#4540: scanmap non-bottomup should be easier
  * \#4544: ratdisrep([taylor(k,k,inf,1)]) is unsimplified
  * \#4546: limit of a log of a rational trig polynomial
  * \#4548: float(10^400) returns false on GCL
+ * \#4550: $member and $assoc are O(n) even if sought element is at front
  * \#4560: integrals of the form integrate((a*z+a*b)^p*%e^(c*z+d),z)
- * \#4572: integration with subs of the form y = exp(X)
- * \#4479: Setting inchar to empty string causes infinite lisp errors
  * \#4561: taylim (non user level) exits non-locally
+ * \#4567: gnuplot gives obscure Lisp error when gnuplot_command is not a string
+ * \#4569: reset(plot_options) doesn't reset plot_options
+ * \#4572: integration with subs of the form y = exp(X)
+ * \#4575: expintrep doesn't reset
 
 Unnumbered bugs fixed:
 ---------------------
