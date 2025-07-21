@@ -177,5 +177,5 @@ div.highlight {
     /* Lines for highlighted examples are too close by default with
      *  pygments.  Make it larger.
      */
-    line-height: 150% !important;
+    line-height: normal !important;
 }
