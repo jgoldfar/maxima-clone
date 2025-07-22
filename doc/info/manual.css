@@ -56,7 +56,7 @@ img {
 
 /* Put background color on the navigation bar */
 div.header {
-    background-color: #DDDDFF;
+    background-color: #F2F1F0;
     padding: 3px 10px;
 }
 @media screen and (min-width: 600px) {
