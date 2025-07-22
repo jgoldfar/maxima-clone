@@ -1,8 +1,13 @@
+/* Overrides to the default Makeinfo CSS */
+div.display {margin-left: 0}
+div.example {margin-left: 0}
+/* end of overrides */
+
 body {
     color: black;
     background: white;
-    margin-left: 8%;
-    margin-right: 13%;
+    margin-left: 5px;
+    margin-right: 5px;
     font-family: "FreeSans", sans-serif
 }
 h1 { font-size: 150%; font-family: "FreeSans", sans-serif }
@@ -28,7 +33,7 @@ div.synopsisbox {
 }
 pre.example, pre.example-preformatted {
     border: 1px solid rgb(180,180,180);
-    padding: 1em;
+    padding: 5px;
     background-color: rgb(238,238,255);
     /* Add scrollbar for examples for narrow windows */
     overflow: auto
@@ -54,4 +59,13 @@ div.header {
     background-color: #DDDDFF;
     padding: 3px 10px;
 }
-
+@media screen and (min-width: 600px) {
+    body {
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    div.display { margin: 0 2em }
+    div.example { margin: 0 2em }
+    pre.example, pre.example-preformatted { padding: 1em }
+}
