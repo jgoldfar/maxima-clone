@@ -61,6 +61,7 @@ figures/dynamics5.png\
 figures/dynamics6.png\
 figures/dynamics7.png\
 figures/dynamics8.png\
+figures/maxima.svg\
 figures/maxima-unicode-display-variety-1-ascii.png\
 figures/maxima-unicode-display-variety-1.png\
 figures/plotdf1.png\
