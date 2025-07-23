@@ -20,7 +20,7 @@ endif
 
 genericdir = $(xmaximadir)
 
-genericdirDATA = demos.html examples.html intro.html plotmaxima.html net.sourceforge.maxima.png net.sourceforge.maxima.svg net.sourceforge.maxima.gif net.sourceforge.maxima.ico
+genericdirDATA = demos.html examples.html primer.html intro.html plotmaxima.html net.sourceforge.maxima.png net.sourceforge.maxima.svg net.sourceforge.maxima.gif net.sourceforge.maxima.ico
 
 appicondir = $(datarootdir)/icons
 dist_appicon_DATA = xmaxima.png xmaxima.svg

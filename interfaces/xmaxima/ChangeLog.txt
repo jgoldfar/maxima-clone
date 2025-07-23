@@ -1,3 +1,6 @@
+Changes after 2005 are described in the Changelog of the whole Maxima
+project, in the top directory.
+
 2002-09-06  Mike Clarkson  <mikeclarkson@usw-pr-shell1.sourceforge.net>
 
 	* xmaxima.tcl: Massive breakup of xmaxima.tcl

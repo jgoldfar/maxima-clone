@@ -24,7 +24,7 @@ may have to be preserved. Ultimately may of these
 constants will go away, but for now the breaking up
 must be done carefully.
 
-Utils subdirectory
+Utils subdirectory (as of 2025 that directory no longer exists)
 ------------------
 
 There are a number of simple Tcl utilities that are
