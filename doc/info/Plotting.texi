@@ -1858,18 +1858,6 @@ See @mrefcomma{make_transform} @mref{polar_to_xy} and
 @end defvr
 
 @c -----------------------------------------------------------------------------
-@anchor{xmaxima}
-@defvr {Plot option} xmaxima
-
-This is an abbreviation for @code{[plot_format, xmaxima]}. See
-@mrefdot{plot_format}
-
-@opencatbox{Categories:}
-@category{Plotting}
-@closecatbox
-@end defvr
-
-@c -----------------------------------------------------------------------------
 @anchor{window}
 @defvr {Plot option} window [window, @var{n}]
 
@@ -1881,7 +1869,6 @@ will be replaced by the current plot.
 @category{Plotting}
 @closecatbox
 @end defvr
-
 
 @c -----------------------------------------------------------------------------
 @anchor{x}
@@ -1900,13 +1887,26 @@ horizontal domain that will be shown in the plot.
 
 @c -----------------------------------------------------------------------------
 @anchor{xlabel}
-@defvr {Plot option} xlabel [xlabel, @var{string}]
+@defvr {Plot option} xlabel [xlabel, @var{string}], noxlabel
 
 Specifies the @var{string} that will label the first axis; if this
 option is not used, that label will be the name of the independent
 variable, when plotting functions with @mref{plot2d} the name of the
 first variable, when plotting surfaces with @mref{plot3d}, or the first
-expression in the case of a parametric plot.
+expression in the case of a parametric plot. @code{noxlabel} is equivalent
+to @code{[xlabel, ""]}, which does not print any label on the first axis.
+
+@opencatbox{Categories:}
+@category{Plotting}
+@closecatbox
+@end defvr
+
+@c -----------------------------------------------------------------------------
+@anchor{xmaxima}
+@defvr {Plot option} xmaxima
+
+This is an abbreviation for @code{[plot_format, xmaxima]}. See
+@mrefdot{plot_format}
 
 @opencatbox{Categories:}
 @category{Plotting}
@@ -1969,13 +1969,14 @@ shown in the plot.
 
 @c -----------------------------------------------------------------------------
 @anchor{ylabel}
-@defvr {Plot option} ylabel [ylabel, @var{string}]
+@defvr {Plot option} ylabel [ylabel, @var{string}], noylabel
 
 Specifies the @var{string} that will label the second axis; if this
 option is not used, that label will be ``y'', when plotting explicit
 functions with @mref{plot2d}, or the name of the second variable, when
 plotting surfaces with @mref{plot3d}, or the second expression in the
-case of a parametric plot.
+case of a parametric plot. @code{noylabel} is equivalent to
+@code{[ylabel, ""]}, which does not print any label on the second axis.
 
 @opencatbox{Categories:}
 @category{Plotting}
@@ -2030,13 +2031,14 @@ shown in the plot.
 
 @c -----------------------------------------------------------------------------
 @anchor{zlabel}
-@defvr {Plot option} zlabel [zlabel, @var{string}]
+@defvr {Plot option} zlabel [zlabel, @var{string}], nozlabel
 
 Specifies the @var{string} that will label the third axis, when using
-@mrefdot{plot3d}  If this option is not used, that label will be ``z'', when
-plotting surfaces, or the third expression in the case of a parametric
-plot.  It can not be used with @mref{set_plot_option} and it will be
-ignored by @mrefdot{plot2d}
+@mrefdot{plot3d} If this option is not used, that label will be ``z'',
+when plotting surfaces, or the third expression in the case of a
+parametric plot.  It can not be used with @mref{set_plot_option} and it
+will be ignored by @mrefdot{plot2d} @code{nozlabel} is equivalent to
+@code{[zlabel, ""]}, which does not print any label on the third axis.
 
 @opencatbox{Categories:}
 @category{Plotting}
