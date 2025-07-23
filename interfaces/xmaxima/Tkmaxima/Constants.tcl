@@ -35,7 +35,6 @@ proc cMAXINITBeforeIni {} {
     set ::xmaxima_default(OpenDir) "$::xmaxima_priv(home)/"
     # The last files opened and saved. Any default value serves
     # but a good starting value is Xmaxima's initialization file.
-    # TO DO: change ~ for a home directory customized for each system.
     set ::xmaxima_default(OpenFile) "$::xmaxima_priv(home)/.xmaximarc"
     set ::xmaxima_default(SaveFile) "$::xmaxima_priv(home)/.xmaximarc"
 
@@ -49,13 +48,24 @@ proc cMAXINITBeforeIni {} {
     set ::xmaxima_priv(cachedir) "$::xmaxima_priv(home)/.xmaxima/cache"
 }
 
+# Reads the xmaxima configuration file and if a line contains
+# a key valid key and a value, separated by space, the value
+# associated to that key in ::xmaxima_default will be set to
+# that value.
 proc cMAXINITReadIni {} {
     if {[file isfile "$::xmaxima_priv(home)/.xmaximarc"]} {
-	if {[catch {uplevel "#0" [list source "$::xmaxima_priv(home)/.xmaximarc"]}\
-                 err]} {
-	    tk_messageBox -title Error -icon error -message \
-                [mc "Error sourcing %s\n%s" [file native ~/.xmaximarc] $err]
-	}
+        set fileId [open ~/.xmaximarc r]
+        foreach line [split [read $fileId] \n] {
+            if {![catch {llength $line}]} {
+                if {[llength $line] == 2} {
+                    set key [lindex $line 0]
+                    if {[info exists ::xmaxima_default($key)]} {
+                        set ::xmaxima_default($key) [lindex $line 1]
+                    }
+                }
+            }
+        }
+        close $fileId
     }
 }
 

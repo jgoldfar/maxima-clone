@@ -1076,7 +1076,6 @@ proc xHMsetDefaultPreferences {} {
 }
 
 xHMsetDefaultPreferences
-catch { source ~/.xmaximarc }
 
 proc dputs {x} {
     puts $x ; flush stdout

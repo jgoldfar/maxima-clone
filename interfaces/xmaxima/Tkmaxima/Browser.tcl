@@ -1060,27 +1060,29 @@ proc savePreferences {} {
     set ::xmaxima_default(iConsoleWidth) [textWindowWidth $console]
     set ::xmaxima_default(iConsoleHeight) [textWindowHeight $console]
 
+    # Saves the ::maxima_default array into .xmaximarc
+    # Each line will contain a key and value separated by space
+    # and the keys will be in alphabetical order
     catch {
         if {[winfo exists .browser]} {
             set ::xmaxima_default(browser) 1
         } else {
             set ::xmaxima_default(browser) 0}
-        set fi [open  "$::xmaxima_priv(home)/.xmaximarc" w]
-        puts $fi "array set ::xmaxima_default {"
+        set fileId [open  "$::xmaxima_priv(home)/.xmaximarc" w]
         foreach {k v} [array get ::xmaxima_default *] {
             lappend all [list $k $v]
         }
         set all [lsort $all]
-        foreach v $all { puts $fi $v }
-        puts $fi "}"
+        foreach v $all { puts $fileId $v }
 
         #mike FIXME: make this a _default
-        if { [info exists ::xmaxima_priv(proxy,http)] && \
-                 [llength $::xmaxima_priv(proxy,http)] == 2   } {
-            puts $fi [list array set ::xmaxima_priv [array get ::xmaxima_priv proxy,http]
-		 ]
-        }
-        close $fi
+        # if { [info exists ::xmaxima_priv(proxy,http)] && \
+        #          [llength $::xmaxima_priv(proxy,http)] == 2   } {
+        #     puts $fileId [list array set ::xmaxima_priv [array get ::xmaxima_priv proxy,http]
+	# 	 ]
+        # }   Villate: This block seems wrong to me.
+        
+        close $file
     }
     catch {
         set hf [open "$::xmaxima_priv(home)/.xmaxima_history" w]
