@@ -46,8 +46,10 @@ proc eval_openplot { program w thisRange resultRange } {
 #----------------------------------------------------------------
 #
 proc plotWindowName { w command } {
-    set plot $::xmaxima_default(plotwindow)
     upvar #0 maxima_priv(plot,count) count
+    if {[info exists ::xmaxima_default(plotwindow)]} {
+        set plot $::xmaxima_default(plotwindow)
+    }
     set name ""
 
     if { "$command" == "scene" } {
