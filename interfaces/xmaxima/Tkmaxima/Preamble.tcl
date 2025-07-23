@@ -1,7 +1,7 @@
 ###### preamble.tcl ######
 
 # get the number of clicks per second on this machine..
-after idle {after 1000 "set maxima_priv(clicks_per_second) \[expr 1.0 *( \[clock clicks\] - [clock clicks])\]" }
+after idle {after 1000 "set ::xmaxima_priv(clicks_per_second) \[expr 1.0 *( \[clock clicks\] - [clock clicks])\]" }
 
 catch {
     # the following will be defined only in the plugin

@@ -7,8 +7,8 @@ cMAXINITBeforeIni
 cMAXINITReadIni
 cMAXINITAfterIni 
 
-if { [llength $maxima_priv(plotfile)] > 0 } {
-    set fptr [open [lindex $maxima_priv(plotfile) 0] r]
+if { [llength $::xmaxima_priv(plotfile)] > 0 } {
+    set fptr [open [lindex $::xmaxima_priv(plotfile) 0] r]
     regsub -all -- {/\*.*?\*/} [read $fptr] {} inputdata
     close $fptr
     regsub -all -- {[[:space:]]+} $inputdata { } inputdata
@@ -22,13 +22,13 @@ if { [llength $maxima_priv(plotfile)] > 0 } {
     if {$tcl_platform(platform) == "windows" } {
         set dir [file dir [info name]]
         # These should be in the same directory as the xmaxima.exe
-        set maxima_priv(kill) [file join $dir winkill.exe]
+        set ::xmaxima_priv(kill) [file join $dir winkill.exe]
         set file [file join $dir tclwinkill.dll]
         if {[file isfile $file]} {catch {load  $file}}
         unset file
     } else {
         # unix
-        set maxima_priv(kill) kill}
+        set ::xmaxima_priv(kill) kill}
     ################
     rename exit tkexit
     #    proc exit {{val "0"}} {maxExit "" $val}
@@ -40,7 +40,7 @@ if { [llength $maxima_priv(plotfile)] > 0 } {
     if {$tcl_platform(platform) == "windows" && \
             [info commands winico] != ""} {
         set file [file join \
-                      $maxima_priv(maxima_xmaximadir) \
+                      $::xmaxima_priv(maxima_xmaximadir) \
                       max.ico]
         if {[file isfile $file]} {
             set ico [winico createfrom $file]
@@ -64,5 +64,5 @@ if { [llength $maxima_priv(plotfile)] > 0 } {
         tide_failure [concat [mc "Error starting Maxima:"] "\n$err"]
         return
     }
-    after idle focus $maxima_priv(cConsoleText)
+    after idle focus $::xmaxima_priv(cConsoleText)
 }

@@ -9,7 +9,7 @@
 # to start up the interface.
 
 proc setMaxDir {} {
-    global env maxima_priv autoconf tcl_platform
+    global env autoconf tcl_platform
 
     if {$tcl_platform(platform) == "windows"} {
 	# Make sure the signals thread is started
@@ -53,19 +53,19 @@ proc setMaxDir {} {
 	    # Assume we are in the same directory as saved_maxima
 	    if {[file isfile [set exe $up/src/saved_maxima.exe]]} {
 		set env(MAXIMA_DIRECTORY) $up
-		set maxima_priv(maxima_verpkgdatadir) \
+		set ::xmaxima_priv(maxima_verpkgdatadir) \
 		    $env(MAXIMA_DIRECTORY)
-		set maxima_priv(xmaxima_maxima) $exe
-		set maxima_priv(maxima_xmaximadir) [file dir $exe]
+		set ::xmaxima_priv(xmaxima_maxima) $exe
+		set ::xmaxima_priv(maxima_xmaximadir) [file dir $exe]
 
 		# This should be unused
-		set maxima_priv(maxima_verpkglibdir) \
+		set ::xmaxima_priv(maxima_verpkglibdir) \
 		    $env(MAXIMA_DIRECTORY)
-		set maxima_priv(maxima_verpkgdatadir) \
+		set ::xmaxima_priv(maxima_verpkgdatadir) \
 		    $env(MAXIMA_DIRECTORY)
 
 		# This should be unused
-		set maxima_priv(maxima_prefix) \
+		set ::xmaxima_priv(maxima_prefix) \
 		    $env(MAXIMA_DIRECTORY)
 	    }
 	}
@@ -96,7 +96,7 @@ proc setMaxDir {} {
 
     # The following section should be considered temporary work-around.
     if { [info exists env(MAXIMA_VERPKGDATADIR)] } {
-	set maxima_priv(maxima_verpkgdatadir) $env(MAXIMA_VERPKGDATADIR)
+	set ::xmaxima_priv(maxima_verpkgdatadir) $env(MAXIMA_VERPKGDATADIR)
     }
     # End temporary workaround. It's only a workaround because the next
     # section is backwards: 
@@ -106,14 +106,14 @@ proc setMaxDir {} {
     # to make (MAXIMA_DIRECTORY) take precedence, and work off
     # [info nameofexe] if necessary.
 
-    if {[info exists maxima_priv(maxima_prefix)]} {
+    if {[info exists ::xmaxima_priv(maxima_prefix)]} {
 	# drop through
     } elseif { [info exists env(MAXIMA_PREFIX)] } {
-	set maxima_priv(maxima_prefix) $env(MAXIMA_PREFIX)
+	set ::xmaxima_priv(maxima_prefix) $env(MAXIMA_PREFIX)
     } else {
-	set maxima_priv(maxima_prefix) $autoconf(prefix)
+	set ::xmaxima_priv(maxima_prefix) $autoconf(prefix)
     }
-    if {[info exists maxima_priv(maxima_verpkgdatadir)]} {
+    if {[info exists ::xmaxima_priv(maxima_verpkgdatadir)]} {
 	# drop through
     } else {
 	if { [info exists env(MAXIMA_DATADIR)] } {
@@ -131,42 +131,42 @@ proc setMaxDir {} {
                 [mc "Maxima data directory not found in '%s'" \
 			     [file native  $maxima_datadir]]
 	}
-	set maxima_priv(maxima_verpkgdatadir) \
+	set ::xmaxima_priv(maxima_verpkgdatadir) \
 	    [file join $maxima_datadir $autoconf(package) \
 		 $autoconf(version)]
     }
 
     # omplotdata messages
-    #::msgcat::mcload [file join $maxima_priv(maxima_verpkgdatadir) msgs]
+    #::msgcat::mcload [file join $::xmaxima_priv(maxima_verpkgdatadir) msgs]
 
-    if {[info exists maxima_priv(maxima_verpkglibdir)]} {
+    if {[info exists ::xmaxima_priv(maxima_verpkglibdir)]} {
 	# drop through
     } elseif { [info exists env(MAXIMA_VERPKGLIBDIR)] } {
-	set maxima_priv(maxima_verpkglibdir) $env(MAXIMA_VERPKGLIBDIR)
+	set ::xmaxima_priv(maxima_verpkglibdir) $env(MAXIMA_VERPKGLIBDIR)
     } elseif { [info exists env(MAXIMA_PREFIX)] } {
-	set maxima_priv(maxima_verpkglibdir) \
+	set ::xmaxima_priv(maxima_verpkglibdir) \
 	    [file join $env(MAXIMA_PREFIX) lib $autoconf(package) \
 		 $autoconf(version)]
     } else {
-	set maxima_priv(maxima_verpkglibdir) \
+	set ::xmaxima_priv(maxima_verpkglibdir) \
 	    [file join $autoconf(libdir) $autoconf(package) \
 		 $autoconf(version)]
     }
-    if {[info exists maxima_priv(maxima_xmaximadir)]} {
+    if {[info exists ::xmaxima_priv(maxima_xmaximadir)]} {
 	# drop through
     } elseif { [info exists env(MAXIMA_XMAXIMADIR)] } {
-	set maxima_priv(maxima_xmaximadir) $env(MAXIMA_XMAXIMADIR)
+	set ::xmaxima_priv(maxima_xmaximadir) $env(MAXIMA_XMAXIMADIR)
     } else {
-	set maxima_priv(maxima_xmaximadir) \
-	    [file join $maxima_priv(maxima_verpkgdatadir) xmaxima]
+	set ::xmaxima_priv(maxima_xmaximadir) \
+	    [file join $::xmaxima_priv(maxima_verpkgdatadir) xmaxima]
     }
 
     # xmaxima messages
-    ::msgcat::mcload [file join $maxima_priv(maxima_xmaximadir) msgs]
+    ::msgcat::mcload [file join $::xmaxima_priv(maxima_xmaximadir) msgs]
 
     # Define maxima_lang_subdir
     if { [info exists env(MAXIMA_LANG_SUBDIR)] } {
-	set maxima_priv(maxima_lang_subdir) $env(MAXIMA_LANG_SUBDIR)
+	set ::xmaxima_priv(maxima_lang_subdir) $env(MAXIMA_LANG_SUBDIR)
     } else {
 	if { $tcl_platform(platform) == "windows" } {
     	    set wlocale [ ::msgcat::mclocale ]
@@ -183,56 +183,56 @@ proc setMaxDir {} {
 	set wlocale [string tolower $wlocale]
 	switch -glob $wlocale {
 	  "es*utf*" {
-		    set maxima_priv(maxima_lang_subdir) "es.utf8"
+		    set ::xmaxima_priv(maxima_lang_subdir) "es.utf8"
 		}
 	  "es*" {
-		    set maxima_priv(maxima_lang_subdir) "es"
+		    set ::xmaxima_priv(maxima_lang_subdir) "es"
 		}
 	  "pt_br*utf*" {
-		    set maxima_priv(maxima_lang_subdir) "pt_BR.utf8"
+		    set ::xmaxima_priv(maxima_lang_subdir) "pt_BR.utf8"
 		}
 	  "pt_br*" {
-		    set maxima_priv(maxima_lang_subdir) "pt_BR"
+		    set ::xmaxima_priv(maxima_lang_subdir) "pt_BR"
 		}
 	  "pt*utf*" {
-		    set maxima_priv(maxima_lang_subdir) "pt.utf8"
+		    set ::xmaxima_priv(maxima_lang_subdir) "pt.utf8"
 		}
 	  "pt*" {
-		    set maxima_priv(maxima_lang_subdir) "pt"
+		    set ::xmaxima_priv(maxima_lang_subdir) "pt"
 		}
 	  "de*utf*" {
-		    set maxima_priv(maxima_lang_subdir) "de.utf8"
+		    set ::xmaxima_priv(maxima_lang_subdir) "de.utf8"
 		}
 	  "de*" {
-		    set maxima_priv(maxima_lang_subdir) "de"
+		    set ::xmaxima_priv(maxima_lang_subdir) "de"
 		}
 	  "fr*utf*" {
-		    set maxima_priv(maxima_lang_subdir) "fr.utf8"
+		    set ::xmaxima_priv(maxima_lang_subdir) "fr.utf8"
 		}
 	  "fr*" {
-		    set maxima_priv(maxima_lang_subdir) "fr"
+		    set ::xmaxima_priv(maxima_lang_subdir) "fr"
 		}
 	  "it*utf*" {
-		    set maxima_priv(maxima_lang_subdir) "it.utf8"
+		    set ::xmaxima_priv(maxima_lang_subdir) "it.utf8"
 		}
 	  "it*" {
-		    set maxima_priv(maxima_lang_subdir) "it"
+		    set ::xmaxima_priv(maxima_lang_subdir) "it"
 		}
 	  "ru*utf*" {
-		    set maxima_priv(maxima_lang_subdir) "ru.utf8"
+		    set ::xmaxima_priv(maxima_lang_subdir) "ru.utf8"
 		}
 	  "ru*koi*" {
-		    set maxima_priv(maxima_lang_subdir) "ru.koi8r"
+		    set ::xmaxima_priv(maxima_lang_subdir) "ru.koi8r"
 		}
 	  "ru*" {
-		    set maxima_priv(maxima_lang_subdir) "ru"
+		    set ::xmaxima_priv(maxima_lang_subdir) "ru"
 		}
 	  default 
 	        {
-		    set maxima_priv(maxima_lang_subdir) ""
+		    set ::xmaxima_priv(maxima_lang_subdir) ""
 		}
 	}
-	#puts $maxima_priv(maxima_lang_subdir)
+	#puts $::xmaxima_priv(maxima_lang_subdir)
     }
 
     # On Windows ::msgcat::mclocale is a good way to derive locale 
@@ -244,18 +244,18 @@ proc setMaxDir {} {
     # side effects of setting the above variables
 
     # used in Menu.tcl CMMenu.tcl
-    if {[file isdir [set dir [file join  $maxima_priv(maxima_verpkgdatadir) info]]]} {
+    if {[file isdir [set dir [file join  $::xmaxima_priv(maxima_verpkgdatadir) info]]]} {
 	# 5.6 and down
-	set maxima_priv(pReferenceToc) \
+	set ::xmaxima_priv(pReferenceToc) \
 	    [file join $dir index.html]
-    } elseif {[file isdir [set dir [file join  $maxima_priv(maxima_verpkgdatadir) doc]]]} {
+    } elseif {[file isdir [set dir [file join  $::xmaxima_priv(maxima_verpkgdatadir) doc]]]} {
 	# 5.9 and up
 	# first choose the HTML documentation
-	if { $maxima_priv(maxima_lang_subdir) != "" && \
-	     [file exists [file join $dir html $maxima_priv(maxima_lang_subdir) index.html] ] } {
-	    set maxima_priv(pReferenceToc) [file join $dir html $maxima_priv(maxima_lang_subdir) index.html]
+	if { $::xmaxima_priv(maxima_lang_subdir) != "" && \
+	     [file exists [file join $dir html $::xmaxima_priv(maxima_lang_subdir) index.html] ] } {
+	    set ::xmaxima_priv(pReferenceToc) [file join $dir html $::xmaxima_priv(maxima_lang_subdir) index.html]
 	} else {
-	    set maxima_priv(pReferenceToc) [file join $dir html index.html]
+	    set ::xmaxima_priv(pReferenceToc) [file join $dir html index.html]
 	}
 	# if the platform is Windows and Maxima is running localized, try the following help files
 	# if they exist:
@@ -264,63 +264,63 @@ proc setMaxDir {} {
 	# 3rd priority: english CHM
 	# 4th priority: english HTML
         if { $tcl_platform(platform) == "windows" } {
-	    if { $maxima_priv(maxima_lang_subdir) != "" } {
-		if {[file exists [file join $dir chm $maxima_priv(maxima_lang_subdir) maxima.chm] ] } {
-		    set maxima_priv(pReferenceToc) [file join $dir chm $maxima_priv(maxima_lang_subdir) maxima.chm]
+	    if { $::xmaxima_priv(maxima_lang_subdir) != "" } {
+		if {[file exists [file join $dir chm $::xmaxima_priv(maxima_lang_subdir) maxima.chm] ] } {
+		    set ::xmaxima_priv(pReferenceToc) [file join $dir chm $::xmaxima_priv(maxima_lang_subdir) maxima.chm]
 		} else {
-		    if {[file exists [file join $dir html $maxima_priv(maxima_lang_subdir) index.html] ] } {
-			set maxima_priv(pReferenceToc) [file join $dir html $maxima_priv(maxima_lang_subdir) index.html]
+		    if {[file exists [file join $dir html $::xmaxima_priv(maxima_lang_subdir) index.html] ] } {
+			set ::xmaxima_priv(pReferenceToc) [file join $dir html $::xmaxima_priv(maxima_lang_subdir) index.html]
 		    } else {
 			if {[file exists [file join $dir chm maxima.chm] ] } {
-			    set maxima_priv(pReferenceToc) [file join $dir chm maxima.chm]
+			    set ::xmaxima_priv(pReferenceToc) [file join $dir chm maxima.chm]
 			} else {
-			    set maxima_priv(pReferenceToc) [file join $dir html index.html]
+			    set ::xmaxima_priv(pReferenceToc) [file join $dir html index.html]
 			}
 		    }
 		}
 	    } else {
 		if {[file exists [file join $dir chm maxima.chm] ] } {
-		    set maxima_priv(pReferenceToc) [file join $dir chm maxima.chm]
+		    set ::xmaxima_priv(pReferenceToc) [file join $dir chm maxima.chm]
 		} else {
-		    set maxima_priv(pReferenceToc) [file join $dir html index.html]
+		    set ::xmaxima_priv(pReferenceToc) [file join $dir html index.html]
 		}
 	    }
 	} else {
 	    # Platform != windows, just choose the HTML documentation
-	    if { $maxima_priv(maxima_lang_subdir) != "" && \
-		[file exists [file join $dir html $maxima_priv(maxima_lang_subdir) index.html] ] } {
-		set maxima_priv(pReferenceToc) [file join $dir html $maxima_priv(maxima_lang_subdir) index.html]
+	    if { $::xmaxima_priv(maxima_lang_subdir) != "" && \
+		[file exists [file join $dir html $::xmaxima_priv(maxima_lang_subdir) index.html] ] } {
+		set ::xmaxima_priv(pReferenceToc) [file join $dir html $::xmaxima_priv(maxima_lang_subdir) index.html]
 	    } else {
-		set maxima_priv(pReferenceToc) [file join $dir html index.html]
+		set ::xmaxima_priv(pReferenceToc) [file join $dir html index.html]
 	    }
 	}
     } else {
 	tk_messageBox -title Warning -icon warning -message \
             [mc "Documentation not found in '%s'" \
-                 [file native  $maxima_priv(maxima_verpkgdatadir)]]
+                 [file native  $::xmaxima_priv(maxima_verpkgdatadir)]]
     }
 
     # used in Menu.tcl CMMenu.tcl
-    if {[file isdir [set dir [file join  $maxima_priv(maxima_verpkgdatadir) tests]]]} {
+    if {[file isdir [set dir [file join  $::xmaxima_priv(maxima_verpkgdatadir) tests]]]} {
 	# 5.9 and up
-	set maxima_priv(pTestsDir) $dir
-    } elseif {[file isdir [set dir [file join  $maxima_priv(maxima_verpkgdatadir) doc]]]} {
+	set ::xmaxima_priv(pTestsDir) $dir
+    } elseif {[file isdir [set dir [file join  $::xmaxima_priv(maxima_verpkgdatadir) doc]]]} {
 	# 5.6 and down
-	set maxima_priv(pTestsDir) $dir
+	set ::xmaxima_priv(pTestsDir) $dir
     } else {
 	# who cares
     }
-    set file [file join $maxima_priv(maxima_xmaximadir) "intro.html"]
+    set file [file join $::xmaxima_priv(maxima_xmaximadir) "intro.html"]
     if {$tcl_platform(platform) == "windows"} {
         # convert to unix
         set file [file dir $file]/[file tail $file]
     }
     # FIXME: This is bogus - need a FileToUrl
-    set maxima_priv(firstUrl) file:/$file
+    set ::xmaxima_priv(firstUrl) file:/$file
 
     # set up for autoloading
     global auto_path
-    set dir [file join $maxima_priv(maxima_xmaximadir) Tkmaxima]
+    set dir [file join $::xmaxima_priv(maxima_xmaximadir) Tkmaxima]
     if {[file isdir $dir]} {
 	lappend auto_path $dir
     }
@@ -330,7 +330,7 @@ proc setMaxDir {} {
     # This is ugly.
     if {$tcl_platform(os) == "Windows 95"} {
 	if {![info exists env(MAXIMA_USERDIR)]} {
-	    set env(MAXIMA_USERDIR) "$maxima_priv(maxima_prefix)/user"
+	    set env(MAXIMA_USERDIR) "$::xmaxima_priv(maxima_prefix)/user"
 	}
     }
     # jfa: extend path so that gcl can see gcc in windows package
@@ -340,38 +340,38 @@ proc setMaxDir {} {
 	# on various Windows versions.
 	if {$tcl_platform(os) == "Windows 95"} {
 	    # Windows 95 or Windows 98
-	    regsub -all {/} "$maxima_priv(maxima_prefix)\\BIN" {\\} maxbinpath
+	    regsub -all {/} "$::xmaxima_priv(maxima_prefix)\\BIN" {\\} maxbinpath
 	} else {
 	    # Other versions of Windows
-	    set maxbinpath "$maxima_priv(maxima_prefix)/bin"
+	    set maxbinpath "$::xmaxima_priv(maxima_prefix)/bin"
 	}
 	set env(PATH) "$maxbinpath;$env(PATH)"
     }
 }
 
 proc vMAXSetMaximaCommand {} {
-    global maxima_priv tcl_platform env
+    global tcl_platform env
 
-    set maxima_priv(localMaximaServer) ""
-    if {[info exists maxima_priv(xmaxima_maxima)] && \
-	    $maxima_priv(xmaxima_maxima) != ""} {
-	if {[set exe [auto_execok $maxima_priv(xmaxima_maxima)]] == "" } {
+    set ::xmaxima_priv(localMaximaServer) ""
+    if {[info exists ::xmaxima_priv(xmaxima_maxima)] && \
+	    $::xmaxima_priv(xmaxima_maxima) != ""} {
+	if {[set exe [auto_execok $::xmaxima_priv(xmaxima_maxima)]] == "" } {
 
 	    tk_messageBox -title Error -icon error -message \
                 [mc "Maxima executable not found\n%s\n\n Try setting the environment variable XMAXIMA_MAXIMA." \
-			      [file native $maxima_priv(xmaxima_maxima)]]
+			      [file native $::xmaxima_priv(xmaxima_maxima)]]
 	    return
 	}
     } elseif { [info exists env(XMAXIMA_MAXIMA)] } {
-	set maxima_priv(xmaxima_maxima) $env(XMAXIMA_MAXIMA)
-	if {[set exe [auto_execok $maxima_priv(xmaxima_maxima)]] == "" } {
+	set ::xmaxima_priv(xmaxima_maxima) $env(XMAXIMA_MAXIMA)
+	if {[set exe [auto_execok $::xmaxima_priv(xmaxima_maxima)]] == "" } {
 	    tk_messageBox -title Error -icon error -message \
                 [concat [mc "Maxima executable not found."] "\n%s\nXMAXIMA_MAXIMA=$env(XMAXIMA_MAXIMA)"]
 	    return
 	}
     } else {
-	set maxima_priv(xmaxima_maxima) maxima
-	if {[set exe [auto_execok $maxima_priv(xmaxima_maxima)]] == "" } {
+	set ::xmaxima_priv(xmaxima_maxima) maxima
+	if {[set exe [auto_execok $::xmaxima_priv(xmaxima_maxima)]] == "" } {
 	    tk_messageBox -title Error -icon error -message \
                 [mc "Maxima executable not found\n\n Try setting the environment variable  XMAXIMA_MAXIMA."]
 	}
@@ -379,7 +379,7 @@ proc vMAXSetMaximaCommand {} {
         # vvz: on Windows 9X/ME only
 	if {$tcl_platform(os) == "Windows 95"} {
 	    # maybe it's in lib - I don't like this
-	    set dir $maxima_priv(maxima_verpkglibdir)
+	    set dir $::xmaxima_priv(maxima_verpkglibdir)
 	    # FIXME - need autoconf(lisp) so we don't need glob
 	    set exes [glob -nocomplain $dir/binary-*/maxima.exe]
 	    if {[llength $exes] != "1" || \
@@ -390,8 +390,8 @@ proc vMAXSetMaximaCommand {} {
 		return
 	    }
 	} else {
-	    set maxima_priv(xmaxima_maxima) maxima
-	    if {[set exe [auto_execok $maxima_priv(xmaxima_maxima)]] == "" } {
+	    set ::xmaxima_priv(xmaxima_maxima) maxima
+	    if {[set exe [auto_execok $::xmaxima_priv(xmaxima_maxima)]] == "" } {
                 tk_messageBox -title Error -icon error -message \
                     [mc "Maxima executable not found\n\n Try setting the environment variable  XMAXIMA_MAXIMA."]
 	    }
@@ -399,7 +399,7 @@ proc vMAXSetMaximaCommand {} {
     }
     set command {}
     lappend command $exe
-    eval lappend command $maxima_priv(opts)
+    eval lappend command $::xmaxima_priv(opts)
     lappend command -s PORT
     if {$tcl_platform(platform) == "windows"} {
         lappend command > NUL
@@ -407,5 +407,5 @@ proc vMAXSetMaximaCommand {} {
         lappend command > /dev/null
     }
     lappend command &
-    set maxima_priv(localMaximaServer) $command
+    set ::xmaxima_priv(localMaximaServer) $command
 }

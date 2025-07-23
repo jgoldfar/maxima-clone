@@ -8,39 +8,37 @@
 
 # Creates the browser if it doesn't exist
 proc createBrowser {bname} {
-    global maxima_priv
     if {[winfo exists $bname]} {
         focus $bname
     } else {
         toplevel $bname
         wm title $bname [mc {Xmaxima: browser}]
-        if {[file isfile [string map {file:/ ""} $maxima_priv(firstUrl)]]} {
-            OpenMathOpenUrl $maxima_priv(firstUrl) -toplevel $bname
+        if {[file isfile [string map {file:/ ""} $::xmaxima_priv(firstUrl)]]} {
+            OpenMathOpenUrl $::xmaxima_priv(firstUrl) -toplevel $bname
         } else {
-            set maxima_priv(error) \
+            set ::xmaxima_priv(error) \
                 "<h1>Error</h1>\
-                <p>Maxima primer not found in: $maxima_priv(firstUrl)</p>"
+                <p>Maxima primer not found in: $::xmaxima_priv(firstUrl)</p>"
              OpenMathOpenUrl "xmaxima://error" -toplevel $bname
         }
-        set maxima_priv(cBrowser) $bname
+        set ::xmaxima_priv(cBrowser) $bname
         set ::xmaxima_default(browser) 1
         # Adds the menubar and the toolbar to the browser
         vMAXAddBrowserMenu $bname}}
 
 # Creates the Maxima console
 proc createConsole {cname} {
-    global maxima_priv
     # Makes the status panel....
     set st .status
     frame $st
-    set maxima_priv(cStatusWindow) $st
+    set ::xmaxima_priv(cStatusWindow) $st
     label $st.rate -width 35 -bd 1 -relief sunken  -justify left \
-        -textvariable maxima_priv(load_rate) -anchor w
+        -textvariable ::xmaxima_priv(load_rate) -anchor w
     scale $st.scale -showvalue 0 -length 200  -orient horizontal
     pack $st.rate -side left -fill x -expand 1 -anchor w
     pack $st.scale -side left
     pack $st -side bottom -fill x -anchor w
-    set maxima_priv(cStatusLabel) $st.rate
+    set ::xmaxima_priv(cStatusLabel) $st.rate
 
     # Adds the toolbar to the Maxima console
     vMAXAddSystemBar
@@ -49,7 +47,7 @@ proc createConsole {cname} {
     set w $cname.text
     clearLocal $w
     oset $w heightDesired 80%
-    set maxima_priv(maximaWindow) $w
+    set ::xmaxima_priv(maximaWindow) $w
     closeMaxima $w
     clearLocal $w
 
@@ -62,7 +60,7 @@ proc createConsole {cname} {
     pack $cname.bottom -side bottom -fill x
     text $w -yscrollcommand "$cname.scroll set" \
 	    	-selectbackground yellow -selectforeground blue
-    set maxima_priv($w,inputTag) input
+    set ::xmaxima_priv($w,inputTag) input
     # resetMaximaFont $w
     scrollbar $cname.scroll -command "$w yview"
     pack $cname.scroll -side right -fill y
@@ -81,9 +79,9 @@ proc createConsole {cname} {
     # CNtext ans OpenMathText bindings are set up in Bindings.tcl
     bindtags $w [linsert [bindtags $w] 1 CNtext OpenMathText ]
 
-    if {![regexp -- input $maxima_priv(sticky)] } {
-        append maxima_priv(sticky) {|^input$}}
-    set maxima_priv(cConsoleText) $cname.text
+    if {![regexp -- input $::xmaxima_priv(sticky)] } {
+        append ::xmaxima_priv(sticky) {|^input$}}
+    set ::xmaxima_priv(cConsoleText) $cname.text
     vMAXSetCNTextBindings $w
     wm protocol . WM_DELETE_WINDOW [list maxExit $w]
 
@@ -98,7 +96,7 @@ proc createConsole {cname} {
     vMAXAddSystemMenu $cname $cname.text
 
     # Reads the history from previous runs
-    set histfile "$maxima_priv(home)/.xmaxima_history"
+    set histfile "$::xmaxima_priv(home)/.xmaxima_history"
     if {[file isfile $histfile]} {
         if {[catch {uplevel "#0" [list source $histfile]} err]} {
             tk_messageBox -title Error -icon error -message \
@@ -107,6 +105,6 @@ proc createConsole {cname} {
 
 # Updates the information in the status bar at the bottom of the console
 proc maxStatus {mess} {
-	global maxima_priv
-	set maxima_priv(load_rate) $mess
-	$maxima_priv(cStatusLabel) configure -text $mess}
+    set ::xmaxima_priv(load_rate) $mess
+    $::xmaxima_priv(cStatusLabel) configure -text $mess
+}

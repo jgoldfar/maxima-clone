@@ -7,7 +7,7 @@
 ############################################################
 
 proc cMAXINITBeforeIni {} {
-    global maxima_priv embed_args tk_version
+    global embed_args tk_version
 
     # default settings. Might be changed by local configuration file
     set ::xmaxima_default(plotwindow) multiple
@@ -26,33 +26,32 @@ proc cMAXINITBeforeIni {} {
     set ::xmaxima_default(iLocalPort) 4008
     set ::xmaxima_default(bDebugParse) 0
     if {[string index $tk_version 0] == 9} {
-        set maxima_priv(home) [file home]
+        set ::xmaxima_priv(home) [file home]
     } else {
-        set maxima_priv(home) "~"
+        set ::xmaxima_priv(home) "~"
     }
 
     # from FileDlg.tcl
-    set ::xmaxima_default(OpenDir) "$maxima_priv(home)/"
+    set ::xmaxima_default(OpenDir) "$::xmaxima_priv(home)/"
     # The last files opened and saved. Any default value serves
     # but a good starting value is Xmaxima's initialization file.
     # TO DO: change ~ for a home directory customized for each system.
-    set ::xmaxima_default(OpenFile) "$maxima_priv(home)/.xmaximarc"
-    set ::xmaxima_default(SaveFile) "$maxima_priv(home)/.xmaximarc"
+    set ::xmaxima_default(OpenFile) "$::xmaxima_priv(home)/.xmaximarc"
+    set ::xmaxima_default(SaveFile) "$::xmaxima_priv(home)/.xmaximarc"
 
     if { "[info var embed_args]" != "" } {
 	# the following will be defined only in the plugin
 	set ::xmaxima_default(defaultservers) nmtp://some.server.example.org/
     }
-    set maxima_priv(imgregexp) {[.](gif|png|jpe?g)[^/]*$}
+    set ::xmaxima_priv(imgregexp) {[.](gif|png|jpe?g)[^/]*$}
 
     # from Getdata1.tcl
-    set maxima_priv(cachedir) "$maxima_priv(home)/.xmaxima/cache"
+    set ::xmaxima_priv(cachedir) "$::xmaxima_priv(home)/.xmaxima/cache"
 }
 
 proc cMAXINITReadIni {} {
-    global maxima_priv
-    if {[file isfile "$maxima_priv(home)/.xmaximarc"]} {
-	if {[catch {uplevel "#0" [list source "$maxima_priv(home)/.xmaximarc"]}\
+    if {[file isfile "$::xmaxima_priv(home)/.xmaximarc"]} {
+	if {[catch {uplevel "#0" [list source "$::xmaxima_priv(home)/.xmaximarc"]}\
                  err]} {
 	    tk_messageBox -title Error -icon error -message \
                 [mc "Error sourcing %s\n%s" [file native ~/.xmaximarc] $err]
@@ -61,11 +60,10 @@ proc cMAXINITReadIni {} {
 }
 
 proc cMAXINITAfterIni {} {
-    global maxima_priv
     lMaxInitSetOpts
 
     # from plot3d.tcl
-    set maxima_priv(speed) [expr {(9700.0 / (1 + [lindex [time {set i 0 ; while { [incr i] < 1000} {}} 1] 0]))}]
+    set ::xmaxima_priv(speed) [expr {(9700.0 / (1 + [lindex [time {set i 0 ; while { [incr i] < 1000} {}} 1] 0]))}]
 
     # from Wmenu.tcl
     global show_balloons
@@ -78,24 +76,23 @@ proc cMAXINITAfterIni {} {
     if {[info exists ::xmaxima_default(lProxyHttp)] && \
 	    [llength $::xmaxima_default(lProxyHttp)] == "2"} {
 	#mike FIXME: make this a _default
-	set maxima_priv(proxy,http) $::xmaxima_default(lProxyHttp)
+	set ::xmaxima_priv(proxy,http) $::xmaxima_default(lProxyHttp)
     }
 
 }
 
 # Constants
-global maxima_priv
-set maxima_priv(date) 21/03/2024
+set ::xmaxima_priv(date) 21/03/2024
 
-if { ![info exists maxima_priv(date)] } {
-    set maxima_priv(date) [clock  format [clock seconds] -format {%m/%d/%Y} ]
+if { ![info exists ::xmaxima_priv(date)] } {
+    set ::xmaxima_priv(date) [clock  format [clock seconds] -format {%m/%d/%Y} ]
 }
 
 # from Preamble.tcl
-set maxima_priv(clicks_per_second) 1000000
+set ::xmaxima_priv(clicks_per_second) 1000000
 
 # from Plot2d.tcl
-array set maxima_priv { bitmap,disc4 {#define disc4_width 4
+array set ::xmaxima_priv { bitmap,disc4 {#define disc4_width 4
 #define disc4_height 4
 static unsigned char disc4_bits[] = {
     0x06, 0x0f, 0x0f, 0x06};}
@@ -106,25 +103,25 @@ static unsigned char disc_bits[] = {
 }
 
 # from xmaxima.tcl
-set maxima_priv(options,maxima) {{doinsert 0 "Do an insertion" boolean}}
+set ::xmaxima_priv(options,maxima) {{doinsert 0 "Do an insertion" boolean}}
 
 # from EHref.tcl
-set maxima_priv(options,href) {
+set ::xmaxima_priv(options,href) {
     {src "" [mc "A URL (universal resource locator) such as http://maxima.sourceforge.net/index.html"]}
     {search "" [mc "A string to search for, to get an initial position"]}
     {searchregexp "" [mc "A regexp to search for, to get an initial position"]}
 }
 
 # from Preamble.tcl
-set maxima_priv(counter) 0
+set ::xmaxima_priv(counter) 0
 	
 # the linelength initially will have Maxima's default value.
-set maxima_priv(linelength) 79
+set ::xmaxima_priv(linelength) 79
 
 # From Browser.tcl
-set maxima_priv(sticky) "^Teval$|^program:"
-set maxima_priv(richTextCommands) {Tins TinsSlashEnd}
-set maxima_priv(urlHandlers) {
+set ::xmaxima_priv(sticky) "^Teval$|^program:"
+set ::xmaxima_priv(richTextCommands) {Tins TinsSlashEnd}
+set ::xmaxima_priv(urlHandlers) {
     text/html  netmath
     text/plain netmath
     image/gif  netmath
@@ -135,13 +132,13 @@ set maxima_priv(urlHandlers) {
     application/pdf "acroread %s"
     application/x-dvi "xdvi %s"
 }
-set maxima_priv(imagecounter) 0
+set ::xmaxima_priv(imagecounter) 0
 
 global evalPrograms
 set evalPrograms {  gp gap gb }
-#set maxima_priv(options,maxima) {{doinsert 1 "Do an insertion" boolean}}
-#set maxima_priv(options,gp) {{doinsert 1 "Do an insertion" boolean}}
-#set maxima_priv(options,openplot) {{doinsert 0 "Do an insertion" boolean}}
+#set ::xmaxima_priv(options,maxima) {{doinsert 1 "Do an insertion" boolean}}
+#set ::xmaxima_priv(options,gp) {{doinsert 1 "Do an insertion" boolean}}
+#set ::xmaxima_priv(options,openplot) {{doinsert 0 "Do an insertion" boolean}}
 
 # Icons from the Tango Desktop Project (http://tango.freedesktop.org)
 # "The Tango base icon theme is released to the Public Domain.

@@ -740,11 +740,10 @@ proc drawPlot {win listpts args } {
     if { $nolegend == 0 } {plot2dDrawLabel $win $label $fill}}
 
 proc drawPointsForPrint { c } {
-    global maxima_priv
     foreach v [$c find withtag point] {
 	set tags [ldelete point [$c gettags $v]]
 	desetq "x y" [$c coords $v]
-	desetq "pointsize fill" $maxima_priv(pointimage,[$c itemcget $v -image])
+	desetq "pointsize fill" $::xmaxima_priv(pointimage,[$c itemcget $v -image])
 	catch {
 	    $c create oval [expr {$x -$pointsize}] \
 		[expr {$y -$pointsize}] [expr {$x +$pointsize}] \
@@ -753,15 +752,14 @@ proc drawPointsForPrint { c } {
 	    $c delete $v}}}
 
 proc getPoint { size color } {
-    global maxima_priv
     set im {}
-    if { ![catch { set im $maxima_priv(pointimage,$size,$color) }] } {
+    if { ![catch { set im $::xmaxima_priv(pointimage,$size,$color) }] } {
 	return $im
     }
-    catch { set data $maxima_priv(bitmap,disc[expr {$size * 2}])
+    catch { set data $::xmaxima_priv(bitmap,disc[expr {$size * 2}])
 	set im [image create bitmap -data $data -foreground $color]
-	set maxima_priv(pointimage,$size,$color) $im
-	set maxima_priv(pointimage,$im) "$size $color"}
+	set ::xmaxima_priv(pointimage,$size,$color) $im
+	set ::xmaxima_priv(pointimage,$im) "$size $color"}
     return $im}
 
 proc sliderCommandPlot2d { win var val } {

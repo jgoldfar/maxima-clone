@@ -97,9 +97,9 @@ proc acceptMaxima { win port filter } {
 }
 
 proc openMaxima { win filter } {
-    global maxima_priv env
+    global env
 
-    if {$maxima_priv(localMaximaServer) == ""} {
+    if {$::xmaxima_priv(localMaximaServer) == ""} {
 	return -code error [mc "Could not start Maxima - empty command"]
     }
 
@@ -109,9 +109,9 @@ proc openMaxima { win filter } {
 	set com ""
 	set command [list eval exec]
 	# This may be needed under CYGWIN
-	# if {$maxima_priv(platform) == "cygwin"} {lappend command "/bin/bash"}
+	# if {$::xmaxima_priv(platform) == "cygwin"} {lappend command "/bin/bash"}
 
-	append com    $maxima_priv(localMaximaServer)
+	append com    $::xmaxima_priv(localMaximaServer)
 	regsub PORT $com $port com
 	if { [info exists env(MAXIMA_INT_INPUT_STRING)] } {
 	    regsub PORT $env(MAXIMA_INT_INPUT_STRING) $port env(MAXIMA_INT_INPUT_STRING)
@@ -321,13 +321,13 @@ proc littleFilter {win sock } {
     }
 }
 
-if { ![info exists maxima_priv(timeout)] } {
+if { ![info exists ::xmaxima_priv(timeout)] } {
 
-    set maxima_priv(timeout) 60000
+    set ::xmaxima_priv(timeout) 60000
 }
 
 proc runOneMaxima { win } {
-    global maxima_priv pdata
+    global pdata
 
     closeMaxima $win
     linkLocal $win pid
@@ -336,7 +336,7 @@ proc runOneMaxima { win } {
     openMaxima $win littleFilter
 
     while { $pid == "none" } {
-	set af [after $maxima_priv(timeout) oset $win pid "none" ]
+	set af [after $::xmaxima_priv(timeout) oset $win pid "none" ]
 	# puts "waiting pid=$pid"
 	maxStatus [mc "Starting Maxima"]
 	vwait [oloc $win pid]
@@ -362,7 +362,7 @@ proc runOneMaxima { win } {
     }
     maxStatus [mc "Started Maxima"]
     
-    SetPlotFormat $maxima_priv(cConsoleText)
+    SetPlotFormat $::xmaxima_priv(cConsoleText)
 
     set res [list [oget $win pid] $sock ]
     global pdata autoconf
@@ -498,15 +498,15 @@ proc CMresetFilter { win } {
 }
 
 proc CMkill {  signal pid } {
-    global maxima_priv tcl_platform
+    global tcl_platform
 
     # Windows pids can be negative
     if {[string is int $pid]} {
 	maxStatus [mc "Sending signal %s to process %s" "$signal" "$pid"]
 	if {$tcl_platform(platform) == "windows" } {
-	    exec $maxima_priv(kill) $signal $pid
+	    exec $::xmaxima_priv(kill) $signal $pid
 	} else {
-	    exec $maxima_priv(kill) $signal $pid
+	    exec $::xmaxima_priv(kill) $signal $pid
 	}
     }
 }
@@ -614,8 +614,7 @@ proc maxima_insert { w this next val args } {
 }
 
 proc eval_maxima { prog win this nextResult } {
-    global maxima_priv
-    set w $maxima_priv(maximaWindow)
+    set w $::xmaxima_priv(maximaWindow)
     linkLocal $w maximaSocket
     if {![info exists maximaSocket] || $maximaSocket == ""} {return}
 
@@ -624,10 +623,10 @@ proc eval_maxima { prog win this nextResult } {
     if { "[lindex $nextResult 0]" != "" } {
 	sendMaximaCall $w "$form;\n" [list maxima_insert $win $this  $nextResult pdata($maximaSocket,result)]
 	
-	#         set res [sendMaximaWait $maxima_priv(maximaWindow) "$form;"]
+	#         set res [sendMaximaWait $::xmaxima_priv(maximaWindow) "$form;"]
 	#	insertResult_maxima $win $this  $nextResult $res
     } else {
-	sendMaxima $maxima_priv(maximaWindow) "$form;\n"
+	sendMaxima $::xmaxima_priv(maximaWindow) "$form;\n"
     }
     return 0
 }

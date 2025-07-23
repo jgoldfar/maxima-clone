@@ -49,8 +49,7 @@ defTag netmath -body {
     set paramList [xHMsplitParams $params]
     catch {
 	if { [xHMextract_param $paramList version ""] } {
-	    global maxima_priv
-	    if { [clock scan $version] > [clock scan $maxima_priv(date)] } {
+	    if { [clock scan $version] > [clock scan $::xmaxima_priv(date)] } {
 
 		xHMextract_param $paramList oldversion ""
 		append oldversion $text

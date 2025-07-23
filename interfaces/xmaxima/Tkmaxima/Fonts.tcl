@@ -1,6 +1,6 @@
 # set font {Courier 8}
-global maxima_priv fontCourier8 fixedFont fontSize
-set maxima_priv(fixedFont) Courier
+global fontCourier8 fixedFont fontSize
+set ::xmaxima_priv(fixedFont) Courier
 
 # Pick a default font size in pixels
 set _screenheight [winfo screenheight .]
@@ -82,8 +82,7 @@ if {0} {
 
 
 ######### font choosing utilities #########
-global tcl_platform
-global isFixedp
+global tcl_platform isFixedp
 
 if { "$tcl_platform(platform)" == "unix" } {
     array set isFixedp {

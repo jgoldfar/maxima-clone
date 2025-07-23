@@ -559,7 +559,6 @@ defTag option -body { set text [string trimright $text]
 global xHMpriv
 set xHMpriv(counter) 0
 
-
 #
  #-----------------------------------------------------------------
  #
@@ -976,8 +975,8 @@ proc xHMdo_img {} {
 	    incr wvar(measure) [image width $image]
 	}
 	label $w -image $im -background $bg
-	bind $w <Enter> [list set maxima_priv(load_rate) "$alt" ]
-	bind $w <Leave> [list set maxima_priv(load_rate) ""  ]
+	bind $w <Enter> [list set ::xmaxima_priv(load_rate) "$alt" ]
+	bind $w <Leave> [list set ::xmaxima_priv(load_rate) ""  ]
 
     }
     catch { $w configure -border $border}
