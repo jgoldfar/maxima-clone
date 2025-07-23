@@ -1,7 +1,3 @@
-# -*-mode: tcl; fill-column: 75; tab-width: 8; coding: iso-latin-1-unix -*-
-#
-#       $Id: Bindings.tcl,v 1.10 2007-03-23 00:05:06 villate Exp $
-#
 ###### Bindings.tcl ######
 ############################################################
 # Netmath       Copyright (C) 1998 William F. Schelter     #

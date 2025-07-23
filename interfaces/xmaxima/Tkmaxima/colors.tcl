@@ -1,5 +1,3 @@
-#  $Id: colors.tcl,v 1.1 2009-11-15 22:55:35 villate Exp $
-#
 # Copyright (c) 2009, Jaime E. Villate <villate@fe.up.pt>
 #
 # Procedures to work with colors

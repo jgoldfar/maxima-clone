@@ -1,8 +1,3 @@
-# -*-mode: tcl; fill-column: 75; tab-width: 8; coding: iso-latin-1-unix -*-
-#
-#       $Id: Fonts.tcl,v 1.8 2006-06-27 13:33:42 villate Exp $
-#
-
 # set font {Courier 8}
 global maxima_priv fontCourier8 fixedFont fontSize
 set maxima_priv(fixedFont) Courier

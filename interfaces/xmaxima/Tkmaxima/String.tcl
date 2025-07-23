@@ -1,7 +1,3 @@
-# -*-mode: tcl; fill-column: 75; tab-width: 8; coding: iso-latin-1-unix -*-
-#
-#       $Id: String.tcl,v 1.2 2002-09-07 05:21:42 mikeclarkson Exp $
-#
 ###### String.tcl ######
 
 
@@ -56,6 +52,10 @@ proc genword { string count } {
     set ans ""
     while { [incr count -1] >= 0 } { append ans $string }
     return $ans
+}
+
+proc resetMaximaFont { w } {
+    $w config -font [xHMmapFont font:fixed:normal:r:[expr $::xmaxima_default(fontAdjust) + 3]]
 }
 
 ## endsource string.tcl
