@@ -14,7 +14,7 @@ proc createBrowser {bname} {
     } else {
         toplevel $bname
         wm title $bname [mc {Xmaxima: browser}]
-        if {[file isfile $maxima_priv(firstUrl)]} {
+        if {[file isfile [string map {file:/ ""} $maxima_priv(firstUrl)]]} {
             OpenMathOpenUrl $maxima_priv(firstUrl) -toplevel $bname
         } else {
             set maxima_priv(error) \
