@@ -26,9 +26,7 @@ proc CMmenu { win } {
     set file $::xmaxima_priv(pReferenceToc)
     $m add command -underline 0 -label {Maxima Help} \
 	-command "OpenMathOpenUrl \"file:/$file\""
-
-    global tcl_platform
-    if {$tcl_platform(platform) == "windows"} {
+    if {$::tcl_platform(platform) == "windows"} {
 	set browse start
     } else {
 	# FIXME: get a browser object

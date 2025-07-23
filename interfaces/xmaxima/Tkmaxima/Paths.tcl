@@ -9,9 +9,7 @@
 # to start up the interface.
 
 proc setMaxDir {} {
-    global env autoconf tcl_platform
-
-    if {$tcl_platform(platform) == "windows"} {
+    if {$::tcl_platform(platform) == "windows"} {
 	# Make sure the signals thread is started
 	set env(MAXIMA_SIGNALS_THREAD) "1"
 
@@ -19,35 +17,35 @@ proc setMaxDir {} {
 	# for 5.6 this was src/ and for 5.9 its bin/
 	set up [file dir [file dir [info name]]]
 
-	if {[info exists autoconf] && \
-		[info exists autoconf(prefix)] && \
-		[info exists autoconf(exec_prefix)] && \
-		[info exists autoconf(libdir)] && \
-		[info exists autoconf(libexecdir)] && \
-		[info exists autoconf(datadir)] && \
-		[info exists autoconf(infodir)] && \
-		[info exists autoconf(version)] && \
-		[info exists autoconf(package)] && \
-		[file isdir  $autoconf(datadir)] && \
+	if {[info exists ::autoconf] && \
+		[info exists ::autoconf(prefix)] && \
+		[info exists ::autoconf(exec_prefix)] && \
+		[info exists ::autoconf(libdir)] && \
+		[info exists ::autoconf(libexecdir)] && \
+		[info exists ::autoconf(datadir)] && \
+		[info exists ::autoconf(infodir)] && \
+		[info exists ::autoconf(version)] && \
+		[info exists ::autoconf(package)] && \
+		[file isdir  $::autoconf(datadir)] && \
 		[file isdir \
-		     [file join $autoconf(datadir) \
-			  $autoconf(package) $autoconf(version)]]} {
+		     [file join $::autoconf(datadir) \
+			  $::autoconf(package) $::autoconf(version)]]} {
 	    # Assume it's CYGWIN or  MSYS in /usr/local
 	} elseif {[file isdir $up/lib] && \
 		      [file isdir $up/bin] && \
 		      [file isdir $up/libexec] && \
 		      [file isdir $up/info] && \
 		      [file isdir $up/share]} {
-	    set autoconf(prefix) $up
+	    set ::autoconf(prefix) $up
 	    set env(MAXIMA_PREFIX) $up
-	    set autoconf(exec_prefix) $up
-	    set autoconf(libdir) "$up/lib"
-	    set autoconf(libexecdir) "$up/libexec"
-	    set autoconf(datadir) "$up/share"
-	    set autoconf(infodir) "$up/info"
+	    set ::autoconf(exec_prefix) $up
+	    set ::autoconf(libdir) "$up/lib"
+	    set ::autoconf(libexecdir) "$up/libexec"
+	    set ::autoconf(datadir) "$up/share"
+	    set ::autoconf(infodir) "$up/info"
 	    # These two should be valid
-	    # set autoconf(package) "maxima"
-	    # set autoconf(version) "5.9.0rc1"
+	    # set ::autoconf(package) "maxima"
+	    # set ::autoconf(version) "5.9.0rc1"
 	} else {
 	    # Old windows 5.5 layout
 	    # Assume we are in the same directory as saved_maxima
@@ -71,7 +69,7 @@ proc setMaxDir {} {
 	}
     }
     #mike Could someone document all of these environment variables?
-    # autoconf(prefix) does not seem to me to be the equivalent of
+    # ::autoconf(prefix) does not seem to me to be the equivalent of
     # $env(MAXIMA_DIRECTORY) so I don't understand the next statement
 
     # jfa: MAXIMA_PREFIX supersedes MAXIMA_DIRECTORY. (Why? Because the
@@ -87,7 +85,7 @@ proc setMaxDir {} {
     # paths is as follows:
     #   1) Use the environment variables if they exist.
     #   2) Otherwise, attempt to use the compile-time settings from
-    #      autoconf.
+    #      ::autoconf.
     #   3) If the entire package has been moved to a prefix other than
     #      that given at compile time, use the location of the (x)maxima
     #      executable to determine the new prefix.
@@ -101,7 +99,7 @@ proc setMaxDir {} {
     # End temporary workaround. It's only a workaround because the next
     # section is backwards: 
 
-    #mike Is it correct to assume that autoconf exists and is valid
+    #mike Is it correct to assume that ::autoconf exists and is valid
     # for binary windows distributions? I think it would be better
     # to make (MAXIMA_DIRECTORY) take precedence, and work off
     # [info nameofexe] if necessary.
@@ -111,7 +109,7 @@ proc setMaxDir {} {
     } elseif { [info exists env(MAXIMA_PREFIX)] } {
 	set ::xmaxima_priv(maxima_prefix) $env(MAXIMA_PREFIX)
     } else {
-	set ::xmaxima_priv(maxima_prefix) $autoconf(prefix)
+	set ::xmaxima_priv(maxima_prefix) $::autoconf(prefix)
     }
     if {[info exists ::xmaxima_priv(maxima_verpkgdatadir)]} {
 	# drop through
@@ -122,7 +120,7 @@ proc setMaxDir {} {
 	    set maxima_datadir \
 		[file join $env(MAXIMA_PREFIX) share]
 	} else {
-	    set maxima_datadir $autoconf(datadir)
+	    set maxima_datadir $::autoconf(datadir)
 	}
 	# maxima_datadir is unused outside of this proc
 
@@ -132,8 +130,8 @@ proc setMaxDir {} {
 			     [file native  $maxima_datadir]]
 	}
 	set ::xmaxima_priv(maxima_verpkgdatadir) \
-	    [file join $maxima_datadir $autoconf(package) \
-		 $autoconf(version)]
+	    [file join $maxima_datadir $::autoconf(package) \
+		 $::autoconf(version)]
     }
 
     # omplotdata messages
@@ -145,12 +143,12 @@ proc setMaxDir {} {
 	set ::xmaxima_priv(maxima_verpkglibdir) $env(MAXIMA_VERPKGLIBDIR)
     } elseif { [info exists env(MAXIMA_PREFIX)] } {
 	set ::xmaxima_priv(maxima_verpkglibdir) \
-	    [file join $env(MAXIMA_PREFIX) lib $autoconf(package) \
-		 $autoconf(version)]
+	    [file join $env(MAXIMA_PREFIX) lib $::autoconf(package) \
+		 $::autoconf(version)]
     } else {
 	set ::xmaxima_priv(maxima_verpkglibdir) \
-	    [file join $autoconf(libdir) $autoconf(package) \
-		 $autoconf(version)]
+	    [file join $::autoconf(libdir) $::autoconf(package) \
+		 $::autoconf(version)]
     }
     if {[info exists ::xmaxima_priv(maxima_xmaximadir)]} {
 	# drop through
@@ -168,7 +166,7 @@ proc setMaxDir {} {
     if { [info exists env(MAXIMA_LANG_SUBDIR)] } {
 	set ::xmaxima_priv(maxima_lang_subdir) $env(MAXIMA_LANG_SUBDIR)
     } else {
-	if { $tcl_platform(platform) == "windows" } {
+	if { $::tcl_platform(platform) == "windows" } {
     	    set wlocale [ ::msgcat::mclocale ]
 	} else {
     	    set wlocale ""
@@ -236,7 +234,7 @@ proc setMaxDir {} {
     }
 
     # On Windows ::msgcat::mclocale is a good way to derive locale 
-    if { $tcl_platform(platform) == "windows" } {
+    if { $::tcl_platform(platform) == "windows" } {
 	    set env(LANG) [ ::msgcat::mclocale ]
     }
 
@@ -263,7 +261,7 @@ proc setMaxDir {} {
 	# 2nd priority: localized HTML
 	# 3rd priority: english CHM
 	# 4th priority: english HTML
-        if { $tcl_platform(platform) == "windows" } {
+        if { $::tcl_platform(platform) == "windows" } {
 	    if { $::xmaxima_priv(maxima_lang_subdir) != "" } {
 		if {[file exists [file join $dir chm $::xmaxima_priv(maxima_lang_subdir) maxima.chm] ] } {
 		    set ::xmaxima_priv(pReferenceToc) [file join $dir chm $::xmaxima_priv(maxima_lang_subdir) maxima.chm]
@@ -311,7 +309,7 @@ proc setMaxDir {} {
 	# who cares
     }
     set file [file join $::xmaxima_priv(maxima_xmaximadir) "intro.html"]
-    if {$tcl_platform(platform) == "windows"} {
+    if {$::tcl_platform(platform) == "windows"} {
         # convert to unix
         set file [file dir $file]/[file tail $file]
     }
@@ -328,17 +326,17 @@ proc setMaxDir {} {
     # MAXIMA_USERDIR defaults to HOME, which is usually C:\.
     # Make the default something else under Windows 98 as a workaround.
     # This is ugly.
-    if {$tcl_platform(os) == "Windows 95"} {
+    if {$::tcl_platform(os) == "Windows 95"} {
 	if {![info exists env(MAXIMA_USERDIR)]} {
 	    set env(MAXIMA_USERDIR) "$::xmaxima_priv(maxima_prefix)/user"
 	}
     }
     # jfa: extend path so that gcl can see gcc in windows package
     # I don't know that this is the best place for this
-    if {$tcl_platform(platform) == "windows"} {
+    if {$::tcl_platform(platform) == "windows"} {
 	# jfa: This is an attempt to get a working path designation
 	# on various Windows versions.
-	if {$tcl_platform(os) == "Windows 95"} {
+	if {$::tcl_platform(os) == "Windows 95"} {
 	    # Windows 95 or Windows 98
 	    regsub -all {/} "$::xmaxima_priv(maxima_prefix)\\BIN" {\\} maxbinpath
 	} else {
@@ -350,8 +348,6 @@ proc setMaxDir {} {
 }
 
 proc vMAXSetMaximaCommand {} {
-    global tcl_platform env
-
     set ::xmaxima_priv(localMaximaServer) ""
     if {[info exists ::xmaxima_priv(xmaxima_maxima)] && \
 	    $::xmaxima_priv(xmaxima_maxima) != ""} {
@@ -377,10 +373,10 @@ proc vMAXSetMaximaCommand {} {
 	}
 	# jfa: bypass maxima script on windows
         # vvz: on Windows 9X/ME only
-	if {$tcl_platform(os) == "Windows 95"} {
+	if {$::tcl_platform(os) == "Windows 95"} {
 	    # maybe it's in lib - I don't like this
 	    set dir $::xmaxima_priv(maxima_verpkglibdir)
-	    # FIXME - need autoconf(lisp) so we don't need glob
+	    # FIXME - need ::autoconf(lisp) so we don't need glob
 	    set exes [glob -nocomplain $dir/binary-*/maxima.exe]
 	    if {[llength $exes] != "1" || \
 		    [set exe [lindex $exes 0]] == "" || \
@@ -401,7 +397,7 @@ proc vMAXSetMaximaCommand {} {
     lappend command $exe
     eval lappend command $::xmaxima_priv(opts)
     lappend command -s PORT
-    if {$tcl_platform(platform) == "windows"} {
+    if {$::tcl_platform(platform) == "windows"} {
         lappend command > NUL
     } else {
         lappend command > /dev/null

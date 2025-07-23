@@ -242,8 +242,7 @@ proc xHMsetFont { win fonttag  } {
 	set slant roman
     }
     #puts "font config $font -family $family -size $::xmaxima_default($fam,$si) -slant $slant -weight $weight"
-    global tcl_platform
-    if { "$tcl_platform(platform)" == "unix" } {
+    if { "$::tcl_platform(platform)" == "unix" } {
 	set usePixel "-"
     } else {
 	set usePixel ""
@@ -1046,9 +1045,7 @@ proc xHMassureNewlines { n } {
 }
 
 proc xHMsetDefaultPreferences {} {
-    global tcl_platform
-
-    if { "$tcl_platform(platform)" == "unix" } {
+    if { "$::tcl_platform(platform)" == "unix" } {
 	set pairs {  1 8
 	    2 10
 	    3 12

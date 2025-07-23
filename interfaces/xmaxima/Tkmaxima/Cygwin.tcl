@@ -1,15 +1,14 @@
 # Voodo for CYGWIN
 # Is there a canonical way of telling we are under CYGWIN?
-global env tcl_platform
-if {$tcl_platform(platform) == "windows" && \
-	[info exists env(PATH)] && $env(PATH) != "" && \
-	[string match {*/usr/bin*} $env(PATH)] && \
-	[string match {*:*} $env(PATH)] && \
-	![string match {*;*} $env(PATH)]} {
+if {$::tcl_platform(platform) == "windows" && \
+	[info exists ::env(PATH)] && $::env(PATH) != "" && \
+	[string match {*/usr/bin*} $::env(PATH)] && \
+	[string match {*:*} $::env(PATH)] && \
+	![string match {*;*} $::env(PATH)]} {
     # CYGWIN uses Unix PATH but Tcl considers it Windows
     # What's even worse auto_execok uses ; but exec uses :
     if {0} {
-	set env(PATH) [join [split $env(PATH) ":"] ";"]
+	set ::env(PATH) [join [split $::env(PATH) ":"] ";"]
     } else {
 	set ::xmaxima_priv(platform) cygwin
         # Windows version.
@@ -20,25 +19,25 @@ if {$tcl_platform(platform) == "windows" && \
         # components are separated with semicolons, not colons as under Unix.
         #
         proc auto_execok name {
-            global auto_execs env tcl_platform
+            global auto_execs
             if {[info exists auto_execs($name)]} {
                 return $auto_execs($name)
             }
             set auto_execs($name) ""
             set shellBuiltins [list cls copy date del erase dir echo mkdir \
                                    md rename ren rmdir rd time type ver vol]
-            if {[string equal $tcl_platform(os) "Windows NT"]} {
+            if {[string equal $::tcl_platform(os) "Windows NT"]} {
                 # NT includes the 'start' built-in
                 lappend shellBuiltins "start"
             }
-            if {[info exists env(PATHEXT)]} {
+            if {[info exists ::env(PATHEXT)]} {
                 # Add an initial : to have the {} extension check first.
-                set execExtensions [split ":$env(PATHEXT)" ":"]
+                set execExtensions [split ":$::env(PATHEXT)" ":"]
             } else {
                 set execExtensions [list {} .bat .com .exe]
             }
             if {[lsearch -exact $shellBuiltins $name] != -1} {
-                return [set auto_execs($name) [list $env(COMSPEC) /c $name]]
+                return [set auto_execs($name) [list $::env(COMSPEC) /c $name]]
             }
             if {[llength [file split $name]] != 1} {
                 foreach ext $execExtensions {
@@ -50,18 +49,18 @@ if {$tcl_platform(platform) == "windows" && \
                 return ""
             }
             set path "[file dirname [info nameof]]:.:"
-            if {[info exists env(WINDIR)]} {
-                set windir $env(WINDIR) 
+            if {[info exists ::env(WINDIR)]} {
+                set windir $::env(WINDIR) 
             }
             if {[info exists windir]} {
-                if {[string equal $tcl_platform(os) "Windows NT"]} {
+                if {[string equal $::tcl_platform(os) "Windows NT"]} {
                     append path "$windir/system32:"
                 }
                 append path "$windir/system:$windir:"
             }
             foreach var {PATH Path path} {
-                if {[info exists env($var)]} {
-                    append path ":$env($var)"
+                if {[info exists ::env($var)]} {
+                    append path ":$::env($var)"
                     break
                 }
             }
@@ -82,5 +81,5 @@ if {$tcl_platform(platform) == "windows" && \
         }
     }
 } else {
-      set ::xmaxima_priv(platform) $tcl_platform(platform)
+      set ::xmaxima_priv(platform) $::tcl_platform(platform)
 }

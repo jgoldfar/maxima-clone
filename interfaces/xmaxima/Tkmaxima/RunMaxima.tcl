@@ -97,12 +97,9 @@ proc acceptMaxima { win port filter } {
 }
 
 proc openMaxima { win filter } {
-    global env
-
     if {$::xmaxima_priv(localMaximaServer) == ""} {
 	return -code error [mc "Could not start Maxima - empty command"]
     }
-
     set port $::xmaxima_default(iLocalPort)
     set port [acceptMaxima $win $port $filter]
     if { $port >= 0 } {
@@ -110,13 +107,12 @@ proc openMaxima { win filter } {
 	set command [list eval exec]
 	# This may be needed under CYGWIN
 	# if {$::xmaxima_priv(platform) == "cygwin"} {lappend command "/bin/bash"}
-
 	append com    $::xmaxima_priv(localMaximaServer)
 	regsub PORT $com $port com
-	if { [info exists env(MAXIMA_INT_INPUT_STRING)] } {
-	    regsub PORT $env(MAXIMA_INT_INPUT_STRING) $port env(MAXIMA_INT_INPUT_STRING)
-	    #puts env(MAXIMA_INT_LISP_PRELOAD)=$env(MAXIMA_INT_LISP_PRELOAD)
-	    #puts env(MAXIMA_INT_INPUT_STRING)=$env(MAXIMA_INT_INPUT_STRING)
+	if { [info exists ::env(MAXIMA_INT_INPUT_STRING)] } {
+	    regsub PORT $::env(MAXIMA_INT_INPUT_STRING) $port ::env(MAXIMA_INT_INPUT_STRING)
+	    #puts ::env(MAXIMA_INT_LISP_PRELOAD)=$::env(MAXIMA_INT_LISP_PRELOAD)
+	    #puts ::env(MAXIMA_INT_INPUT_STRING)=$::env(MAXIMA_INT_INPUT_STRING)
 	}
 	#puts com=$com
 	set command [concat $command  $com]
@@ -365,11 +361,11 @@ proc runOneMaxima { win } {
     SetPlotFormat $::xmaxima_priv(cConsoleText)
 
     set res [list [oget $win pid] $sock ]
-    global pdata autoconf
+    global pdata
     set pdata(maxima,socket) $sock
     fileevent $sock readable  [list maximaFilter $win $sock]
     sendMaxima $win ":lisp-quiet (setq \$maxima_frontend \"Xmaxima\")\n"
-    sendMaxima $win ":lisp-quiet (setq \$maxima_frontend_version \"$autoconf(version)\")\n"
+    sendMaxima $win ":lisp-quiet (setq \$maxima_frontend_version \"$::autoconf(version)\")\n"
     sendMaxima $win ":lisp-quiet (setq \$maxima_frontend_bugreportinfo \"XMaxima is part of maxima.\")\n"
     return $res
 
@@ -498,12 +494,10 @@ proc CMresetFilter { win } {
 }
 
 proc CMkill {  signal pid } {
-    global tcl_platform
-
     # Windows pids can be negative
     if {[string is int $pid]} {
 	maxStatus [mc "Sending signal %s to process %s" "$signal" "$pid"]
-	if {$tcl_platform(platform) == "windows" } {
+	if {$::tcl_platform(platform) == "windows" } {
 	    exec $::xmaxima_priv(kill) $signal $pid
 	} else {
 	    exec $::xmaxima_priv(kill) $signal $pid

@@ -12,7 +12,7 @@
 # jack
 # %     safe::interpInit $slave
 # jack
-# %     interp eval $slave set env(DISPLAY) $env(DISPLAY)
+# %     interp eval $slave set ::env(DISPLAY) $::env(DISPLAY)
 # :0.0
 # %     load {} Tk $slave
 # % interp eval jack {entry .ja ; pack .ja}
@@ -23,7 +23,7 @@
 # % interp eval jack plot2d -xfun {sin(x)}
 
 proc makeEmbedWin { parent width height } {
-    global env auto_index
+    global auto_index
     set win $parent.embed[incr ::xmaxima_priv(counter)]
     set fr [frame $win -width $width -height $height -container 1]
     set slave tclet$::xmaxima_priv(counter)
@@ -39,8 +39,8 @@ proc makeEmbedWin { parent width height } {
 	interp eval $slave [list set argv [list -use [winfo id $fr]]]	
     }
 
-    if { [info exists env(DISPLAY)] } {
-	interp eval $slave set env(DISPLAY) $env(DISPLAY)
+    if { [info exists ::env(DISPLAY)] } {
+	interp eval $slave set ::env(DISPLAY) $::env(DISPLAY)
     }
     interp eval $slave { proc policy {args } {} }
     #    $slave alias bgerror bgerror
@@ -151,9 +151,9 @@ proc Safesock_PolicyInit {slave {version 1.0}} {
     set browser_state($slave,safesock,homebase) $server
 
     # Tell the slave about itself:
-    interp eval $slave [list set env(SERVER) $server]
-    interp eval $slave [list set env(PORT) $port]
-    interp eval $slave [list set env(URL) $url]
+    interp eval $slave [list set ::env(SERVER) $server]
+    interp eval $slave [list set ::env(PORT) $port]
+    interp eval $slave [list set ::env(URL) $url]
 
     browser_log $slave security installed policy Safesock
 }

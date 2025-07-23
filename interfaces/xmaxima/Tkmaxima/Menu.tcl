@@ -78,8 +78,6 @@ proc pMAXSaveTexToFile {text} {
 }
 
 proc vMAXAddBrowserMenu {win} {
-    global tcl_platform env
-
     if {[winfo exists .browser.menu]} {destroy .browser.menu}
     set bm .browser.menu
     menu $bm
@@ -109,14 +107,11 @@ proc vMAXAddBrowserMenu {win} {
 }
 
 proc vMAXAddSystemMenu {fr text} {
-    global tcl_platform env
     set win $fr.textcommands
-
     # Build a menubar
     if {[winfo exists .menu]} {destroy .menu}
     menu .menu
     . configure -menu .menu
-
     # Add a File menu
     set m [menu .menu.file -tearoff 0]
     .menu add cascade -label [mc "File"] -menu $m -underline 0
@@ -306,7 +301,7 @@ proc vMAXAddSystemMenu {fr text} {
     # }
     # Maxima manual
     set file $::xmaxima_priv(pReferenceToc)
-    if {$tcl_platform(platform) == "windows"} {
+    if {$::tcl_platform(platform) == "windows"} {
         # decodeURL is broken and needs fixing
         # This is a workaround
         set file [file attrib $file -shortname]
@@ -317,7 +312,7 @@ proc vMAXAddSystemMenu {fr text} {
     # } else {
     #     set state disabled
     # }
-    if {$tcl_platform(platform) == "windows"} {
+    if {$::tcl_platform(platform) == "windows"} {
         if {[string match *maxima.chm* $file]} {
             $m add command -underline 1 -label [mc "Maxima Manual"] \
          	    -state $state \
@@ -341,8 +336,8 @@ proc vMAXAddSystemMenu {fr text} {
     set browse {exec}
 
     # FIXME: get a browser object
-    if {$tcl_platform(platform) == "windows"} {
-	if {$tcl_platform(os) == "Windows 95"} {
+    if {$::tcl_platform(platform) == "windows"} {
+	if {$::tcl_platform(os) == "Windows 95"} {
 	    # Windows 95/98/ME
 	    lappend browse start
 	} else {
@@ -360,7 +355,7 @@ proc vMAXAddSystemMenu {fr text} {
 	lappend browse $selectedbrowser
     }
     $m add separator
-    if {$tcl_platform(platform) != "windows"} {
+    if {$::tcl_platform(platform) != "windows"} {
 	$m add command -underline 0 -label [mc "Maxima Manual (web browser)"] \
 	    -command [list eval $browse "file://$file" &]
     }

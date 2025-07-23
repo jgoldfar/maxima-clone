@@ -112,7 +112,7 @@ proc nexttok { } {
 #----------------------------------------------------------------
 #
 proc parseToSuffixLists { a }  {
-    global    Parser
+    global Parser
     set Parser(result) ""
     set Parser(tokenlist) [parseTokenize $a]
     set Parser(tokenind) -1
@@ -329,7 +329,7 @@ set Parser(convertOptions) {
     { variables "" "list of variables to change from x to \$x" }
 }
 proc parseConvert { expr args } {
-    global   Parser
+    global Parser
     getOptions $Parser(convertOptions) $args
     if { "$expr" == "" } { return [list {} {}] }
     set parselist [parseToSuffixLists "$expr;"]
