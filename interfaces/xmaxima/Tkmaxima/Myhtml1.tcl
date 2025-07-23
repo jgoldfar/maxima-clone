@@ -72,7 +72,7 @@ defTag netmath -body {
 defTag math -body {
     set paramList [xHMsplitParams $params]
     upvar #0 xHMtaglist$win taglist
-    global xHMpriv 	 maxima_default
+    global xHMpriv
     set pre {$}
     if { [xHMextract_param $paramList display] } {
 	set pre {$\displaystyle}
@@ -88,7 +88,7 @@ defTag math -body {
     }
     set si [expr {($si < 1 ? 1 : ($si > 7 ? 7 : $si))}]
 
-    set ptsize $maxima_default([lindex $wvar(family) end],$si)
+    set ptsize $::xmaxima_default([lindex $wvar(family) end],$si)
     if { [regexp & $text] }  {
 	set text [xHMconvert_ampersand $text]
     }

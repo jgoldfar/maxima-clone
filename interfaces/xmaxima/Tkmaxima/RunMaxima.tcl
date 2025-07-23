@@ -97,13 +97,13 @@ proc acceptMaxima { win port filter } {
 }
 
 proc openMaxima { win filter } {
-    global maxima_priv env maxima_default
+    global maxima_priv env
 
     if {$maxima_priv(localMaximaServer) == ""} {
 	return -code error [mc "Could not start Maxima - empty command"]
     }
 
-    set port $maxima_default(iLocalPort)
+    set port $::xmaxima_default(iLocalPort)
     set port [acceptMaxima $win $port $filter]
     if { $port >= 0 } {
 	set com ""
@@ -327,8 +327,7 @@ if { ![info exists maxima_priv(timeout)] } {
 }
 
 proc runOneMaxima { win } {
-    global maxima_priv
-    global pdata
+    global maxima_priv pdata
 
     closeMaxima $win
     linkLocal $win pid
@@ -522,8 +521,6 @@ proc CMinterrupt { win } {
 }
 
 proc doShowPlot { w data } {
-    global maxima_default
-
     #puts data=$data
     set command [lindex [lindex $data 0] 0]
     set name [plotWindowName $w $command]

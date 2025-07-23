@@ -7,15 +7,15 @@
 ############################################################
 
 proc zoomConsole {f} {
-    global maxima_default maxima_priv
-    set ffamily [lindex $maxima_default(ConsoleFont) 0]
-    set fsize [lindex $maxima_default(ConsoleFont) 1]
+    global maxima_priv
+    set ffamily [lindex $::xmaxima_default(ConsoleFont) 0]
+    set fsize [lindex $::xmaxima_default(ConsoleFont) 1]
     set fsize [expr round($fsize*pow(1.2,$f))]
     font configure ConsoleFont -family $ffamily -size $fsize
     set text $maxima_priv(cConsoleText)
     resizeSubPlotWindows $text [winfo width $text] [winfo height $text]
     resizeMaxima $text [winfo width $text] [winfo height $text]
-    set maxima_default(ConsoleFont) [list $ffamily $fsize]
+    set ::xmaxima_default(ConsoleFont) [list $ffamily $fsize]
 }
 
 proc fileType {type} {
@@ -29,9 +29,8 @@ proc fileType {type} {
         return [list {"All Files" *}]}}
 
 proc getOpenFile {title {type "all"}} {
-    global maxima_default
     set types [fileType $type]
-    set file $maxima_default(OpenFile)
+    set file $::xmaxima_default(OpenFile)
     if {$file ne ""} {set dir [file dir $file]} {set dir ""}
     set proc tk_getOpenFile
     set list [list $proc -title $title -filetypes $types]
@@ -41,13 +40,12 @@ proc getOpenFile {title {type "all"}} {
 	tk_messageBox -title Error -icon error -message \
             [mc "Error opening file:\n%s" $errorInfo]
 	return ""}
-    if {$retval ne ""} { set maxima_default(OpenFile) $retval }
+    if {$retval ne ""} { set ::xmaxima_default(OpenFile) $retval }
     return $retval}
 
 proc getSaveFile {title {type "all"}} {
-    global maxima_default
     set types [fileType $type]
-    set file $maxima_default(SaveFile)
+    set file $::xmaxima_default(SaveFile)
     if {$file ne ""} {set dir [file dir $file]} {set dir ""}
     set proc tk_getSaveFile
     set list [list $proc -title $title -filetypes $types]
@@ -57,7 +55,7 @@ proc getSaveFile {title {type "all"}} {
 	tk_messageBox -title Error -icon error -message \
             [mc "Error saving file:\n%s" $errorInfo]
 	return ""}
-    if {$retval ne ""} { set maxima_default(SaveFile) $retval }
+    if {$retval ne ""} { set ::xmaxima_default(SaveFile) $retval }
     return $retval}
 
 proc cIDECreateEvent {text label code} {
@@ -81,8 +79,7 @@ proc pMAXSaveTexToFile {text} {
 }
 
 proc vMAXAddBrowserMenu {win} {
-    global maxima_priv maxima_default
-    global tcl_platform env
+    global maxima_priv tcl_platform env
 
     if {[winfo exists .browser.menu]} {destroy .browser.menu}
     set bm .browser.menu
@@ -113,8 +110,7 @@ proc vMAXAddBrowserMenu {win} {
 }
 
 proc vMAXAddSystemMenu {fr text} {
-    global maxima_priv maxima_default
-    global tcl_platform env
+    global maxima_priv tcl_platform env
     set win $fr.textcommands
 
     # Build a menubar
@@ -253,7 +249,7 @@ proc vMAXAddSystemMenu {fr text} {
     $m add cascade -label [mc "Plot Windows"] -menu $pm
     foreach elt { embedded separate multiple } {
 	$pm add radio -label [mc [string totit $elt]] \
-	    -variable maxima_default(plotwindow) \
+	    -variable ::xmaxima_default(plotwindow) \
 	    -value $elt -command [list SetPlotFormat $text ]
     }
     # $m add separator
@@ -395,8 +391,7 @@ proc vMAXAddSystemBar {} {
 }
 
 proc SetPlotFormat { text } {
-    global maxima_default
-    if { $maxima_default(plotwindow) == "embedded" } {
+    if { $::xmaxima_default(plotwindow) == "embedded" } {
 	sendMaxima $text ":lisp-quiet (prog2 (\$set_plot_option '((mlist simp) \$plot_format \$xmaxima)) nil) \n"
     }
 }

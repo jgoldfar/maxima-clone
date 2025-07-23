@@ -68,9 +68,7 @@ set fontCourier8 [list $_fixed_default $_pixel]
 set fixedFont [font create -family $_fixed_default -size $_pixel]
 set buttonfont [font create -family $_prop_default -size $_pixel]
 
-
-global maxima_default
-set maxima_default(adjust) 0
+set ::xmaxima_default(adjust) 0
 # I think this is too crude and wont work with WM schemes
 if {0} {
     catch {
@@ -78,7 +76,7 @@ if {0} {
 	if { [winfo width .] >= 500 } {
 	    set width_ [winfo width .]
 	}
-	set maxima_default(adjust) [expr {
+	set ::xmaxima_default(adjust) [expr {
 					  $width_<= 640 ? -1 :
 					  $width_<= 800 ? 0 :
 					  1 } ]

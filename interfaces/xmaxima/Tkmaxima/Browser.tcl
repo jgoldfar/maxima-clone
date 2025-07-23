@@ -972,8 +972,7 @@ proc addTagSameRange { win oldtag newtag index } {
 }
 
 proc getBaseprogram { } {
-    global maxima_default
-    return [lindex  $maxima_default(defaultservers) 0]
+    return [lindex  $::xmaxima_default(defaultservers) 0]
 }
 
 #mike FIXME: This is an abomination
@@ -994,8 +993,6 @@ proc fileBaseprogram { textwin parent x y } {
 }
 
 proc fontDialog { top } {
-    global maxima_default
-
     set font [xHMmapFont font:propor:normal:r:3]
     if {[winfo exists $top]} {catch { destroy $top }}
 
@@ -1016,10 +1013,10 @@ proc fontDialog { top } {
 	if { "$fam" == "fixed" } { set fixed 1 } else {
 	    set fixed 0
 	}
-	mkLabelListBoxChooser $win.size$fam "list $lis" maxima_default($fam,adjust)
-	mkLabelListBoxChooser $win.family$fam "getFontFamilies $fixed " maxima_default($fam)
+	mkLabelListBoxChooser $win.size$fam "list $lis" ::xmaxima_default($fam,adjust)
+	mkLabelListBoxChooser $win.family$fam "getFontFamilies $fixed " ::xmaxima_default($fam)
 	set fo [xHMmapFont "font:$fam:normal:r:3"]
-	catch { set maxima_default($fam) [assoc -family [font actual $fo]]}
+	catch { set ::xmaxima_default($fam) [assoc -family [font actual $fo]]}
     }
     $win insert insert [mc "Font Settings\nThe proportional font is "]
     $win window create insert -window $win.familypropor
@@ -1032,7 +1029,7 @@ proc fontDialog { top } {
     $win insert insert "\n"
     $win insert insert [mc "Default nmtp servers  "]
     global _servers
-    set _servers $maxima_default(defaultservers)
+    set _servers $::xmaxima_default(defaultservers)
     entry $win.entry -textvariable _servers -width 40
     $win window create insert -window $win.entry
     $win insert insert "\n\n"
@@ -1043,7 +1040,7 @@ proc fontDialog { top } {
     $win window create insert -window $win.entryproxy
     $win insert insert [mc "\nIf you are behind a firewall enter the name of your http proxy host and port,\n eg: `some.server.example.org 3128', otherwise leave this blank"]
 
-    set men [tk_optionMenu $win.plottype maxima_default(plotwindow) embedded separate multiple ]
+    set men [tk_optionMenu $win.plottype ::xmaxima_default(plotwindow) embedded separate multiple ]
     $win insert insert [mc "\nShould plot windows be "]
     $win window create insert -window $win.plottype
     $win insert insert "?"
@@ -1054,8 +1051,8 @@ proc fontDialog { top } {
     $win insert insert "      "
     $win insert insert [mc " Cancel "] "cancel raised"
     proc _FontDialogApply { win } {
-	global maxima_default _servers maxima_priv
-	set maxima_default(defaultservers) $_servers
+	global _servers maxima_priv
+	set ::xmaxima_default(defaultservers) $_servers
 	catch {xHMresetFonts .}
 	if { [llength [$win.entryproxy get]] == 2 } {
 	    set maxima_priv(proxy,http) [$win.entryproxy get]
@@ -1073,22 +1070,22 @@ proc fontDialog { top } {
 }
 
 proc savePreferences {} {
-    global maxima_default maxima_priv
+    global maxima_priv
     makeLocal {.maxima.text} inputs
 
-    # Save current console size in maxima_default
+    # Save current console size in ::xmaxima_default
     set console [lindex [array get maxima_priv cConsoleText] end]
-    set maxima_default(iConsoleWidth) [textWindowWidth $console]
-    set maxima_default(iConsoleHeight) [textWindowHeight $console]
+    set ::xmaxima_default(iConsoleWidth) [textWindowWidth $console]
+    set ::xmaxima_default(iConsoleHeight) [textWindowHeight $console]
 
     catch {
         if {[winfo exists .browser]} {
-            set maxima_default(browser) 1
+            set ::xmaxima_default(browser) 1
         } else {
-            set maxima_default(browser) 0}
+            set ::xmaxima_default(browser) 0}
         set fi [open  "$maxima_priv(home)/.xmaximarc" w]
-        puts $fi "array set maxima_default {"
-        foreach {k v} [array get maxima_default *] {
+        puts $fi "array set ::xmaxima_default {"
+        foreach {k v} [array get ::xmaxima_default *] {
             lappend all [list $k $v]
         }
         set all [lsort $all]
@@ -1130,8 +1127,6 @@ proc mkLabelListBoxChooser { win items  textvar} {
 }
 
 proc listBoxChoose { win  items textvar  } {
-    global maxima_default
-
     set whei [winfo height $win]
     set items [eval $items]
     set hei [llength $items]

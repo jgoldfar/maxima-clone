@@ -416,7 +416,7 @@ if { [catch { package require Safesock } ] } {
 
 
 proc mkOpenMath { win  } {
-    global    maxima_priv
+    global maxima_priv
 
     set w $win
     if {[winfo exists $w]} {catch {destroy $w}}
@@ -628,11 +628,10 @@ proc doInvoke { w index } {
     } else {
 	global err
 	if { [catch { sendOneInsertTextWin $program [eval $w get $this] $w $this $nextResult} err ] && [regexp "Can't connect" $err ]} {
-	    global maxima_default
 	    set now [encodeURL [oget $w baseprogram] ]
-	    set tem [ldelete $now $maxima_default(defaultservers)]
+	    set tem [ldelete $now $::xmaxima_default(defaultservers)]
 	    if { [tk_dialog .jil 0 "$err: connect to one of $tem?" "" 0 change "keep $now"] == 0 } {
-		set maxima_default(defaultservers)  $tem
+		set ::xmaxima_default(defaultservers)  $tem
 		oset $w baseprogram [decodeURL [getBaseprogram]]
 		doInvoke $w $index
 		return

@@ -8,7 +8,7 @@
 
 # Creates the browser if it doesn't exist
 proc createBrowser {bname} {
-    global maxima_priv maxima_default
+    global maxima_priv
     if {[winfo exists $bname]} {
         focus $bname
     } else {
@@ -23,13 +23,13 @@ proc createBrowser {bname} {
              OpenMathOpenUrl "xmaxima://error" -toplevel $bname
         }
         set maxima_priv(cBrowser) $bname
-        set Maxima_default(browser) 1
+        set ::xmaxima_default(browser) 1
         # Adds the menubar and the toolbar to the browser
         vMAXAddBrowserMenu $bname}}
 
 # Creates the Maxima console
 proc createConsole {cname} {
-    global maxima_priv maxima_default
+    global maxima_priv
     # Makes the status panel....
     set st .status
     frame $st
@@ -88,10 +88,10 @@ proc createConsole {cname} {
     wm protocol . WM_DELETE_WINDOW [list maxExit $w]
 
     # Sets up the console size and font
-    $w configure -height $maxima_default(iConsoleHeight) \
-        -width $maxima_default(iConsoleWidth)
-    font configure ConsoleFont -family [lindex $maxima_default(ConsoleFont) 0] \
-        -size [lindex $maxima_default(ConsoleFont) 1]
+    $w configure -height $::xmaxima_default(iConsoleHeight) \
+        -width $::xmaxima_default(iConsoleWidth)
+    font configure ConsoleFont -family [lindex $::xmaxima_default(ConsoleFont) 0] \
+        -size [lindex $::xmaxima_default(ConsoleFont) 1]
     $w configure -font ConsoleFont
 
     # Adds the menu bar to the Maxima console

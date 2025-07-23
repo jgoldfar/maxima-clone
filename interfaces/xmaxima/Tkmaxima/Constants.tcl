@@ -7,24 +7,24 @@
 ############################################################
 
 proc cMAXINITBeforeIni {} {
-    global maxima_default maxima_priv embed_args tk_version
+    global maxima_priv embed_args tk_version
 
     # default settings. Might be changed by local configuration file
-    set maxima_default(plotwindow) multiple
-    set maxima_default(iShowBalloons) 0
-    set maxima_default(fontAdjust) 0
-    set maxima_default(iConsoleWidth) 80
-    set maxima_default(iConsoleHeight) 32
-    set maxima_default(browser) 1
+    set ::xmaxima_default(plotwindow) multiple
+    set ::xmaxima_default(iShowBalloons) 0
+    set ::xmaxima_default(fontAdjust) 0
+    set ::xmaxima_default(iConsoleWidth) 80
+    set ::xmaxima_default(iConsoleHeight) 32
+    set ::xmaxima_default(browser) 1
     
     # Set up Maxima console font
     set cfont [font actual TkFixedFont -family]
     set cfontsize [font actual TkFixedFont -size]
     catch {font delete ConsoleFont}
     font create ConsoleFont -family $cfont -size $cfontsize 
-    set maxima_default(ConsoleFont) [list $cfont $cfontsize]
-    set maxima_default(iLocalPort) 4008
-    set maxima_default(bDebugParse) 0
+    set ::xmaxima_default(ConsoleFont) [list $cfont $cfontsize]
+    set ::xmaxima_default(iLocalPort) 4008
+    set ::xmaxima_default(bDebugParse) 0
     if {[string index $tk_version 0] == 9} {
         set maxima_priv(home) [file home]
     } else {
@@ -32,16 +32,16 @@ proc cMAXINITBeforeIni {} {
     }
 
     # from FileDlg.tcl
-    set maxima_default(OpenDir) "$maxima_priv(home)/"
+    set ::xmaxima_default(OpenDir) "$maxima_priv(home)/"
     # The last files opened and saved. Any default value serves
     # but a good starting value is Xmaxima's initialization file.
     # TO DO: change ~ for a home directory customized for each system.
-    set maxima_default(OpenFile) "$maxima_priv(home)/.xmaximarc"
-    set maxima_default(SaveFile) "$maxima_priv(home)/.xmaximarc"
+    set ::xmaxima_default(OpenFile) "$maxima_priv(home)/.xmaximarc"
+    set ::xmaxima_default(SaveFile) "$maxima_priv(home)/.xmaximarc"
 
     if { "[info var embed_args]" != "" } {
 	# the following will be defined only in the plugin
-	set maxima_default(defaultservers) nmtp://some.server.example.org/
+	set ::xmaxima_default(defaultservers) nmtp://some.server.example.org/
     }
     set maxima_priv(imgregexp) {[.](gif|png|jpe?g)[^/]*$}
 
@@ -61,7 +61,7 @@ proc cMAXINITReadIni {} {
 }
 
 proc cMAXINITAfterIni {} {
-    global maxima_default maxima_priv
+    global maxima_priv
     lMaxInitSetOpts
 
     # from plot3d.tcl
@@ -69,16 +69,16 @@ proc cMAXINITAfterIni {} {
 
     # from Wmenu.tcl
     global show_balloons
-    set show_balloons $maxima_default(iShowBalloons)
+    set show_balloons $::xmaxima_default(iShowBalloons)
 
     # From Browser.tcl
     global debugParse
-    set debugParse $maxima_default(bDebugParse)
+    set debugParse $::xmaxima_default(bDebugParse)
 
-    if {[info exists maxima_default(lProxyHttp)] && \
-	    [llength $maxima_default(lProxyHttp)] == "2"} {
+    if {[info exists ::xmaxima_default(lProxyHttp)] && \
+	    [llength $::xmaxima_default(lProxyHttp)] == "2"} {
 	#mike FIXME: make this a _default
-	set maxima_priv(proxy,http) $maxima_default(lProxyHttp)
+	set maxima_priv(proxy,http) $::xmaxima_default(lProxyHttp)
     }
 
 }

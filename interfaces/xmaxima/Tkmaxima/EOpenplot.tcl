@@ -46,7 +46,7 @@ proc eval_openplot { program w thisRange resultRange } {
 #----------------------------------------------------------------
 #
 proc plotWindowName { w command } {
-    upvar #0 maxima_default(plotwindow) plot
+    set plot $::xmaxima_default(plotwindow)
     upvar #0 maxima_priv(plot,count) count
     set name ""
 
