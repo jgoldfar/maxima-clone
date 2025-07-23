@@ -54,7 +54,7 @@ proc cMAXINITBeforeIni {} {
 # that value.
 proc cMAXINITReadIni {} {
     if {[file isfile "$::xmaxima_priv(home)/.xmaximarc"]} {
-        set fileId [open ~/.xmaximarc r]
+        set fileId [open $::xmaxima_priv(home)/.xmaximarc r]
         foreach line [split [read $fileId] \n] {
             if {![catch {llength $line}]} {
                 if {[llength $line] == 2} {
