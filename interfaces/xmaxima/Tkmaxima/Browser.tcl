@@ -1082,7 +1082,7 @@ proc savePreferences {} {
 	# 	 ]
         # }   Villate: This block seems wrong to me.
         
-        close $file
+        close $fi
     }
     catch {
         set hf [open "$::xmaxima_priv(home)/.xmaxima_history" w]
