@@ -27,6 +27,8 @@ proc cMAXINITBeforeIni {} {
     set ::xmaxima_default(bDebugParse) 0
     if {[string index $tk_version 0] == 9} {
         set ::xmaxima_priv(home) [file home]
+    } elseif {[info exists ::env(HOME)]} {
+        set ::xmaxima_priv(home) $::env(HOME)
     } else {
         set ::xmaxima_priv(home) "~"
     }
@@ -60,7 +62,9 @@ proc cMAXINITReadIni {} {
                 if {[llength $line] == 2} {
                     set key [lindex $line 0]
                     if {[info exists ::xmaxima_default($key)]} {
-                        set ::xmaxima_default($key) [lindex $line 1]
+                        set val [string map "\~ $::xmaxima_priv(home)" \
+                                     [lindex $line 1]]
+                        set ::xmaxima_default($key) $val
                     }
                 }
             }
