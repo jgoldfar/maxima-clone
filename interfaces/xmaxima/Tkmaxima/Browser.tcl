@@ -1060,15 +1060,16 @@ proc savePreferences {} {
     set ::xmaxima_default(iConsoleWidth) [textWindowWidth $console]
     set ::xmaxima_default(iConsoleHeight) [textWindowHeight $console]
 
-    # Saves the ::maxima_default array into .xmaximarc
-    # Each line will contain a key and value separated by space
-    # and the keys will be in alphabetical order
     catch {
         if {[winfo exists .browser]} {
             set ::xmaxima_default(browser) 1
         } else {
             set ::xmaxima_default(browser) 0}
-        set fileId [open  "$::xmaxima_priv(home)/.xmaximarc" w]
+
+        # Save the ::maxima_default array into $::maxima_priv(conffile)
+        # Each line will contain a key and value separated by space
+        # and the keys will be in alphabetical order
+        set fileId [open $::xmaxima_priv(conffile) w]
         foreach {k v} [array get ::xmaxima_default *] {
             lappend all [list $k $v]
         }
@@ -1082,7 +1083,7 @@ proc savePreferences {} {
 	# 	 ]
         # }   Villate: This block seems wrong to me.
         
-        close $fi
+        close $fileId
     }
     catch {
         set hf [open "$::xmaxima_priv(home)/.xmaxima_history" w]

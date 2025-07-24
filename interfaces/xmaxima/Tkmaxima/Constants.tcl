@@ -25,6 +25,8 @@ proc cMAXINITBeforeIni {} {
     set ::xmaxima_default(ConsoleFont) [list $cfont $cfontsize]
     set ::xmaxima_default(iLocalPort) 4008
     set ::xmaxima_default(bDebugParse) 0
+
+    # Set the path to the home directory
     if {[string index $tk_version 0] == 9} {
         set ::xmaxima_priv(home) [file home]
     } elseif {[info exists ::env(HOME)]} {
@@ -33,12 +35,50 @@ proc cMAXINITBeforeIni {} {
         set ::xmaxima_priv(home) "~"
     }
 
+    # Set the paths to the configuration directory and configuration file.
+    # 1- Windows: the configuration directory should be ~\AppData\Local\Maxima
+    #    but if ~\AppData does not exist, use the home directory.
+    # 2- Other systems: the configuration directory should be ~/.config/maxima
+    #    but if ~/.config does not exist, use the home directory.
+    # If the configuration directory is the same as home, the configuration
+    # file will be named .xmaximarc, as in old versions of Xmaxima.
+    # Otherwise, it will be named xmaxima_default.
+    # The user can set the environment variable $XDG_CONFIG_HOME
+    # (%LOCALAPPDATA% in Windows) to use a different configuration directory.
+    #
+    if {$::tcl_platform(platform) == "windows"} {
+        if {[info exists ::env(LOCALAPPDATA)]} {
+            set ::xmaxima_priv(confdir) $::env(LOCALAPPDATA)/Maxima
+        } elseif {[file isdirectory $::xmaxima_priv(home)/AppData/Local]} {
+            set ::xmaxima_priv(confdir) \
+                $::xmaxima_priv(home)/AppData/Local/Maxima
+        } else {
+            set ::xmaxima_priv(confdir) $::xmaxima_priv(home)
+        }
+    } else {
+        if {[info exists ::env(XDG_CONFIG_HOME)]} {
+            set ::xmaxima_priv(confdir) $::env(XDG_CONFIG_HOME)/maxima
+        } elseif {[file isdirectory $::xmaxima_priv(home)/.config]} {
+            set ::xmaxima_priv(confdir) $::xmaxima_priv(home)/.config/maxima
+        } else {
+            set ::xmaxima_priv(confdir) $::xmaxima_priv(home)
+        }
+    }
+    if {$::xmaxima_priv(confdir) == $::xmaxima_priv(home)} {
+        set ::xmaxima_priv(conffile) $::xmaxima_priv(home)/.xmaximarc
+    } else {
+        set ::xmaxima_priv(conffile) $::xmaxima_priv(confdir)/xmaxima_default
+        if {![file isdirectory $::xmaxima_priv(confdir)]} {
+            file mkdir $::xmaxima_priv(confdir)
+        }
+    }
+        
     # from FileDlg.tcl
     set ::xmaxima_default(OpenDir) "$::xmaxima_priv(home)/"
     # The last files opened and saved. Any default value serves
     # but a good starting value is Xmaxima's initialization file.
-    set ::xmaxima_default(OpenFile) "$::xmaxima_priv(home)/.xmaximarc"
-    set ::xmaxima_default(SaveFile) "$::xmaxima_priv(home)/.xmaximarc"
+    set ::xmaxima_default(OpenFile) $::xmaxima_priv(conffile)
+    set ::xmaxima_default(SaveFile) $::xmaxima_priv(conffile)
 
     if { "[info var embed_args]" != "" } {
 	# the following will be defined only in the plugin
@@ -55,8 +95,8 @@ proc cMAXINITBeforeIni {} {
 # associated to that key in ::xmaxima_default will be set to
 # that value.
 proc cMAXINITReadIni {} {
-    if {[file isfile "$::xmaxima_priv(home)/.xmaximarc"]} {
-        set fileId [open $::xmaxima_priv(home)/.xmaximarc r]
+    if {[file isfile $::xmaxima_priv(conffile)]} {
+        set fileId [open $::xmaxima_priv(conffile) r]
         foreach line [split [read $fileId] \n] {
             if {![catch {llength $line}]} {
                 if {[llength $line] == 2} {
