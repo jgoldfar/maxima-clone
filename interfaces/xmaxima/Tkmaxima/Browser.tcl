@@ -1066,7 +1066,7 @@ proc savePreferences {} {
         } else {
             set ::xmaxima_default(browser) 0}
 
-        # Save the ::maxima_default array into $::maxima_priv(conffile)
+        # Save the ::xmaxima_default array into $::xmaxima_priv(conffile)
         # Each line will contain a key and value separated by space
         # and the keys will be in alphabetical order
         set fileId [open $::xmaxima_priv(conffile) w]

@@ -37,7 +37,7 @@ proc cMAXINITBeforeIni {} {
 
     # Set the paths to the configuration directory and configuration file.
     # 1- Windows: the configuration directory should be ~\AppData\Local\Maxima
-    #    but if ~\AppData does not exist, use the home directory.
+    #    but if ~\AppData\Local does not exist, use the home directory.
     # 2- Other systems: the configuration directory should be ~/.config/maxima
     #    but if ~/.config does not exist, use the home directory.
     # If the configuration directory is the same as home, the configuration
