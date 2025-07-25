@@ -11,11 +11,11 @@ body {
     background: white;
     margin-left: 5px;
     margin-right: 5px;
-    font-family: "FreeSans", sans-serif
+    font-family: Arial, Helvetica, sans-serif
 }
-h1 { font-size: 150%; font-family: "FreeSans", sans-serif }
-h2 { font-size: 125%; font-family: "FreeSans", sans-serif }
-h3 { font-size: 110%; font-family: "FreeSans", sans-serif }
+h1 { font-size: 150% }
+h2 { font-size: 125% }
+h3 { font-size: 110% }
 a[href] { color: rgb(0,0,255); text-decoration: none }
 a[href]:hover {background: rgb(220,220,220) }
 div.textbox {
@@ -26,8 +26,7 @@ div.textbox {
 div.titlebox {
     border: none;
     padding-top: 1em 2em;
-    background: rgb(200,255,255);
-    font-family: "FreeSans", sans-serif
+    background: rgb(200,255,255)
 }
 div.synopsisbox {
     border: none;
@@ -58,8 +57,8 @@ img {
 }
 
 /* Put background color on the navigation bar */
-div.header {
-    background-color: #F2F1F0;
+div.header, div.nav-bar {
+    background-color: #CDCCDD;
     padding: 3px 10px;
 }
 /* Reduce the indentation of lists and descriptions */
