@@ -72,6 +72,15 @@ div.header, div.nav-panel {
     background-color: #CDCCDD;
     padding: 3px 10px;
 }
+
+/*
+ * Forcefully override the pygments background color for examples, if
+ * pygments is used for highlighting.
+ */
+div.highlight {
+    background: rgb(238,238,255) !important;
+}
+
 /* Reduce the indentation of lists and descriptions */
 ul,ol { padding-left: 1em }
 dd { margin-left: 0.5em }
