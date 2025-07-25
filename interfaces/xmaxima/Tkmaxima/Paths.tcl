@@ -11,7 +11,7 @@
 proc setMaxDir {} {
     if {$::tcl_platform(platform) == "windows"} {
 	# Make sure the signals thread is started
-	set env(MAXIMA_SIGNALS_THREAD) "1"
+	set ::env(MAXIMA_SIGNALS_THREAD) "1"
 
 	# Assume the executable is one level down from the top
 	# for 5.6 this was src/ and for 5.9 its bin/
@@ -37,7 +37,7 @@ proc setMaxDir {} {
 		      [file isdir $up/info] && \
 		      [file isdir $up/share]} {
 	    set ::autoconf(prefix) $up
-	    set env(MAXIMA_PREFIX) $up
+	    set ::env(MAXIMA_PREFIX) $up
 	    set ::autoconf(exec_prefix) $up
 	    set ::autoconf(libdir) "$up/lib"
 	    set ::autoconf(libexecdir) "$up/libexec"
@@ -50,27 +50,27 @@ proc setMaxDir {} {
 	    # Old windows 5.5 layout
 	    # Assume we are in the same directory as saved_maxima
 	    if {[file isfile [set exe $up/src/saved_maxima.exe]]} {
-		set env(MAXIMA_DIRECTORY) $up
+		set ::env(MAXIMA_DIRECTORY) $up
 		set ::xmaxima_priv(maxima_verpkgdatadir) \
-		    $env(MAXIMA_DIRECTORY)
+		    $::env(MAXIMA_DIRECTORY)
 		set ::xmaxima_priv(xmaxima_maxima) $exe
 		set ::xmaxima_priv(maxima_xmaximadir) [file dir $exe]
 
 		# This should be unused
 		set ::xmaxima_priv(maxima_verpkglibdir) \
-		    $env(MAXIMA_DIRECTORY)
+		    $::env(MAXIMA_DIRECTORY)
 		set ::xmaxima_priv(maxima_verpkgdatadir) \
-		    $env(MAXIMA_DIRECTORY)
+		    $::env(MAXIMA_DIRECTORY)
 
 		# This should be unused
 		set ::xmaxima_priv(maxima_prefix) \
-		    $env(MAXIMA_DIRECTORY)
+		    $::env(MAXIMA_DIRECTORY)
 	    }
 	}
     }
     #mike Could someone document all of these environment variables?
     # ::autoconf(prefix) does not seem to me to be the equivalent of
-    # $env(MAXIMA_DIRECTORY) so I don't understand the next statement
+    # $::env(MAXIMA_DIRECTORY) so I don't understand the next statement
 
     # jfa: MAXIMA_PREFIX supersedes MAXIMA_DIRECTORY. (Why? Because the
     #      option to configure is --prefix. MAXIMA_PREFIX is thus a runtime
@@ -78,7 +78,7 @@ proc setMaxDir {} {
     #      Yes, MAXIMA_DIRECTORY means the same thing. We only include
     #      it for some level of backward compatibility.
     if { [info exists env(MAXIMA_DIRECTORY)] } {
-	set env(MAXIMA_PREFIX) $env(MAXIMA_DIRECTORY)
+	set ::env(MAXIMA_PREFIX) $::env(MAXIMA_DIRECTORY)
     }
 
     # jfa: This whole routine is a disaster. The general plan for maxima
@@ -94,7 +94,7 @@ proc setMaxDir {} {
 
     # The following section should be considered temporary work-around.
     if { [info exists env(MAXIMA_VERPKGDATADIR)] } {
-	set ::xmaxima_priv(maxima_verpkgdatadir) $env(MAXIMA_VERPKGDATADIR)
+	set ::xmaxima_priv(maxima_verpkgdatadir) $::env(MAXIMA_VERPKGDATADIR)
     }
     # End temporary workaround. It's only a workaround because the next
     # section is backwards: 
@@ -107,7 +107,7 @@ proc setMaxDir {} {
     if {[info exists ::xmaxima_priv(maxima_prefix)]} {
 	# drop through
     } elseif { [info exists env(MAXIMA_PREFIX)] } {
-	set ::xmaxima_priv(maxima_prefix) $env(MAXIMA_PREFIX)
+	set ::xmaxima_priv(maxima_prefix) $::env(MAXIMA_PREFIX)
     } else {
 	set ::xmaxima_priv(maxima_prefix) $::autoconf(prefix)
     }
@@ -115,10 +115,10 @@ proc setMaxDir {} {
 	# drop through
     } else {
 	if { [info exists env(MAXIMA_DATADIR)] } {
-	    set maxima_datadir $env(MAXIMA_DATADIR)
+	    set maxima_datadir $::env(MAXIMA_DATADIR)
 	} elseif { [info exists env(MAXIMA_PREFIX)] } {
 	    set maxima_datadir \
-		[file join $env(MAXIMA_PREFIX) share]
+		[file join $::env(MAXIMA_PREFIX) share]
 	} else {
 	    set maxima_datadir $::autoconf(datadir)
 	}
@@ -140,10 +140,10 @@ proc setMaxDir {} {
     if {[info exists ::xmaxima_priv(maxima_verpkglibdir)]} {
 	# drop through
     } elseif { [info exists env(MAXIMA_VERPKGLIBDIR)] } {
-	set ::xmaxima_priv(maxima_verpkglibdir) $env(MAXIMA_VERPKGLIBDIR)
+	set ::xmaxima_priv(maxima_verpkglibdir) $::env(MAXIMA_VERPKGLIBDIR)
     } elseif { [info exists env(MAXIMA_PREFIX)] } {
 	set ::xmaxima_priv(maxima_verpkglibdir) \
-	    [file join $env(MAXIMA_PREFIX) lib $::autoconf(package) \
+	    [file join $::env(MAXIMA_PREFIX) lib $::autoconf(package) \
 		 $::autoconf(version)]
     } else {
 	set ::xmaxima_priv(maxima_verpkglibdir) \
@@ -153,7 +153,7 @@ proc setMaxDir {} {
     if {[info exists ::xmaxima_priv(maxima_xmaximadir)]} {
 	# drop through
     } elseif { [info exists env(MAXIMA_XMAXIMADIR)] } {
-	set ::xmaxima_priv(maxima_xmaximadir) $env(MAXIMA_XMAXIMADIR)
+	set ::xmaxima_priv(maxima_xmaximadir) $::env(MAXIMA_XMAXIMADIR)
     } else {
 	set ::xmaxima_priv(maxima_xmaximadir) \
 	    [file join $::xmaxima_priv(maxima_verpkgdatadir) xmaxima]
@@ -164,18 +164,18 @@ proc setMaxDir {} {
 
     # Define maxima_lang_subdir
     if { [info exists env(MAXIMA_LANG_SUBDIR)] } {
-	set ::xmaxima_priv(maxima_lang_subdir) $env(MAXIMA_LANG_SUBDIR)
+	set ::xmaxima_priv(maxima_lang_subdir) $::env(MAXIMA_LANG_SUBDIR)
     } else {
 	if { $::tcl_platform(platform) == "windows" } {
     	    set wlocale [ ::msgcat::mclocale ]
 	} else {
     	    set wlocale ""
 	    if { [info exists env(LC_ALL)] } { 
-		set wlocale $env(LC_ALL) 
+		set wlocale $::env(LC_ALL) 
 	    } elseif { [info exists env(LC_MESSAGES)] } { 
-		set wlocale $env(LC_MESSAGES) 
+		set wlocale $::env(LC_MESSAGES) 
 	    } elseif { [info exists env(LANG)] } { 
-		set wlocale $env(LANG) }
+		set wlocale $::env(LANG) }
 	}	
 	# Only languages known to Maxima
 	set wlocale [string tolower $wlocale]
@@ -235,7 +235,7 @@ proc setMaxDir {} {
 
     # On Windows ::msgcat::mclocale is a good way to derive locale 
     if { $::tcl_platform(platform) == "windows" } {
-	    set env(LANG) [ ::msgcat::mclocale ]
+	    set ::env(LANG) [ ::msgcat::mclocale ]
     }
 
     # Bring derived quantities up here too so we can see the
@@ -328,7 +328,7 @@ proc setMaxDir {} {
     # This is ugly.
     if {$::tcl_platform(os) == "Windows 95"} {
 	if {![info exists env(MAXIMA_USERDIR)]} {
-	    set env(MAXIMA_USERDIR) "$::xmaxima_priv(maxima_prefix)/user"
+	    set ::env(MAXIMA_USERDIR) "$::xmaxima_priv(maxima_prefix)/user"
 	}
     }
     # jfa: extend path so that gcl can see gcc in windows package
@@ -343,7 +343,7 @@ proc setMaxDir {} {
 	    # Other versions of Windows
 	    set maxbinpath "$::xmaxima_priv(maxima_prefix)/bin"
 	}
-	set env(PATH) "$maxbinpath;$env(PATH)"
+	set ::env(PATH) "$maxbinpath;$::env(PATH)"
     }
 }
 
@@ -359,10 +359,10 @@ proc vMAXSetMaximaCommand {} {
 	    return
 	}
     } elseif { [info exists env(XMAXIMA_MAXIMA)] } {
-	set ::xmaxima_priv(xmaxima_maxima) $env(XMAXIMA_MAXIMA)
+	set ::xmaxima_priv(xmaxima_maxima) $::env(XMAXIMA_MAXIMA)
 	if {[set exe [auto_execok $::xmaxima_priv(xmaxima_maxima)]] == "" } {
 	    tk_messageBox -title Error -icon error -message \
-                [concat [mc "Maxima executable not found."] "\n%s\nXMAXIMA_MAXIMA=$env(XMAXIMA_MAXIMA)"]
+                [concat [mc "Maxima executable not found."] "\n%s\nXMAXIMA_MAXIMA=$::env(XMAXIMA_MAXIMA)"]
 	    return
 	}
     } else {
