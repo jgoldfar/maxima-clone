@@ -2,7 +2,7 @@
 div.display {margin-left: 0}
 div.example {
     margin-left: 0;
-    font-family: "Courier New", monospace
+    font-family: "Courier New", "DejaVu Sans Mono", monospace
 }
 /* end of overrides */
 
@@ -11,7 +11,7 @@ body {
     background: white;
     margin-left: 5px;
     margin-right: 5px;
-    font-family: Arial, Helvetica, sans-serif
+    font-family: Arial, Verdana, Helvetica, sans-serif
 }
 h1 { font-size: 150% }
 h2 { font-size: 125% }
@@ -55,6 +55,7 @@ img {
     margin-left: auto;
     margin-right: auto
 }
+tt, code { font-family: "Courier New", "DejaVu Sans Mono", monospace }
 
 /* Put background color on the navigation bar */
 div.header, div.nav-bar {
