@@ -1061,6 +1061,7 @@ proc savePreferences {} {
     set ::xmaxima_default(iConsoleHeight) [textWindowHeight $console]
 
     catch {
+        # Save the state of the browser (1=opened, 0=closed)
         if {[winfo exists .browser]} {
             set ::xmaxima_default(browser) 1
         } else {
@@ -1069,6 +1070,7 @@ proc savePreferences {} {
         # Save the ::xmaxima_default array into $::xmaxima_priv(conffile)
         # Each line will contain a key and value separated by space
         # and the keys will be in alphabetical order
+        #
         set fileId [open $::xmaxima_priv(conffile) w]
         foreach {k v} [array get ::xmaxima_default *] {
             lappend all [list $k $v]
@@ -1084,13 +1086,13 @@ proc savePreferences {} {
         # }   Villate: This block seems wrong to me.
         
         close $fileId
-    }
-    catch {
-        set hf [open "$::xmaxima_priv(home)/.xmaxima_history" w]
-        puts $hf "oset {.maxima.text} inputs {"
-        foreach v [lrange $inputs end-99 end] { puts $hf "{$v}" }
-        puts $hf "}"
-        close $hf
+
+        # Save the command history to $::xmaxima_priv(history)
+        # Up to 200 last commands are saved, each one as a Tcl list
+        #
+        set fileId [open "$::xmaxima_priv(history)" w]
+        foreach v [lrange $inputs end-199 end] { puts $fileId [list $v] }
+        close $fileId
     }
 }
 #

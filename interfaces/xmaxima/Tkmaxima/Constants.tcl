@@ -35,14 +35,11 @@ proc cMAXINITBeforeIni {} {
         set ::xmaxima_priv(home) "~"
     }
 
-    # Set the paths to the configuration directory and configuration file.
+    # Set the paths to the configuration directory.
     # 1- Windows: the configuration directory should be ~\AppData\Local\Maxima
     #    but if ~\AppData\Local does not exist, use the home directory.
     # 2- Other systems: the configuration directory should be ~/.config/maxima
     #    but if ~/.config does not exist, use the home directory.
-    # If the configuration directory is the same as home, the configuration
-    # file will be named .xmaximarc, as in old versions of Xmaxima.
-    # Otherwise, it will be named xmaxima_default.
     # The user can set the environment variable $XDG_CONFIG_HOME
     # (%LOCALAPPDATA% in Windows) to use a different configuration directory.
     #
@@ -64,10 +61,18 @@ proc cMAXINITBeforeIni {} {
             set ::xmaxima_priv(confdir) $::xmaxima_priv(home)
         }
     }
+
+    # Set the path for the configuration and history files.
+    # If the configuration directory is the same as home, those files will
+    # be named .xmaximarc and .xmaxima_history, as in old versions of Xmaxima.
+    # Otherwise, they will be named xmaxima_default and xmaxima_history.
+    #
     if {$::xmaxima_priv(confdir) == $::xmaxima_priv(home)} {
         set ::xmaxima_priv(conffile) $::xmaxima_priv(home)/.xmaximarc
+        set ::xmaxima_priv(history) $::xmaxima_priv(home)/.xmaxima_history
     } else {
         set ::xmaxima_priv(conffile) $::xmaxima_priv(confdir)/xmaxima_default
+        set ::xmaxima_priv(history) $::xmaxima_priv(confdir)/xmaxima_history
         if {![file isdirectory $::xmaxima_priv(confdir)]} {
             file mkdir $::xmaxima_priv(confdir)
         }

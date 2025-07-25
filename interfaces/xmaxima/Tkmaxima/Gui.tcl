@@ -96,11 +96,17 @@ proc createConsole {cname} {
     vMAXAddSystemMenu $cname $cname.text
 
     # Reads the history from previous runs
-    set histfile "$::xmaxima_priv(home)/.xmaxima_history"
-    if {[file isfile $histfile]} {
-        if {[catch {uplevel "#0" [list source $histfile]} err]} {
+    if {[file isfile $::xmaxima_priv(history)]} {
+        set fileId [open $::xmaxima_priv(history) r]
+        set commands [read $fileId]
+        close $fileId
+        regsub {oset[^\n]*\n} $commands {} $commands
+        regsub {\n\s*\}\s*\n} $commands {} $commands
+        if {[catch {oset {.maxima.text} inputs $commands} err]} {
             tk_messageBox -title Error -icon error -message \
-                [mc "Error sourcing %s\n%s" [file native $histfile] $err]}}
+                [mc "Error sourcing %s\n%s" [file native $histfile] $err]
+        }
+    }
     return $w}
 
 # Updates the information in the status bar at the bottom of the console
