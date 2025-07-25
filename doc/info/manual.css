@@ -74,6 +74,14 @@ div.header, div.nav-panel {
 }
 
 /*
+ * Pygments uses a line height of 125%, which seems too small compared
+ * to what we used to do.
+ */
+div.highlight pre {
+    line-height: normal !important;
+}
+
+/*
  * Forcefully override the pygments background color for examples, if
  * pygments is used for highlighting.
  */
