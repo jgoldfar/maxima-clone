@@ -58,7 +58,7 @@ img {
 tt, code { font-family: "Courier New", "DejaVu Sans Mono", monospace }
 
 /* Put background color on the navigation bar */
-div.header, div.nav-bar {
+div.header, div.nav-panel {
     background-color: #CDCCDD;
     padding: 3px 10px;
 }
