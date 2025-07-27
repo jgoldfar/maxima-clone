@@ -25,9 +25,6 @@ a:hover, span.button:hover {
     background-color: #555753;
     color: #cdf;
 }
-
-a[href] { color: rgb(0,0,255); text-decoration: none }
-a[href]:hover {background: rgb(220,220,220) }
 div.textbox {
     border: solid;
     border-width: thin;
