@@ -16,6 +16,16 @@ body {
 h1 { font-size: 150% }
 h2 { font-size: 125% }
 h3 { font-size: 110% }
+a:link {
+    text-decoration: none;
+    color: #00f
+}
+a:visited {color: #a0a }
+a:hover, span.button:hover {
+    background-color: #555753;
+    color: #cdf;
+}
+
 a[href] { color: rgb(0,0,255); text-decoration: none }
 a[href]:hover {background: rgb(220,220,220) }
 div.textbox {
@@ -46,7 +56,7 @@ div.image { margin: 0; padding: 1em; text-align: center }
 div.categorybox {
     border: 1px solid gray;
     padding: 1em;
-    background: rgb(247,242,220)
+    background: #fdf6e3
 }
 img {
     max-width:80%;
@@ -77,4 +87,28 @@ dd { margin-left: 0.5em }
     pre.example, pre.example-preformatted { padding: 1em }
     ul,ol { padding-left: 2em }
     dd { margin-left: 1.5em }
+}
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #444;
+           color: #eee
+         }
+    a:link {
+        color: #9df;
+    }
+    a:visited {color: #9fd }
+    a:hover, span.button:hover {
+        background-color: #ddd;
+        color: #55f;
+    }
+    div.header, div.nav-panel {
+        background-color: #555;
+    }
+    pre.example, pre.example-preformatted {
+        border: 1px solid black;
+        color: black;
+        background-color: #aab;
+    }
+    div.categorybox { background-color: #544 }
+    div.textbox, div.titlebox, div.synopsisbox { color: black;}
 }
