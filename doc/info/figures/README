@@ -1,4 +1,4 @@
-#  by Jaime E. Villate, 2021-04-22
+#  by Jaime E. Villate, 2025-07-28
 
 INTRODUCTION
 ------------
@@ -53,9 +53,10 @@ above,
   
 should be added to figurefiles and
 
-figures/plotting6.pdf
+  figures/plotting6.pdf
 
-to pdffigures.
+to pdffigures. If you also created a .mac file, add its name to the list
+macfiles in doc/info/Makefile.am
 
 # Added by Gunter Königsmann on 2015
 
