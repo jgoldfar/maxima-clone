@@ -160,7 +160,7 @@
     (when found-it
       (destructuring-bind (base-name . id)
 	  found-it
-	(let ((url (concatenate 'string
+	  (let ((url (concatenate 'string
                                 ;; If BASE-NAME is an absolute path,
                                 ;; use "FILE://" as the protocol.
                                 ;; Otherwise use $URL_BASE.
@@ -171,17 +171,26 @@
 				(namestring base-name)
 				"#"
 				id))
-	      command)
+                ;; $system will concatenate the words in list cmd_list
+                ;; to create the command to be executed
+	      (cmd_list ()))
 	  (when *debug-display-html-help*
 	    (format *debug-io* "URL: ~S~%" url))
-	  (setf command (ignore-errors (format nil $browser url)))
-	  (cond (command
-		 (when *debug-display-html-help*
-		   (format *debug-io* "Command: ~S~%" command))
-		 ($system command))
-		(t
-		 (merror "Browser command must contain exactly one ~~A:  ~S" $browser))))))
-    topic))
+          (cond ((and (boundp '*autoconf-windows*)
+	              (string-equal *autoconf-windows* "true"))
+                 ;; In Windows NT the command "cmd.exe /c URL" opens
+                 ;; the URL in the default browser, or other browser
+                 ;; if specified before URL.
+                 (setf cmd_list (append cmd_list '("cmd.exe" "/c" "start"))))
+                ((and (boundp '*autoconf-host*)
+                      (pregexp:pregexp-match-positions "(?:darwin)" *autoconf-host*))
+                 ;; In MacOs the command "open URL" opens
+                 ;; the URL in the default browser.
+		 (setf cmd_list (append cmd_list '("open")))))
+	  (setf cmd_list (append cmd_list (list $browser url)))
+	  (when *debug-display-html-help*
+	    (format *debug-io* "Command: ~{~a ~}~%" cmd_list))
+	  (apply '$system cmd_list))))))
 
 (defun display-html-topics (wanted)
   (when maxima::*debug-display-html-help*

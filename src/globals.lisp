@@ -1761,10 +1761,9 @@
 
 ;;------------------------------------------------------------------------
 ;; From macdes.lisp
-(defmvar $browser "firefox '~a'"
-  "Browser to use for displaying the documentation.  This may be
-  initialized on startup to an OS-specific value.  It must contain
-  exactly one ~a which will be replaced by the url.")
+(defmvar $browser ""
+  "Preferred browser to use for displaying the documentation.  This may be
+  initialized on startup to an OS-specific value.")
 
 (defmvar $url_base "localhost:8080"
   "Base URL where the HTML doc may be found.  This can be a file path
