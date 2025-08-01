@@ -170,27 +170,12 @@
 				"/"
 				(namestring base-name)
 				"#"
-				id))
-                ;; $system will concatenate the words in list cmd_list
-                ;; to create the command to be executed
-	      (cmd_list ()))
-	  (when *debug-display-html-help*
-	    (format *debug-io* "URL: ~S~%" url))
-          (cond ((and (boundp '*autoconf-windows*)
-	              (string-equal *autoconf-windows* "true"))
-                 ;; In Windows NT the command "cmd.exe /c URL" opens
-                 ;; the URL in the default browser, or other browser
-                 ;; if specified before URL.
-                 (setf cmd_list (append cmd_list '("cmd.exe" "/c" "start"))))
-                ((and (boundp '*autoconf-host*)
-                      (pregexp:pregexp-match-positions "(?:darwin)" *autoconf-host*))
-                 ;; In MacOs the command "open URL" opens
-                 ;; the URL in the default browser.
-		 (setf cmd_list (append cmd_list '("open")))))
-	  (setf cmd_list (append cmd_list (list $browser url)))
-	  (when *debug-display-html-help*
-	    (format *debug-io* "Command: ~{~a ~}~%" cmd_list))
-	  (apply '$system cmd_list))))))
+				id)))
+	    (when *debug-display-html-help*
+	      (format *debug-io* "URL: ~S~%" url))
+	    (when *debug-display-html-help*
+	      (format *debug-io* "Command: ~{~a ~}~%" (list $browser url)))
+	    (apply '$system (list $browser url)))))))
 
 (defun display-html-topics (wanted)
   (when maxima::*debug-display-html-help*

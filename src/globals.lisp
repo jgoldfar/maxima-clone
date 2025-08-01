@@ -1761,7 +1761,7 @@
 
 ;;------------------------------------------------------------------------
 ;; From macdes.lisp
-(defmvar $browser ""
+(defmvar $browser "firefox"
   "Preferred browser to use for displaying the documentation.  This may be
   initialized on startup to an OS-specific value.")
 

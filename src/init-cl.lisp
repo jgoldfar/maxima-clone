@@ -690,9 +690,18 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
                                      "/locale/")))
           intl::*locale-directories*))
   ;; Set up $browser for displaying help in browser in Linux.
-  (when (and (boundp '*autoconf-host*)
-              (pregexp:pregexp-match-positions "(?i:linux)" *autoconf-host*))
-    (setf $browser "xdg-open"))
+  (cond ((and (boundp '*autoconf-windows*)
+	      (string-equal *autoconf-windows* "true"))
+	 ;; "start" will open the default browser in Windows.
+	 (setf $browser "start"))
+	((boundp '*autoconf-host*)
+	 (cond ((pregexp:pregexp-match-positions "(?:darwin)" *autoconf-host*)
+	        ;; "open"  will open the default browser in MacOS.
+		(setf $browser "open"))
+	       ((pregexp:pregexp-match-positions "(?i:linux)" *autoconf-host*)
+	        ;; "xdg-open"  will open the default browser in Linux.
+		(setf $browser "xdg-open")))))
+
   (setf %e-val (mget '$%e '$numer))
 
   ;; Initialize *bigprimes* here instead of globals.lisp because we
