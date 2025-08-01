@@ -83,8 +83,9 @@
                    (find item '("Error and warning messages"
                                 "Package zeilberger")
                          :test #'string=)))
+             ;; Log a note that we skipped this entry.
              (when found
-               (format *log-file* "~A: Skip ~S -> ~S ~S~%"
+               (format *log-file* "Skip ~A: ~S -> ~S ~S~%"
                        prefix item file item-id))
              found)))
     (unless (skip-toc-entry item)
@@ -242,7 +243,9 @@
 						     item
 						     (string (code-char char-code)))))))
 
-	  (format *log-file* "TOC: ~S -> ~S~%" item file)
+          ;; Note that we found a TOC entry.  ADD-ENTRY determines
+          ;; what actually gets added.
+	  (format *log-file* "Found TOC: ~S -> ~S~%" item file)
 
 	  (values item id file line))))))
 
