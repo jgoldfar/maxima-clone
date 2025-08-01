@@ -3038,7 +3038,7 @@ The Bateman k function
 
 m4_displaymath(
 <<<k_v(x)
- = \frac{2}{\pi} \int_0^{\frac{\pi}{2}} \cos(x \tan\theta-v\theta)d\theta>>>,
+ = \frac{2}{\pi} \int_0^{\pi/2} \cos(x \tan\theta-v\theta)d\theta>>>,
 <<<@math{kbateman[v](x) = (2/%pi) integrate(cos(x*tan(t)-v*t),t,0,%pi/2)}>>>)
 
 It is one solution of a differential equation which appears in the
