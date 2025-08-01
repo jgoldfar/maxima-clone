@@ -34,13 +34,15 @@ uninstall-maxima-html:
 	rm -f $(DESTDIR)$(htmlinstdir)/$(htmlname).html 
 	rm -f $(DESTDIR)$(htmlinstdir)/$(htmlname)_*.html
 
-dist-hook: dist-maxima-html
-dist-maxima-html: $(wildcard $(htmlname).html $(htmlname)_*.html)
-	@builddirstrip=`echo "$(builddir)" | sed 's|.|.|g'`; \
-	list="$^" ; \
-	for p in $$list; do \
-	  f=`echo "$$p" | sed "s|^$$builddirstrip/||"`; \
-	  test -f $(distdir)/$$f || cp -p $(builddir)/$$f $(distdir)/$$f; \
-	done
+# Does not add HTML files to the tarball (Jaime Villate. 2025-08-01)
+# They will created by "make" and will be differ in different systems.
+#dist-hook: dist-maxima-html
+#dist-maxima-html: $(wildcard $(htmlname).html $(htmlname)_*.html)
+#	@builddirstrip=`echo "$(builddir)" | sed 's|.|.|g'`; \
+#	list="$^" ; \
+#	for p in $$list; do \
+#	  f=`echo "$$p" | sed "s|^$$builddirstrip/||"`; \
+#	  test -f $(distdir)/$$f || cp -p $(builddir)/$$f $(distdir)/$$f; \
+#	done
 
 
