@@ -75,11 +75,24 @@
     (format t "Already added entry ~S ~S: ~S~%"
 	    item (gethash item *html-index*)
 	    line))
-  (format *log-file* "~A: ~S -> ~S ~S~%"
-	  prefix item file item-id)
+  (flet ((skip-toc-entry (item)
+         ;; Returns non-nil if the item should not be included in the
+         ;; html index.  This is a hack because the text index doesn't
+           ;; include these items and I (rtoy) don't know why.
+           (let ((found
+                   (find item '("Error and warning messages"
+                                "Package zeilberger")
+                         :test #'string=)))
+             (when found
+               (format *log-file* "~A: Skip ~S -> ~S ~S~%"
+                       prefix item file item-id))
+             found)))
+    (unless (skip-toc-entry item)
+      (format *log-file* "~A: ~S -> ~S ~S~%"
+	      prefix item file item-id)
 
-  (setf (gethash item *html-index*)
-	(cons file item-id)))
+      (setf (gethash item *html-index*)
+	    (cons file item-id)))))
 
 (defun process-line (line matcher path &key replace-dash-p (prefix "Add:") truenamep)
   "Process the LINE using the function MATCHER to determine if this line
