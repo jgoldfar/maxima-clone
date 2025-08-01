@@ -2777,6 +2777,7 @@ m4_displaymath(
 @closecatbox
 @end deffn
 
+@anchor{%w}
 @deffn {Function} %w [@var{k},@var{u}] (@var{z}) 
 Whittaker W function (@urlaands{eqn 13.1.33, 505}):
 m4_displaymath(
@@ -3073,7 +3074,22 @@ m4_displaymath(
                             2
 @end example
 >>>)
-where @math{U} is the confluent hypergeometric function.
+where @math{U} is the confluent hypergeometric function.  Also, we
+have
+m4_displaymath(
+<<<k_{2\nu}(z) = {1\over\Gamma(\nu+1)} W_{\nu,1/2}(2z)>>>,
+<<<
+@example
+                      %w      (2 z)
+                        v, 1/2
+            k   (z) = ─────────────
+             2 v      gamma(v + 1)
+@end example
+>>>)
+where
+m4_math(
+<<<W>>>,<<<%w>>>)
+is the @ref{%w, Whittaker W function}.
 
 Maxima can
 calculate the Laplace transform of @code{kbateman} using @mref{laplace}
