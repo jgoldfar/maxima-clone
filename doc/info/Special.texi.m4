@@ -3041,7 +3041,41 @@ m4_displaymath(
  = \frac{2}{\pi} \int_0^{\frac{\pi}{2}} \cos(x \tan\theta-v\theta)d\theta>>>,
 <<<@math{kbateman[v](x) = (2/%pi) integrate(cos(x*tan(t)-v*t),t,0,%pi/2)}>>>)
 
-It is a special case of the confluent hypergeometric function. Maxima can
+It is one solution of a differential equation which appears in the
+theory of turbulence:
+
+m4_displaymath(
+<<<x {d^2u\over dx^2} = (x-\nu)u>>>,
+<<<
+@example
+                     2
+                    d u
+                    ─── x = u (x - v)
+                      2
+                    dx
+@end example
+>>>)
+
+It is a special case of the confluent hypergeometric function:
+
+m4_displaymath(
+<<<k_v(x)
+ = {e^{-x}\over{\Gamma\left(1+{1\over 2}\nu\right)}} U\left(-{1\over 2}
+ \nu, 0, 2x\right)>>>,
+<<<
+@example
+                    - x     v
+                  %e    U(- ─, 0, 2 x)
+                            2
+                  ────────────────────
+                            v
+                      gamma(─ + 1)
+                            2
+@end example
+>>>)
+where @math{U} is the confluent hypergeometric function.
+
+Maxima can
 calculate the Laplace transform of @code{kbateman} using @mref{laplace}
 or @mrefcomma{specint} but has no other knowledge of this function.
 
