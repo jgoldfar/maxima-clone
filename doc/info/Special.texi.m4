@@ -3057,7 +3057,8 @@ m4_displaymath(
 @end example
 >>>)
 
-It is a special case of the confluent hypergeometric function:
+It is a special case of the confluent hypergeometric function for
+@math{x > 0}:
 
 m4_displaymath(
 <<<k_v(x)
@@ -3091,9 +3092,66 @@ m4_math(
 <<<W>>>,<<<%w>>>)
 is the @ref{%w, Whittaker W function}.
 
+Some examples:
+@c ===beg===
+@c assume(x > 0)$
+@c makelist(kbateman[n](0),n,0,5);
+@c kbateman[0](x);
+@c kbateman[2](x);
+@c kbateman[4](x);
+@c kbateman[3](x);
+@c ===end===
+@example
+(%i1) assume(x > 0)$
+@group
+(%i2) makelist(kbateman[n](0),n,0,5);
+                      2          2         2
+(%o2)            [0, ---, 0, - -----, 0, -----]
+                     %pi       3 %pi     5 %pi
+@end group
+@group
+(%i3) kbateman[0](x);
+                                - x
+(%o3)                         %e
+@end group
+@group
+(%i4) kbateman[2](x);
+                                - x
+(%o4)                       2 %e    x
+@end group
+@group
+(%i5) kbateman[4](x);
+                            - x
+(%o5)                   2 %e    (x - 1) x
+@end group
+@group
+(%i6) kbateman[3](x);
+(%o6)                     kbateman (x)
+                                  3
+@end group
+@end example
+
 Maxima can
 calculate the Laplace transform of @code{kbateman} using @mref{laplace}
-or @mrefcomma{specint} but has no other knowledge of this function.
+or @mrefcomma{specint} as shown below:
+
+@c ===beg===
+@c assume(s>0)$
+@c specint(kbateman[v](z)*exp(-s*z),z);
+@c ===end===
+@example
+(%i1) assume(s>0)$
+@group
+(%i2) specint(kbateman[v](z)*exp(-s*z),z);
+                               v        v   s - 1
+              2 %f    ([2, 1 - -], [2 - -], -----)
+                  2, 1         2        2   s + 1
+(%o2)         ------------------------------------
+                      2           v        v
+               (s + 1)  gamma(2 - -) gamma(- + 1)
+                                  2        2
+@end group
+@end example
 
 @opencatbox{Categories:}
 @category{Special functions}
