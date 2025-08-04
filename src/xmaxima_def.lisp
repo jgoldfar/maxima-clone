@@ -440,24 +440,11 @@
   (declare (ignore options))
   (let ((file (plot-file-path (format nil "~a.xmaxima" (random-name 16)))))
     (cond ($show_openplot
-           (let (command)
-             (with-open-file (fl
-                              #+sbcl (sb-ext:native-namestring file)
-                              #-sbcl file
-                              :direction :output :if-exists :supersede)
-                             (princ (slot-value plot 'data) fl))
-             (setq command
-                   (concatenate
-                    'string *maxima-prefix* 
-                    (if (string= *autoconf-windows* "true")
-                        "\\bin\\" "/bin/") 
-                    $xmaxima_plot_command
-                    #+(or sbcl openmcl gcl)
-                    (format nil " ~a" file)
-                     #-(or sbcl openmcl gcl)
-                    (format nil " ~s" file)
-                    )
-                   )
-             ($system command)))
+           (with-open-file (fl
+                            #+sbcl (sb-ext:native-namestring file)
+                            #-sbcl file
+                            :direction :output :if-exists :supersede)
+                           (princ (slot-value plot 'data) fl))
+           ($system $xmaxima_plot_command (format nil $gnuplot_file_args file)))
           (t (princ (slot-value plot 'data)) ""))
     (cons '(mlist) (cons file output-file))))
