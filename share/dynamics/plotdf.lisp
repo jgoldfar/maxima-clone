@@ -153,7 +153,7 @@
                               :direction :output :if-exists :supersede)
                              (princ data fl))
              ($system $xmaxima_plot_command (format nil $gnuplot_file_args file)))
-            (t (princ data) ""))
+            (t (princ (format nil "{~a}" data)) ""))
       (list '(mlist) file))))
 
 ;; plot equipotential curves for a scalar field f(x,y)
@@ -214,5 +214,5 @@
                               :direction :output :if-exists :supersede)
                              (princ data fl))
              ($system $xmaxima_plot_command (format nil $gnuplot_file_args file)))
-            (t (princ data) ""))
+            (t (princ (format nil "{~a}" data)) ""))
       (list '(mlist) file))))
