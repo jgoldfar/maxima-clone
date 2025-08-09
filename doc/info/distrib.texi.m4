@@ -608,7 +608,7 @@ m4_Normal_RV(0,1)
 variable and @math{V} is an
 independent 
 m4_math(\chi^2, chi^2) 
-random variable with @math{n} degress of
+random variable with @math{n} degrees of
 freedom, then
 
 m4_displaymath(
@@ -2277,7 +2277,7 @@ To make use of this function, write first @code{load("distrib")}.
 @node Exponential Random Variable, Lognormal Random Variable, F Random Variable, Functions and Variables for continuous distributions
 @subsection Exponential Random Variable
 
-The @emph{exponential distribution} is the probablity distribution of
+The @emph{exponential distribution} is the probability distribution of
 the time between events in a process where the events occur
 continuously and independently at a constant average rate.
 
@@ -5485,10 +5485,10 @@ See @ref{pdf_general_finite_discrete} for more details.
 The @emph{binomial distribution} with parameters @math{n} and @math{p}
 is a discrete probability distribution.  It consists of @math{n}
 independent experiments where each experiment consists of a
-Boolean-valued outcome where a success occurs with a probablity
+Boolean-valued outcome where a success occurs with a probability
 @math{p}.
 
-For example, a biased coin that comes up heads with probablity
+For example, a biased coin that comes up heads with probability
 @math{p} is tossed @math{n} times.  Then the probability of exactly
 @math{k} heads in @math{n} tosses is given by the binomial
 distribution.
@@ -5942,7 +5942,7 @@ To make use of this function, write first @code{load("distrib")}.
 
 The @emph{Bernoulli distribution} is a discrete probability
 distribution which takes on two values, 0 and 1.  The value 1 occurs
-with probability @math{p}, and 0 occurs with probabilty @math{1-p}.
+with probability @math{p}, and 0 occurs with probability @math{1-p}.
 
 It is equivalent to the 
 m4_Binomial_RV(1,p) 
@@ -6260,11 +6260,11 @@ See also @mrefdot{random} To make use of this function, write first @code{load("
 @node Geometric Random Variable, Discrete Uniform Random Variable, Bernoulli Random Variable, Functions and Variables for discrete distributions
 @subsection Geometric Random Variable
 
-The @emph{Geometric distibution} is a discrete probability
+The @emph{Geometric distribution} is a discrete probability
 distribution.  It is the distribution of the number 
 Bernoulli trials that fail before the first success.
 
-Consider flipping a biased coin where heads occurs with probablity
+Consider flipping a biased coin where heads occurs with probability
 @math{p}.   Then the probability of @math{k-1} tails in a row followed
 by heads is given by the 
 m4_Geometric_RV(p) 
@@ -6523,7 +6523,7 @@ This is interpreted as the probability of @math{x} failures before the first suc
 @node Discrete Uniform Random Variable, Hypergeometric Random Variable, Geometric Random Variable, Functions and Variables for discrete distributions
 @subsection Discrete Uniform Random Variable
 
-The @emph{Discrete uniform distribution} is a discrete probablity
+The @emph{Discrete uniform distribution} is a discrete probability
 distribution where a finite number of values are equally likely to
 occur.  The values are @math{1,2,3,...,n}.
 
@@ -6747,7 +6747,7 @@ distribution.
 
 Let @math{n_1} be the number of objects of a class
 @math{A} and @math{n_2} be the number of objects of class @math{B}.
-We take out @math{n} objects, @emph{without} replacment.  Then the
+We take out @math{n} objects, @emph{without} replacement.  Then the
 hypergeometric distribution is the probability that exactly @math{k}
 objects are from class @math{A}.  Of course @math{n \leq n_1 + n_2}.
 
@@ -7024,9 +7024,9 @@ To make use of this function, write first @code{load("distrib")}.
 The @emph{negative binomial distribution} is a discrete probability
 distribution.  Suppose we have a sequence of Bernoulli trials where
 each trial has two outcomes called ``success'' and ``failure'' where
-``success'' occurs with probablity @math{p} and ``failure'' with
+``success'' occurs with probability @math{p} and ``failure'' with
 probability @math{1-p}.  We observe the sequence until a predefined
-number @math{r} of sucesses have occurred.  Then the number of
+number @math{r} of successes have occurred.  Then the number of
 failures seen will have a 
 m4_NegativeBinomial_RV(r, p) 
 distribution.

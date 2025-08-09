@@ -2543,7 +2543,7 @@ represented.  It must be set to one of @code{false}, @code{erf},
 @code{erfc}, or @code{erfi}.  When set to @code{false}, the error functions are not
 modified.  When set to @code{erf}, all error functions (@mref{erfc},
 @mref{erfi}, @mref{erf_generalized}, @mref{fresnel_s} and
-@mref{fresnel_c}) are converted to @mref{erf} functions.  Similary,
+@mref{fresnel_c}) are converted to @mref{erf} functions.  Similarly,
 @code{erfc} converts error functions to @mref{erfc}.  Finally
 @code{erfi} converts the functions to @mref{erfi}.
 
