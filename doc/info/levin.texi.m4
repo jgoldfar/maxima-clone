@@ -254,7 +254,7 @@ The effect of the number of terms @var{nterms} on the accuracy of @var{levin_u_s
 is shown in the following example.  The sum of the series and the approximation error
 is evaluated for
 increasing values of argument @var{nterms} for both values of the optional argument @var{mode}:
-@var{levin_algebraic} and @var{levin_numeric}.  The numeric calcuations are performed
+@var{levin_algebraic} and @var{levin_numeric}.  The numeric calculations are performed
 with bigfloat precision @var{fpprec} of 16.  Errors are calculated with @var{fpprec} equal to 64.
 
 The results are reported in three columns:

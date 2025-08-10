@@ -763,11 +763,7 @@
 
     ;; creates the output file, when there is one to be created
     (when (and out-file (not (eq gnuplot-term '$default)))
-      #+(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-      ($system $gnuplot_command (format nil $gnuplot_file_args file))
-      #-(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-      ($system (format nil "~a ~a" $gnuplot_command
-                       (format nil $gnuplot_file_args file))))
+      ($system $gnuplot_command (format nil $gnuplot_file_args file)))
 
     ;; displays contents of the output file, when gnuplot-term is dumb,
     ;; or runs gnuplot when gnuplot-term is default
@@ -776,18 +772,14 @@
         ($default
          ;; the options given to gnuplot will be different when the user
          ;; redirects the output by using "set output" in the preamble
-	 #+(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-	 ($system $gnuplot_command "-persist" (format nil $gnuplot_file_args file))
-	 #-(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-	 ($system 
-	  (format nil "~a ~a" $gnuplot_command
-		  (format nil (if (search "set out" gnuplot-preamble) 
-				  $gnuplot_file_args $gnuplot_view_args)
-			  file))))
+         (if (search "set out" gnuplot-preamble)
+             ($system $gnuplot_command (format nil $gnuplot_file_args file))
+             ($system $gnuplot_command "-persist"
+                      (format nil $gnuplot_file_args file))))
         ($dumb
          (if out-file
              ($printfile (car out-file))
-             (merror (intl:gettext "plotting: option 'gnuplot_out_file' not defined."))))))))
+           (merror (intl:gettext "plotting: option 'gnuplot_out_file' not defined."))))))))
 
 ;; gnuplot_pipes functions. They allow the use of Gnuplot through a
 ;; pipe in order to keep it active (this makes it possible for instance,

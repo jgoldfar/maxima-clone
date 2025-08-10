@@ -367,6 +367,7 @@ proc runOneMaxima { win } {
     sendMaxima $win ":lisp-quiet (setq \$maxima_frontend \"Xmaxima\")\n"
     sendMaxima $win ":lisp-quiet (setq \$maxima_frontend_version \"$::autoconf(version)\")\n"
     sendMaxima $win ":lisp-quiet (setq \$maxima_frontend_bugreportinfo \"XMaxima is part of maxima.\")\n"
+    sendMaxima $win ":lisp-quiet (defun display-frontend-topics (wanted) (display-html-topics wanted))\n"
     return $res
 
 }

@@ -224,7 +224,7 @@ m4_displaymath(<<<\eqalign{
   @itemize
     @item 0, if the problem is regular
     @item 1, if the first relax factor is =rstart, and the
-        nonlinear iteration does not rely on past covergence
+        nonlinear iteration does not rely on past convergence
         (use for an extra sensitive nonlinear problem only).
     @item 2, if we are to return immediately upon  (a) two
         successive nonconvergences, or  (b) after obtaining
@@ -1311,7 +1311,7 @@ The maxima code is in file
 
 A more sophisticated example is @ref{bellon-talon,, Bellon&Talon 2005},
 which deals with singularities in the
-solution domain, provides an initial quess to the solution
+solution domain, provides an initial guess to the solution
 and uses continuation to solve the system of non-linear
 differential equations.
 

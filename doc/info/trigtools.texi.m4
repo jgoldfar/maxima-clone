@@ -17,7 +17,7 @@
 @section Introduction to trigtools
 We use open-source computer algebra system(CAS) maxima 5.31.2.
 The trigtools package@footnote{This is a conversion by hand of the original ``trigtools-doc.pdf'' file in ``share/contrib/trigtools'', by Raymond Toy.  See the pdf for the definitive version.} contains commands that help you work with
-trigonometric expessions. List of functions in trigtools package:
+trigonometric expressions. List of functions in trigtools package:
 
 @itemize
 @item @mref{c2sin}
@@ -41,15 +41,15 @@ trigonometric expessions. List of functions in trigtools package:
 
 @menu
 * Convert to sin and cos::
-* Convert to Trignometric Functions::
+* Convert to Trigonometric Functions::
 * Convert to Hyperbolic Functions::
 * Factor Sums of sin and cos Functions::
-* Solve Trignometric Equations::
-* Evaluation of Trignometric Functions::
+* Solve Trigonometric Equations::
+* Evaluation of Trigonometric Functions::
 * Contract atan Functions::
 @end menu
 
-@node Convert to sin and cos, Convert to Trignometric Functions, Functions and Variables for trigtools, Functions and Variables for trigtools
+@node Convert to sin and cos, Convert to Trigonometric Functions, Functions and Variables for trigtools, Functions and Variables for trigtools
 @subsection Convert to sin and cos
 
 @anchor{c2sin}
@@ -161,8 +161,8 @@ for @math{k} any integer.
 @closecatbox
 @end deffn
 
-@node Convert to Trignometric Functions, Convert to Hyperbolic Functions, Convert to sin and cos, Functions and Variables for trigtools
-@subsection Convert to Trignometric Functions
+@node Convert to Trigonometric Functions, Convert to Hyperbolic Functions, Convert to sin and cos, Functions and Variables for trigtools
+@subsection Convert to Trigonometric Functions
 
 @anchor{c2trig}
 @deffn {Function} c2trig (@var{x})
@@ -255,7 +255,7 @@ coth(x)=c2trig(coth(x));
 
 @end deffn
 
-@node Convert to Hyperbolic Functions, Factor Sums of sin and cos Functions, Convert to Trignometric Functions, Functions and Variables for trigtools
+@node Convert to Hyperbolic Functions, Factor Sums of sin and cos Functions, Convert to Trigonometric Functions, Functions and Variables for trigtools
 @subsection Convert to Hyperbolic Functions
 
 @anchor{c2hyp}
@@ -286,12 +286,12 @@ Examples:
 @closecatbox
 @end deffn
 
-@node Factor Sums of sin and cos Functions, Solve Trignometric Equations, Convert to Hyperbolic Functions, Functions and Variables for trigtools
+@node Factor Sums of sin and cos Functions, Solve Trigonometric Equations, Convert to Hyperbolic Functions, Functions and Variables for trigtools
 @subsection Factor Sums of sin and cos Functions
 
 @anchor{trigfactor}
 @deffn {Function} trigfactor (@var{x})
-The function trigfactor factors expresions of
+The function trigfactor factors expressions of
 form 
 m4_mathdot(<<<\pm \sin x \pm \cos y>>>, <<<+-sin(x)+-cos(y)>>>)
 
@@ -413,8 +413,8 @@ Examples:
 @closecatbox
 @end deffn
 
-@node Solve Trignometric Equations, Evaluation of Trignometric Functions, Factor Sums of sin and cos Functions, Functions and Variables for trigtools
-@subsection Solve Trignometric Equations
+@node Solve Trigonometric Equations, Evaluation of Trigonometric Functions, Factor Sums of sin and cos Functions, Functions and Variables for trigtools
+@subsection Solve Trigonometric Equations
 
 @anchor{trigsolve}
 @deffn {Function} trigsolve (@var{x})
@@ -629,8 +629,8 @@ where @math{a} any from @math{S}, @math{k} any integer.
 @closecatbox
 @end deffn
 
-@node Evaluation of Trignometric Functions, Contract atan Functions, Solve Trignometric Equations, Functions and Variables for trigtools
-@subsection Evaluation of Trignometric Functions
+@node Evaluation of Trigonometric Functions, Contract atan Functions, Solve Trigonometric Equations, Functions and Variables for trigtools
+@subsection Evaluation of Trigonometric Functions
 
 @anchor{trigvalue}
 @deffn {Function} trigvalue (@var{x})
@@ -672,7 +672,7 @@ in radicals.
 
 Examples:
 @enumerate
-@item Values of trignometric functions
+@item Values of trigonometric functions
 @example
 (%i1) load(trigtools)$
 @group
@@ -853,7 +853,7 @@ x = -------------------- + -----------------]
 @category{Package trigtools}
 @closecatbox
 
-@node Contract atan Functions,  , Evaluation of Trignometric Functions, Functions and Variables for trigtools
+@node Contract atan Functions,  , Evaluation of Trigonometric Functions, Functions and Variables for trigtools
 @subsection Contract atan Functions
 
 @anchor{atan_contract}

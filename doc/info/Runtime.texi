@@ -56,12 +56,25 @@ user's default lisp implementation. E.g. to select CMUCL create a @code{maximarc
 You can also use the command option @code{-l <lisp>} or @code{--lisp=<lisp>} to select the Lisp when starting Maxima.
 
 @cindex .xmaximarc
-
-In the file @code{.xmaximarc} (in the users home directory) Xmaxima stores personal settings.
-
+@cindex xmaxima_default
 @cindex .xmaxima_history
+@cindex xmaxima_history
 
-In the file @code{.xmaxima_history} (in the users home directory) Xmaxima stores the command history.
+If you run Maxima using the graphical interface Xmaxima, the default
+configuration of that interface will be saved in the file
+@code{xmaxima_default} and the history of the last 200 commands will be
+saved in the file @code{xmaxima_history} in a sub-directory maxima (or
+Maxima in Windows) of the user's local configuration directory.
+
+In Linux systems, the user's local configuration directory is usually
+@code{/home/<username>/.config} and in Windows systems it is usually
+@code{<Drive_letter>:/Users/<username>/AppData/Local}. Notice that in
+both systems those directories are hidden, and their default value can
+be changed with an environment variable (@code{XDG_CONFIG_HOME} in Linux
+or @code{LOCALAPPDATA} in Windows). If the local configuration directory
+is not found, those two files will be saved in the users home directory
+and with the names @code{.xmaximarc} and @code{.xmaxima_history}, as in
+older versions of Xmaxima.
 
 @opencatbox{Categories:}
 @category{Session management}

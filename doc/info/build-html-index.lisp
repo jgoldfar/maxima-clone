@@ -77,11 +77,10 @@
 	    line))
   (flet ((skip-toc-entry (item)
          ;; Returns non-nil if the item should not be included in the
-         ;; html index.  This is a hack because the text index doesn't
-           ;; include these items and I (rtoy) don't know why.
+         ;; html index.  This is not currently used.
            (let ((found
-                   (find item '("Error and warning messages"
-                                "Package zeilberger")
+                   (find item '( ;; "Error and warning messages"
+                                )
                          :test #'string=)))
              ;; Log a note that we skipped this entry.
              (when found
@@ -203,7 +202,7 @@
 ;; Further subsections are ignored.
 ;; Conditional expression allows us to handle earlier versions of Texinfo.
 (let ((regexp-texinfo>=6.8
-       (pregexp:pregexp "<a id=\"toc-.*\" href=\"([^#\"]+)(#([^\"]+))\">[[:digit:]]+\.[[:digit:]]+ ([^\"]+?)</a>"))
+       (pregexp:pregexp "<a id=\"toc-.*\" href=\"([^#\"]+)(#([^\"]+))\">[[:digit:]]+\\.[[:digit:]]+ ([^\"]+?)</a>"))
       (regexp-texinfo<6.8
        (pregexp:pregexp "<a (?:name|id)=\"toc-.*\" href=\"([^#\"]+)(#([^\"]+))\">[[:digit:]]+\\.[[:digit:]]+ ([^\"]+?)</a>(?!.*maxima_100.html)")))
   (defun match-toc (line)
