@@ -1594,7 +1594,7 @@ a^v*gamma(v+1)/((p-b)*(p-b+a)^v*v);
  * kbateman[0](t) -> 1/(p+1)
  *
  */
-(assume(t>0),0);
+(assume(t>0,p>0),0);
 0;
 radcan(specint(kbateman[0](t)*exp(-p*t),t));
 1/(p+1);
