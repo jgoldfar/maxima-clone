@@ -1192,18 +1192,37 @@ Examples for exponential integrals:
 
 @c ===beg===
 @c assume(s>0,a>0,s-a>0)$
-@c ratsimp(specint(%e^(a*t)
+@c ratsimp(specint(%e^(a*t)*(log(a)+expintegral_e1(a*t))*%e^(-s*t),t));
 @c logarc:true$
 @c gamma_expand:true$
+@c radcan(specint((cos(t)*expintegral_si(t) -sin(t)*expintegral_ci(t))*%e^(-s*t),t));
+@c ratsimp(specint((2*t*log(a)+2/a*sin(a*t) -2*t*expintegral_ci(a*t))*%e^(-s*t),t));
 @c ===end===
-incorrect syntax: logarc is not an infix operator
-logarc:
-     ^
 @example maxima
 (%i1) assume(s>0,a>0,s-a>0)$
-(%i2) ratsimp(specint(%e^(a*t)
-(%i2) logarc:true$
-(%i3) gamma_expand:true$
+@group
+(%i2) ratsimp(specint(%e^(a*t)*(log(a)+expintegral_e1(a*t))*%e^(-s*t),t));
+                             log(s)
+(%o2)                        ------
+                             s - a
+@end group
+(%i3) logarc:true$
+(%i4) gamma_expand:true$
+@group
+(%i5) radcan(specint((cos(t)*expintegral_si(t) -sin(t)*expintegral_ci(t))*%e^(-s*t),t));
+                             log(s)
+(%o5)                        ------
+                              2
+                             s  + 1
+@end group
+@group
+(%i6) ratsimp(specint((2*t*log(a)+2/a*sin(a*t) -2*t*expintegral_ci(a*t))*%e^(-s*t),t));
+                               2    2
+                          log(s  + a )
+(%o6)                     ------------
+                                2
+                               s
+@end group
 @end example
 
 Results when using the expansion of @mref{gamma_incomplete} and when changing 
