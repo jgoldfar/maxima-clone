@@ -140,19 +140,24 @@ Real data.
 @c L2 : fft (L1);
 @c lmax (abs (L2 - L));
 @c ===end===
-@example
+@example maxima
 (%i1) load ("fft") $
 (%i2) fpprintprec : 4 $
 (%i3) L : [1, 2, 3, 4, -1, -2, -3, -4] $
+@group
 (%i4) L1 : inverse_fft (L);
-(%o4) [0.0, 14.49 %i - .8284, 0.0, 2.485 %i + 4.828, 0.0, 
-                       4.828 - 2.485 %i, 0.0, - 14.49 %i - .8284]
+(%o4) [0.0, - 14.49 %i - 0.8284, 0.0, 4.828 - 2.485 %i, 0.0, 
+                        2.485 %i + 4.828, 0.0, 14.49 %i - 0.8284]
+@end group
+@group
 (%i5) L2 : fft (L1);
-(%o5) [1.0, 2.0 - 2.168L-19 %i, 3.0 - 7.525L-20 %i, 
-4.0 - 4.256L-19 %i, - 1.0, 2.168L-19 %i - 2.0, 
-7.525L-20 %i - 3.0, 4.256L-19 %i - 4.0]
+(%o5) [1.0, 2.0 - 4.441e-16 %i, 3.0, 4.441e-16 %i + 4.0, - 1.0, 
+                 4.441e-16 %i - 2.0, - 3.0, - 4.441e-16 %i - 4.0]
+@end group
+@group
 (%i6) lmax (abs (L2 - L));
-(%o6)                       3.545L-16
+(%o6)                       4.441e-16
+@end group
 @end example
 
 Complex data.
@@ -165,20 +170,24 @@ Complex data.
 @c L2 : fft (L1);
 @c lmax (abs (L2 - L));
 @c ===end===
-@example
+@example maxima
 (%i1) load ("fft") $
-(%i2) fpprintprec : 4 $                 
+(%i2) fpprintprec : 4 $
 (%i3) L : [1, 1 + %i, 1 - %i, -1, -1, 1 - %i, 1 + %i, 1] $
+@group
 (%i4) L1 : inverse_fft (L);
-(%o4) [4.0, 2.711L-19 %i + 4.0, 2.0 %i - 2.0, 
-- 2.828 %i - 2.828, 0.0, 5.421L-20 %i + 4.0, - 2.0 %i - 2.0, 
-2.828 %i + 2.828]
+(%o4) [4.0, 2.828 %i + 2.828, - 2.0 %i - 2.0, 4.0, 0.0, 
+                           - 2.828 %i - 2.828, 2.0 %i - 2.0, 4.0]
+@end group
+@group
 (%i5) L2 : fft (L1);
-(%o5) [4.066E-20 %i + 1.0, 1.0 %i + 1.0, 1.0 - 1.0 %i, 
-1.55L-19 %i - 1.0, - 4.066E-20 %i - 1.0, 1.0 - 1.0 %i, 
-1.0 %i + 1.0, 1.0 - 7.368L-20 %i]
-(%i6) lmax (abs (L2 - L));                    
-(%o6)                       6.841L-17
+(%o5) [1.0, 1.0 %i + 1.0, 1.0 - 1.0 %i, - 1.0, - 1.0, 
+                                 1.0 - 1.0 %i, 1.0 %i + 1.0, 1.0]
+@end group
+@group
+(%i6) lmax (abs (L2 - L));
+(%o6)                          0.0
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -268,19 +277,24 @@ Real data.
 @c L2 : inverse_fft (L1);
 @c lmax (abs (L2 - L));
 @c ===end===
-@example
+@example maxima
 (%i1) load ("fft") $
 (%i2) fpprintprec : 4 $
 (%i3) L : [1, 2, 3, 4, -1, -2, -3, -4] $
+@group
 (%i4) L1 : fft (L);
-(%o4) [0.0, 1.811 %i - .1036, 0.0, 0.3107 %i + .6036, 0.0, 
-                         0.6036 - 0.3107 %i, 0.0, (- 1.811 %i) - 0.1036]
+(%o4) [0.0, 1.811 %i - 0.1036, 0.0, 0.3107 %i + 0.6036, 0.0, 
+                    0.6036 - 0.3107 %i, 0.0, - 1.811 %i - 0.1036]
+@end group
+@group
 (%i5) L2 : inverse_fft (L1);
-(%o5) [1.0, 2.168L-19 %i + 2.0, 7.525L-20 %i + 3.0, 
-4.256L-19 %i + 4.0, - 1.0, - 2.168L-19 %i - 2.0, 
-- 7.525L-20 %i - 3.0, - 4.256L-19 %i - 4.0]
+(%o5) [1.0, 4.441e-16 %i + 2.0, 3.0, 4.0 - 4.441e-16 %i, - 1.0, 
+                 - 4.441e-16 %i - 2.0, - 3.0, 4.441e-16 %i - 4.0]
+@end group
+@group
 (%i6) lmax (abs (L2 - L));
-(%o6)                       3.545L-16
+(%o6)                       4.441e-16
+@end group
 @end example
 
 Complex data.
@@ -293,18 +307,24 @@ Complex data.
 @c L2 : inverse_fft (L1);
 @c lmax (abs (L2 - L));
 @c ===end===
-@example
+@example maxima
 (%i1) load ("fft") $
 (%i2) fpprintprec : 4 $
 (%i3) L : [1, 1 + %i, 1 - %i, -1, -1, 1 - %i, 1 + %i, 1] $
+@group
 (%i4) L1 : fft (L);
-(%o4) [0.5, 0.5, 0.25 %i - 0.25, (- 0.3536 %i) - 0.3536, 0.0, 0.5, 
-                                        (- 0.25 %i) - 0.25, 0.3536 %i + 0.3536]
+(%o4) [0.5, 0.5, 0.25 %i - 0.25, - 0.3536 %i - 0.3536, 0.0, 0.5, 
+                            - 0.25 %i - 0.25, 0.3536 %i + 0.3536]
+@end group
+@group
 (%i5) L2 : inverse_fft (L1);
-(%o5) [1.0, 1.0 %i + 1.0, 1.0 - 1.0 %i, - 1.0, - 1.0, 1.0 - 1.0 %i, 
-                                                             1.0 %i + 1.0, 1.0]
+(%o5) [1.0, 1.0 %i + 1.0, 1.0 - 1.0 %i, - 1.0, - 1.0, 
+                                 1.0 - 1.0 %i, 1.0 %i + 1.0, 1.0]
+@end group
+@group
 (%i6) lmax (abs (L2 - L));
-(%o6)                       0.0
+(%o6)                          0.0
+@end group
 @end example
 
 Computation of sine and cosine coefficients.
@@ -331,7 +351,7 @@ Computation of sine and cosine coefficients.
 @c f(j) := sum (a[k] * cos (2*%pi*j*k / n) + b[k] * sin (2*%pi*j*k / n), k, 0, n/2) $
 @c makelist (float (f (j)), j, 0, n - 1);
 @c ===end===
-@example
+@example maxima
 (%i1) load ("fft") $
 (%i2) fpprintprec : 4 $
 (%i3) L : [1, 2, 3, 4, 5, 6, 7, 8] $
@@ -343,20 +363,27 @@ Computation of sine and cosine coefficients.
 (%i9) b : make_array (any, n/2 + 1) $
 (%i10) a[0] : realpart (y[0]) $
 (%i11) b[0] : 0 $
+@group
 (%i12) for k : 1 thru n/2 - 1 do
    (a[k] : realpart (y[k] + y[n - k]),
     b[k] : imagpart (y[n - k] - y[k]));
 (%o12)                        done
+@end group
 (%i13) a[n/2] : y[n/2] $
 (%i14) b[n/2] : 0 $
+@group
 (%i15) listarray (a);
 (%o15)          [4.5, - 1.0, - 1.0, - 1.0, - 0.5]
+@end group
+@group
 (%i16) listarray (b);
-(%o16)           [0, - 2.414, - 1.0, - .4142, 0]
-(%i17) f(j) := sum (a[k]*cos(2*%pi*j*k/n) + b[k]*sin(2*%pi*j*k/n), 
-                    k, 0, n/2) $
+(%o16)             [0, 2.414, 1.0, 0.4142, 0]
+@end group
+(%i17) f(j) := sum (a[k] * cos (2*%pi*j*k / n) + b[k] * sin (2*%pi*j*k / n), k, 0, n/2) $
+@group
 (%i18) makelist (float (f (j)), j, 0, n - 1);
-(%o18)      [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
+(%o18)      [1.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -603,21 +630,30 @@ generate programs to be run in Fortran.  See also @mrefdot{stringout}
 @c ev (expr, x=1e155);
 @c ev (expr2, x=1e155);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) expr: 1e-155*x^2 - 5.5*x + 5.2e155;
-                           2
-(%o1)             1.e-155 x  - 5.5 x + 5.2e+155
+                            2
+(%o1)             1.0e-155 x  - 5.5 x + 5.2e155
+@end group
+@group
 (%i2) expr2: horner (%, x), keepfloat: true;
-(%o2)         1.0 ((1.e-155 x - 5.5) x + 5.2e+155)
+(%o2)         1.0 ((1.0e-155 x - 5.5) x + 5.2e155)
+@end group
+@group
 (%i3) ev (expr, x=1e155);
 Maxima encountered a Lisp error:
 
- arithmetic error FLOATING-POINT-OVERFLOW signalled
+ Arithmetic error FLOATING-POINT-OVERFLOW signalled.
+Operation was *, operands (1.0e155 NIL).
 
 Automatically continuing.
 To enable the Lisp debugger set *debugger-hook* to nil.
+@end group
+@group
 (%i4) ev (expr2, x=1e155);
-(%o4)                 7.00000000000001e+154
+(%o4)                 7.000000000000006e154
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -719,32 +755,58 @@ Examples:
 @c bf_find_root (exp(x) = y, x, 0, 100), y = 10;
 @c log(10b0);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) f(x) := sin(x) - x/2;
                                         x
 (%o1)                  f(x) := sin(x) - -
                                         2
+@end group
+@group
 (%i2) find_root (sin(x) - x/2, x, 0.1, %pi);
 (%o2)                   1.895494267033981
+@end group
+@group
 (%i3) find_root (sin(x) = x/2, x, 0.1, %pi);
 (%o3)                   1.895494267033981
+@end group
+@group
 (%i4) find_root (f(x), x, 0.1, %pi);
 (%o4)                   1.895494267033981
+@end group
+@group
 (%i5) find_root (f, 0.1, %pi);
 (%o5)                   1.895494267033981
+@end group
+@group
 (%i6) find_root (exp(x) = y, x, 0, 100);
                             x
 (%o6)           find_root(%e  = y, x, 0.0, 100.0)
+@end group
+@group
 (%i7) find_root (exp(x) = y, x, 0, 100), y = 10;
 (%o7)                   2.302585092994046
+@end group
+@group
 (%i8) log (10.0);
 (%o8)                   2.302585092994046
+@end group
+@group
 (%i9) fpprec:32;
-(%o9)                           32
-(%i10) bf_find_root (exp(x) = y, x, 0, 100), y = 10;
-(%o10)                  2.3025850929940456840179914546844b0
-(%i11) log(10b0);
-(%o11)                  2.3025850929940456840179914546844b0
+(%o9)                          32
+@end group
+@group
+(%i10) 32;
+(%o10)                         32
+@end group
+@group
+(%i11) bf_find_root (exp(x) = y, x, 0, 100), y = 10;
+(%o11)         2.3025850929940456840179914546844b0
+@end group
+@group
+(%i12) log(10b0);
+(%o12)         2.3025850929940456840179914546844b0
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -783,20 +845,32 @@ Examples:
 @c newton (x^2 - a^2, x, a/2, a^2/100);
 @c ev (x^2 - a^2, x = %);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) load ("newton1");
-(%o1)  /maxima/share/numeric/newton1.mac
+(%o1) /maxima/share/numeric/newton1.mac
+@end group
+@group
 (%i2) newton (cos (u), u, 1, 1/100);
-(%o2)                   1.570675277161251
+(%o2)                  1.5706752771612507
+@end group
+@group
 (%i3) ev (cos (u), u = %);
-(%o3)                 1.2104963335033529e-4
+(%o3)                 1.2104963335033528e-4
+@end group
+@group
 (%i4) assume (a > 0);
 (%o4)                        [a > 0]
+@end group
+@group
 (%i5) newton (x^2 - a^2, x, a/2, a^2/100);
-(%o5)                  1.00030487804878 a
+(%o5)                 1.0003048780487804 a
+@end group
+@group
 (%i6) ev (x^2 - a^2, x = %);
                                            2
 (%o6)                6.098490481853958e-4 a
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1016,7 +1090,7 @@ To show the direction field of the differential equation @math{y' = exp(-x) + y}
 @c ===beg===
 @c plotdf(exp(-x)+y,[trajectory_at,2,-0.1])$
 @c ===end===
-@example
+@example maxima
 (%i1) plotdf(exp(-x)+y,[trajectory_at,2,-0.1])$
 @end example
 
@@ -1031,7 +1105,7 @@ To obtain the direction field for the equation @math{diff(y,x) = x - y^2} and th
 @c          [trajectory_at,-1,3], [direction,forward],
 @c          [y,-5,5], [x,-4,16])$
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) plotdf(x-y^2,[xfun,"sqrt(x);-sqrt(x)"],
          [trajectory_at,-1,3], [direction,forward],
@@ -1055,7 +1129,7 @@ fixed at 2):
 @c plotdf([v,-k*z/m], [z,v], [parameters,"m=2,k=2"],
 @c            [sliders,"m=1:5"], [trajectory_at,6,0])$
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) plotdf([v,-k*z/m], [z,v], [parameters,"m=2,k=2"],
            [sliders,"m=1:5"], [trajectory_at,6,0])$
@@ -1073,7 +1147,7 @@ To plot the direction field of the Duffing equation, @math{m*x''+c*x'+k*x+b*x^3 
 @c              [parameters,"k=-1,m=1.0,c=0,b=1"],
 @c              [sliders,"k=-2:2,m=-1:1"],[tstep,0.1])$
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) plotdf([y,-(k*x + c*y + b*x^3)/m],
              [parameters,"k=-1,m=1.0,c=0,b=1"],
@@ -1098,7 +1172,7 @@ the two state variables as a function of time:
 @c         [a,-10,2], [w,-14,14], [direction,forward],
 @c         [nsteps,300], [sliders,"m=0.1:1"], [versus_t,1])$
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) plotdf([w,-g*sin(a)/l - b*w/m/l], [a,w],
         [parameters,"g=9.8,l=0.5,m=0.3,b=0.05"],
@@ -1145,7 +1219,7 @@ Example:
 @c V: 900/((x+1)^2+y^2)^(1/2)-900/((x-1)^2+y^2)^(1/2)$
 @c ploteq(V,[x,-2,2],[y,-2,2],[fieldlines,"blue"])$
 @c ===end===
-@example
+@example maxima
 (%i1) V: 900/((x+1)^2+y^2)^(1/2)-900/((x-1)^2+y^2)^(1/2)$
 (%i2) ploteq(V,[x,-2,2],[y,-2,2],[fieldlines,"blue"])$
 @end example
@@ -1227,7 +1301,7 @@ increments of 0.1 for t, use:
 @c results: rk(t-x^2,x,1,[t,0,8,0.1])$
 @c plot2d ([discrete, results])$
 @c ===end===
-@example
+@example maxima
 (%i1) results: rk(t-x^2,x,1,[t,0,8,0.1])$
 (%i2) plot2d ([discrete, results])$
 @end example
@@ -1253,11 +1327,15 @@ for t between 0 and 4, and with values of -1.25 and 0.75 for x and y at t=0:
 @c plot2d([discrete, makelist([p[1], p[3]], p, sol)], [xlabel, "t"],
 @c              [ylabel, "y"])$
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) sol: rk([4-x^2-4*y^2, y^2-x^2+1], [x, y], [-1.25, 0.75],
-              [t, 0, 4, 0.02])$
+              [t,0,4,0.02])$
+@end group
+@group
 (%i2) plot2d([discrete, makelist([p[1], p[3]], p, sol)], [xlabel, "t"],
              [ylabel, "y"])$
+@end group
 @end example
 
 The plot will show the solution for variable @var{y} as a function of @var{t}.
