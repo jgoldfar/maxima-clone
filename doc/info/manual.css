@@ -64,7 +64,10 @@ img {
 }
 tt, code { font-family: "Courier New", "DejaVu Sans Mono", monospace }
 
-/* Put background color on the navigation bar */
+/*
+ * Put background color on the navigation bar
+ * Texinfo 7.1 and later uses div.nav-panel.  6.8 uses div.header.
+ */
 div.header, div.nav-panel {
     background-color: #CDCCDD;
     padding: 3px 10px;
