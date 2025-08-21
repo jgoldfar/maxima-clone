@@ -1546,3 +1546,7 @@ fi
 if test -n "x$MAKEINFO"; then
   echo "Using makeinfo ${MAKEINFO} to generate docs"
 fi
+
+if test -n "syntax_highlight"; then
+  echo "HTML syntax highlighting enabled using ${syntax_highlight}"
+fi  
