@@ -2,6 +2,11 @@
 :root {
     --example-background-color: rgb(238,238,255);
 }
+@media (prefers-color-scheme: dark) {
+    :root {
+        --example-background-color: #aab;
+    }
+}
 
 /* Overrides to the default Makeinfo CSS */
 div.display {margin-left: 0}
@@ -138,7 +143,10 @@ dd { margin-left: 0.5em }
     pre.example, pre.example-preformatted {
         border: 1px solid black;
         color: black;
-        background-color: #aab;
+        background-color: var(--example-background-color);
+    }
+    div.highlight {
+        background-color: var(--example-background-color) !important;
     }
     div.categorybox { background-color: #544 }
     div.textbox, div.titlebox, div.synopsisbox { color: black;}
