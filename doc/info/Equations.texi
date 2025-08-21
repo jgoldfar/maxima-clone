@@ -48,7 +48,7 @@ It's recommended to use this list rather than doing @code{concat ('%r, j)}.
 @c   sol : subst (t[i], %rnum_list[i], sol)$
 @c sol;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) solve ([x + y = 3], [x,y]);
 (%o1)               [[x = 3 - %r1, y = %r1]]
@@ -208,7 +208,7 @@ Examples:
 @c e2: -1 - y + 2*y^2 - x + x^2;
 @c algsys ([e1, e2], [x, y]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) e1: 2*x*(1 - a1) - 2*(x - 1)*a2;
 (%o1)              2 (1 - a1) x - 2 a2 (x - 1)
@@ -297,7 +297,7 @@ Examples:
 @c polyfactor: true$
 @c allroots (eqn);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) eqn: (1 + 2*x)^3 = 13.5*(1 + x^5);
                             3          5
@@ -314,7 +314,7 @@ x = - 0.9659625152196369 %i - 0.4069597231924075, x = 1.0]
         do (e2: subst (e, eqn), disp (expand (lhs(e2) - rhs(e2))));
                      - 3.552713678800501e-15
 
-                     - 5.329070518200751e-15
+                     - 8.43769498715119e-15
 
         2.6645352591003757e-15 %i - 6.217248937900877e-15
 
@@ -380,7 +380,7 @@ the generation of extremely large expressions.
 @c backsubst : true$
 @c linsolve ([eq1, eq2, eq3], [x,y,z]);
 @c ===end===
-@example
+@example maxima
 (%i1) eq1 : x + y + z = 6$
 (%i2) eq2 : x - y + z = 2$
 (%i3) eq3 : x + y - z = 0$
@@ -415,66 +415,79 @@ Otherwise, common subexpressions are not identified.
 
 Examples:
 
-@example
+@c ===beg===
+@c programmode: false$
+@c breakup: true$
+@c solve (x^3 + x^2 - 1);
+@c breakup: false$
+@c solve (x^3 + x^2 - 1);
+@c ===end===
+@example maxima
 (%i1) programmode: false$
 (%i2) breakup: true$
-(%i3) solve (x^3 + x^2 - 1);
-
-                        sqrt(23)    25 1/3
-(%t3)                  (--------- + --)
-                        6 sqrt(3)   54
-Solution:
-
-                                      sqrt(3) %i   1
-                                      ---------- - -
-                sqrt(3) %i   1            2        2   1
-(%t4)    x = (- ---------- - -) %t3 + -------------- - -
-                    2        2            9 %t3        3
-
-                                      sqrt(3) %i   1
-                                    - ---------- - -
-              sqrt(3) %i   1              2        2   1
-(%t5)    x = (---------- - -) %t3 + ---------------- - -
-                  2        2             9 %t3         3
-
-                                   1     1
-(%t6)                  x = %t3 + ----- - -
-                                 9 %t3   3
-(%o6)                    [%t4, %t5, %t6]
-(%i6) breakup: false$
-(%i7) solve (x^3 + x^2 - 1);
-Solution:
-
-             sqrt(3) %i   1
-             ---------- - -
-                 2        2        sqrt(23)    25 1/3
-(%t7) x = --------------------- + (--------- + --)
-             sqrt(23)    25 1/3    6 sqrt(3)   54
-          9 (--------- + --)
-             6 sqrt(3)   54
-
-                                              sqrt(3) %i   1    1
-                                           (- ---------- - -) - -
-                                                  2        2    3
 @group
-           sqrt(23)    25 1/3  sqrt(3) %i   1
-(%t8) x = (--------- + --)    (---------- - -)
-           6 sqrt(3)   54          2        2
+(%i3) solve (x^3 + x^2 - 1);
+                        sqrt(23)   25 1/3
+(%t3)                  (-------- + --)
+                            3/2    54
+                         2 3
+solve: solution:
 
-                                            sqrt(3) %i   1
-                                          - ---------- - -
-                                                2        2      1
-                                      + --------------------- - -
-                                           sqrt(23)    25 1/3   3
-                                        9 (--------- + --)
-                                           6 sqrt(3)   54
+                                    sqrt(3) %i   - 1
+                                    ---------- + ---
+            - 1   sqrt(3) %i            2         2    - 1
+(%t4)  x = (--- - ----------) %t3 + ---------------- + ---
+             2        2                  9 %t3          3
+
+                                    - 1   sqrt(3) %i
+                                    --- - ----------
+            sqrt(3) %i   - 1         2        2        - 1
+(%t5)  x = (---------- + ---) %t3 + ---------------- + ---
+                2         2              9 %t3          3
+
+                                  1     - 1
+(%t6)                 x = %t3 + ----- + ---
+                                9 %t3    3
+(%o6)                    [%t4, %t5, %t6]
 @end group
-            sqrt(23)    25 1/3             1             1
-(%t9)  x = (--------- + --)    + --------------------- - -
-            6 sqrt(3)   54          sqrt(23)    25 1/3   3
-                                 9 (--------- + --)
-                                    6 sqrt(3)   54
-(%o9)                    [%t7, %t8, %t9]
+(%i7) breakup: false$
+@group
+(%i8) solve (x^3 + x^2 - 1);
+solve: solution:
+
+            sqrt(3) %i   - 1
+            ---------- + ---
+                2         2       sqrt(23)   25 1/3
+(%t8) x = -------------------- + (-------- + --)
+             sqrt(23)   25 1/3        3/2    54
+          9 (-------- + --)        2 3
+                 3/2    54
+              2 3
+                                          - 1   sqrt(3) %i    - 1
+                                         (--- - ----------) + ---
+                                           2        2          3
+
+           sqrt(23)   25 1/3  sqrt(3) %i   - 1
+(%t9) x = (-------- + --)    (---------- + ---)
+               3/2    54          2         2
+            2 3
+                                         - 1   sqrt(3) %i
+                                         --- - ----------
+                                          2        2          - 1
+                                     + -------------------- + ---
+                                          sqrt(23)   25 1/3    3
+                                       9 (-------- + --)
+                                              3/2    54
+                                           2 3
+
+            sqrt(23)   25 1/3            1             - 1
+(%t10) x = (-------- + --)    + -------------------- + ---
+                3/2    54          sqrt(23)   25 1/3    3
+             2 3                9 (-------- + --)
+                                       3/2    54
+                                    2 3
+(%o10)                  [%t8, %t9, %t10]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -531,7 +544,7 @@ or not there exists a rational function @code{@var{g}(@var{t})} satisfying
 @c      (n - 1)/(n + 2);
 @c funcsolve (eqn, f(n));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) eqn: (n + 1)*f(n) - (n + 3)*f(n + 1)/(n + 1) =
      (n - 1)/(n + 2);
@@ -586,7 +599,7 @@ Examples:
 @c x;
 @c y;
 @c ===end===
-@example
+@example maxima
 (%i1) globalsolve: true$
 @group
 (%i2) solve ([x + 3*y = 2, 2*x - y = 5], [x, y]);
@@ -811,7 +824,7 @@ Examples:
 @c infix ("][");
 @c lhs (aa ][ bb);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) e: aa + bb = cc;
 (%o1)                     bb + aa = cc
@@ -916,7 +929,7 @@ Examples:
 @c linsolve ([e1, e2, e3], '[x, y, z]);
 @c [x, y, z];
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) e1: x + z = y;
 (%o1)                       z + x = y
@@ -1059,7 +1072,7 @@ interval may be @code{minf} or @code{inf}.
 @c p: x^10 - 2*x^4 + 1/2$
 @c nroots (p, -6, 9.1);
 @c ===end===
-@example
+@example maxima
 (%i1) p: x^10 - 2*x^4 + 1/2$
 @group
 (%i2) nroots (p, -6, 9.1);
@@ -1186,7 +1199,7 @@ Examples:
 @c ev (%[1], float);
 @c ev (-1 - x + x^5, %);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) realroots (-1 - x + x^5, 5e-6);
                                612003
@@ -1207,7 +1220,7 @@ Examples:
 @c realroots (expand ((1 - x)^5 * (2 - x)^3 * (3 - x)), 1e-20);
 @c multiplicities;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) realroots (expand ((1 - x)^5 * (2 - x)^3 * (3 - x)), 1e-20);
 (%o1)                 [x = 1, x = 2, x = 3]
@@ -1258,7 +1271,7 @@ Examples:
 @c infix ("][");
 @c rhs (aa ][ bb);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) e: aa + bb = cc;
 (%o1)                     bb + aa = cc
@@ -1385,7 +1398,7 @@ Examples:
 @c rootsconmode: true$
 @c rootscontract (sqrt(5 + sqrt(5)) - 5^(1/4)*sqrt(1 + sqrt(5)));
 @c ===end===
-@example
+@example maxima
 (%i1) rootsconmode: false$
 @group
 (%i2) rootscontract (x^(1/2)*y^(3/2));
@@ -1537,7 +1550,7 @@ Examples:
 @c solve (%, x);
 @c ev (%th(2), %[1]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) solve (asin (cos (3*x))*(f(x) - 1), x);
 solve: using arc-trig functions to get a solution.
@@ -1651,7 +1664,7 @@ The symbols @code{%r} are used to denote arbitrary constants in a solution.
 @c ===beg===
 @c solve([x+y=1,2*x+2*y=2],[x,y]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) solve([x+y=1,2*x+2*y=2],[x,y]);
 solve: dependent equations eliminated: (2)
@@ -1788,7 +1801,7 @@ and the second centered at (c,d) with radius s.
 @c eq2: (x-c)^2+(y-d)^2-s^2;
 @c algsys([eq1,eq2],[x,y]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) eq1: (x-a)^2+(y-b)^2-r^2;
                            2          2    2
@@ -1819,7 +1832,7 @@ the center of the second circle is located on the positive x-axis.
 @c eq2a:(x-C)^2+y^2-S^2;
 @c algsys([eq1a,eq2a],[x,y]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) eq1a:x^2+y^2-1;
                             2    2
@@ -1859,7 +1872,7 @@ a solution.
 @c eq2b:(x-C)^2+y^2-s^2;
 @c algsys([eq1b,eq2b],[x,y]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) eq1b:x^2+y^2-r^2;
                            2    2    2
@@ -1908,7 +1921,7 @@ Note the complexity of the solution at (%o4).
 @c ratsimp(subst(soln[1],[eq1,eq2]));
 @c ratsimp(subst(soln[2],[eq1,eq2]));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) eq1: (x-a)^2+(y-b)^2-r^2;
                            2          2    2
@@ -2026,7 +2039,7 @@ are two (perhaps multiple) solutions, as we know geometrically.
 @c ratsimp(subst(soln[1],[eq1,eq2]));
 @c ratsimp(subst(soln[2],[eq1,eq2]));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) eq1: (x-a)^2+(y-b)^2-r^2;
                            2          2    2
@@ -2164,7 +2177,7 @@ allows a solution to be found.
 @c /* numerical values of solution */
 @c  rectform(float(s));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) eq1: %pi*y + x - 1;
 (%o1)                     %pi y + x - 1
@@ -2283,7 +2296,7 @@ of the problem to restrict the range of parameters appropriately.
 @c  (forget(h>0),assume(h<0));
 @c algsys(eqs,[x,y,z]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) eqs:[y-x=0, g*x*y-h=0, z+(x+1)/y-x-1=0];
                                        x + 1
@@ -2353,7 +2366,7 @@ solution, for a maximum of ten solutions overall.
 @c eqs:poly_reduced_grobner([p1,p2],[x,y]);
 @c algsys(eqs,[x,y]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) p1:-x*y^3+y^2+x^4-9*x/8;
                           3    2    4   9 x
@@ -2423,7 +2436,7 @@ x = +/- sqrt(z-y^2) = +/- sqrt(sqrt(5)-2).
 @c ===beg===
 @c algsys([x^2+y^2+z^2-1,z-x^2-y^2,y-x^2-z^2],[x,y,z]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) algsys([x^2+y^2+z^2-1,z-x^2-y^2,y-x^2-z^2],[x,y,z]);
                             sqrt(5) - 1        sqrt(5) + 1
