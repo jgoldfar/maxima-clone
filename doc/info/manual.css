@@ -1,3 +1,8 @@
+/* Define variable for background color for examples */
+:root {
+    --example-background-color: rgb(238,238,255);
+}
+
 /* Overrides to the default Makeinfo CSS */
 div.display {margin-left: 0}
 div.example {
@@ -43,9 +48,18 @@ div.synopsisbox {
 pre.example, pre.example-preformatted {
     border: 1px solid rgb(180,180,180);
     padding: 5px;
-    background-color: rgb(238,238,255);
+    background-color: var(--example-background-color);
     /* Add scrollbar for examples for narrow windows */
     overflow: auto;
+}
+
+/*
+ * For pygments, make the background color of the highlighted code the
+ * same as the example background color.  Without this, it looks funny.
+ */
+
+div.highlight {
+    background-color: var(--example-background-color) !important;
 }
 
 div.spacerbox { border: none; padding: 2em 0 }
