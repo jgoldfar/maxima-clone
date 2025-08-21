@@ -109,3 +109,15 @@ dd { margin-left: 0.5em }
     div.categorybox { background-color: #544 }
     div.textbox, div.titlebox, div.synopsisbox { color: black;}
 }
+
+/* CSS for pygment highlighting */
+.example.user-maxima {
+    overflow-x: auto
+}
+
+.highlight.pre {
+    /* Lines for highlighted examples are too close by default with
+     *  pygments.  Make it larger.
+     */
+    line-height: 150% !important;
+}
