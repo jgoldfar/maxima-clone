@@ -47,34 +47,46 @@ Examples:
 @c antid (expr, x, y(x));
 @c antidiff (expr, x, y(x));
 @c ===end===
-@example
+@example maxima
 (%i1) load ("antid")$
+@group
 (%i2) expr: exp (z(x)) * diff (z(x), x) * y(x);
-                            z(x)  d
-(%o2)                y(x) %e     (-- (z(x)))
+                       z(x)       d
+(%o2)                %e     y(x) (-- (z(x)))
                                   dx
+@end group
+@group
 (%i3) a1: antid (expr, x, z(x));
-                       z(x)      z(x)  d
-(%o3)          [y(x) %e    , - %e     (-- (y(x)))]
+                  z(x)           z(x)  d
+(%o3)          [%e     y(x), - %e     (-- (y(x)))]
                                        dx
+@end group
+@group
 (%i4) a2: antidiff (expr, x, z(x));
                             /
-                     z(x)   [   z(x)  d
-(%o4)         y(x) %e     - I %e     (-- (y(x))) dx
-                            ]         dx
+                z(x)        |   z(x)  d
+(%o4)         %e     y(x) - | %e     (-- (y(x))) dx
+                            |         dx
                             /
+@end group
+@group
 (%i5) a2 - (first (a1) + 'integrate (second (a1), x));
 (%o5)                           0
+@end group
+@group
 (%i6) antid (expr, x, y(x));
-                             z(x)  d
-(%o6)             [0, y(x) %e     (-- (z(x)))]
+                        z(x)       d
+(%o6)             [0, %e     y(x) (-- (z(x)))]
                                    dx
+@end group
+@group
 (%i7) antidiff (expr, x, y(x));
                   /
-                  [        z(x)  d
-(%o7)             I y(x) %e     (-- (z(x))) dx
-                  ]              dx
+                  |   z(x)       d
+(%o7)             | %e     y(x) (-- (z(x))) dx
+                  |              dx
                   /
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -121,34 +133,46 @@ Examples:
 @c antid (expr, x, y(x));
 @c antidiff (expr, x, y(x));
 @c ===end===
-@example
+@example maxima
 (%i1) load ("antid")$
+@group
 (%i2) expr: exp (z(x)) * diff (z(x), x) * y(x);
-                            z(x)  d
-(%o2)                y(x) %e     (-- (z(x)))
+                       z(x)       d
+(%o2)                %e     y(x) (-- (z(x)))
                                   dx
+@end group
+@group
 (%i3) a1: antid (expr, x, z(x));
-                       z(x)      z(x)  d
-(%o3)          [y(x) %e    , - %e     (-- (y(x)))]
+                  z(x)           z(x)  d
+(%o3)          [%e     y(x), - %e     (-- (y(x)))]
                                        dx
+@end group
+@group
 (%i4) a2: antidiff (expr, x, z(x));
                             /
-                     z(x)   [   z(x)  d
-(%o4)         y(x) %e     - I %e     (-- (y(x))) dx
-                            ]         dx
+                z(x)        |   z(x)  d
+(%o4)         %e     y(x) - | %e     (-- (y(x))) dx
+                            |         dx
                             /
+@end group
+@group
 (%i5) a2 - (first (a1) + 'integrate (second (a1), x));
 (%o5)                           0
+@end group
+@group
 (%i6) antid (expr, x, y(x));
-                             z(x)  d
-(%o6)             [0, y(x) %e     (-- (z(x)))]
+                        z(x)       d
+(%o6)             [0, %e     y(x) (-- (z(x)))]
                                    dx
+@end group
+@group
 (%i7) antidiff (expr, x, y(x));
                   /
-                  [        z(x)  d
-(%o7)             I y(x) %e     (-- (z(x))) dx
-                  ]              dx
+                  |   z(x)       d
+(%o7)             | %e     y(x) (-- (z(x))) dx
+                  |              dx
                   /
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -185,7 +209,7 @@ Examples:
 @c diff (4*f(x, y)^2 - u(x, y)^2, x);
 @c at (%, [x = 0, y = 1]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) atvalue (f(x,y), [x = 0, y = 1], a^2);
                                 2
@@ -195,17 +219,19 @@ Examples:
 (%i2) atvalue ('diff (f(x,y), x), x = 0, 1 + y);
 (%o2)                        @@2 + 1
 @end group
+@group
 (%i3) printprops (all, atvalue);
-                                !
-                  d             !
-                 --- (f(@@1, @@2))!       = @@2 + 1
-                 d@@1            !
-                                !@@1 = 0
+                                |
+                  d             |
+                 --- (f(@@1, @@2))|       = @@2 + 1
+                 d@@1            |
+                                |@@1 = 0
 
                                      2
                           f(0, 1) = a
 
 (%o3)                         done
+@end group
 @group
 (%i4) diff (4*f(x, y)^2 - u(x, y)^2, x);
                   d                          d
@@ -214,11 +240,11 @@ Examples:
 @end group
 @group
 (%i5) at (%, [x = 0, y = 1]);
-                                            !
-                 2              d           !
-(%o5)        16 a  - 2 u(0, 1) (-- (u(x, 1))!     )
-                                dx          !
-                                            !x = 0
+                                            |
+                 2              d           |
+(%o5)        16 a  - 2 u(0, 1) (-- (u(x, 1))|     )
+                                dx          |
+                                            |x = 0
 @end group
 @end example
 
@@ -235,16 +261,16 @@ seen in the following example:
 @c subst(e2,e1);
 @c ev(e1,e2,diff);
 @c ===end===
-@example
+@example maxima
 (%i1) e1:I(t)=C*diff(U(t),t)$
 (%i2) e2:U(t)=L*diff(I(t),t)$
 @group
 (%i3) at(e1,e2);
-                               !
-                      d        !
-(%o3)       I(t) = C (-- (U(t))!                    )
-                      dt       !          d
-                               !U(t) = L (-- (I(t)))
+                               |
+                      d        |
+(%o3)       I(t) = C (-- (U(t))|                    )
+                      dt       |          d
+                               |U(t) = L (-- (I(t)))
                                           dt
 @end group
 @group
@@ -332,7 +358,7 @@ Examples:
 @c diff (4*f(x,y)^2 - u(x,y)^2, x);
 @c at (%, [x = 0, y = 1]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) atvalue (f(x,y), [x = 0, y = 1], a^2);
                                 2
@@ -342,17 +368,19 @@ Examples:
 (%i2) atvalue ('diff (f(x,y), x), x = 0, 1 + y);
 (%o2)                        @@2 + 1
 @end group
+@group
 (%i3) printprops (all, atvalue);
-                                !
-                  d             !
-                 --- (f(@@1, @@2))!       = @@2 + 1
-                 d@@1            !
-                                !@@1 = 0
+                                |
+                  d             |
+                 --- (f(@@1, @@2))|       = @@2 + 1
+                 d@@1            |
+                                |@@1 = 0
 
                                      2
                           f(0, 1) = a
 
 (%o3)                         done
+@end group
 @group
 (%i4) diff (4*f(x,y)^2 - u(x,y)^2, x);
                   d                          d
@@ -361,11 +389,11 @@ Examples:
 @end group
 @group
 (%i5) at (%, [x = 0, y = 1]);
-                                            !
-                 2              d           !
-(%o5)        16 a  - 2 u(0, 1) (-- (u(x, 1))!     )
-                                dx          !
-                                            !x = 0
+                                            |
+                 2              d           |
+(%o5)        16 a  - 2 u(0, 1) (-- (u(x, 1))|     )
+                                dx          |
+                                            |x = 0
 @end group
 @end example
 
@@ -395,16 +423,22 @@ Examples:
 @c diff (exp (x*y));
 @c diff (x*y*z);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) diff (log (x));
                              del(x)
 (%o1)                        ------
                                x
+@end group
+@group
 (%i2) diff (exp (x*y));
-                     x y              x y
-(%o2)            x %e    del(y) + y %e    del(x)
+                   x y              x y
+(%o2)            %e    x del(y) + %e    y del(x)
+@end group
+@group
 (%i3) diff (x*y*z);
 (%o3)         x y del(z) + x z del(y) + y z del(x)
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -423,16 +457,18 @@ Currently only @mref{laplace} knows about the @code{delta} function.
 Example:
 
 @c ===beg===
+@c assume(a > 0)$
 @c laplace (delta (t - a) * sin(b*t), t, s);
-@c input:p;
 @c ===end===
-@example
-(%i1) laplace (delta (t - a) * sin(b*t), t, s);
-Is  a  positive, negative, or zero?
-
-p;
-                                   - a s
-(%o1)                   sin(a b) %e
+@example maxima
+(%i1) assume(a > 0)$
+@group
+(%i2) laplace (delta (t - a) * sin(b*t), t, s);
+                  2 %i a b        - a s - %i a b
+               (%e         - 1) %e               %i
+(%o2)        - ------------------------------------
+                                2
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -471,7 +507,7 @@ See also @mref{depends} and @mrefdot{gradef}
 @c remove (quux, dependency);
 @c dependencies;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) dependencies;
 (%o1)                          []
@@ -558,42 +594,54 @@ See also @mrefcomma{diff} @mrefcomma{del} @mref{derivdegree} and
 @c dependencies;
 @c diff (r.s, u);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) depends ([f, g], x);
 (%o1)                     [f(x), g(x)]
+@end group
+@group
 (%i2) depends ([r, s], [u, v, w]);
 (%o2)               [r(u, v, w), s(u, v, w)]
+@end group
+@group
 (%i3) depends (u, t);
 (%o3)                        [u(t)]
+@end group
+@group
 (%i4) dependencies;
 (%o4)      [f(x), g(x), r(u, v, w), s(u, v, w), u(t)]
+@end group
+@group
 (%i5) diff (r.s, u);
-                         dr           ds
-(%o5)                    -- . s + r . --
-                         du           du
+                         dr            ds
+(%o5)                   (--) . s + r . --
+                         du            du
+@end group
 @end example
 
 @c ===beg===
 @c diff (r.s, t);
 @c ===end===
-@example
-(%i6) diff (r.s, t);
-                      dr du           ds du
-(%o6)                 -- -- . s + r . -- --
-                      du dt           du dt
+@example maxima
+@group
+(%i1) diff (r.s, t);
+(%o1)                           0
+@end group
 @end example
 
 @c ===beg===
 @c remove (r, dependency);
 @c diff (r.s, t);
 @c ===end===
-@example
-(%i7) remove (r, dependency);
-(%o7)                         done
-(%i8) diff (r.s, t);
-                                ds du
-(%o8)                       r . -- --
-                                du dt
+@example maxima
+@group
+(%i1) remove (r, dependency);
+(%o1)                         done
+@end group
+@group
+(%i2) diff (r.s, t);
+(%o2)                           0
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -634,15 +682,19 @@ Example:
 @c 'diff (y, x, 2) + 'diff (y, z, 3) + 'diff (y, x) * x^2;
 @c derivdegree (%, y, x);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) 'diff (y, x, 2) + 'diff (y, z, 3) + 'diff (y, x) * x^2;
                          3     2
                         d y   d y    2 dy
 (%o1)                   --- + --- + x  --
                           3     2      dx
                         dz    dx
+@end group
+@group
 (%i2) derivdegree (%, y, x);
 (%o2)                           2
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -727,30 +779,38 @@ Examples:
 @c 'integrate (f(x, y), y, g(x), h(x));
 @c diff (%, x);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) diff (exp (f(x)), x, 2);
                      2
               f(x)  d               f(x)  d         2
 (%o1)       %e     (--- (f(x))) + %e     (-- (f(x)))
                       2                   dx
                     dx
+@end group
 (%i2) derivabbrev: true$
+@group
 (%i3) 'integrate (f(x, y), y, g(x), h(x));
                          h(x)
                         /
-                        [
-(%o3)                   I     f(x, y) dy
-                        ]
+                        |
+(%o3)                   |     f(x, y) dy
+                        |
                         /
                          g(x)
+@end group
+@group
 (%i4) diff (%, x);
        h(x)
       /
-      [
-(%o4) I     f(x, y)  dy + f(x, h(x)) h(x)  - f(x, g(x)) g(x)
-      ]            x                     x                  x
+      |
+(%o4) |     (f(x, y))  dy + f(x, h(x)) (h(x))
+      |              x                       x
       /
        g(x)
+                                             - f(x, g(x)) (g(x))
+                                                                x
+@end group
 @end example
 
 For the tensor package, the following modifications have been
@@ -834,51 +894,79 @@ Examples:
 @c [a, b, c] ~ [x, y, z];
 @c express (%);
 @c ===end===
-@example
+@example maxima
 (%i1) load ("vect")$
+@group
 (%i2) grad (x^2 + y^2 + z^2);
                               2    2    2
 (%o2)                  grad (z  + y  + x )
+@end group
+@group
 (%i3) express (%);
        d    2    2    2   d    2    2    2   d    2    2    2
 (%o3) [-- (z  + y  + x ), -- (z  + y  + x ), -- (z  + y  + x )]
        dx                 dy                 dz
+@end group
+@group
 (%i4) ev (%, diff);
 (%o4)                    [2 x, 2 y, 2 z]
+@end group
+@group
 (%i5) div ([x^2, y^2, z^2]);
                               2   2   2
 (%o5)                   div [x , y , z ]
+@end group
+@group
 (%i6) express (%);
                    d    2    d    2    d    2
 (%o6)              -- (z ) + -- (y ) + -- (x )
                    dz        dy        dx
+@end group
+@group
 (%i7) ev (%, diff);
 (%o7)                    2 z + 2 y + 2 x
+@end group
+@group
 (%i8) curl ([x^2, y^2, z^2]);
                                2   2   2
 (%o8)                   curl [x , y , z ]
+@end group
+@group
 (%i9) express (%);
        d    2    d    2   d    2    d    2   d    2    d    2
 (%o9) [-- (z ) - -- (y ), -- (x ) - -- (z ), -- (y ) - -- (x )]
        dy        dz       dz        dx       dx        dy
+@end group
+@group
 (%i10) ev (%, diff);
 (%o10)                      [0, 0, 0]
+@end group
+@group
 (%i11) laplacian (x^2 * y^2 * z^2);
                                   2  2  2
 (%o11)                laplacian (x  y  z )
+@end group
+@group
 (%i12) express (%);
          2                2                2
         d     2  2  2    d     2  2  2    d     2  2  2
 (%o12)  --- (x  y  z ) + --- (x  y  z ) + --- (x  y  z )
           2                2                2
         dz               dy               dx
+@end group
+@group
 (%i13) ev (%, diff);
                       2  2      2  2      2  2
 (%o13)             2 y  z  + 2 x  z  + 2 x  y
+@end group
+@group
 (%i14) [a, b, c] ~ [x, y, z];
 (%o14)                [a, b, c] ~ [x, y, z]
+@end group
+@group
 (%i15) express (%);
 (%o15)          [b z - c y, c x - a z, a y - b x]
+@end group
 @end example
 
 @opencatbox{Categories:}
