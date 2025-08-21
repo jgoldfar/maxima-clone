@@ -860,7 +860,7 @@ Examples:
 @c laplace(sum((-1)^n*unit_step(t-n*%pi)*sin(t),n,0,inf),t,s),
 @c   simpsum;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) laplace (exp (2*t + a) * sin(t) * t, t, s);
                             a
