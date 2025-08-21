@@ -234,7 +234,7 @@ Numerical evaluation:
 @c hankel_1(1,0.5);
 @c hankel_1(1,0.5+%i);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) hankel_1(1,0.5);
 (%o1)      0.24226845767487384 - 1.4714723926702433 %i
@@ -250,7 +250,7 @@ Expansion of @code{hankel_1} when @code{besselexpand} is @code{true}:
 @c ===beg===
 @c hankel_1(1/2,z),besselexpand:true;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) hankel_1(1/2,z),besselexpand:true;
                sqrt(2) sin(z) - sqrt(2) %i cos(z)
@@ -266,7 +266,7 @@ order @math{v} is not supported. Maxima returns a noun form:
 @c diff(hankel_1(v,z),z);
 @c diff(hankel_1(v,z),v);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) diff(hankel_1(v,z),z);
              hankel_1(v - 1, z) - hankel_1(v + 1, z)
@@ -334,41 +334,59 @@ an odd integer.  In this case, the functions can be expanded
 in terms of other elementary functions.  When @code{besselexpand} is @code{true},
 the Bessel function is expanded.
 
-@example
+@c ===beg===
+@c besselexpand: false$
+@c bessel_j (3/2, z);
+@c besselexpand: true$
+@c bessel_j (3/2, z);
+@c bessel_y(3/2,z);
+@c bessel_i(3/2,z);
+@c bessel_k(3/2,z);
+@c ===end===
+@example maxima
 (%i1) besselexpand: false$
+@group
 (%i2) bessel_j (3/2, z);
-                                    3
-(%o2)                      bessel_j(-, z)
-                                    2
+                                  3
+(%o2)                    bessel_j(-, z)
+                                  2
+@end group
 (%i3) besselexpand: true$
+@group
 (%i4) bessel_j (3/2, z);
-                                        sin(z)   cos(z)
-                       sqrt(2) sqrt(z) (------ - ------)
-                                           2       z
-                                          z
-(%o4)                  ---------------------------------
-                                   sqrt(%pi)
+                                 sin(z)   cos(z)
+                sqrt(2) sqrt(z) (------ - ------)
+                                    2       z
+                                   z
+(%o4)           ---------------------------------
+                            sqrt(%pi)
+@end group
+@group
 (%i5) bessel_y(3/2,z);
-                                        sin(z)    cos(z)
-                    sqrt(2) sqrt(z) ((- ------) - ------)
-                                          z          2
-                                                    z
-(%o5)               -------------------------------------
-                                  sqrt(%pi)
+                                  sin(z)   cos(z)
+               sqrt(2) sqrt(z) (- ------ - ------)
+                                    z         2
+                                             z
+(%o5)          -----------------------------------
+                            sqrt(%pi)
+@end group
+@group
 (%i6) bessel_i(3/2,z);
-                                      cosh(z)   sinh(z)
-                     sqrt(2) sqrt(z) (------- - -------)
-                                         z         2
-                                                  z
-(%o6)                -----------------------------------
-                                  sqrt(%pi)
+                                cosh(z)   sinh(z)
+               sqrt(2) sqrt(z) (------- - -------)
+                                   z         2
+                                            z
+(%o6)          -----------------------------------
+                            sqrt(%pi)
+@end group
+@group
 (%i7) bessel_k(3/2,z);
-                                      1        - z
-                           sqrt(%pi) (- + 1) %e
-                                      z
-(%o7)                      -----------------------
-                               sqrt(2) sqrt(z)
-
+                                1        - z
+                     sqrt(%pi) (- + 1) %e
+                                z
+(%o7)                -----------------------
+                         sqrt(2) sqrt(z)
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -2872,7 +2890,7 @@ Examples:
 @c bar : hypergeometric([n], [m], z + 1);
 @c hypergeometric_simp (bar);
 @c ===end===
-@example
+@example maxima
 (%i1) load ("hypergeometric") $
 @group
 (%i2) foo : [hypergeometric([1,1], [2], z), hypergeometric([1/2], [1], z)];
@@ -2919,51 +2937,64 @@ m4_math(<<<_pF_q>>>,<<<@code{pFq}>>>)
 generalized hypergeometric
 function. 
 
-@example
+@c ===beg===
+@c assume(not(equal(z,0)));
+@c hgfred([v+1/2],[2*v+1],2*%i*z);
+@c hgfred([1,1],[2],z);
+@c hgfred([a,a+1/2],[3/2],z^2);
+@c ===end===
+@example maxima
+@group
 (%i1) assume(not(equal(z,0)));
-(%o1)                          [notequal(z, 0)]
+(%o1)                   [notequal(z, 0)]
+@end group
+@group
 (%i2) hgfred([v+1/2],[2*v+1],2*%i*z);
-
-                     v/2                               %i z
-                    4    bessel_j(v, z) gamma(v + 1) %e
-(%o2)               ---------------------------------------
-                                       v
-                                      z
+              v/2                               %i z
+             4    bessel_j(v, z) gamma(v + 1) %e
+(%o2)        ---------------------------------------
+                                v
+                               z
+@end group
+@group
 (%i3) hgfred([1,1],[2],z);
-
-                                   log(1 - z)
-(%o3)                            - ----------
-                                       z
+                            log(1 - z)
+(%o3)                     - ----------
+                                z
+@end group
+@group
 (%i4) hgfred([a,a+1/2],[3/2],z^2);
-
-                               1 - 2 a          1 - 2 a
-                        (z + 1)        - (1 - z)
-(%o4)                   -------------------------------
-                                 2 (1 - 2 a) z
-
+                        1 - 2 a          1 - 2 a
+                 (z + 1)        - (1 - z)
+(%o4)            -------------------------------
+                          2 (1 - 2 a) z
+@end group
 @end example
 
 It can be beneficial to load orthopoly too as the following example
 shows.  Note that @var{L} is the generalized Laguerre polynomial.
 
-@example
-(%i5) load("orthopoly")$
-(%i6) hgfred([-2],[a],z);
+@c ===beg===
+@c load("orthopoly")$
+@c hgfred([-2],[a],z);
+@c ev(%);
+@c ===end===
+@example maxima
+(%i1) load("orthopoly")$
 @group
-
-                                    (a - 1)
-                                 2 L       (z)
-                                    2
-(%o6)                            -------------
-                                   a (a + 1)
+(%i2) hgfred([-2],[a],z);
+                           2
+                          z        2 z
+(%o2)                  --------- - --- + 1
+                       a (a + 1)    a
 @end group
-(%i7) ev(%);
-
-                                  2
-                                 z        2 z
-(%o7)                         --------- - --- + 1
-                              a (a + 1)    a
-
+@group
+(%i3) ev(%);
+                           2
+                          z        2 z
+(%o3)                  --------- - --- + 1
+                       a (a + 1)    a
+@end group
 @end example
 @end deffn
 
