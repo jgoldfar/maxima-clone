@@ -310,30 +310,35 @@ Maxima can solve the following integrals, when @mref{intanalysis} is set to
 @code{false}:
 
 @c ===beg===
+@c intanalysis:false;
 @c integrate(1/(sqrt(x+1)+1),x,0,1);
 @c integrate(1/(sqrt(x)+1),x,0,1),intanalysis:false;
 @c integrate(cos(a)/sqrt((tan(a))^2+1),a,-%pi/2,%pi/2),intanalysis:false;
 @c intanalysis:false$
 @c integrate(cos(a)/sqrt((tan(a))^2 +1),a,-%pi/2,%pi/2);
 @c ===end===
-@example
+@example maxima
 @group
-(%i1) integrate(1/(sqrt(x+1)+1),x,0,1);
+(%i1) intanalysis:false;
+(%o1)                         false
+@end group
+@group
+(%i2) integrate(1/(sqrt(x+1)+1),x,0,1);
                                               3/2
-(%o1)      - 2 log(sqrt(2) + 1) + 2 log(2) + 2    - 2
+(%o2)      - 2 log(sqrt(2) + 1) + 2 log(2) + 2    - 2
 @end group
 @group
-(%i2) integrate(1/(sqrt(x)+1),x,0,1),intanalysis:false;
-(%o2)                     2 - 2 log(2)
+(%i3) integrate(1/(sqrt(x)+1),x,0,1),intanalysis:false;
+(%o3)                     2 - 2 log(2)
 @end group
 @group
-(%i3) integrate(cos(a)/sqrt((tan(a))^2+1),a,-%pi/2,%pi/2),intanalysis:false;
-(%o3)               %i log(2) - %i log(2 %i)
+(%i4) integrate(cos(a)/sqrt((tan(a))^2+1),a,-%pi/2,%pi/2),intanalysis:false;
+(%o4)               %i log(2) - %i log(2 %i)
 @end group
-(%i4) intanalysis:false$
+(%i5) intanalysis:false$
 @group
-(%i5) integrate(cos(a)/sqrt((tan(a))^2 +1),a,-%pi/2,%pi/2);
-(%o5)               %i log(2) - %i log(2 %i)
+(%i6) integrate(cos(a)/sqrt((tan(a))^2 +1),a,-%pi/2,%pi/2);
+(%o6)               %i log(2) - %i log(2 %i)
 @end group
 @end example
 
