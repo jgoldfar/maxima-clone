@@ -656,23 +656,24 @@ AC_ARG_ENABLE(build-docs,
 	 [enable_build_docs=true])
 
 AC_ARG_ENABLE(syntax-highlighting,
-	[AS_HELP_STRING([--enable-syntax-highlighting],
-          [Enable syntax highlighting for the HTML manual (default = no).
-             Set to "highlightjs" to use highlightjs or "pygments" to use pygments])],
-        [case "${enableval}" in
-        	highlightjs) syntax_highlight=highlightjs ;;
-                pygments) syntax_highlight=pygments ;;
-                no)  syntax_highlight=false ;;
-                *) AC_MSG_ERROR(bad value ${enableval} for --enable-syntax-highlighting) ;;
-	 esac],
-        [syntax_highlight=false])
+  [AS_HELP_STRING([--enable-syntax-highlighting],
+    [Enable syntax highlighting for the HTML manual (default = no).
+       Set to "highlightjs" to use highlightjs or "pygments" to use pygments.  No value implies highlightjs])],
+  [case "${enableval}" in
+          yes|highlightjs) syntax_highlighting=highlightjs ;;
+          pygments) syntax_highlighting=pygments ;;
+          no)  syntax_highlighting=false ;;
+          *) AC_MSG_ERROR(bad value ${enableval} for --enable-syntax-highlighting) ;;
+   esac],
+  [syntax_highlighting=false])
 
-AS_IF([test "x$syntax_highlight" = "xpygments"],
-  AC_CHECK_PROG([pygmentize], [pygmentize],
-    [true],
-    [false]),
-  AC_MSG_FAILURE(
-     [enable-syntax-highlighting set to pygments but pygmentize not found]))
+AS_IF([test "x$syntax_highlighting" = "xpygments"],
+  [AC_CHECK_PROG([pygmentize_found], [pygmentize],
+    true,
+    false)
+    AS_IF([test "x$pygmetize_found" = "xfalse"],
+      AC_MSG_FAILURE(
+        [--enable-syntax-highlighting set to "pygments" but pygmentize not found]))])
 
 AM_CONDITIONAL(ENABLE_BUILD_DOCS, test x$enable_build_docs = xtrue)
 
@@ -743,13 +744,13 @@ if test x"${enable_build_docs}" = xtrue ; then
            HLJS_CSS_SELECTOR="'.example.user-maxima .example-preformatted'"
            TEXI_EXTRA_TAIL=')'
         fi
-        if test x${syntax_highlight} = xhighlightjs; then
+        if test x${syntax_highlighting} = xhighlightjs; then
 	   HIGHLIGHT1='<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css"> <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/highlight.min.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/languages/maxima.min.js"> </script>
 '
 	   HIGHLIGHT2="<script> hljs.configure({languages: [['Maxima']], cssSelector: ${HLJS_CSS_SELECTOR}}); hljs.highlightAll(); </script>
 "
         fi
-        if test x${syntax_highlight} = xpygments; then
+        if test x${syntax_highlighting} = xpygments; then
            if test ${makeinfo_version} -ge 702; then
              USE_PYGMENTS=true
            else
@@ -1547,6 +1548,8 @@ if test -n "x$MAKEINFO"; then
   echo "Using makeinfo ${MAKEINFO} to generate docs"
 fi
 
-if test -n "syntax_highlight"; then
-  echo "HTML syntax highlighting enabled using ${syntax_highlight}"
+if test "x${syntax_highlighting}" = "xfalse"; then
+  echo "HTML syntax highlighting disabled"
+else
+  echo "HTML syntax highlighting enabled using ${syntax_highlighting}"
 fi  
