@@ -1,3 +1,4 @@
+@c -*- mode: texinfo -*-
 @menu
 * Introduction to fast Fourier transform::                     
 * Functions and Variables for fast Fourier transform::
@@ -38,19 +39,27 @@ small primes.
 @anchor{polartorect}
 @deffn {Function} polartorect (@var{r}, @var{t})
 
-Translates complex values of the form @code{r %e^(%i t)} to the form
-@code{a + b %i}, where @var{r} is the magnitude and @var{t} is the phase.
-@var{r} and @var{t} are 1-dimensional arrays of the same size.
+Translates complex values of the form @math{r e^{i t}} to the form
+@math{a + b i}, where @math{r} is the magnitude and @math{t} is the phase.
+@math{r} and @math{t} are 1-dimensional arrays of the same size.
 The array size need not be a power of 2.
 
 The original values of the input arrays are
-replaced by the real and imaginary parts, @code{a} and @code{b}, on return.
+replaced by the real and imaginary parts, @math{a} and @math{b}, on return.
 The outputs are calculated as
 
+m4_displaymath(
+<<<\eqalign{
+a &= r \cos t \cr
+b &= r \sin t
+}>>>,
+<<<
 @example
 a = r cos(t)
 b = r sin(t)
 @end example
+>>>
+)
 
 @mref{polartorect} is the inverse function of @mrefdot{recttopolar}
 
@@ -66,21 +75,37 @@ b = r sin(t)
 @anchor{recttopolar}
 @deffn {Function} recttopolar (@var{a}, @var{b})
 
-Translates complex values of the form @code{a + b %i} to the form
-@code{r %e^(%i t)}, where @var{a} is the real part and @var{b} is the imaginary
-part.  @var{a} and @var{b} are 1-dimensional arrays of the same size.
+Translates complex values of the form @math{a + b i} to the form
+@math{r e^{i t}}, where @math{a} is the real part and @math{b} is the imaginary
+part.  @math{a} and @math{b} are 1-dimensional arrays of the same size.
 The array size need not be a power of 2.
 
 The original values of the input arrays are
-replaced by the magnitude and angle, @code{r} and @code{t}, on return.
+replaced by the magnitude and angle, @math{r} and @math{t}, on return.
 The outputs are calculated as
 
+m4_displaymath(
+<<<\eqalign{
+r &= \sqrt{a^2+b^2} \cr
+t &= {\rm atan2}(b, a)
+}>>>,
+<<<
 @example
 r = sqrt(a^2 + b^2)
 t = atan2(b, a)
 @end example
+>>>
+)
 
-The computed angle is in the range @code{-%pi} to @code{%pi}.
+The computed angle is in the range
+m4_math(
+<<<-\pi>>>,
+<<<@code{-%pi}>>>
+)
+to
+m4_mathdot(
+<<<\pi>>>,
+<<<@code{%pi}>>>)
 
 @code{recttopolar} is the inverse function of @mrefdot{polartorect}
 
