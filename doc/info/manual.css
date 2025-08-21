@@ -33,6 +33,11 @@
         --div-categorybox-background-color: #544;
     }
 }
+@media (prefers-color-scheme: dark) {
+    :root {
+        --example-background-color: #aab;
+    }
+}
 
 /* Overrides to the default Makeinfo CSS */
 div.display {margin-left: 0}
