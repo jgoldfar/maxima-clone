@@ -194,6 +194,10 @@ if [ -z "@NEED_MATHJAX@" ]; then
     SET_HTML_MATH="--set-customization-variable HTML_MATH=mathjax"
 fi
 
+if [ -n "@USE_PYGMENTS@" ]; then
+    SET_HIGHLIGHT="--set-customization-variable HIGHLIGHT_SYNTAX=pygments"
+fi
+
 # Currently the Russian documentation has errors in it, so we're just
 # going to force makeinfo to build anyway.
 #
