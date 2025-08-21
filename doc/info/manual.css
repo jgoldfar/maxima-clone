@@ -45,7 +45,7 @@ pre.example, pre.example-preformatted {
     padding: 5px;
     background-color: rgb(238,238,255);
     /* Add scrollbar for examples for narrow windows */
-    overflow: auto
+    overflow: auto;
 }
 
 div.spacerbox { border: none; padding: 2em 0 }
@@ -119,5 +119,5 @@ dd { margin-left: 0.5em }
     /* Lines for highlighted examples are too close by default with
      *  pygments.  Make it larger.
      */
-    line-height: 150% !important;
+    line-height: normal !important;
 }
