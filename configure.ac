@@ -754,7 +754,7 @@ if test x"${enable_build_docs}" = xtrue ; then
            if test ${makeinfo_version} -ge 702; then
              USE_PYGMENTS=true
            else
-             AC_MSG_ERROR([Makeinfo version (${makeinfo_version_string}) to old to use pygments for syntax highlighting.  Disable or use highlightjs])
+             AC_MSG_ERROR([Makeinfo version (${makeinfo_version_string}) too old to use pygments for syntax highlighting.  Disable or use highlightjs])
            fi
         fi
         AC_SUBST(TEXI_EXTRA_HEAD)
