@@ -1154,7 +1154,7 @@ density of the arrows being drawn. The default value is 225.
 
 @itemize @bullet
 @item
-To show the direction field of the differential equation @math{y' = exp(-x) + y} and the solution that goes through @math{(2, -0.1)}:
+To show the direction field of the differential equation @math{y' = e^{-x} + y} and the solution that goes through @math{(2, -0.1)}:
 @c ===beg===
 @c plotdf(exp(-x)+y,[trajectory_at,2,-0.1])$
 @c ===end===
@@ -1167,7 +1167,13 @@ To show the direction field of the differential equation @math{y' = exp(-x) + y}
 @end ifnotinfo
 
 @item
-To obtain the direction field for the equation @math{diff(y,x) = x - y^2} and the solution with initial condition @math{y(-1) = 3}, we can use the command:
+To obtain the direction field for the equation
+m4_math(
+<<<dy/dx = x - y^2>>>,
+<<<@code{diff(y,x) = x - y^2}>>>
+)
+
+and the solution with initial condition @math{y(-1) = 3}, we can use the command:
 @c ===beg===
 @c plotdf(x-y^2,[xfun,"sqrt(x);-sqrt(x)"],
 @c          [trajectory_at,-1,3], [direction,forward],
@@ -1181,7 +1187,11 @@ To obtain the direction field for the equation @math{diff(y,x) = x - y^2} and th
 @end group
 @end example
 
-The graph also shows the function @math{y = sqrt(x)}. 
+The graph also shows the function
+m4_mathdot(
+<<<y = \sqrt{x}>>>,
+<<<@code{y = sqrt(x)}>>>
+)
 
 @ifnotinfo
 @image{figures/plotdf2,8cm}
@@ -1189,7 +1199,11 @@ The graph also shows the function @math{y = sqrt(x)}.
 
 @item
 The following example shows the direction field of a harmonic oscillator,
-defined by the two equations @math{dz/dt = v} and @math{dv/dt = -k*z/m},
+defined by the two equations @math{dz/dt = v} and
+m4_mathcomma(
+<<<dv/dt = -kz/m>>>,
+<<<@math{dv/dt = -k*z/m}>>>)
+
 and the integral curve through @math{(z,v) = (6,0)}, with a slider that
 will allow you to change the value of @math{m} interactively (@math{k} is
 fixed at 2):
@@ -1209,7 +1223,12 @@ fixed at 2):
 @end ifnotinfo
 
 @item
-To plot the direction field of the Duffing equation, @math{m*x''+c*x'+k*x+b*x^3 = 0}, we introduce the variable @math{y=x'} and use:
+To plot the direction field of the Duffing equation,
+m4_mathcomma(
+<<<m x''+c x' + kx + bx^3 = 0>>>,
+<<<@math{m*x''+c*x'+k*x+b*x^3 = 0}>>>
+)
+we introduce the variable @math{y=x'} and use:
 @c ===beg===
 @c plotdf([y,-(k*x + c*y + b*x^3)/m],
 @c              [parameters,"k=-1,m=1.0,c=0,b=1"],
@@ -1353,17 +1372,17 @@ Examples:
 
 To solve numerically the differential equation
 
-@ifnottex
+m4_displaymath(
+<<<{{dx}\over{dt}} = t - x^2>>>,
+<<<
 @example
           dx/dt = t - x^2
 @end example
-@end ifnottex
-@tex
-$${{dx}\over{dt}} = t - x^2$$ 
-@end tex
+>>>
+)
 
-With initial value x(t=0) = 1, in the interval of t from 0 to 8 and with
-increments of 0.1 for t, use:
+With initial value @math{x(t=0) = 1}, in the interval of @math{t} from 0 to 8 and with
+increments of 0.1 for @math{t}, use:
 
 @c ===beg===
 @c results: rk(t-x^2,x,1,[t,0,8,0.1])$
@@ -1378,16 +1397,24 @@ the results will be saved in the list @code{results} and the plot will show the 
 
 To solve numerically the system:
 
-@ifnottex
+m4_displaymath(
+<<<\eqalign{
+{dx\over dy} &= 4-x^2-4y^2 \cr
+{dy\over dt} &= y^2 - x^2 + 1
+}>>>,
+<<<
 @example
         dx/dt = 4-x^2-4*y^2     dy/dt = y^2-x^2+1
 @end example
-@end ifnottex
-@tex
-$$\cases{{\displaystyle{dx}\over\displaystyle{dt}} = 4-x^2-4y^2 &\cr &\cr {\displaystyle{dy}\over\displaystyle{dt}} = y^2-x^2+1}$$
-@end tex
-
-for t between 0 and 4, and with values of -1.25 and 0.75 for x and y at t=0:
+>>>
+)
+@c @ifnottex
+@c @end ifnottex
+@c @tex
+@c $$\cases{{\displaystyle{dx}\over\displaystyle{dt}} = 4-x^2-4y^2 &\cr &\cr {\displaystyle{dy}\over\displaystyle{dt}} = y^2-x^2+1}$$
+@c @end tex
+@c 
+for @math{t} between 0 and 4, and with values of -1.25 and 0.75 for @math{x} and @math{y} at @math{t=0}:
 
 @c ===beg===
 @c sol: rk([4-x^2-4*y^2, y^2-x^2+1], [x, y], [-1.25, 0.75],
