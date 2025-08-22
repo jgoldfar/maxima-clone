@@ -237,12 +237,18 @@ equations @var{eqn_1}, @dots{}, @var{eqn_m}.  This is the coefficient matrix
 with a column adjoined for the constant terms in each equation (i.e., those
 terms not dependent upon @var{x_1}, @dots{}, @var{x_n}).
 
-@example
+@c ===beg===
+@c m: [2*x - (a - 1)*y = 5*b, c + b*y + a*x = 0]$
+@c augcoefmatrix (m, [x, y]);
+@c ===end===
+@example maxima
 (%i1) m: [2*x - (a - 1)*y = 5*b, c + b*y + a*x = 0]$
+@group
 (%i2) augcoefmatrix (m, [x, y]);
                        [ 2  1 - a  - 5 b ]
 (%o2)                  [                 ]
                        [ a    b      c   ]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -307,35 +313,58 @@ Returns the characteristic polynomial for the matrix @var{M}
 with respect to variable @var{x}.  That is,
 @code{determinant (@var{M} - diagmatrix (length (@var{M}), @var{x}))}.
 
-@example
+@c ===beg===
+@c a: matrix ([3, 1], [2, 4]);
+@c expand (charpoly (a, lambda));
+@c (programmode: true, solve (%));
+@c matrix ([x1], [x2]);
+@c ev (a . % - lambda*%, %th(2)[1]);
+@c %[1, 1] = 0;
+@c x2^2 + x1^2 = 1;
+@c solve ([%th(2), %], [x1, x2]);
+@c ===end===
+@example maxima
+@group
 (%i1) a: matrix ([3, 1], [2, 4]);
                             [ 3  1 ]
 (%o1)                       [      ]
                             [ 2  4 ]
+@end group
+@group
 (%i2) expand (charpoly (a, lambda));
                            2
 (%o2)                lambda  - 7 lambda + 10
+@end group
+@group
 (%i3) (programmode: true, solve (%));
 (%o3)               [lambda = 5, lambda = 2]
+@end group
+@group
 (%i4) matrix ([x1], [x2]);
                              [ x1 ]
 (%o4)                        [    ]
                              [ x2 ]
+@end group
+@group
 (%i5) ev (a . % - lambda*%, %th(2)[1]);
                           [ x2 - 2 x1 ]
 (%o5)                     [           ]
                           [ 2 x1 - x2 ]
+@end group
+@group
 (%i6) %[1, 1] = 0;
 (%o6)                     x2 - 2 x1 = 0
+@end group
+@group
 (%i7) x2^2 + x1^2 = 1;
                             2     2
 (%o7)                     x2  + x1  = 1
-(%i8) solve ([%th(2), %], [x1, x2]);
+@end group
 @group
+(%i8) solve ([%th(2), %], [x1, x2]);
                   1               2
 (%o8) [[x1 = - -------, x2 = - -------], 
                sqrt(5)         sqrt(5)
-
                                              1             2
                                     [x1 = -------, x2 = -------]]
                                           sqrt(5)       sqrt(5)
@@ -355,11 +384,16 @@ Returns the coefficient matrix for the
 variables @var{x_1}, @dots{}, @var{x_n} of the system of linear equations
 @var{eqn_1}, @dots{}, @var{eqn_m}.
 
-@example
+@c ===beg===
+@c coefmatrix([2*x-(a-1)*y+5*b = 0, b*y+a*x = 3], [x,y]);
+@c ===end===
+@example maxima
+@group
 (%i1) coefmatrix([2*x-(a-1)*y+5*b = 0, b*y+a*x = 3], [x,y]);
-                                 [ 2  1 - a ]
-(%o1)                            [          ]
-                                 [ a    b   ]
+                          [ 2  1 - a ]
+(%o1)                     [          ]
+                          [ a    b   ]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -489,12 +523,13 @@ the functions in this package in matrix calculations.
 
 Example:
 
-@c HMM, SPURIOUS "redefining the Macsyma function".
-@c LEAVE IT HERE SINCE THAT'S WHAT A USER ACTUALLY SEES.
-@example
+@c ===beg===
+@c load ("eigen")$
+@c columnvector ([aa, bb, cc, dd]);
+@c ===end===
+@example maxima
 (%i1) load ("eigen")$
-Warning - you are redefining the Macsyma function eigenvalues
-Warning - you are redefining the Macsyma function eigenvectors
+@group
 (%i2) columnvector ([aa, bb, cc, dd]);
                              [ aa ]
                              [    ]
@@ -503,6 +538,7 @@ Warning - you are redefining the Macsyma function eigenvectors
                              [ cc ]
                              [    ]
                              [ dd ]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -562,20 +598,31 @@ given to @mref{ev} which causes the other two to be set correctly.
 
 Example:
 
-@example
+@c ===beg===
+@c m: matrix ([a, b], [c, d]);
+@c detout: true$
+@c doallmxops: false$
+@c doscmxops: false$
+@c invert (m);
+@c ===end===
+@example maxima
+@group
 (%i1) m: matrix ([a, b], [c, d]);
                             [ a  b ]
 (%o1)                       [      ]
                             [ c  d ]
+@end group
 (%i2) detout: true$
 (%i3) doallmxops: false$
 (%i4) doscmxops: false$
+@group
 (%i5) invert (m);
                           [  d   - b ]
                           [          ]
                           [ - c   a  ]
 (%o5)                     ------------
                            a d - b c
+@end group
 @end example
 @c THERE'S MORE TO THIS STORY: detout: false$ invert (m); RETURNS THE SAME THING.
 @c IT APPEARS THAT doallmxops IS CRUCIAL HERE.
@@ -640,24 +687,37 @@ or constant, and @var{power} is a list or matrix.
 
 Example:
 
-@example
+@c ===beg===
+@c m: matrix ([1, %i], [a+b, %pi]);
+@c domxexpt: false$
+@c (1 - c)^m;
+@c domxexpt: true$
+@c (1 - c)^m;
+@c ===end===
+@example maxima
+@group
 (%i1) m: matrix ([1, %i], [a+b, %pi]);
                          [   1    %i  ]
 (%o1)                    [            ]
                          [ b + a  %pi ]
+@end group
 (%i2) domxexpt: false$
+@group
 (%i3) (1 - c)^m;
                              [   1    %i  ]
                              [            ]
                              [ b + a  %pi ]
 (%o3)                 (1 - c)
+@end group
 (%i4) domxexpt: true$
+@group
 (%i5) (1 - c)^m;
                   [                      %i  ]
                   [    1 - c      (1 - c)    ]
 (%o5)             [                          ]
                   [        b + a         %pi ]
                   [ (1 - c)       (1 - c)    ]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1165,7 +1225,7 @@ Maxima prompts for each element.
 The elements may be any expressions, which are evaluated.
 @code{entermatrix} evaluates its arguments.
 
-@example
+@example maxima
 (%i1) n: 3$
 (%i2) m: entermatrix (n, n)$
 
@@ -1496,15 +1556,22 @@ See also @mrefdot{rmxchar}
 
 Example:
 
-@example
+@c ===beg===
+@c display2d_unicode: false $
+@c lmxchar: "|"$
+@c matrix ([a, b, c], [d, e, f], [g, h, i]);
+@c ===end===
+@example maxima
 (%i1) display2d_unicode: false $
 (%i2) lmxchar: "|"$
+@group
 (%i3) matrix ([a, b, c], [d, e, f], [g, h, i]);
                            | a  b  c ]
                            |         ]
 (%o3)                      | d  e  f ]
                            |         ]
                            | g  h  i ]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1563,15 +1630,23 @@ Examples:
 @item
 Construction of matrices from lists.
 @end itemize
-@example
+@c ===beg===
+@c x: matrix ([17, 3], [-8, 11]);
+@c y: matrix ([%pi, %e], [a, b]);
+@c ===end===
+@example maxima
+@group
 (%i1) x: matrix ([17, 3], [-8, 11]);
                            [ 17   3  ]
 (%o1)                      [         ]
                            [ - 8  11 ]
+@end group
+@group
 (%i2) y: matrix ([%pi, %e], [a, b]);
                            [ %pi  %e ]
 (%o2)                      [         ]
                            [  a   b  ]
+@end group
 @end example
 @itemize @bullet
 @item
@@ -1817,25 +1892,36 @@ See also @mref{matrix_element_mult} and @mrefdot{matrix_element_transpose}
 
 Example:
 
-@example
+@c ===beg===
+@c matrix_element_add: "*"$
+@c matrix_element_mult: "^"$
+@c aa: matrix ([a, b, c], [d, e, f]);
+@c bb: matrix ([u, v, w], [x, y, z]);
+@c aa . transpose (bb);
+@c ===end===
+@example maxima
 (%i1) matrix_element_add: "*"$
 (%i2) matrix_element_mult: "^"$
+@group
 (%i3) aa: matrix ([a, b, c], [d, e, f]);
                            [ a  b  c ]
 (%o3)                      [         ]
                            [ d  e  f ]
-(%i4) bb: matrix ([u, v, w], [x, y, z]);
+@end group
 @group
+(%i4) bb: matrix ([u, v, w], [x, y, z]);
                            [ u  v  w ]
 (%o4)                      [         ]
                            [ x  y  z ]
 @end group
+@group
 (%i5) aa . transpose (bb);
                      [  u  v  w   x  y  z ]
                      [ a  b  c   a  b  c  ]
 (%o5)                [                    ]
                      [  u  v  w   x  y  z ]
                      [ d  e  f   d  e  f  ]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1861,32 +1947,47 @@ See also @mref{matrix_element_add} and @mrefdot{matrix_element_transpose}
 
 Example:
 
-@example
+@c ===beg===
+@c matrix_element_add: lambda ([[x]], sqrt (apply ("+", x)))$
+@c matrix_element_mult: lambda ([x, y], (x - y)^2)$
+@c [a, b, c] . [x, y, z];
+@c aa: matrix ([a, b, c], [d, e, f]);
+@c bb: matrix ([u, v, w], [x, y, z]);
+@c aa . transpose (bb);
+@c ===end===
+@example maxima
 (%i1) matrix_element_add: lambda ([[x]], sqrt (apply ("+", x)))$
 (%i2) matrix_element_mult: lambda ([x, y], (x - y)^2)$
+@group
 (%i3) [a, b, c] . [x, y, z];
                           2          2          2
 (%o3)         sqrt((c - z)  + (b - y)  + (a - x) )
+@end group
+@group
 (%i4) aa: matrix ([a, b, c], [d, e, f]);
                            [ a  b  c ]
 (%o4)                      [         ]
                            [ d  e  f ]
+@end group
+@group
 (%i5) bb: matrix ([u, v, w], [x, y, z]);
                            [ u  v  w ]
 (%o5)                      [         ]
                            [ x  y  z ]
+@end group
+@group
 (%i6) aa . transpose (bb);
                [             2          2          2  ]
                [ sqrt((c - w)  + (b - v)  + (a - u) ) ]
 (%o6)  Col 1 = [                                      ]
                [             2          2          2  ]
                [ sqrt((f - w)  + (e - v)  + (d - u) ) ]
-
                          [             2          2          2  ]
                          [ sqrt((c - z)  + (b - y)  + (a - x) ) ]
                  Col 2 = [                                      ]
                          [             2          2          2  ]
                          [ sqrt((f - z)  + (e - y)  + (d - x) ) ]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1919,32 +2020,52 @@ See also @mref{matrix_element_add} and @mrefdot{matrix_element_mult}
 
 Examples:
 
-@example
+@c ===beg===
+@c declare (a, nonscalar)$
+@c transpose ([a, b]);
+@c matrix_element_transpose: nonscalars$
+@c transpose ([a, b]);
+@c matrix_element_transpose: transpose$
+@c transpose ([a, b]);
+@c matrix_element_transpose: lambda ([x], realpart(x) - %i*imagpart(x))$
+@c m: matrix ([1 + 5*%i, 3 - 2*%i], [7*%i, 11]);
+@c transpose (m);
+@c ===end===
+@example maxima
 (%i1) declare (a, nonscalar)$
+@group
 (%i2) transpose ([a, b]);
-                        [ transpose(a) ]
-(%o2)                   [              ]
-                        [      b       ]
+                              [ a ]
+(%o2)                         [   ]
+                              [ b ]
+@end group
 (%i3) matrix_element_transpose: nonscalars$
+@group
 (%i4) transpose ([a, b]);
                         [ transpose(a) ]
 (%o4)                   [              ]
                         [      b       ]
+@end group
 (%i5) matrix_element_transpose: transpose$
+@group
 (%i6) transpose ([a, b]);
                         [ transpose(a) ]
 (%o6)                   [              ]
                         [ transpose(b) ]
-(%i7) matrix_element_transpose: lambda ([x], realpart(x)
-      - %i*imagpart(x))$
+@end group
+(%i7) matrix_element_transpose: lambda ([x], realpart(x) - %i*imagpart(x))$
+@group
 (%i8) m: matrix ([1 + 5*%i, 3 - 2*%i], [7*%i, 11]);
                      [ 5 %i + 1  3 - 2 %i ]
 (%o8)                [                    ]
                      [   7 %i       11    ]
+@end group
+@group
 (%i9) transpose (m);
                       [ 1 - 5 %i  - 7 %i ]
 (%o9)                 [                  ]
                       [ 2 %i + 3    11   ]
+@end group
 @end example
 
 @opencatbox{Categories:}
