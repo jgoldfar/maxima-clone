@@ -126,10 +126,10 @@ Computes the inverse complex fast Fourier transform.
 transform.  The number of elements must be a power of 2.
 The elements must be literal numbers (integers, rationals, floats, or bigfloats)
 or symbolic constants,
-or expressions @code{a + b*%i} where @code{a} and @code{b} are literal numbers
+or expressions @math{a + bi} where @math{a} and @math{b} are literal numbers
 or symbolic constants.
 
-@code{inverse_fft} returns a new object of the same type as @var{y},
+@code{inverse_fft} returns a new object of the same type as @math{y},
 which is not modified.
 Results are always computed as floats
 or expressions @code{a + b*%i} where @code{a} and @code{b} are floats.
@@ -138,12 +138,17 @@ be used instead as a drop-in replacement of @code{inverse_fft} that is
 slower, but supports bfloats. 
 
 The inverse discrete Fourier transform is defined as follows.
-Let @code{x} be the output of the inverse transform.
-Then for @code{j} from 0 through @code{n - 1},
+Let @math{x} be the output of the inverse transform.
+Then for @math{j} from 0 through @math{n - 1},
 
+m4_displaymath(
+<<<x[j] = \sum_{k=0}^{n-1} y[k] e^{-2i\pi j k/n}>>>,
+<<<
 @example
 x[j] = sum(y[k] exp(-2 %i %pi j k / n), k, 0, n - 1)
 @end example
+>>>
+)
 
 As there are various sign and normalization conventions possible,
 this definition of the transform may differ from that used by other mathematical software.
@@ -243,12 +248,17 @@ of only real values (no imaginary parts), @mref{real_fft} can be used
 which is potentially faster.
 
 The discrete Fourier transform is defined as follows.
-Let @code{y} be the output of the transform.
-Then for @code{k} from 0 through @code{n - 1},
+Let @math{y} be the output of the transform.
+Then for @math{k} from 0 through @math{n - 1},
 
+m4_displaymath(
+<<<y[k] = {1\over n} \sum_{j=0}^{n-1} x[j] e^{+2i\pi j k / n}>>>,
+<<<
 @example
 y[k] = (1/n) sum(x[j] exp(+2 %i %pi j k / n), j, 0, n - 1)
 @end example
+>>>
+)
 
 As there are various sign and normalization conventions possible,
 this definition of the transform may differ from that used by other mathematical software.
@@ -256,30 +266,60 @@ this definition of the transform may differ from that used by other mathematical
 When the data @var{x} are real,
 real coefficients @code{a} and @code{b} can be computed such that
 
+m4_displaymath(
+<<<x[j] = \sum_{k=0}^{n/2} \left(a[k] \cos {2\pi j k\over n} + b[k]
+\sin {2\pi j k \over n}\right)>>>,
+<<<
 @example
 x[j] = sum(a[k]*cos(2*%pi*j*k/n)+b[k]*sin(2*%pi*j*k/n), k, 0, n/2)
 @end example
+>>>
+)
 
 with
 
+m4_displaymath(
+<<<\eqalign{
+a[0] &= {\rm realpart}(y[0])\cr
+b[0] &= 0
+}>>>,
+<<<
 @example
 a[0] = realpart (y[0])
 b[0] = 0
 @end example
+>>>
+)
 
-and, for k from 1 through n/2 - 1,
+and, for @math{k} from 1 through @math{n/2 - 1},
 
+m4_displaymath(
+<<<\eqalign{
+a[k] &= {\rm realpart}(y[k] + y[n-k]) \cr
+b[k] &= {\rm imagpart}(y[n-k] - y[k])
+}>>>,
+<<<
 @example
 a[k] = realpart (y[k] + y[n - k])
 b[k] = imagpart (y[n - k] - y[k])
 @end example
+>>>
+)
 
 and
 
+m4_displaymath(
+<<<\eqalign{
+a\left[{n\over 2}\right] &= {\rm realpart}\left(y\left[{n\over 2}\right]\right) \cr
+b\left[{n\over 2}\right] &= 0
+}>>>,
+<<<
 @example
 a[n/2] = realpart (y[n/2])
 b[n/2] = 0
 @end example
+>>>
+)
 
 @code{load("fft")} loads this function.
 
