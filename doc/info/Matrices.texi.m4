@@ -62,7 +62,7 @@ modified object (See @mref{copymatrix} for a way of avoiding this):
 @c M1[1][1]: 2;
 @c M2;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) M1: matrix([0,0],[0,0]);
                             [ 0  0 ]
@@ -94,7 +94,7 @@ Converting a matrix to nested lists and vice versa works the following way:
 @c M2: transpose(M1);
 @c args(M2);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) l: [[1,2],[3,4]];
 (%o1)                   [[1, 2], [3, 4]]
@@ -271,7 +271,7 @@ Examples:
 @c cauchy_matrix([x1, x2], [y1, y2]);
 @c cauchy_matrix([x1, x2]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) cauchy_matrix([x1, x2], [y1, y2]);
                       [    1        1    ]
@@ -388,7 +388,7 @@ Examples:
 @c col (abc, 2);
 @c col (abc, 3);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) abc: matrix ([12, 14, -4], [2, x, b], [3*y, -7, 9]);
                         [ 12   14   - 4 ]
@@ -434,7 +434,7 @@ assigning a new value to @code{aa2} does not modify @code{aa}.
 @c aa2;
 @c aa;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) aa: matrix ([1, 2, x], [7, y, 3]);
                            [ 1  2  x ]
@@ -900,7 +900,7 @@ triangularized matrices.
 @c M: matrix ([3, 7, aa, bb], [-1, 8, 5, 2], [9, 2, 11, 4]);
 @c echelon (M);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) M: matrix ([3, 7, aa, bb], [-1, 8, 5, 2], [9, 2, 11, 4]);
                        [  3   7  aa  bb ]
@@ -1045,7 +1045,7 @@ A matrix which has just one eigenvector per eigenvalue.
 @c for i thru length (vals[1]) do disp (val[i] = vals[1][i],
 @c   mult[i] = vals[2][i], vec[i] = vecs[i]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) M1: matrix ([11, -1], [1, 7]);
                            [ 11  - 1 ]
@@ -1090,7 +1090,7 @@ A matrix which has two eigenvectors for one eigenvalue (namely 2).
 @c for i thru length (vals[1]) do disp (val[i] = vals[1][i],
 @c   mult[i] = vals[2][i], vec[i] = vecs[i]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) M1 : matrix ([0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 2, 0], [0, 0, 0, 2]);
                          [ 0  1  0  0 ]
@@ -1232,7 +1232,7 @@ Examples:
 @c genmatrix (lambda ([i, j], j - i), 3, 3);
 @c genmatrix (B, 2, 2);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) h [i, j] := 1 / (i + j - 1);
                                     1
@@ -1328,7 +1328,7 @@ Gram-Schmidt algorithm using default inner product function.
 @c y: gramschmidt (x);
 @c map (innerproduct, [y[1], y[2], y[3]], [y[2], y[3], y[1]]);
 @c ===end===
-@example
+@example maxima
 (%i1) load ("eigen")$
 @group
 (%i2) x: matrix ([1, 2, 3], [9, 18, 30], [12, 48, 60]);
@@ -1360,7 +1360,7 @@ Gram-Schmidt algorithm using a specified inner product function.
 @c map (ip, [y[1], y[2], y[3]], [y[2], y[3], y[1]]), a=-%pi/2,
 @c          b=%pi/2;
 @c ===end===
-@example
+@example maxima
 (%i1) load ("eigen")$
 @group
 (%i2) ip (f, g) := integrate (f * g, u, a, b);
@@ -1472,7 +1472,7 @@ Example:
 @c ===beg===
 @c list_matrix_entries(matrix([a,b],[c,d]));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) list_matrix_entries(matrix([a,b],[c,d]));
 (%o1)                     [a, b, c, d]
@@ -2096,7 +2096,7 @@ Examples:
 @c row (abc, 2);
 @c row (abc, 3);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) abc: matrix ([12, 14, -4], [2, x, b], [3*y, -7, 9]);
                         [ 12   14   - 4 ]
@@ -2130,7 +2130,7 @@ assigning a new value to @code{aa2} also modifies @code{aa}.
 @c aa2;
 @c aa;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) aa: matrix ([1, 2, x], [7, y, 3]);
                            [ 1  2  x ]
@@ -2338,7 +2338,7 @@ triangularized matrices.
 @c M: matrix ([3, 7, aa, bb], [-1, 8, 5, 2], [9, 2, 11, 4]);
 @c triangularize (M);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) M: matrix ([3, 7, aa, bb], [-1, 8, 5, 2], [9, 2, 11, 4]);
                        [  3   7  aa  bb ]
