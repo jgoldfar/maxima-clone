@@ -951,30 +951,33 @@ Examples:
 
 The Ordinary Differential Equations (ODE) solved by the functions in this
 section should have the form,
-@ifnottex
+
+m4_displaymath(
+<<<{{dy}\over{dx}} = F(x,y)>>>,
+<<<
 @example
        dy
        -- = F(x,y)
        dx
 @end example
-@end ifnottex
-@tex
-$${{dy}\over{dx}} = F(x,y)$$
-@end tex
+>>>
+)
+
 which is a first-order ODE. Higher order differential equations of order
 @var{n} must be written as a system of @var{n} first-order equations of that
 kind. For instance, a second-order ODE should be written as a system of two
 equations
-@ifnottex
+
+m4_displaymath(
+<<<{{dx}\over{dt}} = G(x,y,t) \qquad {{dy}\over{dt}} = F(x,y,t)>>>,
+<<<
 @example
        dx               dy
        -- = G(x,y,t)    -- = F(x,y,t) 
        dt               dt
 @end example
-@end ifnottex
-@tex
-$${{dx}\over{dt}} = G(x,y,t) \qquad {{dy}\over{dt}} = F(x,y,t)$$
-@end tex
+>>>
+)
 
 The first argument in the functions will be a list with the expressions on
 the right-side of the ODE's. The variables whose derivatives are represented
