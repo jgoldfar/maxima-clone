@@ -1393,7 +1393,11 @@ increments of 0.1 for @math{t}, use:
 (%i2) plot2d ([discrete, results])$
 @end example
 
-the results will be saved in the list @code{results} and the plot will show the solution obtained, with @var{t} on the horizontal axis and @var{x} on the vertical axis.
+The results will be saved in the list @code{results} and the plot will show the solution obtained, with @var{t} on the horizontal axis and @var{x} on the vertical axis.
+
+@ifnotinfo
+@image{figures/plotrk,8cm}
+@end ifnotinfo
 
 To solve numerically the system:
 
@@ -1434,6 +1438,10 @@ for @math{t} between 0 and 4, and with values of -1.25 and 0.75 for @math{x} and
 @end example
 
 The plot will show the solution for variable @var{y} as a function of @var{t}.
+
+@ifnotinfo
+@image{figures/plotrk2,8cm}
+@end ifnotinfo
 
 @opencatbox{Categories:}
 @category{Differential equations}
