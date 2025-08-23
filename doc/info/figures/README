@@ -41,23 +41,6 @@ way, "plotting6.png" will included in the HTML version of the manual
 and "plotting6.pdf" will be inserted with a width of 8 cm into the PDF
 version of the manual.
 
-ADDING THE FIGURE TO THE LIST OF FILES TO BE DISTRIBUTED
---------------------------------------------------------
-
-Every time you add a new figure, do not forget to modify the
-doc/info/Makefile.am file, adding the name of the two files (PDF and
-PNG) to the lists "figurefiles" and "pdffigures". In the example
-above,
-
-  figures/plotting6.png
-  
-should be added to figurefiles and
-
-  figures/plotting6.pdf
-
-to pdffigures. If you also created a .mac file, add its name to the list
-macfiles in doc/info/Makefile.am
-
 # Added by Gunter Königsmann on 2015
 
 MACROS THAT HELP CREATING FIGURE FILES IN THE NEEDED FORMATS
