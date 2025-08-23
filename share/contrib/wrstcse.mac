@@ -244,3 +244,16 @@ wc_ewc_simplify(x):=block(
     ),
     return(x)
 );
+
+wc_sensitivities(expr):=block([tols:[],wc_result:[]],
+    /* Compile a list of tol[n] */
+    for i in listofvars(expr) do
+        if not(freeof('tol,i)) then
+            push(i,tols),
+    /* Compile a matrix that shows the sensitivity of expr to this parameter */
+    for i in tols do
+        push([i,wc_typicalvalues(diff(expr,i))],wc_result),
+    return(apply('matrix,wc_result))
+);
+
+

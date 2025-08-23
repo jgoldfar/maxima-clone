@@ -122,7 +122,7 @@ Example:
 @c wc_typicalvalues(vals);
 @c wc_typicalvalues(subst(vals,divider));
 @c ===end===
-@example
+@example maxima
 (%i1) load("wrstcse")$
 @group
 (%i2) vals: [
@@ -775,6 +775,83 @@ Example:
 @group
 (%i3) lhs(V_F)=wc_mintypmax(rhs(V_F));
 (%o3) U_Diode = [min = 0.5, typ = 0.75, max = 0.8199999999999998]
+@end group
+@end example
+@end deffn
+
+@anchor{wc_sensitivities}
+@deffn {Function} wc_sensitivities (@var{expr})
+
+Generates a matrix that for each @var{tol[n} displays the derivation of @var{expr}
+to @var{tol[n]} in the typical case (@code{tol[n]}=0):
+
+Example:
+@c ===beg===
+@c load("wrstcse");
+@c assume(U_In>0);
+@c vals:[
+@c     R_1=100*(1+1/100*tol["R1"])*(1+1/100*tol["Temp"]),
+@c     R_2=100*(1+1/100*tol["R2"])*(1+1/100*tol["Temp"])];
+@c float(wc_inputvalueranges(%));
+@c eq1:I=U_In/(R_1+R_2);
+@c eq2:U_Out=I*R_2;
+@c eq3:subst(eq1,eq2);
+@c float(wc_sensitivities(subst(vals,rhs(eq3))));
+@c ===end===
+@example maxima
+@group
+(%i1) load("wrstcse");
+(%o1) /home/gunter/src/maxima-code/share/contrib/wrstcse.mac
+@end group
+@group
+(%i2) assume(U_In>0);
+(%o2)                      [U_In > 0]
+@end group
+@group
+(%i3) vals:[
+    R_1=100*(1+1/100*tol["R1"])*(1+1/100*tol["Temp"]),
+    R_2=100*(1+1/100*tol["R2"])*(1+1/100*tol["Temp"])];
+                  tol         tol
+                     R1          Temp
+(%o3) [R_1 = 100 (----- + 1) (------- + 1), 
+                   100          100
+                                        tol         tol
+                                           R2          Temp
+                             R_2 = 100 (----- + 1) (------- + 1)]
+                                         100          100
+@end group
+@group
+(%i4) float(wc_inputvalueranges(%));
+         [ R_1  min = 98.01  typ = 100.0  max = 102.01 ]
+(%o4)    [                                             ]
+         [ R_2  min = 98.01  typ = 100.0  max = 102.01 ]
+@end group
+@group
+(%i5) eq1:I=U_In/(R_1+R_2);
+                                U_In
+(%o5)                     I = ---------
+                              R_2 + R_1
+@end group
+@group
+(%i6) eq2:U_Out=I*R_2;
+(%o6)                     U_Out = I R_2
+@end group
+@group
+(%i7) eq3:subst(eq1,eq2);
+                                R_2 U_In
+(%o7)                   U_Out = ---------
+                                R_2 + R_1
+@end group
+@group
+(%i8) float(wc_sensitivities(subst(vals,rhs(eq3))));
+                   [  tol      0.0025 U_In  ]
+                   [     R2                 ]
+                   [                        ]
+(%o8)              [  tol     - 0.0025 U_In ]
+                   [     R1                 ]
+                   [                        ]
+                   [ tol           0.0      ]
+                   [    Temp                ]
 @end group
 @end example
 @end deffn
