@@ -1788,13 +1788,13 @@ Expressions displayed by 2-d pretty printer using Unicode drawing characters
 (@code{display2d_unicode} equal to @code{true}),
 shown as an image:
 
-@image{figures/maxima-unicode-display-variety-1,8cm}
+@altfigure{maxima-unicode-display-variety-1,Maxima's Unicode display}
 
 Same expressions, displayed using only ASCII characters
 (@code{display2d_unicode} equal to @code{false}),
 shown as an image:
 
-@image{figures/maxima-unicode-display-variety-1-ascii,8cm}
+@altfigure{maxima-unicode-display-variety-1-ascii,Maxima's ASCII display}
 
 @end ifnotinfo
 
