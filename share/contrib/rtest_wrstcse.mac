@@ -49,5 +49,7 @@ subst(wc_mintypmax_rss_percent(tol[1]+.5*tol[2]+4,3),'max),ratprint=false;
 100*((sqrt(5)/4+4)/4-1)*"%";
 subst(wc_mintypmax_rss_percent(tol[1]+.5*tol[2]+4,3),'Fail)/"ppm",ratprint=false;
 2699.796063260207;
+wc_sensitivities((100*(tol["R2"]/100+1)*(tol["Temp"]/100+1)*U_In)/(100*(tol["R2"]/100+1)*(tol["Temp"]/100+1)+100*(tol["R1"]/100+1)*(tol["Temp"]/100+1)));
+matrix([tol["R2"],U_In/400],[tol["R1"],-(U_In/400)],[tol["Temp"],0]);
 (kill(val1),done);
 done;
