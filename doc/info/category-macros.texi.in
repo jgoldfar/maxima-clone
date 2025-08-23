@@ -1,10 +1,3 @@
-@ifnottex
-@set figuresfolder ./figures
-@end ifnottex
-@iftex
-@set figuresfolder @abs_srcdir@/figures
-@end iftex
-
 @ifhtml
 @macro fname {name}
 @*@ @ @ @ @b{\name\}
@@ -31,21 +24,6 @@
 @end ifnottex
 @end ifnothtml
 
-@ifhtml
-@macro figure {file}
-@image{@value{figuresfolder}/\file\}
-@end macro
-@end ifhtml
-@iftex
-@macro figure {file}
-@center @image{@value{figuresfolder}/\file\, 10cm}
-@end macro
-@end iftex
-@ifinfo
-@macro figure {file}
-(Figure \file\)
-@end macro
-@end ifinfo
 @c Handle all the cases not handled above (xml, docbook, etc.)
 @ifnothtml
 @ifnottex
@@ -244,3 +222,47 @@
 
 @end iftex
 @end ifnothtml
+
+@c Macros for figures
+
+@ifnottex
+@set figuresfolder ./figures
+@end ifnottex
+@iftex
+@set figuresfolder @abs_srcdir@/figures
+@end iftex
+
+@c figure takes only one parameter, the name of the figure (without extension)
+@ifhtml
+@macro figure {file}
+@image{@value{figuresfolder}/\file\}
+@end macro
+@end ifhtml
+@iftex
+@macro figure {file}
+@center @image{@value{figuresfolder}/\file\, 10cm}
+@end macro
+@end iftex
+@ifinfo
+@macro figure {file}
+@*(Figure \file\)
+@end macro
+@end ifinfo
+
+@c altfigure takes two parameters: the name of the figure (without extension)
+@c and some text describing the figure.
+@ifhtml
+@macro altfigure {file, text}
+@image{@value{figuresfolder}/\file\, , , \text\}
+@end macro
+@end ifhtml
+@iftex
+@macro altfigure {file, text}
+@center @image{@value{figuresfolder}/\file\, 10cm, , \text\}
+@end macro
+@end iftex
+@ifinfo
+@macro altfigure {file, text}
+@*(Figure \file\: \text\)
+@end macro
+@end ifinfo
