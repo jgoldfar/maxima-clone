@@ -46,7 +46,7 @@ distributes over the elements of a list.
 @c abs(%e+%i);
 @c abs([inf, infinity, minf]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) abs([-4, 0, 1, 1+%i]);
 (%o1)                  [4, 0, 1, sqrt(2)]
@@ -74,7 +74,7 @@ Simplification of expressions containing @code{abs}:
 @c abs(abs(x));
 @c abs(conjugate(x));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) abs(x^2);
                                 2
@@ -109,7 +109,7 @@ transform of @code{abs}: see @mrefdot{laplace}
 @c integrate(abs(x),x,-2,%pi);
 @c laplace(abs(x),x,s);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) diff(x*abs(x),x),expand;
 (%o1)                       2 abs(x)
@@ -183,7 +183,7 @@ Here are examples of the simplifications that @code{ceiling} knows about:
 @c ceiling (x);
 @c tex (ceiling (a));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) ceiling (ceiling (x));
 (%o1)                      ceiling(x)
@@ -224,7 +224,7 @@ can use this information; for example:
 @c floor (f(x));
 @c ceiling (f(x) - 1);
 @c ===end===
-@example
+@example maxima
 (%i1) declare (f, integervalued)$
 @group
 (%i2) floor (f(x));
@@ -253,7 +253,7 @@ Example use:
 @c unitfrac (36/37);
 @c apply ("+", %);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) unitfrac(r) := block([uf : [], q],
     if not(ratnump(r)) then
@@ -353,7 +353,7 @@ are examples of the simplifications that @code{floor} knows about:
 @c floor (x);
 @c tex (floor (a));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) floor (ceiling (x));
 (%o1)                      ceiling(x)
@@ -394,7 +394,7 @@ can use this information; for example:
 @c floor (f(x));
 @c ceiling (f(x) - 1);
 @c ===end===
-@example
+@example maxima
 (%i1) declare (f, integervalued)$
 @group
 (%i2) floor (f(x));
@@ -654,7 +654,7 @@ calculates the absolute value of @code{x + %i*y} as
 @c cabs (exp (3/2 * %pi * %i));
 @c cabs (17 * exp (2 * %i));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) cabs (1);
 (%o1)                           1
@@ -691,7 +691,7 @@ some properties of the variables involved not being known:
 @c assume(a>0,b>0);
 @c cabs (a+%i*b);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) cabs (a+%i*b);
                                 2    2
@@ -746,7 +746,7 @@ Examples with @mref{sqrt} and @mrefdot{sin}
 @c cabs(sqrt(1+%i*x));
 @c cabs(sin(x+%i*y));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) cabs(sqrt(1+%i*x));
                              2     1/4
@@ -765,7 +765,7 @@ the calculation of the absolute value with a complex argument:
 @c ===beg===
 @c cabs(erf(x+%i*y));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) cabs(erf(x+%i*y));
                                           2
@@ -786,7 +786,7 @@ example for @mrefdot{bessel_j}
 @c ===beg===
 @c cabs(bessel_j(1,%i));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) cabs(bessel_j(1,%i));
 (%o1)                    bessel_i(1, 1)
@@ -822,7 +822,7 @@ Examples:
 @c carg (exp (3/2 * %pi * %i));
 @c carg (17 * exp (2 * %i));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) carg (1);
 (%o1)                           0
@@ -867,7 +867,7 @@ some properties of the variables involved not being known:
 @c assume(a>0,b>0);
 @c carg (a+%i*b);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) carg (a+%i*b);
 (%o1)                      atan2(b, a)
@@ -910,7 +910,7 @@ Returns the complex conjugate of @var{x}.
 @c conjugate (ii);
 @c conjugate (xx + yy);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) declare ([aa, bb], real, cc, complex, ii, imaginary);
 (%o1)                         done
@@ -959,7 +959,7 @@ Example:
 @c imagpart (1);
 @c imagpart (sqrt(2)*%i);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) imagpart (a+b*%i);
 (%o1)                           b
@@ -999,11 +999,11 @@ Example:
 @c polarform(1+%i);
 @c polarform(1+2*%i);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) polarform(a+b*%i);
-                       2    2    %i atan2(b, a)
-(%o1)            sqrt(b  + a ) %e
+                   %i atan2(b, a)       2    2
+(%o1)            %e               sqrt(b  + a )
 @end group
 @group
 (%i2) polarform(1+%i);
@@ -1041,7 +1041,7 @@ Example:
 @c realpart (sqrt(2)*%i);
 @c realpart (1);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) realpart (a+b*%i);
 (%o1)                           a
@@ -1079,7 +1079,7 @@ Example:
 @c rectform(sqrt(b^2+a^2)*%e^(%i*atan2(b, a)));
 @c rectform(sqrt(5)*%e^(%i*atan(2)));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) rectform(sqrt(2)*%e^(%i*%pi/4));
 (%o1)                        %i + 1
@@ -1151,7 +1151,7 @@ Examples:
 @c binomial (x + 7, x);
 @c binomial (11, y);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) binomial (11, 7);
 (%o1)                          330
@@ -1204,7 +1204,7 @@ Example:
 @c (n + 1)*(n + 1)*n!;
 @c factcomb (%);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) sumsplitfact;
 (%o1)                         true
@@ -1287,7 +1287,7 @@ evaluated in float or bigfloat precision.
 @c [4,77!, (1.0+%i)!];
 @c [2.86b0!, (1.0b0+%i)!];
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) factlim : 10;
 (%o1)                          10
@@ -1317,7 +1317,7 @@ operand.
 @c [(%i + 1)!, %pi!, %e!, (cos(1) + sin(1))!];
 @c ev (%, numer, %enumer);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) [(%i + 1)!, %pi!, %e!, (cos(1) + sin(1))!];
 (%o1)      [(%i + 1)!, %pi!, %e!, (sin(1) + cos(1))!]
@@ -1349,7 +1349,7 @@ Thus @code{x!} may be replaced even in a quoted expression.
 @c ===beg===
 @c '([0!, (7/2)!, 4.77!, 8!, 20!]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) '([0!, (7/2)!, 4.77!, 8!, 20!]);
           105 sqrt(%pi)
@@ -1364,7 +1364,7 @@ Maxima knows the derivative of the factorial function.
 @c ===beg===
 @c diff(x!,x);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) diff(x!,x);
 (%o1)                    x! psi (x + 1)
@@ -1378,7 +1378,7 @@ simplification of expressions with the factorial function.
 @c ===beg===
 @c (n+1)!/n!,factorial_expand:true;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) (n+1)!/n!,factorial_expand:true;
 (%o1)                         n + 1
@@ -1453,7 +1453,7 @@ which differ by an integer.
 @c n!/(n+2)!;
 @c minfactorial (%);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) n!/(n+2)!;
                                n!
@@ -1490,7 +1490,7 @@ When @code{sumsplitfact} is @code{false},
 @c n!/(n+2)!;
 @c factcomb(%);
 @c ===end=== 
-@example
+@example maxima
 @group
 (%i1) sumsplitfact;
 (%o1)                         true
@@ -1581,7 +1581,7 @@ When @code{%emode} is @code{false}, no special simplification of
 @c %e^(%pi*%i*120/144);
 @c %e^(%pi*%i*121/144);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) %emode;
 (%o1)                         true
@@ -1651,7 +1651,7 @@ See also @mref{ev} and @mrefdot{numer}
 @c 2*%e^1;  
 @c 2*%e^x;  
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) %enumer;
 (%o1)                         false
@@ -1723,7 +1723,7 @@ See @mrefdot{%emode}
 @c demoivre: not demoivre;
 @c %e^(a + b*%i);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) demoivre;
 (%o1)                         false
@@ -1804,87 +1804,65 @@ Examples:
 @c map (lambda ([x], li [2] (x)), L);
 @c map (lambda ([x], li [3] (x)), L);
 @c ===end===
-@example
+RETRIEVE: End of file encountered.
+ -- an error. To debug this try: debugmode(true);
+@example maxima
 @group
 (%i1) assume (x > 0);
 (%o1)                        [x > 0]
 @end group
 @group
 (%i2) integrate ((log (1 - t)) / t, t, 0, x);
-(%o2)                       - li (x)
-                                2
+Is x - 1 positive, negative or zero?
+
 @end group
 @group
-(%i3) li[4](1);
-                                 4
-                              %pi
-(%o3)                         ----
-                               90
+Is x - 1 positive, negative or zero?
+li[4](1);
 @end group
 @group
-(%i4) li[5](1);
-(%o4)                        zeta(5)
+Is x - 1 positive, negative or zero?
+li[5](1);
 @end group
 @group
-(%i5) li[2](1/2);
-                            2      2
-                         %pi    log (2)
-(%o5)                    ---- - -------
-                          12       2
+Is x - 1 positive, negative or zero?
+li[2](1/2);
 @end group
 @group
-(%i6) li[2](%i);
-                                        2
-                                     %pi
-(%o6)                  %catalan %i - ----
-                                      48
+Is x - 1 positive, negative or zero?
+li[2](%i);
 @end group
 @group
-(%i7) li[2](1+%i);
-                                  2
-               %i %pi log(2)   %pi
-(%o7)          ------------- + ---- + %catalan %i
-                     4          16
+Is x - 1 positive, negative or zero?
+li[2](1+%i);
 @end group
 @group
-(%i8) li [2] (7);
-(%o8)                        li (7)
-                               2
+Is x - 1 positive, negative or zero?
+li [2] (7);
 @end group
 @group
-(%i9) li [2] (7), numer;
-(%o9)      1.2482731820994244 - 6.1132570288179915 %i
+Is x - 1 positive, negative or zero?
+li [2] (7), numer;
 @end group
 @group
-(%i10) li [3] (7);
-(%o10)                       li (7)
-                               3
+Is x - 1 positive, negative or zero?
+li [3] (7);
 @end group
 @group
-(%i11) li [2] (7), numer;
-(%o11)     1.2482731820994244 - 6.1132570288179915 %i
+Is x - 1 positive, negative or zero?
+li [2] (7), numer;
 @end group
 @group
-(%i12) L : makelist (i / 4.0, i, 0, 8);
-(%o12)  [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
+Is x - 1 positive, negative or zero?
+L : makelist (i / 4.0, i, 0, 8);
 @end group
 @group
-(%i13) map (lambda ([x], li [2] (x)), L);
-(%o13) [0.0, 0.2676526390827326, 0.5822405264650125, 
-0.978469392930306, 1.6449340668482264, 
-2.1901770114416452 - 0.7010261415046585 %i, 
-2.3743952702724798 - 1.2738062049196004 %i, 
-2.448686765338203 - 1.7580848482107874 %i, 
-2.4674011002723395 - 2.177586090303602 %i]
+Is x - 1 positive, negative or zero?
+map (lambda ([x], li [2] (x)), L);
 @end group
 @group
-(%i14) map (lambda ([x], li [3] (x)), L);
-(%o14) [0.0, 0.25846139579657335, 0.5372131936080402, 
-0.8444258088622044, 1.2020569031595942, 
-1.6428668813178295 - 0.07821473138972386 %i, 
-2.0608775073202805 - 0.258241985293288 %i, 
-2.433418898226189 - 0.49192601879440423 %i, 
-2.762071906228924 - 0.7546938294602477 %i]
+Is x - 1 positive, negative or zero?
+map (lambda ([x], li [3] (x)), L);
 @end group
 @end example
 
@@ -2015,7 +1993,7 @@ subexpressions of the form @code{a1*log(b1) + a2*log(b2) + c} into
 @c 2*(a*log(x) + 2*a*log(y))$
 @c logcontract(%);
 @c ===end===
-@example
+@example maxima
 (%i1) 2*(a*log(x) + 2*a*log(y))$
 @group
 (%i2) logcontract(%);
@@ -2062,7 +2040,7 @@ When @code{logexpand} is @code{true},
 @c ===beg===
 @c log(n^2), logexpand=true;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) log(n^2), logexpand=true;
 (%o1)                       2 log(n)
@@ -2075,7 +2053,7 @@ When @code{logexpand} is @code{all},
 @c ===beg===
 @c log(10*x), logexpand=all;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) log(10*x), logexpand=all;
 (%o1)                   log(x) + log(10)
@@ -2089,7 +2067,7 @@ for rational numbers @code{a/b} with @code{a#1}.
 @c ===beg===
 @c log(a/(n + 1)), logexpand=super;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) log(a/(n + 1)), logexpand=super;
 (%o1)                  log(a) - log(n + 1)
@@ -2104,7 +2082,7 @@ the logarithm of a product expression simplifies to a summation of logarithms.
 @c log(my_product), logexpand=all;
 @c log(my_product), logexpand=super;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) my_product : product (X(i), i, 1, n);
                              n
@@ -2146,7 +2124,7 @@ these simplifications are disabled.
 @c log(a/(n + 1));
 @c log ('product (X(i), i, 1, n));
 @c ===end===
-@example
+@example maxima
 (%i1) logexpand : false $
 @group
 (%i2) log(n^2);
@@ -2681,7 +2659,7 @@ Examples:
 @c [cos (%pi/3), cos (10*%pi/3), tan (10*%pi/3),
 @c        cos (sqrt(2)*%pi/3)];
 @c ===end===
-@example
+@example maxima
 (%i1) %piargs : false$
 @group
 (%i2) [sin (%pi), sin (%pi/2), sin (%pi/3)];
@@ -2737,7 +2715,7 @@ multiplied by an integer variable.
 @c [sin (%pi * n), cos (%pi * m), sin (%pi/2 * m),
 @c        cos (%pi/2 * m)];
 @c ===end===
-@example
+@example maxima
 (%i1) declare (n, integer, m, even)$
 @group
 (%i2) [sin (%pi * n), cos (%pi * m), sin (%pi/2 * m),
@@ -2789,7 +2767,7 @@ Examples:
 @c %iargs : true$
 @c [sin (%i * x), cos (%i * x), tan (%i * x)];
 @c ===end===
-@example
+@example maxima
 (%i1) %iargs : false$
 @group
 (%i2) [sin (%i * x), cos (%i * x), tan (%i * x)];
@@ -2809,7 +2787,7 @@ Even when the argument is demonstrably real, the simplification is applied.
 @c [featurep (x, imaginary), featurep (x, real)];
 @c sin (%i * x);
 @c ===end===
-@example
+@example maxima
 (%i1) declare (x, imaginary)$
 @group
 (%i2) [featurep (x, imaginary), featurep (x, real)];
@@ -2879,7 +2857,7 @@ Examples:
 @c assume(x>0, x<2*%pi)$
 @c sin(x / 2);
 @c ===end===
-@example
+@example maxima
 (%i1) halfangles : false$
 @group
 (%i2) sin (x / 2);
@@ -2972,7 +2950,7 @@ Examples:
 @c x+sin(3*x)/sin(x),trigexpand=true,expand;
 @c trigexpand(sin(10*x+y));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) x+sin(3*x)/sin(x),trigexpand=true,expand;
                          2           2
@@ -3065,7 +3043,7 @@ See also @mref{poissimp}.
 @c ===beg===
 @c trigreduce(-sin(x)^2+3*cos(x)^2+x);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) trigreduce(-sin(x)^2+3*cos(x)^2+x);
                cos(2 x)      cos(2 x)   1        1
@@ -3161,7 +3139,7 @@ possible.
 @c ===beg===
 @c trigrat(sin(3*a)/sin(a+%pi/3));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) trigrat(sin(3*a)/sin(a+%pi/3));
 (%o1)            sqrt(3) sin(2 a) + cos(2 a) - 1
@@ -3179,7 +3157,7 @@ Addison-Wesley), section 1.5.5, Morley theorem.
 @c ac2 : ba^2 + bc^2 - 2*bc*ba*cos(b);
 @c trigrat (ac2);
 @c ===end===
-@example
+@example maxima
 (%i1) c : %pi/3 - a - b$
 @group
 (%i2) bc : sin(a)*sin(3*c)/sin(a+b);
@@ -3374,7 +3352,7 @@ Examples:
 @c random (10.0);
 @c random (100.0);
 @c ===end===
-@example
+@example maxima
 (%i1) s1: make_random_state (654321)$
 @group
 (%i2) set_random_state (s1);
