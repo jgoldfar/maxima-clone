@@ -6,19 +6,94 @@
 @node Introduction to wrstcse, Functions and Variables for wrstcse, Package wrstcse, Package wrstcse
 @section Introduction to wrstcse
 
-@code{wrstcse} is a naive go at interval arithmetics is powerful enough to
-perform worst case calculations that appear in engineering by applying
-all combinations of tolerances to all parameters.
+@code{wrstcse} provides a few aproaches to worst case calculations that are powerful enough
+for most engineering problems, but avoid the problems that make a true interval arithmetics
+unfeasible for non-trivial problems:
+@itemize
+@item
+Extreme worst case calculation by determining which combination of
+extreme input values will yield the most extreme result
+(@mrefcomma{wc_mintypmax} @mref{wc_systematic}). Its approach isn't
+guaranteed to find local minima and maxima in the middle of 
+the input parameter space. In most real-world problems, though, the
+derivation of the result to each parameter doesn't change its sign in
+the tolerance space, which moves the extreme cases to the edges of the
+tolerance space making them accessible to this
+method.
+Via @mref{wc_ewc_simplify} this method can typically be reduced from a
+brute-force approach to being O(n)-complete.
+@item
+The monte carlo approach that assigns each parameter random values in
+the tolerance space and, when repeated n times will yield a
+view of the distribution n samples might have. The view provided by
+this method is pessimistic, as most real-wprld items are more
+probabible to lie in the middle of the tolerance space than at its
+end.
+@item
+The root mean square approach that knowing an approximation of the
+parameters of the gaussian distribution of the input values one can
+determine how big the tolerances will realistically be if one requires
+a given yield (see @mref{wc_mintypmax_rss}). Note that even rectangles
+tend to quickly add up to approximation of gauss curve, if affecting
+the same tolerance which makes this method applicable to most
+real-world problems.
+@end itemize
 
-This approach isn't guaranteed to find the exact combination of parameters
-that results in the worst-case. But it avoids the problems that make a true
-interval arithmetics affected by the halting problem as an equation can have
-an infinite number of local minima and maxima and it might be impossible to
-algorithmically determine which one is the global one.
-
-Tolerances are applied to parameters by providing the parameter with a @var{tol[n]}
-that wrstcase will vary between -1 and 1. Using the same @var{n} for two parameters
-will make both parameters tolerate in the same way.
+Tolerances are applied to parameters by providing each
+tolerance-laden parameter with a @var{tol[n]} that wrstcase will vary
+between -1 and 1 looking for extreme results, while @var{rol[n]}=0
+should yield the typical value of a parameter.. Using the same @var{n} 
+for two parameters will make both parameters have coupled tolerances.
+Therefore two  1% resistors that both will change over the
+temperature range by another 2% in the same way can be defined as follows:
+@c ===beg===
+@c load("wrstcse")$
+@c vals: [
+@c    R_1= 1000.0*(1+tol[1]*.01)*(1+tol[3]*.02),
+@c    R_2= 2000.0*(1+tol[2]*.01)*(1+tol[3]*.02)
+@c  ];
+@c R_1+R_2=wc_mintypmax(subst(vals,R_1+R_2));
+@c R_1+R_2=wc_mintypmax_percent(subst(vals,R_1+R_2));
+@c R_1/R_2=wc_mintypmax(subst(vals,R_1/R_2));
+@c R_1/R_2=wc_mintypmax_percent(subst(vals,R_1/R_2));
+@c ===end===
+@example maxima
+(%i1) load("wrstcse")$
+@group
+(%i2) vals: [
+   R_1= 1000.0*(1+tol[1]*.01)*(1+tol[3]*.02),
+   R_2= 2000.0*(1+tol[2]*.01)*(1+tol[3]*.02)
+ ];
+(%o2) [R_1 = 1000.0 (0.01 tol  + 1) (0.02 tol  + 1), 
+                             1               3
+                    R_2 = 2000.0 (0.01 tol  + 1) (0.02 tol  + 1)]
+                                          2               3
+@end group
+@group
+(%i3) R_1+R_2=wc_mintypmax(subst(vals,R_1+R_2));
+(%o3) R_2 + R_1 = [min = 2910.6, typ = 3000.0, 
+                                        max = 3090.6000000000004]
+@end group
+@group
+(%i4) R_1+R_2=wc_mintypmax_percent(subst(vals,R_1+R_2));
+(%o4) R_2 + R_1 = [min = - 2.980000000000005 %, typ = 3000.0, 
+                                      max = 3.0200000000000227 %]
+@end group
+@group
+(%i5) R_1/R_2=wc_mintypmax(subst(vals,R_1/R_2));
+      R_1
+(%o5) --- = [min = 0.4900990099009901, typ = 0.5, 
+      R_2
+                                        max = 0.5101010101010102]
+@end group
+@group
+(%i6) R_1/R_2=wc_mintypmax_percent(subst(vals,R_1/R_2));
+      R_1
+(%o6) --- = [min = - 1.980198019801982 %, typ = 0.5, 
+      R_2
+                                       max = 2.020202020202033 %]
+@end group
+@end example
 
 @code{load ("wrstcse")} loads this package.
 
@@ -31,10 +106,10 @@ will make both parameters tolerate in the same way.
 @section Functions and Variables for wrstcse
 
 @anchor{wc_typicalvalues}
-@deffn {Function} wc_typicalvalues (@var{expression}, [@var{num}])
+@deffn {Function} wc_typicalvalues (@var{expression})
 
-Returns what happens if all tolerances (that are represented by tol [n] that can
-vary from 0 to 1) happen to be 0.
+Returns what happens if all @var{tol[n]} happen to be 0, which moves
+all parameter to the middle of their tolerance range.
 
 Example:
 @c ===beg===
@@ -91,7 +166,7 @@ Example:
 @c  ];
 @c wc_inputvalueranges(vals);
 @c ===end===
-@example
+@example maxima
 (%i1) load("wrstcse")$
 @group
 (%i2) vals: [
@@ -119,7 +194,7 @@ Systematically introduces @var{num} values per parameter into @var{expression}
 and returns a list of the result. If no @var{num} is given, @var{num} defaults
 to 3.
 
-See also @mrefdot{wc_montecarlo}
+See also @mref{wc_ewc_simplify} and @mrefdot{wc_montecarlo}
 
 Example:
 @c ===beg===
@@ -131,7 +206,7 @@ Example:
 @c divider: U_Out=U_In*(R_1)/(R_1+R_2);
 @c wc_systematic(subst(vals,rhs(divider)));
 @c ===end===
-@example
+@example maxima
 (%i1) load("wrstcse")$
 @group
 (%i2) vals: [
@@ -151,11 +226,116 @@ Example:
 @end group
 @group
 (%i4) wc_systematic(subst(vals,rhs(divider)));
-(%o4) [0.3333333333333334 U_In, 0.3311036789297659 U_In, 
+(%o4) [0.33333333333333337 U_In, 0.3311036789297659 U_In, 
 0.3289036544850498 U_In, 0.3355704697986577 U_In, 
-0.3333333333333333 U_In, 0.3311258278145696 U_In, 
+0.3333333333333333 U_In, 0.33112582781456956 U_In, 
 0.3377926421404682 U_In, 0.3355481727574751 U_In, 
 0.3333333333333333 U_In]
+@end group
+@end example
+@end deffn
+
+
+@anchor{wc_ewc_simplify}
+@deffn {Function} wc_ewc_simplify (@var{expression})
+
+Brute-forcing through all combinations of @var{tol[n]} in order to find the
+worst-case combination is O(m^n)-complete and therefore computationally intensive
+for high numbers of tol[n].
+
+@code{wc_ewc_simplify} uses the sign of the derivatives of @var{expression} to combine
+as many @code{tol[n]}, as possible. The result is an expression that might run much
+faster through @code{wc_mintypmax} and @code{wc_systematic}, but that, if the derivate
+of @var{expression} doesn't change sign in the @var{tol[n]} space, still yields the
+same results for the brute-force approaches to worst-case analysis.
+
+Note that changing the number of @var{tol[n]} will change the statistical distribution
+of the results over the @var{tol[n]} space and therefore will change the statistical
+distribution of the montecarlo method and the results of the root sum square functions.
+
+See also @mref{wc_mintypmax} and @mrefdot{wc_montecarlo}
+
+Example:
+@c ===beg===
+@c load("wrstcse")$
+@c vals: [
+@c    R_1= 1000.0*(1+tol[1]*.01),
+@c    R_2= 2000.0*(1+tol[2]*.01)
+@c  ];
+@c ratprint:false;
+@c assume(U_In>0);
+@c divider: U_Out=U_In*(R_1)/(R_1+R_2);
+@c divider_vals:subst(vals,divider);
+@c divider_vals_simplified:lhs(divider_vals)=wc_ewc_simplify(rhs(divider_vals));
+@c wc_systematic(rhs(divider_vals));
+@c wc_systematic(rhs(divider_vals_simplified));
+@c lhs(divider_vals)=wc_mintypmax(rhs(divider_vals));
+@c lhs(divider_vals_simplified)=wc_mintypmax(rhs(divider_vals_simplified));
+@c ===end===
+@example maxima
+(%i1) load("wrstcse")$
+@group
+(%i2) vals: [
+   R_1= 1000.0*(1+tol[1]*.01),
+   R_2= 2000.0*(1+tol[2]*.01)
+ ];
+(%o2) [R_1 = 1000.0 (0.01 tol  + 1), 
+                             1
+                                    R_2 = 2000.0 (0.01 tol  + 1)]
+                                                          2
+@end group
+@group
+(%i3) ratprint:false;
+(%o3)                         false
+@end group
+@group
+(%i4) assume(U_In>0);
+(%o4)                      [U_In > 0]
+@end group
+@group
+(%i5) divider: U_Out=U_In*(R_1)/(R_1+R_2);
+                                R_1 U_In
+(%o5)                   U_Out = ---------
+                                R_2 + R_1
+@end group
+@group
+(%i6) divider_vals:subst(vals,divider);
+                        1000.0 (0.01 tol  + 1) U_In
+                                        1
+(%o6) U_Out = -----------------------------------------------
+              2000.0 (0.01 tol  + 1) + 1000.0 (0.01 tol  + 1)
+                              2                        1
+@end group
+@group
+(%i7) divider_vals_simplified:lhs(divider_vals)=wc_ewc_simplify(rhs(divider_vals));
+                        1000.0 (1 - 0.01 tol ) U_In
+                                            2
+(%o7) U_Out = -----------------------------------------------
+              2000.0 (0.01 tol  + 1) + 1000.0 (1 - 0.01 tol )
+                              2                            2
+@end group
+@group
+(%i8) wc_systematic(rhs(divider_vals));
+(%o8) [0.33333333333333337 U_In, 0.3311036789297659 U_In, 
+0.3289036544850498 U_In, 0.3355704697986577 U_In, 
+0.3333333333333333 U_In, 0.33112582781456956 U_In, 
+0.3377926421404682 U_In, 0.3355481727574751 U_In, 
+0.3333333333333333 U_In]
+@end group
+@group
+(%i9) wc_systematic(rhs(divider_vals_simplified));
+(%o9) [0.3377926421404682 U_In, 0.3333333333333333 U_In, 
+                                         0.3289036544850498 U_In]
+@end group
+@group
+(%i10) lhs(divider_vals)=wc_mintypmax(rhs(divider_vals));
+(%o10) U_Out = [min = 0.3289036544850498 U_In, 
+    typ = 0.3333333333333333 U_In, max = 0.3377926421404682 U_In]
+@end group
+@group
+(%i11) lhs(divider_vals_simplified)=wc_mintypmax(rhs(divider_vals_simplified));
+(%o11) U_Out = [min = 0.3289036544850498 U_In, 
+    typ = 0.3333333333333333 U_In, max = 0.3377926421404682 U_In]
 @end group
 @end example
 @end deffn
@@ -178,7 +358,7 @@ Example:
 @c divider: U_Out=U_In*(R_1)/(R_1+R_2);
 @c wc_montecarlo(subst(vals,rhs(divider)),10);
 @c ===end===
-@example
+@example maxima
 (%i1) load("wrstcse")$
 @group
 (%i2) vals: [
@@ -198,11 +378,11 @@ Example:
 @end group
 @group
 (%i4) wc_montecarlo(subst(vals,rhs(divider)),10);
-(%o4) [0.3365488313167528 U_In, 0.3339089445851889 U_In, 
-0.314651402884122 U_In, 0.3447359711624277 U_In, 
-0.3294005710066001 U_In, 0.3330897542463686 U_In, 
-0.3397591863729343 U_In, 0.3227030530673181 U_In, 
-0.3385512773502185 U_In, 0.314764470912582 U_In]
+(%o4) [0.3301505377099377 U_In, 0.33276843198354916 U_In, 
+0.33406203454153227 U_In, 0.33434833585190965 U_In, 
+0.3341006856369802 U_In, 0.3359647531928058 U_In, 
+0.32911646313213117 U_In, 0.333158315034511 U_In, 
+0.3325173140803672 U_In, 0.3331108406798784 U_In]
 @end group
 @end example
 @end deffn
@@ -214,6 +394,9 @@ Prints the minimum, maximum and typical value of @var{expr}. If @var{n}
 is positive, @var{n} values for each parameter will be tried systematically.
 If @var{n} is negative, @var{-n} random values are used instead.
 If no @var{n} is given, 3 is assumed.
+
+See also @mrefcomma{wc_mintypmax_percent} @mrefcomma{wc_mintypmax_rss}
+@mref{wc_ewc_simplify} and @mrefdot{wc_systematic}
 
 Example:
 @c ===beg===
@@ -227,7 +410,7 @@ Example:
 @c divider:U_Out=U_In*R_1/(R_1+R_2);
 @c lhs(divider)=wc_mintypmax(subst(vals,rhs(divider)));
 @c ===end===
-@example
+@example maxima
 (%i1) load("wrstcse")$
 (%i2) ratprint:false$
 @group
@@ -258,6 +441,257 @@ Example:
 @end example
 @end deffn
 
+@anchor{wc_mintypmax_percent}
+@deffn {Function} wc_mintypmax_percent (@var{expr}, @var{sigmas})
+
+Like @code{wc_mintypmax}, but outputs the tolerance range in percent.
+
+See @mrefdot{wc_mintypmax}
+
+Example:
+@c ===beg===
+@c load("wrstcse")$
+@c ratprint:false$
+@c wc_defaultsigma:6$
+@c vals: [
+@c    R_1= 1000.0*(1+tol[1]*.01),
+@c    R_2= 1000.0*(1+tol[2]*.01)
+@c  ];
+@c assume(U_In>0);
+@c divider:U_Out=U_In*R_1/(R_1+R_2);
+@c lhs(divider)=wc_mintypmax(subst(vals,rhs(divider)));
+@c lhs(divider)=wc_mintypmax_percent(subst(vals,rhs(divider)));
+@c ===end===
+@example maxima
+(%i1) load("wrstcse")$
+(%i2) ratprint:false$
+(%i3) wc_defaultsigma:6$
+@group
+(%i4) vals: [
+   R_1= 1000.0*(1+tol[1]*.01),
+   R_2= 1000.0*(1+tol[2]*.01)
+ ];
+(%o4) [R_1 = 1000.0 (0.01 tol  + 1), 
+                             1
+                                    R_2 = 1000.0 (0.01 tol  + 1)]
+                                                          2
+@end group
+@group
+(%i5) assume(U_In>0);
+(%o5)                      [U_In > 0]
+@end group
+@group
+(%i6) divider:U_Out=U_In*R_1/(R_1+R_2);
+                                R_1 U_In
+(%o6)                   U_Out = ---------
+                                R_2 + R_1
+@end group
+@group
+(%i7) lhs(divider)=wc_mintypmax(subst(vals,rhs(divider)));
+(%o7) U_Out = [min = 0.495 U_In, typ = 0.5 U_In, 
+                                                max = 0.505 U_In]
+@end group
+@group
+(%i8) lhs(divider)=wc_mintypmax_percent(subst(vals,rhs(divider)));
+(%o8) U_Out = [min = - 1.0000000000000009 %, typ = 0.5 U_In, 
+                                      max = 1.0000000000000009 %]
+@end group
+@end example
+@end deffn
+
+
+@anchor{wc_mintypmax_rss}
+@deffn {Function} wc_mintypmax_rss (@var{expr}, @var{sigmas})
+
+Prints the minimum and maximum of @var{expr}, as well as how high the
+probability is that @var{expr} will lie out of that range based on a root
+sum square calculation and assuming all input ranges will be gauss-shaped.
+
+@var{wc_defaultsigma} defines how many sigma of an input value's tolerance
+distribution the range of @var{tol[n]}=[-1...1] corresponds to.
+
+The RSS methods has a few advantages a brute-force worst-case calculation:
+It is fast even witput @mref{wc_ewc_simplify}. It prevents overengineering
+resulting from assuming all tolerances to add up in a catastrophical way if
+this only happens in a neglectible number of cases. But it will yield only
+the correct results if the gaussian distribution of the input data is known.
+
+See also @mref{wc_defaultsigma} @mrefcomma{wc_mintypmax_rss_percent} and
+@mrefdot{wc_mintypmax}
+
+Example:
+@c ===beg===
+@c load("wrstcse")$
+@c ratprint:false$
+@c wc_defaultsigma:6$
+@c vals: [
+@c    R_1= 1000.0*(1+tol[1]*.01),
+@c    R_2= 1000.0*(1+tol[2]*.01)
+@c  ];
+@c assume(U_In>0);
+@c divider:U_Out=U_In*R_1/(R_1+R_2);
+@c lhs(divider)=wc_mintypmax_rss(subst(vals,rhs(divider)),6);
+@c ===end===
+@example maxima
+(%i1) load("wrstcse")$
+(%i2) ratprint:false$
+(%i3) wc_defaultsigma:6$
+@group
+(%i4) vals: [
+   R_1= 1000.0*(1+tol[1]*.01),
+   R_2= 1000.0*(1+tol[2]*.01)
+ ];
+(%o4) [R_1 = 1000.0 (0.01 tol  + 1), 
+                             1
+                                    R_2 = 1000.0 (0.01 tol  + 1)]
+                                                          2
+@end group
+@group
+(%i5) assume(U_In>0);
+(%o5)                      [U_In > 0]
+@end group
+@group
+(%i6) divider:U_Out=U_In*R_1/(R_1+R_2);
+                                R_1 U_In
+(%o6)                   U_Out = ---------
+                                R_2 + R_1
+@end group
+@group
+(%i7) lhs(divider)=wc_mintypmax_rss(subst(vals,rhs(divider)),6);
+(%o7) U_Out = [min = 0.49646446609406725 U_In, typ = 0.5 U_In, 
+ max = 0.5035355339059328 U_In, Fail = 0.0019731752898266564 ppm]
+@end group
+@end example
+@end deffn
+
+@anchor{wc_mintypmax_rss_percent}
+@deffn {Function} wc_mintypmax_rss_percent (@var{expr}, @var{sigmas})
+
+Like @code{wc_mintypmax_rss}, but outputs the tolerance range in percent.
+
+See @mrefdot{wc_mintypmax_rss}
+
+Example:
+@c ===beg===
+@c load("wrstcse")$
+@c ratprint:false$
+@c wc_defaultsigma:6$
+@c vals: [
+@c    R_1= 1000.0*(1+tol[1]*.01),
+@c    R_2= 1000.0*(1+tol[2]*.01)
+@c  ];
+@c assume(U_In>0);
+@c divider:U_Out=U_In*R_1/(R_1+R_2);
+@c lhs(divider)=wc_mintypmax_rss(subst(vals,rhs(divider)),6);
+@c lhs(divider)=float(wc_mintypmax_rss_percent(subst(vals,rhs(divider)),6));
+@c ===end===
+@example maxima
+(%i1) load("wrstcse")$
+(%i2) ratprint:false$
+(%i3) wc_defaultsigma:6$
+@group
+(%i4) vals: [
+   R_1= 1000.0*(1+tol[1]*.01),
+   R_2= 1000.0*(1+tol[2]*.01)
+ ];
+(%o4) [R_1 = 1000.0 (0.01 tol  + 1), 
+                             1
+                                    R_2 = 1000.0 (0.01 tol  + 1)]
+                                                          2
+@end group
+@group
+(%i5) assume(U_In>0);
+(%o5)                      [U_In > 0]
+@end group
+@group
+(%i6) divider:U_Out=U_In*R_1/(R_1+R_2);
+                                R_1 U_In
+(%o6)                   U_Out = ---------
+                                R_2 + R_1
+@end group
+@group
+(%i7) lhs(divider)=wc_mintypmax_rss(subst(vals,rhs(divider)),6);
+(%o7) U_Out = [min = 0.49646446609406725 U_In, typ = 0.5 U_In, 
+ max = 0.5035355339059328 U_In, Fail = 0.0019731752898266564 ppm]
+@end group
+@group
+(%i8) lhs(divider)=float(wc_mintypmax_rss_percent(subst(vals,rhs(divider)),6));
+(%o8) U_Out = [min = - 0.7071067811865506 %, typ = 0.5 U_In, 
+    max = 0.7071067811865506 %, Fail = 0.0019731752898266564 ppm]
+@end group
+@end example
+@end deffn
+
+@anchor{wc_defaultsigma}
+@defvr {Option variable} wc_defaultsigma
+Default value: @code{6}
+
+Defines how many sigmas of the gauss distribution that represents the
+tolerances of a parameter correspond to a @var{tol[n]} value of -1...1.
+
+See also @mrefdot{wc_mintypmax_rss}
+
+Example:
+@c ===beg===
+@c load("wrstcse")$
+@c ratprint:false$
+@c vals: [
+@c    R_1= 1000.0*(1+tol[1]*.01),
+@c    R_2= 1000.0*(1+tol[2]*.01)
+@c  ];
+@c assume(U_In>0);
+@c divider:U_Out=U_In*R_1/(R_1+R_2);
+@c wc_defaultsigma:1$
+@c lhs(divider)=wc_mintypmax_rss(subst(vals,rhs(divider)),6);
+@c wc_defaultsigma:3$
+@c lhs(divider)=wc_mintypmax_rss(subst(vals,rhs(divider)),6);
+@c wc_defaultsigma:6$
+@c lhs(divider)=wc_mintypmax_rss(subst(vals,rhs(divider)),6);
+@c ===end===
+@example maxima
+(%i1) load("wrstcse")$
+(%i2) ratprint:false$
+@group
+(%i3) vals: [
+   R_1= 1000.0*(1+tol[1]*.01),
+   R_2= 1000.0*(1+tol[2]*.01)
+ ];
+(%o3) [R_1 = 1000.0 (0.01 tol  + 1), 
+                             1
+                                    R_2 = 1000.0 (0.01 tol  + 1)]
+                                                          2
+@end group
+@group
+(%i4) assume(U_In>0);
+(%o4)                      [U_In > 0]
+@end group
+@group
+(%i5) divider:U_Out=U_In*R_1/(R_1+R_2);
+                                R_1 U_In
+(%o5)                   U_Out = ---------
+                                R_2 + R_1
+@end group
+(%i6) wc_defaultsigma:1$
+@group
+(%i7) lhs(divider)=wc_mintypmax_rss(subst(vals,rhs(divider)),6);
+(%o7) U_Out = [min = 0.4787867965644036 U_In, typ = 0.5 U_In, 
+ max = 0.5212132034355964 U_In, Fail = 0.0019731752898266564 ppm]
+@end group
+(%i8) wc_defaultsigma:3$
+@group
+(%i9) lhs(divider)=wc_mintypmax_rss(subst(vals,rhs(divider)),6);
+(%o9) U_Out = [min = 0.49292893218813455 U_In, typ = 0.5 U_In, 
+ max = 0.5070710678118655 U_In, Fail = 0.0019731752898266564 ppm]
+@end group
+(%i10) wc_defaultsigma:6$
+@group
+(%i11) lhs(divider)=wc_mintypmax_rss(subst(vals,rhs(divider)),6);
+(%o11) U_Out = [min = 0.49646446609406725 U_In, typ = 0.5 U_In, 
+ max = 0.5035355339059328 U_In, Fail = 0.0019731752898266564 ppm]
+@end group
+@end example
+@end defvr
+
 @anchor{wc_tolappend}
 @deffn {Function} wc_tolappend (@var{list})
 
@@ -277,7 +711,7 @@ Example:
 @c  ];
 @c wc_tolappend(val_a,val_b);
 @c ===end===
-@example
+@example maxima
 (%i1) load("wrstcse")$
 @group
 (%i2) val_a: [
@@ -314,8 +748,13 @@ R_4 = 1000.0 (0.01 tol  + 1)]
 @anchor{wc_mintypmax2tol}
 @deffn {Function} wc_mintypmax2tol (@var{tolname}, @var{minval}, @var{typval}, @var{maxval})
 
-Generates a parameter that uses the tolerance @var{tolname} that tolerates between the
+Generates a parameter that uses the tolerance @var{tolname} and tolerates between the
 given values.
+
+Caveat: This function returns a quadratic equation. If
+@code{typval-minval} greatly differs from @code{maxval-typval} the
+resulting curve will overshoot, if this parameter is used with values
+of @var{tolname} that aren't integers.
 
 Example:
 @c ===beg===
@@ -323,13 +762,15 @@ Example:
 @c V_F: U_Diode=wc_mintypmax2tol(tol[1],.5,.75,.82);
 @c lhs(V_F)=wc_mintypmax(rhs(V_F));
 @c ===end===
-@example
+@example maxima
 (%i1) load("wrstcse")$
 @group
 (%i2) V_F: U_Diode=wc_mintypmax2tol(tol[1],.5,.75,.82);
-                                          2
-(%o2) U_Diode = (- 0.09000000000000002 tol ) + 0.16 tol  + 0.75
-                                          1            1
+                                         2
+(%o2) U_Diode = - 0.09000000000000002 tol
+                                         1
+                                + 0.15999999999999998 tol  + 0.75
+                                                         1
 @end group
 @group
 (%i3) lhs(V_F)=wc_mintypmax(rhs(V_F));
