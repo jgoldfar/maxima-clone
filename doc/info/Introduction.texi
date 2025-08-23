@@ -165,13 +165,13 @@ Maxima can generate plots of one or more functions:
 (%i1) plot2d (sin(x)/x, [x, -20, 20])$
 @end example
 @ifnotinfo
-@image{figures/introduction1, 10cm}
+@altfigure{introduction1,Plot of a function}
 @end ifnotinfo
 @example
 (%i2) plot2d ([atan(x), erf(x), tanh(x)], [x, -5, 5], [y, -1.5, 2])$
 @end example
 @ifnotinfo
-@image{figures/introduction2, 10cm}
+@altfigure{introduction2,Plot of several functions}
 @end ifnotinfo
 @example
 @group
@@ -180,7 +180,7 @@ Maxima can generate plots of one or more functions:
 @end group
 @end example
 @ifnotinfo
-@image{figures/introduction3, 12cm}
+@altfigure{introduction3,Plot of a function of two variables}
 @end ifnotinfo 
 
 @c FOLLOWING TEXT DESCRIBES THE TCL/TK PLOT WINDOW WHICH IS NO LONGER THE DEFAULT
