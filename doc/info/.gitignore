@@ -34,7 +34,7 @@ levin.texi
 
 *.chm
 *.t2p
-*.pdf
+maxima.pdf
 *.vrs
 *.aux
 *.fn
