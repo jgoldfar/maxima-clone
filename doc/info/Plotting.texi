@@ -332,9 +332,7 @@ corresponding the maximum 36 iterations would not be black.
 @end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting4,8cm}
-@end ifnotinfo
+@altfigure{plotting4,Example of julia command's output}
 
 @opencatbox{Categories:}
 @category{Package dynamics}
@@ -400,9 +398,7 @@ Example:
             [grid,400,400])$
 @end example
 
-@ifnotinfo
-@image{figures/plotting5,8cm}
-@end ifnotinfo
+@altfigure{plotting5,Example of mandelbrot command's output}
 
 @opencatbox{Categories:}
 @category{Package dynamics}
@@ -527,9 +523,7 @@ function names.
 (%i1) plot2d (sin(x), [x, -%pi, %pi])$
 @end example
 
-@ifnotinfo
-@image{figures/plotting6,8cm}
-@end ifnotinfo
+@altfigure{plotting6,Plot of an explicit function}
 
 @item Implicit function.
 
@@ -540,9 +534,7 @@ function names.
 (%i1) plot2d (x^2-y^3+3*y=2, [x,-2.5,2.5], [y,-2.5,2.5])$
 @end example
 
-@ifnotinfo
-@image{figures/plotting3,8cm}
-@end ifnotinfo
+@altfigure{plotting3,Plot of an implicit function}
 
 @item Parametric function.
 
@@ -555,9 +547,7 @@ function names.
 (%i2) plot2d([parametric, r*sin(t), r*cos(t), [t,-8*%pi,8*%pi]])$
 @end example
 
-@ifnotinfo
-@image{figures/plotting11,8cm}
-@end ifnotinfo
+@altfigure{plotting11,Plot of a parametric function}
 
 @item Set of points.
 
@@ -570,9 +560,7 @@ function names.
                             [0.6, 0.9, 0.2, 1.3, 1]])$
 @end example
 
-@ifnotinfo
-@image{figures/plotting14,8cm}
-@end ifnotinfo
+@altfigure{plotting14,Plot of a set of points}
 
 @item Contour lines.
 
@@ -583,9 +571,7 @@ function names.
 (%i1) plot2d ([contour, u^3 + v^2], [u, -4, 4], [v, -4, 4])$
 @end example
 
-@ifnotinfo
-@image{figures/plotting2,8cm}
-@end ifnotinfo
+@altfigure{plotting2,Contour plot}
 
 @end enumerate
 
@@ -601,9 +587,7 @@ to limit the values in the vertical axis:
 (%i1) plot2d (sec(x), [x, -2, 2], [y, -20, 20])$
 @end example
 
-@ifnotinfo
-@image{figures/plotting7,8cm}
-@end ifnotinfo
+@altfigure{plotting7,Example of the use of the y plotting option}
 
 When the plot box is disabled, no labels are created for the axes. In
 that case, instead of using @mref{xlabel} and @mref{ylabel} to set the
@@ -625,9 +609,7 @@ fill a square.
       ["x^2-1", 0.1, 8]], [title, "A parabola"])$
 @end example
 
-@ifnotinfo
-@image{figures/plotting8,8cm}
-@end ifnotinfo
+@altfigure{plotting8,Plot with axes instead of a box}
 
 A plot with a logarithmic scale in the vertical axis:
 
@@ -638,9 +620,7 @@ A plot with a logarithmic scale in the vertical axis:
 (%i1) plot2d (exp(3*s), [s, -2, 2], logy)$
 @end example
 
-@ifnotinfo
-@image{figures/plotting9,8cm}
-@end ifnotinfo
+@altfigure{plotting9,Logarithmic plot}
 
 Plotting functions by name:
 
@@ -658,9 +638,7 @@ $g
 (%i3) plot2d ([F, G, H], [u, -1, 1], [y, -1.5, 1.5])$
 @end example
 
-@ifnotinfo
-@image{figures/plotting10,8cm}
-@end ifnotinfo
+@altfigure{plotting10,Various ways to specify a function to plot}
 
 Plot of a circumference of radius 1 centered at the origin, together with the
 function @code{y=-|@var{x}|}. To prevent the circumference to look like an
@@ -679,9 +657,7 @@ the two functions.
 @end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting12,8cm}
-@end ifnotinfo
+@altfigure{plotting12,Plot of a circle using the same scaling for both axes}
 
 A plot of 200 random numbers between 0 and 9:
 
@@ -694,9 +670,7 @@ A plot of 200 random numbers between 0 and 9:
 @end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting13,8cm}
-@end ifnotinfo
+@altfigure{plotting13,Plot of 200 random points}
 
 In the next example a table with three columns is saved in a file
 ``data.txt'' which is then read and the second and third column are
@@ -719,9 +693,7 @@ plotted on the two axes:
   [style,points], [point_type,diamond], [color,red])$
 @end example
 
-@ifnotinfo
-@image{figures/plotting15,8cm}
-@end ifnotinfo
+@altfigure{plotting15,Plot of points read from a file}
 
 A plot of discrete data points together with a continuous function:
 
@@ -744,9 +716,7 @@ A plot of discrete data points together with a continuous function:
         [ylabel, "period (s)"])$
 @end example
 
-@ifnotinfo
-@image{figures/plotting16,8cm}
-@end ifnotinfo
+@altfigure{plotting16,Example plot using several options}
 
 See also the @mref{Plotting Options} section.
 
@@ -783,9 +753,7 @@ Plot of a function of two variables:
 @end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting17,8cm}
-@end ifnotinfo
+@altfigure{plotting17,Plot of a function of 2 variables}
 
 Use of the @mref{z} option to limit a function that goes to infinity
  (in this case the function is minus infinity on the x and y axes); this also
@@ -802,9 +770,7 @@ shows how to plot with only lines and no shading:
 @end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting18,8cm}
-@end ifnotinfo
+@altfigure{plotting18,Example of the use of option z of plot3d}
 
 The infinite values of z can also be avoided by choosing a grid that
 does not fall on any points where the function is undefined, as in the
@@ -826,9 +792,7 @@ include a color bar that relates colors to values of the z variable:
 @end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting19,8cm}
-@end ifnotinfo
+@altfigure{plotting19,Example using the grid option of plot3d}
 
 Two surfaces in the same plot. Ranges specific to one of the surfaces can
 be given by placing each expression and its ranges in a separate list;
@@ -846,9 +810,7 @@ definitions.
    [x, -4, 4], [y, -4, 4])$
 @end example
 
-@ifnotinfo
-@image{figures/plotting20,8cm}
-@end ifnotinfo
+@altfigure{plotting20,Plot of two functions of two variables}
 
 Plot of a Klein bottle, defined parametrically:
 
@@ -867,9 +829,7 @@ Plot of a Klein bottle, defined parametrically:
         [y, -%pi, %pi], [grid, 50, 50])$
 @end example
 
-@ifnotinfo
-@image{figures/plotting21,8cm}
-@end ifnotinfo
+@altfigure{plotting21,Plot of a Klein bottle}
 
 Plot of a ``spherical harmonic'' function, using the predefined
 transformation, @code{spherical_to_xyz} to transform from spherical
@@ -885,9 +845,7 @@ coordinates to rectangular coordinates. See the documentation for
       [transform_xy, spherical_to_xyz], [grid, 30, 60], nolegend)$
 @end example
 
-@ifnotinfo
-@image{figures/plotting22,8cm}
-@end ifnotinfo
+@altfigure{plotting22,Plot of a spherical harmonic function}
 
 Use of the pre-defined function @code{polar_to_xy} to transform from
 cylindrical to rectangular coordinates.  See the documentation for
@@ -904,9 +862,7 @@ cylindrical to rectangular coordinates.  See the documentation for
 @end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting23,8cm}
-@end ifnotinfo
+@altfigure{plotting23,Example using option polar_to_xy of plot3d}
 
 Plot of a sphere using the transformation from spherical to rectangular
 coordinates. Option @mref{same_xyz} is used to get the three axes
@@ -927,9 +883,7 @@ surface correctly.
 @end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting24,8cm}
-@end ifnotinfo
+@altfigure{plotting24,Example using option xpherical_to_xyz of plot3d}
 
 Definition of a function of two-variables using a matrix.  Notice the
 single quote in the definition of the function, to prevent @code{plot3d}
@@ -947,9 +901,7 @@ indices.
 (%i3) plot3d (f(x,y), [x,1,4], [y,1,4], [grid,3,3], nolegend)$
 @end example
 
-@ifnotinfo
-@image{figures/plotting25,8cm}
-@end ifnotinfo
+@altfigure{plotting25,Plot to represent the values of a matrix in 3D}
 
 By setting the elevation equal to zero, a surface can be seen as a map
 in which each color represents a different level.
@@ -967,9 +919,7 @@ in which each color represents a different level.
 @end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting26,8cm}
-@end ifnotinfo
+@altfigure{plotting26,Plot to represent the values of a matrix in 2D}
 
 See also @mrefdot{Plotting Options}
 
