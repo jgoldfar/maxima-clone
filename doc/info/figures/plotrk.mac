@@ -1,0 +1,2 @@
+plot2d ([discrete, rk(t-x^2,x,1,[t,0,8,0.1])], [png_file, "./plotrk.png"]);
+plot2d ([discrete, rk(t-x^2,x,1,[t,0,8,0.1])], [pdf_file, "./plotrk.pdf"]);
