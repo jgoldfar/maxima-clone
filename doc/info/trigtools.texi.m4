@@ -188,7 +188,7 @@ coth(x)=c2trig(coth(x));
 (%o5)                      coth(x) = %i cot(%i x)
 @end example
 
-@item see @url{http://www.math.utexas.edu/pipermail/maxima/2013/034585.html}
+@item see @url{https://maxima.sourceforge.io/ext/list_archives/2013/msg03230.html}
 @example
 (%i6) cos(p+q*%i);
 (%o6)                           cos(%i q + p)
@@ -898,7 +898,7 @@ Examples:
                                  5         239     4
 @end example
 
-@item see @url{http://en.wikipedia.org/wiki/Machin-like_formula}
+@item see @url{https://en.wikipedia.org/wiki/Machin-like_formula}
 @example
 (%i8) 12*atan(1/49)+32*atan(1/57)-5*atan(1/239)+12*atan(1/110443)$
 %=atan_contract(%);
@@ -919,7 +919,7 @@ Examples:
 @section References
 
 @enumerate
-@item @url{http://maxima.sourceforge.net}
+@item @url{https://maxima.sourceforge.io}
 @end enumerate
 
 
