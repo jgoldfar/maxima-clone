@@ -1265,10 +1265,7 @@ above, and the figure below,
 @end ifnotinfo
 can be compared with Figure 1 in @ref{ascher-1981a,, Ascher 1981a}.
 
-@ifnotinfo
-@image{figures/colnew-ex2,8cm}
-@end ifnotinfo
-
+@altfigure{colnew-ex2,colnew example 2: deformation of spherical cap}
 
 @subsection Example 3: Rotating flow of viscous incompressible fluid
 
@@ -1745,15 +1742,9 @@ before @var{e} is set, so that it can be changed in the program.
 @end group
 @end example
 
-@ifnotinfo
-The figure below shows the solution for
+he figure below shows the solution for
 @math{ε=[10^{-2},10^{-3},10^{-4},10^{-5},10^{-6}]}.
-
-@image{figures/colnew-ex5,8cm}
-@end ifnotinfo
-
-
-
+@altfigure{colnew-ex5,colnew example 5: solution of a boundary value problem}
 
 @node References for colnew, , Examples for colnew, Package colnew
 @section References for colnew

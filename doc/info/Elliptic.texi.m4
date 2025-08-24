@@ -369,11 +369,9 @@ Some examples:
 @end group
 @end example
 
-@ifnotinfo
 Compare this plot with the plot from @urldlmf{22.16.iv}:
 
-@image{figures/jacobi_am}
-@end ifnotinfo
+@altfigure{jacobi_am,Plot of the jacobi_am function for 4 different parameters}
 
 @opencatbox{Categories:}
 @category{Elliptic functions}
