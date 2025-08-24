@@ -32,15 +32,25 @@ Once the files "plotting6.pdf" and "plotting6.png" have been created
 in the doc/info/figures directory, they should be added in a section
 of the manual using the following syntax:
 
-@ifnotinfo
-@image{figures/plotting6,8cm}
-@end ifnotinfo
+@altfigure{plotting6,Descriptive text}
 
 Notice that no file-name extension or directory should be given. That
 way, "plotting6.png" will included in the HTML version of the manual
 and "plotting6.pdf" will be inserted with a width of 8 cm into the PDF
-version of the manual.
+version of the manual. In the info version of the manual the following
+will appear:
+  (Figure plotting6: Descriptive text)
 
+The "Descriptive text" is important to describe the figur for someone who
+is not looking at it. For instance, when a user is reading a manual section
+using "describe" in the Maxima console, or a blind user hearing to a screen
+reader describe whats in an HTML page of the manual.
+
+The is an older macro, @figure, which takes only one argument, the name of
+the file, and will use that name also as descriptive text.
+
+
+-----------------------------------------------------------
 # Added by Gunter Königsmann on 2015
 
 MACROS THAT HELP CREATING FIGURE FILES IN THE NEEDED FORMATS
