@@ -751,11 +751,6 @@ R_4 = 1000.0 (0.01 tol  + 1)]
 Generates a parameter that uses the tolerance @var{tolname} and tolerates between the
 given values.
 
-Caveat: This function returns a quadratic equation. If
-@code{typval-minval} greatly differs from @code{maxval-typval} the
-resulting curve will overshoot, if this parameter is used with values
-of @var{tolname} that aren't integers.
-
 Example:
 @c ===beg===
 @c load("wrstcse")$

@@ -140,11 +140,20 @@ wc_inputvalueranges(wc_x):=apply('matrix,
 );
 
 /* A function that generates an equation out of the min, typ and maximum value for an element */
-
-wc_mintypmax2tol(wc_tol,wc_min,wc_typ,wc_max):=
-    ((-2*wc_typ+wc_min+wc_max)*wc_tol^2)/2-((wc_min-wc_max)*wc_tol)/2+wc_typ;
-
-
+wc_mintypmax2tol(wc_tol,wc_min,wc_typ,wc_max):=block([wc_try,wc_dff],
+    if wc_min>wc_typ then warning("wc_mintypmax2tol: Min value bigger than typ value"),
+    if wc_typ>wc_max then warning("wc_mintypmax2tol: Max value smaller than typ value"),
+    /* Try to find a quadratic equation that hits all three points */
+    wc_try:((-2*wc_typ+wc_min+wc_max)*wc_tol^2)/2-((wc_min-wc_max)*wc_tol)/2+wc_typ,wc_tol,
+    /* Let's see if the quadratic equation overswings the targets */
+    wc_dff:diff(wc_try,wc_tol),
+    if (subst (wc_tol=-1,wc_dff)<0)  or (subst (wc_tol=0,wc_dff)<0) or (subst (wc_tol=1,wc_dff)<0) then
+        wc_try:
+            wc_typ+
+            (wc_tol+abs(wc_tol))/2*(wc_max-wc_typ)+
+            (wc_tol-abs(wc_tol))/2*(wc_min-wc_typ),
+    return(wc_try)
+);
 
 /* How many sigmas the range of tol[x]=-1...1 is assumed to be wide */
 wc_defaultsigma:6;
