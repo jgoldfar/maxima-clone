@@ -331,15 +331,13 @@ Example:
 (%i3) draw_graph(grid)$
 @end example
 
+@smallfigure{graphs01, Direct product of two graphs}
+
 @opencatbox{Categories:}
 @category{Package graphs}
 @category{Package graphs - constructions}
 @closecatbox
 @end deffn
-
-@ifhtml
-@image{figures/graphs01,6cm}
-@end ifhtml
 
 @anchor{graph_union}
 @deffn {Function} graph_union (@var{g1}, @var{g1})
@@ -879,9 +877,7 @@ Example:
 (%o3)        [[6, 7], [4, 5, 6], [1, 2], [2, 3, 4]]
 @end example
 
-@ifhtml
-@image{figures/graphs13,6cm}
-@end ifhtml
+@smallfigure{graphs13, Graph with 2-connected vertices}
 
 @opencatbox{Categories:}
 @category{Package graphs}
@@ -910,15 +906,13 @@ Example:
 (%i4) draw_graph(h, show_vertices=A, program=circular)$
 @end example
 
+@smallfigure{graphs02, Bipartition of the vertices in a Heawood graph}
+
 @opencatbox{Categories:}
 @category{Package graphs}
 @category{Package graphs - properties}
 @closecatbox
 @end deffn
-
-@ifhtml
-@image{figures/graphs02,6cm}
-@end ifhtml
 
 @anchor{chromatic_index}
 @deffn {Function} chromatic_index (@var{gr})
@@ -1475,15 +1469,13 @@ Example:
 (%i4) draw_graph(c, show_edges=vertices_to_cycle(hc))$
 @end example
 
+@smallfigure{graphs03, Hamilton cycle of a cubic graph}
+
 @opencatbox{Categories:}
 @category{Package graphs}
 @category{Package graphs - properties}
 @closecatbox
 @end deffn
-
-@ifhtml
-@image{figures/graphs03,6cm}
-@end ifhtml
 
 @anchor{hamilton_path}
 @deffn {Function} hamilton_path (@var{gr})
@@ -1505,15 +1497,13 @@ Example:
 (%i4) draw_graph(p, show_edges=vertices_to_path(hp))$
 @end example
 
+@smallfigure{graphs04, Hamilton path of a Petersen graph}
+
 @opencatbox{Categories:}
 @category{Package graphs}
 @category{Package graphs - properties}
 @closecatbox
 @end deffn
-
-@ifhtml
-@image{figures/graphs04,6cm}
-@end ifhtml
 
 @anchor{isomorphism}
 @deffn {Function} isomorphism (@var{gr1}, @var{gr2})
@@ -2032,15 +2022,13 @@ Example:
 (%i4) draw_graph(d, show_vertices=mi)$
 @end example
 
+@smallfigure{graphs05, Maximum independent set of a dodecahedral graph}
+
 @opencatbox{Categories:}
 @category{Package graphs}
 @category{Package graphs - properties}
 @closecatbox
 @end deffn
-
-@ifhtml
-@image{figures/graphs05,6cm}
-@end ifhtml
 
 @anchor{max_matching}
 @deffn {Function} max_matching (@var{gr})
@@ -2062,15 +2050,13 @@ Example:
 (%i4) draw_graph(d, show_edges=m)$
 @end example
 
+@smallfigure{graphs06, Maximum matching of a dodecahedral graph}
+
 @opencatbox{Categories:}
 @category{Package graphs}
 @category{Package graphs - properties}
 @closecatbox
 @end deffn
-
-@ifhtml
-@image{figures/graphs06,6cm}
-@end ifhtml
 
 @anchor{min_degree}
 @deffn {Function} min_degree (@var{gr})
@@ -2151,15 +2137,13 @@ Example:
 (%i4) draw_graph(g, show_edges=edges(t))$
 @end example
 
+@smallfigure{graphs07, Minimum spanning of rectangular graph}
+
 @opencatbox{Categories:}
 @category{Package graphs}
 @category{Package graphs - properties}
 @closecatbox
 @end deffn
-
-@ifhtml
-@image{figures/graphs07,6cm}
-@end ifhtml
 
 @anchor{neighbors}
 @deffn {Function} neighbors (@var{v}, @var{gr})
@@ -2414,15 +2398,13 @@ Example:
 (%i4) draw_graph(d, show_edges=vertices_to_path(path))$
 @end example
 
+@smallfigure{graphs08, Shortest path between two vertices in a dodecahedral graph}
+
 @opencatbox{Categories:}
 @category{Package graphs}
 @category{Package graphs - properties}
 @closecatbox
 @end deffn
-
-@ifhtml
-@image{figures/graphs08,6cm}
-@end ifhtml
 
 @anchor{shortest_weighted_path}
 @deffn {Function} shortest_weighted_path (@var{u}, @var{v}, @var{gr})
@@ -3092,9 +3074,7 @@ Example 1:
    vertex_size=0)$
 @end example
 
-@ifhtml
-@image{figures/graphs09,6cm}
-@end ifhtml
+@smallfigure{graphs09, Example of the use of draw_graph to draw a graph}
 
 Example 2:
 
@@ -3137,9 +3117,7 @@ Example 2:
     )$
 @end example
 
-@ifhtml
-@image{figures/graphs10,6cm}
-@end ifhtml
+@smallfigure{graphs10, Example of the use of draw_graph to draw a graph}
 
 Example 3:
 
@@ -3186,9 +3164,7 @@ Example 3:
     )$
 @end example
 
-@ifhtml
-@image{figures/graphs11,6cm}
-@end ifhtml
+@smallfigure{graphs11, Example of the use of draw_graph to draw a graph}
 
 Example 4:
 
@@ -3241,9 +3217,7 @@ Example 4:
     )$
 @end example
 
-@ifhtml
-@image{figures/graphs12,6cm}
-@end ifhtml
+@smallfigure{graphs12, Example of the use of draw_graph to draw a graph}
 
 Example 5:
 
@@ -3260,9 +3234,7 @@ Example 5:
 (%o3)                         done
 @end example
 
-@ifhtml
-@image{figures/graphs14,6cm}
-@end ifhtml
+@smallfigure{graphs14, Example of the use of draw_graph to draw a graph}
 
 Example 6:
 
@@ -3281,9 +3253,7 @@ Example 6:
 (%o3)                         done
 @end example
 
-@ifhtml
-@image{figures/graphs15,6cm}
-@end ifhtml
+@smallfigure{graphs15, Example of the use of draw_graph to draw a graph}
 
 @opencatbox{Categories:}
 @category{Package graphs}
