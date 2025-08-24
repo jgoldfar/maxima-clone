@@ -33,15 +33,23 @@ Example:
 @c xx~yy`@ + @yy`xx + `xx@@yy~;
 @c listofvars (%);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) xx\~yy\`\@@ : 1729;
 (%o1)                         1729
+@end group
+@group
 (%i2) declare ("~`@@", alphabetic);
 (%o2)                         done
+@end group
+@group
 (%i3) xx~yy`@@ + @@yy`xx + `xx@@@@yy~;
 (%o3)               `xx@@@@yy~ + @@yy`xx + 1729
+@end group
+@group
 (%i4) listofvars (%);
 (%o4)                  [@@yy`xx, `xx@@@@yy~]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -63,18 +71,26 @@ when the symbol @var{x} is evaluated unbound.
 @c aa : 1234;
 @c aa + bb;
 @c ===end===
-@example
+evaluation: unbound variable aa
+ -- an error. To debug this try: debugmode(true);
+@example maxima
+@group
 (%i1) aa + bb;
 (%o1)                        bb + aa
+@end group
+@group
 (%i2) declare (aa, bindtest);
 (%o2)                         done
+@end group
 (%i3) aa + bb;
-aa unbound variable
- -- an error.  Quitting.  To debug this try debugmode(true);
+@group
 (%i4) aa : 1234;
 (%o4)                         1234
+@end group
+@group
 (%i5) aa + bb;
 (%o5)                       bb + 1234
+@end group
 @end example
 @end defvr
 
@@ -94,15 +110,29 @@ See @mref{constantp} and @mrefdot{declare}
 
 Example:
 
-@example
+@c ===beg===
+@c declare(c, constant);
+@c constantp(c);
+@c c : x;
+@c constantp(c);
+@c ===end===
+@example maxima
+@group
 (%i1) declare(c, constant);
 (%o1)                         done
+@end group
+@group
 (%i2) constantp(c);
 (%o2)                         true
+@end group
+@group
 (%i3) c : x;
 (%o3)                           x
+@end group
+@group
 (%i4) constantp(c);
 (%o4)                         false
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -140,22 +170,35 @@ Examples:
 @c constantp (exp (x));
 @c constantp (foo (x) + bar (%e) + baz (2));
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) constantp (7 * sin(2));
-(%o1)                                true
+(%o1)                         true
+@end group
+@group
 (%i2) constantp (rat (17/29));
-(%o2)                                true
+(%o2)                         true
+@end group
+@group
 (%i3) constantp (%pi * sin(%e));
-(%o3)                                true
+(%o3)                         true
+@end group
+@group
 (%i4) constantp (exp (x));
-(%o4)                                false
+(%o4)                         false
+@end group
+@group
 (%i5) declare (x, constant);
-(%o5)                                done
+(%o5)                         done
+@end group
+@group
 (%i6) constantp (exp (x));
-(%o6)                                true
+(%o6)                         true
+@end group
+@group
 (%i7) constantp (foo (x) + bar (%e) + baz (2));
-(%o7)                                false
-(%i8) 
+(%o7)                         false
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -337,15 +380,29 @@ See also @mref{declare} for more properties.
 
 Example:
 
-@example
+@c ===beg===
+@c assume(a > b);
+@c is(f(a) > f(b));
+@c declare(f, increasing);
+@c is(f(a) > f(b));
+@c ===end===
+@example maxima
+@group
 (%i1) assume(a > b);
 (%o1)                        [a > b]
+@end group
+@group
 (%i2) is(f(a) > f(b));
 (%o2)                        unknown
+@end group
+@group
 (%i3) declare(f, increasing);
 (%o3)                         done
+@end group
+@group
 (%i4) is(f(a) > f(b));
 (%o4)                         true
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -368,15 +425,29 @@ See also @mref{declare} and @mrefdot{askinteger}
 
 Example:
 
-@example
+@c ===beg===
+@c declare(n, even);
+@c askinteger(n, even);
+@c askinteger(n);
+@c evenp(n);
+@c ===end===
+@example maxima
+@group
 (%i1) declare(n, even);
 (%o1)                         done
+@end group
+@group
 (%i2) askinteger(n, even);
 (%o2)                          yes
+@end group
+@group
 (%i3) askinteger(n);
 (%o3)                          yes
+@end group
+@group
 (%i4) evenp(n);
 (%o4)                         false
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -418,10 +489,16 @@ nor the negation of @var{f} can be established.
 
 See also @mref{declare} and @mrefdot{features}
 
-@example
+@c ===beg===
+@c declare (j, even)$
+@c featurep (j, integer);
+@c ===end===
+@example maxima
 (%i1) declare (j, even)$
+@group
 (%i2) featurep (j, integer);
-(%o2)                           true
+(%o2)                         true
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -474,13 +551,19 @@ Example:
 @c declare (x, FOO);
 @c featurep (x, FOO);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) declare (FOO, feature);
 (%o1)                         done
+@end group
+@group
 (%i2) declare (x, FOO);
 (%o2)                         done
+@end group
+@group
 (%i3) featurep (x, FOO);
 (%o3)                         true
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -514,11 +597,14 @@ See also @mref{put} and @mrefdot{qput}
 @c typeof (2*%e + x*%pi);
 @c typeof (2*%e + %pi);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) put (%e, 'transcendental, 'type);
 (%o1)                    transcendental
+@end group
 (%i2) put (%pi, 'transcendental, 'type)$
 (%i3) put (%i, 'algebraic, 'type)$
+@group
 (%i4) typeof (expr) := block ([q],
         if numberp (expr)
         then return ('algebraic),
@@ -527,11 +613,16 @@ See also @mref{put} and @mrefdot{qput}
         q: get (expr, 'type),
         if q=false
         then errcatch (error(expr,"is not numeric.")) else q)$
+@end group
+@group
 (%i5) typeof (2*%e + x*%pi);
 x is not numeric.
 (%o5)  [[transcendental, []], [algebraic, transcendental]]
+@end group
+@group
 (%i6) typeof (2*%e + %pi);
 (%o6)     [transcendental, [algebraic, transcendental]]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -552,13 +643,24 @@ See also @mrefdot{declare}
 
 Example:
 
-@example
+@c ===beg===
+@c declare(n, integer, x, noninteger);
+@c askinteger(n);
+@c askinteger(x);
+@c ===end===
+@example maxima
+@group
 (%i1) declare(n, integer, x, noninteger);
 (%o1)                         done
+@end group
+@group
 (%i2) askinteger(n);
 (%o2)                          yes
+@end group
+@group
 (%i3) askinteger(x);
 (%o3)                          no
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -577,15 +679,26 @@ See also @mrefdot{declare}
 
 Example:
 
-@example
+@c ===beg===
+@c exp(%i)^f(x);
+@c declare(f, integervalued);
+@c exp(%i)^f(x);
+@c ===end===
+@example maxima
+@group
 (%i1) exp(%i)^f(x);
                               %i f(x)
-(%o1)                      (%e  )
+(%o1)                       %e
+@end group
+@group
 (%i2) declare(f, integervalued);
 (%o2)                         done
+@end group
+@group
 (%i3) exp(%i)^f(x);
                               %i f(x)
 (%o3)                       %e
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -611,17 +724,22 @@ Example:
 @c declare(a, nonarray);
 @c a[x];
 @c ===end===
-@example
+@example maxima
 (%i1) a:'b$ b:'c$ c:'d$
-
+@group
 (%i4) a[x];
 (%o4)                          d
                                 x
+@end group
+@group
 (%i5) declare(a, nonarray);
 (%o5)                         done
+@end group
+@group
 (%i6) a[x];
 (%o6)                          a
                                 x
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -775,19 +893,36 @@ See also @mref{qput} and @mrefdot{get}
 
 Examples:
 
-@example
+@c ===beg===
+@c put (foo, (a+b)^5, expr);
+@c put (foo, "Hello", str);
+@c properties (foo);
+@c get (foo, expr);
+@c get (foo, str);
+@c ===end===
+@example maxima
+@group
 (%i1) put (foo, (a+b)^5, expr);
                                    5
 (%o1)                       (b + a)
+@end group
+@group
 (%i2) put (foo, "Hello", str);
 (%o2)                         Hello
+@end group
+@group
 (%i3) properties (foo);
 (%o3)            [[user properties, str, expr]]
+@end group
+@group
 (%i4) get (foo, expr);
                                    5
 (%o4)                       (b + a)
+@end group
+@group
 (%i5) get (foo, str);
 (%o5)                         Hello
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -807,22 +942,45 @@ See also @mrefdot{get}
 
 Example:
 
-@example
-(%i1) foo: aa$ 
+@c ===beg===
+@c foo: aa$ 
+@c bar: bb$
+@c baz: cc$
+@c put (foo, bar, baz);
+@c properties (aa);
+@c get (aa, cc);
+@c qput (foo, bar, baz);
+@c properties (foo);
+@c get ('foo, 'baz);
+@c ===end===
+@example maxima
+(%i1) foo: aa$
 (%i2) bar: bb$
 (%i3) baz: cc$
+@group
 (%i4) put (foo, bar, baz);
 (%o4)                          bb
+@end group
+@group
 (%i5) properties (aa);
 (%o5)                [[user properties, cc]]
+@end group
+@group
 (%i6) get (aa, cc);
 (%o6)                          bb
+@end group
+@group
 (%i7) qput (foo, bar, baz);
 (%o7)                          bar
+@end group
+@group
 (%i8) properties (foo);
 (%o8)            [value, [user properties, baz]]
+@end group
+@group
 (%i9) get ('foo, 'baz);
 (%o9)                          bar
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1136,27 +1294,47 @@ Examples:
 @c is (sinh (bb - aa) > 0);
 @c is (bb^2 < cc^2);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) assume (xx > 0, yy < -1, zz >= 0);
 (%o1)              [xx > 0, yy < - 1, zz >= 0]
+@end group
+@group
 (%i2) assume (aa < bb and bb < cc);
 (%o2)                  [bb > aa, cc > bb]
+@end group
+@group
 (%i3) facts ();
 (%o3)     [xx > 0, - 1 > yy, zz >= 0, bb > aa, cc > bb]
+@end group
+@group
 (%i4) is (xx > yy);
 (%o4)                         true
+@end group
+@group
 (%i5) is (yy < -yy);
 (%o5)                         true
+@end group
+@group
 (%i6) is (sinh (bb - aa) > 0);
 (%o6)                         true
+@end group
+@group
 (%i7) forget (bb > aa);
 (%o7)                       [bb > aa]
+@end group
+@group
 (%i8) prederror : false;
 (%o8)                         false
+@end group
+@group
 (%i9) is (sinh (bb - aa) > 0);
 (%o9)                        unknown
+@end group
+@group
 (%i10) is (bb^2 < cc^2);
 (%o10)                       unknown
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1270,40 +1448,72 @@ Examples:
 @c asksign (a - b);
 @c input:p;
 @c ===end===
-@example
+@example maxima
 (%i1) assume_pos: true$
 (%i2) assume_pos_pred: symbolp$
+@group
 (%i3) sign (a);
 (%o3)                          pos
+@end group
+@group
 (%i4) sign (a[1]);
 (%o4)                          pnz
+@end group
 (%i5) assume_pos_pred: lambda ([x], display (x), true)$
+@group
 (%i6) asksign (a);
                               x = a
 
 (%o6)                          pos
+@end group
+@group
 (%i7) asksign (a[1]);
                              x = a
                                   1
 
 (%o7)                          pos
+@end group
+@group
 (%i8) asksign (foo (a));
                            x = foo(a)
 
 (%o8)                          pos
+@end group
+@group
 (%i9) asksign (foo (a) + bar (b));
                            x = foo(a)
 
                            x = bar(b)
 
 (%o9)                          pos
+@end group
+@group
 (%i10) asksign (log (a));
                               x = a
 
-Is  a - 1  positive, negative, or zero?
+                              x = a
 
+                              x = a
+
+                              x = a
+
+                              x = a
+
+                              x = a
+
+                              x = a
+
+                              x = a
+
+                              x = a
+
+@end group
+@group
+Is a - 1 positive, negative or zero?
 p;
 (%o10)                         pos
+@end group
+@group
 (%i11) asksign (a - b);
                               x = a
 
@@ -1313,10 +1523,12 @@ p;
 
                               x = b
 
-Is  b - a  positive, negative, or zero?
-
+@end group
+@group
+Is b - a positive, negative or zero?
 p;
 (%o11)                         neg
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1486,11 +1698,15 @@ Examples:
 @c %pi > %e;
 @c is (%pi > %e);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) %pi > %e;
 (%o1)                       %pi > %e
+@end group
+@group
 (%i2) is (%pi > %e);
 (%o2)                         true
+@end group
 @end example
 
 @code{is} attempts to derive predicates from the @code{assume} database.
@@ -1502,17 +1718,27 @@ Examples:
 @c is (a > c);
 @c is (equal (a, c));
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) assume (a > b);
 (%o1)                        [a > b]
+@end group
+@group
 (%i2) assume (b > c);
 (%o2)                        [b > c]
+@end group
+@group
 (%i3) is (a < b);
 (%o3)                         false
+@end group
+@group
 (%i4) is (a > c);
 (%o4)                         true
+@end group
+@group
 (%i5) is (equal (a, c));
 (%o5)                         false
+@end group
 @end example
 
 If @code{is} can neither prove nor disprove a predicate from the @code{assume}
@@ -1525,17 +1751,20 @@ database, the global flag @code{prederror} governs the behavior of @code{is}.
 @c prederror: false$
 @c is (a > 0);
 @c ===end===
-@example
+Unable to evaluate predicate a > 0
+ -- an error. To debug this try: debugmode(true);
+@example maxima
+@group
 (%i1) assume (a > b);
 (%o1)                        [a > b]
+@end group
 (%i2) prederror: true$
 (%i3) is (a > 0);
-Maxima was unable to evaluate the predicate:
-a > 0
- -- an error.  Quitting.  To debug this try debugmode(true);
 (%i4) prederror: false$
+@group
 (%i5) is (a > 0);
 (%o5)                        unknown
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1592,13 +1821,19 @@ Examples:
 @c assume (x > 1);
 @c maybe (x > 0);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) maybe (x > 0);
 (%o1)                        unknown
+@end group
+@group
 (%i2) assume (x > 1);
 (%o2)                        [x > 1]
+@end group
+@group
 (%i3) maybe (x > 0);
 (%o3)                         true
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1691,14 +1926,21 @@ Examples:
 @c e : charfun ('"and" (-1 < x, x < 1))$
 @c [subst (x = -1, e), subst (x = 0, e), subst (x = 1, e)];
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) charfun (x < 1);
 (%o1)                    charfun(x < 1)
+@end group
+@group
 (%i2) subst (x = -1, %);
 (%o2)                           1
+@end group
 (%i3) e : charfun ('"and" (-1 < x, x < 1))$
+@group
 (%i4) [subst (x = -1, e), subst (x = 0, e), subst (x = 1, e)];
-(%o4)                       [0, 1, 0]
+(%o4) [charfun((- 1 < - 1) and (- 1 < 1)), 
+  charfun((- 1 < 0) and (0 < 1)), charfun((- 1 < 1) and (1 < 1))]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1726,19 +1968,31 @@ Examples:
 @c compare (1/x, 0);
 @c compare (x, abs(x));
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) compare (1, 2);
 (%o1)                           <
+@end group
+@group
 (%i2) compare (1, x);
 (%o2)                        unknown
+@end group
+@group
 (%i3) compare (%i, %i);
 (%o3)                           =
+@end group
+@group
 (%i4) compare (%i, %i + 1);
 (%o4)                     notcomparable
+@end group
+@group
 (%i5) compare (1/x, 0);
 (%o5)                           #
+@end group
+@group
 (%i6) compare (x, abs(x));
 (%o6)                          <=
+@end group
 @end example
 
 The function @code{compare} doesn't try to determine whether the real domains of
@@ -1747,9 +2001,11 @@ its arguments are nonempty; thus
 @c ===beg===
 @c compare (acos (x^2 + 1), acos (x^2 + 1) + 1);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) compare (acos (x^2 + 1), acos (x^2 + 1) + 1);
 (%o1)                           <
+@end group
 @end example
 
 @c IT IS NOT QUITE TRUE, WHAT ABOUT x=0 ?
@@ -1800,14 +2056,20 @@ By itself, @code{equal} does not evaluate or simplify.
 @c equal (x, x + 1);
 @c equal (x, y);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) equal (x^2 - 1, (x + 1) * (x - 1));
                         2
 (%o1)            equal(x  - 1, (x - 1) (x + 1))
+@end group
+@group
 (%i2) equal (x, x + 1);
 (%o2)                    equal(x, x + 1)
+@end group
+@group
 (%i3) equal (x, y);
 (%o3)                      equal(x, y)
+@end group
 @end example
 
 The function @code{is} attempts to evaluate @code{equal} to a Boolean value.
@@ -1826,25 +2088,43 @@ even if they are not syntactically equal (i.e., identical).
 @c is (equal (x, y));
 @c is (x = y);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) ratsimp (x^2 - 1 - (x + 1) * (x - 1));
 (%o1)                           0
+@end group
+@group
 (%i2) is (equal (x^2 - 1, (x + 1) * (x - 1)));
 (%o2)                         true
+@end group
+@group
 (%i3) is (x^2 - 1 = (x + 1) * (x - 1));
 (%o3)                         false
+@end group
+@group
 (%i4) ratsimp (x - (x + 1));
 (%o4)                          - 1
+@end group
+@group
 (%i5) is (equal (x, x + 1));
 (%o5)                         false
+@end group
+@group
 (%i6) is (x = x + 1);
 (%o6)                         false
+@end group
+@group
 (%i7) ratsimp (x - y);
 (%o7)                         x - y
+@end group
+@group
 (%i8) is (equal (x, y));
 (%o8)                        unknown
+@end group
+@group
 (%i9) is (x = y);
 (%o9)                         false
+@end group
 @end example
 
 When @code{is} fails to reduce @code{equal} to @code{true} or @code{false},
@@ -1858,23 +2138,32 @@ the result is governed by the global flag @code{prederror}.
 @c prederror : false;
 @c is (equal (aa, bb));
 @c ===end===
-@example
+                                    2             2
+Unable to evaluate predicate equal(x  + 2 x + 1, x  - 2 x - 1)
+ -- an error. To debug this try: debugmode(true);
+@example maxima
+@group
 (%i1) [aa : x^2 + 2*x + 1, bb : x^2 - 2*x - 1];
                     2             2
 (%o1)             [x  + 2 x + 1, x  - 2 x - 1]
+@end group
+@group
 (%i2) ratsimp (aa - bb);
 (%o2)                        4 x + 2
+@end group
+@group
 (%i3) prederror : true;
 (%o3)                         true
+@end group
 (%i4) is (equal (aa, bb));
-Maxima was unable to evaluate the predicate:
-       2             2
-equal(x  + 2 x + 1, x  - 2 x - 1)
- -- an error.  Quitting.  To debug this try debugmode(true);
+@group
 (%i5) prederror : false;
 (%o5)                         false
+@end group
+@group
 (%i6) is (equal (aa, bb));
 (%o6)                        unknown
+@end group
 @end example
 
 Some operators evaluate @code{equal} and @code{notequal} to @code{true} or
@@ -1886,16 +2175,24 @@ Some operators evaluate @code{equal} and @code{notequal} to @code{true} or
 @c eq_2 : equal (y^2 + 2*y + 1, (y + 1)^2);
 @c [eq_1 and eq_2, eq_1 or eq_2, not eq_1];
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) if equal (y, y - 1) then FOO else BAR;
 (%o1)                          BAR
+@end group
+@group
 (%i2) eq_1 : equal (x, x + 1);
 (%o2)                    equal(x, x + 1)
+@end group
+@group
 (%i3) eq_2 : equal (y^2 + 2*y + 1, (y + 1)^2);
                          2                   2
 (%o3)             equal(y  + 2 y + 1, (y + 1) )
+@end group
+@group
 (%i4) [eq_1 and eq_2, eq_1 or eq_2, not eq_1];
 (%o4)                  [false, true, true]
+@end group
 @end example
 
 Because @code{not @var{expr}} causes evaluation of @var{expr},
@@ -1906,11 +2203,15 @@ Because @code{not @var{expr}} causes evaluation of @var{expr},
 @c [notequal (2*z, 2*z - 1), not equal (2*z, 2*z - 1)];
 @c is (notequal (2*z, 2*z - 1));
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) [notequal (2*z, 2*z - 1), not equal (2*z, 2*z - 1)];
 (%o1)            [notequal(2 z, 2 z - 1), true]
+@end group
+@group
 (%i2) is (notequal (2*z, 2*z - 1));
 (%o2)                         true
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1938,27 +2239,47 @@ Examples:
 @c notequal (a, b);
 @c maybe (notequal (a, b));
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) equal (a, b);
 (%o1)                      equal(a, b)
+@end group
+@group
 (%i2) maybe (equal (a, b));
 (%o2)                        unknown
+@end group
+@group
 (%i3) notequal (a, b);
 (%o3)                    notequal(a, b)
+@end group
+@group
 (%i4) not equal (a, b);
 (%o4)                    notequal(a, b)
+@end group
+@group
 (%i5) maybe (notequal (a, b));
 (%o5)                        unknown
+@end group
+@group
 (%i6) assume (a > b);
 (%o6)                        [a > b]
+@end group
+@group
 (%i7) equal (a, b);
 (%o7)                      equal(a, b)
+@end group
+@group
 (%i8) maybe (equal (a, b));
 (%o8)                         false
+@end group
+@group
 (%i9) notequal (a, b);
 (%o9)                    notequal(a, b)
+@end group
+@group
 (%i10) maybe (notequal (a, b));
 (%o10)                        true
+@end group
 @end example
 
 @opencatbox{Categories:}
