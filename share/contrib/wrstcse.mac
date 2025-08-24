@@ -151,7 +151,7 @@ wc_mintypmax2tol(wc_tol,wc_min,wc_typ,wc_max):=block([wc_try,wc_dff],
         wc_try:
             wc_typ+
             (wc_tol+abs(wc_tol))/2*(wc_max-wc_typ)+
-            (wc_tol-abs(wc_tol))/2*(wc_min-wc_typ),
+            (wc_tol-abs(wc_tol))/2*(wc_typ-wc_min),
     return(wc_try)
 );
 
