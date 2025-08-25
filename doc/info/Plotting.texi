@@ -2145,7 +2145,7 @@ they can be seen if the command is ended by semi-colon.
 @closecatbox
 @end defvr
 
-     @c -----------------------------------------------------------------------------
+@c -----------------------------------------------------------------------------
 @anchor{gnuplot_script_file}
 @defvr {Plot option} gnuplot_script_file [gnuplot_script_file, @var{file_name_or_function}]
 
@@ -2162,10 +2162,14 @@ and deleted when Maxima is closed.
 In this example, the script file name is set to ``sin.gnuplot'', in the
 current directory.
 
-@example
+@c ===beg===
+@c plot2d( sin(x), [x,0,2*%pi], [gnuplot_script_file, "./sin.gnuplot"]);
+@c ===end===
+@example maxima
+@group
 (%i1) plot2d( sin(x), [x,0,2*%pi], [gnuplot_script_file, "./sin.gnuplot"]);
-
-(%o1) ["./sin.gnuplot"]
+(%o1)                    [./sin.gnuplot]
+@end group
 @end example
 
 In this example, @code{gnuplot_prt(@var{file})} is a function that takes
@@ -2175,18 +2179,26 @@ zeros into the default file name (a 16-character random string followed
 by ``.gnuplot''). The temporary directory is determined by
 @mref{maxima_tempdir} (it is ``/tmp'' in this example).
 
-@example
+@c ===beg===
+@c gnuplot_prt(file) := block([beg,end],
+@c        [beg,end] : split(file,"."),
+@c        printf(false,"~a_~8,'0d.~a",beg,random(10^8-1),end)) $
+@c plot2d( sin(x), [x,0,2*%pi], [gnuplot_script_file, gnuplot_prt]);
+@c ===end===
+@example maxima
+@group
 (%i1) gnuplot_prt(file) := block([beg,end],
-        [beg,end] : split(file,"."),
-        printf(false,"~a_~8,'0d.~a",beg,random(10^8-1),end)) $
-
+       [beg,end] : split(file,"."),
+       printf(false,"~a_~8,'0d.~a",beg,random(10^8-1),end)) $
+@end group
+@group
 (%i2) plot2d( sin(x), [x,0,2*%pi], [gnuplot_script_file, gnuplot_prt]);
-
-(%o2) ["/tmp/e95avdudp3urz0gj_09606909.gnuplot"]
+(%o2)       [/tmp/nxuo4x28s6wocvjw_99211646.gnuplot]
+@end group
 @end example
 
 By default, the script would have been saved in a file named
-@code{random-string.gnuplot} (random-string = e95avdudp3urz0gj in this
+@code{random-string.gnuplot} (random-string = nxuo4x28s6wocvjw_99211646 in this
 example) in the temporary directory. If the print statement in function
 @code{gnuplot_prt} above included a directory path, the file would have
 been saved in that directory rather than in the temporary directory.
