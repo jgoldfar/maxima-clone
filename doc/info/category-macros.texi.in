@@ -266,3 +266,21 @@
 @*(Figure \file\: \text\)
 @end macro
 @end ifinfo
+
+@c smallfigure works as altfigure but the image will expand 6cm, rather than
+@c 10cm, in the PDF version of the manual.
+@ifhtml
+@macro smallfigure {file, text}
+@image{@value{figuresfolder}/\file\, , , \text\}
+@end macro
+@end ifhtml
+@iftex
+@macro smallfigure {file, text}
+@center @image{@value{figuresfolder}/\file\, 10cm, , \text\}
+@end macro
+@end iftex
+@ifinfo
+@macro smallfigure {file, text}
+@*(Figure \file\: \text\)
+@end macro
+@end ifinfo

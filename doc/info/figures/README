@@ -46,8 +46,10 @@ is not looking at it. For instance, when a user is reading a manual section
 using "describe" in the Maxima console, or a blind user hearing to a screen
 reader describe what's in an HTML page of the manual.
 
-There is an older macro, @figure, which takes only one argument, the name of
-the file, and will use that name also as descriptive text.
+The macro @smallfigure works as altfigure but the image will expand 6cm,
+rather than 10cm, in the PDF version of the manual. There is also an older
+macro, @figure, which takes only one argument, the name of the file, and will
+use that name also as descriptive text.
 
 
 -----------------------------------------------------------
