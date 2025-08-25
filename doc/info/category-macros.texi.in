@@ -276,7 +276,7 @@
 @end ifhtml
 @iftex
 @macro smallfigure {file, text}
-@center @image{@value{figuresfolder}/\file\, 10cm, , \text\}
+@center @image{@value{figuresfolder}/\file\, 6cm, , \text\}
 @end macro
 @end iftex
 @ifinfo
