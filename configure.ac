@@ -1391,6 +1391,7 @@ doc/info/figures/Makefile \
 doc/info/de/Makefile \
 doc/info/de/include-maxima.texi \
 doc/info/es/Makefile \
+doc/info/es/include-maxima.texi \
 doc/info/ja/Makefile \
 doc/info/ja/include-maxima.texi \
 doc/info/pt_BR/include-maxima.texi \
@@ -1415,7 +1416,7 @@ share/contrib/maxima-odesolve/Makefile \
 share/contrib/symplectic_ode/Makefile \
 share/nelder_mead/Makefile \
 share/raddenest/Makefile \
-share/draw/Makefile share/logic/Makefile  doc/info/es/include-maxima.texi \
+share/draw/Makefile share/logic/Makefile \
 src/lisp])
 AC_OUTPUT
 
