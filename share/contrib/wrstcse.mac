@@ -174,6 +174,28 @@ wc_getrssparams(x):=block([tols:[],derivates_linearized,sigmaval,meanval],
     return(new(wc_rssparams(sigmaval,meanval)))
 );
 
+/* Determines the rss parameters from the distribution of data */
+wc_distrib2rssparams(data):=block([wc_mu,wc_sigma,wc_len],
+    if not listp(data) then error("wc_distrib2rssparams: Input data needs to be a list of sample values"),
+    wc_len:length(data),
+    if wc_len<2 then error("wc_distrib2rssparams: Input data needs to be at least 2 samples long"),
+    wc_mu:lsum(i,i,data)/wc_len,
+    wc_sigma:lsum((i-wc_mu)^2,i,data)/(wc_len-1),
+    return(new(wc_rssparams(wc_sigma,wc_mu)))
+);
+
+/* Generates input data for the tolerance parameters from measurement data */
+wc_distrib2toldata(tol,data,[sigmas]):=block(
+    [wc_rssparams:wc_distrib2rssparams(data),wc_sigmas:wc_defaultsigma],
+    if length(sigmas) > 1 then error("wc_distrib2toldata: More than 3 parameters)"),
+    if length(sigmas) = 1 then 
+    (
+        if not numberp(sigmas[1]) then error("wc_distrib2toldata: sigmas needs to be a number)"),
+        wc_sigmas:sigmas[1]
+    ),
+    wc_rssparams@sigma*wc_sigmas*tol+wc_rssparams@mu
+);
+
 /* Estimate the tolerances of x assuming that all input value tolerances and the
 output tolerances are rss curves. */
 wc_mintypmax_rss(x,sigmas):=float(block([rssparams:wc_getrssparams(x)],
