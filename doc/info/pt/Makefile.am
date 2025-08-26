@@ -11,7 +11,7 @@ Contexts.texi Ctensor.texi Debugging.texi descriptive.texi diag.texi \
 Differential.texi Differentiation.texi distrib.texi dynamics.texi \
 Elliptic.texi Equations.texi eval_string.texi Expressions.texi f90.texi \
 Floating.texi Function.texi ggf.texi Groups.texi Help.texi impdiff.texi \
-implicit_plot.texi include-maxima.texi Indices.texi Input.texi \
+include-maxima.texi Indices.texi Input.texi \
 Integration.texi interpol.texi Introduction.texi Itensor.texi lbfgs.texi \
 Limits.texi lindstedt.texi linearalgebra.texi Lists.texi Logarithms.texi \
 lsquares.texi makeOrders.texi Matrices.texi maxima_pdf.texi maxima.texi \
