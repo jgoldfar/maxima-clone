@@ -945,7 +945,7 @@ in which each color represents a different level.
 @end group
 @end example
 
-@altfigure{plotting26,Plot to represent the values of a matrix in 2D}
+@altfigure{plotting26,2D representation of a surface}
 
 See also @mrefdot{Plotting Options}
 
