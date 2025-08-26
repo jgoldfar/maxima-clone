@@ -1206,11 +1206,16 @@ in the interval of integration.")
 		  (eq ($sign (m+ n (m- (deg-var (car nn*) ivar))))
 		      '$pos))
               (not (alike1 (cadr nn*) term))
-	      (multiple-value-setq (term updn)
-                (ptimes%e (cadr nn*) n ivar))
-	      term)
+              (let (result)
+                ;; Call ptimes%e and make sure we update updn, but
+                ;; only want the return value from it to determine we
+                ;; this AND clause is true.
+	        (multiple-value-setq (result updn)
+                  (ptimes%e (cadr nn*) n ivar))
+	        result))
          (values term updn))
-	(t (throw 'ptimes%e nil))))
+	(t
+         (throw 'ptimes%e (values nil updn)))))
 
 (defun csemidown (n d ivar)
   (let ((*pcprntd* t)) ;Not sure what to do about PRINCIPAL values here.

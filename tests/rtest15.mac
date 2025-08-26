@@ -1734,3 +1734,8 @@ forget(xp > 0);
 integrate(cos(2*x)*diff(f(x),x),x);
 'integrate(cos(2*x)*'diff(f(x),x,1),x);
 
+/*
+ * SF bug 4601: regression in spherical_bessel_j integral
+ */
+integrate(spherical_bessel_j(1,x)^2, x, 0, inf);
+%pi/6;
