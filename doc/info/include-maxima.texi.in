@@ -799,22 +799,6 @@ Understanding maxima's output
 @chapter Matrices and Linear Algebra
 @include Matrices.texi
 
-@node Package affine, Package itensor, Matrices and Linear Algebra, Top
-@chapter Package affine
-@include Affine.texi
-
-@node Package itensor, Package ctensor, Package affine, Top
-@chapter Package itensor
-@include Itensor.texi
-
-@node Package ctensor, Package atensor, Package itensor, Top
-@chapter Package ctensor
-@include Ctensor.texi
-
-@node Package atensor, Sums Products and Series, Package ctensor, Top
-@chapter Package atensor
-@include Atensor.texi
-
 @node Sums Products and Series, Number Theory, Package atensor, Top
 @chapter Sums, Products, and Series
 @include Series.texi
@@ -855,6 +839,10 @@ Understanding maxima's output
 @chapter Program Flow
 @include Program.texi
 
+@node Package affine, Package itensor, Matrices and Linear Algebra, Top
+@chapter Package affine
+@include Affine.texi
+
 @node Debugging, Package alt-display, Program Flow, Top
 @chapter Debugging
 @include Debugging.texi
@@ -866,6 +854,10 @@ Understanding maxima's output
 @node Package asympa, Package augmented_lagrangian, Package alt-display, Top
 @chapter Package asympa
 @include asympa.texi
+
+@node Package atensor, Sums Products and Series, Package ctensor, Top
+@chapter Package atensor
+@include Atensor.texi
 
 @node Package augmented_lagrangian, Package bernstein, Package asympa, Top
 @chapter Package augmented_lagrangian
@@ -910,6 +902,10 @@ Understanding maxima's output
 @node Package contrib_ode, Package descriptive, Package combinatorics, Top
 @chapter Package contrib_ode
 @include contrib_ode.texi
+
+@node Package ctensor, Package atensor, Package itensor, Top
+@chapter Package ctensor
+@include Ctensor.texi
 
 @node Package descriptive, Package diag, Package contrib_ode, Top
 @chapter Package descriptive
@@ -986,6 +982,10 @@ Understanding maxima's output
 @node Package interpol, Package lapack, Package impdiff, Top
 @chapter Package interpol
 @include interpol.texi
+
+@node Package itensor, Package ctensor, Package affine, Top
+@chapter Package itensor
+@include Itensor.texi
 
 @node Package lapack, Package lbfgs, Package interpol, Top
 @chapter Package lapack
