@@ -245,17 +245,22 @@ and develop DOE Macsyma, now called Maxima.
 Introduction
 * Introduction to Maxima::
 
+Command Line
+* Introduction to Command Line::
+* Functions and Variables for Command Line::
+* Functions and Variables for Display::
+
+Runtime Environment
+* Introduction for Runtime Environment::  
+* Interrupts::                  
+* Functions and Variables for Runtime Environment::  
+
 Bugs
 * Bug Detection and Reporting::
 
 Help
 * Documentation::
 * Functions and Variables for Help::
-
-Command Line
-* Introduction to Command Line::
-* Functions and Variables for Command Line::
-* Functions and Variables for Display::
 
 Data Types and Structures
 * Numbers::
@@ -402,11 +407,6 @@ Package sym
 
 Groups
 * Functions and Variables for Groups::      
-
-Runtime Environment
-* Introduction for Runtime Environment::  
-* Interrupts::                  
-* Functions and Variables for Runtime Environment::  
 
 Miscellaneous Options
 * Introduction to Miscellaneous Options::  
