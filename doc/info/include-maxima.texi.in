@@ -147,7 +147,6 @@ and develop DOE Macsyma, now called Maxima.
 * Matrices and Linear Algebra:: Matrix operations.
 * Sums Products and Series::    Sums, Products, Taylor and power series.
 * Number Theory::               Number theory.
-* Package sym::                 Working with symmetric groups of polynomials.
 * Groups::                      Abstract algebra.
 
 @b{Advanced facilities and programming}
@@ -222,6 +221,7 @@ and develop DOE Macsyma, now called Maxima.
 * Package stats::                  Statistical inference.
 * Package stirling::               Stirling formula.
 * Package stringproc::             String processing.
+* Package sym::                    Working with symmetric groups of polynomials.
 * Package to_poly_solve::          An improved  version of solve.
 * Package trigtools::              Manipulation of trigonometric expressions.
 * Package unit::                   Units and dimensions.
@@ -803,15 +803,11 @@ Understanding maxima's output
 @chapter Sums, Products, and Series
 @include Series.texi
 
-@node Number Theory, Package sym, Sums Products and Series, Top
+@node Number Theory, Groups, Sums Products and Series, Top
 @chapter Number Theory
 @include Number.texi
 
-@node Package sym, Groups, Number Theory, Top
-@chapter Package sym
-@include Symmetries.texi
-
-@node Groups, Runtime Environment, Package sym, Top
+@node Groups, Runtime Environment, Number Theory, Top
 @chapter Groups
 @include Groups.texi
 
@@ -1083,11 +1079,15 @@ Understanding maxima's output
 @chapter Package stirling
 @include stirling.texi
 
-@node Package stringproc, Package to_poly_solve, Package stirling, Top
+@node Package stringproc, Package sym, Package stirling, Top
 @chapter Package stringproc
 @include stringproc.texi
 
-@node Package to_poly_solve, Package trigtools, Package stringproc, Top
+@node Package sym, Package to_poly_solve, Package stringproc, Top
+@chapter Package sym
+@include Symmetries.texi
+
+@node Package to_poly_solve, Package trigtools, Package sym, Top
 @chapter Package to_poly_solve
 @include to_poly_solve.texi
 
