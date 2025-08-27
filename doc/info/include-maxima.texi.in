@@ -371,22 +371,6 @@ Matrices and Linear Algebra
 * eigen::
 * Functions and Variables for Matrices and Linear Algebra::  
 
-Package affine
-* Introduction to Affine::
-* Functions and Variables for Affine::      
-
-Package itensor
-* Introduction to itensor::      
-* Functions and Variables for itensor::      
-
-Package ctensor
-* Introduction to ctensor::     
-* Functions and Variables for ctensor::     
-
-Package atensor
-* Introduction to atensor::     
-* Functions and Variables for atensor::     
-
 Sums, Products, and Series
 * Functions and Variables for Sums and Products::
 * Introduction to Series::
@@ -437,6 +421,10 @@ Program Flow
 Debugging
 * Functions and Variables for Debugging::   
 
+Package affine
+* Introduction to Affine::
+* Functions and Variables for Affine::
+
 Package alt-display
 * Introduction to alt-display::
 * Functions and Variables for alt-display::
@@ -484,6 +472,10 @@ Package contrib_ode
 * Possible improvements to contrib_ode::
 * Test cases for contrib_ode::
 * References for contrib_ode::
+
+Package ctensor
+* Introduction to ctensor::
+* Functions and Variables for ctensor::
 
 Package descriptive
 * Introduction to descriptive::
@@ -565,6 +557,10 @@ Package impdiff
 Package interpol
 * Introduction to interpol::
 * Functions and Variables for interpol::
+
+Package itensor
+* Introduction to itensor::
+* Functions and Variables for itensor::
 
 Package lapack
 * Introduction to lapack::
