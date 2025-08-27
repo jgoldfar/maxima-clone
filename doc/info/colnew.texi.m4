@@ -1514,7 +1514,7 @@ before @var{e} is set, so that it can be changed in the program.
 @c for e_ in [1e-3,1e-4,1e-5,1e-6] do run_it(e_)$
 @c /* Z is list of solutions z1 = u(x).  Restore order. */
 @c  Z:reverse(Z)$
-@c /* Plot z1=u(x) for each value of e
+@c /* Plot z1=u(x) for each value of e */
 @c  plot2d([
 @c   [discrete,X,Z[1]], [discrete,X,Z[2]], [discrete,X,Z[3]],
 @c   [discrete,X,Z[4]], [discrete,X,Z[5]]],
@@ -1523,6 +1523,9 @@ before @var{e} is set, so that it can be changed in the program.
 @c   [png_file,"./colnew-ex5.png"]); */
 @c  done$
 @c ===end===
+incorrect syntax: * is not a prefix operator
+ */
+ ^
 @example maxima
 (%i1) load("colnew")$
 (%i2) kill(e,x,z1,z2)$
@@ -1723,15 +1726,15 @@ before @var{e} is set, so that it can be changed in the program.
 (%i46) for e_ in [1e-3,1e-4,1e-5,1e-6] do run_it(e_)$
  e: 1.000e-3  iflag   1  Mesh size  20  max error 3.217e-7
  e: 1.000e-4  iflag   1  Mesh size  40  max error 3.835e-7
- e: 1.000e-5  iflag   1  Mesh size  38  max error 8.692e-9
- e: 1.000e-6  iflag   1  Mesh size  60  max error 6.861e-7
+ e: 1.000e-5  iflag   1  Mesh size  38  max error 8.689e-9
+ e: 1.000e-6  iflag   1  Mesh size  60  max error 6.333e-7
 @end group
 @group
 (%i47) /* Z is list of solutions z1 = u(x).  Restore order. */
  Z:reverse(Z)$
 @end group
 @group
-(%i48) /* Plot z1=u(x) for each value of e
+(%i48) /* Plot z1=u(x) for each value of e */
  plot2d([
   [discrete,X,Z[1]], [discrete,X,Z[2]], [discrete,X,Z[3]],
   [discrete,X,Z[4]], [discrete,X,Z[5]]],
@@ -1739,10 +1742,11 @@ before @var{e} is set, so that it can be changed in the program.
   [xlabel,"x"],[ylabel,"u(x)"],
   [png_file,"./colnew-ex5.png"]); */
  done$
+(%o48)  [/tmp/5zscumjmw4lichu2.gnuplot, ./colnew-ex5.png]
 @end group
 @end example
 
-he figure below shows the solution for
+The figure below shows the solution for
 @math{ε=[10^{-2},10^{-3},10^{-4},10^{-5},10^{-6}]}.
 @altfigure{colnew-ex5,colnew example 5: solution of a boundary value problem}
 
