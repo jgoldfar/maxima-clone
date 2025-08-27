@@ -14,8 +14,8 @@
 @c -----------------------------------------------------------------------------
 
 Maxima implements symbolic tensor manipulation of two distinct types:
-component tensor manipulation (package @code{ctensor}) and indicial tensor
-manipulation (package @code{itensor}).
+component tensor manipulation (@ref{Package ctensor}) and indicial tensor
+manipulation (@ref{Package itensor}).
 
 Nota bene: Please see the note on 'new tensor notation' below.
 

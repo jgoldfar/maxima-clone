@@ -8,6 +8,10 @@
 
 @code{ctensor} is a component tensor manipulation package.  To use the @code{ctensor}
 package, type @code{load("ctensor")}.
+
+For alternative packages for
+handling tensors @pxref{Package atensor} and @ref{Package itensor} .
+
 To begin an interactive session with @code{ctensor}, type @code{csetup()}.  You are
 first asked to specify the dimension of the manifold. If the dimension
 is 2, 3 or 4 then the list of coordinates defaults to @code{[x,y]}, @code{[x,y,z]}
