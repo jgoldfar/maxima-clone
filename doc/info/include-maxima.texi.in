@@ -119,6 +119,8 @@ and develop DOE Macsyma, now called Maxima.
 @b{Maxima infrastructure}
 
 * Introduction to Maxima::      Sample Maxima sessions.
+* Command-line options::        Which command-line options does Maxima support?
+* Runtime Environment::         Customization of the Maxima environment.
 * Bug Detection and Reporting:: Finding and reporting bugs in Maxima.
 * Help::                        Asking for help from within a Maxima session.
 * Command Line::                Maxima command line syntax, Input, and Output.
@@ -150,7 +152,6 @@ and develop DOE Macsyma, now called Maxima.
 * Groups::                      Abstract algebra.
 
 @b{Advanced facilities and programming}
-* Runtime Environment::         Customization of the Maxima environment.
 * Miscellaneous Options::       Options with a global effect on Maxima.
 * Rules and Patterns::          User defined pattern matching and
                                 simplification rules.
@@ -231,8 +232,6 @@ and develop DOE Macsyma, now called Maxima.
 @b{Understanding maxima's output}
 * Error and warning messages::  Error and warning messages
 
-@b{Maxima's command-line options}
-* Command-line options::  Which command-line options does Maxima support?
 
 @b{Index}
 * Function and Variable Index:: Index.
@@ -246,17 +245,22 @@ and develop DOE Macsyma, now called Maxima.
 Introduction
 * Introduction to Maxima::
 
+Command Line
+* Introduction to Command Line::
+* Functions and Variables for Command Line::
+* Functions and Variables for Display::
+
+Runtime Environment
+* Introduction for Runtime Environment::  
+* Interrupts::                  
+* Functions and Variables for Runtime Environment::  
+
 Bugs
 * Bug Detection and Reporting::
 
 Help
 * Documentation::
 * Functions and Variables for Help::
-
-Command Line
-* Introduction to Command Line::
-* Functions and Variables for Command Line::
-* Functions and Variables for Display::
 
 Data Types and Structures
 * Numbers::
@@ -387,11 +391,6 @@ Package sym
 
 Groups
 * Functions and Variables for Groups::      
-
-Runtime Environment
-* Introduction for Runtime Environment::  
-* Interrupts::                  
-* Functions and Variables for Runtime Environment::  
 
 Miscellaneous Options
 * Introduction to Miscellaneous Options::  
@@ -697,11 +696,19 @@ Understanding maxima's output
 @c  nota bene: C-c C-u C-a and texinfo-multiple-files-update will delete
 @c  the detailed node listing!
 
-@node Introduction to Maxima, Bug Detection and Reporting, Top, Top
+@node Introduction to Maxima, Command-line options, Top, Top
 @chapter Introduction to Maxima
 @include Introduction.texi
 
-@node Bug Detection and Reporting, Help, Introduction to Maxima, Top
+@node Command-line options, Runtime Environment, Introduction to Maxima, Top
+@chapter Command-line options
+@include commandline-options.texi
+
+@node Runtime Environment, Bug Detection and Reporting, Command-line options, Top
+@chapter Runtime Environment
+@include Runtime.texi
+
+@node Bug Detection and Reporting, Help, Runtime Environment, Top
 @chapter Bug Detection and Reporting
 @include Bugs.texi
 
@@ -803,15 +810,11 @@ Understanding maxima's output
 @chapter Number Theory
 @include Number.texi
 
-@node Groups, Runtime Environment, Number Theory, Top
+@node Groups, Miscellaneous Options, Number Theory, Top
 @chapter Groups
 @include Groups.texi
 
-@node Runtime Environment, Miscellaneous Options, Groups, Top
-@chapter Runtime Environment
-@include Runtime.texi
-
-@node Miscellaneous Options, Rules and Patterns, Runtime Environment, Top
+@node Miscellaneous Options, Rules and Patterns, Groups, Top
 @chapter Miscellaneous Options
 @include Miscellaneous.texi
 
@@ -1103,21 +1106,17 @@ Understanding maxima's output
 @chapter Package zeilberger
 @include zeilberger.texi
 
-@node Error and warning messages, Command-line options, Package zeilberger, Top
+@node Error and warning messages,  , Package zeilberger, Top
 @chapter Error and warning messages
 @include errormessages.texi
-
-@node Command-line options,  , Error and warning messages, Top
-@chapter Command-line options
-@include commandline-options.texi
 
 @c end includes
 
 @ifnothtml
-@node Function and Variable Index,  , Command-line options, Top
+@node Function and Variable Index,  , Error and warning messages, Top
 @end ifnothtml
 @ifhtml
-@node Function and Variable Index,  , Command-line options, Top
+@node Function and Variable Index,  , Error and warning messages, Top
 @end ifhtml
 @appendix Function and Variable Index
 
