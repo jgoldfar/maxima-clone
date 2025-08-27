@@ -1323,7 +1323,7 @@ This example (@pxref{ascher-et-al,,Ascher et al@comma{} 1995@comma{} Example 9.2
 difficult boundary value problem using continuation.
 The maxima code is in file @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/prob5.mac,share/colnew/prob5.mac} and a Fortran
 implementation is in @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/ex5,share/colnew/ex5}.
-@noindent The linear differential equation is
+The linear differential equation is
 m4_displaymath(
 <<<
 \epsilon u'' + x u' = -\epsilon \pi^2 \cos \pi x - \pi x\sin \pi x \quad -1 < x < 1
