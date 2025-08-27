@@ -2,7 +2,7 @@ Start Maxima with the command "maxima".  Maxima will display version
 information and a prompt.  End each Maxima command with a semicolon.
 End the session with the command "@code{quit();}".  Here's a sample session:
 
-@example
+@example maxima
 $ maxima
 Maxima 5.45.1 https://maxima.sourceforge.io
 using Lisp SBCL 2.0.1.debian
@@ -28,7 +28,7 @@ a string.
 The question mark @mref{?} (exact search) and double question mark @mref{??}@w{}
 (inexact search) are abbreviations for @code{describe}:
 
-@example
+@example maxima
 (%i1) ?? integ
  0: Functions and Variables for Elliptic Integrals
  1: Functions and Variables for Integration
@@ -93,83 +93,127 @@ To use a result in later calculations, you can assign it to a variable or
 refer to it by its automatically supplied label.  In addition, @mref{%}@w{}
 refers to the most recent calculated result:
 
-@example
+@c ===beg===
+@c u: expand ((x + y)^6);
+@c diff (u, x);
+@c factor (%o2);
+@c ===end===
+@example maxima
+@group
 (%i1) u: expand ((x + y)^6);
        6        5       2  4       3  3       4  2      5      6
 (%o1) y  + 6 x y  + 15 x  y  + 20 x  y  + 15 x  y  + 6 x  y + x
+@end group
+@group
 (%i2) diff (u, x);
          5         4       2  3       3  2       4        5
 (%o2) 6 y  + 30 x y  + 60 x  y  + 60 x  y  + 30 x  y + 6 x
+@end group
+@group
 (%i3) factor (%o2);
                                     5
 (%o3)                      6 (y + x)
+@end group
 @end example
 
 Maxima knows about complex numbers and numerical constants:
 
-@example
+@c ===beg===
+@c cos(%pi);
+@c exp(%i*%pi);
+@c ===end===
+@example maxima
+@group
 (%i1) cos(%pi);
 (%o1)                          - 1
+@end group
+@group
 (%i2) exp(%i*%pi);
 (%o2)                          - 1
+@end group
 @end example
 
 Maxima can do differential and integral calculus:
 
-@example
+@c ===beg===
+@c u: expand ((x + y)^6);
+@c diff (%, x);
+@c integrate (1/(1 + x^3), x);
+@c ===end===
+@example maxima
+@group
 (%i1) u: expand ((x + y)^6);
        6        5       2  4       3  3       4  2      5      6
 (%o1) y  + 6 x y  + 15 x  y  + 20 x  y  + 15 x  y  + 6 x  y + x
+@end group
+@group
 (%i2) diff (%, x);
          5         4       2  3       3  2       4        5
 (%o2) 6 y  + 30 x y  + 60 x  y  + 60 x  y  + 30 x  y + 6 x
+@end group
+@group
 (%i3) integrate (1/(1 + x^3), x);
                                   2 x - 1
                 2            atan(-------)
            log(x  - x + 1)        sqrt(3)    log(x + 1)
 (%o3)    - --------------- + ------------- + ----------
                   6             sqrt(3)          3
+@end group
 @end example
 
 Maxima can solve linear systems and cubic equations:
 
-@example
+@c ===beg===
+@c linsolve ([3*x + 4*y = 7, 2*x + a*y = 13], [x, y]);
+@c solve (x^3 - 3*x^2 + 5*x = 15, x);
+@c ===end===
+@example maxima
+@group
 (%i1) linsolve ([3*x + 4*y = 7, 2*x + a*y = 13], [x, y]);
                         7 a - 52        25
 (%o1)              [x = --------, y = -------]
                         3 a - 8       3 a - 8
+@end group
+@group
 (%i2) solve (x^3 - 3*x^2 + 5*x = 15, x);
 (%o2)       [x = - sqrt(5) %i, x = sqrt(5) %i, x = 3]
+@end group
 @end example
 
 Maxima can solve nonlinear sets of equations.  Note that if you don't
 want a result printed, you can finish your command with @kbd{$} instead
 of @kbd{;}.
 
-@example
+@c ===beg===
+@c eq_1: x^2 + 3*x*y + y^2 = 0$
+@c eq_2: 3*x + y = 1$
+@c solve ([eq_1, eq_2]);
+@c ===end===
+@example maxima
 (%i1) eq_1: x^2 + 3*x*y + y^2 = 0$
 (%i2) eq_2: 3*x + y = 1$
+@group
 (%i3) solve ([eq_1, eq_2]);
               3 sqrt(5) + 7      sqrt(5) + 3
 (%o3) [[y = - -------------, x = -----------], 
                     2                 2
-
                                3 sqrt(5) - 7        sqrt(5) - 3
                           [y = -------------, x = - -----------]]
                                      2                   2
+@end group
 @end example
 
 Maxima can generate plots of one or more functions:
 
-@example
+@example maxima
 (%i1) plot2d (sin(x)/x, [x, -20, 20])$
 @end example
 @altfigure{introduction1,Plot of a function}
-@example
+@example maxima
 (%i2) plot2d ([atan(x), erf(x), tanh(x)], [x, -5, 5], [y, -1.5, 2])$
 @end example
 @altfigure{introduction2,Plot of several functions}
-@example
+@example maxima
 @group
 (%i3) plot3d (sin(sqrt(x^2 + y^2))/sqrt(x^2 + y^2), 
          [x, -12, 12], [y, -12, 12])$
