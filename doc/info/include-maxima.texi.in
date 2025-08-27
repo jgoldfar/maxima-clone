@@ -839,13 +839,13 @@ Understanding maxima's output
 @chapter Program Flow
 @include Program.texi
 
-@node Package affine, Package itensor, Matrices and Linear Algebra, Top
-@chapter Package affine
-@include Affine.texi
-
 @node Debugging, Package alt-display, Program Flow, Top
 @chapter Debugging
 @include Debugging.texi
+
+@node Package affine, Package itensor, Matrices and Linear Algebra, Top
+@chapter Package affine
+@include Affine.texi
 
 @node Package alt-display, Package asympa, Debugging, Top
 @chapter Package alt-display
