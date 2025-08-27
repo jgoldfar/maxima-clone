@@ -145,10 +145,6 @@ and develop DOE Macsyma, now called Maxima.
 * Numerical::                   Numerical integration, Fourier
                                 transforms, Equations, ODE's, etc.
 * Matrices and Linear Algebra:: Matrix operations.
-* Package affine::              Working with groups of polynomials.
-* Package itensor::             Indicial Tensor Manipulation.
-* Package ctensor::             Component Tensor Manipulation.
-* Package atensor::             Algebraic Tensor Manipulation.
 * Sums Products and Series::    Sums, Products, Taylor and power series.
 * Number Theory::               Number theory.
 * Package sym::                 Working with symmetric groups of polynomials.
@@ -164,8 +160,10 @@ and develop DOE Macsyma, now called Maxima.
 * Program Flow::                Defining Maxima programs.
 * Debugging::                   Debugging Maxima programs.
 
-@b{packages}
+@b{Packages}
+* Package affine::              Working with groups of polynomials.
 * Package alt-display::            Alternative display.
+* Package atensor::             Algebraic Tensor Manipulation.
 * Package asympa::                 Asymptotic analysis.
 * Package augmented_lagrangian::   Augmented Lagrangian.
 * Package bernstein::              Bernstein polynomials.
@@ -178,6 +176,7 @@ and develop DOE Macsyma, now called Maxima.
 * Package colnew::                 Numerical solution of boundary value problems for ODEs
 * Package combinatorics::          Functions to work with permutations.
 * Package contrib_ode::            Additional routines for ODEs
+* Package ctensor::             Component Tensor Manipulation.
 * Package descriptive::            Descriptive statistics.
 * Package diag::                   Jordan matrices.
 * Package distrib::                Probability distributions.
@@ -197,6 +196,7 @@ and develop DOE Macsyma, now called Maxima.
 * Package hompack::                HOMPACK solver for systems of polynomial equations.
 * Package impdiff::                Implicit derivatives.
 * Package interpol::               Interpolation.
+* Package itensor::             Indicial Tensor Manipulation.
 * Package lapack::                 LAPACK functions for linear algebra.
 * Package lbfgs::                  L-BFGS unconstrained minimization.
 * Package levin::                  Levin transforms to accelerate convergence of series
@@ -795,11 +795,11 @@ Understanding maxima's output
 @chapter Numerical
 @include Numerical.texi
 
-@node Matrices and Linear Algebra, Package affine, Numerical, Top
+@node Matrices and Linear Algebra, Sums Products and Series, Numerical, Top
 @chapter Matrices and Linear Algebra
 @include Matrices.texi
 
-@node Sums Products and Series, Number Theory, Package atensor, Top
+@node Sums Products and Series, Number Theory, Matrices and Linear Algebra, Top
 @chapter Sums, Products, and Series
 @include Series.texi
 
@@ -839,27 +839,27 @@ Understanding maxima's output
 @chapter Program Flow
 @include Program.texi
 
-@node Debugging, Package alt-display, Program Flow, Top
+@node Debugging, Package affine, Program Flow, Top
 @chapter Debugging
 @include Debugging.texi
 
-@node Package affine, Package itensor, Matrices and Linear Algebra, Top
+@node Package affine, Package alt-display, Debugging, Top
 @chapter Package affine
 @include Affine.texi
 
-@node Package alt-display, Package asympa, Debugging, Top
+@node Package alt-display, Package asympa, Package affine, Top
 @chapter Package alt-display
 @include alt-display.texi
 
-@node Package asympa, Package augmented_lagrangian, Package alt-display, Top
+@node Package asympa, Package atensor, Package alt-display, Top
 @chapter Package asympa
 @include asympa.texi
 
-@node Package atensor, Sums Products and Series, Package ctensor, Top
+@node Package atensor, Package augmented_lagrangian, Package asympa, Top
 @chapter Package atensor
 @include Atensor.texi
 
-@node Package augmented_lagrangian, Package bernstein, Package asympa, Top
+@node Package augmented_lagrangian, Package bernstein, Package atensor, Top
 @chapter Package augmented_lagrangian
 @include augmented_lagrangian.texi
 
@@ -879,7 +879,7 @@ Understanding maxima's output
 @chapter Package cartan
 @include cartan.texi
 
-@node Package celine, Package clebsch_gordan, Package bode, Top
+@node Package celine, Package clebsch_gordan, Package cartan, Top
 @chapter Package celine
 @include celine.texi
 
@@ -899,15 +899,15 @@ Understanding maxima's output
 @chapter Package combinatorics
 @include combinatorics.texi
 
-@node Package contrib_ode, Package descriptive, Package combinatorics, Top
+@node Package contrib_ode, Package ctensor, Package combinatorics, Top
 @chapter Package contrib_ode
 @include contrib_ode.texi
 
-@node Package ctensor, Package atensor, Package itensor, Top
+@node Package ctensor, Package descriptive, Package contrib_ode, Top
 @chapter Package ctensor
 @include Ctensor.texi
 
-@node Package descriptive, Package diag, Package contrib_ode, Top
+@node Package descriptive, Package diag, Package ctensor, Top
 @chapter Package descriptive
 @include descriptive.texi
 
@@ -979,15 +979,15 @@ Understanding maxima's output
 @chapter Package impdiff
 @include impdiff.texi
 
-@node Package interpol, Package lapack, Package impdiff, Top
+@node Package interpol, Package itensor, Package impdiff, Top
 @chapter Package interpol
 @include interpol.texi
 
-@node Package itensor, Package ctensor, Package affine, Top
+@node Package itensor, Package lapack, Package interpol, Top
 @chapter Package itensor
 @include Itensor.texi
 
-@node Package lapack, Package lbfgs, Package interpol, Top
+@node Package lapack, Package lbfgs, Package itensor, Top
 @chapter Package lapack
 @include lapack.texi
 
@@ -1111,7 +1111,7 @@ Understanding maxima's output
 @chapter Error and warning messages
 @include errormessages.texi
 
-@node Command-line options, Function and Variable Index, Error and warning messages, Top
+@node Command-line options,  , Error and warning messages, Top
 @chapter Command-line options
 @include commandline-options.texi
 
@@ -1121,7 +1121,7 @@ Understanding maxima's output
 @node Function and Variable Index,  , Command-line options, Top
 @end ifnothtml
 @ifhtml
-@node Function and Variable Index,  Documentation Categories, Command-line options, Top
+@node Function and Variable Index,  , Command-line options, Top
 @end ifhtml
 @appendix Function and Variable Index
 
