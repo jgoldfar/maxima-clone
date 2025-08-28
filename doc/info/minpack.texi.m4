@@ -36,6 +36,7 @@ that solve the least squares problem
 m4_displaymath(
 <<<\sum_i^m f_i(x_1, x_2,...,x_n)^2>>>,
 <<<
+@example
                m
               ____
               ╲      2
@@ -43,6 +44,7 @@ m4_displaymath(
               ╱      i
               ‾‾‾‾
               i = 1
+@end example
 >>>)
 
 
@@ -153,7 +155,11 @@ in @math{n} variables:
 
 m4_displaymath(
 <<<f_i(x_1, x_2, ..., x_n) = 0>>>,
-<<<f_i(x_1, x_2, ..., x_n) = 0>>>)
+<<<
+@example
+f_i(x_1, x_2, ..., x_n) = 0
+@end example
+>>>)
 
 The optional keyword arguments, @var{tolerance} and @var{jacobian}
 provide some control over the algorithm.
