@@ -139,6 +139,17 @@ wc_inputvalueranges(wc_x):=apply('matrix,
     )
 );
 
+/* A function that creates assumptions on the range the input values are in */
+wc_inputvalueassumptions(wc_x):=block([wc_line,wc_assumptions:[]],
+    for wc_i in wc_x do
+        (
+            wc_line:wc_mintypmax(rhs(wc_i)),
+            push(lhs(wc_i)<=subst(wc_line,'max),wc_assumptions),
+            push(lhs(wc_i)>=subst(wc_line,'min),wc_assumptions)
+        ),
+    apply('assume,wc_assumptions)
+);
+
 /* A function that generates an equation out of the min, typ and maximum value for an element */
 wc_mintypmax2tol(wc_tol,wc_min,wc_typ,wc_max):=block([wc_try,wc_dff],
     if wc_min>wc_typ then warning("wc_mintypmax2tol: Min value bigger than typ value"),
