@@ -3255,8 +3255,8 @@
 		  (if (null q) (list acc-var acc-pt acc-ord) (append q (list acc-var acc-pt acc-ord))))
 
 		 (t
-		  (setq acc (if (and (fourth qk) (consp (fourth qk)) (eq '$asympt (caar (fourth qk))))
-				(list '$asympt) nil))
+		  (setq acc (if (and (fourth qk) (consp (fourth qk)) (eq '$asymp (caar (fourth qk))))
+				(list '$asymp) nil))
 		  (push (taylor-trunc qk) acc)
 		  (push (exp-pt qk) acc)
 		  (push (datum-var qk) acc)

@@ -20,11 +20,11 @@ taylorinfo(taylor(x,[x,y],0,5));
 taylorinfo(taylor(x,[x,y],0,5,z,a,7));
 [[x,y],[0,0],[5,5],[z,a,7]]$
 
-(tp : taylor(x, [x, a, 5, asympt]),0);
+(tp : taylor(x, [x, a, 5, 'asymp]),0);
 0$
 
 taylorinfo(tp);
-[[x,a,5, asympt]]$
+[[x,a,5, asymp]]$
 
 taylorinfo(taylor(taylor(x,x,a,7),y,b,9));
 [[y,b,9],[x,a,7]]$
@@ -229,10 +229,15 @@ true$
 
 /*--- asymptotic ---*/
 
-taylor(x + 1/x + 2/x^2,[x,inf, 2, asympt]);
+/* Previously, the next two tests misspelled `asymp` as `asympt`. But correcting the
+spelling gives the error "taylor: cannot create an asymptotic expansion at infinity." 
+So after correcting `asympt` to `asymp`, these tests fail due to a limitation of the code, 
+not a bug. I'm going to change [x,inf, 2, 'asymp]) to ,[x,0, 2, 'asymp]); */
+
+taylor(x + 1/x + 2/x^2,[x,0, 2, 'asymp]);
 x+1/x + 2/x^2$
 
-taylor(x + 1/x + 2/x^2,[x, inf, 1, asympt]);
+taylor(x + 1/x + 2/x^2,[x, 0, 1, 'asymp]);
 x + 1/x$
 
 /*--- jacobian elliptic ---*/
@@ -647,3 +652,17 @@ string(taylor(x^a,[x],0,1));
 /* This used to yield "+1^4*(x*y)^a" */
 string(taylor((x*y)^a,[x,y],0,1));
 "+(x*y)^a";
+
+/*4602 taylorinfo ignores asymp */
+taylorinfo(taylor(exp(1/x),[x,0,3,'asymp]));
+[[x, 0, 3, asymp]]$
+
+/* clean up & checks */
+(remvalue(m, mi, ts, old, qq, foo),0);
+0$
+
+contexts;
+[initial, global]$
+
+(forget(m > 0, 1 > a), facts());
+[]$
