@@ -160,6 +160,9 @@ and develop DOE Macsyma, now called Maxima.
 * Program Flow::                Defining Maxima programs.
 * Debugging::                   Debugging Maxima programs.
 
+@b{Understanding maxima's output}
+* Error and warning messages::  Error and warning messages
+
 @b{Packages}
 * Package affine::              Working with groups of polynomials.
 * Package alt-display::            Alternative display.
@@ -228,9 +231,6 @@ and develop DOE Macsyma, now called Maxima.
 * Package unit::                   Units and dimensions.
 * Package wrstcse::                Worst-case calculations for engineering.
 * Package zeilberger::             Functions for hypergeometric summation.
-
-@b{Understanding maxima's output}
-* Error and warning messages::  Error and warning messages
 
 
 @b{Index}
@@ -838,6 +838,10 @@ Understanding maxima's output
 @chapter Debugging
 @include Debugging.texi
 
+@node Error and warning messages,  , Package zeilberger, Top
+@chapter Error and warning messages
+@include errormessages.texi
+
 @node Package affine, Package alt-display, Debugging, Top
 @chapter Package affine
 @include Affine.texi
@@ -1105,10 +1109,6 @@ Understanding maxima's output
 @node Package zeilberger, Error and warning messages, Package wrstcse, Top
 @chapter Package zeilberger
 @include zeilberger.texi
-
-@node Error and warning messages,  , Package zeilberger, Top
-@chapter Error and warning messages
-@include errormessages.texi
 
 @c end includes
 
