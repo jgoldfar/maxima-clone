@@ -15,7 +15,7 @@ Indices.es.texi Input.es.texi Integration.es.texi interpol.texi Introduction.es.
 lapack.texi lbfgs.texi Limits.es.texi lindstedt.texi linearalgebra.texi Lists.es.texi lsquares.texi \
 makeOrders.texi MathFunctions.es.texi Matrices.es.texi maxima_pdf.texi maxima.texi minpack.texi \
 Miscellaneous.es.texi mnewton.texi nset.es.texi Number.es.texi Numerical.es.texi numericalio.texi \
-Operators.es.texi opsubst.texi orthopoly.texi plotdf.texi Plotting.es.texi Polynomials.es.texi \
+Operators.es.texi opsubst.texi orthopoly.texi Plotting.es.texi Polynomials.es.texi \
 Program.es.texi romberg.texi Rules.es.texi Runtime.es.texi Series.es.texi simplex.texi Simplification.es.texi \
 simplifications.texi solve_rec.texi Special.es.texi stats.texi stirling.texi stringproc.texi \
 Symmetries.es.texi to_poly_solve.texi unit.texi zeilberger.texi
