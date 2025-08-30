@@ -157,6 +157,8 @@ Example:
 Convenience function: Displays a list which parameter can vary between
 which values.
 
+See also @mref{wc_mintypmax2tol} and @mrefdot{wc_inputvalueranges}
+
 Example:
 @c ===beg===
 @c load("wrstcse")$
@@ -785,6 +787,76 @@ U_In = ------------------]
      [    R     min = 1.0  typ = 1.1   max = 1.2999999999999998 ]
      [                                                          ]
      [  U_In     min = 0    typ = 0            max = 15         ]
+@end group
+@end example
+@end deffn
+
+@anchor{wc_inputvalueassumptions}
+@deffn {Function} wc_inputvalueassumptions (@var{expr})
+
+Often it is good practice to keep all numeric values with tolerances in a list
+and to introduce them into the equations only when needed.
+
+@code{wc_inputvalueassumptions} in this case can inform the
+@code{assume} database about the range each variable in that list will
+be in.
+
+See also @mref{wc_inputvalueranges} and @mrefdot{assume}
+
+Example:
+@c ===beg===
+@c load("wrstcse");
+@c vals:[
+@c     R_1=100*(1+1/100*tol["R1"])*(1+1/100*tol["Temp"]),
+@c     R_2=200*(1+1/100*tol["R2"])*(1+1/100*tol["Temp"])];
+@c float(wc_inputvalueassumptions(%));
+@c is(R_1>R_2);
+@c is(R_1>90);
+@c is(R_1>200);
+@c is(R_1<200);
+@c is(R_1>100);
+@c ===end===
+@example maxima
+@group
+(%i1) load("wrstcse");
+(%o1) /home/gunter/src/maxima-code/share/contrib/wrstcse.mac
+@end group
+@group
+(%i2) vals:[
+    R_1=100*(1+1/100*tol["R1"])*(1+1/100*tol["Temp"]),
+    R_2=200*(1+1/100*tol["R2"])*(1+1/100*tol["Temp"])];
+                  tol         tol
+                     R1          Temp
+(%o2) [R_1 = 100 (----- + 1) (------- + 1), 
+                   100          100
+                                        tol         tol
+                                           R2          Temp
+                             R_2 = 200 (----- + 1) (------- + 1)]
+                                         100          100
+@end group
+@group
+(%i3) float(wc_inputvalueassumptions(%));
+(%o3) [R_2 >= 196.02, R_2 <= 204.02, R_1 >= 98.01, R_1 <= 102.01]
+@end group
+@group
+(%i4) is(R_1>R_2);
+(%o4)                         false
+@end group
+@group
+(%i5) is(R_1>90);
+(%o5)                         true
+@end group
+@group
+(%i6) is(R_1>200);
+(%o6)                         false
+@end group
+@group
+(%i7) is(R_1<200);
+(%o7)                         true
+@end group
+@group
+(%i8) is(R_1>100);
+(%o8)                        unknown
 @end group
 @end example
 @end deffn
