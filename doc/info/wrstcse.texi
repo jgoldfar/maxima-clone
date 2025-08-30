@@ -6,8 +6,8 @@
 @node Introduction to wrstcse, Functions and Variables for wrstcse, Package wrstcse, Package wrstcse
 @section Introduction to wrstcse
 
-@code{wrstcse} provides a few aproaches to worst case calculations that are powerful enough
-for most engineering problems, but avoid the problems that make a true interval arithmetics
+@code{wrstcse} provides a few approaches to worst case calculations that are powerful enough
+for most engineering problems, but avoid the problems that make a true interval arithmetic
 unfeasible for non-trivial problems:
 @itemize
 @item
