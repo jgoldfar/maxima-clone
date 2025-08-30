@@ -209,7 +209,7 @@ If an equation uses the following values with tolerances:
 be tested, instead:
 @figure{wrstcse_montecarlo}
 
-See also @mref{wc_ewc_simplify} and @mrefdot{wc_montecarlo}
+See also @mref{wc_mintypmax} @mref{wc_ewc_simplify} and @mrefdot{wc_montecarlo}
 
 Example:
 @c ===beg===
