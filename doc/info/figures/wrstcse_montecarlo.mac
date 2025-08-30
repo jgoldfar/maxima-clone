@@ -1,0 +1,12 @@
+load("docdraw.mac");
+
+pnts:makelist([random(2.0)-1,random(2.0)-1],i,1,500)$
+docdraw2d("figures/wrstcse_montecarlo",
+    point_type=2,point_size=.75,
+    label_alignment='left,
+    color=red,key="Samples",
+    points(map('first,pnts)+100,map('second,pnts)+100),
+    color=black,key="",
+    xrange=[98,102],yrange=[98,102],
+    xlabel="R_1",ylabel="R_2",grid=true
+)$

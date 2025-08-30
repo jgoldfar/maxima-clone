@@ -1,0 +1,21 @@
+load("docdraw.mac");
+
+load("wrstcse");
+pnts:wc_systematic([tol[1],tol[2]],3);
+docdraw2d("figures/wrstcse_ewc_3",
+    point_type=2,point_size=1,
+    label_alignment='center,
+    color=red,key="Samples",
+    points(map('first,pnts)+100,map('second,pnts)+100),
+    color=black,key="",
+    makelist(
+        label([sconcat(tol[1]=i[1],", ",tol[2]=i[2]),i[1]+100,i[2]+100+.2]),
+        i,pnts
+    ),
+    makelist(
+        label([sconcat(R_1=i[1]+100,", ",R_2=i[2]+100),i[1]+100,i[2]+100-.2]),
+        i,pnts
+    ),
+    xrange=[98.5,101.5],yrange=[98.5,101.5],
+    xlabel="R_1",ylabel="R_2",grid=true
+)$

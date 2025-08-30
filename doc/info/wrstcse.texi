@@ -194,7 +194,20 @@ Example:
 
 Systematically introduces @var{num} values per parameter into @var{expression}
 and returns a list of the result. If no @var{num} is given, @var{num} defaults
-to 3.
+to 3. Negative values for @var{num} make @code{wc_systematic} use the
+monte carlo method, instead.
+
+If an equation uses the following values with tolerances:
+
+@code{vals:[R_1=100+tol[1],R_2=100+tol[2]];}
+
+@code{num=2} will cause the following combinations of tolerances to be tested:
+@figure{wrstcse_ewc_2}
+@code{num=3} will cause the following combinations of tolerances to be tested:
+@figure{wrstcse_ewc_3}
+@code{num=-500} will cause the following combinations of tolerances to
+be tested, instead:
+@figure{wrstcse_montecarlo}
 
 See also @mref{wc_ewc_simplify} and @mrefdot{wc_montecarlo}
 
