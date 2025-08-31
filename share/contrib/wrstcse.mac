@@ -54,7 +54,7 @@ wc_systematic(wc_x,[wc_valuespertol]):=block(
     wc_numoftols:length(%wc_tols),
     
     /* Default the number of values per tolerance parameter to 3 */
-    if wc_valuespertol=[] then wc_valuespertol:3 else wc_valuespertol:first(wc_valuespertol),
+    if wc_valuespertol=[] then wc_valuespertol:wc_defaultvaluespertol else wc_valuespertol:first(wc_valuespertol),
     makelist(
         (
             subst(
@@ -113,7 +113,7 @@ wc_typicalvalues(wc_x):=
 
 wc_mintypmax(wc_x,[wc_params]):=block([wc_allvalues,wc_param1,min,wc_typ,max],
     if length(wc_params) < 1 then
-        wc_param1:3
+        wc_param1:wc_defaultvaluespertol
     else
         wc_param1:inpart(wc_params,1),
     
@@ -168,6 +168,8 @@ wc_mintypmax2tol(wc_tol,wc_min,wc_typ,wc_max):=block([wc_try,wc_dff],
 
 /* How many sigmas the range of tol[x]=-1...1 is assumed to be wide */
 wc_defaultsigma:6;
+/* How many samples per tol we want the EWC method to use by default */
+wc_defaultvaluespertol:3;
 defstruct(wc_rssparams(sigma,mu));
 
 /* Determines the rss parameters of the tolerance of x */
