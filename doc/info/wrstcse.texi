@@ -194,8 +194,9 @@ Example:
 
 Systematically introduces @var{num} values per parameter into @var{expression}
 and returns a list of the result. If no @var{num} is given, @var{num} defaults
-to 3. Negative values for @var{num} make @code{wc_systematic} use the
-monte carlo method, instead.
+to @var{wc_defaultvaluespertol}. Negative values for @var{num} make
+@code{wc_systematic} use the monte carlo method with @var{num} samples,
+instead.
 
 If an equation uses the following values with tolerances:
 
@@ -209,7 +210,9 @@ If an equation uses the following values with tolerances:
 be tested, instead:
 @figure{wrstcse_montecarlo}
 
-See also @mref{wc_mintypmax} @mref{wc_ewc_simplify} and @mrefdot{wc_montecarlo}
+See also @mrefcomma{wc_defaultvaluespertol} @mrefcomma{wc_mintypmax}
+@mrefcomma{wc_defaultvaluespertol}
+@mref{wc_ewc_simplify} and @mrefdot{wc_montecarlo}
 
 Example:
 @c ===beg===
@@ -408,7 +411,7 @@ Example:
 Prints the minimum, maximum and typical value of @var{expr}. If @var{n}
 is positive, @var{n} values for each parameter will be tried systematically.
 If @var{n} is negative, @var{-n} random values are used instead.
-If no @var{n} is given, 3 is assumed.
+If no @var{n} is given, @var{wc_defaultvaluespertol} is assumed.
 
 See also @mrefcomma{wc_mintypmax_percent} @mrefcomma{wc_mintypmax_rss}
 @mref{wc_ewc_simplify} and @mrefdot{wc_systematic}
@@ -703,6 +706,80 @@ Example:
 (%i11) lhs(divider)=wc_mintypmax_rss(subst(vals,rhs(divider)),6);
 (%o11) U_Out = [min = 0.49646446609406725 U_In, typ = 0.5 U_In, 
  max = 0.5035355339059328 U_In, Fail = 0.0019731752898266564 ppm]
+@end group
+@end example
+@end defvr
+
+@anchor{wc_defaultvaluespertol}
+@defvr {Option variable} wc_defaultvaluespertol
+Default value: @code{3}
+
+Defines how many samples per @var{tol[n]} the EWC method of
+@code{wc_systematic} and @code{wc_mintypmax} shall use by default.
+
+See also @mref{wc_systematic} and @mrefdot{wc_mintypmax}
+
+Example:
+@c ===beg===
+@c load("wrstcse")$
+@c ratprint:false$
+@c vals: [
+@c    R_1= 100.0*(1+tol[1]*.01),
+@c    R_2= 1000.0*(1+tol[2]*.01)
+@c  ];
+@c wc_defaultvaluespertol:2$
+@c wc_systematic(vals);
+@c wc_defaultvaluespertol:3$
+@c wc_systematic(vals);
+@c wc_defaultvaluespertol:5$
+@c wc_systematic(vals);
+@c ===end===
+@example maxima
+(%i1) load("wrstcse")$
+(%i2) ratprint:false$
+@group
+(%i3) vals: [
+   R_1= 100.0*(1+tol[1]*.01),
+   R_2= 1000.0*(1+tol[2]*.01)
+ ];
+(%o3) [R_1 = 100.0 (0.01 tol  + 1), R_2 = 1000.0 (0.01 tol  + 1)]
+                            1                             2
+@end group
+(%i4) wc_defaultvaluespertol:2$
+@group
+(%i5) wc_systematic(vals);
+(%o5) [[R_1 = 99.0, R_2 = 990.0], [R_1 = 99.0, R_2 = 1010.0], 
+         [R_1 = 101.0, R_2 = 990.0], [R_1 = 101.0, R_2 = 1010.0]]
+@end group
+(%i6) wc_defaultvaluespertol:3$
+@group
+(%i7) wc_systematic(vals);
+(%o7) [[R_1 = 99.0, R_2 = 990.0], [R_1 = 99.0, R_2 = 1000.0], 
+[R_1 = 99.0, R_2 = 1010.0], [R_1 = 100.0, R_2 = 990.0], 
+[R_1 = 100.0, R_2 = 1000.0], [R_1 = 100.0, R_2 = 1010.0], 
+[R_1 = 101.0, R_2 = 990.0], [R_1 = 101.0, R_2 = 1000.0], 
+[R_1 = 101.0, R_2 = 1010.0]]
+@end group
+(%i8) wc_defaultvaluespertol:5$
+@group
+(%i9) wc_systematic(vals);
+(%o9) [[R_1 = 99.0, R_2 = 990.0], [R_1 = 99.0, R_2 = 995.0], 
+[R_1 = 99.0, R_2 = 1000.0], [R_1 = 99.0, 
+R_2 = 1004.9999999999999], [R_1 = 99.0, R_2 = 1010.0], 
+[R_1 = 99.5, R_2 = 990.0], [R_1 = 99.5, R_2 = 995.0], 
+[R_1 = 99.5, R_2 = 1000.0], [R_1 = 99.5, 
+R_2 = 1004.9999999999999], [R_1 = 99.5, R_2 = 1010.0], 
+[R_1 = 100.0, R_2 = 990.0], [R_1 = 100.0, R_2 = 995.0], 
+[R_1 = 100.0, R_2 = 1000.0], [R_1 = 100.0, 
+R_2 = 1004.9999999999999], [R_1 = 100.0, R_2 = 1010.0], 
+[R_1 = 100.49999999999999, R_2 = 990.0], 
+[R_1 = 100.49999999999999, R_2 = 995.0], 
+[R_1 = 100.49999999999999, R_2 = 1000.0], 
+[R_1 = 100.49999999999999, R_2 = 1004.9999999999999], 
+[R_1 = 100.49999999999999, R_2 = 1010.0], 
+[R_1 = 101.0, R_2 = 990.0], [R_1 = 101.0, R_2 = 995.0], 
+[R_1 = 101.0, R_2 = 1000.0], [R_1 = 101.0, 
+R_2 = 1004.9999999999999], [R_1 = 101.0, R_2 = 1010.0]]
 @end group
 @end example
 @end defvr
