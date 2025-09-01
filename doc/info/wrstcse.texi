@@ -534,6 +534,10 @@ resulting from assuming all tolerances to add up in a catastrophical way if
 this only happens in a neglectible number of cases. But it will yield only
 the correct results if the gaussian distribution of the input data is known.
 
+Due to its nature this method doesn't support tolerances that aren't
+symmetrical, and therefore has only poor support for non-linear
+dependencies of @code{expr} from @var{tol[n]}.
+
 See also @mref{wc_defaultsigma} @mrefcomma{wc_mintypmax_rss_percent} and
 @mrefdot{wc_mintypmax}
 

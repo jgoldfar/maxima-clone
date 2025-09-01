@@ -184,7 +184,7 @@ wc_defaultvaluespertol:3;
 defstruct(wc_rssparams(sigma,mu));
 
 /* Determines the rss parameters of the tolerance of x */
-wc_getrssparams(x):=block([tols:[],derivates_linearized,sigmaval,meanval],
+wc_getrssparams(x):=block([tols:[],derivates_linearized,derivates,sigmaval,meanval],
     /* Compile a list of tolerances */
     for i in listofvars(x) do
         if not(freeof('tol,i)) then
@@ -192,7 +192,11 @@ wc_getrssparams(x):=block([tols:[],derivates_linearized,sigmaval,meanval],
     /* Create the mean value */
     meanval:wc_typicalvalues(x),
     /* Create a list of derivatives, linearized over the point that all tol[x] are 0.*/
-    derivates_linearized:wc_typicalvalues(makelist(taytorat(taylor(diff(x,i),i,0,0)),i,tols)),
+    derivates:makelist(block([derivate:limit(%wc_typicalvalues(diff(x,i),i),i,0)],
+        if derivate='ind then error("wc_getrssparams: Cannot get meaningful normal distribution params for ",i),
+        derivate),
+        i,tols),
+    derivates_linearized:makelist(taytorat(taylor(i)),i,derivates),
     /* Compile the RMS value assuming that all input tolerances were 6-sigma ones*/
     sigmaval:sqrt(lsum(i^2,i,derivates_linearized/wc_defaultsigma)),
     return(new(wc_rssparams(sigmaval,meanval)))
