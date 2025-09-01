@@ -33,17 +33,27 @@ Examples:
 @c /* Parses same as a b c, not abc */  a/* foo */b/* bar */c;
 @c /* Comments /* can be nested /* to any depth */ */ */  1 + xyz;
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) /* aa is a variable of interest */  aa : 1234;
 (%o1)                         1234
+@end group
+@group
 (%i2) /* Value of bb depends on aa */  bb : aa^2;
 (%o2)                        1522756
+@end group
+@group
 (%i3) /* User-defined infix operator */  infix ("b");
 (%o3)                           b
+@end group
+@group
 (%i4) /* Parses same as a b c, not abc */  a/* foo */b/* bar */c;
 (%o4)                         a b c
+@end group
+@group
 (%i5) /* Comments /* can be nested /* to any depth */ */ */  1 + xyz;
 (%o5)                        xyz + 1
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -467,10 +477,12 @@ Examples:
 @c map('file_type,
 @c     ["test.lisp", "test.mac", "test.dem", "test.txt"]);
 @c ===end===
-@example
-(%i2) map('file_type,
-          ["test.lisp", "test.mac", "test.dem", "test.txt"]);
-(%o2)            [lisp, maxima, maxima, object]
+@example maxima
+@group
+(%i1) map('file_type,
+    ["test.lisp", "test.mac", "test.dem", "test.txt"]);
+(%o1)            [lisp, maxima, maxima, object]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -673,13 +685,19 @@ Examples:
 @c pathname_name("/home/dieter/maxima/changelog.txt");
 @c pathname_type("/home/dieter/maxima/changelog.txt");
 @c ===end===
-@example 
+@example maxima
+@group
 (%i1) pathname_directory("/home/dieter/maxima/changelog.txt");
 (%o1)                 /home/dieter/maxima/
+@end group
+@group
 (%i2) pathname_name("/home/dieter/maxima/changelog.txt");
 (%o2)                       changelog
+@end group
+@group
 (%i3) pathname_type("/home/dieter/maxima/changelog.txt");
 (%o3)                          txt
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -984,11 +1002,15 @@ $$-\cos x$$
 @c S : tex (x * y * z, false);
 @c S;
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) S : tex (x * y * z, false);
 (%o1) $$x\,y\,z$$
+@end group
+@group
 (%i2) S;
 (%o2) $$x\,y\,z$$
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1012,9 +1034,11 @@ Examples:
 @c ===beg===
 @c tex1 (sin(x) + cos(x));
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) tex1 (sin(x) + cos(x));
 (%o1)                     \sin x+\cos x
+@end group
 @end example
 @end deffn
 
@@ -1068,12 +1092,16 @@ Assign TeX output for a variable.
 @c texput (me,"\\mu_e");
 @c tex (me);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) texput (me,"\\mu_e");
 (%o1)                         \mu_e
+@end group
+@group
 (%i2) tex (me);
 $$\mu_e$$
 (%o2)                         false
+@end group
 @end example
 
 Assign TeX output for an ordinary function (not an operator).
@@ -1082,12 +1110,16 @@ Assign TeX output for an ordinary function (not an operator).
 @c texput (lcm, "\\mathrm{lcm}");
 @c tex (lcm (a, b));
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) texput (lcm, "\\mathrm@{lcm@}");
 (%o1)                     \mathrm@{lcm@}
+@end group
+@group
 (%i2) tex (lcm (a, b));
 $$\mathrm@{lcm@}\left(a , b\right)$$
 (%o2)                         false
+@end group
 @end example
 
 Call a function to generate TeX output.
@@ -1098,14 +1130,20 @@ Call a function to generate TeX output.
 @c texput (foo, texfoo);
 @c tex (foo (2^x, %pi));
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) texfoo (e) := block ([a, b], [a, b] : args (e),
-  concat("\\left[\\stackrel@{",tex1(b),"@}@{",tex1(a),"@}\\right]"))$
+  concat ("\\left[\\stackrel@{",tex1(b),"@}@{",tex1(a),"@}\\right]"))$
+@end group
+@group
 (%i2) texput (foo, texfoo);
 (%o2)                        texfoo
+@end group
+@group
 (%i3) tex (foo (2^x, %pi));
 $$\left[\stackrel@{\pi@}@{2^@{x@}@}\right]$$
 (%o3)                         false
+@end group
 @end example
 
 Assign TeX output for a prefix operator.
@@ -1115,14 +1153,20 @@ Assign TeX output for a prefix operator.
 @c texput ("grad", " \\nabla ", prefix);
 @c tex (grad f);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) prefix ("grad");
 (%o1)                         grad
+@end group
+@group
 (%i2) texput ("grad", " \\nabla ", prefix);
 (%o2)                        \nabla 
+@end group
+@group
 (%i3) tex (grad f);
 $$ \nabla f$$
 (%o3)                         false
+@end group
 @end example
 
 Assign TeX output for an infix operator.
@@ -1132,14 +1176,20 @@ Assign TeX output for an infix operator.
 @c texput ("~", " \\times ", infix);
 @c tex (a ~ b);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) infix ("~");
 (%o1)                           ~
+@end group
+@group
 (%i2) texput ("~", " \\times ", infix);
 (%o2)                        \times 
+@end group
+@group
 (%i3) tex (a ~ b);
 $$a \times b$$
 (%o3)                         false
+@end group
 @end example
 
 Assign TeX output for a postfix operator.
@@ -1149,14 +1199,20 @@ Assign TeX output for a postfix operator.
 @c texput ("##", "!!", postfix);
 @c tex (x ##);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) postfix ("##");
 (%o1)                          ##
+@end group
+@group
 (%i2) texput ("##", "!!", postfix);
 (%o2)                          !!
+@end group
+@group
 (%i3) tex (x ##);
 $$x!!$$
 (%o3)                         false
+@end group
 @end example
 
 Assign TeX output for a nary operator.
@@ -1166,14 +1222,20 @@ Assign TeX output for a nary operator.
 @c texput ("@@", " \\circ ", nary);
 @c tex (a @@ b @@ c @@ d);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) nary ("@@@@");
 (%o1)                          @@@@
+@end group
+@group
 (%i2) texput ("@@@@", " \\circ ", nary);
 (%o2)                         \circ 
+@end group
+@group
 (%i3) tex (a @@@@ b @@@@ c @@@@ d);
 $$a \circ b \circ c \circ d$$
 (%o3)                         false
+@end group
 @end example
 
 Assign TeX output for a nofix operator.
@@ -1183,14 +1245,20 @@ Assign TeX output for a nofix operator.
 @c texput ("foo", "\\mathsc{foo}", nofix);
 @c tex (foo);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) nofix ("foo");
 (%o1)                          foo
+@end group
+@group
 (%i2) texput ("foo", "\\mathsc@{foo@}", nofix);
 (%o2)                     \mathsc@{foo@}
+@end group
+@group
 (%i3) tex (foo);
 $$\mathsc@{foo@}$$
 (%o3)                         false
+@end group
 @end example
 
 Assign TeX output for a matchfix operator.
@@ -1205,26 +1273,40 @@ Assign TeX output for a matchfix operator.
 @c tex (<<a>>);
 @c tex (<<a, b>>);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) matchfix ("<<", ">>");
 (%o1)                          <<
+@end group
+@group
 (%i2) texput ("<<", [" \\langle ", " \\rangle "], matchfix);
 (%o2)                [ \langle ,  \rangle ]
+@end group
+@group
 (%i3) tex (<<a>>);
 $$ \langle a \rangle $$
 (%o3)                         false
+@end group
+@group
 (%i4) tex (<<a, b>>);
 $$ \langle a , b \rangle $$
 (%o4)                         false
+@end group
+@group
 (%i5) texput ("<<", [" \\langle ", " \\rangle ", " \\, | \\,"],
       matchfix);
 (%o5)           [ \langle ,  \rangle ,  \, | \,]
+@end group
+@group
 (%i6) tex (<<a>>);
 $$ \langle a \rangle $$
 (%o6)                         false
+@end group
+@group
 (%i7) tex (<<a, b>>);
 $$ \langle a \, | \,b \rangle $$
 (%o7)                         false
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1259,25 +1341,32 @@ Examples:
 @c set_tex_environment (":=", "$$", "$$");
 @c tex (f (x) := 1 - x);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) get_tex_environment (":=");
 (%o1) [
 \begin@{verbatim@}
 , ;
 \end@{verbatim@}
 ]
+@end group
+@group
 (%i2) tex (f (x) := 1 - x);
-
 \begin@{verbatim@}
 f(x):=1-x;
 \end@{verbatim@}
 
 (%o2)                         false
+@end group
+@group
 (%i3) set_tex_environment (":=", "$$", "$$");
 (%o3)                       [$$, $$]
+@end group
+@group
 (%i4) tex (f (x) := 1 - x);
 $$f(x):=1-x$$
 (%o4)                         false
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1310,23 +1399,30 @@ Examples:
 @c \\end{equation}");
 @c tex (f(x) + g(x));
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) get_tex_environment_default ();
 (%o1)                       [$$, $$]
+@end group
+@group
 (%i2) tex (f(x) + g(x));
 $$g\left(x\right)+f\left(x\right)$$
 (%o2)                         false
+@end group
+@group
 (%i3) set_tex_environment_default ("\\begin@{equation@}
-", "
-\\end@{equation@}");
 (%o3) [\begin@{equation@}
 , 
 \end@{equation@}]
-(%i4) tex (f(x) + g(x));
+@end group
+@group
+(%i4) ", "
 \begin@{equation@}
 g\left(x\right)+f\left(x\right)
 \end@{equation@}
 (%o4)                         false
+@end group
+(%i5) \\end@{equation@}");
 @end example
 
 @opencatbox{Categories:}
