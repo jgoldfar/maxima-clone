@@ -252,7 +252,7 @@ from its input file or stream.
 Example: Maxima's interactive testsuite includes something like
 following.
 
-@example
+@example maxima
 [asksign (foo), sign (foo), sign (foo)];
 p;
 [pos, pos, pos];
@@ -336,7 +336,7 @@ The argument @var{filename} can be a path and file name, or just a file name,
 or, if a file search directory includes a file search pattern, just the base of
 the file name (without an extension).  For example,
 
-@example
+@example maxima
 file_search ("/home/wfs/special/zeta.mac");
 file_search ("zeta.mac");
 file_search ("zeta");
@@ -406,14 +406,14 @@ values of these variables name various directories in the Maxima installation.
 The user can modify these variables, either to replace the default values or to
 append additional directories.  For example,
 
-@example
+@example maxima
 file_search_maxima: ["/usr/local/foo/*.mac",
     "/usr/local/bar/*.mac"]$
 @end example
 
 replaces the default value of @code{file_search_maxima}, while
 
-@example
+@example maxima
 file_search_maxima: append (file_search_maxima,
     ["/usr/local/foo/*.mac", "/usr/local/bar/*.mac"])$
 @end example
@@ -579,14 +579,14 @@ Suppose we have a batchfile @code{test.mac} in the directory
 @code{"/home/dieter/workspace/mymaxima/temp/"} with the following commands
 @end flushleft
 
-@example
+@example maxima
 print("The value of load_pathname is: ", load_pathname)$
 print("End of batchfile")$
 @end example
 
 then we get the following output
 
-@example
+@example maxima
 (%i1) load("/home/dieter/workspace/mymaxima/temp/test.mac")$
 The value of load_pathname is:  
                    /home/dieter/workspace/mymaxima/temp/test.mac 
@@ -977,23 +977,37 @@ See also @mref{tex1} and @mrefdot{texput}
 
 Examples:
 
-@example
+@c ===beg===
+@c integrate (1/(1+x^3), x);
+@c tex (%o1);
+@c tex (integrate (sin(x), x));
+@c tex (%o1, "foo.tex");
+@c ===end===
+@example maxima
+@group
 (%i1) integrate (1/(1+x^3), x);
-                                    2 x - 1
-                  2            atan(-------)
-             log(x  - x + 1)        sqrt(3)    log(x + 1)
-(%o1)      - --------------- + ------------- + ----------
-                    6             sqrt(3)          3
+                                  2 x - 1
+                2            atan(-------)
+           log(x  - x + 1)        sqrt(3)    log(x + 1)
+(%o1)    - --------------- + ------------- + ----------
+                  6             sqrt(3)          3
+@end group
+@group
 (%i2) tex (%o1);
-$$-@{@{\log \left(x^2-x+1\right)@}\over@{6@}@}+@{@{\arctan \left(@{@{2\,x-1
- @}\over@{\sqrt@{3@}@}@}\right)@}\over@{\sqrt@{3@}@}@}+@{@{\log \left(x+1\right)
- @}\over@{3@}@}\leqno@{\tt (\%o1)@}$$
-(%o2)                          (\%o1)
+$$-\left(@{@{\log \left(x^2-x+1\right)@}\over@{6@}@}\right)+@{@{\arctan 
+ \left(@{@{2\,x-1@}\over@{\sqrt@{3@}@}@}\right)@}\over@{\sqrt@{3@}@}@}+@{@{\log 
+ \left(x+1\right)@}\over@{3@}@}\leqno@{\tt (\%o1)@}$$
+(%o2)                        (\%o1)
+@end group
+@group
 (%i3) tex (integrate (sin(x), x));
 $$-\cos x$$
-(%o3)                           false
+(%o3)                         false
+@end group
+@group
 (%i4) tex (%o1, "foo.tex");
-(%o4)                          (\%o1)
+(%o4)                        (\%o1)
+@end group
 @end example
 
 @code{tex (@var{expr}, false)} returns its TeX output as a string.
@@ -1485,30 +1499,55 @@ expressions as a Fortran 90 program.
 
 Examples:
 
-@verbatim
+@c ===beg===
+@c expr: (a + b)^12$
+@c fortran (expr);
+@c fortran ('x=expr);
+@c fortran ('x=expand (expr));
+@c fortran ('x=7+5*%i);
+@c fortran ('x=[1,2,3,4]);
+@c f(x) := x^2$
+@c fortran (f);
+@c ===end===
+@example maxima
 (%i1) expr: (a + b)^12$
+@group
 (%i2) fortran (expr);
-      (b+a)**12                                                                 
+      (b+a)**12
 (%o2)                         done
+@end group
+@group
 (%i3) fortran ('x=expr);
-      x = (b+a)**12                                                             
+      x = (b+a)**12
 (%o3)                         done
+@end group
+@group
 (%i4) fortran ('x=expand (expr));
       x = b**12+12*a*b**11+66*a**2*b**10+220*a**3*b**9+495*a**4*b**8+792
      1   *a**5*b**7+924*a**6*b**6+792*a**7*b**5+495*a**8*b**4+220*a**9*b
      2   **3+66*a**10*b**2+12*a**11*b+a**12
 (%o4)                         done
+@end group
+@group
 (%i5) fortran ('x=7+5*%i);
-      x = (7,5)                                                                 
+      x = (7,5)
 (%o5)                         done
+@end group
+@group
 (%i6) fortran ('x=[1,2,3,4]);
-      x = [1,2,3,4]                                                             
+      x(1) = 1
+      x(2) = 2
+      x(3) = 3
+      x(4) = 4
 (%o6)                         done
+@end group
 (%i7) f(x) := x^2$
+@group
 (%i8) fortran (f);
-      f                                                                         
+      f
 (%o8)                         done
-@end verbatim
+@end group
+@end example
 
 @opencatbox{Categories:}
 @category{Translation and compilation}
