@@ -969,7 +969,7 @@ Example:
 @c eq1:I=U_In/(R_1+R_2);
 @c eq2:U_Out=I*R_2;
 @c eq3:subst(eq1,eq2);
-@c float(wc_sensitivities(subst(vals,rhs(eq3))));
+@c wc_sensitivities(subst(vals,rhs(eq3)));
 @c ===end===
 @example maxima
 @group
@@ -1016,25 +1016,17 @@ Example:
                                 R_2 + R_1
 @end group
 @group
-(%i8) float(wc_sensitivities(subst(vals,rhs(eq3))));
-               [  tol    ]
-               [     R2  ]
-               [         ]
-(%o8)  Col 1 = [  tol    ] Col 2 = 
-               [     R1  ]
-               [         ]
-               [ tol     ]
-               [    Temp ]
-[ - 0.002512562814070352 U_In ]
-[                             ]
-[  0.002512562814070352 U_In  ] Col 3 = 
-[                             ]
-[             0.0             ]
-[  0.0024875621890547263 U_In  ]
-[                              ]
-[ - 0.0024875621890547263 U_In ]
-[                              ]
-[             0.0              ]
+(%i8) wc_sensitivities(subst(vals,rhs(eq3)));
+                   [            U_In   U_In  ]
+                   [  tol     - ----   ----  ]
+                   [     R2     398    402   ]
+                   [                         ]
+(%o8)              [           U_In     U_In ]
+                   [  tol      ----   - ---- ]
+                   [     R1    398      402  ]
+                   [                         ]
+                   [ tol        0       0    ]
+                   [    Temp                 ]
 @end group
 @end example
 @end deffn
