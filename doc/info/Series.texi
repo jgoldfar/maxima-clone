@@ -408,26 +408,33 @@ See also @mrefdot{cauchysum}
 
 Examples:
 
-@example
+@c ===beg===
+@c sumexpand: true$
+@c sum (f (i), i, 0, m) * sum (g (j), j, 0, n);
+@c sum (f (i), i, 0, m)^2;
+@c ===end===
+@example maxima
 (%i1) sumexpand: true$
-(%i2) sum (f (i), i, 0, m) * sum (g (j), j, 0, n);
 @group
+(%i2) sum (f (i), i, 0, m) * sum (g (j), j, 0, n);
                      m      n
-                    ====   ====
+                    ____   ____
                     \      \
 (%o2)                >      >     f(i1) g(i2)
                     /      /
-                    ====   ====
+                    ----   ----
                     i1 = 0 i2 = 0
 @end group
+@group
 (%i3) sum (f (i), i, 0, m)^2;
                      m      m
-                    ====   ====
+                    ____   ____
                     \      \
 (%o3)                >      >     f(i3) f(i4)
                     /      /
-                    ====   ====
+                    ----   ----
                     i3 = 0 i4 = 0
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -527,22 +534,33 @@ returns the series defined by @code{deftaylor}.
 
 Example:
 
-@example
+@c ===beg===
+@c deftaylor (f(x), x^2 + sum(x^i/(2^i*i!^2), i, 4, inf));
+@c powerseries (f(x), x, 0);
+@c taylor (exp (sqrt (f(x))), x, 0, 4);
+@c ===end===
+@example maxima
+@group
 (%i1) deftaylor (f(x), x^2 + sum(x^i/(2^i*i!^2), i, 4, inf));
 (%o1)                          [f]
+@end group
+@group
 (%i2) powerseries (f(x), x, 0);
                       inf
-                      ====      i1
+                      ____      i1
                       \        x         2
 (%o2)                  >     -------- + x
                       /       i1    2
-                      ====   2   i1!
+                      ----   2   i1!
                       i1 = 4
+@end group
+@group
 (%i3) taylor (exp (sqrt (f(x))), x, 0, 4);
                       2         3          4
                      x    3073 x    12817 x
 (%o3)/T/     1 + x + -- + ------- + -------- + . . .
                      2     18432     307200
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -582,25 +600,34 @@ additional indices are constructed by appending integers to the value of
 
 Example:
 
-@example
+@c ===beg===
+@c niceindicespref;
+@c product (sum (f (foo + i*j*bar), foo, 1, inf), bar, 1, inf);
+@c niceindices (%);
+@c ===end===
+@example maxima
+@group
 (%i1) niceindicespref;
 (%o1)                  [i, j, k, l, m, n]
+@end group
+@group
 (%i2) product (sum (f (foo + i*j*bar), foo, 1, inf), bar, 1, inf);
                  inf    inf
-                /===\   ====
-                 ! !    \
-(%o2)            ! !     >      f(bar i j + foo)
-                 ! !    /
-                bar = 1 ====
+                _____   ____
+                |   |   \
+(%o2)           |   |    >      f(bar i j + foo)
+                |   |   /
+                bar = 1 ----
                         foo = 1
-(%i3) niceindices (%);
+@end group
 @group
+(%i3) niceindices (%);
                      inf  inf
-                    /===\ ====
-                     ! !  \
-(%o3)                ! !   >    f(i j l + k)
-                     ! !  /
-                    l = 1 ====
+                    _____ ____
+                    |   | \
+(%o3)               |   |  >    f(i j l + k)
+                    |   | /
+                    l = 1 ----
                           k = 1
 @end group
 @end example
@@ -622,24 +649,33 @@ The elements of @code{niceindicespref} are must be names of simple variables.
 
 Example:
 
-@example
+@c ===beg===
+@c niceindicespref: [p, q, r, s, t, u]$
+@c product (sum (f (foo + i*j*bar), foo, 1, inf), bar, 1, inf);
+@c niceindices (%);
+@c ===end===
+@example maxima
 (%i1) niceindicespref: [p, q, r, s, t, u]$
+@group
 (%i2) product (sum (f (foo + i*j*bar), foo, 1, inf), bar, 1, inf);
                  inf    inf
-                /===\   ====
-                 ! !    \
-(%o2)            ! !     >      f(bar i j + foo)
-                 ! !    /
-                bar = 1 ====
+                _____   ____
+                |   |   \
+(%o2)           |   |    >      f(bar i j + foo)
+                |   |   /
+                bar = 1 ----
                         foo = 1
+@end group
+@group
 (%i3) niceindices (%);
                      inf  inf
-                    /===\ ====
-                     ! !  \
-(%o3)                ! !   >    f(i j q + p)
-                     ! !  /
-                    q = 1 ====
+                    _____ ____
+                    |   | \
+(%o3)               |   |  >    f(i j q + p)
+                    |   | /
+                    q = 1 ----
                           p = 1
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -671,37 +707,52 @@ finite products.  See also @mrefdot{unsum}
 
 Examples:
 
-@example
+@c ===beg===
+@c nusum (n*n!, n, 0, n);
+@c nusum (n^4*4^n/binomial(2*n,n), n, 0, n);
+@c unsum (%, n);
+@c unsum (prod (i^2, i, 1, n), n);
+@c nusum (%, n, 1, n);
+@c ===end===
+@example maxima
+@group
 (%i1) nusum (n*n!, n, 0, n);
-
-Dependent equations eliminated:  (1)
+solve: dependent equations eliminated: (1)
 (%o1)                     (n + 1)! - 1
+@end group
+@group
 (%i2) nusum (n^4*4^n/binomial(2*n,n), n, 0, n);
-                     4        3       2              n
-      2 (n + 1) (63 n  + 112 n  + 18 n  - 22 n + 3) 4      2
-(%o2) ------------------------------------------------ - ------
-                    693 binomial(2 n, n)                 3 11 7
+         n              4        3       2
+      2 4  (n + 1) (63 n  + 112 n  + 18 n  - 22 n + 3)    2
+(%o2) ------------------------------------------------ - ---
+                    693 binomial(2 n, n)                 231
+@end group
+@group
 (%i3) unsum (%, n);
-                              4  n
-                             n  4
+                              n  4
+                             4  n
 (%o3)                   ----------------
                         binomial(2 n, n)
+@end group
+@group
 (%i4) unsum (prod (i^2, i, 1, n), n);
                     n - 1
-                    /===\
-                     ! !   2
-(%o4)              ( ! !  i ) (n - 1) (n + 1)
-                     ! !
+                    _____
+                    |   |  2
+(%o4)              (|   | i ) (n - 1) (n + 1)
+                    |   |
                     i = 1
+@end group
+@group
 (%i5) nusum (%, n, 1, n);
-
-Dependent equations eliminated:  (2 3)
+solve: dependent equations eliminated: (2 3)
                             n
-                          /===\
-                           ! !   2
-(%o5)                      ! !  i  - 1
-                           ! !
+                          _____
+                          |   |  2
+(%o5)                     |   | i  - 1
+                          |   |
                           i = 1
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -735,30 +786,47 @@ returned.  Total degree is defined as @code{@var{numer_deg_bound} +
 Length of a power series is defined as
 @code{"truncation level" + 1 - min(0, "order of series")}.
 
-@example
+@c ===beg===
+@c taylor (1 + x + x^2 + x^3, x, 0, 3);
+@c pade (%, 1, 1);
+@c t: taylor(-(83787*x^10 - 45552*x^9 - 187296*x^8
+@c              + 387072*x^7 + 86016*x^6 - 1507328*x^5
+@c              + 1966080*x^4 + 4194304*x^3 - 25165824*x^2
+@c              + 67108864*x - 134217728)
+@c  /134217728, x, 0, 10);
+@c pade (t, 4, 4);
+@c ===end===
+@example maxima
+@group
 (%i1) taylor (1 + x + x^2 + x^3, x, 0, 3);
                               2    3
 (%o1)/T/             1 + x + x  + x  + . . .
+@end group
+@group
 (%i2) pade (%, 1, 1);
                                  1
 (%o2)                       [- -----]
                                x - 1
+@end group
+@group
 (%i3) t: taylor(-(83787*x^10 - 45552*x^9 - 187296*x^8
-                   + 387072*x^7 + 86016*x^6 - 1507328*x^5
-                   + 1966080*x^4 + 4194304*x^3 - 25165824*x^2
-                   + 67108864*x - 134217728)
-       /134217728, x, 0, 10);
+             + 387072*x^7 + 86016*x^6 - 1507328*x^5
+             + 1966080*x^4 + 4194304*x^3 - 25165824*x^2
+             + 67108864*x - 134217728)
+ /134217728, x, 0, 10);
                     2    3       4       5       6        7
              x   3 x    x    15 x    23 x    21 x    189 x
 (%o3)/T/ 1 - - + ---- - -- - ----- + ----- - ----- - ------
              2    16    32   1024    2048    32768   65536
-
                                   8         9          10
                             5853 x    2847 x    83787 x
                           + ------- + ------- - --------- + . . .
                             4194304   8388608   134217728
+@end group
+@group
 (%i4) pade (t, 4, 4);
 (%o4)                          []
+@end group
 @end example
 
 There is no rational function of degree 4 numerator/denominator, with this
@@ -766,7 +834,7 @@ power series expansion.  You must in general have degree of the numerator and
 degree of the denominator adding up to at least the degree of the power series,
 in order to have enough unknown coefficients to solve.
 
-@example
+@example maxima
 (%i5) pade (t, 5, 5);
                      5                4                 3
 (%o5) [- (520256329 x  - 96719020632 x  - 489651410240 x
@@ -810,33 +878,57 @@ If @code{powerseries} is unable to expand @var{expr},
 When @code{verbose} is @code{true},
 @code{powerseries} prints progress messages.
 
-@example
+@c ===beg===
+@c verbose: true$
+@c powerseries (log(sin(x)/x), x, 0);
+@c ===end===
+@example maxima
 (%i1) verbose: true$
+@group
 (%i2) powerseries (log(sin(x)/x), x, 0);
-can't expand 
-                                 log(sin(x))
-so we'll try again after applying the rule:
-                                        d
-                                      / -- (sin(x))
-                                      [ dx
-                        log(sin(x)) = i ----------- dx
-                                      ]   sin(x)
-                                      /
-in the first simplification we have returned:
-                             /
-                             [
-                             i cot(x) dx - log(x)
-                             ]
-                             /
-                    inf
-                    ====        i1  2 i1             2 i1
-                    \      (- 1)   2     bern(2 i1) x
-                     >     ------------------------------
-                    /                i1 (2 i1)!
-                    ====
-                    i1 = 1
-(%o2)                -------------------------------------
-                                      2
+trigreduce: failed to expand.
+
+                               sin(x)
+                           log(------)
+                                 x
+
+trigreduce: try again after applying rule:
+                                 d   sin(x)
+                               / -- (------)
+                     sin(x)    | dx    x
+                 log(------) = | ----------- dx
+                       x       |   sin(x)
+                               /   ------
+                                     x
+
+
+powerseries: first simplification returned 
+    x
+   /
+   |  csc(g3955) sin(g3955) - g3955 cos(g3955) csc(g3955)
+ - |  --------------------------------------------------- dg3955
+   |                         g3955
+   /
+    0
+
+
+powerseries: first simplification returned 
+                       g3955 cot(g3955) - 1
+                     - --------------------
+                              g3955
+
+powerseries: attempt rational function expansion of
+                                1
+                              -----
+                              g3955
+            inf
+            ____        i2  2 i2 - 1             2 i2
+            \      (- 1)   2         bern(2 i2) x
+(%o2)        >     ----------------------------------
+            /                  i2 (2 i2)!
+            ----
+            i2 = 1
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -881,35 +973,56 @@ the highest power in @var{expr}.  @code{revert2} returns a polynomial of degree
 
 Examples:
 
-@example
+@c ===beg===
+@c load ("revert")$
+@c t: taylor (exp(x) - 1, x, 0, 6);
+@c revert (t, x);
+@c ratexpand (%);
+@c taylor (log(x+1), x, 0, 6);
+@c ratsimp (revert (t, x) - taylor (log(x+1), x, 0, 6));
+@c revert2 (t, x, 4);
+@c ===end===
+@example maxima
 (%i1) load ("revert")$
+@group
 (%i2) t: taylor (exp(x) - 1, x, 0, 6);
                    2    3    4    5     6
                   x    x    x    x     x
 (%o2)/T/      x + -- + -- + -- + --- + --- + . . .
                   2    6    24   120   720
+@end group
+@group
 (%i3) revert (t, x);
                6       5       4       3       2
            10 x  - 12 x  + 15 x  - 20 x  + 30 x  - 60 x
 (%o3)/R/ - --------------------------------------------
                                 60
+@end group
+@group
 (%i4) ratexpand (%);
                      6    5    4    3    2
                     x    x    x    x    x
 (%o4)             - -- + -- - -- + -- - -- + x
                     6    5    4    3    2
+@end group
+@group
 (%i5) taylor (log(x+1), x, 0, 6);
                     2    3    4    5    6
                    x    x    x    x    x
 (%o5)/T/       x - -- + -- - -- + -- - -- + . . .
                    2    3    4    5    6
+@end group
+@group
 (%i6) ratsimp (revert (t, x) - taylor (log(x+1), x, 0, 6));
 (%o6)                           0
+@end group
+@group
 (%i7) revert2 (t, x, 4);
                           4    3    2
                          x    x    x
 (%o7)                  - -- + -- - -- + x
                          4    3    2
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -974,6 +1087,7 @@ See also the @mref{taylor_logexpand} switch for controlling expansion.
 Examples:
 
 @c EXAMPLES ADAPTED FROM example (taylor)
+@c ===beg===
 @c taylor (sqrt (sin(x) + a*x + 1), x, 0, 3);
 @c %^2;
 @c taylor (sqrt (x + 1), x, 0, 5);
@@ -990,116 +1104,139 @@ Examples:
 @c taylor (sin (y + x), [x, y], 0, 3);
 @c taylor (1/sin (y + x), x, 0, 3, y, 0, 3);
 @c taylor (1/sin (y + x), [x, y], 0, 3);
-@example
+@c ===end===
+@example maxima
+@group
 (%i1) taylor (sqrt (sin(x) + a*x + 1), x, 0, 3);
                            2             2
              (a + 1) x   (a  + 2 a + 1) x
 (%o1)/T/ 1 + --------- - -----------------
                  2               8
-
                                    3      2             3
                                (3 a  + 9 a  + 9 a - 1) x
                              + -------------------------- + . . .
                                            48
+@end group
+@group
 (%i2) %^2;
                                     3
                                    x
 (%o2)/T/           1 + (a + 1) x - -- + . . .
                                    6
+@end group
+@group
 (%i3) taylor (sqrt (x + 1), x, 0, 5);
                        2    3      4      5
                   x   x    x    5 x    7 x
 (%o3)/T/      1 + - - -- + -- - ---- + ---- + . . .
                   2   8    16   128    256
+@end group
+@group
 (%i4) %^2;
 (%o4)/T/                  1 + x + . . .
-(%i5) product ((1 + x^i)^2.5, i, 1, inf)/(1 + x^2);
+@end group
 @group
+(%i5) product ((1 + x^i)^2.5, i, 1, inf)/(1 + x^2);
                          inf
-                        /===\
-                         ! !    i     2.5
-                         ! !  (x  + 1)
-                         ! !
+                        _____
+                        |   |   i     2.5
+                        |   | (x  + 1)
+                        |   |
                         i = 1
 (%o5)                   -----------------
                               2
                              x  + 1
 @end group
+@group
 (%i6) ev (taylor(%, x,  0, 3), keepfloat);
                                2           3
 (%o6)/T/    1 + 2.5 x + 3.375 x  + 6.5625 x  + . . .
+@end group
+@group
 (%i7) taylor (1/log (x + 1), x, 0, 3);
                                2       3
                  1   1   x    x    19 x
 (%o7)/T/         - + - - -- + -- - ----- + . . .
                  x   2   12   24    720
+@end group
+@group
 (%i8) taylor (cos(x) - sec(x), x, 0, 5);
                                 4
                            2   x
 (%o8)/T/                - x  - -- + . . .
                                6
+@end group
+@group
 (%i9) taylor ((cos(x) - sec(x))^3, x, 0, 5);
 (%o9)/T/                    0 + . . .
+@end group
+@group
 (%i10) taylor (1/(cos(x) - sec(x))^3, x, 0, 5);
                                                2          4
             1     1       11      347    6767 x    15377 x
 (%o10)/T/ - -- + ---- + ------ - ----- - ------- - --------
              6      4        2   15120   604800    7983360
             x    2 x    120 x
-
                                                           + . . .
+@end group
+@group
 (%i11) taylor (sqrt (1 - k^2*sin(x)^2), x, 0, 6);
                2  2       4      2   4
               k  x    (3 k  - 4 k ) x
 (%o11)/T/ 1 - ----- - ----------------
                 2            24
-
                                     6       4       2   6
                                (45 k  - 60 k  + 16 k ) x
                              - -------------------------- + . . .
                                           720
-(%i12) taylor ((x + 1)^n, x, 0, 4);
+@end group
 @group
+(%i12) taylor ((x + 1)^n, x, 0, 4);
                       2       2     3      2         3
                     (n  - n) x    (n  - 3 n  + 2 n) x
 (%o12)/T/ 1 + n x + ----------- + --------------------
                          2                 6
-
                                4      3       2         4
                              (n  - 6 n  + 11 n  - 6 n) x
                            + ---------------------------- + . . .
                                           24
 @end group
+@group
 (%i13) taylor (sin (y + x), x, 0, 3, y, 0, 3);
-               3                 2
-              y                 y
-(%o13)/T/ y - -- + . . . + (1 - -- + . . .) x
-              6                 2
-
+              3                      2
+             y                      y
+(%o13)/T/ (- -- + y + . . .) + (1 - -- + . . .) x
+             6                      2
                     3                       2
                y   y            2      1   y            3
           + (- - + -- + . . .) x  + (- - + -- + . . .) x  + . . .
                2   12                  6   12
+@end group
+@group
 (%i14) taylor (sin (y + x), [x, y], 0, 3);
-                     3        2      2      3
-                    x  + 3 y x  + 3 y  x + y
-(%o14)/T/   y + x - ------------------------- + . . .
-                                6
+                      3        2      2      3
+                     x  + 3 y x  + 3 y  x + y
+(%o14)/T/  (y + x) - ------------------------- + . . .
+                                 6
+@end group
+@group
 (%i15) taylor (1/sin (y + x), x, 0, 3, y, 0, 3);
-          1   y              1    1               1            2
-(%o15)/T/ - + - + . . . + (- -- + - + . . .) x + (-- + . . .) x
-          y   6               2   6                3
-                             y                    y
-
-                                           1            3
-                                      + (- -- + . . .) x  + . . .
-                                            4
-                                           y
+           y   1               1    1
+(%o15)/T/ (- + - + . . .) + (- -- + - + . . .) x
+           6   y                2   6
+                               y
+                       1            2      1            3
+                    + (-- + . . .) x  + (- -- + . . .) x  + . . .
+                        3                   4
+                       y                   y
+@end group
+@group
 (%i16) taylor (1/sin (y + x), [x, y], 0, 3);
                              3         2       2        3
             1     x + y   7 x  + 21 y x  + 21 y  x + 7 y
 (%o16)/T/ ----- + ----- + ------------------------------- + . . .
           x + y     6                   360
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1135,21 +1272,26 @@ the point of expansion, and the degree of the expansion.
 
 Example:
 
-@example
+@c ===beg===
+@c taylor ((1 - y^2)/(1 - x), x, 0, 3, [y, a, inf]);
+@c taylorinfo(%);
+@c ===end===
+@example maxima
+@group
 (%i1) taylor ((1 - y^2)/(1 - x), x, 0, 3, [y, a, inf]);
-                  2                       2
-(%o1)/T/ - (y - a)  - 2 a (y - a) + (1 - a )
-
-         2                        2
- + (1 - a  - 2 a (y - a) - (y - a) ) x
-
-         2                        2   2
- + (1 - a  - 2 a (y - a) - (y - a) ) x
-
-         2                        2   3
- + (1 - a  - 2 a (y - a) - (y - a) ) x  + . . .
+                2                         2
+(%o1)/T/ ((1 - a ) - 2 a (y - a) - (y - a) )
+             2                       2
+ + (- (y - a)  - 2 a (y - a) + (1 - a )) x
+             2                       2    2
+ + (- (y - a)  - 2 a (y - a) + (1 - a )) x
+             2                       2    3
+ + (- (y - a)  - 2 a (y - a) + (1 - a )) x  + . . .
+@end group
+@group
 (%i2) taylorinfo(%);
-(%o2)               [[y, a, inf], [x, 0, 3]]
+(%o2)               [[x, 0, 3], [y, a, inf]]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1268,15 +1410,26 @@ so that it is displayed as if its sums were truncated Taylor series.
 
 Example:
 
-@example
+@c ===beg===
+@c expr: x^2 + x + 1;
+@c trunc (expr);
+@c is (expr = trunc (expr));
+@c ===end===
+@example maxima
+@group
 (%i1) expr: x^2 + x + 1;
                             2
 (%o1)                      x  + x + 1
+@end group
+@group
 (%i2) trunc (expr);
                                 2
 (%o2)                  1 + x + x  + . . .
+@end group
+@group
 (%i3) is (expr = trunc (expr));
 (%o3)                         true
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1296,32 +1449,41 @@ See also @mrefdot{nusum}
 
 Examples:
 @c GENERATED FROM THE FOLLOWING INPUTS
+@c ===beg===
 @c g(p) := p*4^n/binomial(2*n,n);
 @c g(n^4);
 @c nusum (%, n, 0, n);
 @c unsum (%, n);
-
-@example
+@c ===end===
+@example maxima
+@group
 (%i1) g(p) := p*4^n/binomial(2*n,n);
                                      n
                                   p 4
 (%o1)               g(p) := ----------------
                             binomial(2 n, n)
+@end group
+@group
 (%i2) g(n^4);
-                              4  n
-                             n  4
+                              n  4
+                             4  n
 (%o2)                   ----------------
                         binomial(2 n, n)
+@end group
+@group
 (%i3) nusum (%, n, 0, n);
-                     4        3       2              n
-      2 (n + 1) (63 n  + 112 n  + 18 n  - 22 n + 3) 4      2
-(%o3) ------------------------------------------------ - ------
-                    693 binomial(2 n, n)                 3 11 7
+         n              4        3       2
+      2 4  (n + 1) (63 n  + 112 n  + 18 n  - 22 n + 3)    2
+(%o3) ------------------------------------------------ - ---
+                    693 binomial(2 n, n)                 231
+@end group
+@group
 (%i4) unsum (%, n);
-                              4  n
-                             n  4
+                              n  4
+                             4  n
 (%o4)                   ----------------
                         binomial(2 n, n)
+@end group
 @end example
 
 @opencatbox{Categories:}
