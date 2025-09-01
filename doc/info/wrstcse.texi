@@ -954,8 +954,9 @@ Example:
 @anchor{wc_sensitivities}
 @deffn {Function} wc_sensitivities (@var{expr})
 
-Generates a matrix that for each @var{tol[n} displays the derivation of @var{expr}
-to @var{tol[n]} in the typical case (@code{tol[n]}=0):
+Generates a matrix that for each @var{tol[n} displays how much each @var{tol[n]}
+can change  @var{expr} in positive and negative direction, when starting from the
+the typical case (all @code{tol[n]}=0):
 
 Example:
 @c ===beg===
@@ -1016,14 +1017,24 @@ Example:
 @end group
 @group
 (%i8) float(wc_sensitivities(subst(vals,rhs(eq3))));
-                   [  tol      0.0025 U_In  ]
-                   [     R2                 ]
-                   [                        ]
-(%o8)              [  tol     - 0.0025 U_In ]
-                   [     R1                 ]
-                   [                        ]
-                   [ tol           0.0      ]
-                   [    Temp                ]
+               [  tol    ]
+               [     R2  ]
+               [         ]
+(%o8)  Col 1 = [  tol    ] Col 2 = 
+               [     R1  ]
+               [         ]
+               [ tol     ]
+               [    Temp ]
+[ - 0.002512562814070352 U_In ]
+[                             ]
+[  0.002512562814070352 U_In  ] Col 3 = 
+[                             ]
+[             0.0             ]
+[  0.0024875621890547263 U_In  ]
+[                              ]
+[ - 0.0024875621890547263 U_In ]
+[                              ]
+[             0.0              ]
 @end group
 @end example
 @end deffn

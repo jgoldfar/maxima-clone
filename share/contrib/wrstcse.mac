@@ -109,6 +109,17 @@ wc_typicalvalues(wc_x):=
         wc_x
     );
 
+
+/* Calculates the typical values of wc_x, but doesn't touch the tolerance wc_exception */
+%wc_typicalvalues(wc_x,wc_exception):=
+    subst(
+        delete(
+            wc_exception=0,
+            makelist(i=0,i,%wc_tols(wc_x))
+        ),
+        wc_x
+    );
+
 /* Convenience function: Get the minimum, the typical and the maximal value */
 
 wc_mintypmax(wc_x,[wc_params]):=block([wc_allvalues,wc_param1,min,wc_typ,max],
@@ -248,6 +259,8 @@ wc_ewc_simplify(x):=block(
     [
         /* The derivate of x to the tol[n] we currently look at */
         wc_diffofwctol,
+        /* wc_diffofwctol for the current tol being 0 */
+        wc_diffofwctollimit,
         /*the tol[n] we merge as many tolerances as we can to */
         mergedtol:[],
         /* Is the tol[n] we merge as many tolerances as we can to positive? */
@@ -258,8 +271,43 @@ wc_ewc_simplify(x):=block(
        the for loop can still continue. */
     errcatch(
         /* Let's see if increasing the current tol[n] increases x*/
-        wc_diffofwctol:wc_typicalvalues(diff(x,wc_tol)),
-        if wc_diffofwctol > 0 then
+        wc_diffofwctol:%wc_typicalvalues(diff(x,wc_tol),wc_tol),
+        wc_diffofwctollimit:limit(wc_diffofwctol,wc_tol,0),
+        if wc_diffofwctollimit='ind then block(
+            [
+                poslimit:sign(limit(wc_diffofwctol,wc_tol,0,'plus)),
+                neglimit:sign(limit(wc_diffofwctol,wc_tol,0,'minus))
+            ],
+            if  (poslimit='pos and (neglimit='pos or neglimit='zero)) or
+                (neglimit='pos and (poslimit='pos or poslimit='zero)) then
+            (
+                /* increasing tol[n] increases x */
+                if mergedtol = [] then
+                (
+                    /* merge this tol[n] with all future ones */
+                   mergedtol:wc_tol,
+                   wc_mergedtoldirection:1
+                )
+                else
+                    x:subst(wc_tol=wc_mergedtoldirection*mergedtol,x)
+                ),
+                if  (poslimit='neg and (neglimit='neg or neglimit='zero)) or
+                    (neglimit='neg and (poslimit='neg or poslimit='zero)) then
+                (
+                    /* increasing tol[n] decreases x */
+                    if mergedtol = [] then
+                    (
+                        /* merge this tol[n] with all future ones */
+                        mergedtol:wc_tol,
+                        wc_mergedtoldirection:-1
+                    )
+                else
+                   x:subst(wc_tol=-wc_mergedtoldirection*mergedtol,x)
+                )
+        )
+        else
+        (
+            if wc_diffofwctollimit > 0 then
             (
                 /* increasing tol[n] increases x */
                 if mergedtol = [] then
@@ -273,7 +321,7 @@ wc_ewc_simplify(x):=block(
             ) else
             (        
                 /* The above if might have resulted in true or unknown */
-                if wc_diffofwctol < 0 then
+                if wc_diffofwctollimit < 0 then
                     (
                         /* increasing wc_tol decreases x */
                         if mergedtol = [] then
@@ -287,19 +335,21 @@ wc_ewc_simplify(x):=block(
                             x:subst(wc_tol=-wc_mergedtoldirection*mergedtol,x)
                     )
                 )
+        )
     ),
     return(x)
 );
 
-wc_sensitivities(expr):=block([tols:[],wc_result:[]],
+wc_sensitivities(expr):=block([tols:[],wc_tol,wc_typ:wc_typicalvalues(expr),wc_result:[]],
     /* Compile a list of tol[n] */
     for i in listofvars(expr) do
         if not(freeof('tol,i)) then
             push(i,tols),
     /* Compile a matrix that shows the sensitivity of expr to this parameter */
     for i in tols do
-        push([i,wc_typicalvalues(diff(expr,i))],wc_result),
+    (
+        wc_tol:%wc_typicalvalues(expr,i),
+        push([i,subst(i=-1,wc_tol)-wc_typ,subst(i=1,wc_tol)-wc_typ],wc_result)
+    ),
     return(apply('matrix,wc_result))
 );
-
-
