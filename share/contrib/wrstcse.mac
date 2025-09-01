@@ -254,7 +254,9 @@ wc_ewc_simplify(x):=block(
         wc_mergedtoldirection:1
     ],
     for wc_tol in %wc_tols(x) do
-    (
+    /* If one step of this loop errors out this means one tolerance isn't merged, but
+       the for loop can still continue. */
+    errcatch(
         /* Let's see if increasing the current tol[n] increases x*/
         wc_diffofwctol:wc_typicalvalues(diff(x,wc_tol)),
         if wc_diffofwctol > 0 then
