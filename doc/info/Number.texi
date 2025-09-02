@@ -427,14 +427,19 @@ Examples:
 @c fibtophi (%);
 @c ratsimp (%);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) fibtophi (fib (n));
                            n             n
                        %phi  - (1 - %phi)
 (%o1)                  -------------------
                            2 %phi - 1
+@end group
+@group
 (%i2) fib (n-1) + fib (n) - fib (n+1);
 (%o2)          - fib(n + 1) + fib(n) + fib(n - 1)
+@end group
+@group
 (%i3) fibtophi (%);
             n + 1             n + 1       n             n
         %phi      - (1 - %phi)        %phi  - (1 - %phi)
@@ -444,8 +449,11 @@ Examples:
                                       %phi      - (1 - %phi)
                                     + ---------------------------
                                               2 %phi - 1
+@end group
+@group
 (%i4) ratsimp (%);
 (%o4)                           0
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -651,13 +659,19 @@ simplification rules:
 @c mod (a*x, a*y);
 @c mod (0, x);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) mod (x, 0);
 (%o1)                           x
+@end group
+@group
 (%i2) mod (a*x, a*y);
 (%o2)                      a mod(x, y)
+@end group
+@group
 (%i3) mod (0, x);
 (%o3)                           0
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -881,17 +895,23 @@ Examples:
 @c limit(zeta(x),x,1,plus);
 @c limit(zeta(x),x,1,minus);
 @c ===end===
-@example
-(%i1) zeta([-2, -1, 0, 0.5, 2, 3, 1+%i]);
-                                             2
-            1     1                       %pi
-(%o1) [0, - --, - -, - 1.460354508809586, ----, zeta(3), 
-            12    2                        6
+@example maxima
+@group
+(%i1) zeta([-2, -1, 0, 0.5, 2, 3,1+%i]);
+                                              2
+            1     1                        %pi
+(%o1) [0, - --, - -, - 1.4603545088095862, ----, zeta(3), 
+            12    2                         6
                                                     zeta(%i + 1)]
+@end group
+@group
 (%i2) limit(zeta(x),x,1,plus);
 (%o2)                          inf
+@end group
+@group
 (%i3) limit(zeta(x),x,1,minus);
 (%o3)                         minf
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -916,16 +936,20 @@ Examples:
 @c zeta%pi: false$
 @c zeta (4);
 @c ===end===
-@example
+@example maxima
 (%i1) zeta%pi: true$
+@group
 (%i2) zeta (4);
                                  4
                               %pi
 (%o2)                         ----
                                90
+@end group
 (%i3) zeta%pi: false$
+@group
 (%i4) zeta (4);
 (%o4)                        zeta(4)
+@end group
 @end example
 
 @opencatbox{Categories:}
