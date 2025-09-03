@@ -41,6 +41,16 @@ Of the eight variants of the solver, Maxima currently only has an
 interface to @code{dlsode}.
 
 Let's say we have this system of equations to solve:
+m4_displaymath(
+<<<
+\eqalign{
+f_1 &= -0.04 y_1 + 10^4 y_2 y_3 \cr
+f_3 &= 3\times 10^7 y_2^2 \cr
+{dy_1 \over dt} &= f_1 \cr
+{dy_2 \over dt} &= -f_1 - f_3 \cr
+{dy_3 \over dt} &= f_3 \cr
+}>>>,
+<<<
 @example
   f1 = -.04d0*y1 + 1d4*y2*y3
   f3 = 3d7*y2*y2
@@ -48,29 +58,70 @@ Let's say we have this system of equations to solve:
   dy2/dt = -f1 - f3
   dy3/dt = f3
 @end example
-The independent variable is @math{t}; the  dependent variables are @math{y1}, @math{y2},
-and @math{y3}, 
+>>>)
+
+The independent variable is @math{t}; the  dependent variables are
+m4_mathcomma(y_1)
+m4_mathcomma(y_2)
+and
+m4_mathdot(y_3)
 
 To start the solution, set up the differential equations to solved:
-@example
-load("dlsode");
-f1: -.04d0*y1 + 1d4*y2*y3$
-f3: 3d7*y2*y2$
-f2: -f1 - f3$
-fex: [f1, f2, f3];
+@c ===beg===
+@c load("dlsode")$
+@c f1: -.04d0*y1 + 1d4*y2*y3$
+@c f3: 3d7*y2*y2$
+@c f2: -f1 - f3$
+@c fex: [f1, f2, f3];
+@c ===end===
+@example maxima
+(%i1) load("dlsode")$
+(%i2) f1: -.04d0*y1 + 1d4*y2*y3$
+(%i3) f3: 3d7*y2*y2$
+(%i4) f2: -f1 - f3$
+@group
+(%i5) fex: [f1, f2, f3];
+(%o5) [10000.0 y2 y3 - 0.04 y1, 
+                                          2                    2
+                - 10000.0 y2 y3 - 3.0e7 y2  + 0.04 y1, 3.0e7 y2 ]
+@end group
 @end example
 
 Initialize the solver, where we have selected method 21:
-@example
+@c ===beg===
+@c load("dlsode")$
+@c f1: -.04d0*y1 + 1d4*y2*y3$
+@c f3: 3d7*y2*y2$
+@c f2: -f1 - f3$
+@c fex: [f1, f2, f3];
+@c state : dlsode_init(fex, ['t,y1,y2,y3], 21);
+@c ===end===
+@example maxima
+(%i1) load("dlsode")$
+(%i2) f1: -.04d0*y1 + 1d4*y2*y3$
+(%i3) f3: 3d7*y2*y2$
+(%i4) f2: -f1 - f3$
+@group
+(%i5) fex: [f1, f2, f3];
+(%o5) [10000.0 y2 y3 - 0.04 y1, 
+                                          2                    2
+                - 10000.0 y2 y3 - 3.0e7 y2  + 0.04 y1, 3.0e7 y2 ]
+@end group
+@group
 (%i6) state : dlsode_init(fex, ['t,y1,y2,y3], 21);
-(%o6) [[f, #<Function "LAMBDA ($T $Y1 $Y2 $Y3)" @{49DAC061@}>], 
-[vars, [t, y1, y2, y3]], [mf, 21], [neq, 3], [lrw, 58], [liw, 23], [rwork, @{Li\
-sp Array: #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
-               0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
-               0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+(%o6) [[f, #<Function "LAMBDA ($T $Y1 $Y2 $Y3)" @{6177C099@}>], 
+[vars, [t, y1, y2, y3]], [mf, 21], [neq, 3], [lrw, 58], 
+[liw, 23], [rwork, @{Lisp Array: #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.\
+0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+               0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0\
+.0 0.0 0.0 0.0
+               0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0\
+.0 0.0 0.0 0.0
                0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0)@}], 
-[iwork, @{Lisp Array: #(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)@}], 
-[fjac, #<Function "LAMBDA ($T $Y1 $Y2 $Y3)" @{49D52AC9@}>]]
+[iwork, 
+@{Lisp Array: #(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)@}], 
+[fjac, #<Function "LAMBDA ($T $Y1 $Y2 $Y3)" @{616B2099@}>]]
+@end group
 @end example
 The arrays rwork and iwork carry state between calls to
 @mref{dlsode_step}, so they should not be modified by the user.  In
@@ -80,31 +131,72 @@ Now that the algorithm has been initialized we can compute solutions
 to the differential equation, using the @var{state} returned above.
 
 For this example, we want to compute the solution at times
-@code{0.4*10^k} for @math{k} from 0 to 11, with the initial values of 1, 0, 0
-for the dependent variables and with a relative tolerance of 1d-4 and
-absolute tolerances of 1e-6, 1e-10, and 1d-6 for the dependent
+m4_math(0.4\times 10^k,
+@code{0.4*10^k})
+for @math{k} from 0 to 11, with the initial values of 1, 0, 0
+for the dependent variables and with a relative tolerance of
+m4_math(10^{-4}, 1e-4)
+and
+absolute tolerances of
+m4_mathcomma(10^{-6}, 1e-6)
+m4_mathcomma(10^{-10}, 1e-10)
+and
+m4_math(10^{-6}, 1e-6)
+for the dependent
 variables.
 
-Then
-@example
-y: [1d0, 0d0, 0d0];
-t: 0d0;
-rtol : 1d-4;
-atol: [1d-6, 1d-10, 1d-6];
-istate: 1;
-t:0d0;
-tout:.4d0;
+Then, putting everything together
+@c ===beg===
+@c load("dlsode")$
+@c f1: -.04d0*y1 + 1d4*y2*y3$
+@c f3: 3d7*y2*y2$
+@c f2: -f1 - f3$
+@c fex: [f1, f2, f3];
+@c state : dlsode_init(fex, ['t,y1,y2,y3], 21)$
+@c y: [1d0, 0d0, 0d0]$
+@c t: 0d0$
+@c rtol : 1d-4$
+@c atol: [1d-6, 1d-10, 1d-6]$
+@c istate: 1$
+@c t:0d0$
+@c tout:.4d0$
+@c
+@c for k : 1 thru 12 do
+@c   block([],
+@c     result: dlsode_step(y, t, tout, rtol, atol, istate, state),
+@c     printf(true, "At t = ~12,4,2e   y = ~{~14,6,2e~}~%", result[1], result[2]),
+@c     istate : result[3],
+@c     tout : tout * 10);
+@c ===end===
+@example maxima
+(%i1) load("dlsode")$
+(%i2) f1: -.04d0*y1 + 1d4*y2*y3$
+(%i3) f3: 3d7*y2*y2$
+(%i4) f2: -f1 - f3$
+@group
+(%i5) fex: [f1, f2, f3];
+(%o5) [10000.0 y2 y3 - 0.04 y1, 
+                                          2                    2
+                - 10000.0 y2 y3 - 3.0e7 y2  + 0.04 y1, 3.0e7 y2 ]
+@end group
+(%i6) state : dlsode_init(fex, ['t,y1,y2,y3], 21)$
+(%i7) y: [1d0, 0d0, 0d0]$
+(%i8) t: 0d0$
+(%i9) rtol : 1d-4$
+(%i10) atol: [1d-6, 1d-10, 1d-6]$
+(%i11) istate: 1$
+(%i12) t:0d0$
+@group
+(%i13) tout:.4d0$
 
-for k : 1 thru 12 do
+@end group
+@group
+(%i14) for k : 1 thru 12 do
   block([],
     result: dlsode_step(y, t, tout, rtol, atol, istate, state),
     printf(true, "At t = ~12,4,2e   y = ~@{~14,6,2e~@}~%", result[1], result[2]),
     istate : result[3],
     tout : tout * 10);
-@end example
-
-This produces the output:
-@example
 At t =   4.0000e-01   y =   9.851726e-01  3.386406e-05  1.479357e-02
 At t =   4.0000e+00   y =   9.055142e-01  2.240418e-05  9.446344e-02
 At t =   4.0000e+01   y =   7.158050e-01  9.184616e-06  2.841858e-01
@@ -117,8 +209,9 @@ At t =   4.0000e+07   y =   5.306413e-05  2.122677e-10  9.999469e-01
 At t =   4.0000e+08   y =   5.494530e-06  2.197824e-11  9.999945e-01
 At t =   4.0000e+09   y =   5.129458e-07  2.051784e-12  9.999995e-01
 At t =   4.0000e+10   y =  -7.170563e-08 -2.868225e-13  1.000000e+00
+(%o14)                        done
+@end group
 @end example
-
 
 @node Functions and Variables for odepack, , Getting Started with ODEPACK, Package odepack
 @section Functions and Variables for odepack
