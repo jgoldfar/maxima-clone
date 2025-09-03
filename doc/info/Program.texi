@@ -100,21 +100,35 @@ This has the same effect as entering
 @noindent
 The Lisp function @code{displa} prints an expression in Maxima format.
 
-@example
-(%i1) :lisp #$[x, y, z]$ 
+@c ===beg===
+@c :lisp #$[x, y, z]$ 
+@c :lisp (displa '((MLIST SIMP) $X $Y $Z))
+@c ===end===
+@example maxima
+@group
+(%i1) :lisp #$[x, y, z]$
 ((MLIST SIMP) $X $Y $Z)
+@end group
+@group
 (%i1) :lisp (displa '((MLIST SIMP) $X $Y $Z))
 [x, y, z]
 NIL
+@end group
 @end example
 
 Functions defined in Maxima are not ordinary Lisp functions.  The Lisp function
 @code{mfuncall} calls a Maxima function.  For example:
 
-@example
+@c ===beg===
+@c foo(x,y) := x*y$
+@c :lisp (mfuncall '$foo 'a 'b)
+@c ===end===
+@example maxima
 (%i1) foo(x,y) := x*y$
+@group
 (%i2) :lisp (mfuncall '$foo 'a 'b)
 ((MTIMES SIMP) A B)
+@end group
 @end example
 
 Some Lisp functions are shadowed in the Maxima package, namely the following.
@@ -202,19 +216,28 @@ Examples:
 @item
 @code{backtrace ()} prints the entire call stack.
 
-@example
+@c ===beg===
+@c h(x) := g(x/7)$
+@c g(x) := f(x-11)$
+@c f(x) := e(x^2)$
+@c e(x) := (backtrace(), 2*x + 13)$
+@c h(10);
+@c ===end===
+@example maxima
 (%i1) h(x) := g(x/7)$
 (%i2) g(x) := f(x-11)$
 (%i3) f(x) := e(x^2)$
 (%i4) e(x) := (backtrace(), 2*x + 13)$
+@group
 (%i5) h(10);
 #0: e(x=4489/49)
-#1: f(x=-67/7)
+#1: f(x=-(67/7))
 #2: g(x=10/7)
 #3: h(x=10)
                               9615
 (%o5)                         ----
                                49
+@end group
 @end example
 @end itemize
 
@@ -223,19 +246,28 @@ Examples:
 @code{backtrace (@var{n})} prints the @var{n} most recent 
 functions, including the currently active function.
 
-@example
+@c ===beg===
+@c h(x) := (backtrace(1), g(x/7))$
+@c g(x) := (backtrace(1), f(x-11))$
+@c f(x) := (backtrace(1), e(x^2))$
+@c e(x) := (backtrace(1), 2*x + 13)$
+@c h(10);
+@c ===end===
+@example maxima
 (%i1) h(x) := (backtrace(1), g(x/7))$
 (%i2) g(x) := (backtrace(1), f(x-11))$
 (%i3) f(x) := (backtrace(1), e(x^2))$
 (%i4) e(x) := (backtrace(1), 2*x + 13)$
+@group
 (%i5) h(10);
 #0: h(x=10)
 #0: g(x=10/7)
-#0: f(x=-67/7)
+#0: f(x=-(67/7))
 #0: e(x=4489/49)
                               9615
 (%o5)                         ----
                                49
+@end group
 @end example
 @end itemize
 
@@ -339,7 +371,11 @@ variable may be used without affecting the value of a variable with
 the same name outside of the @code{do}.  The control-variable is unbound
 after the @code{do} terminates.
 
-@example
+@c ===beg===
+@c for a:-3 thru 26 step 7 do display(a)$
+@c ===end===
+@example maxima
+@group
 (%i1) for a:-3 thru 26 step 7 do display(a)$
                              a = - 3
 
@@ -350,6 +386,8 @@ after the @code{do} terminates.
                              a = 18
 
                              a = 25
+
+@end group
 @end example
 
 @c ===beg===
@@ -441,13 +479,19 @@ In this case one may use @code{next @var{expression}} instead of
 @code{step @var{increment}}.  This will cause the control-variable to be set to
 the result of evaluating @var{expression} each time through the loop.
 
-@example
-(%i6) for count: 2 next 3*count thru 20 do display (count)$
+@c ===beg===
+@c for count: 2 next 3*count thru 20 do display (count)$
+@c ===end===
+@example maxima
+@group
+(%i1) for count: 2 next 3*count thru 20 do display (count)$
                             count = 2
 
                             count = 6
 
                            count = 18
+
+@end group
 @end example
 
 @c UGH. DO WE REALLY NEED TO MENTION THIS??
@@ -530,15 +574,26 @@ terminate when the @var{list} is exhausted or when a @code{return} is
 executed in the @var{body}.  (In fact, @code{list} may be any
 non-atomic expression, and successive parts are taken.)
 
-@example
-(%i1)  for f in [log, rho, atan] do ldisp(f(1))$
-(%t1)                                  0
-(%t2)                                rho(1)
-                                     %pi
-(%t3)                                 ---
-                                      4
+@c ===beg===
+@c for f in [log, rho, atan] do ldisp(f(1))$
+@c ev(%t3,numer);
+@c ===end===
+@example maxima
+@group
+(%i1) for f in [log, rho, atan] do ldisp(f(1))$
+(%t1)                           0
+
+(%t2)                        rho(1)
+
+                               %pi
+(%t3)                          ---
+                                4
+
+@end group
+@group
 (%i4) ev(%t3,numer);
-(%o4)                             0.78539816
+(%o4)                  0.7853981633974483
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -631,23 +686,21 @@ Example:
 
 The size of @code{U}, as determined by @code{ERROR-SIZE}, is 24.
 
-@example
+@example maxima
 (%i1) U: (C^D^E + B + A)/(cos(X-1) + 1)$
-
 (%i2) error_size: 20$
-
 (%i3) error ("Example expression is", U);
-
 Example expression is errexp1
- -- an error.  Quitting.  To debug this try debugmode(true);
+ -- an error. To debug this try: debugmode(true);
+@group
 (%i4) errexp1;
                             E
                            D
                           C   + B + A
 (%o4)                    --------------
                          cos(X - 1) + 1
+@end group
 (%i5) error_size: 30$
-
 (%i6) error ("Example expression is", U);
 
                          E
@@ -1118,11 +1171,17 @@ Recursively applies @var{f} to @var{expr}, in a top
 down manner.  This is most useful when complete factorization is
 desired, for example:
 
-@example
+@c ===beg===
+@c exp:(a^2+2*a+1)*y + x^2$
+@c scanmap(factor,exp);
+@c ===end===
+@example maxima
 (%i1) exp:(a^2+2*a+1)*y + x^2$
+@group
 (%i2) scanmap(factor,exp);
-                                    2      2
-(%o2)                         (a + 1)  y + x
+                                2      2
+(%o2)                    (a + 1)  y + x
+@end group
 @end example
 
 Note the way in which @code{scanmap} applies the given function
@@ -1131,20 +1190,30 @@ another form of @var{expr} is presented to @code{scanmap} then the
 result may be different.  Thus, @code{%o2} is not recovered when
 @code{scanmap} is applied to the expanded form of @code{exp}:
 
-@example
-(%i3) scanmap(factor,expand(exp));
-                           2                  2
-(%o3)                      a  y + 2 a y + y + x
+@c ===beg===
+@c scanmap(factor,expand(exp));
+@c ===end===
+@example maxima
+@group
+(%i1) scanmap(factor,expand(exp));
+(%o1)                          exp
+@end group
 @end example
 
 Here is another example of the way in which @code{scanmap} recursively
 applies a given function to all subexpressions, including exponents:
 
-@example
-(%i4) expr : u*v^(a*x+b) + c$
-(%i5) scanmap('f, expr);
-                    f(f(f(a) f(x)) + f(b))
-(%o5) f(f(f(u) f(f(v)                      )) + f(c))
+@c ===beg===
+@c expr : u*v^(a*x+b) + c$
+@c scanmap('f, expr);
+@c ===end===
+@example maxima
+(%i1) expr : u*v^(a*x+b) + c$
+@group
+(%i2) scanmap('f, expr);
+                        f(f(f(a) f(x)) + f(b))
+(%o2)    f(f(f(u) f(f(v)                      )) + f(c))
+@end group
 @end example
 
 @code{scanmap (@var{f}, @var{expr}, bottomup)} applies @var{f} to @var{expr} in a
