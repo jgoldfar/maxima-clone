@@ -30,38 +30,44 @@ Example:
 @c todd_coxeter(%o3,[x1]);
 @c todd_coxeter(%o3,[x1,x2]);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) symet(n):=create_list(
         if (j - i) = 1 then (p(i,j))^^3 else
             if (not i = j) then (p(i,j))^^2 else
                 p(i,i) , j, 1, n-1, i, 1, j);
                                                        <3>
 (%o1) symet(n) := create_list(if j - i = 1 then p(i, j)
-
                                 <2>
- else (if not i = j then p(i, j)    else p(i, i)), j, 1, n - 1,
-
+ else (if not i = j then p(i, j)    else p(i, i)), j, 1, n - 1, 
 i, 1, j)
+@end group
+@group
 (%i2) p(i,j) := concat(x,i).concat(x,j);
 (%o2)        p(i, j) := concat(x, i) . concat(x, j)
+@end group
+@group
 (%i3) symet(5);
          <2>           <3>    <2>           <2>           <3>
-(%o3) [x1   , (x1 . x2)   , x2   , (x1 . x3)   , (x2 . x3)   ,
-
+(%o3) [x1   , (x1 . x2)   , x2   , (x1 . x3)   , (x2 . x3)   , 
             <2>           <2>           <2>           <3>    <2>
           x3   , (x1 . x4)   , (x2 . x4)   , (x3 . x4)   , x4   ]
+@end group
+@group
 (%i4) todd_coxeter(%o3);
-
 Rows tried 426
 (%o4)                          120
+@end group
+@group
 (%i5) todd_coxeter(%o3,[x1]);
-
 Rows tried 213
 (%o5)                          60
+@end group
+@group
 (%i6) todd_coxeter(%o3,[x1,x2]);
-
 Rows tried 71
 (%o6)                          20
+@end group
 @end example
 @opencatbox{Categories:}
 @category{Group theory}
