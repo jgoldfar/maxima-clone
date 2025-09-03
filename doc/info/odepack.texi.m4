@@ -125,7 +125,8 @@ Initialize the solver, where we have selected method 21:
 @end example
 The arrays rwork and iwork carry state between calls to
 @mref{dlsode_step}, so they should not be modified by the user.  In
-fact, this state should not be modified by the user at all.
+fact, this @var{state} returned from @code{dlsode_init} should not be
+modified by the user at all.
 
 Now that the algorithm has been initialized we can compute solutions
 to the differential equation, using the @var{state} returned above.
