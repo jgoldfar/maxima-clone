@@ -29,7 +29,7 @@
 To define a function in Maxima you use the @code{:=} operator.
 E.g.
 
-@example
+@example maxima
 f(x) := sin(x)
 @end example
 
@@ -38,7 +38,7 @@ defines a function @code{f}.
 Anonymous functions may also be created using @code{lambda}.
 For example
 
-@example
+@example maxima
 lambda ([i, j], ...)
 @end example
 
@@ -46,7 +46,7 @@ lambda ([i, j], ...)
 can be used instead of @code{f}
 where
 
-@example
+@example maxima
 f(i,j) := block ([], ...);
 map (lambda ([i], i+1), l)
 @end example
@@ -86,7 +86,7 @@ arguments:
 The right hand side of a function is an expression.  Thus
 if you want a sequence of expressions, you do
 
-@example
+@example maxima
 f(x) := (expr1, expr2, ...., exprn);
 @end example
 
@@ -95,7 +95,7 @@ and the value of @var{exprn} is what is returned by the function.
 If you wish to make a @code{return} from some expression inside the
 function then you must use @code{block} and @code{return}.
 
-@example
+@example maxima
 block ([], expr1, ..., if (a > 10) then return(a), ..., exprn)
 @end example
 
@@ -120,7 +120,7 @@ you had used @code{c: a} in the above, the value of @code{c} would
 have been the value of @code{a} at the time you just entered the block,
 but before @code{a} was bound.  Thus doing something like
 
-@example
+@example maxima
 block ([a: a], expr1, ... a: a+3, ..., exprn)
 @end example
 
@@ -135,20 +135,20 @@ session.
 The actual arguments to a function are treated in exactly same way as
 the variables in a block.  Thus in
 
-@example
+@example maxima
 f(x) := (expr1, ..., exprn);
 @end example
 
 and
 
-@example
+@example maxima
 f(1);
 @end example
 
 we would have a similar context for evaluation of the expressions
 as if we had done
 
-@example
+@example maxima
 block ([x: 1], expr1, ..., exprn)
 @end example
 
@@ -826,7 +826,7 @@ beginning of the @code{block} command may be omitted.
 In this case if neither @mref{return} nor @mref{go} are used
 @code{block} behaves similar to the following construct:
 
-@example
+@example maxima
 ( expr_1, expr_2,... , expr_n );
 @end example
 
@@ -2384,12 +2384,12 @@ any              any kind of object (useful for arrays of any)
 
 A function parameter named @code{a} can be declared as an array filled with elements
 of the type @code{t} the following way:
-@example
+@example maxima
 mode_declare (a, array(t, dim1, dim2, ...))
 @end example
 If none of the elements of the array @code{a} needs to be checked if it still doesn't
 contain a value additional code can be omitted by declaring this fact, too:
-@example
+@example maxima
 mode_declare (a, array (t, complete, dim1, dim2, ...))
 @end example
 The @code{complete} has no effect if all array elements are of the type
@@ -2398,13 +2398,13 @@ The @code{complete} has no effect if all array elements are of the type
 
 Another way to tell that all entries of the array @code{a} are of the type
 (``mode'') @code{m} and have been assigned a value to would be:
-@example
+@example maxima
 mode_declare (completearray (a), m))
 @end example
 
 Numeric code using arrays might run faster still if the size of the array is
 known at compile time, as well, as in:
-@example
+@example maxima
 mode_declare (completearray (a [10, 10]), float)
 @end example
 for a floating point number array named @code{a} which is 10 x 10.
@@ -2412,7 +2412,7 @@ for a floating point number array named @code{a} which is 10 x 10.
 @code{mode_declare} also can be used in order to declare the type of the result
 of a function. In this case the function compilation needs to be preceded by
 another @code{mode_declare} statement. For example the expression,
-@example
+@example maxima
 mode_declare ([function (f_1, f_2, ...)], fixnum)
 @end example
 declares that the values returned by @code{f_1}, @code{f_2}, @dots{} are
@@ -2570,7 +2570,7 @@ If you knew that @code{first (l)} returned a number then you could write
 @end example
 However, if you need this construct more often it would be more efficient
 to define a function that returns a number fist:
-@example
+@example maxima
 firstnumb (x) ::= buildq ([x], mode_identity (number, first(x)));
 compile(firstnumb)
 @end example
@@ -2643,7 +2643,7 @@ user-defined functions.
 Functions to be translated should include a call to @code{mode_declare} at the
 beginning when possible in order to produce more efficient code.  For example:
 
-@example
+@example maxima
 f (x_1, x_2, ...) := block ([v_1, v_2, ...],
     mode_declare (v_1, mode_1, v_2, mode_2, ...), ...)
 @end example
@@ -2946,7 +2946,7 @@ non-terminating optimization properties.
 @anchor{tr_state_vars}
 @defvr {System variable} tr_state_vars
 Default value:
-@example
+@example maxima
 [translate_fast_arrays, tr_function_call_default, tr_bound_function_applyp,
 tr_array_as_ref, tr_numer, tr_float_can_branch_complex, define_variable]
 @end example
