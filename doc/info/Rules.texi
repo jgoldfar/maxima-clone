@@ -481,24 +481,44 @@ named by @code{current_let_rule_package} is used.  If a call such as
 @code{current_let_rule_package} is not changed.  If not otherwise specified,
 @code{current_let_rule_package} defaults to @code{default_let_rule_package}.
 
-@example
+@c ===beg===
+@c matchdeclare ([a, a1, a2], true)$
+@c oneless (x, y) := is (x = y-1)$
+@c let (a1*a2!, a1!, oneless, a2, a1);
+@c letrat: true$
+@c let (a1!/a1, (a1-1)!);
+@c letsimp (n*m!*(n-1)!/m);
+@c let (sin(a)^2, 1 - cos(a)^2);
+@c letsimp (sin(x)^4);
+@c ===end===
+@example maxima
 (%i1) matchdeclare ([a, a1, a2], true)$
 (%i2) oneless (x, y) := is (x = y-1)$
+@group
 (%i3) let (a1*a2!, a1!, oneless, a2, a1);
 (%o3)         a1 a2! --> a1! where oneless(a2, a1)
+@end group
 (%i4) letrat: true$
+@group
 (%i5) let (a1!/a1, (a1-1)!);
                         a1!
 (%o5)                   --- --> (a1 - 1)!
                         a1
+@end group
+@group
 (%i6) letsimp (n*m!*(n-1)!/m);
 (%o6)                      (m - 1)! n!
+@end group
+@group
 (%i7) let (sin(a)^2, 1 - cos(a)^2);
                         2               2
 (%o7)                sin (a) --> 1 - cos (a)
+@end group
+@group
 (%i8) letsimp (sin(x)^4);
                         4           2
 (%o8)                cos (x) - 2 cos (x) + 1
+@end group
 @end example
 
 @c NEEDS ADDITIONAL EXAMPLES
@@ -519,20 +539,34 @@ and does not simplify the quotient.
 When @code{letrat} is @code{true},
 the numerator, denominator, and their quotient are simplified in that order.
 
-@example
+@c ===beg===
+@c matchdeclare (n, true)$
+@c let (n!/n, (n-1)!);
+@c letrat: false$
+@c letsimp (a!/a);
+@c letrat: true$
+@c letsimp (a!/a);
+@c ===end===
+@example maxima
 (%i1) matchdeclare (n, true)$
+@group
 (%i2) let (n!/n, (n-1)!);
                          n!
 (%o2)                    -- --> (n - 1)!
                          n
+@end group
 (%i3) letrat: false$
+@group
 (%i4) letsimp (a!/a);
                                a!
 (%o4)                          --
                                a
+@end group
 (%i5) letrat: true$
+@group
 (%i6) letsimp (a!/a);
 (%o6)                       (a - 1)!
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1100,45 +1134,94 @@ The system variable @code{rules} is the list of rules defined by
 
 Examples:
 
-@example
+@c ===beg===
+@c matchdeclare (x, freeof (%i));
+@c %iargs: false$
+@c tellsimp (sin(%i*x), %i*sinh(x));
+@c trigexpand (sin (%i*y + x));
+@c %iargs:true$
+@c errcatch(0^0);
+@c ev (tellsimp (0^0, 1), simp: false);
+@c 0^0;
+@c remrule ("^", %th(2)[1]);
+@c tellsimp (sin(x)^2, 1 - cos(x)^2);
+@c (1 + sin(x))^2;
+@c expand (%);
+@c sin(x)^2;
+@c kill (rules);
+@c matchdeclare (a, true);
+@c tellsimp (sin(a)^2, 1 - cos(a)^2);
+@c sin(y)^2;
+@c ===end===
+@example maxima
+@group
 (%i1) matchdeclare (x, freeof (%i));
 (%o1)                         done
+@end group
 (%i2) %iargs: false$
+@group
 (%i3) tellsimp (sin(%i*x), %i*sinh(x));
 (%o3)                 [sinrule1, simp-%sin]
+@end group
+@group
 (%i4) trigexpand (sin (%i*y + x));
 (%o4)         sin(x) cos(%i y) + %i cos(x) sinh(y)
+@end group
 (%i5) %iargs:true$
+@group
 (%i6) errcatch(0^0);
- 0
-0  has been generated
+                  0
+expt: undefined: 0
 (%o6)                          []
+@end group
+@group
 (%i7) ev (tellsimp (0^0, 1), simp: false);
 (%o7)                  [^rule1, simpexpt]
+@end group
+@group
 (%i8) 0^0;
 (%o8)                           1
+@end group
+@group
 (%i9) remrule ("^", %th(2)[1]);
 (%o9)                           ^
+@end group
+@group
 (%i10) tellsimp (sin(x)^2, 1 - cos(x)^2);
 (%o10)                 [^rule2, simpexpt]
+@end group
+@group
 (%i11) (1 + sin(x))^2;
                                       2
 (%o11)                    (sin(x) + 1)
+@end group
+@group
 (%i12) expand (%);
                                    2
 (%o12)               2 sin(x) - cos (x) + 2
+@end group
+@group
 (%i13) sin(x)^2;
                                   2
 (%o13)                     1 - cos (x)
+@end group
+@group
 (%i14) kill (rules);
 (%o14)                        done
+@end group
+@group
 (%i15) matchdeclare (a, true);
 (%o15)                        done
+@end group
+@group
 (%i16) tellsimp (sin(a)^2, 1 - cos(a)^2);
 (%o16)                 [^rule3, simpexpt]
+@end group
+@group
 (%i17) sin(y)^2;
                                   2
 (%o17)                     1 - cos (y)
+@end group
 @end example
 
 @opencatbox{Categories:}
