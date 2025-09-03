@@ -357,12 +357,16 @@ after the @code{do} terminates.
 @c for i: 1 while i <= 10 do s: s+i;
 @c s;
 @c ===end===
-@example
+@example maxima
 (%i1) s: 0$
+@group
 (%i2) for i: 1 while i <= 10 do s: s+i;
 (%o2)                         done
+@end group
+@group
 (%i3) s;
 (%o3)                          55
+@end group
 @end example
 
 Note that the condition @code{while i <= 10}
@@ -376,17 +380,21 @@ is equivalent to @code{unless i > 10} and also @code{thru 10}.
 @c      series: series + subst (x=0, term)*x^p)$
 @c series;
 @c ===end===
-@example
+@example maxima
 (%i1) series: 1$
 (%i2) term: exp (sin (x))$
+@group
 (%i3) for p: 1 unless p > 7 do
-          (term: diff (term, x)/p, 
-           series: series + subst (x=0, term)*x^p)$
+    (term: diff (term, x)/p,
+     series: series + subst (x=0, term)*x^p)$
+@end group
+@group
 (%i4) series;
                   7    6     5    4    2
                  x    x     x    x    x
 (%o4)            -- - --- - -- - -- + -- + x + 1
                  90   240   15   8    2
+@end group
 @end example
 
 which gives 8 terms of the Taylor series for @code{e^sin(x)}.
@@ -402,19 +410,25 @@ which gives 8 terms of the Taylor series for @code{e^sin(x)}.
 @c     (guess: subst (guess, x, 0.5*(x + 10/x)),
 @c     if abs (guess^2 - 10) < 0.00005 then return (guess));
 @c ===end===
-@example
+@example maxima
 (%i1) poly: 0$
+@group
 (%i2) for i: 1 thru 5 do
-          for j: i step -1 thru 1 do
-              poly: poly + i*x^j$
+    for j: i step -1 thru 1 do
+        poly: poly + i*x^j$
+@end group
+@group
 (%i3) poly;
                   5      4       3       2
 (%o3)          5 x  + 9 x  + 12 x  + 14 x  + 15 x
+@end group
 (%i4) guess: -3.0$
+@group
 (%i5) for i: 1 thru 10 do
-          (guess: subst (guess, x, 0.5*(x + 10/x)),
-           if abs (guess^2 - 10) < 0.00005 then return (guess));
+    (guess: subst (guess, x, 0.5*(x + 10/x)),
+    if abs (guess^2 - 10) < 0.00005 then return (guess));
 (%o5)                  - 3.162280701754386
+@end group
 @end example
 
 This example computes the negative square root of 10 using the
@@ -456,13 +470,17 @@ square-root of 5 using a poor initial guess.
 @c x;
 @c sqrt(5), numer;
 @c ===end===
-@example
+@example maxima
 (%i1) x: 1000$
 (%i2) thru 20 do x: 0.5*(x + 5.0/x)$
+@group
 (%i3) x;
 (%o3)                   2.23606797749979
+@end group
+@group
 (%i4) sqrt(5), numer;
 (%o4)                   2.23606797749979
+@end group
 @end example
 
 If it is desired one may even omit the termination conditions entirely
@@ -477,13 +495,19 @@ should be used to terminate execution of the @code{do}.
 @c sqr (x) := x^2 - 5.0$
 @c newton (sqr, 1000);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) newton (f, x):= ([y, df, dfx], df: diff (f ('x), 'x),
-          do (y: ev(df), x: x - f(x)/y, 
-              if abs (f (x)) < 5e-6 then return (x)))$
+    do (y: ev(df), x: x - f(x)/y,
+        if abs (f (x)) < 5e-6 then return (x)))$
+warning: parser: I'll let it stand, but (...) doesn't recognize local variables.
+warning: parser: did you mean to say: block([y, df, dfx], ...) ?
+@end group
 (%i2) sqr (x) := x^2 - 5.0$
+@group
 (%i3) newton (sqr, 1000);
-(%o3)                   2.236068027062195
+(%o3)                  2.2360680270621947
+@end group
 @end example
 
 @c DUNNO IF WE NEED THIS LEVEL OF DETAIL; THIS ARTICLE IS GETTING PRETTY LONG
@@ -691,24 +715,20 @@ value.  The global value of @code{errormsg} is always present.
 @c errormsg: false;
 @c sin(a,b);
 @c ===end===
-@example
+sin(y): expected exactly 1 arguments but got 2: [a, b]
+ -- an error. To debug this try: debugmode(true);
+ -- an error. To debug this try: debugmode(true);
+@example maxima
 @group
 (%i1) errormsg;
 (%o1)                         true
 @end group
-@group
 (%i2) sin(a,b);
-sin: wrong number of arguments.
- -- an error. To debug this try: debugmode(true);
-@end group
 @group
 (%i3) errormsg: false;
 (%o3)                         false
 @end group
-@group
 (%i4) sin(a,b);
- -- an error. To debug this try: debugmode(true);
-@end group
 @end example
 
 The option variable @code{errormsg} can not be set in a block to a local value.
@@ -721,17 +741,19 @@ The option variable @code{errormsg} can not be set in a block to a local value.
 @c errormsg:false;
 @c f(true);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) f(bool):=block([errormsg:bool],
                      print ("value of errormsg is",errormsg))$
+@end group
 @group
 (%i2) errormsg:true;
 (%o2)                         true
 @end group
 @group
 (%i3) f(false);
-value of errormsg is true 
-(%o3)                         true
+value of errormsg is false 
+(%o3)                         false
 @end group
 @group
 (%i4) errormsg:false;
@@ -739,8 +761,8 @@ value of errormsg is true
 @end group
 @group
 (%i5) f(true);
-value of errormsg is false 
-(%o5)                         false
+value of errormsg is true 
+(%o5)                         true
 @end group
 @end example
 
@@ -881,22 +903,28 @@ See also @mrefcomma{scanmap} @mrefcomma{maplist} @mrefcomma{outermap} @mref{matr
 @c map(ratsimp, x/(x^2+x)+(y^2+y)/y);
 @c map("=",[a,b],[-0.5,3]);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) map(f,x+a*y+b*z);
-(%o1)                        f(b z) + f(a y) + f(x)
+(%o1)                f(b z) + f(a y) + f(x)
+@end group
+@group
 (%i2) map(lambda([u],partfrac(u,x)),x+1/(x^3+4*x^2+5*x+2));
-                           1       1        1
-(%o2)                     ----- - ----- + -------- + x
-                         x + 2   x + 1          2
-                                         (x + 1)
+                    1       1        1
+(%o2)             ----- - ----- + -------- + x
+                  x + 2   x + 1          2
+                                  (x + 1)
+@end group
+@group
 (%i3) map(ratsimp, x/(x^2+x)+(y^2+y)/y);
-                                      1
-(%o3)                            y + ----- + 1
-                                    x + 1
+                                1
+(%o3)                     y + ----- + 1
+                              x + 1
+@end group
+@group
 (%i4) map("=",[a,b],[-0.5,3]);
-(%o4)                          [a = - 0.5, b = 3]
-
-
+(%o4)                  [a = - 0.5, b = 3]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1037,7 +1065,7 @@ statement from C.
 @c     return(10)
 @c  );
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) for i:1 thru 10 do o:i;
 (%o1)                         done
@@ -1057,6 +1085,7 @@ statement from C.
     );
 (%o3)                           8
 @end group
+@group
 (%i4) block([i],
     i:4,
     block([o],
@@ -1067,6 +1096,7 @@ statement from C.
     return(10)
  );
 (%o4)                           4
+@end group
 @end example
 
 
@@ -1196,7 +1226,7 @@ To show the argument combinations more clearly, @code{F} is left undefined.
 @c outermap (F, [a, b], matrix ([1, 2]), matrix ([x], [y]));
 @c outermap ("+", [a, b, c], [1, 2, 3]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) outermap (F, [a, b, c], [1, 2, 3]);
 (%o1) [[F(a, 1), F(a, 2), F(a, 3)], [F(b, 1), F(b, 2), F(b, 3)], 
@@ -1252,7 +1282,7 @@ and each element of each list is a matrix.
 @c [op (arg_1), op (arg_2), op (arg_3)];
 @c [op (xx_0), op (xx_1), op (xx_2)];
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) arg_1 :  matrix ([a, b], [c, d]);
                             [ a  b ]
@@ -1267,6 +1297,7 @@ and each element of each list is a matrix.
 (%i3) arg_3 : matrix ([xx, yy]);
 (%o3)                      [ xx  yy ]
 @end group
+@group
 (%i4) xx_0 : outermap (lambda ([x, y, z], x / y + z), arg_1,
                                                    arg_2, arg_3);
                [  [      a        a  ]  [      a        a  ]  ]
@@ -1283,6 +1314,7 @@ and each element of each list is a matrix.
                  [  [      d        d  ]  [      d        d  ]  ]
                  [ [[ xx + --  yy + -- ], [ xx + --  yy + -- ]] ]
                  [  [      11       11 ]  [      22       22 ]  ]
+@end group
 @group
 (%i5) xx_1 : xx_0 [1][1];
            [      a        a  ]  [      a        a  ]
@@ -1321,7 +1353,7 @@ while @code{cartesian_product} does not.
 @c                      cartesian_product ({a, b, c}, {1, 2, 3}));
 @c is (equal (%, %th (2)));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) outermap (F, [a, b, c], [1, 2, 3]);
 (%o1) [[F(a, 1), F(a, 2), F(a, 3)], [F(b, 1), F(b, 2), F(b, 3)], 
