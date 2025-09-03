@@ -789,10 +789,19 @@ R_2 = 1004.9999999999999], [R_1 = 101.0, R_2 = 1010.0]]
 @end defvr
 
 @anchor{wc_tolappend}
-@deffn {Function} wc_tolappend (@var{list})
+@deffn {Function} wc_tolappend (@var{list1}, @var{list2},...)
 
-Appends two list of parameters with tolerances renumbering the tolerances of
-both lists so they don't coincide.
+Appends lists of parameters from independent sources making sure that
+tolerances of all elements in one list will stay independent from all
+elements in the others.
+
+Works like append() in that it appends all values from all of its
+arguments to make one big list. But this command, if one list
+happens to contain a @var{tol[n]} with the same @var{n} as another
+list, changes one of these @var{n} to a new value that makes
+it independent from all tolerances from the other list.
+
+See also @mrefdot{append}
 
 Example:
 @c ===beg===
@@ -803,8 +812,9 @@ Example:
 @c  ];
 @c val_b: [
 @c    R_3= 1000.0*(1+tol[1]*.01),
-@c    R_4= 1000.0*(1+tol[2]*.01)
+@c    R_4= 1000.0*(1+tol[4]*.01)
 @c  ];
+@c append(val_a,val_b);
 @c wc_tolappend(val_a,val_b);
 @c ===end===
 @example maxima
@@ -822,21 +832,32 @@ Example:
 @group
 (%i3) val_b: [
    R_3= 1000.0*(1+tol[1]*.01),
-   R_4= 1000.0*(1+tol[2]*.01)
+   R_4= 1000.0*(1+tol[4]*.01)
  ];
 (%o3) [R_3 = 1000.0 (0.01 tol  + 1), 
                              1
                                     R_4 = 1000.0 (0.01 tol  + 1)]
-                                                          2
+                                                          4
 @end group
 @group
-(%i4) wc_tolappend(val_a,val_b);
+(%i4) append(val_a,val_b);
 (%o4) [R_1 = 1000.0 (0.01 tol  + 1), 
-                             2
+                             1
 R_2 = 1000.0 (0.01 tol  + 1), R_3 = 1000.0 (0.01 tol  + 1), 
-                      1                             4
+                      2                             1
 R_4 = 1000.0 (0.01 tol  + 1)]
-                      3
+                      4
+@end group
+@group
+(%i5) wc_tolappend(val_a,val_b);
+                            used = 1
+
+(%o5) [R_1 = 1000.0 (0.01 tol  + 1), 
+                             1
+R_2 = 1000.0 (0.01 tol  + 1), R_3 = 1000.0 (0.01 tol  + 1), 
+                      2                             5
+R_4 = 1000.0 (0.01 tol  + 1)]
+                      4
 @end group
 @end example
 @end deffn

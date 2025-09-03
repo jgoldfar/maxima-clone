@@ -29,19 +29,37 @@ with n=startnum */
     
 );
 
-/* wc_tolappend appends a list of element values to another renumbering all tol[] found in both lists
-so they won't conflict. */
-
-wc_tolappend([wc_args]):=block([wc_retval:[],wc_numberoftols:1],
-    for wc_i in wc_args do
-    (
-        if not listp(wc_i) then error("wc_tolappend: All parameters need to be lists"),
-        wc_retval:append(wc_retval,%wc_tolrenumber(wc_i,wc_numberoftols)),
-        wc_numberoftols:wc_numberoftols+length(%wc_tols(wc_i))
+/* wc_tolappend appends a list of element values to an independent list of element
+values renaming all tol[n] found in one list if they would coincide with a tol[n]
+with the same n in the other. */
+wc_tolappend([x]):=block([wc_usedTols:[],wc_tolCntr:1,retval:[]],
+    /* Find which index we can start assigning new tol[n] to */
+    for wc_param in x do
+            for wc_arg in map('first,map('args,%wc_tols(wc_param))) do
+                    if numberp(wc_arg) then
+                        if wc_arg >= wc_tolCntr then wc_tolCntr:wc_arg+1,
+    
+    /* Iterate over all parameters f this function */
+    for wc_param in x do
+        (
+            /* Iterate over all tol[n] of this parameter*/
+            for wc_arg in map('first,map('args,%wc_tols(wc_param))) do
+            (
+                /* Is this tol[n] already in use by a different parameter? */
+                if member(wc_arg,wc_usedTols)  then
+                /* It is already in use => substitute it by a new one. */
+                (
+                    disp(used=wc_arg),
+                    wc_param:subst(tol[wc_arg]=tol[wc_tolCntr],wc_param),
+                    wc_tolCntr:wc_tolCntr+1
+                ),
+                /* mark this tol as "already in use" */
+                push(wc_arg,wc_usedTols)
+            ),
+        retval:append(retval,wc_param)
     ),
-    wc_retval
-);
-
+    return(retval)
+)$
 /* wc_systematic returns a list of the results of all combinations one can get by assigning every tol[n] wc_valuespertol 
 values between -1 and 1. */
 
