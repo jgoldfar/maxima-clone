@@ -69,40 +69,58 @@ m4_mathdot(<<<r\cos(x-\phi)>>>, <<<@math{r*cos(x-phi)}>>>)
 @code{load("trigtools")} loads these functions.
 
 Examples:
-@example
+@c ===beg===
+@c load("trigtools")$
+@c c2sin(3*sin(x)+4*cos(x));
+@c trigexpand(%),expand;
+@c c2cos(3*sin(x)-4*cos(x));
+@c trigexpand(%),expand;
+@c c2sin(sin(x)+cos(x));
+@c trigexpand(%),expand;
+@c c2cos(sin(x)+cos(x));
+@c trigexpand(%),expand;
+@c ===end===
+@example maxima
 (%i1) load("trigtools")$
+@group
 (%i2) c2sin(3*sin(x)+4*cos(x));
-                                            4
-(%o2)                        5 sin(x + atan(-))
-                                            3
+                                      4
+(%o2)                  5 sin(x + atan(-))
+                                      3
+@end group
+@group
 (%i3) trigexpand(%),expand;
-(%o3)                        3 sin(x) + 4 cos(x)
-
+(%o3)                  3 sin(x) + 4 cos(x)
+@end group
 @group
 (%i4) c2cos(3*sin(x)-4*cos(x));
-                                             3
-(%o4)                       - 5 cos(x + atan(-))
-                                             4
+                                       3
+(%o4)                 - 5 cos(x + atan(-))
+                                       4
 @end group
 @group
 (%i5) trigexpand(%),expand;
-(%o5)                        3 sin(x) - 4 cos(x)
+(%o5)                  3 sin(x) - 4 cos(x)
 @end group
 @group
 (%i6) c2sin(sin(x)+cos(x));
-                                            %pi
-(%o6)                       sqrt(2) sin(x + ---)
-                                             4
+                                      %pi
+(%o6)                 sqrt(2) sin(x + ---)
+                                       4
 @end group
+@group
 (%i7) trigexpand(%),expand;
-(%o7)                          sin(x) + cos(x)
+(%o7)                    sin(x) + cos(x)
+@end group
+@group
 (%i8) c2cos(sin(x)+cos(x));
-                                            %pi
-(%o8)                       sqrt(2) cos(x - ---)
-                                             4
+                                      %pi
+(%o8)                 sqrt(2) cos(x - ---)
+                                       4
+@end group
 @group
 (%i9) trigexpand(%),expand;
-(%o9)                          sin(x) + cos(x)
+(%o9)                    sin(x) + cos(x)
 @end group
 @end example
 
@@ -176,26 +194,54 @@ Examples:
 @enumerate
 
 @item @w{ }
-@example
+@c ===beg===
+@c load(trigtools)$
+@c sinh(x)=c2trig(sinh(x));
+@c cosh(x)=c2trig(cosh(x));
+@c tanh(x)=c2trig(tanh(x));
+@c coth(x)=c2trig(coth(x));
+@c ===end===
+@example maxima
 (%i1) load(trigtools)$
+@group
 (%i2) sinh(x)=c2trig(sinh(x));
-cosh(x)=c2trig(cosh(x));
-tanh(x)=c2trig(tanh(x));
-coth(x)=c2trig(coth(x));
-(%o2)                     sinh(x) = - %i sin(%i x)
-(%o3)                        cosh(x) = cos(%i x)
-(%o4)                     tanh(x) = - %i tan(%i x)
-(%o5)                      coth(x) = %i cot(%i x)
+(%o2)               sinh(x) = - %i sin(%i x)
+@end group
+@group
+(%i3) cosh(x)=c2trig(cosh(x));
+(%o3)                  cosh(x) = cos(%i x)
+@end group
+@group
+(%i4) tanh(x)=c2trig(tanh(x));
+(%o4)               tanh(x) = - %i tan(%i x)
+@end group
+@group
+(%i5) coth(x)=c2trig(coth(x));
+(%o5)                coth(x) = %i cot(%i x)
+@end group
 @end example
 
 @item see @url{https://maxima.sourceforge.io/ext/list_archives/2013/msg03230.html}
-@example
-(%i6) cos(p+q*%i);
-(%o6)                           cos(%i q + p)
-(%i7) trigexpand(%);
-(%o7)                cos(p) cosh(q) - %i sin(p) sinh(q)
-(%i8) c2trig(%);
-(%o8)                           cos(%i q + p)
+@c ===beg===
+@c load("trigtools")$
+@c cos(p+q*%i);
+@c trigexpand(%);
+@c c2trig(%);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+@group
+(%i2) cos(p+q*%i);
+(%o2)                     cos(%i q + p)
+@end group
+@group
+(%i3) trigexpand(%);
+(%o3)          cos(p) cosh(q) - %i sin(p) sinh(q)
+@end group
+@group
+(%i4) c2trig(%);
+(%o4)                     cos(%i q + p)
+@end group
 @end example
 
 @item @w{ }
@@ -209,42 +255,77 @@ coth(x)=c2trig(coth(x));
 @end example
 
 @item @w{ }
-@example
-(%i12) cos(a*%i+b*%i);
-(%o12)                         cos(%i b + %i a)
-(%i13) trigexpand(%);
-(%o13)                 sinh(a) sinh(b) + cosh(a) cosh(b)
-(%i14) c2trig(%);
-(%o14)                         cos(%i b + %i a)
-@end example
-
-@item @w{ }
-@example
-(%i15) tan(a+%i*b);
-(%o15)                           tan(%i b + a)
+@c ===beg===
+@c load("trigtools")$
+@c cos(a*%i+b*%i);
+@c trigexpand(%);
+@c c2trig(%);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
 @group
-(%i16) trigexpand(%);
-                              %i tanh(b) + tan(a)
-(%o16)                       ---------------------
-                             1 - %i tan(a) tanh(b)
+(%i2) cos(a*%i+b*%i);
+(%o2)                   cos(%i b + %i a)
 @end group
 @group
-(%i17) c2trig(%);
-(%o217)                           tan(%i b + a)
+(%i3) trigexpand(%);
+(%o3)           sinh(a) sinh(b) + cosh(a) cosh(b)
+@end group
+@group
+(%i4) c2trig(%);
+(%o4)                   cos(%i b + %i a)
 @end group
 @end example
 
 @item @w{ }
+@c ===beg===
+@c load("trigtools")$
+@c tan(a+%i*b);
+@c trigexpand(%);
+@c c2trig(%);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+@group
+(%i2) tan(a+%i*b);
+(%o2)                     tan(%i b + a)
+@end group
+@group
+(%i3) trigexpand(%);
+                       %i tanh(b) + tan(a)
+(%o3)                 ---------------------
+                      1 - %i tan(a) tanh(b)
+@end group
+@group
+(%i4) c2trig(%);
+(%o4)                     tan(%i b + a)
+@end group
+@end example
 
-@example
-(%i18) cot(x+%i*y);
-(%o18)                           cot(%i y + x)
-(%i19) trigexpand(%);
-                           (- %i cot(x) coth(y)) - 1
-(%o19)                     -------------------------
-                              cot(x) - %i coth(y)
-(%i20) c2trig(%);
-(%o20)                           cot(%i y + x)
+@item @w{ }
+
+@c ===beg===
+@c load("trigtools")$
+@c cot(x+%i*y);
+@c trigexpand(%);
+@c c2trig(%);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+@group
+(%i2) cot(x+%i*y);
+(%o2)                     cot(%i y + x)
+@end group
+@group
+(%i3) trigexpand(%);
+                     - %i cot(x) coth(y) - 1
+(%o3)                -----------------------
+                       cot(x) - %i coth(y)
+@end group
+@group
+(%i4) c2trig(%);
+(%o4)                     cot(%i y + x)
+@end group
 @end example
 @end enumerate
 
@@ -267,16 +348,29 @@ to expression with hyperbolic functions sinh, cosh.
 
 Examples:
 
-@example
-(%i6) c2hyp(exp(x));
-(%o6)                         sinh(x) + cosh(x)
-(%i7) c2hyp(exp(x)+exp(x^2)+1);
-                       2          2
-(%o7)            sinh(x ) + cosh(x ) + sinh(x) + cosh(x) + 1
-(%i8) c2hyp(exp(x)/(2*exp(y)-3*exp(z)));
-                              sinh(x) + cosh(x)
-(%o8)           ---------------------------------------------
-                2 (sinh(y) + cosh(y)) - 3 (sinh(z) + cosh(z))
+@c ===beg===
+@c load("trigtools")$
+@c c2hyp(exp(x));
+@c c2hyp(exp(x)+exp(x^2)+1);
+@c c2hyp(exp(x)/(2*exp(y)-3*exp(z)));
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+@group
+(%i2) c2hyp(exp(x));
+(%o2)                   sinh(x) + cosh(x)
+@end group
+@group
+(%i3) c2hyp(exp(x)+exp(x^2)+1);
+                 2          2
+(%o3)      sinh(x ) + cosh(x ) + sinh(x) + cosh(x) + 1
+@end group
+@group
+(%i4) c2hyp(exp(x)/(2*exp(y)-3*exp(z)));
+                        sinh(x) + cosh(x)
+(%o4)     ---------------------------------------------
+          2 (sinh(y) + cosh(y)) - 3 (sinh(z) + cosh(z))
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -301,13 +395,23 @@ Examples:
 
 @enumerate
 @item @w{ }
-@example
+@c ===beg===
+@c load("trigtools")$
+@c trigfactor(sin(x)+cos(x));
+@c trigrat(%);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+@group
 (%i2) trigfactor(sin(x)+cos(x));
-                                            %pi
-(%o2)                       sqrt(2) cos(x - ---)
-                                             4
+                                      %pi
+(%o2)                 sqrt(2) cos(x - ---)
+                                       4
+@end group
+@group
 (%i3) trigrat(%);
-(%o3)                          sin(x) + cos(x)
+(%o3)                    sin(x) + cos(x)
+@end group
 @end example
 
 @item @w{ }
@@ -325,35 +429,66 @@ Examples:
 @end example
 
 @item @w{ }
-@example
-(%i6) trigfactor(sin(x)-cos(3*y));
-                         3 y   x   %pi      3 y   x   %pi
-(%o6)              2 sin(--- - - + ---) sin(--- + - - ---)
-                          2    2    4        2    2    4
-(%i7) trigrat(%);
-(%o7)                         sin(x) - cos(3 y)
-@end example
-
-@item @w{ }
-@example
-(%i8) trigfactor(-sin(5*x)-cos(3*y));
-                        3 y   5 x   %pi      3 y   5 x   %pi
-(%o8)           - 2 cos(--- - --- + ---) cos(--- + --- - ---)
-                         2     2     4        2     2     4
-(%i9) trigrat(%);
-(%o9)                      (- cos(3 y)) - sin(5 x)
-@end example
-
-@item @w{ }
-@example 
+@c ===beg===
+@c load("trigtools")$
+@c trigfactor(sin(x)-cos(3*y));
+@c trigrat(%);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
 @group
-(%i10) sin(alpha)+sin(beta)=trigfactor(sin(alpha)+sin(beta));
-                                       beta   alpha      beta   alpha
-(%o10)  sin(beta) + sin(alpha) = 2 cos(---- - -----) sin(---- + -----)
-                                        2       2         2       2
+(%i2) trigfactor(sin(x)-cos(3*y));
+                   3 y   x   %pi      3 y   x   %pi
+(%o2)        2 sin(--- - - + ---) sin(--- + - - ---)
+                    2    2    4        2    2    4
 @end group
-(%i11) trigrat(%);
-(%o78)          sin(beta) + sin(alpha) = sin(beta) + sin(alpha)
+@group
+(%i3) trigrat(%);
+(%o3)                   sin(x) - cos(3 y)
+@end group
+@end example
+
+@item @w{ }
+@c ===beg===
+@c load("trigtools")$
+@c trigfactor(-sin(5*x)-cos(3*y));
+@c trigrat(%);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+@group
+(%i2) trigfactor(-sin(5*x)-cos(3*y));
+                  3 y   5 x   %pi      3 y   5 x   %pi
+(%o2)     - 2 cos(--- - --- + ---) cos(--- + --- - ---)
+                   2     2     4        2     2     4
+@end group
+@group
+(%i3) trigrat(%);
+(%o3)                 - cos(3 y) - sin(5 x)
+@end group
+@end example
+
+@item @w{ }
+@c ===beg===
+@c load("trigtools")$
+@c sin(alpha)+sin(beta)=trigfactor(sin(alpha)+sin(beta));
+@c trigrat(%);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+@group
+(%i2) sin(alpha)+sin(beta)=trigfactor(sin(alpha)+sin(beta));
+                                     beta   alpha
+(%o2) sin(beta) + sin(alpha) = 2 cos(---- - -----)
+                                      2       2
+                                                    beta   alpha
+                                                sin(---- + -----)
+                                                     2       2
+@end group
+@group
+(%i3) trigrat(%);
+(%o3)    sin(beta) + sin(alpha) = sin(beta) + sin(alpha)
+@end group
 @end example
 
 @item @w{ }
@@ -365,45 +500,82 @@ Examples:
 @end example
 
 @item @w{ }
-@example
-(%i13) cos(alpha)+cos(beta)=trigfactor(cos(alpha)+cos(beta));
-                                       beta   alpha      beta   alpha
-(%o80)  cos(beta) + cos(alpha) = 2 cos(---- - -----) cos(---- + -----)
-                                        2       2         2       2
-@end example
-
-@item @w{ }
-@example
+@c ===beg===
+@c load("trigtools")$
+@c cos(alpha)+cos(beta)=trigfactor(cos(alpha)+cos(beta));
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
 @group
-(%i14) cos(alpha)-cos(beta)=trigfactor(cos(alpha)-cos(beta));
-                                       beta   alpha      beta   alpha
-(%o14)  cos(alpha) - cos(beta) = 2 sin(---- - -----) sin(---- + -----)
-                                        2       2         2       2
+(%i2) cos(alpha)+cos(beta)=trigfactor(cos(alpha)+cos(beta));
+                                     beta   alpha
+(%o2) cos(beta) + cos(alpha) = 2 cos(---- - -----)
+                                      2       2
+                                                    beta   alpha
+                                                cos(---- + -----)
+                                                     2       2
 @end group
 @end example
 
 @item @w{ }
-@example
-(%i15) trigfactor(3*sin(x)+7*cos(x));
-(%o15)                        3 sin(x) + 7 cos(x)
+@c ===beg===
+@c load("trigtools")$
+@c cos(alpha)-cos(beta)=trigfactor(cos(alpha)-cos(beta));
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
 @group
-(%i16) c2sin(%);
-                                                 7
-(%o16)                     sqrt(58) sin(x + atan(-))
-                                                 3
-@end group
-@group
-(%i17) trigexpand(%),expand;
-(%o17)                        3 sin(x) + 7 cos(x)
+(%i2) cos(alpha)-cos(beta)=trigfactor(cos(alpha)-cos(beta));
+                                     beta   alpha
+(%o2) cos(alpha) - cos(beta) = 2 sin(---- - -----)
+                                      2       2
+                                                    beta   alpha
+                                                sin(---- + -----)
+                                                     2       2
 @end group
 @end example
 
-10.
-@example
-(%i18) trigfactor(sin(2*x));
-(%o18)                             sin(2 x)
-(%i19) trigexpand(%);
-(%o19)                          2 cos(x) sin(x)
+@item @w{ }
+@c ===beg===
+@c load("trigtools")$
+@c trigfactor(3*sin(x)+7*cos(x));
+@c c2sin(%);
+@c trigexpand(%),expand;
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+@group
+(%i2) trigfactor(3*sin(x)+7*cos(x));
+(%o2)                  3 sin(x) + 7 cos(x)
+@end group
+@group
+(%i3) c2sin(%);
+                                          7
+(%o3)               sqrt(58) sin(x + atan(-))
+                                          3
+@end group
+@group
+(%i4) trigexpand(%),expand;
+(%o4)                  3 sin(x) + 7 cos(x)
+@end group
+@end example
+
+@item @w{ }
+@c ===beg===
+@c load("trigtools")$
+@c trigfactor(sin(2*x));
+@c trigexpand(%);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+@group
+(%i2) trigfactor(sin(2*x));
+(%o2)                       sin(2 x)
+@end group
+@group
+(%i3) trigexpand(%);
+(%o3)                    2 cos(x) sin(x)
+@end group
 @end example
 @end enumerate
 
