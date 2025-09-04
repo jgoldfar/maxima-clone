@@ -168,6 +168,7 @@ Then, putting everything together
 @c     printf(true, "At t = ~12,4,2e   y = ~{~14,6,2e~}~%", result[1], result[2]),
 @c     istate : result[3],
 @c     tout : tout * 10);
+@c result;
 @c ===end===
 @example maxima
 (%i1) load("dlsode")$
@@ -212,6 +213,13 @@ At t =   4.0000e+09   y =   5.129458e-07  2.051784e-12  9.999995e-01
 At t =   4.0000e+10   y =  -7.170563e-08 -2.868225e-13  1.000000e+00
 (%o14)                        done
 @end group
+@group
+(%i15) result;
+(%o15) [4.0e10, [- 7.170562924983933e-8, 
+- 2.868224674710487e-13, 1.000000071705913], 2, 
+[[n_steps, 330], [n_f_eval, 405], [n_j_eval, 69], 
+[method_order, 1], [len_rwork, 58], [len_iwork, 23]]]
+@end group
 @end example
 
 @node Functions and Variables for odepack, , Getting Started with ODEPACK, Package odepack
@@ -230,6 +238,7 @@ dependent variables.  The list of dependent variables must be in the
 same order as the equations if @var{fex}.  Finally, @var{method}
 indicates the method to be used by the solver:
 
+@quotation
 @table @code
 @item 10
 Nonstiff (Adams) method, no Jacobian used.
@@ -238,9 +247,12 @@ Stiff (BDF) method, user-supplied full Jacobian.
 @item 22
 Stiff method, internally generated full Jacobian.
 @end table
+@end quotation
+
 
 The returned state object is a list of lists.  The sublist is a list
 of two elements:
+@quotation
 @table @code
 @item f
 The compiled function for the ODE.
@@ -261,6 +273,8 @@ Lisp array holding the integer-valued work vector.
 @item fjac
 Compiled analytical Jacobian of the equations
 @end table
+@end quotation
+
 
 See also @mrefdot{dlsode_step}  @xref{Getting Started with ODEPACK} for
 an example of usage.
@@ -277,6 +291,9 @@ an example of usage.
 Performs one step of the solver, returning the values of the
 independent and dependent variables, a success or error code.
 
+The parameters for @code{dlsode_step} are:
+@c quotation block to indent this a bit more
+@quotation
 @table @code
 @item inity
 For the first call (when istate = 1), the initial values
@@ -300,8 +317,11 @@ for pure relative error.
 @item state
 state returned by dlsode_init.
 @end table
+@end quotation
+
 
 The output is a list of the following items:
+@quotation
 @table @code
 @item t
 independent variable value
@@ -309,6 +329,7 @@ independent variable value
 list of values of the dependent variables at time t.
 @item istate
 Integration status:
+@quotation
 @table @code
 @item 1 
 no work because tout = tt
@@ -321,7 +342,7 @@ Excess accuracy requested
 @item -3
 Illegal input detected
 @item -4
- Repeated error test failures
+Repeated error test failures
 @item -5
 Repeated convergence failures (perhaps bad Jacobian or wrong choice of
 mf or tolerances)
@@ -329,8 +350,10 @@ mf or tolerances)
 Error weight because zero during problem (solution component is
 vanished and atol(i) = 0.
 @end table
+@end quotation
 @item info
 association list of various bits of information:
+@quotation
 @table @code
 @item n_steps
 total steps taken thus far
@@ -345,7 +368,11 @@ Actual length used for real work array
 @item len_iwork
 Actual length used for integer work array
 @end table
+@end quotation
+
 @end table
+@end quotation
+
 
 See also @mrefdot{dlsode_init}  @xref{Getting Started with ODEPACK} for
 an example of usage.
