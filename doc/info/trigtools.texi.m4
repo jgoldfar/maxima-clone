@@ -600,21 +600,42 @@ m4_mathdot(<<<[a,b)>>>, <<<[a, b)>>>)
 Examples:
 @enumerate
 @item @w{ }
-@example
-(%i38) eq:eq:3*sin(x)+4*cos(x)=2;
-(%o38)                      3 sin(x) + 4 cos(x) = 2
-
-(%i39) plot2d([3*sin(x)+4*cos(x),2],[x,-%pi,%pi]);
+@c ===beg===
+@c eq:eq:3*sin(x)+4*cos(x)=2;
+@c plot2d([3*sin(x)+4*cos(x),2],[x,-%pi,%pi]);
+@c ===end===
+@example maxima
+@group
+(%i1) eq:eq:3*sin(x)+4*cos(x)=2;
+(%o1)                3 sin(x) + 4 cos(x) = 2
+@end group
+@group
+(%i2) plot2d([3*sin(x)+4*cos(x),2],[x,-%pi,%pi]);
+(%o2)                         false
+@end group
+@end example
 
 @center @image{figures/trigtools-2,5in,,plot2}
 
-(%o39)
-(%i40) sol:trigsolve(eq,-%pi,%pi);
-                  2 sqrt(21)   12              2 sqrt(21)   12
-(%o40)      @{atan(---------- - --), %pi - atan(---------- + --)@}
-                      5        5                   5        5
-(%i41) float(%), numer;
-(%o41)            @{- 0.5157783719341241, 1.802780589520693@}
+@c ===beg===
+@c load("trigtools")$
+@c eq:eq:3*sin(x)+4*cos(x)=2$
+@c sol:trigsolve(eq,-%pi,%pi);
+@c float(%), numer;
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+(%i2) eq:eq:3*sin(x)+4*cos(x)=2$
+@group
+(%i3) sol:trigsolve(eq,-%pi,%pi);
+            2 sqrt(21)   12              2 sqrt(21)   12
+(%o3) @{atan(---------- - --), %pi - atan(---------- + --)@}
+                5        5                   5        5
+@end group
+@group
+(%i4) float(%), numer;
+(%o4)      @{- 0.5157783719341241, 1.8027805895206928@}
+@end group
 @end example
 
 Answ. : 
@@ -627,70 +648,147 @@ m4_mathcomma(<<<x = \pi - \tan^{-1}\left({2\sqrt{21}\over 5} +
 @math{k} -- any integer.
 
 @item @w{ }
-@example
-(%i6) eq:cos(3*x)-sin(x)=sqrt(3)*(cos(x)-sin(3*x));
-(%o6)         cos(3 x) - sin(x) = sqrt(3) (cos(x) - sin(3 x))
-(%i7) plot2d([lhs(eq)-rhs(eq)], [x,0,2*%pi])$
+@c ===beg===
+@c load("trigtools")$
+@c eq:cos(3*x)-sin(x)=sqrt(3)*(cos(x)-sin(3*x));
+@c plot2d([lhs(eq)-rhs(eq)], [x,0,2*%pi])$
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+@group
+(%i2) eq:cos(3*x)-sin(x)=sqrt(3)*(cos(x)-sin(3*x));
+(%o2)    cos(3 x) - sin(x) = sqrt(3) (cos(x) - sin(3 x))
+@end group
+(%i3) plot2d([lhs(eq)-rhs(eq)], [x,0,2*%pi])$
+@end example
 
 @center @image{figures/trigtools-3,5in,,plot3}
 
-@end example
-
 We have 6 solutions from [0, 2*pi].
-@example
-(%i8) plot2d([lhs(eq)-rhs(eq)], [x,0.2,0.5]);
+@c ===beg===
+@c load("trigtools")$
+@c eq:cos(3*x)-sin(x)=sqrt(3)*(cos(x)-sin(3*x))$
+@c plot2d([lhs(eq)-rhs(eq)], [x,0.2,0.5])$
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+(%i2) eq:cos(3*x)-sin(x)=sqrt(3)*(cos(x)-sin(3*x))$
+(%i3) plot2d([lhs(eq)-rhs(eq)], [x,0.2,0.5])$
+@end example
 
 @center @image{figures/trigtools-4,5in,,plot4}
 
-(%i9) plot2d([lhs(eq)-rhs(eq)], [x,3.3,3.6]);
+@c ===beg===
+@c load("trigtools")$
+@c load("trigtools")$
+@c eq:cos(3*x)-sin(x)=sqrt(3)*(cos(x)-sin(3*x))$
+@c plot2d([lhs(eq)-rhs(eq)], [x,3.3,3.6])$
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+(%i2) load("trigtools")$
+(%i3) eq:cos(3*x)-sin(x)=sqrt(3)*(cos(x)-sin(3*x))$
+(%i4) plot2d([lhs(eq)-rhs(eq)], [x,3.3,3.6])$
+@end example
 
 @center @image{figures/trigtools-5,5in,,plot4}
 
-(%i10) trigfactor(lhs(eq))=map(trigfactor,rhs(eq));
-                   %pi            %pi                      %pi            %pi
-(%o15) - 2 sin(x + ---) sin(2 x - ---) = 2 sqrt(3) sin(x - ---) sin(2 x - ---)
-                    4              4                        4              4
-(%i11) factor(lhs(%)-rhs(%));
-                 4 x + %pi                4 x - %pi       8 x - %pi
-(%o11)  - 2 (sin(---------) + sqrt(3) sin(---------)) sin(---------)
-                     4                        4               4
+@c ===beg===
+@c load("trigtools")$
+@c eq:cos(3*x)-sin(x)=sqrt(3)*(cos(x)-sin(3*x))$
+@c trigfactor(lhs(eq))=map(trigfactor,rhs(eq));
+@c factor(lhs(%)-rhs(%));
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+(%i2) eq:cos(3*x)-sin(x)=sqrt(3)*(cos(x)-sin(3*x))$
+@group
+(%i3) trigfactor(lhs(eq))=map(trigfactor,rhs(eq));
+                  %pi            %pi
+(%o3) - 2 sin(x + ---) sin(2 x - ---) = 
+                   4              4
+                                              %pi            %pi
+                            2 sqrt(3) sin(x - ---) sin(2 x - ---)
+                                               4              4
+@end group
+@group
+(%i4) factor(lhs(%)-rhs(%));
+               4 x + %pi                4 x - %pi
+(%o4) - 2 (sin(---------) + sqrt(3) sin(---------))
+                   4                        4
+                                                       8 x - %pi
+                                                   sin(---------)
+                                                           4
+@end group
 @end example
 
 Equation is equivalent to
-@example
+@c ===beg===
+@c load("trigtools")$
+@c eq:cos(3*x)-sin(x)=sqrt(3)*(cos(x)-sin(3*x))$
+@c trigfactor(lhs(eq))=map(trigfactor,rhs(eq));
+@c L:factor(rhs(%)-lhs(%));
+@c eq1:part(L,2)=0;
+@c eq2:part(L,3)=0;
+@c S1:trigsolve(eq1,0,2*%pi);
+@c S2:trigsolve(eq2,0,2*%pi);
+@c S:listify(union(S1,S2));
+@c float(%), numer;
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+(%i2) eq:cos(3*x)-sin(x)=sqrt(3)*(cos(x)-sin(3*x))$
 @group
-(%i12) L:factor(rhs(%)-lhs(%));
-                4 x + %pi                4 x - %pi       8 x - %pi
-(%o12)   2 (sin(---------) + sqrt(3) sin(---------)) sin(---------)
-                    4                        4               4
+(%i3) trigfactor(lhs(eq))=map(trigfactor,rhs(eq));
+                  %pi            %pi
+(%o3) - 2 sin(x + ---) sin(2 x - ---) = 
+                   4              4
+                                              %pi            %pi
+                            2 sqrt(3) sin(x - ---) sin(2 x - ---)
+                                               4              4
 @end group
 @group
-(%i13) eq1:part(L,2)=0;
-                     4 x + %pi                4 x - %pi
-(%o13)           sin(---------) + sqrt(3) sin(---------) = 0
-                         4                        4
+(%i4) L:factor(rhs(%)-lhs(%));
+             4 x + %pi                4 x - %pi       8 x - %pi
+(%o4) 2 (sin(---------) + sqrt(3) sin(---------)) sin(---------)
+                 4                        4               4
 @end group
 @group
-(%i14) eq2:part(L,3)=0;
-                                 8 x - %pi
-(%o14)                       sin(---------) = 0
-                                     4
+(%i5) eq1:part(L,2)=0;
+               4 x + %pi                4 x - %pi
+(%o5)      sin(---------) + sqrt(3) sin(---------) = 0
+                   4                        4
 @end group
-(%i15) S1:trigsolve(eq1,0,2*%pi);
-                                 %pi  13 %pi
-(%o15)                         @{---, ------@}
-                                 12     12
-(%i16) S2:trigsolve(eq2,0,2*%pi);
-                           %pi  5 %pi  9 %pi  13 %pi
-(%o16)                   @{---, -----, -----, ------@}
-                            8     8      8      8
-(%i17) S:listify(union(S1,S2));
-                   %pi  %pi  5 %pi  13 %pi  9 %pi  13 %pi
-(%o17)            [---, ---, -----, ------, -----, ------]
-                   12    8     8      12      8      8
-(%i18) float(%), numer;
-(%o18) [0.2617993877991494, 0.3926990816987241, 1.963495408493621, 
-                      3.403392041388942, 3.534291735288517, 5.105088062083414]
+@group
+(%i6) eq2:part(L,3)=0;
+                           8 x - %pi
+(%o6)                  sin(---------) = 0
+                               4
+@end group
+@group
+(%i7) S1:trigsolve(eq1,0,2*%pi);
+                           %pi  13 %pi
+(%o7)                     @{---, ------@}
+                           12     12
+@end group
+@group
+(%i8) S2:trigsolve(eq2,0,2*%pi);
+                    %pi  5 %pi  9 %pi  13 %pi
+(%o8)              @{---, -----, -----, ------@}
+                     8     8      8      8
+@end group
+@group
+(%i9) S:listify(union(S1,S2));
+             %pi  %pi  5 %pi  13 %pi  9 %pi  13 %pi
+(%o9)       [---, ---, -----, ------, -----, ------]
+             12    8     8      12      8      8
+@end group
+@group
+(%i10) float(%), numer;
+(%o10) [0.2617993877991494, 0.39269908169872414, 
+1.9634954084936207, 3.4033920413889422, 3.5342917352885173, 
+5.105088062083414]
+@end group
 @end example
 
 Answer: 
