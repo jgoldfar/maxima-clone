@@ -1103,7 +1103,6 @@ Examples:
 @item Values of trigonometric functions
 @c ===beg===
 @c load("trigtools")$
-@c load(trigtools)$
 @c trigvalue(sin(%pi/10));
 @c trigvalue(cos(%pi/10));
 @c trigvalue(tan(%pi/10));
