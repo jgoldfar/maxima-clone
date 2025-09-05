@@ -126,42 +126,79 @@ Examples:
 
 Example. Solve trigonometric equation
 
-@example
+@c ===beg===
+@c eq:3*sin(x)+4*cos(x)=2;
+@c plot2d([3*sin(x)+4*cos(x),2],[x,-%pi,%pi]);
+@c ===end===
+@example maxima
 @group
-(%i10) eq:3*sin(x)+4*cos(x)=2;
-(%o10)                      3 sin(x) + 4 cos(x) = 2
+(%i1) eq:3*sin(x)+4*cos(x)=2;
+(%o1)                3 sin(x) + 4 cos(x) = 2
 @end group
-
-(%i11) plot2d([3*sin(x)+4*cos(x),2],[x,-%pi,%pi]);
+@group
+(%i2) plot2d([3*sin(x)+4*cos(x),2],[x,-%pi,%pi]);
+(%o2)                         false
+@end group
+@end example
 
 @center @image{figures/trigtools-1,5in,,plot1}
 
-(%i12) eq1:c2sin(lhs(eq))=2;
-                                           4
-(%o35)                      5 sin(x + atan(-)) = 2
-                                           3
-(%i13) solvetrigwarn:false$
-(%i14) solve(eq1)[1]$ x1:rhs(%);
-                                    2         4
-(%o15)                         asin(-) - atan(-)
-                                    5         3
-(%i16) float(%), numer;
-(%o39)                       - 0.5157783719341241
-(%i17) eq2:c2cos(lhs(eq))=2;
-                                           3
-(%o17)                      5 cos(x - atan(-)) = 2
-(%i18) solve(eq2,x)[1]$ x2:rhs(%);
-                                    3         2
-(%o19)                         atan(-) + acos(-)
-                                    4         5
-(%i20) float(%), numer;
-(%o20)                         1.802780589520693
-
-(%i21) sol:[x1,x2];
-                          2         4        3         2
-(%o44)              [asin(-) - atan(-), atan(-) + acos(-)]
-                          5         3        4         5
+@c ===beg===
+@c load("trigtools")$
+@c eq:3*sin(x)+4*cos(x)=2$
+@c eq1:c2sin(lhs(eq))=2;
+@c solvetrigwarn:false$
+@c solve(eq1)[1]$ x1:rhs(%);
+@c float(%), numer;
+@c eq2:c2cos(lhs(eq))=2;
+@c solve(eq2,x)[1]$ x2:rhs(%);
+@c float(%), numer;
+@c sol:[x1,x2];
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+(%i2) eq:3*sin(x)+4*cos(x)=2$
+@group
+(%i3) eq1:c2sin(lhs(eq))=2;
+                                    4
+(%o3)                5 sin(x + atan(-)) = 2
+                                    3
+@end group
+(%i4) solvetrigwarn:false$
+@group
+(%i5) solve(eq1)[1]$ x1:rhs(%);
+                             2         4
+(%o6)                   asin(-) - atan(-)
+                             5         3
+@end group
+@group
+(%i7) float(%), numer;
+(%o7)                 - 0.5157783719341241
+@end group
+@group
+(%i8) eq2:c2cos(lhs(eq))=2;
+                                    3
+(%o8)                5 cos(x - atan(-)) = 2
+                                    4
+@end group
+@group
+(%i9) solve(eq2,x)[1]$ x2:rhs(%);
+                             3         2
+(%o10)                  atan(-) + acos(-)
+                             4         5
+@end group
+@group
+(%i11) float(%), numer;
+(%o11)                  1.802780589520693
+@end group
+@group
+(%i12) sol:[x1,x2];
+                   2         4        3         2
+(%o12)       [asin(-) - atan(-), atan(-) + acos(-)]
+                   5         3        4         5
+@end group
 @end example
+
 
 Answ.: 
 m4_mathcomma(<<<x = x_1 + 2\pi k>>>,<<<x = x1 + 2*%pi*k>>>)
@@ -245,13 +282,26 @@ Examples:
 @end example
 
 @item @w{ }
-@example
-(%i9) sin(a+b*%i);
-(%o9)                           sin(%i b + a)
-(%i10) trigexpand(%);
-(%o10)                %i cos(a) sinh(b) + sin(a) cosh(b)
-(%i11) c2trig(%);
-(%o11)                           sin(%i b + a)
+@c ===beg===
+@c load("trigtools")$
+@c sin(a+b*%i);
+@c trigexpand(%);
+@c c2trig(%);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+@group
+(%i2) sin(a+b*%i);
+(%o2)                     sin(%i b + a)
+@end group
+@group
+(%i3) trigexpand(%);
+(%o3)          %i cos(a) sinh(b) + sin(a) cosh(b)
+@end group
+@group
+(%i4) c2trig(%);
+(%o4)                     sin(%i b + a)
+@end group
 @end example
 
 @item @w{ }
@@ -415,16 +465,22 @@ Examples:
 @end example
 
 @item @w{ }
-@example
+@c ===beg===
+@c load("trigtools")$
+@c trigfactor(sin(x)+cos(y));
+@c trigrat(%);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
 @group
-(%i4) trigfactor(sin(x)+cos(y));
-                           y   x   %pi      y   x   %pi
-(%o4)                2 cos(- - - + ---) cos(- + - - ---)
-                           2   2    4       2   2    4
+(%i2) trigfactor(sin(x)+cos(y));
+                     y   x   %pi      y   x   %pi
+(%o2)          2 cos(- - - + ---) cos(- + - - ---)
+                     2   2    4       2   2    4
 @end group
 @group
-(%i5) trigrat(%);
-(%o5)                          cos(y) + sin(x)
+(%i3) trigrat(%);
+(%o3)                    cos(y) + sin(x)
 @end group
 @end example
 
@@ -492,11 +548,21 @@ Examples:
 @end example
 
 @item @w{ }
-@example
-(%i12) sin(alpha)-sin(beta)=trigfactor(sin(alpha)-sin(beta));
-                                        beta   alpha      beta   alpha
-(%o12) sin(alpha) - sin(beta) = - 2 sin(---- - -----) cos(---- + -----)
-                                         2       2         2       2
+@c ===beg===
+@c load("trigtools")$
+@c sin(alpha)-sin(beta)=trigfactor(sin(alpha)-sin(beta));
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+@group
+(%i2) sin(alpha)-sin(beta)=trigfactor(sin(alpha)-sin(beta));
+                                       beta   alpha
+(%o2) sin(alpha) - sin(beta) = - 2 sin(---- - -----)
+                                        2       2
+                                                    beta   alpha
+                                                cos(---- + -----)
+                                                     2       2
+@end group
 @end example
 
 @item @w{ }
