@@ -1035,171 +1035,237 @@ in radicals.
 Examples:
 @enumerate
 @item Values of trigonometric functions
-@example
-(%i1) load(trigtools)$
+@c ===beg===
+@c load("trigtools")$
+@c load(trigtools)$
+@c trigvalue(sin(%pi/10));
+@c trigvalue(cos(%pi/10));
+@c trigvalue(tan(%pi/10));
+@c float(%), numer;
+@c float(tan(%pi/10)), numer;
+@c trigvalue(cot(%pi/10));
+@c float(%), numer;
+@c float(cot(%pi/10)), numer;
+@c trigvalue(sin(%pi/32));
+@c trigvalue(cos(%pi/32));
+@c trigvalue(cos(%pi/256));
+@c trigvalue(cos(%pi/60));
+@c trigvalue(sin(%pi/60));
+@c trigvalue(sin(%pi/18));
+@c trigvalue(sin(%pi/20));
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+(%i2) load(trigtools)$
 @group
-(%i2) trigvalue(sin(%pi/10));
-                                  sqrt(5) - 1
-(%o2)                             -----------
-                                       4
+(%i3) trigvalue(sin(%pi/10));
+                           sqrt(5) - 1
+(%o3)                      -----------
+                                4
 @end group
 @group
-(%i3) trigvalue(cos(%pi/10));
-                               sqrt(sqrt(5) + 5)
-(%o3)                          -----------------
-                                      3/2
-                                     2
+(%i4) trigvalue(cos(%pi/10));
+                        sqrt(sqrt(5) + 5)
+(%o4)                   -----------------
+                               3/2
+                              2
 @end group
 @group
-(%i4) trigvalue(tan(%pi/10));
-                              sqrt(5 - 2 sqrt(5))
-(%o4)                         -------------------
-                                    sqrt(5)
-@end group
-(%i5) float(%), numer;
-(%o5)                         0.3249196962329063
-(%i6) float(tan(%pi/10)), numer;
-(%o6)                         0.3249196962329063
-(%i7) trigvalue(cot(%pi/10));
-(%o7)                         sqrt(2 sqrt(5) + 5)
-(%i8) float(%), numer;
-(%o8)                          3.077683537175254
-(%i9) float(cot(%pi/10)), numer;
-(%o9)                          3.077683537175254
-(%i10) trigvalue(sin(%pi/32));
-                     sqrt(2 - sqrt(sqrt(sqrt(2) + 2) + 2))
-(%o10)               -------------------------------------
-                                       2
-(%i11) trigvalue(cos(%pi/32));
-                     sqrt(sqrt(sqrt(sqrt(2) + 2) + 2) + 2)
-(%o11)               -------------------------------------
-                                       2
-(%i12) trigvalue(cos(%pi/256));
-       sqrt(sqrt(sqrt(sqrt(sqrt(sqrt(sqrt(2) + 2) + 2) + 2) + 2) + 2) + 2)
-(%o12) -------------------------------------------------------------------
-                                        2
-(%i13) trigvalue(cos(%pi/60));
-        sqrt(sqrt(sqrt(2) sqrt(3) sqrt(sqrt(5) + 5) + sqrt(5) + 7) + 4)
-(%o13)  ---------------------------------------------------------------
-                                      3/2
-                                     2
-@group
-(%i14) trigvalue(sin(%pi/60));
-        sqrt(4 - sqrt(sqrt(2) sqrt(3) sqrt(sqrt(5) + 5) + sqrt(5) + 7))
-(%o14)  ---------------------------------------------------------------
-                                      3/2
-                                     2
+(%i5) trigvalue(tan(%pi/10));
+                       sqrt(5 - 2 sqrt(5))
+(%o5)                  -------------------
+                             sqrt(5)
 @end group
 @group
-(%i15) trigvalue(sin(%pi/18));
-                                       %pi
-(%o15)                             sin(---)
-                                       18
+(%i6) float(%), numer;
+(%o6)                  0.3249196962329063
 @end group
 @group
-(%i16) trigvalue(sin(%pi/20));
-                      sqrt(4 - sqrt(2) sqrt(sqrt(5) + 5))
-(%o16)                -----------------------------------
-                                      3/2
-                                     2
+(%i7) float(tan(%pi/10)), numer;
+(%o7)                  0.3249196962329063
+@end group
+@group
+(%i8) trigvalue(cot(%pi/10));
+(%o8)                  sqrt(2 sqrt(5) + 5)
+@end group
+@group
+(%i9) float(%), numer;
+(%o9)                  3.0776835371752536
+@end group
+@group
+(%i10) float(cot(%pi/10)), numer;
+(%o10)                  3.077683537175254
+@end group
+@group
+(%i11) trigvalue(sin(%pi/32));
+              sqrt(2 - sqrt(sqrt(sqrt(2) + 2) + 2))
+(%o11)        -------------------------------------
+                                2
+@end group
+@group
+(%i12) trigvalue(cos(%pi/32));
+              sqrt(sqrt(sqrt(sqrt(2) + 2) + 2) + 2)
+(%o12)        -------------------------------------
+                                2
+@end group
+@group
+(%i13) trigvalue(cos(%pi/256));
+(%o13) sqrt(sqrt(sqrt(sqrt(sqrt(sqrt(sqrt(2) + 2) + 2) + 2) + 2)
+                                                      + 2) + 2)/2
+@end group
+@group
+(%i14) trigvalue(cos(%pi/60));
+(%o14) 
+  sqrt(sqrt(sqrt(2) sqrt(3) sqrt(sqrt(5) + 5) + sqrt(5) + 7) + 4)
+  ---------------------------------------------------------------
+                                3/2
+                               2
+@end group
+@group
+(%i15) trigvalue(sin(%pi/60));
+(%o15) 
+  sqrt(4 - sqrt(sqrt(2) sqrt(3) sqrt(sqrt(5) + 5) + sqrt(5) + 7))
+  ---------------------------------------------------------------
+                                3/2
+                               2
+@end group
+@group
+(%i16) trigvalue(sin(%pi/18));
+                                %pi
+(%o16)                      sin(---)
+                                18
+@end group
+@group
+(%i17) trigvalue(sin(%pi/20));
+               sqrt(4 - sqrt(2) sqrt(sqrt(5) + 5))
+(%o17)         -----------------------------------
+                               3/2
+                              2
 @end group
 @end example
 
 @item ode example
-@example
-(%i17) load(odes)$
+@c ===beg===
+@c load("trigtools")$
+@c load(odes)$
+@c eq:'diff(y,x,5)+2*y=0;
+@c odeL(eq,y,x);
+@c sol:trigeval(%);
+@c subst(sol,eq)$
+@c ev(%, nouns)$
+@c radcan(%);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+(%i2) load(odes)$
 @group
-(%i18) eq:'diff(y,x,5)+2*y=0;
-                                  5
-                                 d y
-(%o18)                           --- + 2 y = 0
-                                   5
-                                 dx
-@end group
-(%i19) odeL(eq,y,x);
-@group
-                   1/5     4 %pi
-                - 2    cos(-----) x
-                             5           1/5     4 %pi
-(%o19) y = C5 %e                    sin(2    sin(-----) x)
-                                                   5
-           1/5     4 %pi
-        - 2    cos(-----) x
-                     5           1/5     4 %pi
- + C4 %e                    cos(2    sin(-----) x)
-                                           5
-           1/5     2 %pi
-        - 2    cos(-----) x
-                     5           1/5     2 %pi
- + C3 %e                    sin(2    sin(-----) x)
-                                           5
-           1/5     2 %pi
-        - 2    cos(-----) x                                  1/5
-                     5           1/5     2 %pi            - 2    x
- + C2 %e                    cos(2    sin(-----) x) + C1 %e
-                                           5
+(%i3) eq:'diff(y,x,5)+2*y=0;
+                           5
+                          d y
+(%o3)                     --- + 2 y = 0
+                            5
+                          dx
 @end group
 @group
-(%i20) sol:trigeval(%);
-                  (sqrt(5) - 1) x
-                - ---------------
-                        9/5
-                       2              sqrt(sqrt(5) + 5) x
-(%o20) y = C3 %e                  sin(-------------------)
-                                             13/10
-                                            2
-          (sqrt(5) - 1) x
-        - ---------------
-                9/5
-               2              sqrt(sqrt(5) + 5) x
- + C2 %e                  cos(-------------------)
+(%i4) odeL(eq,y,x);
+               1/5     4 %pi
+            - 2    cos(-----) x
+                         5              1/5     4 %pi
+(%o4) y = %e                    C5 sin(2    sin(-----) x)
+                                                  5
+        1/5     4 %pi
+     - 2    cos(-----) x
+                  5              1/5     4 %pi
+ + %e                    C4 cos(2    sin(-----) x)
+                                           5
+        1/5     2 %pi
+     - 2    cos(-----) x
+                  5              1/5     2 %pi
+ + %e                    C3 sin(2    sin(-----) x)
+                                           5
+        1/5     2 %pi
+     - 2    cos(-----) x
+                  5              1/5     2 %pi
+ + %e                    C2 cos(2    sin(-----) x)
+                                           5
+        1/5
+     - 2    x
+ + %e         C1
+@end group
+@group
+(%i5) sol:trigeval(%);
+              (sqrt(5) - 1) x
+            - ---------------
+                    9/5
+                   2                 sqrt(sqrt(5) + 5) x
+(%o5) y = %e                  C3 sin(-------------------)
+                                            13/10
+                                           2
+       (sqrt(5) - 1) x
+     - ---------------
+             9/5
+            2                 sqrt(sqrt(5) + 5) x
+ + %e                  C2 cos(-------------------)
                                      13/10
                                     2
-        (sqrt(5) + 1) x
-        ---------------
-              9/5
-             2              sqrt(5 - sqrt(5)) x
- + C5 %e                sin(-------------------)
+     (sqrt(5) + 1) x
+     ---------------
+           9/5
+          2                 sqrt(5 - sqrt(5)) x
+ + %e                C5 sin(-------------------)
                                    13/10
                                   2
-        (sqrt(5) + 1) x
-        ---------------
-              9/5                                          1/5
-             2              sqrt(5 - sqrt(5)) x         - 2    x
- + C4 %e                cos(-------------------) + C1 %e
+     (sqrt(5) + 1) x
+     ---------------
+           9/5                                          1/5
+          2                 sqrt(5 - sqrt(5)) x      - 2    x
+ + %e                C4 cos(-------------------) + %e         C1
                                    13/10
                                   2
 @end group
-(%i21) subst(sol,eq)$
-(%i22) ev(%, nouns)$
-(%i23) radcan(%);
-(%o23)                               0 = 0
+(%i6) subst(sol,eq)$
+(%i7) ev(%, nouns)$
+@group
+(%i8) radcan(%);
+(%o8)                         0 = 0
+@end group
 @end example
 
 @item n-th root of complex number
 
 Example. Find the 4-th roots of %i
-@example
-(%i24) solve(x^4=%i,x);
-                 1/8                1/8             1/8              1/8
-(%o24) [x = (- 1)    %i, x = - (- 1)   , x = - (- 1)    %i, x = (- 1)   ]
+@c ===beg===
+@c load("trigtools")$
+@c solve(x^4=%i,x);
+@c rectform(%);
+@c trigeval(%);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
 @group
-(%i25) rectform(%);
-                   %pi        %pi                 %pi         %pi
-(%o25) [x = %i cos(---) - sin(---), x = (- %i sin(---)) - cos(---), 
-                    8          8                   8           8
-                                %pi           %pi              %pi        %pi
-                        x = sin(---) - %i cos(---), x = %i sin(---) + cos(---)]
-                                 8             8                8          8
+(%i2) solve(x^4=%i,x);
+                1/8                1/8             1/8
+(%o2) [x = (- 1)    %i, x = - (- 1)   , x = - (- 1)    %i, 
+                                                             1/8
+                                                    x = (- 1)   ]
 @end group
 @group
-(%i26) trigeval(%);
-            sqrt(sqrt(2) + 2) %i   sqrt(2 - sqrt(2))
-(%o26) [x = -------------------- - -----------------, 
-                     2                     2
-       sqrt(2 - sqrt(2)) %i    sqrt(sqrt(2) + 2)
-x = (- --------------------) - -----------------, 
-                2                      2
+(%i3) rectform(%);
+                  %pi        %pi                %pi        %pi
+(%o3) [x = %i cos(---) - sin(---), x = - %i sin(---) - cos(---), 
+                   8          8                  8          8
+                  %pi           %pi              %pi        %pi
+          x = sin(---) - %i cos(---), x = %i sin(---) + cos(---)]
+                   8             8                8          8
+@end group
+@group
+(%i4) trigeval(%);
+           sqrt(sqrt(2) + 2) %i   sqrt(2 - sqrt(2))
+(%o4) [x = -------------------- - -----------------, 
+                    2                     2
+      sqrt(2 - sqrt(2)) %i   sqrt(sqrt(2) + 2)
+x = - -------------------- - -----------------, 
+               2                     2
     sqrt(2 - sqrt(2))   sqrt(sqrt(2) + 2) %i
 x = ----------------- - --------------------, 
             2                    2
@@ -1228,45 +1294,78 @@ m4_mathdot(<<<|r| < {\pi\over 2}>>>, <<<abs(r)<%pi/2>>>)
 
 
 Examples:
-@example
-(%i1) load(trigtools)$
-@end example
 
 @enumerate
 @item @w{ }
-@example
+@c ===beg===
+@c load("trigtools")$
+@c atan_contract(atan(x)+atan(y));
+@c assume(abs(atan(x)+atan(y))<%pi/2)$
+@c atan(x)+atan(y)=atan_contract(atan(x)+atan(y));
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+@group
 (%i2) atan_contract(atan(x)+atan(y));
-(%o2)                          atan(y) + atan(x)
+(%o2)                   atan(y) + atan(x)
+@end group
 (%i3) assume(abs(atan(x)+atan(y))<%pi/2)$
+@group
 (%i4) atan(x)+atan(y)=atan_contract(atan(x)+atan(y));
-                                                 y + x
-(%o4)                  atan(y) + atan(x) = atan(-------)
-                                                1 - x y
+                                          y + x
+(%o4)           atan(y) + atan(x) = atan(-------)
+                                         1 - x y
+@end group
 @end example
 
 @item @w{ }
-@example
-(%i5) atan(1/3)+atan(1/5)+atan(1/7)+atan(1/8)$ %=atan_contract(%);
-                       1         1         1         1    %pi
-(%o6)             atan(-) + atan(-) + atan(-) + atan(-) = ---
-                       3         5         7         8     4
+@c ===beg===
+@c load("trigtools")$
+@c atan(1/3)+atan(1/5)+atan(1/7)+atan(1/8)$ %=atan_contract(%);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+@group
+(%i2) atan(1/3)+atan(1/5)+atan(1/7)+atan(1/8)$ %=atan_contract(%);
+                1         1         1         1    %pi
+(%o3)      atan(-) + atan(-) + atan(-) + atan(-) = ---
+                3         5         7         8     4
+@end group
 @end example
 
 @item Machin's formulae
-@example
-(%i7) 4*atan(1/5)-atan(1/239)=atan_contract(4*atan(1/5)-atan(1/239));
-                                 1          1     %pi
-(%o7)                     4 atan(-) - atan(---) = ---
-                                 5         239     4
+@c ===beg===
+@c load("trigtools")$
+@c 4*atan(1/5)-atan(1/239)=atan_contract(4*atan(1/5)-atan(1/239));
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+@group
+(%i2) 4*atan(1/5)-atan(1/239)=atan_contract(4*atan(1/5)-atan(1/239));
+                          1          1     %pi
+(%o2)              4 atan(-) - atan(---) = ---
+                          5         239     4
+@end group
 @end example
 
 @item see @url{https://en.wikipedia.org/wiki/Machin-like_formula}
-@example
-(%i8) 12*atan(1/49)+32*atan(1/57)-5*atan(1/239)+12*atan(1/110443)$
-%=atan_contract(%);
-                1             1             1               1       %pi
-(%o9)   12 atan(--) + 32 atan(--) - 5 atan(---) + 12 atan(------) = ---
-                49            57           239            110443     4
+@c ===beg===
+@c load("trigtools")$
+@c 12*atan(1/49)+32*atan(1/57)-5*atan(1/239)+12*atan(1/110443)$
+@c %=atan_contract(%);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+(%i2) 12*atan(1/49)+32*atan(1/57)-5*atan(1/239)+12*atan(1/110443)$
+@group
+(%i3) %=atan_contract(%);
+              1             1             1
+(%o3) 12 atan(--) + 32 atan(--) - 5 atan(---)
+              49            57           239
+                                                      1       %pi
+                                          + 12 atan(------) = ---
+                                                    110443     4
+@end group
 @end example
 @end enumerate
 
