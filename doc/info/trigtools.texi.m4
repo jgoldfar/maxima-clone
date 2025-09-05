@@ -796,57 +796,108 @@ m4_mathcomma(<<<x = a + 2\pi k>>>, <<<x = a+2*%pi*k>>>)
 where @math{a} any from @math{S}, @math{k} any integer.
 
 @item @w{ }
-@example
-(%i19) eq:8*cos(x)*cos(4*x)*cos(5*x)-1=0;
-(%o19)               8 cos(x) cos(4 x) cos(5 x) - 1 = 0
-
-(%i20) trigrat(%);
-(%o20)          2 cos(10 x) + 2 cos(8 x) + 2 cos(2 x) + 1 = 0
+@c ===beg===
+@c load("trigtools")$
+@c eq:8*cos(x)*cos(4*x)*cos(5*x)-1=0;
+@c trigrat(%);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+@group
+(%i2) eq:8*cos(x)*cos(4*x)*cos(5*x)-1=0;
+(%o2)          8 cos(x) cos(4 x) cos(5 x) - 1 = 0
+@end group
+@group
+(%i3) trigrat(%);
+(%o3)     2 cos(10 x) + 2 cos(8 x) + 2 cos(2 x) + 1 = 0
+@end group
 @end example
 
 Left side is periodic with period 
 m4_mathdot(<<<T=\pi>>>, <<<T=%pi>>>)
 
 We have 10 solutions from [0, pi].
-@example
-(%i21) plot2d([lhs(eq),rhs(eq)],[x,0,%pi]);
+@c ===beg===
+@c load("trigtools")$
+@c eq:8*cos(x)*cos(4*x)*cos(5*x)-1=0$
+@c plot2d([lhs(eq),rhs(eq)],[x,0,%pi]);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+(%i2) eq:8*cos(x)*cos(4*x)*cos(5*x)-1=0$
+@group
+(%i3) plot2d([lhs(eq),rhs(eq)],[x,0,%pi]);
+(%o3)                         false
+@end group
+@end example
 
 @center @image{figures/trigtools-6,5in,,plot6}
 
-(%i22) x4:find_root(eq, x, 1.3, 1.32);
-(%o22)                        1.308996938995747
-(%i23) x5:find_root(eq, x, 1.32, 1.35);
-(%o23)                        1.346396851538483
-(%i24) plot2d([lhs(eq),0], [x,1.3,1.35], [gnuplot_preamble, "set grid;"]);
+@c ===beg===
+@c load("trigtools")$
+@c eq:8*cos(x)*cos(4*x)*cos(5*x)-1=0$
+@c x4:find_root(eq, x, 1.3, 1.32);
+@c x5:find_root(eq, x, 1.32, 1.35);
+@c plot2d([lhs(eq),0], [x,1.3,1.35], [gnuplot_preamble, "set grid;"]);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+(%i2) eq:8*cos(x)*cos(4*x)*cos(5*x)-1=0$
+@group
+(%i3) x4:find_root(eq, x, 1.3, 1.32);
+(%o3)                  1.3089969389957472
+@end group
+@group
+(%i4) x5:find_root(eq, x, 1.32, 1.35);
+(%o4)                  1.3463968515384828
+@end group
+@group
+(%i5) plot2d([lhs(eq),0], [x,1.3,1.35], [gnuplot_preamble, "set grid;"]);
+(%o5)                         false
+@end group
+@end example
 
 @center @image{figures/trigtools-7,5in,,plot7}
-
-@end example
 
 Equation we multiply by 
 m4_mathpunc(:, <<<2\sin x\cos 2x>>>, <<<2*sin(x)*cos(2*x)>>>)
 
 
-@example
-(%i25) eq*2*sin(x)*cos(2*x);
-(%o25)     2 sin(x) cos(2 x) (8 cos(x) cos(4 x) cos(5 x) - 1) = 0
-(%i26) eq1:trigreduce(%),expand;
-(%o26)                     sin(13 x) + sin(x) = 0
+@c ===beg===
+@c load("trigtools")$
+@c eq:8*cos(x)*cos(4*x)*cos(5*x)-1=0$
+@c eq*2*sin(x)*cos(2*x);
+@c eq1:trigreduce(%),expand;
+@c trigfactor(lhs(eq1))=0;
+@c S1:trigsolve(cos(6*x),0,%pi);
+@c S2:trigsolve(sin(7*x),0,%pi);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+(%i2) eq:8*cos(x)*cos(4*x)*cos(5*x)-1=0$
 @group
-(%i27) trigfactor(lhs(eq1))=0;
-(%o27)                     2 cos(6 x) sin(7 x) = 0
+(%i3) eq*2*sin(x)*cos(2*x);
+(%o3) 2 sin(x) cos(2 x) (8 cos(x) cos(4 x) cos(5 x) - 1) = 0
 @end group
 @group
-(%i28) S1:trigsolve(cos(6*x),0,%pi);
-                    %pi  %pi  5 %pi  7 %pi  3 %pi  11 %pi
-(%o28)             @{---, ---, -----, -----, -----, ------@}
-                    12    4    12     12      4      12
+(%i4) eq1:trigreduce(%),expand;
+(%o4)                sin(13 x) + sin(x) = 0
 @end group
 @group
-(%i29) S2:trigsolve(sin(7*x),0,%pi);
-                     %pi  2 %pi  3 %pi  4 %pi  5 %pi  6 %pi
-(%o29)           @{0, ---, -----, -----, -----, -----, -----@}
-                      7     7      7      7      7      7
+(%i5) trigfactor(lhs(eq1))=0;
+(%o5)                2 cos(6 x) sin(7 x) = 0
+@end group
+@group
+(%i6) S1:trigsolve(cos(6*x),0,%pi);
+              %pi  %pi  5 %pi  7 %pi  3 %pi  11 %pi
+(%o6)        @{---, ---, -----, -----, -----, ------@}
+              12    4    12     12      4      12
+@end group
+@group
+(%i7) S2:trigsolve(sin(7*x),0,%pi);
+               %pi  2 %pi  3 %pi  4 %pi  5 %pi  6 %pi
+(%o7)      @{0, ---, -----, -----, -----, -----, -----@}
+                7     7      7      7      7      7
 @end group
 @end example
 
@@ -855,37 +906,78 @@ m4_math(<<<\sin x = 0>>>, <<<sin(x)=0>>>)
 and
 m4_mathdot(<<<\cos 2x = 0>>>, <<<cos(2*x) = 0>>>)
 
-@example
-(%i30) S3:trigsolve(sin(x),0,%pi);
-(%o30)                               @{0@}
-(%i31) S4:trigsolve(cos(2*x),0,%pi);
-                                 %pi  3 %pi
-(%o31)                          @{---, -----@}
-                                  4     4
+@c ===beg===
+@c load("trigtools")$
+@c S1:trigsolve(cos(6*x),0,%pi)$
+@c S2:trigsolve(sin(7*x),0,%pi)$
+@c S3:trigsolve(sin(x),0,%pi);
+@c S4:trigsolve(cos(2*x),0,%pi);
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+(%i2) S1:trigsolve(cos(6*x),0,%pi)$
+(%i3) S2:trigsolve(sin(7*x),0,%pi)$
+@group
+(%i4) S3:trigsolve(sin(x),0,%pi);
+(%o4)                          @{0@}
+@end group
+@group
+(%i5) S4:trigsolve(cos(2*x),0,%pi);
+                           %pi  3 %pi
+(%o5)                     @{---, -----@}
+                            4     4
+@end group
 @end example
 
 We find 10 solutions from 
 m4_mathpunc(:,<<<[0, \pi]>>>,<<<[0, %pi]>>>)
 
-@example
+@c ===beg===
+@c load("trigtools")$
+@c S1:trigsolve(cos(6*x),0,%pi)$
+@c S2:trigsolve(sin(7*x),0,%pi)$
+@c S3:trigsolve(sin(x),0,%pi)$
+@c S4:trigsolve(cos(2*x),0,%pi)$
+@c union(S1,S2)$ setdifference(%,S3)$ setdifference(%,S4);
+@c S:listify(%);
+@c length(S);
+@c float(S), numer;
+@c ===end===
+@example maxima
+(%i1) load("trigtools")$
+(%i2) S1:trigsolve(cos(6*x),0,%pi)$
+(%i3) S2:trigsolve(sin(7*x),0,%pi)$
+(%i4) S3:trigsolve(sin(x),0,%pi)$
+(%i5) S4:trigsolve(cos(2*x),0,%pi)$
 @group
-(%i32) union(S1,S2)$ setdifference(%,S3)$ setdifference(%,S4);
-         %pi  %pi  2 %pi  5 %pi  3 %pi  4 %pi  7 %pi  5 %pi  6 %pi  11 %pi
-(%o34) @{---, ---, -----, -----, -----, -----, -----, -----, -----, ------@}
-         12    7     7     12      7      7     12      7      7      12
+(%i6) union(S1,S2)$ setdifference(%,S3)$ setdifference(%,S4);
+       %pi  %pi  2 %pi  5 %pi  3 %pi  4 %pi  7 %pi  5 %pi
+(%o8) @{---, ---, -----, -----, -----, -----, -----, -----, 
+       12    7     7     12      7      7     12      7
+                                                   6 %pi  11 %pi
+                                                   -----, ------@}
+                                                     7      12
 @end group
 @group
-(%i35) S:listify(%);
-        %pi  %pi  2 %pi  5 %pi  3 %pi  4 %pi  7 %pi  5 %pi  6 %pi  11 %pi
-(%o35) [---, ---, -----, -----, -----, -----, -----, -----, -----, ------]
-        12    7     7     12      7      7     12      7      7      12
+(%i9) S:listify(%);
+       %pi  %pi  2 %pi  5 %pi  3 %pi  4 %pi  7 %pi  5 %pi
+(%o9) [---, ---, -----, -----, -----, -----, -----, -----, 
+       12    7     7     12      7      7     12      7
+                                                   6 %pi  11 %pi
+                                                   -----, ------]
+                                                     7      12
 @end group
-(%i36) length(S);
-(%o36)                               10
-(%i37) float(S), numer;
-(%o37) [0.2617993877991494, 0.4487989505128276, 0.8975979010256552, 
-1.308996938995747, 1.346396851538483, 1.79519580205131, 1.832595714594046, 
-2.243994752564138, 2.692793703076966, 2.879793265790644]
+@group
+(%i10) length(S);
+(%o10)                         10
+@end group
+@group
+(%i11) float(S), numer;
+(%o11) [0.2617993877991494, 0.4487989505128276, 
+0.8975979010256552, 1.3089969389957472, 1.3463968515384828, 
+1.7951958020513104, 1.8325957145940461, 2.243994752564138, 
+2.6927937030769655, 2.8797932657906435]
+@end group
 @end example
 Answer: 
 m4_mathcomma(<<<x = a + 2\pi k>>>, <<<x = a+2*%pi*k>>>)
