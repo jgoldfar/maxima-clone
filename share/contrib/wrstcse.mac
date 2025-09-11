@@ -366,6 +366,53 @@ wc_ewc_simplify(x):=block(
     return(x)
 );
 
+/* Sometimes the secret of engineering is simplifying something, for example by
+approximating it by a taylor series. This is what this function does do */
+wc_toltaylor(x,[maxorder]):=block(
+    [
+        /* The derivate of x to the tol[n] we currently look at */
+        wc_diffofwctol,
+        /* wc_diffofwctol for the current tol being 0 */
+        wc_diffofwctollimit,
+        retval:wc_typicalvalues(x)
+    ],
+    /* Determine the order of the taylor series we want to generate */
+    if maxorder = [] then maxorder:[1],
+    if length(maxorder) > 1 then error("wc_toltaylor: more than 2 arguments!"),
+    maxorder:maxorder[1],
+    if not numberp(maxorder) then error("wc_toltaylor: The 2nd argument must be a number!"),
+    if maxorder<0 then error("wc_toltaylor: The 2nd argument must not be negative!"),
+
+    /* Perform the taylor series for all tolerances */
+    for wc_tol in %wc_tols(x) do
+        for wc_difforder:1 thru maxorder do
+        (
+            /* Let's see if we can get the derivate we need the naive way */
+            wc_diffofwctol:%wc_typicalvalues(diff(x,wc_tol,wc_difforder),wc_tol),
+            wc_diffofwctollimit:limit(wc_diffofwctol,wc_tol,0),
+
+            /* If the derivate is 'ind we have two derivates at tol[n]=0 */
+            if wc_diffofwctollimit='ind then block([wc_poslimit,wc_neglimit],
+               /* We have two derivates. As we are performing a worst case
+                  calculation we make a worst-case assumption and use the bigger
+                  one ignoring its sign */
+               wc_poslimit:limit(wc_diffofwctol,wc_tol,0,'plus),
+               wc_neglimit:limit(wc_diffofwctol,wc_tol,0,'minus),
+               wc_diffofwctollimit:max(abs(wc_poslimit),abs(wc_neglimit)),
+               /* If we can determine which of the limits is bigger we can
+                  do without the abs() */
+               if abs(wc_poslimit) > abs(wc_neglimit) then
+                  wc_diffofwctollimit:wc_poslimit,
+               if abs(wc_poslimit) < abs(wc_neglimit) then
+                  wc_diffofwctollimit:wc_neglimit
+           ),
+           /* Add the taylor term we just learned about to the result */
+           retval:retval+wc_tol^wc_difforder/wc_difforder*wc_typicalvalues(wc_diffofwctollimit)
+        ),
+   return(retval)
+);
+
+
 wc_sensitivities(expr):=block([tols:[],wc_tol,wc_typ:wc_typicalvalues(expr),wc_result:[]],
     /* Compile a list of tol[n] */
     for i in listofvars(expr) do
