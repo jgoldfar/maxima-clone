@@ -184,19 +184,20 @@ wc_inputvalueassumptions(wc_x):=block([wc_line,wc_assumptions:[]],
 );
 
 /* A function that generates an equation out of the min, typ and maximum value for an element */
-wc_mintypmax2tol(wc_tol,wc_min,wc_typ,wc_max):=block([wc_try,wc_dff],
+wc_mintypmax2tol(wc_tol,wc_min,wc_typ,wc_max):=block([wc_try],
     if wc_min>wc_typ then warning("wc_mintypmax2tol: Min value bigger than typ value"),
     if wc_typ>wc_max then warning("wc_mintypmax2tol: Max value smaller than typ value"),
-    /* Try to find a quadratic equation that hits all three points */
-    wc_try:((-2*wc_typ+wc_min+wc_max)*wc_tol^2)/2-((wc_min-wc_max)*wc_tol)/2+wc_typ,wc_tol,
-    /* Let's see if the quadratic equation overswings the targets */
-    wc_dff:diff(wc_try,wc_tol),
-    if (subst (wc_tol=-1,wc_dff)<0)  or (subst (wc_tol=0,wc_dff)<0) or (subst (wc_tol=1,wc_dff)<0) then
-        wc_try:
+    /* Try to find a linear equation that hits all three points */
+    wc_try:wc_typ+(wc_max-wc_typ)*wc_tol,
+    /* Let's see if the quadratic equation hitss the targets */
+    if subst (wc_tol=-1,wc_try) = wc_min then
+        return(wc_try)
+    else
+        return(
             wc_typ+
             (wc_tol+abs(wc_tol))/2*(wc_max-wc_typ)+
-            (wc_tol-abs(wc_tol))/2*(wc_typ-wc_min),
-    return(wc_try)
+            (wc_tol-abs(wc_tol))/2*(wc_typ-wc_min)
+        )
 );
 
 /* How many sigmas the range of tol[x]=-1...1 is assumed to be wide */
