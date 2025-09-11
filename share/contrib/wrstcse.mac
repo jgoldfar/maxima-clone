@@ -215,7 +215,20 @@ wc_getrssparams(x):=block([tols:[],derivates_linearized,derivates,sigmaval,meanv
     meanval:wc_typicalvalues(x),
     /* Create a list of derivatives, linearized over the point that all tol[x] are 0.*/
     derivates:makelist(block([derivate:limit(%wc_typicalvalues(diff(x,i),i),i,0)],
-        if derivate='ind then error("wc_getrssparams: Cannot get meaningful normal distribution params for ",i),
+        if derivate='ind then block([wc_poslimit,wc_neglimit],
+           /* We have two derivates. As we are performing a worst case
+              calculation we make a worst-case assumption and use the bigger
+              one ignoring its sign */
+           wc_poslimit:limit(wc_diffofwctol,wc_tol,0,'plus),
+           wc_neglimit:limit(wc_diffofwctol,wc_tol,0,'minus),
+           derivate:max(abs(wc_poslimit),abs(wc_neglimit)),
+           /* If we can determine which of the limits is bigger we can
+              do without the abs() */
+           if abs(wc_poslimit) > abs(wc_neglimit) then
+              derivate:wc_poslimit,
+           if abs(wc_poslimit) < abs(wc_neglimit) then
+              derivate:wc_neglimit
+           ),
         derivate),
         i,tols),
     derivates_linearized:makelist(taytorat(taylor(i)),i,derivates),
