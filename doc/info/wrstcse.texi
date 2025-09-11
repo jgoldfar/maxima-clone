@@ -271,7 +271,7 @@ Note that changing the number of @var{tol[n]} will change the statistical distri
 of the results over the @var{tol[n]} space and therefore will change the statistical
 distribution of the montecarlo method and the results of the root sum square functions.
 
-See also @mref{wc_mintypmax} and @mrefdot{wc_montecarlo}
+See also @mrefcomma{wc_toltaylor} @mref{wc_mintypmax} and @mrefdot{wc_montecarlo}
 
 Example:
 @c ===beg===
@@ -358,6 +358,64 @@ Example:
 @end example
 @end deffn
 
+@anchor{wc_toltaylor}
+@deffn {Function} wc_toltaylor (@var{expression}, [n])
+
+Tries to approximate the dependence of @code{expr} of all @var{tol[n]} it contains
+by a tailor series.
+
+If the dependence is different for positive and negative @var{tol[n]} the higher
+dependence is used as a worst-case assumption.
+
+See also @mrefdot{wc_ewc_simplify}
+
+Example:
+@c ===beg===
+@c vals:[
+@c     R_1=100*(1+.01*tol[1]),
+@c     R_2=200*(1+.01*tol[2])
+@c ];
+@c ic:I_Out=exp(R_1/(R_1+R_2));
+@c subst(vals,ic);
+@c float(wc_toltaylor(rhs(%),2));
+@c ===end===
+@example maxima
+@group
+(%i1) vals:[
+    R_1=100*(1+.01*tol[1]),
+    R_2=200*(1+.01*tol[2])
+(%o1) [R_1 = 100 (0.01 tol  + 1), R_2 = 200 (0.01 tol  + 1)]
+                          1                          2
+@end group
+@group
+(%i2) ];
+                                    R_1
+                                 ---------
+                                 R_2 + R_1
+(%o2)                  I_Out = %e
+@end group
+@group
+(%i3) ic:I_Out=exp(R_1/(R_1+R_2));
+                            100 (0.01 tol  + 1)
+                                         1
+                 -----------------------------------------
+                 200 (0.01 tol  + 1) + 100 (0.01 tol  + 1)
+                              2                     1
+(%o3)  I_Out = %e
+@end group
+@group
+(%i4) subst(vals,ic);
+(%o4) wc_toltaylor(expt(2.718281828459045, 
+                            100 (0.01 tol  + 1)
+                                         1
+                 -----------------------------------------), 2.0)
+                 200 (0.01 tol  + 1) + 100 (0.01 tol  + 1)
+                              2                     1
+@end group
+(%i5) float(wc_toltaylor(rhs(%),2));
+@end example
+@end deffn
+
 @anchor{wc_montecarlo}
 @deffn {Function} wc_montecarlo (@var{expression}, @var{num})
 
@@ -404,6 +462,7 @@ Example:
 @end group
 @end example
 @end deffn
+
 
 @anchor{wc_mintypmax}
 @deffn {Function} wc_mintypmax (@var{expr}, [@var{n}])
