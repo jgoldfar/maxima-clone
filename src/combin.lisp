@@ -833,7 +833,7 @@
 	  ((floatp a)
 	   (let ((a (maxima-rationalize a)))
 	     (cons '(mlist cf) (ratcf (car a) (cdr a)))))
-	  ((and (eq (caar a) 'bigfloat) ($bfloatp a))
+	  (($bfloatp a)
 	   (let (($bftorat t))
 	     (setq a (bigfloat2rat a))
 	     (cons '(mlist cf) (ratcf (car a) (cdr a)))))
@@ -845,7 +845,7 @@
 	   (cfratsimp a))
 	  ;;the following doesn't work for non standard form
 	  ;;		(cfplus a '((mlist) 0)))  ??? seems to work
-	  ((and (eq (caar a) 'mtimes) (mtimesp a) (cddr a) (null (cdddr a))
+	  ((and (mtimesp a) (cddr a) (null (cdddr a))
 		(fixnump (cadr a))
 		(mexptp (caddr a))
 		(fixnump (cadr (caddr a)))
