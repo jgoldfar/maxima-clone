@@ -63,7 +63,7 @@ fi
 }
 
 # make a special check for --userdir argument, because it influences location
-# of maximarc, which is sourced before  other command-line options are
+# of maximarc, which is parsed before  other command-line options are
 # processed
 process_userdir_argument "$@"
 
@@ -72,8 +72,15 @@ if [ -z "$MAXIMA_USERDIR" ]; then
 else
   maximarc_path="`unixize \"$MAXIMA_USERDIR\"`/maximarc"
 fi
+
+# Parses the maximarc file. For any line of the type keyword=<value>,
+# the line will be "exported" (enviroment variable keyword set to <value>).
+# Lines which something different than that are ignored.
 if [ -f "$maximarc_path" ]; then
-  . "$maximarc_path"
+    while IFS= read -r line; do
+        n=$(expr "$line" : '^[a-zA-Z\_]\+=')
+        [ $n -ne 0 ] && export "$line"
+    done < "$maximarc_path"
 fi
 
 # For some reason TeXmacs sets MAXIMA_DIRECTORY to the empty string,
