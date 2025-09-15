@@ -844,16 +844,23 @@
 	  ((eq (caar a) 'mlist)
 	   (cfratsimp a))
 	  ;;the following doesn't work for non standard form
-	  ;;		(cfplus a '((mlist) 0)))
+	  ;;		(cfplus a '((mlist) 0)))  ??? seems to work
 	  ((and (mtimesp a) (cddr a) (null (cdddr a))
 		(fixnump (cadr a))
 		(mexptp (caddr a))
 		(fixnump (cadr (caddr a)))
 		(alike1 (caddr (caddr a)) '((rat) 1 2)))
 	   (cfsqrt (cfeval (* (expt (cadr a) 2) (cadr (caddr a))))))
+	  ;; case when a continuous fraction is raised to an integer power
+	  ;; example ((MEXPT . #1=(SIMP)) ((MLIST . #1#) 1 3) 2)
+	  ((and (eq (caar a) 'mexpt) (integerp (caddr a)) (> (caddr a) 0))
+	   (cfexpt (cadr a) (caddr a)))	  
 	  ((eq (caar a) 'mexpt)
 	   (cond ((alike1 (caddr a) '((rat) 1 2))
-		  (cfsqrt (cfeval (cadr a))))
+		  (cfsqrt (cfeval (cadr a)))) ; square root of an integer
+		 ((alike1 (caddr a) '((rat) -1 2))
+		  (cfquot 1 (cfsqrt (cfeval (cadr a))))) ; inverse square root 
+		 ;;case when an integer is raised to some half integer power
 		 ((integerp (m* 2 (caddr a))) ; a^(n/2) was sqrt(a^n)
                   (cfsqrt (cfeval (cfexpt (cadr a) (m* 2 (caddr a))))))
 		 ((integerp (cadr a)) (cfnroot a)) ; <=== new case x
