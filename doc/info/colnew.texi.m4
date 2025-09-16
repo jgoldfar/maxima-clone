@@ -1520,12 +1520,10 @@ before @var{e} is set, so that it can be changed in the program.
 @c   [discrete,X,Z[4]], [discrete,X,Z[5]]],
 @c   [legend,"e=1e-2","e=1e-3","e=1e-4","e=1e-5","e=1e-6"],
 @c   [xlabel,"x"],[ylabel,"u(x)"],
-@c   [png_file,"./colnew-ex5.png"]); */
+@c   [png_file,"./colnew-ex5.png"]);
 @c  done$
 @c ===end===
-incorrect syntax: * is not a prefix operator
- */
- ^
+
 @example maxima
 (%i1) load("colnew")$
 (%i2) kill(e,x,z1,z2)$
