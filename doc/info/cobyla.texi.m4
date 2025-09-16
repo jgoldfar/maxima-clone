@@ -46,9 +46,9 @@ References:
 
 [1] Fortran Code is from @url{http://plato.asu.edu/sub/nlores.html#general}
 
-[2] M. J. D. Powell, "A direct search optimization method that models the objective and constraint functions by linear interpolation," in Advances in Optimization and Numerical Analysis, eds. S. Gomez and J.-P. Hennart (Kluwer Academic: Dordrecht, 1994), p. 51-67. 
+[2] M. J. D. Powell, "A direct search optimization method that models the objective and constraint functions by linear interpolation," in Advances in Optimization and Numerical Analysis, eds. S. Gomez and J.-P. Hennart (Kluwer Academic: Dordrecht, 1994), p. 51-67.  @url{https://doi.org/10.1007/978-94-015-8330-5_4, doi:10.1007/978-94-015-8330-5_4}
 
-[3] M. J. D. Powell, "Direct search algorithms for optimization calculations," Acta Numerica 7, 287-336 (1998).  Also available as University of Cambridge, Department of Applied Mathematics and Theoretical Physics,  Numerical Analysis Group, Report NA1998/04 from @url{https://web.archive.org/web/20160607190705/http://www.damtp.cam.ac.uk:80/user/na/reports.html}
+[3] M. J. D. Powell, "Direct search algorithms for optimization calculations," Acta Numerica 7, 287-336 (1998).  @url{https://doi.org/10.1017/S0962492900002841, doi:10.1017/S0962492900002841} Also available as University of Cambridge, Department of Applied Mathematics and Theoretical Physics,  Numerical Analysis Group, Report NA1998/04 from @url{https://web.archive.org/web/20160607190705/http://www.damtp.cam.ac.uk:80/user/na/reports.html}
 
 @opencatbox{Categories:}
 @category{Numerical methods} 
@@ -227,8 +227,11 @@ constraints may not be satisfied.  Substituting the solution into the
 constraint equation as shown in @code{%o2} shows that the constraint
 is, of course, violated.
 
-There are additional examples in the share/cobyla/ex directory and in
-share/cobyla/rtest_cobyla.mac.
+There are additional examples in the
+@url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/cobyla/ex,
+share/cobyla/ex} directory and in
+@url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/cobyla/rtest_cobyla.mac,
+share/cobyla/rtest_cobyla.mac}.
 
 @c Local Variables: 
 @c mode: texinfo
