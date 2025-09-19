@@ -320,7 +320,10 @@
 
 ;; Parse the texinfo version string.  It should look something like
 ;; "M.m.p", where M and m are a sequence of (base 10) digits and ".p"
-;; is the optional patch version.
+;; is the optional patch version.  However, development versions of
+;; texinfo look like "M.mdev" where there patch version is "dev"
+;; instead of ".p".  In this case, set the patch version to be 99 on
+;; the assumption there will never be that many patches.
 (defun parse-texinfo-version (string)
   (when string
     (let ((posn 0)
@@ -332,6 +335,21 @@
 	      (parse-integer string
 			     :start posn
 			     :junk-allowed t)
+            ;; Debugging print to show parsing steps
+            #+nil
+            (format t "k = ~D: start ~D end ~d substring ~S~%"
+                    k posn end (subseq string posn end))
+            (when (null digits)
+              ;; If there were no digits in the substring, and we're
+              ;; looking for the patch version (k = 2), assume we have
+              ;; a texinfo dev version and set digits to 99.
+              ;; Otherwise signal an error that we can't parse the
+              ;; texinfo version.
+              (if (= k 2)
+                  (setf digits 99)
+                  (error "Can't parse texinfo version string ~A for part ~D"
+                         (subseq string posn)
+                         k)))
 	    (push digits version)
 	    (setf posn (1+ end)))))
       (apply #'texinfo-version-number (nreverse version)))))
