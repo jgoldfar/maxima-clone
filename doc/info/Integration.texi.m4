@@ -756,7 +756,7 @@ function:
 @c integrate_use_rootsof: true$
 @c integrate (1/(1+x+x^5), x);
 @c ===end===
-@example
+@example maxima
 (%i1) integrate_use_rootsof: true$
 @group
 (%i2) integrate (1/(1+x+x^5), x);
