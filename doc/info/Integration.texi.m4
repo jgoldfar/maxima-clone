@@ -130,10 +130,10 @@ top-level Maxima and then translated and compiled to machine code.
 Use @code{load ("dblint")} to access this package.  It uses the Simpson's rule
 method in both the x and y directions to calculate
 
-@tex
-$$\int_a^b \int_{r\left(x\right)}^{s\left(x\right)} f\left(x,y\right) \, dy \, dx.$$
-@end tex
-@ifnottex
+m4_displaymath(
+<<<\int_a^b \int_{r\left(x\right)}^{s\left(x\right)} f\left(x,y\right) \, dy \, dx
+>>>,
+<<<
 @example
 @group
 /b /s(x)
@@ -143,7 +143,7 @@ $$\int_a^b \int_{r\left(x\right)}^{s\left(x\right)} f\left(x,y\right) \, dy \, d
 /a /r(x)
 @end group
 @end example
-@end ifnottex
+>>>)
 
 The function @var{f} must be a translated or compiled function of two variables,
 and @var{r} and @var{s} must each be a translated or compiled function of one
