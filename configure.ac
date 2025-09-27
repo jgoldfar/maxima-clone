@@ -745,7 +745,7 @@ if test x"${enable_build_docs}" = xtrue ; then
            TEXI_EXTRA_TAIL=')'
         fi
         if test x${syntax_highlighting} = xhighlightjs; then
-	   HIGHLIGHT1='<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css" media="(prefers-color-scheme: light)"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github-dark.min.css" media="(prefers-color-scheme: dark)">  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/highlight.min.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/languages/maxima.min.js"> </script>
+	   HIGHLIGHT1='<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github.min.css" media="(prefers-color-scheme: light)"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" media="(prefers-color-scheme: dark)">  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/maxima.min.js"> </script>
 '
 	   HIGHLIGHT2="<script> hljs.configure({languages: [['Maxima']], cssSelector: ${HLJS_CSS_SELECTOR}}); hljs.highlightAll(); </script>
 "
