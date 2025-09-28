@@ -143,8 +143,8 @@ equivalents of structuring templates using subtemplates.
 
 @noindent
 @multitable @columnfractions .3 .4 .4
-@strong{Class: @emph{Algebraic}}
 @headitem Template(w/abbrev.) @tab Coersion to @tab Pieces and Ordering
+@item @strong{Class: @emph{Algebraic}} @tab @tab
 @item @code{%poly(@var{x}@sub{1},...), %p} @tab polynomial in @var{x@sub{i}} @tab coefficients (ascending exps.)
 @item @code{%series(@emph{eps},@emph{n}), %s} @tab series in @emph{eps} through order @emph{n} @tab coefficients (ascending exps.)
 @item @code{%Taylor(@emph{eps},@emph{n})} @tab Taylor in @emph{eps} through order @emph{n} @tab coefficients (ascending exps.)
@@ -155,16 +155,16 @@ equivalents of structuring templates using subtemplates.
 @*
 @noindent
 @multitable @columnfractions .3 .4 .4
-@strong{Class: @emph{Sums}}
 @headitem Template(w/abbrev.) @tab Coersion to @tab Pieces and Ordering
+@item @strong{Class: @emph{Sums}} @tab @tab
 @item @code{%sum} @tab @emph{passive} @tab terms (@code{inpart} order)
 @item @code{%partfrac(@var{x}), %pf} @tab partial fraction decomp in @var{x} @tab terms (@code{inpart} order)
 @end multitable
 @*
 @noindent
 @multitable @columnfractions .3 .4 .4
-@strong{Class: @emph{Products}}
 @headitem Template(w/abbrev.) @tab Coersion to @tab Pieces and Ordering
+@item @strong{Class: @emph{Products}} @tab @tab
 @item @code{%product, %prod} @tab @emph{passive} @tab factors (@code{inpart} order)
 @item @code{%factor, %f} @tab factored form @tab factors (@code{inpart} order)
 @item @code{%factor(@emph{minpoly}), %f} @tab factored with element adjoined @tab factors (@code{inpart} order)
@@ -173,24 +173,24 @@ equivalents of structuring templates using subtemplates.
 @*
 @noindent
 @multitable @columnfractions .3 .4 .4
-@strong{Class: @emph{Fractions}}
 @headitem Template(w/abbrev.) @tab Coersion to @tab Pieces and Ordering
+@item @strong{Class: @emph{Fractions}} @tab @tab
 @item @code{%frac} @tab @emph{passive} @tab numerator and denominator
 @item @code{%ratsimp, %r} @tab rationally simplified @tab numerator and denominator
 @end multitable
 @*
 @noindent
 @multitable @columnfractions .3 .4 .4
-@strong{Class: @emph{Complex}}
 @headitem Template(w/abbrev.) @tab Coersion to @tab Pieces and Ordering
+@item @strong{Class: @emph{Complex}} @tab @tab
 @item @code{%rectform, %g} @tab gaussian form @tab real and imaginary parts
 @item @code{%polarform} @tab polar form @tab magnitude and phase
 @end multitable
 @*
 @noindent
 @multitable @columnfractions .3 .4 .4
-@strong{Class: @emph{Bags}}
 @headitem Template(w/abbrev.) @tab Coersion to @tab Pieces and Ordering
+@item @strong{Class: @emph{Bags}} @tab @tab
 @item @code{%equation, %eq} @tab equation @tab l.h.s. and r.h.s.
 @item @code{%relation(@var{r}), %rel} @tab relation; @var{r} in @code{(=,>,>=,<,<=,!=)}  @tab l.h.s. and r.h.s.
 @item @code{%list} @tab list @tab elements
@@ -199,16 +199,16 @@ equivalents of structuring templates using subtemplates.
 @*
 @noindent
 @multitable @columnfractions .3 .4 .4
-@strong{Class: @emph{General}}
 @headitem Template(w/abbrev.) @tab Coersion to @tab Pieces and Ordering
+@item @strong{Class: @emph{General}} @tab @tab
 @item @code{%expression, %expr} @tab @emph{passive} @tab the operands (@code{inpart} order)
 @item @code{%preformat(@var{T@sub{1}},...)} @tab format accord. to chain @var{T@sub{i}} @tab the result, not the parts
 @end multitable
 @*
 @noindent
 @multitable @columnfractions .3 .7
-@strong{Class: @emph{Targeting}}
 @headitem Template(w/abbrev.) @tab Function
+@item @strong{Class: @emph{Targeting}} @tab
 @item @code{%arg(n)} @tab formats the @code{n}-th argument
 @item @code{%lhs(@var{r})} @tab formats the l.h.s. of an eqn. or relation (default '=')
 @item @code{%rhs(@var{r})} @tab formats the l.h.s. of an eqn.
@@ -219,15 +219,15 @@ equivalents of structuring templates using subtemplates.
 @*
 @noindent
 @multitable @columnfractions .3 .7
-@strong{Class: @emph{Control}}
 @headitem Template(w/abbrev.) @tab Function
+@item @strong{Class: @emph{Control}} @tab
 @item @code{%if(@var{P@sub{1}},...)[@var{T@sub{1}},...,@var{T@sub{n+1}}]} @tab Find first @var{P@sub{i}(@emph{expr})} @arrow{} @code{true}, then format @emph{expr} using @var{T@sub{i}}, else @var{T@sub{n+1}}
 @end multitable
 @*
 @noindent
 @multitable @columnfractions .3 .7
-@strong{Class: @emph{Subtemplate Aids}}
 @headitem Template(w/abbrev.) @tab Function
+@item @strong{Class: @emph{Subtemplate Aids}} @tab
 @item @code{%noop} @tab does nothing; used to fill a subtemplate slot
 @item @code{[@var{T@sub{1}},@var{T@sub{2}},...]} @tab creates a template chain where an individual template was expected
 @item @code{%ditto(@var{T})} @tab repeats the template so that it applies to following pices
@@ -235,8 +235,8 @@ equivalents of structuring templates using subtemplates.
 @*
 @noindent
 @multitable @columnfractions .3 .7
-@strong{Class: @emph{Convenience}}
 @headitem Template(w/abbrev.) @tab Function
+@item @strong{Class: @emph{Convenience}} @tab
 @item @code{%subst(@emph{eqns},...)} @tab substitutes @emph{eqns} into expression; result is formatted at next layer
 @item @code{%ratsubst(@emph{eqns},...)} @tab @code{lratsubst}'s @emph{eqns} into expression; result is formatted at next layer
 @end multitable
