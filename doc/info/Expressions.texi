@@ -475,6 +475,25 @@ unbound).
 @end deffn
 
 @c -----------------------------------------------------------------------------
+@anchor{display_box_double_lines}
+@defvr {Option variable} display_box_double_lines
+Default value: @code{true}
+
+When @code{display_box_double_lines} is @code{true},
+@code{box} expressions are displayed with Unicode double-line characters.
+
+When @code{display_box_double_lines} is @code{false},
+@code{box} expressions are displayed with Unicode single-line characters.
+
+@code{display_box_double_lines} only has any effect when @code{display2d_unicode} is @code{true}.
+
+@opencatbox{Categories:}
+@category{Expressions}
+@category{Display flags and variables}
+@closecatbox
+@end defvr
+
+@c -----------------------------------------------------------------------------
 @anchor{box}
 @deffn {Function} box @
 @fname{box} (@var{expr}) @
@@ -495,7 +514,7 @@ computations. @mref{rembox} removes the box again.
 @mref{boxchar} is the character used to draw the box in @code{box} and in the
 @mref{dpart} and @mref{lpart} functions.
 
-See also @mrefcomma{rembox} @mref{dpart} and @mrefdot{lpart}
+See also @mrefcomma{rembox} @mrefcomma{dpart} @mrefcomma{lpart} and @mrefdot{display_box_double_lines}
 
 Examples:
 

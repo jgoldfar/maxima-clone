@@ -1284,7 +1284,21 @@
     (dim-mlabox-unicode form result)
     (dim-mlabox-ascii form result)))
 
+(defmvar $display_box_double_lines t)
+
 (defun dim-mlabox-unicode (form result)
+  (if $display_box_double_lines
+    (dim-mlabox-unicode-default form result)
+    (let
+      ((*d-box-char-unicode-horz* (get-unicode-char :box-drawings-light-horizontal))
+       (*d-box-char-unicode-vert* (get-unicode-char :box-drawings-light-vertical))
+       (*d-box-char-unicode-upper-left* (get-unicode-char :box-drawings-light-down-and-right))
+       (*d-box-char-unicode-upper-right* (get-unicode-char :box-drawings-light-down-and-left))
+       (*d-box-char-unicode-lower-right* (get-unicode-char :box-drawings-light-up-and-left))
+       (*d-box-char-unicode-lower-left* (get-unicode-char :box-drawings-light-up-and-right)))
+      (dim-mlabox-unicode-default form result))))
+
+(defun dim-mlabox-unicode-default (form result)
   (prog (dummy)
      (setq dummy (dimension (cadr form) nil 'mparen 'mparen nil 0))
      (cond ((not (checkfit (+ 2 width)))
@@ -1680,7 +1694,19 @@
     (d-box-unicode h d w body)
     (d-box-ascii h d w body)))
 
-(defun d-box-unicode (h d w body &aux dmstr)
+(defun d-box-unicode (h d w body)
+  (if $display_box_double_lines
+    (d-box-unicode-default h d w body)
+    (let
+      ((*d-box-char-unicode-horz* (get-unicode-char :box-drawings-light-horizontal))
+       (*d-box-char-unicode-vert* (get-unicode-char :box-drawings-light-vertical))
+       (*d-box-char-unicode-upper-left* (get-unicode-char :box-drawings-light-down-and-right))
+       (*d-box-char-unicode-upper-right* (get-unicode-char :box-drawings-light-down-and-left))
+       (*d-box-char-unicode-lower-right* (get-unicode-char :box-drawings-light-up-and-left))
+       (*d-box-char-unicode-lower-left* (get-unicode-char :box-drawings-light-up-and-right)))
+      (d-box-unicode-default h d w body))))
+
+(defun d-box-unicode-default (h d w body &aux dmstr)
   (setq dmstr `((0 ,h ,*d-box-char-unicode-upper-right* (d-hbar ,w ,*d-box-char-unicode-horz*) ,*d-box-char-unicode-upper-left*)
 		(,(- (+ w 2)) 0)
 		(d-vbar ,h ,d ,*d-box-char-unicode-vert*)
