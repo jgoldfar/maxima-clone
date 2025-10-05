@@ -255,7 +255,7 @@ Example:
 
 
 @anchor{wc_ewc_simplify}
-@deffn {Function} wc_ewc_simplify (@var{expression})
+@deffn {Function} wc_ewc_simplify (@var{expression}, @var{definitions}...)
 
 Brute-forcing through all combinations of @var{tol[n]} in order to find the
 worst-case combination is O(m^n)-complete and therefore computationally intensive
@@ -271,7 +271,13 @@ Note that changing the number of @var{tol[n]} will change the statistical distri
 of the results over the @var{tol[n]} space and therefore will change the statistical
 distribution of the montecarlo method and the results of the root sum square functions.
 
+
 See also @mrefcomma{wc_toltaylor} @mref{wc_mintypmax} and @mrefdot{wc_montecarlo}
+
+@var{definitions} allows to temporarily asssign values to specific @var{tol[n]} during
+the optimizations (normally optimizagion is done with all @var{tol[n]} being zero)
+which has the side-effect of excempting these @var{tol[n]} from the
+optimization.
 
 Example:
 @c ===beg===
@@ -358,61 +364,78 @@ Example:
 @end example
 @end deffn
 
-@anchor{wc_toltaylor}
-@deffn {Function} wc_toltaylor (@var{expression}, [n])
-
-Tries to approximate the dependence of @code{expr} of all @var{tol[n]} it contains
-by a tailor series.
-
-If the dependence is different for positive and negative @var{tol[n]} the higher
-dependence is used as a worst-case assumption.
-
-See also @mrefdot{wc_ewc_simplify}
-
-Example:
+Use case for adding definitions (@var{tol["E_Gain"]} cannot be optimized without
+knowing the sign of @var{tol["U_In"]}):
 @c ===beg===
-@c vals:[
-@c     R_1=100*(1+.01*tol[1]),
-@c     R_2=200*(1+.01*tol[2])
-@c ];
-@c ic:I_Out=exp(R_1/(R_1+R_2));
-@c subst(vals,ic);
-@c float(wc_toltaylor(rhs(%),2));
+@c load("wrstcse")$
+@c vals: [
+@c    U_In=1.2*tol["U_In"], /* The input voltage range */
+@c    n_Bits=16,            /* The ADC's number of bits */
+@c    U_Ref=1.2*(1+.01*tol["U_Ref"]), /* The Adc's reference */
+@c    E_Gain=1+1.2e-6*tol["E_Gain"], /* Gain error */
+@c    E_Offset=1.5e-6                /* Offset error */
+@c  ];
+@c ratprint:false;
+@c wc_inputvalueranges(vals);
+@c ndsadc:n_DSADC=((U_In*E_Gain+E_Offset)/U_Ref+.5)*(2^(n_Bits)-1);
+@c lhs(ndsadc)=wc_ewc_simplify(subst(vals,rhs(ndsadc)));
+@c lhs(ndsadc)=wc_ewc_simplify(subst(vals,rhs(ndsadc)),tol["U_In"]=1);
 @c ===end===
 @example maxima
+(%i1) load("wrstcse")$
 @group
-(%i1) vals:[
-    R_1=100*(1+.01*tol[1]),
-    R_2=200*(1+.01*tol[2])
-(%o1) [R_1 = 100 (0.01 tol  + 1), R_2 = 200 (0.01 tol  + 1)]
-                          1                          2
+(%i2) vals: [
+   U_In=1.2*tol["U_In"], /* The input voltage range */
+   n_Bits=16,            /* The ADC's number of bits */
+   U_Ref=1.2*(1+.01*tol["U_Ref"]), /* The Adc's reference */
+   E_Gain=1+1.2e-6*tol["E_Gain"], /* Gain error */
+   E_Offset=1.5e-6                /* Offset error */
+ ];
+(%o2) [U_In = 1.2 tol    , n_Bits = 16, 
+                     U_In
+U_Ref = 1.2 (0.01 tol      + 1), E_Gain = 1.2e-6 tol       + 1, 
+                     U_Ref                          E_Gain
+E_Offset = 1.5e-6]
 @end group
 @group
-(%i2) ];
-                                    R_1
-                                 ---------
-                                 R_2 + R_1
-(%o2)                  I_Out = %e
+(%i3) ratprint:false;
+(%o3)                         false
 @end group
 @group
-(%i3) ic:I_Out=exp(R_1/(R_1+R_2));
-                            100 (0.01 tol  + 1)
-                                         1
-                 -----------------------------------------
-                 200 (0.01 tol  + 1) + 100 (0.01 tol  + 1)
-                              2                     1
-(%o3)  I_Out = %e
+(%i4) wc_inputvalueranges(vals);
+(%o4) 
+     [   U_In      min = - 1.2      typ = 0        max = 1.2    ]
+     [                                                          ]
+     [  n_Bits      min = 16        typ = 16       max = 16     ]
+     [                                                          ]
+     [  U_Ref      min = 1.188     typ = 1.2      max = 1.212   ]
+     [                                                          ]
+     [  E_Gain   min = 0.9999988    typ = 1     max = 1.0000012 ]
+     [                                                          ]
+     [ E_Offset   min = 1.5e-6    typ = 1.5e-6   max = 1.5e-6   ]
 @end group
 @group
-(%i4) subst(vals,ic);
-(%o4) wc_toltaylor(expt(2.718281828459045, 
-                            100 (0.01 tol  + 1)
-                                         1
-                 -----------------------------------------), 2.0)
-                 200 (0.01 tol  + 1) + 100 (0.01 tol  + 1)
-                              2                     1
+(%i5) ndsadc:n_DSADC=((U_In*E_Gain+E_Offset)/U_Ref+.5)*(2^(n_Bits)-1);
+                  n_Bits       E_Gain U_In + E_Offset
+(%o5) n_DSADC = (2       - 1) (---------------------- + 0.5)
+                                       U_Ref
 @end group
-(%i5) float(wc_toltaylor(rhs(%),2));
+@group
+(%i6) lhs(ndsadc)=wc_ewc_simplify(subst(vals,rhs(ndsadc)));
+(%o6) n_DSADC = 65535 ((0.8333333333333334
+ (1.5e-6 - 1.2 (1.2e-6 tol       + 1) tol     ))
+                          E_Gain         U_Ref
+/(0.01 tol      + 1) + 0.5)
+          U_Ref
+@end group
+@group
+(%i7) lhs(ndsadc)=wc_ewc_simplify(subst(vals,rhs(ndsadc)),tol["U_In"]=1);
+(%o7) n_DSADC = 65535 ((0.8333333333333334
+ (1.2 tol     (1 - 1.2e-6 tol     ) + 1.5e-6))
+         U_In                U_Ref
+/(0.01 tol      + 1) + 0.5)
+          U_Ref
+@end group
 @end example
 @end deffn
 

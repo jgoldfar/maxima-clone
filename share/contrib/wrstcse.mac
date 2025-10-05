@@ -294,8 +294,13 @@ wc_mintypmax_percent([x]):=block([mintypmax:apply('wc_mintypmax,x)],
 for a high number of tol[n]. This function now merges all tol[n] we can
 determine for in which direction they will affect the tolerances,
 starting at the typical case and merge them in order to speed up the
-brute-force step */
-wc_ewc_simplify(x):=block(
+brute-force step.
+
+defs allows to add things like
+  tol[1]=0 for preventing tol[1] from being merged, or
+  tol[2]=1 for preventing tol[1] from being merged and assuming it to read 1.
+*/
+wc_ewc_simplify(x,[defs]):=block(
     [
         /* The derivate of x to the tol[n] we currently look at */
         wc_diffofwctol,
@@ -304,14 +309,25 @@ wc_ewc_simplify(x):=block(
         /*the tol[n] we merge as many tolerances as we can to */
         mergedtol:[],
         /* Is the tol[n] we merge as many tolerances as we can to positive? */
-        wc_mergedtoldirection:1
+        wc_mergedtoldirection:1,
+        /* x with defs temporarily substituted into it */
+        x_defs
     ],
-    for wc_tol in %wc_tols(x) do
+
+    /* substitute the tol[n] our defs give us values to into x */
+    if  errcatch(
+            x_defs:x,
+            if defs # [] then x_defs:subst(defs,x),
+            'wc_success
+        ) # ['wc_success] then
+            error ("wc_ewc_simplify: parameters 2...n need to be assignments to tol[n]."),
+    /* Now let's see we can merge the remaining tol[n] */
+    for wc_tol in %wc_tols(x_defs) do
     /* If one step of this loop errors out this means one tolerance isn't merged, but
        the for loop can still continue. */
     errcatch(
-        /* Let's see if increasing the current tol[n] increases x*/
-        wc_diffofwctol:%wc_typicalvalues(diff(x,wc_tol),wc_tol),
+        /* Let's see if increasing the current tol[n] increases x_defs*/
+        wc_diffofwctol:%wc_typicalvalues(diff(x_defs,wc_tol),wc_tol),
         wc_diffofwctollimit:limit(wc_diffofwctol,wc_tol,0),
         if wc_diffofwctollimit='ind then block(
             [
@@ -321,7 +337,7 @@ wc_ewc_simplify(x):=block(
             if  (poslimit='pos and (neglimit='pos or neglimit='zero)) or
                 (neglimit='pos and (poslimit='pos or poslimit='zero)) then
             (
-                /* increasing tol[n] increases x */
+                /* increasing tol[n] increases x_defs */
                 if mergedtol = [] then
                 (
                     /* merge this tol[n] with all future ones */
@@ -329,27 +345,33 @@ wc_ewc_simplify(x):=block(
                    wc_mergedtoldirection:1
                 )
                 else
-                    x:subst(wc_tol=wc_mergedtoldirection*mergedtol,x)
-                ),
-                if  (poslimit='neg and (neglimit='neg or neglimit='zero)) or
-                    (neglimit='neg and (poslimit='neg or poslimit='zero)) then
                 (
-                    /* increasing tol[n] decreases x */
-                    if mergedtol = [] then
-                    (
-                        /* merge this tol[n] with all future ones */
-                        mergedtol:wc_tol,
-                        wc_mergedtoldirection:-1
-                    )
-                else
-                   x:subst(wc_tol=-wc_mergedtoldirection*mergedtol,x)
+                    x_defs:subst(wc_tol=wc_mergedtoldirection*mergedtol,x_defs),
+                    x     :subst(wc_tol=wc_mergedtoldirection*mergedtol,x     )
                 )
+            ),
+            if  (poslimit='neg and (neglimit='neg or neglimit='zero)) or
+                (neglimit='neg and (poslimit='neg or poslimit='zero)) then
+            (
+                /* increasing tol[n] decreases x_defs */
+                if mergedtol = [] then
+                (
+                    /* merge this tol[n] with all future ones */
+                    mergedtol:wc_tol,
+                    wc_mergedtoldirection:-1
+                )
+                else
+                (
+                    x_defs:subst(wc_tol=-wc_mergedtoldirection*mergedtol,x_defs),
+                    x     :subst(wc_tol=-wc_mergedtoldirection*mergedtol,x     )
+                )
+            )
         )
         else
         (
             if wc_diffofwctollimit > 0 then
             (
-                /* increasing tol[n] increases x */
+                /* increasing tol[n] increases x_defs */
                 if mergedtol = [] then
                     (
                         /* merge this tol[n] with all future ones */
@@ -357,13 +379,17 @@ wc_ewc_simplify(x):=block(
                         wc_mergedtoldirection:1
                     )
                 else
-                    x:subst(wc_tol=wc_mergedtoldirection*mergedtol,x)
-            ) else
+                (
+                    x_defs:subst(wc_tol=wc_mergedtoldirection*mergedtol,x_defs),
+                    x     :subst(wc_tol=wc_mergedtoldirection*mergedtol,x     )
+                )
+            )
+            else
             (        
                 /* The above if might have resulted in true or unknown */
                 if wc_diffofwctollimit < 0 then
                     (
-                        /* increasing wc_tol decreases x */
+                        /* increasing wc_tol decreases x_defs */
                         if mergedtol = [] then
                             (
                                 /* merge this wc_tol with all future ones */
@@ -372,7 +398,10 @@ wc_ewc_simplify(x):=block(
                             )
                         else
                                 /* merge this wc_tol with the first  one we identified a direction for */
-                            x:subst(wc_tol=-wc_mergedtoldirection*mergedtol,x)
+                        (
+                            x_defs:subst(wc_tol=-wc_mergedtoldirection*mergedtol,x_defs),
+                            x     :subst(wc_tol=-wc_mergedtoldirection*mergedtol,x     )
+                        )
                     )
                 )
         )
