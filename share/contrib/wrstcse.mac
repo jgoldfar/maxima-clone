@@ -302,10 +302,9 @@ defs allows to add things like
 */
 wc_ewc_simplify(x,[defs]):=block(
     [
-        /* The derivate of x to the tol[n] we currently look at */
-        wc_diffofwctol,
-        /* wc_diffofwctol for the current tol being 0 */
-        wc_diffofwctollimit,
+        wc_tolminus,
+        wc_tolplus,
+        wc_toltyp,
         /*the tol[n] we merge as many tolerances as we can to */
         mergedtol:[],
         /* Is the tol[n] we merge as many tolerances as we can to positive? */
@@ -321,55 +320,22 @@ wc_ewc_simplify(x,[defs]):=block(
             'wc_success
         ) # ['wc_success] then
             error ("wc_ewc_simplify: parameters 2...n need to be assignments to tol[n]."),
+
     /* Now let's see we can merge the remaining tol[n] */
+    wc_toltyp:wc_typicalvalues(x_defs),
+
     for wc_tol in %wc_tols(x_defs) do
-    /* If one step of this loop errors out this means one tolerance isn't merged, but
-       the for loop can still continue. */
-    errcatch(
-        /* Let's see if increasing the current tol[n] increases x_defs*/
-        wc_diffofwctol:%wc_typicalvalues(diff(x_defs,wc_tol),wc_tol),
-        wc_diffofwctollimit:limit(wc_diffofwctol,wc_tol,0),
-        if wc_diffofwctollimit='ind then block(
-            [
-                poslimit:sign(limit(wc_diffofwctol,wc_tol,0,'plus)),
-                neglimit:sign(limit(wc_diffofwctol,wc_tol,0,'minus))
-            ],
-            if  (poslimit='pos and (neglimit='pos or neglimit='zero)) or
-                (neglimit='pos and (poslimit='pos or poslimit='zero)) then
-            (
-                /* increasing tol[n] increases x_defs */
-                if mergedtol = [] then
-                (
-                    /* merge this tol[n] with all future ones */
-                   mergedtol:wc_tol,
-                   wc_mergedtoldirection:1
-                )
-                else
-                (
-                    x_defs:subst(wc_tol=wc_mergedtoldirection*mergedtol,x_defs),
-                    x     :subst(wc_tol=wc_mergedtoldirection*mergedtol,x     )
-                )
-            ),
-            if  (poslimit='neg and (neglimit='neg or neglimit='zero)) or
-                (neglimit='neg and (poslimit='neg or poslimit='zero)) then
-            (
-                /* increasing tol[n] decreases x_defs */
-                if mergedtol = [] then
-                (
-                    /* merge this tol[n] with all future ones */
-                    mergedtol:wc_tol,
-                    wc_mergedtoldirection:-1
-                )
-                else
-                (
-                    x_defs:subst(wc_tol=-wc_mergedtoldirection*mergedtol,x_defs),
-                    x     :subst(wc_tol=-wc_mergedtoldirection*mergedtol,x     )
-                )
-            )
-        )
-        else
-        (
-            if wc_diffofwctollimit > 0 then
+        /* If one step of this loop errors out this means one tolerance isn't merged, but
+           the for loop can still continue. */
+        errcatch(
+            /* Let's see if increasing the current tol[n] increases x_defs*/
+            wc_tolminus:wc_typicalvalues(subst(wc_tol=-1,x_defs)),
+            wc_tolplus :wc_typicalvalues(subst(wc_tol= 1,x_defs)),
+
+            if
+                ((wc_tolplus > wc_toltyp) and (wc_toltyp >= wc_tolminus)) or
+                ((wc_tolplus >= wc_toltyp) and (wc_toltyp > wc_tolminus))
+            then
             (
                 /* increasing tol[n] increases x_defs */
                 if mergedtol = [] then
@@ -387,7 +353,10 @@ wc_ewc_simplify(x,[defs]):=block(
             else
             (        
                 /* The above if might have resulted in true or unknown */
-                if wc_diffofwctollimit < 0 then
+                if
+                    ((wc_tolplus < wc_toltyp) and (wc_toltyp <= wc_tolminus)) or
+                    ((wc_tolplus <= wc_toltyp) and (wc_toltyp < wc_tolminus))
+                then
                     (
                         /* increasing wc_tol decreases x_defs */
                         if mergedtol = [] then
@@ -403,8 +372,7 @@ wc_ewc_simplify(x,[defs]):=block(
                             x     :subst(wc_tol=-wc_mergedtoldirection*mergedtol,x     )
                         )
                     )
-                )
-        )
+            )
     ),
     return(x)
 );
