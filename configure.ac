@@ -745,10 +745,22 @@ if test x"${enable_build_docs}" = xtrue ; then
            TEXI_EXTRA_TAIL=')'
         fi
         if test x${syntax_highlighting} = xhighlightjs; then
-	   HIGHLIGHT1='<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github.min.css" media="(prefers-color-scheme: light)"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" media="(prefers-color-scheme: dark)">  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/maxima.min.js"> </script>
-'
-	   HIGHLIGHT2="<script> hljs.configure({languages: [['Maxima']], cssSelector: ${HLJS_CSS_SELECTOR}}); hljs.highlightAll(); </script>
-"
+           dnl Update HIGHTLIGHT_VER, LIGHTMODE, and DARKMODE
+           dnl variables if we decide to change the version, the light
+           dnl mode style or the dark mode style.
+           CDN="https://cdnjs.cloudflare.com/ajax/libs/highlight.js"
+           HIGHLIGHT_VER="11.11.1"
+           LIGHTMODE="github.min.css"
+           DARKMODE="github-dark.min.css"
+           dnl Make sure HIGHLIGHT1 and HIGHLIGHT2 are all on one line
+           dnl because these variables are placed in the Makefile and
+           dnl make doesn't support multiple-line variable
+           dnl assignments.
+           HIGHLIGHT1=$(cat <<EOF
+<link rel="stylesheet" media="(prefers-color-scheme: light)" href="$CDN/$HIGHLIGHT_VER/styles/$LIGHTMODE" > <link rel="stylesheet" media="(prefers-color-scheme: dark)" href="$CDN/$HIGHLIGHT_VER/styles/$DARKMODE" > <script src="$CDN/$HIGHLIGHT_VER/highlight.min.js"></script> <script src="$CDN/$HIGHLIGHT_VER/languages/maxima.min.js"></script>
+EOF
+)
+           HIGHLIGHT2="<script> hljs.configure({languages: [['Maxima']], cssSelector: ${HLJS_CSS_SELECTOR}}); hljs.highlightAll(); </script>"
         fi
         if test x${syntax_highlighting} = xpygments; then
            if test ${makeinfo_version} -ge 702; then
@@ -758,10 +770,9 @@ if test x"${enable_build_docs}" = xtrue ; then
            fi
         fi
         AC_SUBST(TEXI_EXTRA_HEAD)
-        dnl AC_SUBST(HLJS_CSS_SELECTOR)
         AC_SUBST(TEXI_EXTRA_TAIL)
 	AC_SUBST(HIGHLIGHT1)
-        AC_SUBST(HIGHLIGHT2)
+	AC_SUBST(HIGHLIGHT2)
         AC_SUBST(USE_PYGMENTS)
         TEXI2HTML=texi2html.init
         AC_SUBST(TEXI2HTML)
