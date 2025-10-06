@@ -183,6 +183,17 @@ wc_inputvalueassumptions(wc_x):=block([wc_line,wc_assumptions:[]],
     apply('assume,wc_assumptions)
 );
 
+/* A function that creates assumptions on the range the tol[n] of wc_x are in */
+wc_tolassumptions(wc_x):=block([wc_line,wc_assumptions:[]],
+    for wc_i in %wc_tols(wc_x) do
+        (
+            wc_line:wc_mintypmax(rhs(wc_i)),
+            push(lhs(wc_i)<=1,wc_assumptions),
+            push(lhs(wc_i)>=-1,wc_assumptions)
+        ),
+    apply('assume,wc_assumptions)
+);
+
 /* A function that generates an equation out of the min, typ and maximum value for an element */
 wc_mintypmax2tol(wc_tol,wc_min,wc_typ,wc_max):=block([wc_try],
     if wc_min>wc_typ then warning("wc_mintypmax2tol: Min value bigger than typ value"),
