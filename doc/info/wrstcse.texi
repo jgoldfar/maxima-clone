@@ -152,39 +152,71 @@ Example:
 @end deffn
 
 @anchor{wc_inputvalueranges}
-@deffn {Function} wc_inputvalueranges (@var{expression}, [@var{num}])
+@deffn {Function} wc_inputvalueranges (@var{expression}, [@var{show_tols}])
 
 Convenience function: Displays a list which parameter can vary between
 which values.
 
-See also @mref{wc_mintypmax2tol} and @mrefdot{wc_inputvalueranges}
+If @var{show_tols} is @code{true} then this function additionally displays
+which @var{tol[n]} each variable is affected by.
+
+See also @mref{wc_mintypmax2tol} and @mrefdot{wc_inputvalueassumptions}
 
 Example:
 @c ===beg===
 @c load("wrstcse")$
 @c vals: [
-@c    R_1= 1000.0*(1+tol[1]*.01),
-@c    R_2= 2000.0*(1+tol[2]*.01)
+@c    R_1= 1000.0*(1+tol["R_1"]*.01+tol["Temp"]*.001),
+@c    R_2= 2000.0*(1+tol["R_2"]*.01+tol["Temp"]*.001),
+@c    R_3= 2000.0*(1+tol["R_3"]*.01)
 @c  ];
 @c wc_inputvalueranges(vals);
+@c wc_inputvalueranges(vals,true);
 @c ===end===
 @example maxima
 (%i1) load("wrstcse")$
 @group
 (%i2) vals: [
-   R_1= 1000.0*(1+tol[1]*.01),
-   R_2= 2000.0*(1+tol[2]*.01)
+   R_1= 1000.0*(1+tol["R_1"]*.01+tol["Temp"]*.001),
+   R_2= 2000.0*(1+tol["R_2"]*.01+tol["Temp"]*.001),
+   R_3= 2000.0*(1+tol["R_3"]*.01)
  ];
-(%o2) [R_1 = 1000.0 (0.01 tol  + 1), 
-                             1
-                                    R_2 = 2000.0 (0.01 tol  + 1)]
-                                                          2
+(%o2) [R_1 = 1000.0 (0.001 tol     + 0.01 tol    + 1), 
+                              Temp           R_1
+R_2 = 2000.0 (0.001 tol     + 0.01 tol    + 1), 
+                       Temp           R_2
+R_3 = 2000.0 (0.01 tol    + 1)]
+                      R_3
 @end group
 @group
 (%i3) wc_inputvalueranges(vals);
-        [ R_1  min = 990.0   typ = 1000.0  max = 1010.0 ]
-(%o3)   [                                               ]
-        [ R_2  min = 1980.0  typ = 2000.0  max = 2020.0 ]
+(%o3) 
+    [ R_1  min = 989.0   typ = 1000.0  max = 1010.9999999999999 ]
+    [                                                           ]
+    [ R_2  min = 1978.0  typ = 2000.0  max = 2021.9999999999998 ]
+    [                                                           ]
+    [ R_3  min = 1980.0  typ = 2000.0        max = 2020.0       ]
+@end group
+@group
+(%i4) wc_inputvalueranges(vals,true);
+               [ R_1 ]         [ min = 989.0  ]
+               [     ]         [              ]
+(%o4)  Col 1 = [ R_2 ] Col 2 = [ min = 1978.0 ]
+               [     ]         [              ]
+               [ R_3 ]         [ min = 1980.0 ]
+         [ typ = 1000.0 ]         [ max = 1010.9999999999999 ]
+         [              ]         [                          ]
+ Col 3 = [ typ = 2000.0 ] Col 4 = [ max = 2021.9999999999998 ]
+         [              ]         [                          ]
+         [ typ = 2000.0 ]         [       max = 2020.0       ]
+         [ [tol    , tol   ] ]
+         [     Temp     R_1  ]
+         [                   ]
+ Col 5 = [ [tol    , tol   ] ]
+         [     Temp     R_2  ]
+         [                   ]
+         [     [tol   ]      ]
+         [         R_3       ]
 @end group
 @end example
 @end deffn
@@ -272,7 +304,7 @@ of the results over the @var{tol[n]} space and therefore will change the statist
 distribution of the montecarlo method and the results of the root sum square functions.
 
 
-See also @mrefcomma{wc_toltaylor} @mref{wc_mintypmax} and @mrefdot{wc_montecarlo}
+See also @mref{wc_mintypmax} and @mrefdot{wc_montecarlo}
 
 @var{definitions} allows to temporarily asssign values to specific @var{tol[n]} during
 the optimizations (normally optimizagion is done with all @var{tol[n]} being zero)
@@ -362,7 +394,6 @@ Example:
     typ = 0.3333333333333333 U_In, max = 0.3377926421404682 U_In]
 @end group
 @end example
-@end deffn
 
 Use case for adding definitions (@var{tol["E_Gain"]} cannot be optimized without
 knowing the sign of @var{tol["U_In"]}):
@@ -998,7 +1029,8 @@ and to introduce them into the equations only when needed.
 @code{assume} database about the range each variable in that list will
 be in.
 
-See also @mref{wc_inputvalueranges} and @mrefdot{assume}
+See also @mrefcomma{wc_tolassumptions} @mref{wc_inputvalueranges} and
+@mrefdot{assume}
 
 Example:
 @c ===beg===
@@ -1058,25 +1090,26 @@ Example:
 @end example
 @end deffn
 
-@anchor{wc_sensitivities}
-@deffn {Function} wc_sensitivities (@var{expr})
+@anchor{wc_tolassumptions}
+@deffn {Function} wc_tolassumptions (@var{expr})
 
-Generates a matrix that for each @var{tol[n} displays how much each @var{tol[n]}
-can change  @var{expr} in positive and negative direction, when starting from the
-the typical case (all @code{tol[n]}=0):
+Adds the range of the @var{tol[n]} contained in @var{expr} to the assume
+database.
+
+See also @mrefcomma{wc_inputvalueassumptions} @mref{wc_inputvalueranges} and @mrefdot{assume}
 
 Example:
 @c ===beg===
 @c load("wrstcse");
-@c assume(U_In>0);
 @c vals:[
 @c     R_1=100*(1+1/100*tol["R1"])*(1+1/100*tol["Temp"]),
-@c     R_2=100*(1+1/100*tol["R2"])*(1+1/100*tol["Temp"])];
-@c float(wc_inputvalueranges(%));
-@c eq1:I=U_In/(R_1+R_2);
-@c eq2:U_Out=I*R_2;
-@c eq3:subst(eq1,eq2);
-@c wc_sensitivities(subst(vals,rhs(eq3)));
+@c     R_2=200*(1+1/100*tol["R2"])*(1+1/100*tol["Temp"])];
+@c float(wc_tolassumptions(%));
+@c is(tol[R_1]>tol[R_2]);
+@c is(tol[R_1]>1);
+@c is(tol[R_1]<-1);
+@c is(tol[R_1]<0);
+@c is(tol[R_2]>2);
 @c ===end===
 @example maxima
 @group
@@ -1084,56 +1117,44 @@ Example:
 (%o1) /home/gunter/src/maxima-code/share/contrib/wrstcse.mac
 @end group
 @group
-(%i2) assume(U_In>0);
-(%o2)                      [U_In > 0]
-@end group
-@group
-(%i3) vals:[
+(%i2) vals:[
     R_1=100*(1+1/100*tol["R1"])*(1+1/100*tol["Temp"]),
-    R_2=100*(1+1/100*tol["R2"])*(1+1/100*tol["Temp"])];
+    R_2=200*(1+1/100*tol["R2"])*(1+1/100*tol["Temp"])];
                   tol         tol
                      R1          Temp
-(%o3) [R_1 = 100 (----- + 1) (------- + 1), 
+(%o2) [R_1 = 100 (----- + 1) (------- + 1), 
                    100          100
                                         tol         tol
                                            R2          Temp
-                             R_2 = 100 (----- + 1) (------- + 1)]
+                             R_2 = 200 (----- + 1) (------- + 1)]
                                          100          100
 @end group
 @group
-(%i4) float(wc_inputvalueranges(%));
-         [ R_1  min = 98.01  typ = 100.0  max = 102.01 ]
-(%o4)    [                                             ]
-         [ R_2  min = 98.01  typ = 100.0  max = 102.01 ]
+(%i3) float(wc_tolassumptions(%));
+(%o3) [tol   >= - 1.0, tol   <= 1.0, tol     >= - 1.0, 
+          R1              R1            Temp
+                    tol     <= 1.0, tol   >= - 1.0, tol   <= 1.0]
+                       Temp            R2              R2
 @end group
 @group
-(%i5) eq1:I=U_In/(R_1+R_2);
-                                U_In
-(%o5)                     I = ---------
-                              R_2 + R_1
+(%i4) is(tol[R_1]>tol[R_2]);
+(%o4)                        unknown
 @end group
 @group
-(%i6) eq2:U_Out=I*R_2;
-(%o6)                     U_Out = I R_2
+(%i5) is(tol[R_1]>1);
+(%o5)                        unknown
 @end group
 @group
-(%i7) eq3:subst(eq1,eq2);
-                                R_2 U_In
-(%o7)                   U_Out = ---------
-                                R_2 + R_1
+(%i6) is(tol[R_1]<-1);
+(%o6)                        unknown
 @end group
 @group
-(%i8) wc_sensitivities(subst(vals,rhs(eq3)));
-                   [            U_In   U_In  ]
-                   [  tol     - ----   ----  ]
-                   [     R2     398    402   ]
-                   [                         ]
-(%o8)              [           U_In     U_In ]
-                   [  tol      ----   - ---- ]
-                   [     R1    398      402  ]
-                   [                         ]
-                   [ tol        0       0    ]
-                   [    Temp                 ]
+(%i7) is(tol[R_1]<0);
+(%o7)                        unknown
+@end group
+@group
+(%i8) is(tol[R_2]>2);
+(%o8)                        unknown
 @end group
 @end example
 @end deffn
