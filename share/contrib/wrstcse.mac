@@ -164,10 +164,25 @@ wc_mintypmax(wc_x,[wc_params]):=block([wc_allvalues,wc_param1,min,wc_typ,max],
  ?putprop('mintypmax, ?cdr([?mlist,?mequal]), '?distribute_over)$
 
 /* A function that pretty-prints the value ranges the input values are in */
-wc_inputvalueranges(wc_x):=apply('matrix,
-    makelist(
-        append([lhs(wc_i)],wc_mintypmax(rhs(wc_i))),
-        wc_i,wc_x
+wc_inputvalueranges(wc_x,[show_toln]):=
+(
+    if (show_toln#[]) and (show_toln#['true]) and (show_toln#['false]) then
+       error("wc_inputvalueranges: Second parameter must be a bool"),
+    apply('matrix,
+        if show_toln=['true] then
+            makelist(
+                append(
+                    [lhs(wc_i)],
+                    wc_mintypmax(rhs(wc_i)),
+                    [%wc_tols(rhs(wc_i))]
+                ),
+                wc_i,wc_x
+            )        
+        else
+            makelist(
+                append([lhs(wc_i)],wc_mintypmax(rhs(wc_i))),
+                wc_i,wc_x
+            )
     )
 );
 
