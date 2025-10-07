@@ -1,3 +1,9 @@
 Maxima 5.48-post change log
 ===========================
 
+Bug fixes for numbered bugs:
+----------------------------
+ * \#3750: Quoting atan2 inhibits simplification
+ * \#4609: atan2(inf,inf) -> 0
+ * \#4613 integrate(atan2(sin(x), cos(x)), x, 0, 9*%pi)
+ * \#4615 carg range is not in (-%pi, %pi] 
