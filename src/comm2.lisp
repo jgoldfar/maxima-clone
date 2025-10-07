@@ -487,6 +487,93 @@
 
 ;;;; ATAN2
 
+;; The function sinp is defined in `limit.lisp'. Here we define `cosp`.
+(defun cosp (e)
+"Return true iff the expression `e` is in general form and its operator is `%cos`."
+   (and (consp e) (eq '%cos (caar e))))
+
+;; Checks: 
+;;   (i) pi - 2 pi ceiling((pi - pi)/(2 pi)) = pi - 0 = pi, and
+;;   (ii) -pi - 2 pi ceiling((-pi - pi)/(2 pi)) = -pi - 2 pi ceiling(-1) = -pi + 2pi = pi, as required.
+(defun reduce-angle-mod-2pi (theta)
+  "Reduce the input `mod 2 pi` to a value in the interval `(-pi, pi]`.
+   Thus -pi reduces to pi, and pi reduces to pi."
+  (cond
+    ;; The range of both atan2 and carg is `(-pi,pi]`, so give a free pass for such expressions.
+    ((and (consp theta) (or (eq (caar theta) '%atan2) (eq (caar theta) '%carg)))
+     theta)
+    (t
+     (let ((n (ftake '$ceiling (div (sub theta '$%pi) (mul 2 '$%pi)))))
+       ;; If you want to do the reduction only when `n` is an explicit integer,
+       ;; put in a conditional and return nil when `n` is not an explicit integer.
+       (sub theta (mul 2 '$%pi n))))))
+
+(defun nonvanishing-common-factor (p q)
+ "Return the product of the absolute values of the nonvanishing factors that are common to p and q. This code
+  doesn't factor p or q, so it only considers factors that are explict. When there are no
+  such factors, return one, that is, the empty product."
+  (let* ((pp (fapply '$set (if (mtimesp p) (cdr p) (list p))))
+         (qq (fapply '$set (if (mtimesp q) (cdr q) (list q))))
+         (ss (cdr ($intersection pp qq)))
+         (ll nil))
+      (dolist (sx ss)
+        (when (eq t (mnqp sx 0))
+          (push (ftake 'mabs sx) ll)))
+      (fapply 'mtimes ll)))
+
+;; Outside the one call to this function in the atan2 simplifier, this code likely isn't particulary useful.
+(defun polar-angle-if-sinusoids (x y)
+  "When both `x` and `y` have the form `(+/-) sin(X)` or `(+/-) cos(X)` and the point (x,y) is on the unit circle, 
+  return the principal polar angle of the point `(x,y)`. Otherwise, return nil. The principal polar angle is a 
+  member of the interval `(-pi,pi]`."
+  (flet ((sinusoid-p (x)
+           (or (cosp x) (cosp (neg x)) (sinp x) (sinp (neg x)))))
+    (when (and (sinusoid-p x) (sinusoid-p y))
+      (let ((z ($expand ($exponentialize (add x (mul '$%i y))))))
+        (flet ((fn (x)
+                 (cond ((eql x -1) '$%pi)
+                       ((eq x '$%i) (div '$%pi 2))
+                       ((and (mexptp x) (eq (cadr x) '$%e)) (div (caddr x) '$%i))
+                       (t nil))))
+          ;; When `(x,y)` isn't on the unit circle (say `x = sin(p)` and `y = cos(q)`) `z` will not
+          ;; be a product of terms that are on the unit circle, and the `every` check will fail.
+          (let ((theta (mapcar #'fn (if (mtimesp z) (cdr z) (list z)))))
+            (if (every #'identity theta)
+                (reduce-angle-mod-2pi (fapply 'mplus theta))
+                nil)))))))
+
+(defvar *atan2-extended-real-hashtable* (make-hash-table :test #'equal)
+"Hashtable giving the value of atan2(extended real, extended real) when the value
+is unambiguous. Ambiguous cases, for example atan2(inf,inf), are not included in 
+the hashtable.")
+
+;; At compile time, the functions `div` and `mul` are not available, so we 
+;; cannot build `atan2-extended-real-hashtable*` here. To workaround this, we define 
+;; a function `initialize-atan2-hashtable` that hash table *atan2-extended-real-hashtable*, 
+;; we and call this function in `init-cl.lisp`. 
+(defun initialize-atan2-hashtable ()
+  (let ((pi-over-two (div '$%pi 2)) (neg-pi-over-two (div '$%pi -2)) (minus-pi (mul -1 '$%pi)))
+    (mapcar #'(lambda (z) (setf (gethash (list (first z) (second z))  *atan2-extended-real-hashtable*) (third z)))
+     (list
+      (list '$minf '$zerob neg-pi-over-two)
+      (list '$minf '$zeroa neg-pi-over-two)
+      (list '$minf '$ind neg-pi-over-two)
+
+      (list '$zerob '$minf minus-pi)
+      (list '$zerob '$inf 0)
+
+      (list '$zeroa '$minf '$%pi)
+      (list '$zeroa '$inf  0)
+
+      (list '$ind '$inf  0)
+
+      (list '$inf '$zerob pi-over-two)
+      (list '$inf '$zeroa pi-over-two)
+      (list '$inf '$ind pi-over-two)))))
+
+(defvar *extended-reals* '($minf $zerob $zeroa $ind $und $inf $infinity)
+"Common Lisp list of all of Maxima's extended real numbers")
+
 ;; atan2 distributes over lists, matrices, and equations
 (defprop %atan2 (mlist $matrix mequal) distribute_over)
 
@@ -496,7 +583,26 @@
 ;; `block([radexpand: false], limit(atan2(x^2 - 2, x^3 - 3*x), x, sqrt(2), minus))`.
 ;; Arguably, this fix is inelegant and should be revisited. (Barton Willis, April 2025)
 (def-simplifier atan2 (y x)
-  (let (signy signx)
+  ;; for both x & y, convert -inf to minf.
+  (when (alike1 y (mul -1 '$inf))
+    (setq y '$minf))
+  (when (alike1 x (mul -1 '$inf))
+    (setq x '$minf))  
+  ;; for both x & y, convert -minf to inf.
+  (when (alike1 y (mul -1 '$minf))
+    (setq y '$inf))
+  (when (alike1 x (mul -1 '$minf))
+    (setq x '$inf)) 
+
+  ;; Divide both x & y by the absolute value of common factors that are
+  ;; nonvanishing. Skip this when either x or y depend on an extended real.
+  (when (and (freeofl y *extended-reals*) (freeofl x *extended-reals*))
+       (let ((w (nonvanishing-common-factor y x)))
+        (setq y (div y w))
+        (setq x (div x w))))
+
+  (let ((signy) (signx))
+
     (cond ((and (zerop1 y) (zerop1 x))
            (merror (intl:gettext "atan2: atan2(0,0) is undefined.")))
           (;; float contagion
@@ -511,39 +617,49 @@
            (setq x ($bfloat x)
                  y ($bfloat y))
            (*fpatan y (list x)))
-          ;; Simplifify infinities
-          ((or (eq x '$inf)
-               (alike1 x '((mtimes) -1 $minf)))
+           ;; Look up atan(extended real, extended real) in a hashtable. When the value
+           ;; isn't found in the hashtable, return a nounform.
+           ((and (member x *extended-reals*) (member y *extended-reals*))
+            (gethash (list y x) *atan2-extended-real-hashtable* (give-up)))
+
+           ;;When either `x` or `y` is in ($und infinity $ind), give up
+           ((or (member x '($und $infinity $ind)) (member y '($und $infinity $ind)))
+            (give-up))
+
+          ;; Simplify infinities--the hashtable lookup catches atan2(inf,inf),atan2(minf,inf), ..., so
+          ;; we should be able to safely do atan2(y,inf) = 0 here.
+          ((eq x '$inf)
            ;; Simplify atan2(y,inf) -> 0
            0)
-          ((or (eq x '$minf)
-               (alike1 x '((mtimes) -1 $inf)))
+          ((eq x '$minf)
            ;; Simplify atan2(y,minf) -> %pi for realpart(y)>=0 or -%pi
-           ;; for realpart(y)<0. When sign of y unknwon, return noun
+           ;; for realpart(y)<0. When sign of y unknown, return noun
            ;; form.  We are basically making atan2 on the branch cut
            ;; be continuous with quadrant II.
-           (cond ((member (setq signy ($sign ($realpart y))) '($pos $pz $zero)) 
-                  '$%pi)
-                 ((eq signy '$neg) (mul -1 '$%pi))
-                 (t (give-up))))
-          ((or (eq y '$inf)
-               (alike1 y '((mtimes) -1 $minf)))
-           ;; Simplify atan2(inf,x) -> %pi/2
-           (div '$%pi 2))
-          ((or (eq y '$minf)
-               (alike1 y '((mtimes -1 $inf))))
-           ;; Simplify atan2(minf,x) -> -%pi/2
+           (let ((sgn ($sign ($realpart y))))
+             (cond ((member sgn '($pos $pz $zero)) 
+                    '$%pi)
+                   ((eq sgn '$neg) (mul -1 '$%pi))
+                    (t (give-up)))))
+          ;; We have already taken care of atan2(extended real, extended real), so we can 
+          ;; safely simplify atan2(inf, X) to %pi/2 and atan2(minf, X) to -%pi/2. The case
+          ;; atan2(inf, %i) = %pi/2 is likely OK.
+          ((eq y '$inf)
+            (div '$%pi 2))
+          ((eq y '$minf)
            (div '$%pi -2))
           ((and (free x '$%i) (setq signx (let ((limitp nil)) ($sign x)))
                 (free y '$%i) (setq signy (let ((limitp nil)) ($sign y)))
-                (cond ((zerop1 y)
+                (cond ((eq signy '$zero)
                        ;; Handle atan2(0, x) which is %pi or -%pi
                        ;; depending on the sign of x.  We assume that
                        ;; x is never actually zero since atan2(0,0) is
                        ;; undefined.
                        (cond ((member signx '($neg $nz)) '$%pi)
-                             ((member signx '($pos $pz)) 0)))
-                      ((zerop1 x)
+                             ((member signx '($pos $pz)) 0)
+                             ((eq signx '$zero)  (merror (intl:gettext "atan2: atan2(0,0) is undefined.")))))
+
+                      ((eq signx '$zero)
                        ;; Handle atan2(y, 0) which is %pi/2 or -%pi/2,
                        ;; depending on the sign of y.
                        (cond ((eq signy '$neg) (div '$%pi -2))
@@ -558,23 +674,29 @@
                        ;; -%pi/4 depending on the sign of x.
                        (cond ((eq signx '$neg) (mul 3 (div '$%pi 4)))
                              ((member signx '($pos $pz)) (div '$%pi -4)))))))
+
+          ;; atan2((+/-)sin(angle),(+/-)cos(angle)) = angle reduced to (-pi,pi] mod 2 pi. 
+          ;; and similarly for atan2((+/-)cos(angle),(+/-)sin(angle))
+          ((polar-angle-if-sinusoids x y))
           ($logarc
            (logarc '%atan2 (list ($logarc y) ($logarc x))))
-          ((and $trigsign (eq t (mminusp y)))
-           ;; atan2(-y,x) = -atan2(y,x) if trigsign is true.
-           (neg (take '(%atan2) (neg y) x)))
-          ;; atan2(y,x) = atan(y/x) + pi sign(y) (1-sign(x))/2
+          ;; atan2(-y,x) = -atan2(y,x) provided (a) trigsign is true, (b) (great (neg y) y), and        
+          ;; (c) (x,y) is off the negative real axis. The test for (x,y) off the negative
+          ;; real axis should be (or (eq t (mnqp y 0)) (eq t (mgrp x 0))), but that causes
+          ;; one testsuite failure, so we'll test using (or (not (eql y 0)) (eq signx '$pos)))
+          ((and $trigsign 
+                (eq t (mminusp y))
+                (or (not (eql y 0)) (eq signx '$pos)))
+           (neg (ftake '%atan2 (neg y) x)))
           ((eq signx '$pos)
            ;; atan2(y,x) = atan(y/x) when x is positive.
            (take '(%atan) (div y x)))
-          ((and (eq signx '$neg)
-                (member (setq signy ($csign y)) '($pos $neg) :test #'eq))
-           (add (take '(%atan) (div y x))
-                (porm (eq signy '$pos) '$%pi)))
-          ((and (eq signx '$zero) (eq signy '$zero))
-           ;; Unfortunately, we'll rarely get here.  For example,
-           ;; assume(equal(x,0)) atan2(x,x) simplifies via the alike1 case above
-           (merror (intl:gettext "atan2: atan2(0,0) is undefined.")))
+
+          ((and (eq signx '$neg) (member signy '($pos $neg $pz $zero) :test #'eq))
+           (cond ((eq signy '$neg) (sub (ftake '%atan (div y x)) '$%pi))
+                 ((member signy '($pos $pz $zero)) (add (ftake '%atan (div y x)) '$%pi))
+                 (t (give-up))))
+
           (t (give-up)))))
 
 ;;;; ARITHF

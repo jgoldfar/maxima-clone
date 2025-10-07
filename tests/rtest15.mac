@@ -1619,14 +1619,14 @@ trigreduce(atan( sin(7*%pi/13) / cos(7*%pi/13) ));
 -6*%pi/13;
 
 carg( cos(7*%pi/13) + %i*sin(7*%pi/13) );
-atan(sin((7*%pi)/13)/cos((7*%pi)/13))+%pi;
+7*%pi/13$
 
 trigreduce(carg( cos(7*%pi/13) + %i*sin(7*%pi/13) ));
 7*%pi/13;
 
 (z: cos ( 13 * %pi / 15 ) + %i * sin ( 13 * %pi / 15 ),
  carg ( z ));
-atan(sin((13*%pi)/15)/cos((13*%pi)/15))+%pi;
+13*%pi/15$
 
 atan ( tan ( 13 * %pi / 15 ) ) + %pi;
 13*%pi/15;
@@ -1645,7 +1645,7 @@ trigreduce ( carg ( z ) );
 /* examples from SF bug #4208: "Error with complex numbers - example with trigreduce" */
 
 trigreduce(carg(c/d));
-24*%pi/13;
+-2*%pi/13$
 
 trigreduce(carg(cos(3*%pi/5)+%i * sin(3*%pi/5)));
 3*%pi/5;

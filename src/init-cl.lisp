@@ -720,6 +720,7 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
   (setf $pointbound *alpha)
   (setf (gethash '$pointbound *variable-initial-values*)
 	*alpha)
+  (initialize-atan2-hashtable)
   (values))
 
 (defun adjust-character-encoding ()
