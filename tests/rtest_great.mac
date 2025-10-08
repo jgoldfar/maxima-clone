@@ -85,6 +85,38 @@ block([ans1,ans2,ans3],
   [ans1,ans2,ans3]);
 [a*b+a^^7+%e^(a . b),a*b+a^^7+%e^(a . b),a*b+a^^7+%e^(a . b)]$
 
+/* \#3183 %i * 3^%i/2^%i; does not consistently simplify*/
+
+block([e0 : ((0.23665921047828*%i+0.7345467111924259)*(0.4980156681183566*%i-0.15494982830181)*1.5^%i*cosh(%pi))
+      /2^%i, e1,e2],
+      e1 : expand(e0,0,0),
+      e2 : expand(e1,0,0),
+      outermap(lambda([a,b], is(a=b)),[e0,e1,e2],[e0,e1,e2]));
+[[true, true, true], [true, true, true], [true, true, true]]$
+
+block([e0 : %i * 3^%i/2^%i, e1, e2, e3],
+       e1 : 1*e0,
+       e2 : 1*e1,
+       e3 : 1*e2,
+       outermap(lambda([a,b], is(a=b)),[e0,e1,e2,e3],[e0,e1,e2,e3]));
+[[true, true, true, true], [true, true, true, true], [true, true, true, true], [true, true, true, true]]$     
+     
+block([EY,ans], declare(K,constant), 
+      EY: 1/2^K+K+3^K,
+      ans : [EY-EY,(-EY) - (-EY)],
+      remove(K,constant),
+      ans);
+[0,0]$
+
+block([a,b,c,d,M,L,ans],
+ [a, b, c, d] : [3, M, M^3, 3^M],
+ L : powerset ({a, b, c, d}, 2),
+ declare (M, constant),
+ ans : maplist (lambda ([p], ?great (first(p), second(p))), L),
+ remove(M,constant),
+ ans);
+[false, false, false, false, false, false]$
+
 /* Did we make a mess? Let's clean it up!*/
 (remvalue(L),remvalue(bad),remove(z,complex), reset(domain), 0);
 0$
