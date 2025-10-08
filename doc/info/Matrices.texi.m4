@@ -578,11 +578,34 @@ The form of the result depends upon the setting of the switch @mrefdot{ratmx}
 There is a special routine for computing sparse determinants which is called
 when the switches @code{ratmx} and @mref{sparse} are both @code{true}.
 
+@code{display_determinant_bars} governs the display of determinants.
+
 @c EXAMPLES NEEDED HERE
 @opencatbox{Categories:}
 @category{Matrices}
 @closecatbox
 @end deffn
+
+@c -----------------------------------------------------------------------------
+@anchor{display_determinant_bars}
+@defvr {Option variable} display_determinant_bars
+Default value: @code{true}
+
+When @code{display_determinant_bars} is @code{true},
+a determinant noun expression which has a literal matrix as its sole argument
+is displayed with a vertical bar on either side.
+
+Otherwise, @code{display_determinant_bars} is @code{false},
+or the determinant is not a noun expression,
+or its argument is not a literal matrix;
+in these cases, the expression is displayed as an ordinary function call.
+
+@opencatbox{Categories:}
+@category{Display flags and variables}
+@category{Matrices}
+@closecatbox
+
+@end defvr
 
 @c -----------------------------------------------------------------------------
 @anchor{detout}

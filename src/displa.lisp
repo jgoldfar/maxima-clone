@@ -1269,6 +1269,17 @@
                 collect (list '(mequal) (format nil " Col ~d" k) ($col form k))))
     result ""))
 
+(displa-def %determinant dim-determinant)
+
+(defmvar $display_determinant_bars t)
+
+(defun dim-determinant (form result)
+  (let ((a (rest form)))
+    (if (and $display_determinant_bars (= (length a) 1) ($matrixp (first a)))
+      (let ($display_matrix_brackets)
+        (dim-mabs `((mabs) ,(first a)) result))
+      (dimension-function form result))))
+
 (displa-def mbox dim-mbox)
 (displa-def %mbox dim-mbox)
 
