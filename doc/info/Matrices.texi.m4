@@ -1581,6 +1581,25 @@ Example:
 @end defvr
 
 @c -----------------------------------------------------------------------------
+@anchor{display_matrix_brackets}
+@deffn {Option variable} display_matrix_brackets
+Default value: @code{true}
+
+When @code{display_matrix_brackets} is @code{true},
+matrices are displayed with brackets (square braces) to the left and right.
+
+When @code{display_matrix_brackets} is @code{false},
+matrices are not displayed with brackets;
+only the matrix elements are displayed.
+
+@opencatbox{Categories:}
+@category{Matrices}
+@category{Display flags and variables}
+@closecatbox
+
+@end deffn
+
+@c -----------------------------------------------------------------------------
 @anchor{matrix}
 @deffn {Function} matrix (@var{row_1}, @dots{}, @var{row_n})
 
@@ -1623,6 +1642,8 @@ See @mrefcomma{eigenvalues} @mrefcomma{eigenvectors} @mrefcomma{determinant}@w{}
 @mrefcomma{addrow} @mrefcomma{copymatrix} @mrefcomma{transpose}@w{}
 @mrefcomma{echelon} and @mrefdot{rank}
 @c CHECK -- WE PROBABLY WANT EXHAUSTIVE LIST HERE
+
+@mref{display_matrix_brackets} governs the display of matrices.
 
 Examples:
 

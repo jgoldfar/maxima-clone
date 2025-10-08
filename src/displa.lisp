@@ -1200,6 +1200,8 @@
 (displa-def $matrix dim-$matrix)
 (displa-def %matrix dim-$matrix)
 
+(defmvar $display_matrix_brackets t)
+
 (defun dim-$matrix (form result)
   (prog (dmstr rstr cstr consp cols)
      (setq cols (if ($listp (cadr form)) (length (cadr form)) 0))
@@ -1235,13 +1237,13 @@
      (if (> (+ height depth) (length linearray))
 	 (setq consp t))
      (return
-       (cond ((and (not consp) (checkfit (+ 2 width)))
+       (cond ((and (not consp) (checkfit (if $display_matrix_brackets (+ 2 width) width)))
 	      (matout dmstr cstr rstr result))
 	     ((and (not consp) (<= level 2)) (colout form result))
 	     (t (dimension-function form result))))))
 
 (defun matout (dmstr cstr rstr result)
-  (push `(d-matrix left ,height ,depth) result)
+  (when $display_matrix_brackets (push `(d-matrix left ,height ,depth) result))
   (push #\space result)
   (do ((d dmstr (cdr d)) (c cstr (cdr c)) (w 0 0))
       ((null d))
@@ -1251,10 +1253,13 @@
       (setq w (truncate (+ (car c) (caar d)) 2))
       (rplaca d (cdar d)))
     (setq result (cons (list (+ 2 (- (car c) w)) 0) (nreconc (car d) result))))
-  (setq width (+ 2 width))
+  (if $display_matrix_brackets
+    (setq width (+ 2 width))
+    (when $display2d_unicode
+      (setq height (1- height) depth (1- depth))))
   (update-heights height depth)
   (rplaca (car result) (1- (caar result)))
-  (push `(d-matrix right ,height ,depth) result)
+  (when $display_matrix_brackets (push `(d-matrix right ,height ,depth) result))
   result)
 
 (defun colout (form result)
@@ -1492,12 +1497,17 @@
 ;; Block mode i/o isn't needed since PRINC is used instead of WRITE-CHAR and
 ;; CURSORPOS.
 
-(defun output-linear (result w)
+(defun output-linear (result w &aux i0)
   (draw-linear result bkptdp w)
   (do ((i (1- (+ bkptht bkptdp)) (1- i)))
       ((< i 0))
-    (cond ((null (aref linearray i)))
-	  (t (output-linear-one-line i)))))
+    (cond
+      ((and (null i0) (null (aref linearray i))))
+      (t
+        (when (null i0) (setq i0 i))
+        (if (null (aref linearray i))
+          (mterpri)
+          (output-linear-one-line i))))))
 
 (defun output-linear-one-line (i)
   (prog (line (n 0))
