@@ -744,7 +744,7 @@
 				   'mparen 'mparen nil 0))
 		       (t (dimension-superscript
 			   (cons '(diff) l) (cons #\d (cons #\space den)))))
-	     w2 (+ 2 w2 width) h2 (max h2 height) d2 (+ d2 depth)))
+	     w2 (+ 2 w2 width) h2 (max h2 height) d2 (max d2 depth)))
      (setq num (nformat-check (addn num t)))
      (cond ((equal 1 num) (setq num (list #\d) w1 1 h1 1 d1 0))
 	   (t (setq num (dimension-superscript (list '(diff) #\d num) nil)
