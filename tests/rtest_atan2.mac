@@ -244,8 +244,19 @@ integrate(sin(t)*atan2(2*sin(t),1-2*cos(t)),t,0,%pi);
 integrate(atan2(sin(x), cos(x)), x, 0, 9*%pi);
 %pi^2/2$
 
-(kill(values),0);
+/*\#4614 atan2 reflection rule*/
+block([trigsign : true], subst([x=-1,y=0], atan2(-y,x) + atan2(y,x)));
+2*%pi$
+
+block([trigsign : true,ans], 
+  assume(notequal(y,0)),
+  ans : 0,
+  forget(notequal(y,0)),
+  ans);
 0$
+
+(kill(values),0);
+0$ 
 
 facts();
 []$

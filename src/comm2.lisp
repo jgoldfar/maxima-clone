@@ -681,12 +681,10 @@ the hashtable.")
           ($logarc
            (logarc '%atan2 (list ($logarc y) ($logarc x))))
           ;; atan2(-y,x) = -atan2(y,x) provided (a) trigsign is true, (b) (great (neg y) y), and        
-          ;; (c) (x,y) is off the negative real axis. The test for (x,y) off the negative
-          ;; real axis should be (or (eq t (mnqp y 0)) (eq t (mgrp x 0))), but that causes
-          ;; one testsuite failure, so we'll test using (or (not (eql y 0)) (eq signx '$pos)))
+          ;; (c) (x,y) is off the negative real axis. 
           ((and $trigsign 
                 (eq t (mminusp y))
-                (or (not (eql y 0)) (eq signx '$pos)))
+                (or (eq t (mnqp y 0)) (eq t (mgrp x 0))))
            (neg (ftake '%atan2 (neg y) x)))
           ((eq signx '$pos)
            ;; atan2(y,x) = atan(y/x) when x is positive.

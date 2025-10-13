@@ -615,14 +615,19 @@ done;
 acoth (x);
 
 /* SF bug #2620: "atan2(y,x)+atan2(-y,x) doesn't always return 0 " */
+block([ans,trigsign : true],
+  kill(x,y),
+  assume(notequal(y,0)),
+  ans : atan2(y,x)+atan2(-y,x),
+  forget(notequal(y,0)),
+  ans);
+0$
 
-(kill (x, y), atan2(y,x)+atan2(-y,x));
+
+(assume (y > 0), block([trigsign : true], atan2(y,x)+atan2(-y,x)));
 0;
 
-(assume (y > 0), atan2(y,x)+atan2(-y,x));
-0;
-
-(kill (n, p, r), forget (y > 0), assume(n<0,p>0), atan2 (- x, r));
+(kill (n, p, r), forget (y > 0), assume(n<0,p>0, notequal(x,0)), atan2 (- x, r));
 - atan2 (x, r);
 
 atan2 (-n, r);
@@ -631,8 +636,8 @@ atan2 (-n, r);
 atan2 (-p, r);
 - atan2 (p, r);
 
-forget (n < 0, p > 0);
-[n < 0, p > 0];
+forget (n < 0, p > 0,notequal(x,0));
+[n < 0, p > 0,notequal(x,0)];
 
 /* mailing list 2017-11-27: "trigsimp fails with pderivop" */
 

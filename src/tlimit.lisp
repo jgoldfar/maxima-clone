@@ -61,6 +61,23 @@
     	    (logarc '%atan2 (list (logarc-atan2 (second e)) (logarc-atan2 (third e)))))
         (t (recur-apply #'logarc-atan2 e))))
 
+(defun atan2-to-atan (e)
+ "In the expression `e`, replace all subexpressions of the form atan2(y,x), where y is not explicitly equal to 
+  zero, by 2*atan((sqrt(x^2+y^2) - x)/y).  The input `e` should be simplified--that way, the general simplifier 
+  handles the error case of atan2(0,0) and many other cases as well. "
+  (cond (($mapatom e) e)
+        ((and (consp e) (eq '%atan2 (caar e))) 
+          (let ((y (second e)) (x (third e)))
+            (if (zerop1 y)
+                e
+                (mul 2 (ftake '%atan (div (sub (ftake 'mexpt (add (mul x x) (mul y y)) (div 1 2)) x) y))))))
+        (($subvarp (mop e)) ;subscripted function
+             (subfunmake
+              (subfunname e)
+              (subfunsubs e) ;don't map fun onto the operator subscripts
+              (mapcar #'atan2-to-atan (subfunargs e)))) ; map onto the arguments
+        (t (fapply (caar e) (mapcar #'atan2-to-atan (cdr e))))))
+
 ;; Dispatch Taylor, but recurse on the order until either the recursion
 ;; depth reaches 15 or the Taylor polynomial is nonzero. If Taylor 
 ;; fails to find a nonzero Taylor polynomial or the recursion depth 
@@ -96,12 +113,12 @@
 	      ($taylordepth 8)
 		  ($radexpand nil)
 		  ($taylor_logexpand t)
-		  ($logexpand t))
+		  ($logexpand nil))
     
     (cond
       ((eq pt '$infinity) nil)
       (t
-       (setq e (logarc-atan2 e))
+       (setq e (atan2-to-atan e))
        (setq ee (catch 'taylor-catch ($totaldisrep ($taylor e x pt n))))
        (cond
          ((and ee (not (eql ee 0))) ee)
