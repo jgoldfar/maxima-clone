@@ -10,4 +10,5 @@ Bug fixes for numbered bugs:
  * \#4607: CF issues
  * \#4609: atan2(inf,inf) -> 0
  * \#4613 integrate(atan2(sin(x), cos(x)), x, 0, 9*%pi)
+ * \#4614 atan2 reflection rule
  * \#4615 carg range is not in (-%pi, %pi] 
