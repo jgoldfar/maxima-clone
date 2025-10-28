@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-dnl If git is available, the version number here is not used.  
+dnl If git is available, the version number here is not used.
 dnl Instead, git is used to derive the version based on the closest
 dnl annotated branch tag.
 dnl
@@ -750,14 +750,18 @@ if test x"${enable_build_docs}" = xtrue ; then
            dnl mode style or the dark mode style.
            CDN="https://cdnjs.cloudflare.com/ajax/libs/highlight.js"
            HIGHLIGHT_VER="11.11.1"
+           HIGHLIGHTJS_HASH="sha512-EBLzUL8XLl+va/zAsmXwS7Z2B1F9HUHkZwyS/VKwh3S7T/U0nF4BaU29EP/ZSf6zgiIxYAnKLu6bJ8dqpmX5uw=="
+           MAXIMAJS_HASH="sha512-AhvLFkEPexok+HSQKpnwMdX1f0PVRUYera3PJV8u3lotioIqfR9ThqCEydkI7RkSjQNcJm/pQl15AgqWcufw1Q=="
            LIGHTMODE="github.min.css"
+           LIGHTMODECSS_HASH="sha512-0aPQyyeZrWj9sCA46UlmWgKOP0mUipLQ6OZXu8l4IcAmD2u31EPEy9VcIMvl7SoAaKe8bLXZhYoMaE/in+gcgA=="
            DARKMODE="github-dark.min.css"
+           DARKMODECSS_HASH="sha512-rO+olRTkcf304DQBxSWxln8JXCzTHlKnIdnMUwYvQa9/Jd4cQaNkItIUj6Z4nvW1dqK0SKXLbn9h4KwZTNtAyw=="
            dnl Make sure HIGHLIGHT1 and HIGHLIGHT2 are all on one line
            dnl because these variables are placed in the Makefile and
            dnl make doesn't support multiple-line variable
            dnl assignments.
            HIGHLIGHT1=$(cat <<EOF
-<link rel="stylesheet" media="(prefers-color-scheme: light)" href="$CDN/$HIGHLIGHT_VER/styles/$LIGHTMODE" > <link rel="stylesheet" media="(prefers-color-scheme: dark)" href="$CDN/$HIGHLIGHT_VER/styles/$DARKMODE" > <script src="$CDN/$HIGHLIGHT_VER/highlight.min.js"></script> <script src="$CDN/$HIGHLIGHT_VER/languages/maxima.min.js"></script>
+<link rel="stylesheet" media="(prefers-color-scheme: light)" href="$CDN/$HIGHLIGHT_VER/styles/$LIGHTMODE" integrity="$LIGHTMODECSS_HASH"  crossorigin="anonymous"> <link rel="stylesheet" media="(prefers-color-scheme: dark)" href="$CDN/$HIGHLIGHT_VER/styles/$DARKMODE" integrity="$DARKMODECSS_HASH" crossorigin="anonymous"> <script src="$CDN/$HIGHLIGHT_VER/highlight.min.js" integrity="$HIGHLIGHTJS_HASH"  crossorigin="anonymous"></script> <script src="$CDN/$HIGHLIGHT_VER/languages/maxima.min.js" integrity="$MAXIMAJS_HASH" crossorigin="anonymous"></script>
 EOF
 )
            HIGHLIGHT2="<script> hljs.configure({languages: [['Maxima']], cssSelector: ${HLJS_CSS_SELECTOR}}); hljs.highlightAll(); </script>"
@@ -786,7 +790,7 @@ EOF
 	fi
 	if test x"${need_mathjax}" = xtrue; then
             dnl Need to include Mathjax.
-	    NEED_MATHJAX='<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>'
+	    NEED_MATHJAX='<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" integrity="sha384-Wuix6BuhrWbjDBs24bXrjf4ZQ5aFeFWBuKkFekO2t8xFU0iNaLQfp2K6/1Nxveei" crossorigin="anonymous"></script>'
 	    dnl This also means that makeinfo doesn't support
 	    dnl @displaymath, so we need to do something else.
 	    NO_DISPLAYMATH='true'
