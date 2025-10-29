@@ -31,7 +31,7 @@
 		      *indicator numer denom exp var val
 		      taylored logcombed
 		      $exponentialize lhp? lhcount
-		      loginprod? a context limit-assumptions
+		      loginprod? context limit-assumptions
 		      limit-top))
 
 (defconstant +behavior-count+ 4)
@@ -111,7 +111,7 @@
 ;; is an indefinite integral.
 (defun indefinite-integral-p (e x)
 	(cond (($mapatom e) nil)
-	      ((and (eq (caar e) '%integrate) (alike x (third e)))
+	      ((and (eq (caar e) '%integrate) (alike1 x (third e)))
 		    (null (fourth e)))
 		  (t 
 		    (some #'(lambda (q) (indefinite-integral-p q x)) (cdr e)))))
@@ -329,17 +329,16 @@
     (when (eq lb '$und) (return-from both-side '$und))
     (let ((ra (ridofab la))
           (rb (ridofab lb)))
-      (cond ((eq t (meqp ra rb))
-             ra)
-            ((and (eq ra '$ind)
-                  (eq rb '$ind))
-             ; Maxima does not consider equal(ind,ind) to be true, but
-             ; if both one-sided limits are ind then we want to call
-             ; the two-sided limit ind (e.g., limit(sin(1/x),x,0)).
-             '$ind)
-            ((or (not (free la '%limit))
+        ;; We test for equality of `ra` and `rb`. Since `equal` does not consider 
+		;; `equal(ind, ind)` to be true, we need an explicit test for the `ind, ind`
+		;; case. Instead of returning `ra`, we could return the expression with the 
+		;; smallest `conssize`.
+	    (cond 
+		   ((or (and (eq ra '$ind) (eq rb '$ind)) (eq t (meqp ra rb))) ra)
+       
+	        ((or (not (free la '%limit))
                  (not (free lb '%limit)))
-             ())
+             nil)
             (t
              (let ((infa (infinityp la))
                    (infb (infinityp lb)))
@@ -360,7 +359,7 @@
    (cond 
     ((mapatom e) t) ;mapatoms are OK
     ;; return nil for an indefinite integral
-    ((and (eq (caar e) '%integrate) (alike x (third e)) (null (fourth e))) nil)
+    ((and (eq (caar e) '%integrate) (alike1 x (third e)) (null (fourth e))) nil)
 	;; Return true for integrate(X,z,a,b) provided (a) freeof(x,X) (b) limit-ok(a,x)
 	;; and (c) limit-ok(b,x). The function simplim%integrate does not recognize
 	;; $limsubst, but this function does.
@@ -684,7 +683,16 @@ ignoring dummy variables and array indices."
 				  (null taylored)
 				  (tlimp exp var))
 			     (taylim exp var val *i*))
-			    ((ratp exp var) (ratlim exp))
+				;; Limit of a rational expression:
+                ;; For polynomial cases toward zero, the function `limit-of-polynomial` returns the limit 
+                ;; without expansion or other transformations. For non-polynomial cases, call `ratlim`.
+                ;; This special case addresses bugs such as #4563 limit of high degree polynomials.
+                ;; Additionally, it simplifies some testsuite cases.
+				((ratp exp var) 
+				   (or
+				     (limit-of-polynomial exp var val)
+					 (ratlim exp)))
+			  
 				((has-float exp) (simplimit exp var val))
 			    ((or (eq *i* t) (radicalp exp var))
 			     (limit1 exp var val))
@@ -1482,6 +1490,30 @@ ignoring dummy variables and array indices."
     (setq expolim (limit expo var val 'think))
     (simplimexpt bas expo baslim expolim)))
 
+(defun zero-fixup (e x pt)
+  "Assuming `substitute(pt, x, e)` vanishes, attempt to determine if the zero is `zerob` or `zeroa`.
+   If determination is possible, return `zeroa` or `zerob`; otherwise, return 0."
+  (let* ((e ($totaldisrep ($taylor e x pt 1)))
+         (dir (behavior e x pt)))
+    (cond
+      ((eql dir -1) '$zerob)
+      ((eql dir 1) '$zeroa)
+      (t 0))))
+
+(defun limit-of-polynomial (e x pt)
+  "When `e` is an explicit polynomial in `x` and `pt` is either `zerob`, `zeroa` or 0, return limit(e,x,pt);
+   otherwise, return nil. When the limit vanishes, attempt to determine if the limit is `zerob` or
+   `zeroa` and return accordingly. For a polynomial to be `explicit`, the exponents must be explicit 
+   nonnegative integers, not declared integers."
+  (cond
+    ((and (or (eq pt '$zeroa) (eq pt '$zerob) (eql pt 0))
+          ($polynomialp e (ftake 'mlist x) #'(lambda (q) (freeof x q))))
+     (let ((ans (maxima-substitute 0 x e)))
+       (if (eql 0 ans)
+           (zero-fixup e x pt)
+           ans)))
+    (t nil)))
+
 ;; this function is responsible for the following bug:
 ;; limit(x^2 + %i*x, x, inf)  -> inf	(should be infinity)
 (defun ratlim (e)
@@ -1948,13 +1980,16 @@ ignoring dummy variables and array indices."
 	   (if (and (not (member term-value '($inf $minf $und $ind $infinity)))
 	            (eq t (mnqp term-value 0))) term-value term)))))
 
+;; Previously, there was a call to tansc on bas, but I don't think it is needed.
 (defun bylog (expo bas)
-  (simplimexpt '$%e
-	       (setq bas
-		     (try-lhospital-quit (simplify `((%log) ,(tansc bas)))
-					 (m^ expo -1)
-					 nil))
-	       '$%e bas))
+  "Attempts to evaluate limit(bas^expo, var val) using the l'Hospital rule
+  applied to log(bas)/(1/expo). When `ans` is an extended real, the call to the 
+   one argument limit function simplifies the result (but it misses the case
+   limit(exp(ind)) = ind)."
+	(let ((ans (try-lhospital-quit (ftake '%log bas) (div 1 expo) nil)))
+	(if ans
+       ($radcan ($limit (ftake 'mexpt '$%e ans)))
+	   nil)))
 
 (defun simplimexpt (bas expo bl el)
   (cond ((or (eq bl '$und) (eq el '$und)) '$und)
@@ -2066,6 +2101,11 @@ ignoring dummy variables and array indices."
         ((eq el '$ind)  '$ind)
         ((zerop2 el) 1)
           ((zerop2 el) 1)
+
+        ;; direct substitution for el = -1
+		((eql el -1)
+			(ftake 'mexpt bl el))
+
 		;; When bl is off the negative real axis, use direct substitution
 		((off-negative-real-axisp bl) (ftake 'mexpt bl el))
         (t 
@@ -2105,10 +2145,19 @@ ignoring dummy variables and array indices."
 	 (or (equal 1. bl) (equal bl -1.)))
 	(t (equal (getsignl (m1- `((mabs) ,bl))) 0))))
 
-(defun simplimit (exp var val &aux op)
+(defun simplimit (exp var val)
+ (let ((preserve-direction t) (op nil))
   (cond
     ((eq var exp) val)
-    ((or (atom exp) (mnump exp)) exp)
+	
+	((not (freeof '$und exp))
+      (if (eq exp '$und) '$und (throw 'limit nil)))
+
+    ;; When exp is freeof var, optionally apply simplify followed by simpinf. Yes, the
+	;; call to simplify is needed: sometimes exp has the form XXX^1, for example.
+	((freeof var exp)
+	  (if (or (atom exp) (mnump exp)) exp (simpinf (simplify exp))))
+
     ;; Lookup and dispatch a simplim%function from the property list  
     ((setq op (safe-get (mop exp) 'simplim%function))
      (funcall op exp var val))
@@ -2170,7 +2219,7 @@ ignoring dummy variables and array indices."
 			   (mapcar #'(lambda (a)
 				       (limit a var val 'think))
 				   (cdr exp))))
-	   (throw 'limit t))))) 
+	   (throw 'limit t)))))) 
   
 (defun liminv (e)
   (setq e (resimplify (subst (m// 1 var) var e)))
@@ -2311,27 +2360,32 @@ ignoring dummy variables and array indices."
 	;; the rectangular form of their sum. When gruntz1 is able to find the
 	;; limit, we modify the lists infinityl, minfl, ... accordingly.
     (when (and infinityl (cdr infinityl) (not (among '$li (cons '(mlist) infinityl))))
-	   (setq ans (risplit (fapply 'mplus infinityl)))
+      (let (($radexpand nil) (infinityl-sum (fapply 'mplus infinityl)))
+	   (setq ans (risplit infinityl-sum))
 	  
 	   (let ((re (car ans)) (im (cdr ans)))
-	   	 (setq re (car (errcatch (gruntz1 re var val))))
-		 (setq im (car (errcatch (gruntz1 im var val))))
+	        (setq re (catch 'taylor-catch
+                  (let ((silent-taylor-flag t)) (gruntz1 re var val))))
+        
+             (setq im (catch 'taylor-catch
+                  (let ((silent-taylor-flag t)) (gruntz1 im var val))))
 		 (setq r
 		     (cond ((or (null re) (null im)) nil)
 			       ((infinityp im) '$infinity)
 				   ((infinityp re) re)
 				   (t (add re (mul '$%i im))))))
+
 	   (cond ((eq r '$infinity) (list (fapply 'mplus infinityl)))
 			 ((eq r nil) (throw 'limit t))
 			 (t 
 			   (setq infinityl nil)
-	           (cond ((eq r '$zerob) (push ans zerobl))
-			         ((eq r '$zeroa) (push ans zeroal))
-			         ((eq r '$ind) (push ans indl))
-			         ((eq r '$und) (push ans undl))
-			         ((eq r '$minf) (push ans minfl))
-					 ((eq r '$inf) (push ans infl))
-					 (t (push r sum))))))
+	           (cond ((eq r '$zerob) (push infinityl-sum zerobl))
+			         ((eq r '$zeroa) (push infinityl-sum zeroal))
+			         ((eq r '$ind) (push infinityl-sum indl))
+			         ((eq r '$und) (push infinityl-sum undl))
+			         ((eq r '$minf) (push infinityl-sum minfl))
+					 ((eq r '$inf) (push infinityl-sum infl))
+					 (t (push r sum)))))))
 					 
 	;; Unfortunately, this code does not handle the case of one or more
 	;; infinity terms and either a minf or inf term. So we throw an error.
@@ -3131,46 +3185,88 @@ ignoring dummy variables and array indices."
 	   (t (return ($radcan (ridofab (subin val e))))))
      (return (simplimtimes (list n1 d1)))))
 
+(defun maybe-asksign (e)
+  "Return the sign of `e` in a super context where `zerob < 0` and `zeroa > 0`.
+   When `*getsignl-asksign-ok*` is true, call `asksign`, otherwise call `csign`."
+  (let ((cntx ($supcontext)))
+    (unwind-protect
+        (progn
+          ;; Set up assumptions for the super context
+          (assume (ftake 'mgreaterp '$zeroa 0))
+          (assume (ftake 'mgreaterp 0 '$zerob))
+          ;; Determine which function to call based on *getsignl-asksign-ok*
+          (if *getsignl-asksign-ok*
+              ($asksign e)
+              ($csign e)))
+      ;; remove the super context
+      ($killcontext cntx))))
+
 ;;; Limit(log(XXX), var, 0, val), where val is either zerob (limit from below)
 ;;; or zeroa (limit from above).
 (defun simplimln (expr var val)
-  (let ((arglim (limit (cadr expr) var val 'think)) (dir)) 
-    (cond ((eq arglim '$inf) '$inf)     ;log(inf) = inf
-          ;;log(minf,infinity,zerob) = infinity & log(0) = infinity
-	  ((or (member arglim '($minf $infinity $zerob)))
+  (let ((arglim (let ((preserve-direction t)) (limit (cadr expr) var val 'think))) (dir))
+    ;; When arglim is 0, try using behavior to determine if the limit is zerob or zeroa.
+    (when (eql arglim 0)
+		(setq dir (behavior expr var val))
+		(cond ((eql dir -1) (setq arglim '$zerob))
+		      ((eql dir 1) (setq arglim '$zeroa))))
+    (cond 
+	  ((eq arglim '$inf) '$inf)     ;log(inf) = inf
+
+      ;;log(minf,infinity,zerob) = infinity
+	  ((member arglim '($minf $infinity $zerob))
 	   '$infinity)
+
 	  ((eq arglim '$zeroa) '$minf)  ;log(zeroa) = minf
-      ;; log(ind) = ind when ind > 0 else und
-	  ((eq arglim '$ind)
-	      (if (eq t (mgrp (cadr expr) 0)) '$ind '$und))
-	  ;; log(und) = und
-	  ((eq arglim '$und) '$und)
-	  ((member arglim '($ind $und)) '$und)
-          ;; log(1^(-)) = zerob, log(1^(+)) = zeroa & log(1)=0
-	  ((eql arglim 1)
-	   (if (or (eq val '$zerob) (eq var '$zeroa)) val 0))
+
 	  ;; Special case of arglim = 0
-	  ((eql arglim 0)
-	   (setq dir (behavior (cadr expr) var val))
-	   (cond ((eql dir -1) '$infinity)
-		 ((eql dir 0) '$infinity)
-		 ((eql dir 1) '$minf)))
-          ;; When arglim is off the negative real axis, use direct substitution
-	  ((off-negative-real-axisp arglim) 
-           (ftake '%log arglim))
-	  (t
-	   ;; We know that arglim is a negative real number, say xx.
-	   ;; When the imaginary part of (cadr expr) near var is negative,
-	   ;; return log(-x) - %i*pi; when the imaginary part of (cadr expr) 
-	   ;; near var is positive return log(-x) + %i*pi; and when
-	   ;; we cannot determine the behavior of the imaginary part,
-	   ;; return a nounform. The value of val (either zeroa or zerob)
-	   ;; determines what is meant by "near" (smaller than var when 
-	   ;; val is zerob and larger than var when val is zeroa).
-	   (setq dir (behavior ($imagpart (cadr expr)) var val))
-           (cond  ((or (eql dir 1) (eql dir -1))
-	           (add (ftake '%log (mul -1 arglim)) (mul dir '$%i '$%pi)))
-	          (t (throw 'limit nil))))))) ;do a nounform return
+	  ((eql arglim 0) '$infinity)
+	
+      ;; If expr doesn't vanish, log(ind) = ind; otherwise log(ind) = und.
+	  ((eq arglim '$ind)
+	      (if (eq t (mnqp (cadr expr) 0)) '$ind '$und))
+
+	  ;; This case should be caught by simplimit, but in case simplimln is called
+	  ;; from outside simplimit, we'll leave this case here for now 
+	  ((eq arglim '$und) 
+	    (throw 'limit nil))
+
+      ;; log(1^(-)) = zerob, log(1^(+)) = zeroa & log(1)=0
+	  ((eql (ridofab arglim) 1)
+	      ;; it can happen that arglim is 1 + zeroa, for example. For such cases,
+		  ;; we'll apply maybe-asksign; when that doesn't yield a sign, we'll use
+		  ;; dispatch behavior.
+		  (let ((sgn (maybe-asksign (sub arglim 1))))
+		   (cond ((eq sgn '$neg) '$zerob)
+		         ((eq sgn '$pos) '$zeroa)
+				 (t
+                   (setq dir (behavior (cadr expr) var val))
+		           (cond ((eql dir -1) '$zerob)
+		                 ((eql dir 1) '$zeroa)
+			             (t 0))))))
+
+	    (t
+	       (let* ((z (trisplit arglim)) (xx (car z))  (yy (cdr z)) (sgn))
+           ;; When yy vanishes, find the sign of xx. But when the sign is 'pnz', 
+		   ;; use asksign. We could use 'meqp' or 'askequal' to  test for a vanishing yy,
+		   ;; but for now, we'll test for a syntatic zero 
+			(when (eql 0 yy)
+				(setq sgn (maybe-asksign xx))
+				(when (eq sgn '$pnz)
+		   	      (setq sgn (let ((*getsignl-asksign-ok* t)) (maybe-asksign xx)))))
+
+	        (cond 
+  		  	  ((and (eql 0 yy) (eq sgn '$neg)) ; arglim on the negative real axis
+			    ;; For arglim on the negative real axis, we need to examine the imaginary
+		  	    ;; part of 'expr' to see if the imaginary part of 'expr' vanishes, or if it
+			    ;; approaches zero from above or below.
+			   (let ((yy (cdr (trisplit (cadr expr)))))
+					 (setq dir (if (eq t (meqp yy 0)) 1 (behavior yy var val)))
+					 (if (eql dir 0) 
+					     (throw 'limit t)
+	                     (add (ftake '%log (mul -1 arglim)) (mul dir '$%i '$%pi)))))
+			  ((and (eql 0 yy) (eq sgn '$zero)) '$infinity)
+			  (t  (ftake '%log arglim))))))))
 (setf (get '%log 'simplim%function) 'simplimln)
 (setf (get '%plog 'simplim%function) 'simplimln)
 
@@ -3316,38 +3412,55 @@ ignoring dummy variables and array indices."
         (ylim)
         (xlim-z)
         (ylim-z)
+		(dir)
         (q))
-    (setq xlim (limit x v pt 'think))
-    (setq ylim (limit y v pt 'think))
+    (setq xlim (let ((preserve-direction t)) (limit x v pt 'think)))
+    (setq ylim (let ((preserve-direction t)) (limit y v pt 'think)))
+
+	(when (eql 0 xlim)
+		(setq dir (behavior x v pt))
+		;(mtell "x = ~M ; dir = ~M ~%" x dir)
+		(cond ((eql dir 1) (setq xlim '$zeroa))
+		      ((eql dir -1) (setq xlim '$zerob))))
+
+	(when (eql 0 ylim)
+		(setq dir (behavior y v pt))
+		;(mtell "dir  = ~M ~%" dir)
+		(cond ((eql dir 1) (setq ylim '$zeroa))
+		      ((eql dir -1) (setq ylim '$zerob))))
+
     (setq xlim-z (ridofab xlim)
-	  ylim-z (ridofab ylim))
+	      ylim-z (ridofab ylim))
     ;; For cases for which direct substitution fails, normalize 
     ;; x & y and try again.
     (setq q (cond ((eq xlim '$inf) x)
-		  ((eq xlim '$minf)
-                   (mul -1 x))
-		  ((eq ylim '$inf) y)
-		  ((eq ylim '$minf)
-                   (mul -1 y))
-                  ((and (eq xlim '$zerob) (zerop2 ylim))
-                   (mul -1 x))
-		  ((and (eq xlim '$zeroa) (zerop2 ylim))
-                   x)
-		  ((and (eq ylim '$zerob) (zerop2 xlim))
-                   (mul -1 y))
-		  ((and (eq ylim '$zeroa) (zerop2 xlim))
-                   y) 
-		  (t 1)))
+		          ((eq xlim '$minf) (mul -1 x))
+		          ((eq ylim '$inf) y)
+		          ((eq ylim '$minf) (mul -1 y))
+		          (t 1)))
 
-    (when (not (eql q 1))
-      (setq x (div x q))
+    (when (not (eql q 1)) 
+	  (setq x (div x q))
       (setq y (div y q))
       (setq xlim (limit x v pt 'think))
       (setq ylim (limit y v pt 'think))
       (setq xlim-z (ridofab xlim)
-	    ylim-z (ridofab ylim)))		  	  
-				
+	        ylim-z (ridofab ylim)))
+
     (cond
+
+      ((and (eq xlim '$zeroa) (eq ylim '$zeroa)) ; in quadrant I
+	    (limit (ftake '%atan (div y x)) v pt 'think))
+    
+      ((and (eq xlim '$zerob) (eq ylim '$zeroa)) ; in quadrant II
+	    (add '$%pi (limit (ftake '%atan (div y x)) v pt 'think)))
+
+	  ((and (eq xlim '$zerob) (eq ylim '$zerob)) ; in quadrant III
+	    (sub (limit (ftake '%atan (div y x)) v pt 'think) '$%pi)) 
+
+      ((and (eq xlim '$zeroa) (eq ylim '$zerob)) ; in quadrant IV
+	    (limit (ftake '%atan (div y x)) v pt 'think))  
+
       ((and (eq '$zerob ylim) (eq t (mgrp 0 xlim)))
        (mul -1 '$%pi))
       ((and (eq '$zerob ylim) (eq t (mgrp xlim 0)))

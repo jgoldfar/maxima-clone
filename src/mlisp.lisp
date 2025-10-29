@@ -254,7 +254,7 @@ is EQ to FNNAME if the latter is non-NIL."
 			 (destructuring-bind (msg . val)
 			     info
 			   (mwarning (aformat nil (intl:gettext msg) form))
-			   (set form val))))
+			   (setf (symbol-value form) val))))
 		      (bindtest-value
                        (merror (intl:gettext "evaluation: unbound variable ~:M")
                                form))
@@ -436,11 +436,11 @@ is EQ to FNNAME if the latter is non-NIL."
       (cddr form)
       (cdr form)))
 
-(defun badfunchk (name val flag)
+(defun badfunchk (fnname val flag)
   (if (or flag (numberp val) (member val '(t nil $%e $%pi $%i) :test #'eq))
       (let ((type (if aryp (intl:gettext "an array") (intl:gettext "a function"))))
-        (if (and (atom name) (not (equal val name)))
-            (merror (intl:gettext "apply: found ~M evaluates to ~M where ~A was expected.") name val type)
+        (if (and (atom fnname) (not (equal val fnname)))
+            (merror (intl:gettext "apply: found ~M evaluates to ~M where ~A was expected.") fnname val type)
             (merror (intl:gettext "apply: found ~M where ~A was expected.") val type)))))
 
 ;; To store the value of $errormsg in mbind. This value is looked up in the
@@ -632,6 +632,12 @@ wrapper for this."
 	      (if (and f (or (not (eq x y))
 			     (member f '(neverset) :test #'eq)))
 		  (if (eq (funcall f x y) 'munbindp) (return nil))))
+            (let ((f (get x 'setter-method)))
+              (when f
+                ;; There's a setter method defined.  Call it to set
+                ;; the variable to the appropriate value.  Return
+                ;; whatever the setter returns.
+                (return (funcall f x y))))
 	    (cond ((and (not (boundp x))
 			(not dsksetp))
 		   (add2lnc x $values))
@@ -798,7 +804,27 @@ wrapper for this."
   (setf (get (caar z) 'dimension) 'dimension-defstruct)
   (setf $structures (append $structures (list (get (caar z) 'defstruct-default))))
   (setf (get (caar z) 'translate) 'defstruct-translate)
+  (setf (get (caar z) 'operators) 'simpstruct)
   (get (caar z) 'defstruct-default))
+
+;;; SIMPSTRUCT is the general simplifier for all structures defined via DEFSTRUCT.
+;;; Its purpose is to prevent Maxima functions such as "append", "cons", "delete"
+;;; or "rest" from being used on structure instances and create invalid ones.
+;;; SIMPSTRUCT raises an error if the number of arguments doesn't match the number
+;;; of fields of the structure.
+;;; SIMPSTRUCT simplifies the structure's values like SIMPLIFYA would do.
+;;;
+(defun simpstruct (expr unused args-simplified)
+  (declare (ignore unused))
+  (let* ((struct (caar expr))
+         (template (get struct 'defstruct-template))
+         (num-fields (length (cdr template)))
+         (num-args (length (cdr expr))))
+    (unless (= num-args num-fields)
+      (merror
+        (intl:gettext "structure ~M: wrong number of arguments; expected ~M, not ~M.")
+        struct num-fields num-args)))
+  (simpargs expr args-simplified))
 
 (defun namesonly(r)			; f(a,b,c) unchanged, f(a=3,b=4,c=5) -> f(a,b,c)
   (cons (car r)(mapcar #'(lambda(z)
@@ -1109,9 +1135,9 @@ wrapper for this."
   (if munbindp
       'munbindp
       (if reason
-	  (merror (intl:gettext "assignment: cannot assign ~M to `~:M': ~M.")
+	  (merror (intl:gettext "assignment: cannot assign `~M' to `~:M': ~M.")
 		  val name reason)
-	  (merror (intl:gettext "assignment: cannot assign ~M to `~:M'.") val name))))
+	  (merror (intl:gettext "assignment: cannot assign `~M' to `~:M'.") val name))))
 
 ;; assign properties
 (mapc #'(lambda (x) (putprop (car x) (cadr x) 'assign))
@@ -1974,7 +2000,7 @@ wrapper for this."
 		       (mtell (intl:gettext "define: warning: redefining built-in subscripted function ~:M~%")
 			      fnname)))
 	    ((prog2 (setq fnname (caar fun))
-		 (or (mopp fnname) (member fnname '($all $allbut $%) :test #'eq)))
+		 (or (mopp fnname) (member fnname '(t nil $all $allbut $%) :test #'eq)))
 	     (merror (intl:gettext "define: function name cannot be a built-in operator or special symbol; found: ~:@M") fnname))
 	    ((setq ary (member 'array (cdar fun) :test #'eq)) (setq subs (cdr fun)))
 	    (t

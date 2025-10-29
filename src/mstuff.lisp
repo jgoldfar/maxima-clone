@@ -21,7 +21,7 @@
 	  (mfunction1 (setq bfun (getopr f))))
     (when (member bfun '(lessthan great) :test #'eq)
       (setq llist (mapcar #'ratdisrep llist)))
-    (cons '(mlist) (stable-sort llist comparfun))))
+    (simplifya (cons '(mlist) (stable-sort llist comparfun)) t)))
 
 ;; cmulisp does not like the closure version.  Clisp insists on the
 ;; closure version.  Gcl likes either...  For the moment we will
@@ -39,7 +39,8 @@
 
 (defmspec $makelist (x)
   (setq x (cdr x))
-  (prog (n form arg a b c d lv)
+  (simplifya
+    (prog (n form arg a b c d lv)
      (setq n (length x))
      (cond
        ((= n 0) (return '((mlist))))
@@ -105,7 +106,8 @@
 	 (push (meval `(($ev)
 			,@(list (list '(mquote) form)
 				(list '(mequal) arg (car lv)))))
-	       ans)))))
+	       ans))))
+    t))
 
 (defun interval2 (i s d)
   (do ((nn i (meval `((mplus) ,s ,nn)))
@@ -127,6 +129,6 @@
     (merror (intl:gettext "sublist: first argument must be a list; found: ~M") a) )
   (do ((a (cdr a) (cdr a))
        (x))
-      ((null a) (cons '(mlist) (nreverse x)))
+      ((null a) (simplifya (cons '(mlist) (nreverse x)) t))
     (if (definitely-so (mfuncall f (car a)))
 	(push (car a) x))))

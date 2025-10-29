@@ -1,6 +1,5 @@
 ;; gnuplot_def.lisp: routines for Maxima's interface to gnuplot
 ;; Copyright (C) 2007-2021 J. Villate
-;; Time-stamp: "2024-03-25 09:10:05 villate"
 ;; 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License
@@ -294,20 +293,20 @@
     ((eq (getf plot-options '$gnuplot_term) '$dumb)
      (if (getf plot-options '$gnuplot_dumb_term_command)
          (setq terminal-command
-               (getf plot-options '$gnuplot_ps_term_command))
+               (getf plot-options '$gnuplot_dumb_term_command))
          (setq terminal-command "set term dumb 79 22"))
      (if (getf plot-options '$gnuplot_out_file)
          (setq out-file (getf plot-options '$gnuplot_out_file))
-         (setq out-file (format nil "~a.txt" (random-name 16)))))
+       (setq out-file (format nil "~a.txt" (random-name 16)))))
     ((eq (getf plot-options '$gnuplot_term) '$default)
      (if (getf plot-options '$gnuplot_default_term_command)
          (setq terminal-command
                (getf plot-options '$gnuplot_default_term_command))
-         (setq terminal-command
-               (if (getf plot-options '$window)
-                   (format nil "set term GNUTERM ~d ~a~%"
-                           (getf plot-options '$window) gstrings)
-                   (format nil "set term GNUTERM ~a~%" gstrings)))))
+       (setq terminal-command
+             (if (getf plot-options '$window)
+                 (format nil "set term GNUTERM ~d ~a~%"
+                         (getf plot-options '$window) gstrings)
+               (format nil "set term GNUTERM ~a~%" gstrings)))))
     ((getf plot-options '$gnuplot_term)
      (setq
       terminal-command
@@ -320,7 +319,12 @@
           (format nil "maxplot.~(~a~)"
                   (get-gnuplot-term (getf plot-options '$gnuplot_term)))))))
 
-  (unless (null out-file) (setq out-file (plot-file-path out-file preserve-file plot-options)))
+  (when out-file
+    (setq out-file (plot-file-path out-file preserve-file plot-options))
+    ;; plots that create a file work better in gnuplot than gnuplot_pipes
+    (if (eq (getf plot-options '$plot_format) '$gnuplot_pipes)
+        (setf (getf plot-options '$plot_format) '$gnuplot)))
+    
   (list terminal-command out-file)))
 
 (defmethod plot-preamble ((plot gnuplot-plot) plot-options)
@@ -749,3 +753,136 @@
       (when output-file
         (send-gnuplot-command "unset output")
         (cons '(mlist) output-file)))))
+
+(defun gnuplot-process (plot-options &optional file out-file)
+  (let ((gnuplot-term (getf plot-options '$gnuplot_term))
+        (run-viewer (getf plot-options '$run_viewer))
+        #-(or (and sbcl win32) (and sbcl win64) (and ccl windows))
+		(gnuplot-preamble
+         (string-downcase (getf plot-options '$gnuplot_preamble))))
+
+    ;; creates the output file, when there is one to be created
+    (when (and out-file (not (eq gnuplot-term '$default)))
+      ($system $gnuplot_command (format nil $gnuplot_file_args file)))
+
+    ;; displays contents of the output file, when gnuplot-term is dumb,
+    ;; or runs gnuplot when gnuplot-term is default
+    (when run-viewer
+      (case gnuplot-term
+        ($default
+         ;; the options given to gnuplot will be different when the user
+         ;; redirects the output by using "set output" in the preamble
+         (if (search "set out" gnuplot-preamble)
+             ($system $gnuplot_command (format nil $gnuplot_file_args file))
+             ($system $gnuplot_command "-persist"
+                      (format nil $gnuplot_file_args file))))
+        ($dumb
+         (if out-file
+             ($printfile (car out-file))
+           (merror (intl:gettext "plotting: option 'gnuplot_out_file' not defined."))))))))
+
+;; gnuplot_pipes functions. They allow the use of Gnuplot through a
+;; pipe in order to keep it active (this makes it possible for instance,
+;; to rotate a 3d surface with the mouse)
+
+(defvar *gnuplot-stream* nil)
+(defvar *gnuplot-command* "")
+
+(defmvar $gnuplot_command "gnuplot"
+  "The command (a string) that runs gnuplot"
+  :setting-predicate #'string-predicate)
+
+(defun start-gnuplot-process (path)
+  ;; TODO: Forward gnuplot's stderr stream to maxima's stderr output
+  #+clisp (setq *gnuplot-stream* (ext:make-pipe-output-stream path))
+  ;; TODO: Forward gnuplot's stderr stream to maxima's stderr output
+  #+lispworks (setq *gnuplot-stream* (system:open-pipe path))
+  #+cmu (setq *gnuplot-stream*
+              (ext:process-input (ext:run-program path nil :input :stream
+                                                  :output *error-output* :wait nil)))
+  #+scl (setq *gnuplot-stream*
+              (ext:process-input (ext:run-program path nil :input :stream
+                                                  :output *error-output* :wait nil)))
+  #+sbcl (setq *gnuplot-stream*
+               (sb-ext:process-input (sb-ext:run-program path nil
+                                                         :input :stream
+                                                         :output *error-output* :wait nil
+                                                         :search t)))
+  #+gcl (setq *gnuplot-stream*
+              (open (concatenate 'string "| " path) :direction :output))
+  #+ecl (progn
+          (setq *gnuplot-stream* (ext:run-program path nil :input :stream :output *error-output* :error :output :wait nil)))
+  #+ccl (setf *gnuplot-stream*
+              (ccl:external-process-input-stream
+               (ccl:run-program path nil
+                                :wait nil :output *error-output*
+                                :input :stream)))
+  #+allegro (setf *gnuplot-stream* (excl:run-shell-command
+                    path :input :stream :output *error-output* :wait nil))
+  #+abcl (setq *gnuplot-stream* (system::process-input (system::run-program path nil :wait nil)))
+  #-(or clisp cmu sbcl gcl scl lispworks ecl ccl allegro abcl)
+  (merror (intl:gettext "plotting: I don't know how to tell this Lisp to run Gnuplot."))
+  
+  (if (null *gnuplot-stream*)
+    (merror (intl:gettext "plotting: I tried to execute ~s but *GNUPLOT-STREAM* is still null.~%") path))
+
+  ;; set mouse must be the first command send to gnuplot
+  (send-gnuplot-command "set mouse"))
+
+(defun check-gnuplot-process ()
+  (if (null *gnuplot-stream*)
+      (start-gnuplot-process $gnuplot_command)))
+
+(defmfun $gnuplot_close ()
+  (stop-gnuplot-process)
+  "")
+
+(defmfun $gnuplot_start ()
+  (check-gnuplot-process)
+  "")
+
+(defmfun $gnuplot_restart ()
+  ($gnuplot_close)
+  ($gnuplot_start))
+
+(defmfun $gnuplot_send (command)
+  (send-gnuplot-command command))
+
+(defun stop-gnuplot-process ()
+  (unless (null *gnuplot-stream*)
+      (progn
+        (close *gnuplot-stream*)
+        (setq *gnuplot-stream* nil))))
+
+(defun send-gnuplot-command (command &optional recursive)
+  (if (null *gnuplot-stream*)
+      (start-gnuplot-process $gnuplot_command))
+  (handler-case (unless (null command)
+		  (format *gnuplot-stream* "~a ~%" command)
+		  (finish-output *gnuplot-stream*))
+    (error (e)
+      ;; allow gnuplot to restart if stream-error, or just an error is signaled
+      ;; only try to restart once, to prevent an infinite loop 
+      (cond (recursive
+	     (error e))
+	    (t
+	     (warn "~a~%Trying new stream.~%" e)
+	     (setq *gnuplot-stream* nil)
+	     (send-gnuplot-command command t))))))
+
+(defmfun $gnuplot_reset ()
+  (send-gnuplot-command "unset output")
+  (send-gnuplot-command "reset"))
+
+(defmfun $gnuplot_replot (&optional s)
+  (if (null *gnuplot-stream*)
+      (merror (intl:gettext "gnuplot_replot: Gnuplot is not running.")))
+  (cond ((null s)
+         (send-gnuplot-command "replot"))
+        ((stringp s)
+         (send-gnuplot-command s)
+         (send-gnuplot-command "replot"))
+        (t
+         (merror (intl:gettext "gnuplot_replot: argument, if present, must be a string; found: ~M") s)))
+  "")
+

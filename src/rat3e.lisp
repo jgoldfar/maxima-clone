@@ -23,6 +23,16 @@
 
 (defmvar factorresimp nil "If `t' resimplifies factor(x-y) to x-y")
 
+(defvar *use-readable-gensyms* :debug
+  "Controls the use of readable gensyms in some internal CRE functions. Readable
+  gensym names begin with a textual representation of the expression that the
+  symbol represents, e.g. SIN(SQRT(X))1234. This can be useful for debugging, but
+  it can also severely degrade performance due to the overhead involved.
+  - If :DEBUG (default), use readable gensyms only when debug mode is enabled,
+    that is, when *MDEBUG* is non-NIL or *DEBUGGER-HOOK* is NIL.
+  - If NIL, never use readable gensyms.
+  - If T or any other value, always use readable gensyms.")
+
 (defun mrateval (x)
   (let ((varlist (caddar x)))
     (cond ((and evp $infeval) (meval ($ratdisrep x)))
@@ -499,12 +509,15 @@
 	 (putprop (car l) t 'algord)))
     (setq mv (max mv (porder (cadr p))))))
 
-(defun gensym-readable (name)
-  (cond ((symbolp name)
-	 (gensym (string-trim "$" (string name))))
+(defun gensym-readable (symname)
+ (if (or (and (eq *use-readable-gensyms* :debug) (not *mdebug*) *debugger-hook*)
+         (not *use-readable-gensyms*))
+  (gensym)
+  (cond ((symbolp symname)
+	 (gensym (string-trim "$" (string symname))))
 	(t
-	 (setq name (aformat nil "~:M" name))
-	 (if name (gensym name) (gensym)))))
+	 (setq symname (aformat nil "~:M" symname))
+	 (if symname (gensym symname) (gensym))))))
 
 (defun orderpointer (l)
   (loop for v in l
@@ -754,7 +767,9 @@
       (putonvlist x)))
 
 (defun fr1 (x varlist)		    ;put radicands on initial varlist?
-  (prog (genvar $norepeat *ratsimp* radlist vlist nvarlist ovarlist genpairs)
+  (if (or (symbolp x) (and (integerp x) (not modulus)))
+   x ; early exit for symbols and integers (when no modulus is set)
+   (prog (genvar $norepeat *ratsimp* radlist vlist nvarlist ovarlist genpairs)
      (newvar1 x)
      (setq nvarlist (mapcar #'fr-args vlist))
      (cond ((not *ratsimp*)	;*ratsimp* not set for initial varlist
@@ -778,7 +793,7 @@
        (cond (radlist			;rational radicands
 	      (setq *ratsimp* nil)
 	      (setq x (ratsimp (simplify x) nil nil)))))
-     (return x)))
+     (return x))))
 
 (defun ratsimp (x varlist genvar) ($ratdisrep (ratf x)))
 
@@ -879,15 +894,15 @@
       p
       (pdisrep+ (pdisrep2 (cdr p) (get (car p) 'disrep)))))
 
-(defun pdisrep! (n var)
+(defun pdisrep! (n var2)
   (cond ((zerop n) 1)
-	((equal n 1) (cond ((atom var) var)
-                           ((or (eq (caar var) 'mtimes)
-                                (eq (caar var) 'mplus))
-                            (copy-list var))
-                           (t var)))
-	((eql var 1) 1)
-	(t (list '(mexpt ratsimp) var n))))
+	((equal n 1) (cond ((atom var2) var2)
+                           ((or (eq (caar var2) 'mtimes)
+                                (eq (caar var2) 'mplus))
+                            (copy-list var2))
+                           (t var2)))
+	((eql var2 1) 1)
+	(t (list '(mexpt ratsimp) var2 n))))
 
 (defun pdisrep+ (p)
   (cond ((null (cdr p)) (car p))
@@ -905,10 +920,10 @@
 (defun pdisrep*chk (a)
   (if (mtimesp a) (cdr a) (ncons a)))
 
-(defun pdisrep2 (p var)
+(defun pdisrep2 (p var2)
   (cond ((null p) nil)
-	($ratexpand (pdisrep2expand p var))
-	(t (do ((l () (cons (pdisrep* (pdisrep (cadr p)) (pdisrep! (car p) var)) l))
+	($ratexpand (pdisrep2expand p var2))
+	(t (do ((l () (cons (pdisrep* (pdisrep (cadr p)) (pdisrep! (car p) var2)) l))
 		(p p (cddr p)))
 	       ((null p) (nreverse l))))))
 
@@ -930,10 +945,10 @@
 						  (pdisrep*chk b)))))
 		   (cdr a)))))
 
-(defun pdisrep2expand (p var)
+(defun pdisrep2expand (p var2)
   (cond ((null p) nil)
-	(t (nconc (pdisrep*expand (pdisrep (cadr p)) (pdisrep! (car p) var))
-		  (pdisrep2expand (cddr p) var)))))
+	(t (nconc (pdisrep*expand (pdisrep (cadr p)) (pdisrep! (car p) var2))
+		  (pdisrep2expand (cddr p) var2)))))
 
 
 (defmvar $ratdenomdivide t)
@@ -941,7 +956,8 @@
 (defmfun $ratdisrep (x)
   (cond ((mbagp x)
          ;; Distribute over lists, equations, and matrices.
-         (cons (car x) (mapcar #'$ratdisrep (cdr x))))
+         ;; Remove a SIMP flag to allow elements to be simplified.
+         (cons (delsimp (car x)) (mapcar #'$ratdisrep (cdr x))))
         ((not ($ratp x)) x)
         (t
          (setq x (ratdisrepd x))

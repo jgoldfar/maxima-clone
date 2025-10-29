@@ -95,7 +95,7 @@ expression involving @code{psi[0]} (see @ref{polygamma}).
 @deffn {Function} reduce_order (@var{rec}, @var{sol}, @var{var})
 
 Reduces the order of linear recurrence @var{rec} when a particular solution
-@var{sol} is known. The reduced reccurence can be used to get other solutions.
+@var{sol} is known. The reduced recurrence can be used to get other solutions.
 
 Example:
 

@@ -6,4 +6,5 @@ langsdir = /de
 
 include ../common-lang.mk
 
+maxima_TEXINFOS = $(wildcard *.texi)
 EXTRA_DIST += manual.css include-maxima.texi.in

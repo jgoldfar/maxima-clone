@@ -108,15 +108,15 @@
 				       (subst (car v) (quote foo) x)
 				       t))))))
 
-(defun ratderivative (rat  var)
+(defun ratderivative (rat  var2)
   (let ((num (car rat))
 	(denom (cdr rat)))
-    (cond ((equal 1 denom) (cons (pderivative num var) 1))
-	  (t (setq denom (pgcdcofacts denom (pderivative denom var)))
+    (cond ((equal 1 denom) (cons (pderivative num var2) 1))
+	  (t (setq denom (pgcdcofacts denom (pderivative denom var2)))
 	     (setq num (ratreduce (pdifference (ptimes (cadr denom)
-						       (pderivative num var))
+						       (pderivative num var2))
 					       (ptimes num (caddr denom)))
-					;RATREDUCE ONLY NEEDS TO BE DONE WITH CONTENT OF GCD WRT VAR.
+					;RATREDUCE ONLY NEEDS TO BE DONE WITH CONTENT OF GCD WRT VAR2.
 				  (car denom)))
 	     (cond ((pzerop (car num)) num)
 		   (t (rplacd num (ptimes (cdr num)

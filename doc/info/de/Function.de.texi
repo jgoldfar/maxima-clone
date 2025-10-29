@@ -1510,6 +1510,7 @@ werden.
 @anchor{scanmap}
 @deffn  {Funktion} scanmap (@var{f}, @var{expr})
 @deffnx {Funktion} scanmap (@var{f}, @var{expr}, bottomup)
+@deffnx {Funktion} scanmap (@var{f}, @var{expr}, topdown)
 
 Wendet die Funktion @var{f} rekursiv auf alle Teilausdr@"ucke in @var{expr} an.
 Dies kann zum Beispiel verwendet werden, um einen Ausdruck vollst@"andig zu 
@@ -1552,6 +1553,9 @@ scanmap(f,a*x+b,bottomup) -> f(a)*f(x)+f(b)
     -> f(f(a)*f(x))+f(b) ->
      f(f(f(a)*f(x))+f(b))
 @end example
+
+@code{scanmap (@var{f}, @var{expr}, topdown)} verh@"alt sich genau wie
+@code{scanmap (@var{f}, @var{expr})}.
 @end deffn
 
 @c --- End of file Function.de.texi --------------------------------------------

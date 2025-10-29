@@ -75,11 +75,24 @@
     (format t "Already added entry ~S ~S: ~S~%"
 	    item (gethash item *html-index*)
 	    line))
-  (format *log-file* "~A: ~S -> ~S ~S~%"
-	  prefix item file item-id)
+  (flet ((skip-toc-entry (item)
+         ;; Returns non-nil if the item should not be included in the
+         ;; html index.  This is not currently used.
+           (let ((found
+                   (find item '( ;; "Error and warning messages"
+                                )
+                         :test #'string=)))
+             ;; Log a note that we skipped this entry.
+             (when found
+               (format *log-file* "Skip ~A: ~S -> ~S ~S~%"
+                       prefix item file item-id))
+             found)))
+    (unless (skip-toc-entry item)
+      (format *log-file* "~A: ~S -> ~S ~S~%"
+	      prefix item file item-id)
 
-  (setf (gethash item *html-index*)
-	(cons file item-id)))
+      (setf (gethash item *html-index*)
+	    (cons file item-id)))))
 
 (defun process-line (line matcher path &key replace-dash-p (prefix "Add:") truenamep)
   "Process the LINE using the function MATCHER to determine if this line
@@ -188,12 +201,17 @@
 ;; the section numbers, "Bessel Functions".  
 ;; Further subsections are ignored.
 ;; Conditional expression allows us to handle earlier versions of Texinfo.
-(defun match-toc (line)
-  (let ((regexp (cond 
-          ((>= *texinfo-version* (texinfo-version-number 6 8 )) (pregexp:pregexp "<a id=\"toc-.*\" href=\"([^#\"]+)(#([^\"]+))\">[[:digit:]]+\.[[:digit:]]+ ([^\"]+?)</a>"))
-          (t (pregexp:pregexp "<a (?:name|id)=\"toc-.*\" href=\"([^#\"]+)(#([^\"]+))\">[[:digit:]]+\\.[[:digit:]]+ ([^\"]+?)</a>(?!.*maxima_100.html)")))
-       ))
-    (let ((match (pregexp:pregexp-match regexp line)))
+(let ((regexp-texinfo>=6.8
+       (pregexp:pregexp "<a id=\"toc-.*\" href=\"([^#\"]+)(#([^\"]+))\">[[:digit:]]+\\.[[:digit:]]+ ([^\"]+?)</a>"))
+      (regexp-texinfo<6.8
+       (pregexp:pregexp "<a (?:name|id)=\"toc-.*\" href=\"([^#\"]+)(#([^\"]+))\">[[:digit:]]+\\.[[:digit:]]+ ([^\"]+?)</a>(?!.*maxima_100.html)")))
+  (defun match-toc (line)
+    (let* ((regexp (cond 
+                   ((>= *texinfo-version* (texinfo-version-number 6 8))
+                    regexp-texinfo>=6.8)
+                   (t
+                    regexp-texinfo<6.8)))
+         (match (pregexp:pregexp-match regexp line)))
       (when match
 	(destructuring-bind (whole file item# id item)
 	    match
@@ -224,7 +242,9 @@
 						     item
 						     (string (code-char char-code)))))))
 
-	  (format *log-file* "TOC: ~S -> ~S~%" item file)
+          ;; Note that we found a TOC entry.  ADD-ENTRY determines
+          ;; what actually gets added.
+	  (format *log-file* "Found TOC: ~S -> ~S~%" item file)
 
 	  (values item id file line))))))
 
@@ -292,7 +312,7 @@
     (let* ((title (get-index-title lang))
 	   (search-item (format nil "<title>.*~A" title)))
       (format t "Looking for function and variable index: ~A~%" title)
-      (dolist (file (last files 2))
+      (dolist (file (last files 3))
 	(when (grep-l search-item file)
 	  (format t "Function index: ~S.~%"
 		  (namestring file))
@@ -300,7 +320,10 @@
 
 ;; Parse the texinfo version string.  It should look something like
 ;; "M.m.p", where M and m are a sequence of (base 10) digits and ".p"
-;; is the optional patch version.
+;; is the optional patch version.  However, development versions of
+;; texinfo look like "M.mdev" where there patch version is "dev"
+;; instead of ".p".  In this case, set the patch version to be 99 on
+;; the assumption there will never be that many patches.
 (defun parse-texinfo-version (string)
   (when string
     (let ((posn 0)
@@ -312,6 +335,21 @@
 	      (parse-integer string
 			     :start posn
 			     :junk-allowed t)
+            ;; Debugging print to show parsing steps
+            #+nil
+            (format t "k = ~D: start ~D end ~d substring ~S~%"
+                    k posn end (subseq string posn end))
+            (when (null digits)
+              ;; If there were no digits in the substring, and we're
+              ;; looking for the patch version (k = 2), assume we have
+              ;; a texinfo dev version and set digits to 99.
+              ;; Otherwise signal an error that we can't parse the
+              ;; texinfo version.
+              (if (= k 2)
+                  (setf digits 99)
+                  (error "Can't parse texinfo version string ~A for part ~D"
+                         (subseq string posn)
+                         k)))
 	    (push digits version)
 	    (setf posn (1+ end)))))
       (apply #'texinfo-version-number (nreverse version)))))

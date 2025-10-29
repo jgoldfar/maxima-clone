@@ -128,7 +128,7 @@
 	    :load-only t
 	    :components
 	    ((:file "maxima-package")
-	     (:file "numerical/f2cl-package")
+	     (:file "numerical/f2cl-lib-package")
 	     (:file "numerical/slatec")
 	     (:file "command-line")
 	     (:file "pregexp")
@@ -183,6 +183,7 @@
 	    ((:file "generr")
 	     (:file "clmacs")))
    (:module defmfun :source-pathname ""
+        :depends-on ("globals")
 	    :components
 	    ((:file "defmfun-check")))
    (:module float-properties :source-pathname ""
@@ -272,7 +273,7 @@
 	    :components
 	    ((:module packages :source-pathname ""
 		      :components
-		      ((:file "f2cl-package")
+		      ((:file "f2cl-lib-package")
 		       (:file "slatec")))
 	     (:module f2cl-lib :source-pathname ""
 		      :components
@@ -557,7 +558,7 @@
 	     (:file "logarc")
 	     (:file "rpart")))
    (:module numeric-bigfloat :source-pathname ""
-	    :depends-on ("defmfun" #-gcl "package"
+	    :depends-on ("globals" "defmfun" #-gcl "package"
 			       #+gcl "proclaim")
 	    :components
 	    ((:file "numeric")))

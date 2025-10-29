@@ -1,7 +1,3 @@
-# -*-mode: tcl; fill-column: 75; tab-width: 8; coding: iso-latin-1-unix -*-
-#
-#       $Id: Parse.tcl,v 1.8 2009-03-27 00:14:45 villate Exp $
-#
 ###### Parse.tcl ######
 ############################################################
 # Netmath       Copyright (C) 1998 William F. Schelter     #
@@ -116,7 +112,7 @@ proc nexttok { } {
 #----------------------------------------------------------------
 #
 proc parseToSuffixLists { a }  {
-    global    Parser
+    global Parser
     set Parser(result) ""
     set Parser(tokenlist) [parseTokenize $a]
     set Parser(tokenind) -1
@@ -333,7 +329,7 @@ set Parser(convertOptions) {
     { variables "" "list of variables to change from x to \$x" }
 }
 proc parseConvert { expr args } {
-    global   Parser
+    global Parser
     getOptions $Parser(convertOptions) $args
     if { "$expr" == "" } { return [list {} {}] }
     set parselist [parseToSuffixLists "$expr;"]

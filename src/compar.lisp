@@ -841,7 +841,7 @@
 				  (or (eq epskind 'epsilon)
 				      (eq epskind '$zeroa)))
 			     (and (eq eps-coef '$neg)
-				  (or (alike epskind (mul2* -1 'epsilon))
+				  (or (alike1 epskind (mul2* -1 'epsilon))
 				      (eq epskind '$zerob))))
 			 '$pos)
 			(t '$neg)))
@@ -1494,6 +1494,26 @@ TDNEG TDZERO TDPN) to store it, and also sets SIGN."
 		((zerop1 (add xrhs -1))				;; c = -1
 		 (setq sgn '$nz))))
     
+    ;; sign(cosh(x)+c)
+    (when (and (not (atom xlhs))
+               (eq (caar xlhs) '%cosh)
+               (zerop1 ($imagpart (cadr xlhs))))
+      (cond
+        ((eq (sign* (add xrhs -1)) '$neg)
+          (setq sgn '$pos))
+        ((zerop1 (add xrhs -1))
+          (setq sgn '$pz))))
+
+    ;; sign(sech(x)+c)
+    (when (and (not (atom xlhs))
+               (eq (caar xlhs) '%sech)
+               (zerop1 ($imagpart (cadr xlhs))))
+      (cond
+        ((eq (sign* (add xrhs -1)) '$pos)
+          (setq sgn '$neg))
+        ((zerop1 (add xrhs -1))
+          (setq sgn '$nz))))
+    
     ;; sign(signum(x)+c)
     (when (and (not (atom xlhs))
 	          (eq (caar xlhs) '%signum)
@@ -1688,6 +1708,11 @@ TDNEG TDZERO TDPN) to store it, and also sets SIGN."
 		 (t (setq sign '$pz minus nil
 			  evens (nconc odds evens)
 			  odds nil))))
+    ;; (pnz, pos, pz or pn)^(-odd/even) = pos & (pnz, pos, pz or pn)^(odd/even) = pz.
+    ;; This makes, for example, sign(1/sqrt(x)) = pos & sign(sqrt(x) = pz.
+    ((and (eq sign-expt '$neg) ($ratnump expt) ($evenp ($denom expt))
+          (member sign-base '($pnz $pos $pz $pn) :test #'eq))
+      (setq sign (if (eq sign-expt '$neg)'$pos '$pz)))
 	  ((and (member sign-expt '($neg $nz) :test #'eq)
 		(member sign-base '($nz $pz $pnz) :test #'eq))
 	   (setq sign (if (eq sign-base '$pz)
@@ -2054,10 +2079,15 @@ TDNEG TDZERO TDPN) to store it, and also sets SIGN."
 (setf (get 'mabs 'maps-integers-to-integers) t)
 (setf (get '$max 'maps-integers-to-integers) t)
 (setf (get '$min 'maps-integers-to-integers) t)
+(setf (get '%signum 'maps-integers-to-integers) t)
 
 (setf (get '$floor 'integer-valued) t)
+(setf (get '%floor 'integer-valued) t)
 (setf (get '$ceiling 'integer-valued) t)
+(setf (get '%ceiling 'integer-valued) t)
 (setf (get '$charfun 'integer-valued) t)
+(setf (get '%unit_step 'integer-valued) t)
+(setf (get '$unit_step 'integer-valued) t)
 
 (defun maxima-integerp (x)
   (cond ((integerp x))
@@ -2244,6 +2274,9 @@ TDNEG TDZERO TDPN) to store it, and also sets SIGN."
 	sign (cond ((eq x y) '$zero)
 		   ((or (eq '$inf x) (eq '$minf y)) '$pos)
 		   ((or (eq '$minf x) (eq '$inf y)) '$neg)
+		   ((or (and (symbolp x) (null (get x 'data)))
+                (and (symbolp y) (null (get y 'data))))
+             '$pnz) ; fast track for symbols without database information
 		   (t (dcomp x y)))))
 
 (defun dcomp (x y)

@@ -4,8 +4,6 @@
 # For distribution under GNU public License. See COPYING.tcl
 #
 #     Modified by Jaime E. Villate 
-#     Time-stamp: "2024-03-20 14:40:38 villate
-#
 ###################################################################
 
 global plot3dOptions
@@ -437,16 +435,15 @@ proc replot3d { win } {
     set_xy_region_3d $win 0.5
     set_xy_transforms $win
     # grab the bbox just as itself
-    global maxima_priv
     linkLocal $win lmesh
-    if { [llength $lmesh] > 100 * $maxima_priv(speed)  } {
+    if { [llength $lmesh] > 100 * $::xmaxima_priv(speed)  } {
 	# if we judge that rotation would be too slow, we make a secondary list
 	# of meshes (random) including the bbox, and display those.
 	linkLocal $win  points lmeshBbox pointsBbox
 	set n [llength $lmesh]
 	set lmeshBbox [lrange $lmesh [expr {$n -13}] end]
 	set i 0 ;
-	while { [incr i ] < ( 35*$maxima_priv(speed)) } {
+	while { [incr i ] < ( 35*$::xmaxima_priv(speed)) } {
 	    set j [expr {round(floor(rand()*($n-13))) }]
 	    if { ![info exists temm($j)] } {
 		lappend lmeshBbox [lindex $lmesh $j ]

@@ -107,57 +107,6 @@ nombre se sigue aceptando como sinónimo de @code{xmaxima}.
 @node Funciones y variables para gráficos, Opciones gráficas, Formatos gráficos, Gráficos
 @section Funciones y variables para gráficos
 
-@deffn {Función} contour_plot (@var{expr}, @var{x_range}, @var{y_range}, @var{options}, @dots{})
-
-Dibuja las curvas de nivel de @var{expr}
-en el rectángulo @var{x_range} por @var{y_range}.
-Cualesquiera otros argumentos adicionales se tratan como en @code{plot3d}.
-
-@code{contour_plot} sólo trabaja con los métodos @code{gnuplot} o @code{gnuplot_pipes}.
-
-Véase también @code{implicit_plot}.
-
-Ejemplos:
-
-@c ===beg===
-@c contour_plot (x^2 + y^2, [x, -4, 4], [y, -4, 4])$
-@c ===end===
-@example
-(%i1) contour_plot (x^2 + y^2, [x, -4, 4], [y, -4, 4])$
-@end example
-
-@ifnotinfo
-@image{@value{figuresfolder}/plotting1,8cm}
-@end ifnotinfo
-
-Se pueden añadir cualesquiera opciones que acepte @code{plot3d};
-por ejemplo, la opción @code{legend} con un valor @code{false},
-para eliminar la leyenda. Gnuplot muestra por defecto tres 
-líneas de contorno, pero para aumentar el
-número de niveles es necesario añadir algún código nativo
-de Gnuplot:
-
-@c ===beg===
-@c contour_plot (u^3 + v^2, [u, -4, 4], [v, -4, 4], 
-@c               [legend,false],
-@c               [gnuplot_preamble, "set cntrparam levels 12"])$
-@c ===end===
-@example
-@group
-(%i1) contour_plot (u^3 + v^2, [u, -4, 4], [v, -4, 4],
-              [legend,false],
-              [gnuplot_preamble, "set cntrparam levels 12"])$
-@end group
-@end example
-
-@ifnotinfo
-@image{@value{figuresfolder}/plotting2,8cm}
-@end ifnotinfo
-
-@end deffn
-
-
-
 @deffn {Función} get_plot_option (@var{keyword}, @var{index})
 
 Devuelve el valor actual de la opción @var{keyword} almacenada
@@ -169,8 +118,6 @@ Véanse también @code{plot_options}, @code{set_plot_option} y la
 sección Opciones gráficas.
 
 @end deffn
-
-
 
 @deffn {Función} make_transform ([@var{var1}, @var{var2}, @var{var3}], @var{fx}, @var{fy}, @var{fz})
 
@@ -266,9 +213,7 @@ Dibujando la función sinusoidal:
 (%i1) plot2d (sin(x), [x, -%pi, %pi])$
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/plotting2,8cm}
-@end ifnotinfo
+@altfigure{plotting6,Gráfico de una función explícita}
 
 Si la función crece rápidamente puede ser necesario limitar los
 valores del eje vertical:
@@ -283,28 +228,7 @@ plot2d: some values were clipped.
 @end group
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/plotting3,8cm}
-@end ifnotinfo
-
-El aspecto del gráfico puede ser diferente dependiendo del programa
-gráfico utilizado. Por ejemplo, cuando se desactiva el marco,
-Xmaxima dibuja los ejes como flechas:
-
-@c ===beg===
-@c plot2d ( x^2-1, [x, -3, 3], [y, -2, 10], 
-@c                 [box, false], [plot_format, xmaxima])$
-@c ===end===
-@example
-@group
-(%i1) plot2d ( x^2-1, [x, -3, 3], [y, -2, 10],
-                      [box, false], [plot_format, xmaxima])$
-@end group
-@end example
-
-@ifnotinfo
-@image{@value{figuresfolder}/plotting1,8cm}
-@end ifnotinfo
+@altfigure{plotting7,Ejemplo del uso de la opción gráfica y}
 
 Gráfico con escala logarítmica:
 
@@ -315,9 +239,7 @@ Gráfico con escala logarítmica:
 (%i1) plot2d (exp(3*s), [s, -2, 2], [logy])$
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/plotting4,8cm}
-@end ifnotinfo
+@altfigure{plotting9,Gráfico con escala logarítmica}
 
 Dibujando funciones especificadas por su nombre:
 
@@ -337,9 +259,7 @@ $g
 (%i3) plot2d ([F, G, H], [u, -1, 1], [y, -1.5, 1.5])$
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/plotting5,8cm}
-@end ifnotinfo
+@altfigure{plotting10,Varias formas de indicar las funciones para un gráfico}
 
 Ejemplo de función paramétrica. Curva de la mariposa:
 
@@ -351,96 +271,63 @@ Ejemplo de función paramétrica. Curva de la mariposa:
 @example
 (%i1) r: (exp(cos(t))-2*cos(4*t)-sin(t/12)^5)$
 (%i2) plot2d([parametric, r*sin(t), r*cos(t), 
-             [t, -8*%pi, 8*%pi], [nticks, 2000]])$
+             [t, -8*%pi, 8*%pi]])$
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/plotting6,8cm}
-@end ifnotinfo
+@altfigure{plotting11,Gráfico de una función paramétrica}
 
-Una circunferencia de dos vueltas y solo siete puntos:
+Gráfico de una circunferencia de radio 1, con centro en el origen, junto con
+la función @code{y=-|@var{x}|}. Para que la circunferencia no aparezca como
+una elipse, se usa la opción @code{same_xy} para que la escala sea la misma
+en los dos ejes. También se muestra el uso de la opción @code{nolegend} para
+eliminar la leyenda que identifica las dos funciones.
 
 @c ===beg===
-@c plot2d ([parametric, cos(t), sin(t),
-@c         [t, -2*%pi, 2*%pi], [nticks, 8]])$
+@c plot2d([x^2+y^2=1, -abs(x)], [x, -1.5, 1.5], [y, -2, 2], same_xy,
+@c         nolegend);
 @c ===end===
 @example
 @group
-(%i1) plot2d ([parametric, cos(t), sin(t),
-              [t, -2*%pi, 2*%pi], [nticks, 8]])$
+(%i1) plot2d([x^2+y^2=1, -abs(x)], [x, -1.5, 1.5], [y, -2, 2], same_xy,
+             nolegend);
 @end group
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/plotting7,8cm}
-@end ifnotinfo
-
-Dibujo de una función junto con la representación paramétrica de una
-circunferencia. El tamaño del gráfico se ha ajustado con las opciones x
-e y para que la circunferencia no se vea como una elipse. Estos valores
-son aceptables para el terminal Postscript utilizado para producir este
-gráfico, y puede seer necesario adaptar los valores para otros terminales:
-
-@c ===beg===
-@c plot2d([[parametric, cos(t), sin(t),
-@c         [t,0,2*%pi], [nticks, 80]],
-@c         abs(x)], [x,-2,2], [y, -1.5, 1.5])$
-@c ===end===
-@example
-@group
-(%i1) plot2d([[parametric, cos(t), sin(t),
-              [t,0,2*%pi], [nticks, 80]],
-        abs(x)], [x,-2,2], [y, -1.5, 1.5])$
-plot2d: some values were clipped.
-@end group
-@end example
-
-@ifnotinfo
-@image{@value{figuresfolder}/plotting8,8cm}
-@end ifnotinfo
+@altfigure{plotting12,Gráfico de una circunferencia usando la misma escala en los dos ejes}
 
 Puntos discretos definiendo separadamente las coordenadas x e y:
 
 @c ===beg===
-@c plot2d ([discrete, [10, 20, 30, 40, 50],
-@c                    [.6, .9, 1.1, 1.3, 1.4]])$
+@c plot2d ([discrete, makelist(i*%pi, i, 1, 5),
+@c                            [0.6, 0.9, 0.2, 1.3, 1]])$
 @c ===end===
 @example
-@group
-(%i1) plot2d ([discrete, [10, 20, 30, 40, 50],
-                         [.6, .9, 1.1, 1.3, 1.4]])$
-@end group
+(%i1) plot2d ([discrete, makelist(i*%pi, i, 1, 5),
+                            [0.6, 0.9, 0.2, 1.3, 1]])$
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/plotting9,8cm}
-@end ifnotinfo
+@altfigure{plotting14,Gráfico de un conjunto de puntos}
 
-Los mismos puntos del ejemplo anterior, pero definiendo una a una las
-coordenadas y sin segmentos que unan los puntos:
+
+Gráfico de 200 puntos aleatorios entre 0 y 9:
 
 @c ===beg===
-@c plot2d([discrete, [[10, .6], [20, .9], [30, 1.1], 
-@c                    [40, 1.3], [50, 1.4]]],
-@c                   [style, points])$
+@c plot2d ([discrete, makelist ( random(10), 200)])$
 @c ===end===
 @example
 @group
-(%i1) plot2d([discrete, [[10, .6], [20, .9], [30, 1.1],
-                         [40, 1.3], [50, 1.4]]],
-                        [style, points])$
+(%i1) plot2d ([discrete, makelist ( random(10), 200)])$
 @end group
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/plotting10,8cm}
-@end ifnotinfo
+@altfigure{plotting13,Gráfico de 200 puntos aleatorios}
 
 En este ejemplo, se guarda una tabla de tres columnas en el
 archivo @code{data.txt}, que luego será leído
 para representar las dos últimas columnas:
 
 @c ===beg===
+@c display2d:false$
 @c with_stdout ("data.txt", for x:0 thru 10 do
 @c                              print (x, x^2, x^3))$
 @c data: read_matrix ("data.txt")$
@@ -448,18 +335,15 @@ para representar las dos últimas columnas:
 @c   [style,points], [point_type,diamond], [color,red])$
 @c ===end===
 @example
-(%i1) with_stdout ("data.txt", for x:0 thru 10 do 
-                                   print (x, x^2, x^3))$
-(%i2) data: read_matrix ("data.txt")$
-@group
-(%i3) plot2d ([discrete, transpose(data)[2], transpose(data)[3]],
+(%i1) display2d:false$
+(%i2) with_stdout ("data.txt", for x:0 thru 10 do
+                             print (x, x^2, x^3))$
+(%i3) data: read_matrix ("data.txt")$
+(%i4) plot2d ([discrete, transpose(data)[2], transpose(data)[3]],
   [style,points], [point_type,diamond], [color,red])$
-@end group
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/plotting11,8cm}
-@end ifnotinfo
+@altfigure{plotting15,Gráfico de puntos leídos de un archivo}
 
 Un gráfico de datos empíricos junto con su modelo
 teórico:
@@ -475,49 +359,44 @@ teórico:
 @c ===end===
 @example
 (%i1) xy: [[10, .6], [20, .9], [30, 1.1], [40, 1.3], [50, 1.4]]$
-@group
 (%i2) plot2d([[discrete, xy], 2*%pi*sqrt(l/980)], [l,0,50],
         [style, points, lines], [color, red, blue],
         [point_type, asterisk],
         [legend, "experiment", "theory"],
         [xlabel, "pendulum's length (cm)"],
         [ylabel, "period (s)"])$
-@end group
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/plotting12,8cm}
-@end ifnotinfo
+@altfigure{plotting16,Ejemplo del uso de varias opciones gráficas}
 
 @end deffn
-
-
-
 
 @deffn  {Función} plot3d (@var{expr}, @var{x_range}, @var{y_range}, @dots{}, @var{options}, @dots{})
 @deffnx {Función} plot3d ([@var{expr_1}, @dots{}, @var{expr_n}], @var{x_range}, @var{y_range}, @dots{}, @var{options}, @dots{})
 
-Dibuja una o más superficies definidas como funciones de dos variables o en forma
-paramétrica
+Dibuja una o más superficies definidas como funciones de dos variables o en
+forma paramétrica.
 
-Las funciones a dibujar se pueden especificar como expresiones o nombres de funciones.
-Puede utilizarse el ratón para hacer girar el gráfico y observarlo desde
-distintos ángulos.
+Las funciones a dibujar se pueden especificar como expresiones o nombres
+de funciones.  Puede utilizarse el ratón para hacer girar el gráfico y
+observarlo desde distintos ángulos.
 
 Ejemplos:
 
-Representación de una función:
+Gráfico de una función de dos variables:
 
 @c ===beg===
-@c plot3d (2^(-u^2 + v^2), [u, -3, 3], [v, -2, 2])$
+@c plot3d (u^2 - v^2, [u, -2, 2], [v, -3, 3], [grid, 100, 100],
+@c         nomesh_lines)$
 @c ===end===
 @example
-(%i1) plot3d (2^(-u^2 + v^2), [u, -3, 3], [v, -2, 2])$
+@group
+(%i1) plot3d (u^2 - v^2, [u, -2, 2], [v, -3, 3], [grid, 100, 100],
+        nomesh_lines)$
+@end group
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/plotting13,8cm}
-@end ifnotinfo
+@altfigure{plotting17,Gráfico de una función de dos variables}
 
 Uso de la opción z para acotar una función que tiende a infinito
 (en este caso, la función tiende a menos infinito en los ejes
@@ -525,163 +404,127 @@ x e y):
 
 @c ===beg===
 @c plot3d ( log ( x^2*y^2 ), [x, -2, 2], [y, -2, 2], [z, -8, 4],
-@c          [palette, false], [color, magenta, blue])$
+@c          nopalette, [color, magenta])$
 @c ===end===
 @example
+@group
 (%i1) plot3d ( log ( x^2*y^2 ), [x, -2, 2], [y, -2, 2], [z, -8, 4],
-               [palette, false], [color, magenta, blue])$
+         nopalette, [color, magenta])$
+@end group
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/plotting14,8cm}
-@end ifnotinfo
+@altfigure{plotting18,Ejemplo del uso de la opción z de plot3d}
 
 Los valores infinitos de z se pueden obviar eligiendo una retícula
 que no coincida con las asíntotas; este ejemplo también muestra
-cómo seleccionar las paletas predefinidas, en este caso la número 4:
+cómo alterar la paleta de colores y como incluir una barra
+lateral que muestra la correspondencia entre colores y valores de z:
 
 @c ===beg===
-@c plot3d (log (x^2*y^2), [x, -2, 2], [y, -2, 2],
-@c    [grid, 29, 29],
-@c    [palette, get_plot_option(palette,5)])$
+@c plot3d (log (x^2*y^2), [x, -2, 2], [y, -2, 2],[grid, 29, 29],
+@c       [palette, [gradient, red, orange, yellow, green]],
+@c       color_bar, [xtics, 1], [ytics, 1], [ztics, 4],
+@c       [color_bar_tics, 4])$
 @c ===end===
 @example
 @group
-(%i1) plot3d (log (x^2*y^2), [x, -2, 2], [y, -2, 2], 
-         [grid, 29, 29],
-         [palette, get_plot_option(palette,5)])$
+(%i1) plot3d (log (x^2*y^2), [x, -2, 2], [y, -2, 2],[grid, 29, 29],
+       [palette, [gradient, red, orange, yellow, green]],
+       color_bar, [xtics, 1], [ytics, 1], [ztics, 4],
+       [color_bar_tics, 4])$
 @end group
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/plotting15,8cm}
-@end ifnotinfo
+@altfigure{plotting19,Ejemplo de uso de la opción grid de plot3d}
 
-Dos superficies en el mismo gráfico, compartiendo el mismo dominio; en 
-Gnuplot, ambas superfifies comparten la misma paleta:
-
-@c ===beg===
-@c plot3d ([2^(-x^2 + y^2), 4*sin(3*(x^2+y^2))/(x^2+y^2),
-@c         [x, -3, 3], [y, -2, 2]])$
-@c ===end===
-@example
-(%i1) plot3d ([2^(-x^2 + y^2), 4*sin(3*(x^2+y^2))/(x^2+y^2),
-              [x, -3, 3], [y, -2, 2]])$
-@end example
-
-@ifnotinfo
-@image{@value{figuresfolder}/plotting16,8cm}
-@end ifnotinfo
-
-Las mismas superficies, pero con diferentes dominios; en Xmaxima
-cada superficies usa una paleta diferente, elegida de la lista
-definida por la opción @code{palette}:
+Dos superficies en un mismo gráfico. Si los dominios de las dos superficies
+son diferentes, las dos funciones deben ser colocados en listas separadas,
+cada una con su propio dominio. El dominio por fuera de esas listas
+define el dominio para todo el gráfico.
 
 @c ===beg===
-@c plot3d ([[2^(-x^2 + y^2),[x,-2,2],[y,-2,2]],
-@c    4*sin(3*(x^2+y^2))/(x^2+y^2),
-@c    [x, -3, 3], [y, -2, 2]], [plot_format,xmaxima])$
+@c plot3d ([[-3*x - y, [x, -2, 2], [y, -2, 2]],
+@c    4*sin(3*(x^2 + y^2))/(x^2 + y^2), [x, -3, 3], [y, -3, 3]],
+@c    [x, -4, 4], [y, -4, 4])$
 @c ===end===
 @example
-@group
-(%i1) plot3d ([[2^(-x^2 + y^2),[x,-2,2],[y,-2,2]],
-         4*sin(3*(x^2+y^2))/(x^2+y^2),
-         [x, -3, 3], [y, -2, 2]], [plot_format,xmaxima])$
-@end group
+(%i1) plot3d ([[-3*x - y, [x, -2, 2], [y, -2, 2]],
+   4*sin(3*(x^2 + y^2))/(x^2 + y^2), [x, -3, 3], [y, -3, 3]],
+   [x, -4, 4], [y, -4, 4])$
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/plotting17,8cm}
-@end ifnotinfo
+@altfigure{plotting20,Gráfico de dos funciones de dos variables}
 
 La botella de Klein, definida paramétricamente:
 
 @c ===beg===
-@c expr_1: 5*cos(x)*(cos(x/2)*cos(y) + sin(x/2)*sin(2*y) + 3.0) - 10.0$
-@c expr_2: -5*sin(x)*(cos(x/2)*cos(y) + sin(x/2)*sin(2*y) + 3.0)$
-@c expr_3: 5*(-sin(x/2)*cos(y) + cos(x/2)*sin(2*y))$
+@c expr_1: 5*cos(x)*(cos(x/2)*cos(y)+sin(x/2)*sin(2*y)+3)-10$
+@c expr_2: -5*sin(x)*(cos(x/2)*cos(y)+sin(x/2)*sin(2*y)+3)$
+@c expr_3: 5*(-sin(x/2)*cos(y)+cos(x/2)*sin(2*y))$
 @c plot3d ([expr_1, expr_2, expr_3], [x, -%pi, %pi],
-@c         [y, -%pi, %pi], [grid, 40, 40])$
+@c         [y, -%pi, %pi], [grid, 50, 50])$
 @c ===end===
 @example
-(%i1) expr_1:5*cos(x)*(cos(x/2)*cos(y)+sin(x/2)*sin(2*y)+3.0)-10.0$
-(%i2) expr_2:-5*sin(x)*(cos(x/2)*cos(y) + sin(x/2)*sin(2*y) + 3.0)$
-(%i3) expr_3: 5*(-sin(x/2)*cos(y) + cos(x/2)*sin(2*y))$
-@group
+(%i1) expr_1: 5*cos(x)*(cos(x/2)*cos(y)+sin(x/2)*sin(2*y)+3)-10$
+(%i2) expr_2: -5*sin(x)*(cos(x/2)*cos(y)+sin(x/2)*sin(2*y)+3)$
+(%i3) expr_3: 5*(-sin(x/2)*cos(y)+cos(x/2)*sin(2*y))$
 (%i4) plot3d ([expr_1, expr_2, expr_3], [x, -%pi, %pi],
-        [y, -%pi, %pi], [grid, 40, 40])$
-@end group
+        [y, -%pi, %pi], [grid, 50, 50])$
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/plotting18,8cm}
-@end ifnotinfo
+@altfigure{plotting21,Gráfico de la botella de Klein}
 
-Gráfico de un armónico esférico, utilizando las transformaciones
-predefinidas @code{spherical_to_xyz}:
+Gráfico de un armónico esférico, utilizando la transformación
+predefinida @code{spherical_to_xyz}:
 
 @c ===beg===
-@c plot3d (sin(2*theta)*cos(phi), [theta, 0, %pi],
-@c         [phi, 0, 2*%pi],
-@c         [transform_xy, spherical_to_xyz], [grid,30,60])$
+@c plot3d (sin(2*theta)*cos(phi), [theta,0,%pi], [phi,0,2*%pi],
+@c    [transform_xy, spherical_to_xyz], [grid, 30, 60], nolegend)$
+@c ===end===
+@example
+(%i1) plot3d (sin(2*theta)*cos(phi), [theta,0,%pi], [phi,0,2*%pi],
+      [transform_xy, spherical_to_xyz], [grid, 30, 60], nolegend)$
+@end example
+
+@altfigure{plotting22,Gráfico de un armónico esférico}
+
+Uso de la transformación predefinida @code{polar_to_xy} para transformar
+coordenadas cilíndricas para rectangulares. Este ejemplo también muestra
+cómo eliminar el marco y la leyenda:
+
+@c ===beg===
+@c plot3d (r^.33*cos(th/3), [r,0,1], [th,0,6*%pi], nobox,
+@c     nolegend, [grid, 12, 80], [transform_xy, polar_to_xy])$
 @c ===end===
 @example
 @group
-(%i1) plot3d (sin(2*theta)*cos(phi), [theta, 0, %pi],
-              [phi, 0, 2*%pi],
-              [transform_xy, spherical_to_xyz], [grid,30,60])$
+(%i1) plot3d (r^.33*cos(th/3), [r,0,1], [th,0,6*%pi], nobox,
+    nolegend, [grid, 12, 80], [transform_xy, polar_to_xy])$
 @end group
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/plotting19,8cm}
-@end ifnotinfo
+@altfigure{plotting23,Ejemplo del uso de la opción polar_to_xy de plot3d}
 
-Uso de la transformación predefinida @code{polar_to_xy}. Este
-ejemplo también muestra cómo eliminar el marco y la leyenda:
+Dibujo de una esfera utilizando la transformación de coordenadas esféricas
+para rectangulares. La opción @code{same_xyz} se usa para que la escala
+de los tres ejes sea la misma, evitando que la esfera parezca un elipsoide.
+Cuando se usan transformaciones, no es conveniente eliminar las líneas de
+la superficie, para evitar errores en Gnuplot.
 
 @c ===beg===
-@c plot3d (r^.33*cos(th/3), [r, 0, 1], [th, 0, 6*%pi],
-@c    [grid, 12, 80],
-@c    [transform_xy, polar_to_xy], [box, false],
-@c    [legend,false])$
+@c plot3d ( 5, [theta,0,%pi], [phi,0,2*%pi], same_xyz, nolegend,
+@c   [transform_xy, spherical_to_xyz], [mesh_lines_color,blue],
+@c   [palette,[gradient,"#1b1b4e", "#8c8cf8"]])$
 @c ===end===
 @example
 @group
-(%i1) plot3d (r^.33*cos(th/3), [r, 0, 1], [th, 0, 6*%pi],
-         [grid, 12, 80],
-         [transform_xy, polar_to_xy], [box, false],
-         [legend,false])$
+(%i1) plot3d ( 5, [theta,0,%pi], [phi,0,2*%pi], same_xyz, nolegend,
+  [transform_xy, spherical_to_xyz], [mesh_lines_color,blue],
+  [palette,[gradient,"#1b1b4e", "#8c8cf8"]])$
 @end group
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/plotting20,8cm}
-@end ifnotinfo
-
-Dibujo de una esfera utilizando la transformación esférica. En 
-Xmaxima, los tres ejes utilizan escalas proporcionales, manteniendo
-la forma simétrica de la esfera. Se utiliza una paleta con color
-degradado:
-
-@c ===beg===
-@c plot3d ( 5, [theta, 0, %pi], [phi, 0, 2*%pi],
-@c    [plot_format,xmaxima],
-@c    [transform_xy, spherical_to_xyz], 
-@c    [palette,[value,0.65,0.7,0.1,0.9]])$
-@c ===end===
-@example
-@group
-(%i1) plot3d ( 5, [theta, 0, %pi], [phi, 0, 2*%pi],
-         [plot_format,xmaxima],
-         [transform_xy, spherical_to_xyz],
-         [palette,[value,0.65,0.7,0.1,0.9]])$
-@end group
-@end example
-
-@ifnotinfo
-@image{@value{figuresfolder}/plotting21,8cm}
-@end ifnotinfo
+@altfigure{plotting24,Ejemplo de uso de la opción xpherical_to_xyz de plot3d}
 
 Definición de una función con dos variables utilizando una matriz. 
 Nótese la comilla simple en la definición de la función para
@@ -689,47 +532,37 @@ prevenir que @code{plot3d} falle al detectar que la matriz necesita
 índices enteros:
 
 @c ===beg===
-@c M: matrix([1, 2, 3, 4], [1, 2, 3, 2], [1, 2, 3, 4],
-@c           [1, 2, 3, 3])$
+@c M: matrix([1,2,3,4], [1,2,3,2], [1,2,3,4], [1,2,3,3])$
 @c f(x, y) := float('M [round(x), round(y)])$
-@c plot3d (f(x,y), [x, 1, 4], [y, 1, 4], [grid, 4, 4])$
+@c plot3d (f(x,y), [x,1,4], [y,1,4], [grid,3,3], nolegend)$
 @c ===end===
 @example
-(%i1) M: matrix([1, 2, 3, 4], [1, 2, 3, 2], [1, 2, 3, 4],
-                [1, 2, 3, 3])$
+(%i1) M: matrix([1,2,3,4], [1,2,3,2], [1,2,3,4], [1,2,3,3])$
 (%i2) f(x, y) := float('M [round(x), round(y)])$
-@group
-(%i3) plot3d (f(x,y), [x, 1, 4], [y, 1, 4], [grid, 4, 4])$
-apply: subscript must be an integer; found: round(x)
-@end group
+(%i3) plot3d (f(x,y), [x,1,4], [y,1,4], [grid,3,3], nolegend)$
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/plotting22,8cm}
-@end ifnotinfo
+@altfigure{plotting25,Representación gráfica en 3D de los valores de una matriz}
 
 Asignando a la opción @code{elevation} el valor cero, una superficie
 puede verse como una aplicación en la que cada color representa un nivel
-diferente. La opción @code{colorbox} se utiliza para mostrar la correspondencia
-entre colores y niveles; las líneas de la retícula
-se desactivan para facilitar la visualización de los colores:
+diferente.
 
 @c ===beg===
-@c plot3d (cos (-x^2 + y^3/4), [x, -4, 4], [y, -4, 4],
-@c         [mesh_lines_color, false], [elevation, 0], [azimuth, 0],
-@c         [colorbox, true], [grid, 150, 150])$
+@c plot3d (cos (-x^2 + y^3/4), [x,-4,4], [y,-4,4], [zlabel,""],
+@c        [mesh_lines_color,false], [elevation,0], [azimuth,0],
+@c        color_bar, [grid,80,80], noztics, [color_bar_tics,1])$
 @c ===end===
 @example
 @group
-(%i1) plot3d (cos (-x^2 + y^3/4), [x, -4, 4], [y, -4, 4],
-        [mesh_lines_color, false], [elevation, 0], [azimuth, 0],
-        [colorbox, true], [grid, 150, 150])$
+(%i1) plot3d (cos (-x^2 + y^3/4), [x,-4,4], [y,-4,4], [zlabel,""],
+       [mesh_lines_color,false], [elevation,0], [azimuth,0],
+       color_bar, [grid,80,80], noztics, [color_bar_tics,1])$
 @end group
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/plotting23,8cm}
-@end ifnotinfo
+@altfigure{plotting26,Representación gráfica en 2D de una superficie}
+
 
 Véase también la sección Opciones gráficas.
 

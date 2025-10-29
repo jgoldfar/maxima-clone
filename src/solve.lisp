@@ -186,16 +186,15 @@
 							   (nconc *roots *failures)))))
 		      (setq $multiplicities (make-mlist-l (nreverse multi)))))
 		   (t
-		    (let (soln)
 		      (when (and *failures (not $solveexplicit))
 			(when $dispflag (mtell (intl:gettext "solve: the roots of:~%")))
-			(multiple-value-setq (soln equations)
-			  (solve2 *failures equations)))
+			(setq equations (nth-value 1
+			  (solve2 *failures equations))))
 		      (when *roots
 			(when $dispflag (mtell (intl:gettext "solve: solution:~%")))
-			(multiple-value-setq (soln equations)
-			  (solve2 *roots equations)))
-		      (make-mlist-l equations))))))))
+			(setq equations (nth-value 1
+			  (solve2 *roots equations))))
+		      (make-mlist-l equations)))))))
 
 ;; Solve takes three arguments, the expression to solve for zero, the variable
 ;; to solve for, and what multiplicity this solution is assumed to have (from

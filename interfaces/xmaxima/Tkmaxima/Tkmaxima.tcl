@@ -3,7 +3,6 @@
 # Copyright (C) 1998 William F. Schelter                   #
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
-#     Time-stamp: "2024-04-01 14:07:21 villate"            #
 ############################################################
 
 # The Header.tcl is created by autoconf to make the xmaxima script
@@ -56,7 +55,6 @@
 # Source Tkmaxima/OpenMath.tcl 		;# active
 # Source Tkmaxima/NConsole.tcl 		;# can be autoloaded
 # Source Tkmaxima/String.tcl 		;# can be autoloaded
-# Source Tkmaxima/Prefs.tcl 		;# can be autoloaded
 # Source Tkmaxima/RunMaxima.tcl		;# can be autoloaded
 # Source Tkmaxima/Menu.tcl
 # Source Tkmaxima/Paths.tcl
@@ -89,9 +87,9 @@ Options:
 }
 
 proc lMaxInitSetOpts {} {
-    global maxima_priv argv argv0
-    set maxima_priv(opts) {}
-    set maxima_priv(plotfile) {}
+    global argv argv0
+    set ::xmaxima_priv(opts) {}
+    set ::xmaxima_priv(plotfile) {}
     set state key
     foreach arg $argv {
 	switch -- $state {
@@ -109,7 +107,7 @@ proc lMaxInitSetOpts {} {
 		    {^--$}             {set state noopts}
 		    {^-.*}             {vMaxUsage $argv0 "Unknown option $arg"}
 		    default {
-			lappend maxima_priv(plotfile) $arg
+			lappend ::xmaxima_priv(plotfile) $arg
 			set state file
 		    }
 		}
@@ -120,25 +118,23 @@ proc lMaxInitSetOpts {} {
 		    default {lappend plotfile $arg}
 		}
 	    }
-	    url     {set maxima_priv(firstUrl) $arg; set state key}
-	    version {lappend maxima_priv(opts) -u $arg; set state key}
-	    lisp    {lappend maxima_priv(opts) -l $arg; set state key}
-	    lispoptions  {lappend maxima_priv(opts) [format " -X \"%s\" " $arg]}
+	    url     {set ::xmaxima_priv(firstUrl) $arg; set state key}
+	    version {lappend ::xmaxima_priv(opts) -u $arg; set state key}
+	    lisp    {lappend ::xmaxima_priv(opts) -l $arg; set state key}
+	    lispoptions  {lappend ::xmaxima_priv(opts) [format " -X \"%s\" " $arg]}
 	    noopts  {lappend file $arg}
 	}
     }
 }
 
-
 # Exists Maxima after saving the current settings
 proc maxExit {{text ""} {val "0"}} {
-    global maxima_priv
     # save user settings for future sessions
     catch {savePreferences}
     update
     if {$text eq ""} {
-        if {[info exists maxima_priv(cConsoleText)]} {
-            set text $maxima_priv(cConsoleText)}
+        if {[info exists ::xmaxima_priv(cConsoleText)]} {
+            set text $::xmaxima_priv(cConsoleText)}
     } elseif {[catch {closeMaxima $text} err]} {
         tk_messageBox -title Error -icon error -message $err}
     tkexit $val}

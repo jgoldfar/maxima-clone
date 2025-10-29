@@ -41,7 +41,7 @@ subexpression whose main operator is not @code{+}, @code{-}, @code{*},
 @code{/} or @code{^} with integer power will be considered a "variable"
 of the expression (in CRE form) in which it occurs. For example the CRE
 variables of the expression @code{x+sin(x+1)+2*sqrt(x)+1} are @code{x},
-@code{sqrt(X)}, and @code{sin(x+1)}. If the user does not specify an
+@code{sqrt(x)}, and @code{sin(x+1)}. If the user does not specify an
 ordering of variables by using the @mref{ratvars} function Maxima will
 choose an alphabetic one.
 
@@ -124,7 +124,7 @@ Examples:
 @c determinant(%);
 @c resultant(a*x+b, c*x^2+d, x);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) bezout(a*x+b, c*x^2+d, x);
                          [ b c  - a d ]
@@ -166,7 +166,7 @@ Example:
 @c         is (freeof (x, c) and c[1] # 0))$
 @c islinear ((r^2 - (x - r)^2)/x, x);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) islinear (expr, x) := block ([c],
         c: bothcoef (rat (expr, x), x),
@@ -219,7 +219,7 @@ Examples:
 @c ===beg===
 @c coeff (b^3*a^3 + b^2*a^2 + b*a + 1, a^3);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) coeff (b^3*a^3 + b^2*a^2 + b*a + 1, a^3);
                                 3
@@ -234,7 +234,7 @@ to @code{coeff(@var{expr}, @var{x}, @var{n})}.
 @c coeff (c[4]*z^4 - c[3]*z^3 - c[2]*z^2 + c[1]*z, z, 3);
 @c coeff (c[4]*z^4 - c[3]*z^3 - c[2]*z^2 + c[1]*z, z^3);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) coeff (c[4]*z^4 - c[3]*z^3 - c[2]*z^2 + c[1]*z, z, 3);
 (%o1)                         - c
@@ -253,7 +253,7 @@ which is free of @var{x}.
 @c ===beg===
 @c coeff (a*u + b^2*u^2 + c^3*u^3, b, 0);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) coeff (a*u + b^2*u^2 + c^3*u^3, b, 0);
                             3  3
@@ -271,7 +271,7 @@ comprises an operator and all of its arguments.
 @c coeff (sin(1+x)*sin(x) + sin(1+x)^3*sin(x)^3, sin(1+x)^3);
 @c coeff ((d - a)^2*(b + c)^3 + (a + b)^4*(c - d), a + b, 4);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) coeff (h^4 - 2*%pi*h^2 + 1, h, 2);
 (%o1)                        - 2 %pi
@@ -302,7 +302,7 @@ function.
 @c factor (b^3*c + 3*a*b^2*c + 3*a^2*b*c + a^3*c);
 @c coeff (%, (a + b)^3);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) coeff (c*(a + b)^3, a);
 (%o1)                           0
@@ -339,7 +339,7 @@ function.
 @c coeff (matrix ([a*x, b*x], [-c*x, -d*x]), x);
 @c coeff (a*u - b*v = 7*u + 3*v, u);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) coeff ([4*a, -3*a, 2*a], a);
 (%o1)                      [4, - 3, 2]
@@ -377,7 +377,7 @@ Examples:
 @c ===beg===
 @c content (2*x*y + 4*x^2*y^2, y);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) content (2*x*y + 4*x^2*y^2, y);
                                    2
@@ -404,7 +404,7 @@ See also @mref{num}
 @c g2:sin(x)/10*cos(x)/y;
 @c denom(g2);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) g1:(x+2)*(x+1)/((x+3)^2);
                          (x + 1) (x + 2)
@@ -452,7 +452,7 @@ Examples:
 @c divide (x + y, x - y, x);
 @c divide (x + y, x - y);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) divide (x + y, x - y, x);
 (%o1)                       [1, 2 y]
@@ -492,7 +492,7 @@ Example:
 @c expr3: z^2 + x - y^2 + 5;
 @c eliminate ([expr3, expr2, expr1], [y, z]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) expr1: 2*x^2 + y*x + z;
                                       2
@@ -547,7 +547,7 @@ gcd is first calculated with the function @code{gcd} and then with the function
 @c gcd(p1, gcd(p2, p3));
 @c ezgcd(p1, p2, p3);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) p1 : 6*x^3-17*x^2+14*x-3;
                         3       2
@@ -656,7 +656,7 @@ Examples:
 @c factor (1 + x^12);
 @c factor (1 + x^99);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) factor (2^63 - 1);
                     2
@@ -785,7 +785,7 @@ Examples:
 @defvr {Option variable} factor_max_degree
 Default value: @code{1000}
 
-When factor_max_degree is set to a positive integer @code{n}, it will prevent
+When @code{factor_max_degree} is set to a positive integer @code{n}, it will prevent
 Maxima from attempting to factor certain polynomials whose degree in any
 variable exceeds @code{n}. If @mref{factor_max_degree_print_warning} is true,
 a warning message will be printed. @code{factor_max_degree} can be used to
@@ -800,7 +800,7 @@ Example:
 @c factor(x^100-1);
 @c factor(x^101-1);
 @c ===end===
-@example
+@example maxima
 (%i1) factor_max_degree : 100$
 @group
 (%i2) factor(x^100-1);
@@ -876,7 +876,7 @@ Example:
 @c expand (a*(x+1)*(x-1)*(u+1)^2);
 @c factorout(%,x);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) expand (a*(x+1)*(x-1)*(u+1)^2);
              2  2          2      2      2
@@ -911,7 +911,7 @@ Example:
 @c expand ((x + 1)*((u + v)^2 + a*(w + z)^2));
 @c factorsum (%);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) expand ((x + 1)*((u + v)^2 + a*(w + z)^2));
            2      2                            2      2
@@ -974,7 +974,7 @@ Example:
 @c fullratsimp (expr);
 @c rat (expr);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) expr: (x^(a/2) + 1)^2*(x^(a/2) - 1)^2/(x^a - 1);
                        a/2     2   a/2     2
@@ -1039,7 +1039,7 @@ Examples:
 @c subst ([a = b, c = d], a + c);
 @c lratsubst ([a^2 = b, c^2 = d], (a + e)*c*(a + c));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) subst ([a = b, c = d], a + c);
 (%o1)                         d + b
@@ -1057,7 +1057,7 @@ equation may be given as first argument.
 @c ===beg===
 @c lratsubst (a^2 = b, a^3);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) lratsubst (a^2 = b, a^3);
 (%o1)                          a b
@@ -1072,7 +1072,7 @@ except that it recurses until its result stops changing.
 @c ratsubst (b*a, a^2, a^3);
 @c fullratsubst (b*a, a^2, a^3);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) ratsubst (b*a, a^2, a^3);
                                2
@@ -1093,7 +1093,7 @@ equation as first argument.
 @c fullratsubst ([a^2 = b, b^2 = c, c^2 = a], a^3*b*c);
 @c fullratsubst (a^2 = b*a, a^3);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) fullratsubst ([a^2 = b, b^2 = c, c^2 = a], a^3*b*c);
 (%o1)                           b
@@ -1111,10 +1111,10 @@ equation as first argument.
 @c ===beg===
 @c fullratsubst (b*a^2, a^2, a^3), lrats_max_iter=15;
 @c ===end===
-@example
+Warning: fullratsubst2(listofeqns,expr): reached maximum iterations of 15 . Increase `lrats_max_iter' to increase this limit.
+@example maxima
 @group
 (%i1) fullratsubst (b*a^2, a^2, a^3), lrats_max_iter=15;
-Warning: fullratsubst2(listofeqns,expr): reached maximum iterations of 15 . Increase `lrats_max_iter' to increase this limit.
                               3  15
 (%o1)                        a  b
 @end group
@@ -1181,7 +1181,7 @@ Example:
 @c p1/gcd(p1, p2), ratsimp;
 @c p2/gcd(p1, p2), ratsimp;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) p1:6*x^3+19*x^2+19*x+6;
                         3       2
@@ -1217,7 +1217,7 @@ the polynomials divided by the greatest common divisor.
 @c p2:6*x^5+13*x^4+12*x^3+13*x^2+6*x $
 @c ezgcd(p1, p2);
 @c ===end===
-@example
+@example maxima
 (%i1) p1:6*x^3+19*x^2+19*x+6 $
 (%i2) p2:6*x^5+13*x^4+12*x^3+13*x^2+6*x $
 @group
@@ -1267,7 +1267,7 @@ Examples:
 @c gcdex (x^2 + 1, x^3 + 4);
 @c % . [x^2 + 1, x^3 + 4, -1];
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) gcdex (x^2 + 1, x^3 + 4);
                        2
@@ -1288,7 +1288,7 @@ not the  @code{y+1} we would expect in @code{k[y, x]}.
 @c ===beg===
 @c gcdex (x*(y + 1), y^2 - 1, x);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) gcdex (x*(y + 1), y^2 - 1, x);
                                1
@@ -1337,7 +1337,7 @@ Example:
 @c ===beg===
 @c gfactor (x^4 - 1);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) gfactor (x^4 - 1);
 (%o1)           (x - 1) (x + 1) (x - %i) (x + %i)
@@ -1387,7 +1387,7 @@ Examples:
 @c hipow ((x + y)^5, x + y);
 @c hipow (expand ((x + y)^5), x + y);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) hipow (y^3 * x^2 + x * y^4, x);
 (%o1)                           2
@@ -1462,7 +1462,7 @@ Examples:
 @c rat(x/2.0);
 @c rat(x/2.0), keepfloat;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) rat(x/2.0);
 rat: replaced 0.5 by 1/2 = 0.5
@@ -1481,7 +1481,7 @@ rat: replaced 0.5 by 1/2 = 0.5
 @c ===beg===
 @c solve(1.0-x,x), keepfloat;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) solve(1.0-x,x), keepfloat;
 rat: replaced 1.0 by 1/1 = 1.0
@@ -1504,7 +1504,7 @@ Returns the lowest exponent of @var{x} which explicitly appears in
 @c ===beg===
 @c lopow ((x+y)^2 + (x+y)^a, x+y);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) lopow ((x+y)^2 + (x+y)^a, x+y);
 (%o1)                       min(2, a)
@@ -1552,7 +1552,7 @@ Examples:
 @c lratsubst ([a = b, c = d], a + c);
 @c lratsubst ([a^2 = b, c^2 = d], (a + e)*c*(a + c));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) lratsubst ([a = b, c = d], a + c);
 (%o1)                         d + b
@@ -1569,7 +1569,7 @@ equation may be given as first argument.
 @c ===beg===
 @c lratsubst (a^2 = b, a^3);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) lratsubst (a^2 = b, a^3);
 (%o1)                          a b
@@ -1582,7 +1582,7 @@ which is a list of equations.
 @c ===beg===
 @c lratsubst ([[a^2=b*a, b=c]], a^3);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) lratsubst ([[a^2=b*a, b=c]], a^3);
                                2
@@ -1652,7 +1652,7 @@ Examples:
 @c factor(poly);
 @c polymod(%);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) modulus:7;
 (%o1)                           7
@@ -1724,7 +1724,7 @@ See also @mref{denom}
 @c g2:sin(x)/10*cos(x)/y;
 @c num(g2);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) g1:(x+2)*(x+1)/((x+3)^2);
                          (x + 1) (x + 2)
@@ -1779,7 +1779,7 @@ Examples:
 @c p : expand (subst (x^3 - x - 1, x, x^2 - a));
 @c polydecomp (p, x);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) polydecomp (x^210, x);
                           7   5   3   2
@@ -1804,7 +1804,7 @@ The following function composes @code{L = [e_1, ..., e_n]} as functions in
 @c compose (L, x) :=
 @c   block ([r : x], for e in L do r : subst (e, x, r), r) $
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) compose (L, x) :=
   block ([r : x], for e in L do r : subst (e, x, r), r) $
@@ -1818,7 +1818,7 @@ Re-express above example using @code{compose}:
 @c   block ([r : x], for e in L do r : subst (e, x, r), r) $
 @c polydecomp (compose ([x^2 - a, x^3 - x - 1], x), x);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) compose (L, x) :=
   block ([r : x], for e in L do r : subst (e, x, r), r) $
@@ -1841,7 +1841,7 @@ returns @var{p} (unexpanded), @code{polydecomp (compose ([@var{p_1}, ...,
 @c polydecomp (compose ([x^2 + 2*x + 3, x^2], x), x);
 @c polydecomp (compose ([x^2 + x + 1, x^2 + x + 1], x), x);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) compose (L, x) :=
   block ([r : x], for e in L do r : subst (e, x, r), r) $
@@ -1913,7 +1913,7 @@ The polynomial needn't be expanded:
 @c polynomialp ((x + 1)*(x + 2), [x]);
 @c polynomialp ((x + 1)*(x + 2)^a, [x]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) polynomialp ((x + 1)*(x + 2), [x]);
 (%o1)                         true
@@ -1931,7 +1931,7 @@ An example using non-default values for coeffp and exponp:
 @c polynomialp ((x^(1/2) + 1)*(x + 2)^(3/2), [x], numberp, 
 @c                                                        numberp);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) polynomialp ((x + 1)*(x + 2)^(3/2), [x], numberp, numberp);
 (%o1)                         true
@@ -1949,7 +1949,7 @@ Polynomials with two variables:
 @c polynomialp (x^2 + 5*x*y + y^2, [x]);
 @c polynomialp (x^2 + 5*x*y + y^2, [x, y]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) polynomialp (x^2 + 5*x*y + y^2, [x]);
 (%o1)                         false
@@ -1966,7 +1966,7 @@ Polynomial in one variable and accepting any expression free of @code{x} as a co
 @c polynomialp (a*x^2 + b*x + c, [x]);
 @c polynomialp (a*x^2 + b*x + c, [x], lambda([ex], freeof(x, ex)));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) polynomialp (a*x^2 + b*x + c, [x]);
 (%o1)                         false
@@ -2052,7 +2052,7 @@ Examples:
 @c       (4*y^2 + x^2);
 @c rat (%, y, a, x);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) ((x - 2*y)^4/(x^2 - 4*y^2)^2 + 1)*(y + a)*(2*y + x) /
       (4*y^2 + x^2);
@@ -2131,7 +2131,7 @@ Example:
 @c s: a*x + b*x + 5$
 @c ratcoef (s, a + b);
 @c ===end===
-@example
+@example maxima
 (%i1) s: a*x + b*x + 5$
 @group
 (%i2) ratcoef (s, a + b);
@@ -2193,7 +2193,7 @@ Examples:
 @c expr2: a^2/(b^2 + 3) + b/(b^2 + 3);
 @c ratexpand (expr2);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) expr: (x^2 + x + 1)/(y^2 + 7);
                             2
@@ -2279,7 +2279,7 @@ Example:
 @c expr: (a + b)^3 + (a + b)^2;
 @c ratdiff (expr, a + b);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) expr: (4*x^3 + 10*x - 11)/(x^5 + 5);
                            3
@@ -2383,7 +2383,7 @@ Examples:
 @c expand (expr);
 @c ratexpand (expr);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) ratexpand ((2*x - 3*y)^3);
                      3         2       2        3
@@ -2538,7 +2538,7 @@ Examples:
 @c ratsimp (%);
 @c x^(a + 1/a), ratsimpexpons: true;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) sin (x/(x^2 + x)) = exp ((log(x) + 1)^2 - log(x)^2);
                                          2      2
@@ -2646,7 +2646,7 @@ Examples:
 @c radsubstflag: true$
 @c ratsubst (u, sqrt(x), x);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) ratsubst (a, x*y^2, x^4*y^3 + x^4*y^8);
                               3      4
@@ -2739,7 +2739,7 @@ list @code{VARLIST}.
 @c rat(2*a+b^2);
 @c :lisp varlist
 @c ===end===
-@example
+@example maxima
 (%i1) ratvarswitch:true$
 @group
 (%i2) rat(2*x+y^2);
@@ -2771,7 +2771,7 @@ evaluation are still present.
 @c rat(2*a+b^2);
 @c :lisp varlist
 @c ===end===
-@example
+@example maxima
 (%i1) ratvarswitch:false$
 @group
 (%i2) rat(2*x+y^2);
@@ -2827,7 +2827,7 @@ Examples:
 @c ratwtlvl: 1$
 @c expr1^2;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) ratweight (a, 1, b, 1);
 (%o1)                     [a, 1, b, 1]
@@ -2928,7 +2928,7 @@ Examples:
 @c bezout(a*x^2+b*x+1, c*x+2, x);
 @c determinant(%);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) resultant(2*x^2+3*x+1, 2*x^2+x+1, x);
 (%o1)                           8
@@ -3040,7 +3040,7 @@ Example:
 @c ===beg===
 @c sqfr (4*x^4 + 4*x^3 - 3*x^2 - 4*x - 1);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) sqfr (4*x^4 + 4*x^3 - 3*x^2 - 4*x - 1);
                                 2   2
@@ -3103,7 +3103,7 @@ Examples:
 @c ev (ratdisrep (rat(%)), algebraic);
 @c tellrat (y^2 = x^2);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) 10*(%i + 1)/(%i + 3^(1/3));
                            10 (%i + 1)

@@ -163,24 +163,18 @@ Maxima puede generar gráficos de una o más funciones:
 @example
 (%i1) plot2d (sin(x)/x, [x, -20, 20])$
 @end example
-@ifnotinfo
-@image{@value{figuresfolder}/introduction1, 10cm}
-@end ifnotinfo
+@altfigure{introduction1, Gráfico de una función}
 @example
 (%i2) plot2d ([atan(x), erf(x), tanh(x)], [x, -5, 5], [y, -1.5, 2])$
 @end example
-@ifnotinfo
-@image{@value{figuresfolder}/introduction2, 10cm}
-@end ifnotinfo
+@altfigure{introduction2, Gráfico de dos funciones}
 @example
 @group
 (%i3) plot3d (sin(sqrt(x^2 + y^2))/sqrt(x^2 + y^2), 
          [x, -12, 12], [y, -12, 12])$
 @end group
 @end example
-@ifnotinfo
-@image{@value{figuresfolder}/introduction3, 12cm}
-@end ifnotinfo 
+@altfigure{introduction3, Gráfico de una función de dos variables}
 
 @c Traducido por: Juan Pablo Romero Bernal
 @c Revisado por : Juan Pablo Romero Bernal

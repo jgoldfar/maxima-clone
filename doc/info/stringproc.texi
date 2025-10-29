@@ -2489,7 +2489,7 @@ subpattern matches the day, if present.
 @end group
 @end example
 
-You can also do case-insensitve matches by using a @emph{cloister}
+You can also do case-insensitive matches by using a @emph{cloister}
 (see
 @url{https://ds26gte.github.io/pregexp/index.html#TAG:__tex2page_toc_TAG:__tex2page_sec_3.4.3,
 pregexp cloisters})
@@ -2568,7 +2568,7 @@ Returns a string where the first occurrence of @var{pattern} in
 @end example
 
 This example shows how to use back references.  The replacement
-specifies that the first submatch is used as the replacment text.
+specifies that the first submatch is used as the replacement text.
 @c ===beg===
 @c regex_match("_(.+?)_", "the _nina_, the _pinta_, and the _santa maria_");
 @c regex_subst_first("*\\1*", "_(.+?)_", "the _nina_, the _pinta_, and the _santa maria_");

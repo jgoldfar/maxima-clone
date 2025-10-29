@@ -5,7 +5,7 @@
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-find_program(WINE_EXE NAMES wine64)
+find_program(WINE_EXE NAMES wine)
 
 if(WINE_EXE)
     message(STATUS "Found wine at ${WINE_EXE}")

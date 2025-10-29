@@ -33,17 +33,27 @@ Examples:
 @c /* Parses same as a b c, not abc */  a/* foo */b/* bar */c;
 @c /* Comments /* can be nested /* to any depth */ */ */  1 + xyz;
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) /* aa is a variable of interest */  aa : 1234;
 (%o1)                         1234
+@end group
+@group
 (%i2) /* Value of bb depends on aa */  bb : aa^2;
 (%o2)                        1522756
+@end group
+@group
 (%i3) /* User-defined infix operator */  infix ("b");
 (%o3)                           b
+@end group
+@group
 (%i4) /* Parses same as a b c, not abc */  a/* foo */b/* bar */c;
 (%o4)                         a b c
+@end group
+@group
 (%i5) /* Comments /* can be nested /* to any depth */ */ */  1 + xyz;
 (%o5)                        xyz + 1
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -60,15 +70,16 @@ or text.  Files on the disks are figuratively grouped into "directories".
 A directory is just a list of files.  Commands which deal with files are:
 
 @verbatim
-   appendfile           batch                 batchload
-   closefile            file_output_append    filename_merge
-   file_search          file_search_maxima    file_search_lisp
-   file_search_demo     file_search_usage     file_search_tests
-   file_type            file_type_lisp        file_type_maxima
-   load                 load_pathname         loadfile
-   loadprint            pathname_directory    pathname_name
-   pathname_type        printfile             save
-   stringout            with_stdout           writefile
+   appendfile          batch                batchload
+   closefile           file_output_append   filename_merge
+   file_search         file_search_cache    file_search_maxima
+   file_search_lisp    file_search_demo     file_search_usage
+   file_search_tests   file_type            file_type_lisp
+   file_type_maxima    load                 load_pathname
+   loadfile            loadprint            pathname_directory
+   pathname_name       pathname_type        printfile
+   save                stringout            with_stdout
+   writefile
 @end verbatim
 
 When a file name is passed to functions like @mrefcomma{plot2d}@w{}
@@ -241,7 +252,7 @@ from its input file or stream.
 Example: Maxima's interactive testsuite includes something like
 following.
 
-@example
+@example maxima
 [asksign (foo), sign (foo), sign (foo)];
 p;
 [pos, pos, pos];
@@ -325,7 +336,7 @@ The argument @var{filename} can be a path and file name, or just a file name,
 or, if a file search directory includes a file search pattern, just the base of
 the file name (without an extension).  For example,
 
-@example
+@example maxima
 file_search ("/home/wfs/special/zeta.mac");
 file_search ("zeta.mac");
 file_search ("zeta");
@@ -347,10 +358,34 @@ See @mrefdot{file_search_maxima}
 @code{file_search} is invoked by @mref{load} with @code{file_search_maxima} and
 @mref{file_search_lisp} as the search directories.
 
+See also @mrefdot{file_search_cache}
+
 @opencatbox{Categories:}
 @category{File input}
 @closecatbox
 @end deffn
+
+@c -----------------------------------------------------------------------------
+@anchor{file_search_cache}
+@defvr {Option variable} file_search_cache
+Default value: @code{auto}
+
+@code{file_search_cache} controls the use of a cache by @code{file_search} in
+order to speed up the search.  Currently, it can only speed up searches where
+the filename part does not contain wildcards (but the directory part may).
+
+When @code{file_search_cache} is @code{auto} (the default value), the cache
+will be activated if a one-time check determines that the system (Lisp
+implementation, file system) fulfills the requirements.  This can be overridden
+by setting @code{file_search_cache} to @code{true}, which is not recommended.
+The value @code{false} prevents the use of the cache.
+
+See also @mrefdot{file_search}
+
+@opencatbox{Categories:}
+@category{File input}
+@closecatbox
+@end defvr
 
 @c -----------------------------------------------------------------------------
 @anchor{file_search_maxima}
@@ -371,14 +406,14 @@ values of these variables name various directories in the Maxima installation.
 The user can modify these variables, either to replace the default values or to
 append additional directories.  For example,
 
-@example
+@example maxima
 file_search_maxima: ["/usr/local/foo/*.mac",
     "/usr/local/bar/*.mac"]$
 @end example
 
 replaces the default value of @code{file_search_maxima}, while
 
-@example
+@example maxima
 file_search_maxima: append (file_search_maxima,
     ["/usr/local/foo/*.mac", "/usr/local/bar/*.mac"])$
 @end example
@@ -442,10 +477,12 @@ Examples:
 @c map('file_type,
 @c     ["test.lisp", "test.mac", "test.dem", "test.txt"]);
 @c ===end===
-@example
-(%i2) map('file_type,
-          ["test.lisp", "test.mac", "test.dem", "test.txt"]);
-(%o2)            [lisp, maxima, maxima, object]
+@example maxima
+@group
+(%i1) map('file_type,
+    ["test.lisp", "test.mac", "test.dem", "test.txt"]);
+(%o1)            [lisp, maxima, maxima, object]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -542,14 +579,14 @@ Suppose we have a batchfile @code{test.mac} in the directory
 @code{"/home/dieter/workspace/mymaxima/temp/"} with the following commands
 @end flushleft
 
-@example
+@example maxima
 print("The value of load_pathname is: ", load_pathname)$
 print("End of batchfile")$
 @end example
 
 then we get the following output
 
-@example
+@example maxima
 (%i1) load("/home/dieter/workspace/mymaxima/temp/test.mac")$
 The value of load_pathname is:  
                    /home/dieter/workspace/mymaxima/temp/test.mac 
@@ -648,13 +685,19 @@ Examples:
 @c pathname_name("/home/dieter/maxima/changelog.txt");
 @c pathname_type("/home/dieter/maxima/changelog.txt");
 @c ===end===
-@example 
+@example maxima
+@group
 (%i1) pathname_directory("/home/dieter/maxima/changelog.txt");
 (%o1)                 /home/dieter/maxima/
+@end group
+@group
 (%i2) pathname_name("/home/dieter/maxima/changelog.txt");
 (%o2)                       changelog
+@end group
+@group
 (%i3) pathname_type("/home/dieter/maxima/changelog.txt");
 (%o3)                          txt
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -934,23 +977,37 @@ See also @mref{tex1} and @mrefdot{texput}
 
 Examples:
 
-@example
+@c ===beg===
+@c integrate (1/(1+x^3), x);
+@c tex (%o1);
+@c tex (integrate (sin(x), x));
+@c tex (%o1, "foo.tex");
+@c ===end===
+@example maxima
+@group
 (%i1) integrate (1/(1+x^3), x);
-                                    2 x - 1
-                  2            atan(-------)
-             log(x  - x + 1)        sqrt(3)    log(x + 1)
-(%o1)      - --------------- + ------------- + ----------
-                    6             sqrt(3)          3
+                                  2 x - 1
+                2            atan(-------)
+           log(x  - x + 1)        sqrt(3)    log(x + 1)
+(%o1)    - --------------- + ------------- + ----------
+                  6             sqrt(3)          3
+@end group
+@group
 (%i2) tex (%o1);
-$$-@{@{\log \left(x^2-x+1\right)@}\over@{6@}@}+@{@{\arctan \left(@{@{2\,x-1
- @}\over@{\sqrt@{3@}@}@}\right)@}\over@{\sqrt@{3@}@}@}+@{@{\log \left(x+1\right)
- @}\over@{3@}@}\leqno@{\tt (\%o1)@}$$
-(%o2)                          (\%o1)
+$$-\left(@{@{\log \left(x^2-x+1\right)@}\over@{6@}@}\right)+@{@{\arctan 
+ \left(@{@{2\,x-1@}\over@{\sqrt@{3@}@}@}\right)@}\over@{\sqrt@{3@}@}@}+@{@{\log 
+ \left(x+1\right)@}\over@{3@}@}\leqno@{\tt (\%o1)@}$$
+(%o2)                        (\%o1)
+@end group
+@group
 (%i3) tex (integrate (sin(x), x));
 $$-\cos x$$
-(%o3)                           false
+(%o3)                         false
+@end group
+@group
 (%i4) tex (%o1, "foo.tex");
-(%o4)                          (\%o1)
+(%o4)                        (\%o1)
+@end group
 @end example
 
 @code{tex (@var{expr}, false)} returns its TeX output as a string.
@@ -959,11 +1016,15 @@ $$-\cos x$$
 @c S : tex (x * y * z, false);
 @c S;
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) S : tex (x * y * z, false);
 (%o1) $$x\,y\,z$$
+@end group
+@group
 (%i2) S;
 (%o2) $$x\,y\,z$$
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -987,9 +1048,11 @@ Examples:
 @c ===beg===
 @c tex1 (sin(x) + cos(x));
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) tex1 (sin(x) + cos(x));
 (%o1)                     \sin x+\cos x
+@end group
 @end example
 @end deffn
 
@@ -1043,12 +1106,16 @@ Assign TeX output for a variable.
 @c texput (me,"\\mu_e");
 @c tex (me);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) texput (me,"\\mu_e");
 (%o1)                         \mu_e
+@end group
+@group
 (%i2) tex (me);
 $$\mu_e$$
 (%o2)                         false
+@end group
 @end example
 
 Assign TeX output for an ordinary function (not an operator).
@@ -1057,12 +1124,16 @@ Assign TeX output for an ordinary function (not an operator).
 @c texput (lcm, "\\mathrm{lcm}");
 @c tex (lcm (a, b));
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) texput (lcm, "\\mathrm@{lcm@}");
 (%o1)                     \mathrm@{lcm@}
+@end group
+@group
 (%i2) tex (lcm (a, b));
 $$\mathrm@{lcm@}\left(a , b\right)$$
 (%o2)                         false
+@end group
 @end example
 
 Call a function to generate TeX output.
@@ -1073,14 +1144,20 @@ Call a function to generate TeX output.
 @c texput (foo, texfoo);
 @c tex (foo (2^x, %pi));
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) texfoo (e) := block ([a, b], [a, b] : args (e),
-  concat("\\left[\\stackrel@{",tex1(b),"@}@{",tex1(a),"@}\\right]"))$
+  concat ("\\left[\\stackrel@{",tex1(b),"@}@{",tex1(a),"@}\\right]"))$
+@end group
+@group
 (%i2) texput (foo, texfoo);
 (%o2)                        texfoo
+@end group
+@group
 (%i3) tex (foo (2^x, %pi));
 $$\left[\stackrel@{\pi@}@{2^@{x@}@}\right]$$
 (%o3)                         false
+@end group
 @end example
 
 Assign TeX output for a prefix operator.
@@ -1090,14 +1167,20 @@ Assign TeX output for a prefix operator.
 @c texput ("grad", " \\nabla ", prefix);
 @c tex (grad f);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) prefix ("grad");
 (%o1)                         grad
+@end group
+@group
 (%i2) texput ("grad", " \\nabla ", prefix);
 (%o2)                        \nabla 
+@end group
+@group
 (%i3) tex (grad f);
 $$ \nabla f$$
 (%o3)                         false
+@end group
 @end example
 
 Assign TeX output for an infix operator.
@@ -1107,14 +1190,20 @@ Assign TeX output for an infix operator.
 @c texput ("~", " \\times ", infix);
 @c tex (a ~ b);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) infix ("~");
 (%o1)                           ~
+@end group
+@group
 (%i2) texput ("~", " \\times ", infix);
 (%o2)                        \times 
+@end group
+@group
 (%i3) tex (a ~ b);
 $$a \times b$$
 (%o3)                         false
+@end group
 @end example
 
 Assign TeX output for a postfix operator.
@@ -1124,14 +1213,20 @@ Assign TeX output for a postfix operator.
 @c texput ("##", "!!", postfix);
 @c tex (x ##);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) postfix ("##");
 (%o1)                          ##
+@end group
+@group
 (%i2) texput ("##", "!!", postfix);
 (%o2)                          !!
+@end group
+@group
 (%i3) tex (x ##);
 $$x!!$$
 (%o3)                         false
+@end group
 @end example
 
 Assign TeX output for a nary operator.
@@ -1141,14 +1236,20 @@ Assign TeX output for a nary operator.
 @c texput ("@@", " \\circ ", nary);
 @c tex (a @@ b @@ c @@ d);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) nary ("@@@@");
 (%o1)                          @@@@
+@end group
+@group
 (%i2) texput ("@@@@", " \\circ ", nary);
 (%o2)                         \circ 
+@end group
+@group
 (%i3) tex (a @@@@ b @@@@ c @@@@ d);
 $$a \circ b \circ c \circ d$$
 (%o3)                         false
+@end group
 @end example
 
 Assign TeX output for a nofix operator.
@@ -1158,14 +1259,20 @@ Assign TeX output for a nofix operator.
 @c texput ("foo", "\\mathsc{foo}", nofix);
 @c tex (foo);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) nofix ("foo");
 (%o1)                          foo
+@end group
+@group
 (%i2) texput ("foo", "\\mathsc@{foo@}", nofix);
 (%o2)                     \mathsc@{foo@}
+@end group
+@group
 (%i3) tex (foo);
 $$\mathsc@{foo@}$$
 (%o3)                         false
+@end group
 @end example
 
 Assign TeX output for a matchfix operator.
@@ -1180,26 +1287,40 @@ Assign TeX output for a matchfix operator.
 @c tex (<<a>>);
 @c tex (<<a, b>>);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) matchfix ("<<", ">>");
 (%o1)                          <<
+@end group
+@group
 (%i2) texput ("<<", [" \\langle ", " \\rangle "], matchfix);
 (%o2)                [ \langle ,  \rangle ]
+@end group
+@group
 (%i3) tex (<<a>>);
 $$ \langle a \rangle $$
 (%o3)                         false
+@end group
+@group
 (%i4) tex (<<a, b>>);
 $$ \langle a , b \rangle $$
 (%o4)                         false
+@end group
+@group
 (%i5) texput ("<<", [" \\langle ", " \\rangle ", " \\, | \\,"],
       matchfix);
 (%o5)           [ \langle ,  \rangle ,  \, | \,]
+@end group
+@group
 (%i6) tex (<<a>>);
 $$ \langle a \rangle $$
 (%o6)                         false
+@end group
+@group
 (%i7) tex (<<a, b>>);
 $$ \langle a \, | \,b \rangle $$
 (%o7)                         false
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1234,25 +1355,32 @@ Examples:
 @c set_tex_environment (":=", "$$", "$$");
 @c tex (f (x) := 1 - x);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) get_tex_environment (":=");
 (%o1) [
 \begin@{verbatim@}
 , ;
 \end@{verbatim@}
 ]
+@end group
+@group
 (%i2) tex (f (x) := 1 - x);
-
 \begin@{verbatim@}
 f(x):=1-x;
 \end@{verbatim@}
 
 (%o2)                         false
+@end group
+@group
 (%i3) set_tex_environment (":=", "$$", "$$");
 (%o3)                       [$$, $$]
+@end group
+@group
 (%i4) tex (f (x) := 1 - x);
 $$f(x):=1-x$$
 (%o4)                         false
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1285,23 +1413,30 @@ Examples:
 @c \\end{equation}");
 @c tex (f(x) + g(x));
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) get_tex_environment_default ();
 (%o1)                       [$$, $$]
+@end group
+@group
 (%i2) tex (f(x) + g(x));
 $$g\left(x\right)+f\left(x\right)$$
 (%o2)                         false
+@end group
+@group
 (%i3) set_tex_environment_default ("\\begin@{equation@}
-", "
-\\end@{equation@}");
 (%o3) [\begin@{equation@}
 , 
 \end@{equation@}]
-(%i4) tex (f(x) + g(x));
+@end group
+@group
+(%i4) ", "
 \begin@{equation@}
 g\left(x\right)+f\left(x\right)
 \end@{equation@}
 (%o4)                         false
+@end group
+(%i5) \\end@{equation@}");
 @end example
 
 @opencatbox{Categories:}
@@ -1364,30 +1499,55 @@ expressions as a Fortran 90 program.
 
 Examples:
 
-@verbatim
+@c ===beg===
+@c expr: (a + b)^12$
+@c fortran (expr);
+@c fortran ('x=expr);
+@c fortran ('x=expand (expr));
+@c fortran ('x=7+5*%i);
+@c fortran ('x=[1,2,3,4]);
+@c f(x) := x^2$
+@c fortran (f);
+@c ===end===
+@example maxima
 (%i1) expr: (a + b)^12$
+@group
 (%i2) fortran (expr);
-      (b+a)**12                                                                 
+      (b+a)**12
 (%o2)                         done
+@end group
+@group
 (%i3) fortran ('x=expr);
-      x = (b+a)**12                                                             
+      x = (b+a)**12
 (%o3)                         done
+@end group
+@group
 (%i4) fortran ('x=expand (expr));
       x = b**12+12*a*b**11+66*a**2*b**10+220*a**3*b**9+495*a**4*b**8+792
      1   *a**5*b**7+924*a**6*b**6+792*a**7*b**5+495*a**8*b**4+220*a**9*b
      2   **3+66*a**10*b**2+12*a**11*b+a**12
 (%o4)                         done
+@end group
+@group
 (%i5) fortran ('x=7+5*%i);
-      x = (7,5)                                                                 
+      x = (7,5)
 (%o5)                         done
+@end group
+@group
 (%i6) fortran ('x=[1,2,3,4]);
-      x = [1,2,3,4]                                                             
+      x(1) = 1
+      x(2) = 2
+      x(3) = 3
+      x(4) = 4
 (%o6)                         done
+@end group
 (%i7) f(x) := x^2$
+@group
 (%i8) fortran (f);
-      f                                                                         
+      f
 (%o8)                         done
-@end verbatim
+@end group
+@end example
 
 @opencatbox{Categories:}
 @category{Translation and compilation}

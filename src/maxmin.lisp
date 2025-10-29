@@ -1,5 +1,5 @@
 ;; Maxima functions for finding the maximum or minimum
-;; Copyright (C) 2005, 2007, 2021 Barton Willis
+;; Copyright (C) 2005, 2007, 2021, 2024, 2025 Barton Willis
 
 ;; Barton Willis
 ;; Department of Mathematics 
@@ -117,7 +117,7 @@
 
 (defun simp-max (l tmp z)
   (declare (ignore tmp))
-  (let ((acc nil) (sgn) (num-max nil) (issue-warning))
+  (let ((acc nil) (sgn) (num-max nil) (issue-warning) (all-real))
     (setq l (cdr l))
 
     ;; When maxmin_effort > 0, simplify each member of l and flatten (that is, do
@@ -126,7 +126,7 @@
     ;; complex. The effort for this step is O(n).
     (when (> $maxmin_effort 0)
       (dolist (li l)
-          (setq li (simplifya (specrepcheck li) z))
+          (setq li (maybe-simplifya (specrepcheck li) z))
           (cond 
             ((max-p li)
               (setq acc (append acc (cdr li))))
@@ -149,9 +149,11 @@
     (when (> $maxmin_effort 0)  
       (setq l (sorted-remove-duplicates (sort l #'$orderlessp))))
 
-    ;; When maxmin_effort > 2, if e and -e are members of l, replace e & -e by
-    ;; abs(e).     
-    (when (> $maxmin_effort 2)
+    ;; When every member of `l` appears to be real, set `all-real` to true. 
+    (setq all-real (every #'lenient-extended-realp l))
+    ;; When maxmin_effort > 2 and all-real is true, if e and -e are members of l, replace 
+    ;; e & -e by abs(e).   
+    (when (and (> $maxmin_effort 2) all-real)
         (let ((pp) (qq) (nn))
           (setq pp (simplifya (cons '($set) l) t))
           (setq qq (simplifya (cons '($set) (mapcar #'limitneg l)) t))
@@ -168,7 +170,7 @@
     ;; (b) if x is < or <= to some member of acc, do nothing,
     ;; (c) if neither 'a' or 'b', push x into acc,
     ;; (d) if x cannot be compared to some member of acc, set issue-warning to true.
-    (when (> $maxmin_effort 1)
+    (when (and (> $maxmin_effort 1) all-real)
       (setq acc nil)
       (dolist (x l)
         (catch 'done
@@ -182,9 +184,9 @@
                (push x acc)))
       (setq l acc))
   
-    ;; When issue-warning is false and maxmin_effort > 2, use the betweenp 
+    ;; When issue-warning is false, all-real is true, and maxmin_effort > 2, use the betweenp 
     ;; simplification.
-    (when (and (not issue-warning) (> $maxmin_effort 2))
+    (when (and (not issue-warning) (> $maxmin_effort 2) all-real)
 	    (setq acc nil)
 	    (setq sgn (cdr l))
 	    (dolist (ai l)
@@ -194,13 +196,12 @@
 	    (setq l acc))
 
     ;; Finally, do a few clean ups:    
-    (setq l (if (not issue-warning) (delete '$minf l) l))
+    (setq l (if (and all-real (not issue-warning)) (delete '$minf l) l))
     (cond ((null l) '$minf) ;max(emptyset) -> minf.
-          ((and (not issue-warning) (member '$inf l :test #'eq)) '$inf)
-          ((and (null (cdr l))  (lenient-extended-realp (car l)))
+          ((and all-real (not issue-warning) (member '$inf l :test #'eq)) '$inf)
+          ((and (null (cdr l)) (lenient-extended-realp (car l)))
              (car l)) ;singleton case: max(xx) --> xx
-
-      
+     
           (t  ;;nounform return
              (cons (get '$max 'msimpind) (sort l #'$orderlessp))))))
 
@@ -233,7 +234,7 @@
   (let ((acc nil))
     (setq l (cdr l))
     (dolist (li l)
-      (setq li (simplifya (specrepcheck li) z)) 
+      (setq li (maybe-simplifya (specrepcheck li) z)) 
       ;; convert min(a, min(b,c)) --> min(a,b,c)
       (cond ((min-p li)
               (setq acc (append acc (cdr li))))
@@ -310,7 +311,7 @@
           (when (>= $maxmin_effort 10)
             (setq a (sratsimp ($trigreduce a))))
 
-          (setq sgn (csign ($rectform a)))
+          (setq sgn (csign a)) ;($rectform a)))
 	          (cond 
 		          ((eq sgn '$neg) "<")
 		          ((eq sgn '$nz) "<=")
@@ -333,7 +334,10 @@
        (not (mrelationp e))
        (not (arrayp e))
        (not ($member e $arrays))
-       (not (amongl '($infinity $%i $und $ind $false $true t nil) e)))) ;; what else?
+       (not (amongl '($infinity $%i $und $ind $false $true t nil $conjugate) e))
+       (member 
+          (car (let (($errormsg nil)) (errcatch ($sign e)))) 
+          '($pnz $neg $nz $zero $pz $pos $pn))))
 
 (defun lenient-realp (e)
   (and ($freeof '$inf '$minf e) (lenient-extended-realp e)))

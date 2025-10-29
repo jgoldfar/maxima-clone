@@ -8,7 +8,7 @@ dnl Note: during Lisp-based builds (see INSTALL.lisp) the version
 dnl number is read from the following AC_INIT line.  It's sensitive to
 dnl whitespace so when updating the version number only make changes
 dnl within the second pair of square brackets.
-AC_INIT([maxima], [5.47post])
+AC_INIT([maxima], [5.48post])
 AC_CONFIG_SRCDIR([src/macsys.lisp])
 AM_INIT_AUTOMAKE([-Wno-portability tar-ustar])
 
@@ -525,9 +525,39 @@ fi
 
 dnl n.b. ccl64_default_name is hardcoded in "with" message
 dnl We assume we're running on an x86 processor.  The user has to
-dnl select a different executable name to match his system, if neceessary.
+dnl select a different executable name to match his system, if necessary.
 
+dnl use as default the macos binary (as before)
 ccl64_default_name=dx86cl64
+dnl try to detect the target system
+dnl TODO: Binary names are documented here: https://ccl.clozure.com/docs/ccl.html#tab_platform-specific-filename-conventions)
+dnl       Are these checks (especially Windows, Linux PPC64) okay?
+dnl Probably at the end we could check if another - CCL64 unsupported - OS was used.
+dnl
+dnl of course the ccl directory needs to be in the path.
+dnl another possibility would be to default to "ccl64", which is - MAYBE - a platform independent
+dnl startscript in /usr/local/bin.
+case "${host_os}" in
+    *linux-powerpc64*)
+        ccl64_default_name=ppccl64
+        ;;
+    *linux*)
+        ccl64_default_name=lx86cl64
+        ;;
+    *cygwin*|*mingw*|*windows*)
+        ccl64_default_name=wx86cl64.exe
+        ;;
+    *darwin*)
+        ccl64_default_name=dx86cl64
+        ;;
+    *solaris*)
+        ccl64_default_name=sx86cl64
+        ;;
+    *freebsd*)
+        ccl64_default_name=fx86cl64
+        ;;
+esac
+
 AC_ARG_ENABLE(ccl64,
 	[  --enable-ccl64               Use CCL (Clozure Common Lisp), 64-bit],
      	[case "${enableval}" in
@@ -539,7 +569,7 @@ AC_ARG_ENABLE(ccl64,
      	esac],
 	[ccl64=false])
 AC_ARG_WITH(ccl64,
-	[  --with-ccl64=<prog>          Use ccl64 executable <prog> (default dx86cl64)],
+	[  --with-ccl64=<prog>          Use ccl64 executable <prog> (default ${ccl64_default_name})],
 	[ccl64=true
 	lisps_enabled="${lisps_enabled} ccl64"
 	explicit_lisp=true
@@ -625,22 +655,43 @@ AC_ARG_ENABLE(build-docs,
 	 esac],
 	 [enable_build_docs=true])
 
+AC_ARG_ENABLE(syntax-highlighting,
+  [AS_HELP_STRING([--enable-syntax-highlighting],
+    [Enable syntax highlighting for the HTML manual (default = no).
+       Set to "highlightjs" to use highlightjs or "pygments" to use pygments.  No value implies highlightjs])],
+  [case "${enableval}" in
+          yes|highlightjs) syntax_highlighting=highlightjs ;;
+          pygments) syntax_highlighting=pygments ;;
+          no)  syntax_highlighting=false ;;
+          *) AC_MSG_ERROR(bad value ${enableval} for --enable-syntax-highlighting) ;;
+   esac],
+  [syntax_highlighting=false])
+
+AS_IF([test "x$syntax_highlighting" = "xpygments"],
+  [AC_CHECK_PROG([pygmentize_found], [pygmentize],
+    true,
+    false)
+    AS_IF([test "x$pygmetize_found" = "xfalse"],
+      AC_MSG_FAILURE(
+        [--enable-syntax-highlighting set to "pygments" but pygmentize not found]))])
 
 AM_CONDITIONAL(ENABLE_BUILD_DOCS, test x$enable_build_docs = xtrue)
 
 AC_ARG_VAR([MAKEINFO], [The path to the 'makeinfo' executable to use])
-AC_PATH_PROG([MAKEINFO], [makeinfo])
-makeinfo_found=true
-if test -z "$MAKEINFO"; then
-  makeinfo_found=false
-  AC_MSG_ERROR(
+if test x"${enable_build_docs}" = xtrue ; then
+  AC_PATH_PROG([MAKEINFO], [makeinfo])
+  makeinfo_found=true
+  if test -z "$MAKEINFO"; then
+    makeinfo_found=false
+    AC_MSG_ERROR(
 [makeinfo not found; Maxima needs makeinfo to build docs.
 If you have makeinfo installed somewhere not in PATH,
 specify where it is by using
-  ./configure MAKEINFO=/path/to/makinfo
+  ./configure MAKEINFO=/path/to/makeinfo
 Or disable building of the docs using
   ./configure --disable-build-docs
 ])
+  fi
 fi
 
 if test x"${enable_build_docs}" = xtrue ; then
@@ -690,12 +741,39 @@ if test x"${enable_build_docs}" = xtrue ; then
            TEXI_EXTRA_TAIL=''
         else
            TEXI_EXTRA_HEAD='texinfo_set_from_init_file("EXTRA_HEAD", '
-           HLJS_CSS_SELECTOR="'.example-preformatted'"
+           HLJS_CSS_SELECTOR="'.example.user-maxima .example-preformatted'"
            TEXI_EXTRA_TAIL=')'
         fi
+        if test x${syntax_highlighting} = xhighlightjs; then
+           dnl Update HIGHTLIGHT_VER, LIGHTMODE, and DARKMODE
+           dnl variables if we decide to change the version, the light
+           dnl mode style or the dark mode style.
+           CDN="https://cdnjs.cloudflare.com/ajax/libs/highlight.js"
+           HIGHLIGHT_VER="11.11.1"
+           LIGHTMODE="github.min.css"
+           DARKMODE="github-dark.min.css"
+           dnl Make sure HIGHLIGHT1 and HIGHLIGHT2 are all on one line
+           dnl because these variables are placed in the Makefile and
+           dnl make doesn't support multiple-line variable
+           dnl assignments.
+           HIGHLIGHT1=$(cat <<EOF
+<link rel="stylesheet" media="(prefers-color-scheme: light)" href="$CDN/$HIGHLIGHT_VER/styles/$LIGHTMODE" > <link rel="stylesheet" media="(prefers-color-scheme: dark)" href="$CDN/$HIGHLIGHT_VER/styles/$DARKMODE" > <script src="$CDN/$HIGHLIGHT_VER/highlight.min.js"></script> <script src="$CDN/$HIGHLIGHT_VER/languages/maxima.min.js"></script>
+EOF
+)
+           HIGHLIGHT2="<script> hljs.configure({languages: [['Maxima']], cssSelector: ${HLJS_CSS_SELECTOR}}); hljs.highlightAll(); </script>"
+        fi
+        if test x${syntax_highlighting} = xpygments; then
+           if test ${makeinfo_version} -ge 702; then
+             USE_PYGMENTS=true
+           else
+             AC_MSG_ERROR([Makeinfo version (${makeinfo_version_string}) too old to use pygments for syntax highlighting.  Disable or use highlightjs])
+           fi
+        fi
         AC_SUBST(TEXI_EXTRA_HEAD)
-        AC_SUBST(HLJS_CSS_SELECTOR)
         AC_SUBST(TEXI_EXTRA_TAIL)
+	AC_SUBST(HIGHLIGHT1)
+	AC_SUBST(HIGHLIGHT2)
+        AC_SUBST(USE_PYGMENTS)
         TEXI2HTML=texi2html.init
         AC_SUBST(TEXI2HTML)
 
@@ -850,7 +928,7 @@ AC_ARG_ENABLE(xmaxima_exe,
    [xmaxima_exe=false])
 AM_CONDITIONAL(XMAXIMA_EXE, test x$xmaxima_exe = xtrue)
 
-dnl Optionally build xmaxima.exe under windows
+dnl Optionally build winkill.exe under windows
 dnl default to false as additional software
 AC_ARG_ENABLE(winkill_exe,
   [  --enable-winkill             Build Windows winkill.exe and winkill_lib.dll for installer],
@@ -1281,6 +1359,7 @@ AC_ARG_WITH(emacs-prefix,
 	[EMACSDIR="${datarootdir}/emacs/site-lisp"])
 AC_SUBST(EMACSDIR)
 
+
 dnl Tell defsystem that this isn't a lisp-only build
 lisp_only_build="nil"
 AC_SUBST(lisp_only_build)
@@ -1323,6 +1402,7 @@ doc/info/figures/Makefile \
 doc/info/de/Makefile \
 doc/info/de/include-maxima.texi \
 doc/info/es/Makefile \
+doc/info/es/include-maxima.texi \
 doc/info/ja/Makefile \
 doc/info/ja/include-maxima.texi \
 doc/info/pt_BR/include-maxima.texi \
@@ -1347,7 +1427,7 @@ share/contrib/maxima-odesolve/Makefile \
 share/contrib/symplectic_ode/Makefile \
 share/nelder_mead/Makefile \
 share/raddenest/Makefile \
-share/draw/Makefile share/logic/Makefile  doc/info/es/include-maxima.texi \
+share/draw/Makefile share/logic/Makefile \
 src/lisp])
 AC_OUTPUT
 
@@ -1475,3 +1555,13 @@ if test x"${xmaxima_exe}" = xtrue ; then
      AC_MSG_WARN([A prerequisite for xmaxima.exe not found.  The missing components can be defined on the make command line.])
    fi
 fi
+
+if test -n "x$MAKEINFO"; then
+  echo "Using makeinfo ${MAKEINFO} to generate docs"
+fi
+
+if test "x${syntax_highlighting}" = "xfalse"; then
+  echo "HTML syntax highlighting disabled"
+else
+  echo "HTML syntax highlighting enabled using ${syntax_highlighting}"
+fi  

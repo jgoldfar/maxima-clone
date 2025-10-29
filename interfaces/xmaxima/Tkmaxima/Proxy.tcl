@@ -1,11 +1,3 @@
-# -*-mode: tcl; fill-column: 75; tab-width: 8; coding: iso-latin-1-unix -*-
-#
-#       $Id: Proxy.tcl,v 1.4 2004-10-13 12:08:58 vvzhy Exp $
-#
-###### Proxy.tcl ######
-
-
-
 #
 #-----------------------------------------------------------------
 #
@@ -22,10 +14,9 @@
 #----------------------------------------------------------------
 #
 proc openSocketAndSend { host port msg { verify 0}} {
-    global maxima_priv  pdata
+    global pdata
     dtrace
-    if { [info exists maxima_priv(proxy,http)] } {
-	global pdata
+    if { [info exists ::xmaxima_priv(proxy,http)] } {
 	set magic "billy-[clock clicks]"
 	debugsend "sendViaProxy $msg $host $port $magic"
 	
@@ -103,9 +94,8 @@ proc proxyPuts { sock  message } {
 #----------------------------------------------------------------
 #
 proc sendViaProxy { message host port magic  } {
-    global maxima_priv
     dtrace
-    set ss [eval socket $maxima_priv(proxy,http)]
+    set ss [eval socket $::xmaxima_priv(proxy,http)]
     fconfigure $ss -blocking 0
     fconfigure $ss -translation {crlf binary}
     set request [getURLrequest http://$host:$port/$magic $host $port "" $message]

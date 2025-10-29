@@ -238,11 +238,9 @@ Ejemplo:
 (%i2) grid : graph_product(path_graph(3), path_graph(4))$
 (%i3) draw_graph(grid)$
 @end example
-@end deffn
 
-@ifhtml
-@image{@value{figuresfolder}/graphs01,6cm}
-@end ifhtml
+@smallfigure{graphs01, Producto directo de dos grafos}
+@end deffn
 
 @deffn {Función} graph_union (@var{g1}, @var{g1})
 Devuelve la unión (suma) de los grafos @var{g1} y @var{g2}.
@@ -551,9 +549,7 @@ Ejemplo:
 (%o3)               [[6, 7], [4, 5, 6], [1, 2], [2, 3, 4]]
 @end example
 
-@ifhtml
-@image{@value{figuresfolder}/graphs13,6cm}
-@end ifhtml
+@smallfigure{graphs13, Grafo con vértices biconectados}
 @end deffn
 
 @deffn {Función} bipartition (@var{gr})
@@ -575,11 +571,10 @@ Ejemplo:
 (%o3)         [[8, 12, 6, 10, 0, 2, 4], [13, 5, 11, 7, 9, 1, 3]]
 (%i4) draw_graph(h, show_vertices=A, program=circular)$
 @end example
+
+@smallfigure{graphs02, Bipartición de los vértices de un grafo de Heawood}
 @end deffn
 
-@ifhtml
-@image{@value{figuresfolder}/graphs02,6cm}
-@end ifhtml
 
 @deffn {Función} chromatic_index (@var{gr})
 Devuelve el índice cromático del grafo @var{gr}.
@@ -963,11 +958,9 @@ Ejemplo:
 (%o3)              [7, 3, 2, 6, 4, 0, 1, 5, 7]
 (%i4) draw_graph(c, show_edges=vertices_to_cycle(hc))$
 @end example
-@end deffn
 
-@ifhtml
-@image{@value{figuresfolder}/graphs03,6cm}
-@end ifhtml
+@smallfigure{graphs03, Ciclo de Hamilton de un grafo cúbico}
+@end deffn
 
 @deffn {Función} hamilton_path (@var{gr})
 Devuelve el camino de Hamilton del grafo @var{gr} o una lista vacía
@@ -988,11 +981,9 @@ Ejemplo:
 (%o3)                  [0, 5, 7, 2, 1, 6, 8, 3, 4, 9]
 (%i4) draw_graph(p, show_edges=vertices_to_path(hp))$
 @end example
-@end deffn
 
-@ifhtml
-@image{@value{figuresfolder}/graphs04,6cm}
-@end ifhtml
+@smallfigure{graphs04, Camino de Hamilton de un grafo de Petersen}
+@end deffn
 
 @deffn {Función} isomorphism (@var{gr1}, @var{gr2})
 Devuelve un isomorfismo entre los grafos/digrafos @var{gr1} y @var{gr2}.
@@ -1423,11 +1414,9 @@ Ejemplo:
 (%o3)             [0, 3, 5, 9, 10, 11, 18, 19]
 (%i4) draw_graph(d, show_vertices=mi)$
 @end example
-@end deffn
 
-@ifhtml
-@image{@value{figuresfolder}/graphs05,6cm}
-@end ifhtml
+@smallfigure{graphs05, Conjunto maximal independiente de un grafo dodecaédrico}
+@end deffn
 
 @deffn {Función} max_matching (@var{gr})
 Devuelve un conjunto maximal independiente de aristas del grafo @var{gr}.
@@ -1448,11 +1437,9 @@ Ejemplo:
                                [11, 16], [0, 15], [3, 4], [1, 2]]
 (%i4) draw_graph(d, show_edges=m)$
 @end example
-@end deffn
 
-@ifhtml
-@image{@value{figuresfolder}/graphs06,6cm}
-@end ifhtml
+@smallfigure{graphs06, Conjunto maximal independiente de aristas de un grafo dodecaédrico}
+@end deffn
 
 @deffn {Función} min_degree (@var{gr})
 Devuelve el grado mínimo de los vértices del grafo @var{gr} y un 
@@ -1512,11 +1499,9 @@ Ejemplo:
 (%i3) t : minimum_spanning_tree(g)$
 (%i4) draw_graph(g, show_edges=edges(t))$
 @end example
-@end deffn
 
-@ifhtml
-@image{@value{figuresfolder}/graphs07,6cm}
-@end ifhtml
+@smallfigure{graphs07, Grafo de expansión mínimo de un grafo rectangular}
+@end deffn
 
 @deffn {Función} neighbors (@var{v}, @var{gr})
 Devuelve la lista de los vecinos del vértice @var{v} del grafo @var{gr}.
@@ -1721,12 +1706,9 @@ Ejemplo:
 (%o3)                          [0, 1, 19, 13, 7]
 (%i4) draw_graph(d, show_edges=vertices_to_path(path))$
 @end example
+
+@smallfigure{graphs08, Camino más corto entre dos vértices de un grafo dodecaédrico}
 @end deffn
-
-@ifhtml
-@image{@value{figuresfolder}/graphs08,6cm}
-@end ifhtml
-
 
 @deffn {Función} shortest_weighted_path (@var{u}, @var{v}, @var{gr})
 Devuelve la longitud del camino más corto ponderado y el propio camino
@@ -2251,9 +2233,7 @@ Ejemplo 1:
    vertex_size=0)$
 @end example
 
-@ifhtml
-@image{@value{figuresfolder}/graphs09,6cm}
-@end ifhtml
+@smallfigure{graphs09, Ejemplo de uso de draw_graph para dibujar un grafo}
 
 Ejemplo 2:
 
@@ -2296,9 +2276,7 @@ Ejemplo 2:
     )$
 @end example
 
-@ifhtml
-@image{@value{figuresfolder}/graphs10,6cm}
-@end ifhtml
+@smallfigure{graphs10, Ejemplo de uso de draw_graph para dibujar un grafo}
 
 Ejemplo 3:
 
@@ -2331,9 +2309,7 @@ Ejemplo 3:
     )$
 @end example
 
-@ifhtml
-@image{@value{figuresfolder}/graphs11,6cm}
-@end ifhtml
+@smallfigure{graphs11, Ejemplo de uso de draw_graph para dibujar un grafo}
 
 Ejemplo 4:
 
@@ -2386,9 +2362,7 @@ Ejemplo 4:
     )$
 @end example
 
-@ifhtml
-@image{@value{figuresfolder}/graphs12,6cm}
-@end ifhtml
+@smallfigure{graphs12, Ejemplo de uso de draw_graph para dibujar un grafo}
 
 Ejemplo 5:
 
@@ -2405,9 +2379,7 @@ Ejemplo 5:
 (%o3)                         done
 @end example
 
-@ifhtml
-@image{@value{figuresfolder}/graphs14,6cm}
-@end ifhtml
+@smallfigure{graphs14, Ejemplo de uso de draw_graph para dibujar un grafo}
 
 Ejemplo 6:
 
@@ -2426,9 +2398,7 @@ Ejemplo 6:
 (%o3)                         done
 @end example
 
-@ifhtml
-@image{@value{figuresfolder}/graphs15,6cm}
-@end ifhtml
+@smallfigure{graphs15, Ejemplo de uso de draw_graph para dibujar un grafo}
 
 @end deffn
 

@@ -14,3 +14,10 @@ for i in contrib/sb.* ; do
     mv "$i" $(echo "$i" | sed 's/\./-/g' | rev | sed  s/-/\./ | rev)
 done
 
+# Crosscompiling Maxima (32 bit) on Ubuntu 24.04 causes memory problems (did work on 22.04).
+# Set the large-address-aware flag (for 32bit) for SBCL.
+# output the checksum of the binary before and after (should be unmodified for 64bit)
+md5sum sbcl.exe
+genpeimg -p +l sbcl.exe
+md5sum sbcl.exe
+

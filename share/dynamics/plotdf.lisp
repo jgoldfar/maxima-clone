@@ -142,28 +142,19 @@
                                     (expr_to_str (second ode)) "\"")))
           (t (merror 
               (intl:gettext "plotdf: first argument must be either an expression or a list with two expressions."))))
-    (let (data)
+    ;; Outputs the data, either into a file to be passedto Xmaxima
+    ;; or sent directly to Xmaxima if Maxima is being run from Xmaxima.
+    (let ((data (format nil "plotdf ~a ~a~%" cmd opts)))
       (setq file (plot-file-path (format nil "~a.xmaxima" (random-name 16))))
       (cond ($show_openplot
-             (setq data (format nil "plotdf ~a ~a~%" cmd opts))
-             (with-open-file
-              (fl
-               #+sbcl (sb-ext:native-namestring file)
-               #-sbcl file
-               :direction :output :if-exists :supersede)
-              (princ data fl))
-             ($system (concatenate 'string *maxima-prefix* 
-                                   (if (string= *autoconf-windows* "true")
-                                       "\\bin\\" "/bin/") 
-                                   $xmaxima_plot_command)
-                      #-(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-                      (format nil " ~s &" file)
-                      #+(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-                      file)
-             (list '(mlist) file))
-            (t
-             (setq data (format nil "{plotdf ~a ~a}" cmd opts))
-             (princ data) "")))))
+             (with-open-file (fl
+                              #+sbcl (sb-ext:native-namestring file)
+                              #-sbcl file
+                              :direction :output :if-exists :supersede)
+                             (princ data fl))
+             ($system $xmaxima_plot_command (format nil $gnuplot_file_args file)))
+            (t (princ (format nil "{~a}" data)) ""))
+      (list '(mlist) file))))
 
 ;; plot equipotential curves for a scalar field f(x,y)
 (defun $ploteq (fun &rest options)
@@ -212,25 +203,16 @@
     (unless (search "-yaxislabel " opts)
       (setq opts (concatenate 'string opts " -yaxislabel " (ensure-string s2))))
 							      
-    (let (data)
+    ;; Outputs the data, either into a file to be passed to Xmaxima
+    ;; or sent directly to Xmaxima if Maxima is being run from Xmaxima.
+    (let ((data (format nil "plotdf ~a ~a~%" cmd opts)))
       (setq file (plot-file-path (format nil "~a.xmaxima" (random-name 16))))
       (cond ($show_openplot
-             (setq data (format nil "plotdf ~a ~a~%" cmd opts))
-             (with-open-file
-              (fl
-               #+sbcl (sb-ext:native-namestring file)
-               #-sbcl file
-               :direction :output :if-exists :supersede)
-              (princ data fl))
-             ($system (concatenate 'string *maxima-prefix* 
-                                   (if (string= *autoconf-windows* "true")
-                                       "\\bin\\" "/bin/") 
-                                   $xmaxima_plot_command)
-                      #-(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-                      (format nil " ~s &" file)
-                      #+(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-                      file)
-             (list '(mlist) file))
-            (t
-             (setq data (format nil "{plotdf ~a ~a}" cmd opts))
-             (princ data) "")))))
+             (with-open-file (fl
+                              #+sbcl (sb-ext:native-namestring file)
+                              #-sbcl file
+                              :direction :output :if-exists :supersede)
+                             (princ data fl))
+             ($system $xmaxima_plot_command (format nil $gnuplot_file_args file)))
+            (t (princ (format nil "{~a}" data)) ""))
+      (list '(mlist) file))))

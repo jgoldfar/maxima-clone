@@ -18,7 +18,7 @@
 
 
 (defun xerhlt (messg)
-  (declare (type (simple-string *) messg))
+  (declare (type (simple-string *) messg) (ignore messg))
   (prog () (declare) (f2cl-lib::stop) end_label (return (values nil))))
 
 (in-package #:cl-user)

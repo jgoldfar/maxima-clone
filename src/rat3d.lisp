@@ -49,8 +49,8 @@
 	((memalike (pdis (make-poly y)) $dontfactor) t)))
 
 (defun removealg (l)
-  (loop for var in l
-	 unless (algv var) collect var))
+  (loop for var2 in l
+	 unless (algv var2) collect var2))
 
 (defun degvecdisrep (degl)
   (do ((l degl (cdr l))
@@ -66,36 +66,47 @@
     (list tcont (pquotient p tcont))))
 
 (defun pmindegvec (p)
-  (minlist (let ((*odr* (putodr (reverse genvar)))
+  (minlist-in-place
+   (let ((*odr* (putodr (reverse genvar)))
 		 (nn* (1+ (length genvar)))
 		 (*min* t))
 	     (degvector nil 1 p))))
 
 (defun pdegreevector (p)
-  (maxlist (let ((*odr* (putodr (reverse genvar)))
+  (maxlist-in-place
+   (let ((*odr* (putodr (reverse genvar)))
 		 (nn* (1+ (length genvar)))
 		 (*mx* t))
 	     (degvector nil 1 p))))
 
-(defun maxlist(l) (maxminl l t))
+(macrolet
+  ((defun-maxminl (do-max in-place)
+    "Defines the function (MAX|MIN)LIST(-IN-PLACE)?"
+    (let ((fun-name (intern (concatenate 'string (if do-max "MAX" "MIN") "LIST"
+                                                 (if in-place "-IN-PLACE"))))
+          (op (if do-max '> '<)))
+      `(defun ,fun-name (l)
+         ,(format nil
+"For L, a list of lists of REALs with the same length N,
+L = ((A_1 ... A_N) (B_1 ... B_N) (C_1 ... C_N) ...), returns a list
+((~A A_1 B_1 C_1 ...) (~:*~A A_2 B_2 C_2 ...) ... (~:*~A A_n B_n C_n ...)).~@[~%~A~:*~]"
+            (if do-max "MAX" "MIN")
+            (if in-place "The first sublist is modified to contain the result."))
+         (do ((l1 ,(if in-place '(car l) '(copy-list (car l))))
+              (ll (cdr l) (cdr ll)))
+             ((null ll) l1)
+           (do ((v1 l1 (cdr v1))
+                (v2 (car ll) (cdr v2)))
+               ((null v1))
+             (when (,op (car v2) (car v1))
+               (rplaca v1 (car v2)))))))))
+  (defun-maxminl t nil)
+  (defun-maxminl t t)
+  (defun-maxminl nil nil)
+  (defun-maxminl nil t))
 
-(defun minlist(l) (maxminl l nil))
-
-(defun maxminl (l switch)
-  (do ((l1 (copy-list (car l)))
-       (ll (cdr l) (cdr ll)))
-      ((null ll) l1)
-    (do ((v1 l1 (cdr v1))
-	 (v2 (car ll) (cdr v2)))
-	((null v1))
-      (cond (switch
-	     (cond ((> (car v2) (car v1))
-		    (rplaca v1 (car v2)))))
-	    (t (cond ((< (car v2) (car v1))
-		      (rplaca v1 (car v2)))))))))
-
-(defun quick-sqfr-check (p var)
-  (let ((gv (delete var (listovars p) :test #'equal))
+(defun quick-sqfr-check (p var2)
+  (let ((gv (delete var2 (listovars p) :test #'equal))
 	(modulus (or modulus *alpha))
 	(l) (p0))
     (if $algebraic (setq gv (removealg gv)))
@@ -111,7 +122,7 @@
 	(t (list* (pget (car p)) (cadr p) (monom->facl (caddr p))))))
 
 (defun psqfr (p)
-  (prog (r varl var mult factors)
+  (prog (r varl var2 mult factors)
      (cond ((pcoefp p) (return (cfactor p)))
 	   ((pminusp p) (return (cons -1 (cons 1 (psqfr (pminus p)))))))
      (desetq (factors p) (ptermcont p))
@@ -119,18 +130,18 @@
      (cond ((pcoefp p) (go end)))
      (setq varl (sort (listovars p) 'pointergp))
      setvar
-     (setq var (car varl) varl (cdr varl) mult 0)
-     (cond ((pointergp var (car p)) (go nextvar))
-	   ((dontfactor var)
+     (setq var2 (car varl) varl (cdr varl) mult 0)
+     (cond ((pointergp var2 (car p)) (go nextvar))
+	   ((dontfactor var2)
 	    (setq factors (cons p (cons 1 factors))
 		  p 1)
 	    (go end)))
-     (cond ((quick-sqfr-check p var)	;QUICK SQFR CHECK BY SUBST.
+     (cond ((quick-sqfr-check p var2)	;QUICK SQFR CHECK BY SUBST.
 	    (setq r (oldcontent p))
 	    (setq p (car r) factors (cons (cadr r)
 					  (cons 1 factors)))
 	    (go nextvar)))
-     (setq r (pderivative p var))
+     (setq r (pderivative p var2))
      (cond ((pzerop r) (go nextvar)))
      (cond ((and modulus (not (pcoefp r))) (pmonicize (cdr r))))
      (setq p (pgcdcofacts p r))
@@ -259,14 +270,14 @@
 (defun pnthroot (poly n)
   (cond ((equal n 1) poly)
 	((pcoefp poly) (cnthroot poly n))
-	(t (let* ((var (p-var poly))
-		  (ans (make-poly var (cquotient (p-le poly) n)
+	(t (let* ((var2 (p-var poly))
+		  (ans (make-poly var2 (cquotient (p-le poly) n)
 				  (pnthroot (p-lc poly) n)))
 		  (ae (p-terms (pquotient (pctimes n (leadterm poly)) ans))))
-	     (do ((p (psimp var (p-red poly))
+	     (do ((p (psimp var2 (p-red poly))
 		     (pdifference poly (pexpt ans n))))
 		 ((pzerop p) ans)
-	       (cond ((or (pcoefp p) (not (eq (p-var p) var))
+	       (cond ((or (pcoefp p) (not (eq (p-var p) var2))
 			  (> (car ae) (p-le p)))
                       (rat-error "pnthroot error (should have been caught)")))
 	       (setq ans (nconc ans (ptptquotient (cdr (leadterm p)) ae)))

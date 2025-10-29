@@ -100,21 +100,35 @@ This has the same effect as entering
 @noindent
 The Lisp function @code{displa} prints an expression in Maxima format.
 
-@example
-(%i1) :lisp #$[x, y, z]$ 
+@c ===beg===
+@c :lisp #$[x, y, z]$ 
+@c :lisp (displa '((MLIST SIMP) $X $Y $Z))
+@c ===end===
+@example maxima
+@group
+(%i1) :lisp #$[x, y, z]$
 ((MLIST SIMP) $X $Y $Z)
+@end group
+@group
 (%i1) :lisp (displa '((MLIST SIMP) $X $Y $Z))
 [x, y, z]
 NIL
+@end group
 @end example
 
 Functions defined in Maxima are not ordinary Lisp functions.  The Lisp function
 @code{mfuncall} calls a Maxima function.  For example:
 
-@example
+@c ===beg===
+@c foo(x,y) := x*y$
+@c :lisp (mfuncall '$foo 'a 'b)
+@c ===end===
+@example maxima
 (%i1) foo(x,y) := x*y$
+@group
 (%i2) :lisp (mfuncall '$foo 'a 'b)
 ((MTIMES SIMP) A B)
+@end group
 @end example
 
 Some Lisp functions are shadowed in the Maxima package, namely the following.
@@ -202,19 +216,28 @@ Examples:
 @item
 @code{backtrace ()} prints the entire call stack.
 
-@example
+@c ===beg===
+@c h(x) := g(x/7)$
+@c g(x) := f(x-11)$
+@c f(x) := e(x^2)$
+@c e(x) := (backtrace(), 2*x + 13)$
+@c h(10);
+@c ===end===
+@example maxima
 (%i1) h(x) := g(x/7)$
 (%i2) g(x) := f(x-11)$
 (%i3) f(x) := e(x^2)$
 (%i4) e(x) := (backtrace(), 2*x + 13)$
+@group
 (%i5) h(10);
 #0: e(x=4489/49)
-#1: f(x=-67/7)
+#1: f(x=-(67/7))
 #2: g(x=10/7)
 #3: h(x=10)
                               9615
 (%o5)                         ----
                                49
+@end group
 @end example
 @end itemize
 
@@ -223,19 +246,28 @@ Examples:
 @code{backtrace (@var{n})} prints the @var{n} most recent 
 functions, including the currently active function.
 
-@example
+@c ===beg===
+@c h(x) := (backtrace(1), g(x/7))$
+@c g(x) := (backtrace(1), f(x-11))$
+@c f(x) := (backtrace(1), e(x^2))$
+@c e(x) := (backtrace(1), 2*x + 13)$
+@c h(10);
+@c ===end===
+@example maxima
 (%i1) h(x) := (backtrace(1), g(x/7))$
 (%i2) g(x) := (backtrace(1), f(x-11))$
 (%i3) f(x) := (backtrace(1), e(x^2))$
 (%i4) e(x) := (backtrace(1), 2*x + 13)$
+@group
 (%i5) h(10);
 #0: h(x=10)
 #0: g(x=10/7)
-#0: f(x=-67/7)
+#0: f(x=-(67/7))
 #0: e(x=4489/49)
                               9615
 (%o5)                         ----
                                49
+@end group
 @end example
 @end itemize
 
@@ -339,7 +371,11 @@ variable may be used without affecting the value of a variable with
 the same name outside of the @code{do}.  The control-variable is unbound
 after the @code{do} terminates.
 
-@example
+@c ===beg===
+@c for a:-3 thru 26 step 7 do display(a)$
+@c ===end===
+@example maxima
+@group
 (%i1) for a:-3 thru 26 step 7 do display(a)$
                              a = - 3
 
@@ -350,6 +386,8 @@ after the @code{do} terminates.
                              a = 18
 
                              a = 25
+
+@end group
 @end example
 
 @c ===beg===
@@ -357,12 +395,16 @@ after the @code{do} terminates.
 @c for i: 1 while i <= 10 do s: s+i;
 @c s;
 @c ===end===
-@example
+@example maxima
 (%i1) s: 0$
+@group
 (%i2) for i: 1 while i <= 10 do s: s+i;
 (%o2)                         done
+@end group
+@group
 (%i3) s;
 (%o3)                          55
+@end group
 @end example
 
 Note that the condition @code{while i <= 10}
@@ -376,17 +418,21 @@ is equivalent to @code{unless i > 10} and also @code{thru 10}.
 @c      series: series + subst (x=0, term)*x^p)$
 @c series;
 @c ===end===
-@example
+@example maxima
 (%i1) series: 1$
 (%i2) term: exp (sin (x))$
+@group
 (%i3) for p: 1 unless p > 7 do
-          (term: diff (term, x)/p, 
-           series: series + subst (x=0, term)*x^p)$
+    (term: diff (term, x)/p,
+     series: series + subst (x=0, term)*x^p)$
+@end group
+@group
 (%i4) series;
                   7    6     5    4    2
                  x    x     x    x    x
 (%o4)            -- - --- - -- - -- + -- + x + 1
                  90   240   15   8    2
+@end group
 @end example
 
 which gives 8 terms of the Taylor series for @code{e^sin(x)}.
@@ -402,19 +448,25 @@ which gives 8 terms of the Taylor series for @code{e^sin(x)}.
 @c     (guess: subst (guess, x, 0.5*(x + 10/x)),
 @c     if abs (guess^2 - 10) < 0.00005 then return (guess));
 @c ===end===
-@example
+@example maxima
 (%i1) poly: 0$
+@group
 (%i2) for i: 1 thru 5 do
-          for j: i step -1 thru 1 do
-              poly: poly + i*x^j$
+    for j: i step -1 thru 1 do
+        poly: poly + i*x^j$
+@end group
+@group
 (%i3) poly;
                   5      4       3       2
 (%o3)          5 x  + 9 x  + 12 x  + 14 x  + 15 x
+@end group
 (%i4) guess: -3.0$
+@group
 (%i5) for i: 1 thru 10 do
-          (guess: subst (guess, x, 0.5*(x + 10/x)),
-           if abs (guess^2 - 10) < 0.00005 then return (guess));
+    (guess: subst (guess, x, 0.5*(x + 10/x)),
+    if abs (guess^2 - 10) < 0.00005 then return (guess));
 (%o5)                  - 3.162280701754386
+@end group
 @end example
 
 This example computes the negative square root of 10 using the
@@ -427,13 +479,19 @@ In this case one may use @code{next @var{expression}} instead of
 @code{step @var{increment}}.  This will cause the control-variable to be set to
 the result of evaluating @var{expression} each time through the loop.
 
-@example
-(%i6) for count: 2 next 3*count thru 20 do display (count)$
+@c ===beg===
+@c for count: 2 next 3*count thru 20 do display (count)$
+@c ===end===
+@example maxima
+@group
+(%i1) for count: 2 next 3*count thru 20 do display (count)$
                             count = 2
 
                             count = 6
 
                            count = 18
+
+@end group
 @end example
 
 @c UGH. DO WE REALLY NEED TO MENTION THIS??
@@ -456,13 +514,17 @@ square-root of 5 using a poor initial guess.
 @c x;
 @c sqrt(5), numer;
 @c ===end===
-@example
+@example maxima
 (%i1) x: 1000$
 (%i2) thru 20 do x: 0.5*(x + 5.0/x)$
+@group
 (%i3) x;
 (%o3)                   2.23606797749979
+@end group
+@group
 (%i4) sqrt(5), numer;
 (%o4)                   2.23606797749979
+@end group
 @end example
 
 If it is desired one may even omit the termination conditions entirely
@@ -477,13 +539,19 @@ should be used to terminate execution of the @code{do}.
 @c sqr (x) := x^2 - 5.0$
 @c newton (sqr, 1000);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) newton (f, x):= ([y, df, dfx], df: diff (f ('x), 'x),
-          do (y: ev(df), x: x - f(x)/y, 
-              if abs (f (x)) < 5e-6 then return (x)))$
+    do (y: ev(df), x: x - f(x)/y,
+        if abs (f (x)) < 5e-6 then return (x)))$
+warning: parser: I'll let it stand, but (...) doesn't recognize local variables.
+warning: parser: did you mean to say: block([y, df, dfx], ...) ?
+@end group
 (%i2) sqr (x) := x^2 - 5.0$
+@group
 (%i3) newton (sqr, 1000);
-(%o3)                   2.236068027062195
+(%o3)                  2.2360680270621947
+@end group
 @end example
 
 @c DUNNO IF WE NEED THIS LEVEL OF DETAIL; THIS ARTICLE IS GETTING PRETTY LONG
@@ -506,15 +574,26 @@ terminate when the @var{list} is exhausted or when a @code{return} is
 executed in the @var{body}.  (In fact, @code{list} may be any
 non-atomic expression, and successive parts are taken.)
 
-@example
-(%i1)  for f in [log, rho, atan] do ldisp(f(1))$
-(%t1)                                  0
-(%t2)                                rho(1)
-                                     %pi
-(%t3)                                 ---
-                                      4
+@c ===beg===
+@c for f in [log, rho, atan] do ldisp(f(1))$
+@c ev(%t3,numer);
+@c ===end===
+@example maxima
+@group
+(%i1) for f in [log, rho, atan] do ldisp(f(1))$
+(%t1)                           0
+
+(%t2)                        rho(1)
+
+                               %pi
+(%t3)                          ---
+                                4
+
+@end group
+@group
 (%i4) ev(%t3,numer);
-(%o4)                             0.78539816
+(%o4)                  0.7853981633974483
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -607,23 +686,21 @@ Example:
 
 The size of @code{U}, as determined by @code{ERROR-SIZE}, is 24.
 
-@example
+@example maxima
 (%i1) U: (C^D^E + B + A)/(cos(X-1) + 1)$
-
 (%i2) error_size: 20$
-
 (%i3) error ("Example expression is", U);
-
 Example expression is errexp1
- -- an error.  Quitting.  To debug this try debugmode(true);
+ -- an error. To debug this try: debugmode(true);
+@group
 (%i4) errexp1;
                             E
                            D
                           C   + B + A
 (%o4)                    --------------
                          cos(X - 1) + 1
+@end group
 (%i5) error_size: 30$
-
 (%i6) error ("Example expression is", U);
 
                          E
@@ -691,24 +768,20 @@ value.  The global value of @code{errormsg} is always present.
 @c errormsg: false;
 @c sin(a,b);
 @c ===end===
-@example
+sin(y): expected exactly 1 arguments but got 2: [a, b]
+ -- an error. To debug this try: debugmode(true);
+ -- an error. To debug this try: debugmode(true);
+@example maxima
 @group
 (%i1) errormsg;
 (%o1)                         true
 @end group
-@group
 (%i2) sin(a,b);
-sin: wrong number of arguments.
- -- an error. To debug this try: debugmode(true);
-@end group
 @group
 (%i3) errormsg: false;
 (%o3)                         false
 @end group
-@group
 (%i4) sin(a,b);
- -- an error. To debug this try: debugmode(true);
-@end group
 @end example
 
 The option variable @code{errormsg} can not be set in a block to a local value.
@@ -721,17 +794,19 @@ The option variable @code{errormsg} can not be set in a block to a local value.
 @c errormsg:false;
 @c f(true);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) f(bool):=block([errormsg:bool],
                      print ("value of errormsg is",errormsg))$
+@end group
 @group
 (%i2) errormsg:true;
 (%o2)                         true
 @end group
 @group
 (%i3) f(false);
-value of errormsg is true 
-(%o3)                         true
+value of errormsg is false 
+(%o3)                         false
 @end group
 @group
 (%i4) errormsg:false;
@@ -739,8 +814,8 @@ value of errormsg is true
 @end group
 @group
 (%i5) f(true);
-value of errormsg is false 
-(%o5)                         false
+value of errormsg is true 
+(%o5)                         true
 @end group
 @end example
 
@@ -881,22 +956,28 @@ See also @mrefcomma{scanmap} @mrefcomma{maplist} @mrefcomma{outermap} @mref{matr
 @c map(ratsimp, x/(x^2+x)+(y^2+y)/y);
 @c map("=",[a,b],[-0.5,3]);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) map(f,x+a*y+b*z);
-(%o1)                        f(b z) + f(a y) + f(x)
+(%o1)                f(b z) + f(a y) + f(x)
+@end group
+@group
 (%i2) map(lambda([u],partfrac(u,x)),x+1/(x^3+4*x^2+5*x+2));
-                           1       1        1
-(%o2)                     ----- - ----- + -------- + x
-                         x + 2   x + 1          2
-                                         (x + 1)
+                    1       1        1
+(%o2)             ----- - ----- + -------- + x
+                  x + 2   x + 1          2
+                                  (x + 1)
+@end group
+@group
 (%i3) map(ratsimp, x/(x^2+x)+(y^2+y)/y);
-                                      1
-(%o3)                            y + ----- + 1
-                                    x + 1
+                                1
+(%o3)                     y + ----- + 1
+                              x + 1
+@end group
+@group
 (%i4) map("=",[a,b],[-0.5,3]);
-(%o4)                          [a = - 0.5, b = 3]
-
-
+(%o4)                  [a = - 0.5, b = 3]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1037,7 +1118,7 @@ statement from C.
 @c     return(10)
 @c  );
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) for i:1 thru 10 do o:i;
 (%o1)                         done
@@ -1057,6 +1138,7 @@ statement from C.
     );
 (%o3)                           8
 @end group
+@group
 (%i4) block([i],
     i:4,
     block([o],
@@ -1067,6 +1149,7 @@ statement from C.
     return(10)
  );
 (%o4)                           4
+@end group
 @end example
 
 
@@ -1082,16 +1165,23 @@ See also @mrefcomma{for} @mrefcomma{while} @mref{do} and @mref{block}.
 @deffn {Function} scanmap @
 @fname{scanmap} (@var{f}, @var{expr}) @
 @fname{scanmap} (@var{f}, @var{expr}, bottomup)
+@fname{scanmap} (@var{f}, @var{expr}, topdown)
 
 Recursively applies @var{f} to @var{expr}, in a top
 down manner.  This is most useful when complete factorization is
 desired, for example:
 
-@example
+@c ===beg===
+@c exp:(a^2+2*a+1)*y + x^2$
+@c scanmap(factor,exp);
+@c ===end===
+@example maxima
 (%i1) exp:(a^2+2*a+1)*y + x^2$
+@group
 (%i2) scanmap(factor,exp);
-                                    2      2
-(%o2)                         (a + 1)  y + x
+                                2      2
+(%o2)                    (a + 1)  y + x
+@end group
 @end example
 
 Note the way in which @code{scanmap} applies the given function
@@ -1100,20 +1190,30 @@ another form of @var{expr} is presented to @code{scanmap} then the
 result may be different.  Thus, @code{%o2} is not recovered when
 @code{scanmap} is applied to the expanded form of @code{exp}:
 
-@example
-(%i3) scanmap(factor,expand(exp));
-                           2                  2
-(%o3)                      a  y + 2 a y + y + x
+@c ===beg===
+@c scanmap(factor,expand(exp));
+@c ===end===
+@example maxima
+@group
+(%i1) scanmap(factor,expand(exp));
+(%o1)                          exp
+@end group
 @end example
 
 Here is another example of the way in which @code{scanmap} recursively
 applies a given function to all subexpressions, including exponents:
 
-@example
-(%i4) expr : u*v^(a*x+b) + c$
-(%i5) scanmap('f, expr);
-                    f(f(f(a) f(x)) + f(b))
-(%o5) f(f(f(u) f(f(v)                      )) + f(c))
+@c ===beg===
+@c expr : u*v^(a*x+b) + c$
+@c scanmap('f, expr);
+@c ===end===
+@example maxima
+(%i1) expr : u*v^(a*x+b) + c$
+@group
+(%i2) scanmap('f, expr);
+                        f(f(f(a) f(x)) + f(b))
+(%o2)    f(f(f(u) f(f(v)                      )) + f(c))
+@end group
 @end example
 
 @code{scanmap (@var{f}, @var{expr}, bottomup)} applies @var{f} to @var{expr} in a
@@ -1129,6 +1229,9 @@ scanmap(f,a*x+b,bottomup) -> f(a)*f(x)+f(b)
 
 In this case, you get the same answer both
 ways.
+
+@code{scanmap (@var{f}, @var{expr}, topdown)} has the same effect as calling
+@code{scanmap (@var{f}, @var{expr})}.
 
 @opencatbox{Categories:}
 @category{Function application}
@@ -1192,7 +1295,7 @@ To show the argument combinations more clearly, @code{F} is left undefined.
 @c outermap (F, [a, b], matrix ([1, 2]), matrix ([x], [y]));
 @c outermap ("+", [a, b, c], [1, 2, 3]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) outermap (F, [a, b, c], [1, 2, 3]);
 (%o1) [[F(a, 1), F(a, 2), F(a, 3)], [F(b, 1), F(b, 2), F(b, 3)], 
@@ -1248,7 +1351,7 @@ and each element of each list is a matrix.
 @c [op (arg_1), op (arg_2), op (arg_3)];
 @c [op (xx_0), op (xx_1), op (xx_2)];
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) arg_1 :  matrix ([a, b], [c, d]);
                             [ a  b ]
@@ -1263,6 +1366,7 @@ and each element of each list is a matrix.
 (%i3) arg_3 : matrix ([xx, yy]);
 (%o3)                      [ xx  yy ]
 @end group
+@group
 (%i4) xx_0 : outermap (lambda ([x, y, z], x / y + z), arg_1,
                                                    arg_2, arg_3);
                [  [      a        a  ]  [      a        a  ]  ]
@@ -1279,6 +1383,7 @@ and each element of each list is a matrix.
                  [  [      d        d  ]  [      d        d  ]  ]
                  [ [[ xx + --  yy + -- ], [ xx + --  yy + -- ]] ]
                  [  [      11       11 ]  [      22       22 ]  ]
+@end group
 @group
 (%i5) xx_1 : xx_0 [1][1];
            [      a        a  ]  [      a        a  ]
@@ -1317,7 +1422,7 @@ while @code{cartesian_product} does not.
 @c                      cartesian_product ({a, b, c}, {1, 2, 3}));
 @c is (equal (%, %th (2)));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) outermap (F, [a, b, c], [1, 2, 3]);
 (%o1) [[F(a, 1), F(a, 2), F(a, 3)], [F(b, 1), F(b, 2), F(b, 3)], 

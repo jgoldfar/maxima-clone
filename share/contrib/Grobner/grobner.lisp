@@ -852,14 +852,14 @@ at the beginning of each monomial."
   (make-poly-from-termlist (termlist-contract (poly-termlist p) k)
 	     (poly-sugar p)))
 
-(declaim (ftype (function (poly &optional sequence)) poly-extend))
+(declaim (ftype (function (poly &optional sequence) poly) poly-extend))
 
 (defun poly-extend (p &optional (m (make-monom 1 :initial-element 0)))
   (make-poly-from-termlist
    (termlist-extend (poly-termlist p) m)
    (+ (poly-sugar p) (monom-sugar m))))
 
-(declaim (ftype (function (poly fixnum)) poly-add-variables))
+(declaim (ftype (function (poly fixnum) list) poly-add-variables))
 
 (defun poly-add-variables (p k)
   (setf (poly-termlist p) (termlist-add-variables (poly-termlist p) k))

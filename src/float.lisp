@@ -588,19 +588,10 @@
 		     (rplaca y (* -1 (car y))))
 		    (t (fpration1 x))))
     (when $ratprint
-      (princ "`rat' replaced ")
-      (when sign (princ "-"))
-      (princ (maknam (fpformat (cons (car x) (fpabs (cdr x))))))
-      (princ " by ")
-      (princ (car exp))
-      (write-char #\/)
-      (princ (cdr exp))
-      (princ " = ")
-      (setq x ($bfloat (list '(rat simp) (car exp) (cdr exp))))
-      (when sign (princ "-"))
-      (princ (maknam (fpformat (cons (car x) (fpabs (cdr x))))))
-      (terpri)
-      (finish-output))
+      (let ((sign-str (if sign "-" "")))
+        (mtell (intl:gettext "~&rat: replaced ~A~A by") sign-str (maknam (fpformat (cons (car x) (fpabs (cdr x))))))
+        (setq x ($bfloat (list '(rat simp) (car exp) (cdr exp))))
+        (mtell " ~A/~A = ~A~A~%" (car exp) (cdr exp) sign-str (maknam (fpformat (cons (car x) (fpabs (cdr x))))))))
     exp))
 
 (defun fpration1 (x)
@@ -642,9 +633,16 @@
 (defun extreme-float-values (x)
   ;; BLECHH, I HATE ENUMERATING CASES. IS THERE A BETTER WAY ??
   (typecase x ;gcl returns an atomic list type with type-of
+    ;; The main purpose of the #+ read-time conditionals is to prevent
+    ;; compiler warnings on Lisp implementations that don't have distinct types
+    ;; for all floating point types defined by Common Lisp.
+;;    #+has-distinct-short-float
     (short-float (values most-negative-short-float most-positive-short-float))
+;;    #+has-distinct-single-float
     (single-float (values most-negative-single-float most-positive-single-float))
+;;    #+has-distinct-double-float
     (double-float (values most-negative-double-float most-positive-double-float))
+;;    #+has-distinct-long-float
     (long-float (values most-negative-long-float most-positive-long-float))
     ;; NOT SURE THE FOLLOWING REALLY WORKS
     ;; #+(and cmu double-double)
@@ -714,8 +712,18 @@
 ;; always be a positive power of 2, this number will not always be in lowest
 ;; terms.
 
+(defvar *bfloat-header* nil
+  "Current header ('BIGFLOAT 'SIMP FPPREC) for new bigfloats")
+
+(defvar *bfloat-header-prec* nil
+  "Precision of current bigfloat header")
+
 (defun bcons (s)
-  `((bigfloat simp ,fpprec) . ,s))
+  (unless (eql fpprec *bfloat-header-prec*)
+    ;; Precision was changed, make a new header.
+    (setq *bfloat-header* `(bigfloat simp ,fpprec)
+          *bfloat-header-prec* fpprec))
+  (cons *bfloat-header* s))
 
 (defmfun ($bfloat :properties ((evfun t))) (x)
   (let (y)
@@ -747,7 +755,21 @@
 		      (setq y ($bfloat (logarc (caar x) y)))
 		      (if (free y '$%i)
 			  y (let ($ratprint) (fparcsimp ($rectform y)))))
-		     ((member (caar x) '(%cot %sec %csc) :test #'eq)
+                     ((eq (caar x) '%sec)
+                      ;; sec(x) = 1/cos(x).  Note that cos(x) /= 0 for
+                      ;; any bfloat value of x, so we should never
+                      ;; divide by zero.
+                      (invertbigfloat
+		       ($bfloat (list (ncons (safe-get (caar x) 'recip)) y))))
+		     ((member (caar x) '(%cot %csc) :test #'eq)
+                      ;; cot(x) = 1/tan(x) and csc(x) = 1/sin(x)
+                      ;;
+                      ;; But x = 0 is not in the domain, so check for
+                      ;; that and signal a domain error if so.  There
+                      ;; are no other bfloat values where tan(x) or
+                      ;; sin(x) is zero.
+                      (when (equal (second x) bigfloatzero)
+                        (domain-error (second x) (caar x)))
 		      (invertbigfloat
 		       ($bfloat (list (ncons (safe-get (caar x) 'recip)) y))))
 		     (t ($bfloat (exponentialize (caar x) y))))
@@ -2369,47 +2391,49 @@
 (defun complex-atanh (x y)
   (let* ((fpx (cdr (bigfloatp x)))
 	 (fpy (cdr (bigfloatp y)))
+     (fp1 (fpone))
+     (fp4 (intofp 4))
 	 (beta (if (minusp (car fpx))
-		   (fpminus (fpone))
-		   (fpone)))
-         (x-lt-minus-1 (mevalp `((mlessp) ,x -1)))
-         (x-gt-plus-1 (mevalp `((mgreaterp) ,x 1)))
-         (y-equals-0 (like y '((bigfloat) 0 0)))
+		   (fpminus fp1)
+		   fp1))
+         (y-equals-0 (zerop (car fpy)))
 	 (x (fptimes* beta fpx))
 	 (y (fptimes* beta (fpminus fpy)))
 	 ;; Kahan has rho = 4/most-positive-float.  What should we do
 	 ;; here about that?  Our big floats don't really have a
 	 ;; most-positive float value.
-	 (rho (intofp 0))
-	 (t1 (fpplus (fpabs y) rho))
-	 (t1^2 (fptimes* t1 t1))
-	 (1-x (fpdifference (fpone) x))
+	 ;(rho (intofp 0))
+	 ;(t1 (fpplus (fpabs y) rho))
+	 ;(t1^2 (fptimes* t1 t1))
+     (t1^2 (fptimes* y y))
+	 (1-x (fpdifference fp1 x))
+
 	 ;; eta = log(1+4*x/((1-x)^2+y^2))/4
 	 (eta (fpquotient
-	       (fplog1p (fpquotient (fptimes* (intofp 4) x)
+	       (fplog1p (fpquotient (fptimes* fp4 x)
 				    (fpplus (fptimes* 1-x 1-x)
 					    t1^2)))
-	       (intofp 4)))
+	       fp4))
          ;; If y = 0, then Im atanh z = %pi/2 or -%pi/2 or 0 depending
          ;; on whether x > 1, x < -1 or |x| <=1, respectively.
          ;;
 	 ;; Otherwise nu = 1/2*atan2(2*y,(1-x)*(1+x)-y^2)
 	 (nu (if y-equals-0
-	         ;; Extra fpminus here to counteract fpminus in return
-	         ;; value because we don't support signed zeroes.
-	         (fpminus (if x-lt-minus-1
-			      (cdr ($bfloat '((mquotient) $%pi 2)))
+           (let* ((x-gt-plus-1 (minusp (car 1-x)))
+                  (x-lt-minus-1 (if x-gt-plus-1 nil (minusp (car (fpplus fpx fp1)))))
+                  (fppi-val (fppi)))
+
+	         (if x-lt-minus-1
+			      (fptimes* fppi-val (cdr bfhalf))
 			      (if x-gt-plus-1
-			          (cdr ($bfloat '((mminus) ((mquotient) $%pi 2))))
+			          (fptimes* fppi-val (cdr bfmhalf))
 			          '(0 0))))
-	         (fptimes* (cdr bfhalf)
+	         (fptimes* (cdr bfmhalf)
 		           (fpatan2 (fptimes* (intofp 2) y)
-				    (fpdifference (fptimes* 1-x (fpplus (fpone) x))
+				    (fpdifference (fptimes* 1-x (fpplus fp1 x))
 					          t1^2))))))
     (values (bcons (fptimes* beta eta))
-	    ;; Minus sign here because Kahan's algorithm assumed
-	    ;; signed zeroes, which we don't have in maxima.
-	    (bcons (fpminus (fptimes* beta nu))))))
+	    (bcons (fptimes* beta nu)))))
 
 (defun big-float-atanh (x &optional y)
   (if y

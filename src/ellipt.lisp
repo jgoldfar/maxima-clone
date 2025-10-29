@@ -2271,8 +2271,8 @@ first kind:
 ;; elliptic_pi(n,m)
 ;;   = Rf(0, 1-m,1) + Rj(0,1-m,1-n)*n/3;
 (defun elliptic-pi-complete (n m)
-  (to (bigfloat:+ (bigfloat::bf-rf 0 (- 1 m) 1)
-	 (bigfloat:* 1/3 n (bigfloat::bf-rj 0 (- 1 m) 1 (- 1 n))))))
+  (bigfloat:+ (bigfloat::bf-rf 0 (- 1 m) 1)
+	      (bigfloat:* 1/3 n (bigfloat::bf-rj 0 (- 1 m) 1 (- 1 n)))))
 
 ;; To compute elliptic_pi for all z, we use the property
 ;; (http://functions.wolfram.com/08.06.16.0002.01)
@@ -2447,8 +2447,8 @@ first kind:
 	     ;; ratsimp(%),algebraic;
 	     ;;   = log(sqrt(2)+1)
 	     (ftake '%log (add 1 (power 2 1//2))))
-	    ((and (alike x '$%i)
-		  (alike y (add 1 '$%i)))
+	    ((and (eq x '$%i)
+		  (alike1 y (add 1 '$%i)))
 	     ;; rc(%i, %i+1) = 1/2*integrate(1/sqrt(t+%i)/(t+%i+1), t, 0, inf)
 	     ;;   = %pi/2-atan((-1)^(1/4))
 	     ;; ratsimp(logcontract(ratsimp(rectform(%o42)))),algebraic;
@@ -2462,7 +2462,7 @@ first kind:
 		       1//2
 		       (ftake '%log (sub (power 2 1//2) 1)))))
 	    ((and (zerop1 x)
-		  (alike1 y '$%i))
+		  (eq y '$%i))
 	     ;; rc(0,%i) = 1/2*integrate(1/(sqrt(t)*(t+%i)), t, 0, inf)
 	     ;;   = -((sqrt(2)*%i-sqrt(2))*%pi)/4
 	     ;;   = ((1-%i)*%pi)/2^(3/2)
@@ -2619,7 +2619,7 @@ first kind:
 	    ((some #'(lambda (args)
 		       (destructuring-bind (x y z)
 			   args
-			 (and (alike1 x '$%i)
+			 (and (eq x '$%i)
 			      (alike1 y (mul -1 '$%i))
 			      (eql z 0))))
 		   (list (list x y z)
@@ -2658,7 +2658,7 @@ first kind:
 	    ((some #'(lambda (args)
 		       (destructuring-bind (x y z)
 			   args
-			 (and (alike1 x '$%i)
+			 (and (eq x '$%i)
 			      (alike1 y (mul -1 '$%i))
 			      (eql z 0))))
 		   (list (list x y z)

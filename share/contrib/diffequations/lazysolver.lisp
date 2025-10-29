@@ -70,7 +70,7 @@
 	       ($length eqs) ($length vars)))
 
     (setq sol (cdr ($algsys eqs vars)))
-    (setq sol (sort sol #'(lambda (a b) (< (my-expr-size a) (my-expr-size b)))))
+    (setq sol (stable-sort sol #'(lambda (a b) (< (my-expr-size a) (my-expr-size b)))))
     (dolist (si sol)
       (if ($checksolution si eqs nz) (return si)))))
 

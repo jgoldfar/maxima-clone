@@ -1,4 +1,3 @@
-@c Time-stamp: "2024-03-07 12:17:14 villate"
 @menu
 * Introduction to Plotting::
 * Plotting Formats::
@@ -21,35 +20,47 @@ that graphic program. In some cases those commands and data are saved in
 a file and the graphic program is executed giving it the name of that
 file to be parsed.
 
-When a file is created, it will begiven the name
-@code{maxout_xxx.format}, where @code{xxx} is a number that is unique to
-every concurrently-running instance of Maxima and @code{format} is the
-name of the plotting format being used (@code{gnuplot}, @code{xmaxima},
-@code{mgnuplot} or @code{geomview}).
+If the format used is either @code{gnuplot}, @code{xmaxima} or
+@code{geomview}, the commands used to create the plot are placed in a
+file named @code{random-string.format}, where @code{random-string} is a
+16-character random string and @code{format} is the name of the plotting
+format being used (@code{gnuplot}, @code{xmaxima} or
+@code{geomview}). That file is then saved in the temporary directory and
+should be deleted after the maxima session ends.
+
+The temporary directory is specified by the system variable
+@mrefdot{maxima_tempdir} That location can be changed by changing the
+value of that variable (or using the environment variable
+@env{MAXIMA_TEMPDIR}). Its value must be a string that represents a
+valid directory where Maxima can create new files. In the case of the
+@code{gnuplot} format, option @mref{gnuplot_out_file} can be used to
+change the default name @code{random-string.gnuplot} for the output
+file. If the name given includes a directory name, it will saved in that
+directory instead of in the temporary directory, and it will not be
+removed after the Maxima session ends. For example, the
+plotting option:
+@example
+[gnuplot_out_file, "./my_gnuplotfile.txt"]
+@end example
+will save the commands to produce the plot in a file
+@code{my_gnuplotfile.txt} in the current directory.
 
 There are commands to save the plot in a graphic format file, rather
 than showing it in the screen. The default name for that graphic file is
-@code{maxplot.extension}, where @code{extension} is the extension
+@code{random-string.extension}, where @code{extension} is the extension
 normally used for the kind of graphic file selected, but that name can
 also be specified by the user.
 
-The @code{maxout_xxx.format} and @code{maxplot.extension} files are created
-in the directory specified by the system variable
-@mrefdot{maxima_tempdir} That location can be changed by assigning to
-that variable (or to the environment variable @env{MAXIMA_TEMPDIR}) a string
-that represents a valid directory where Maxima can create new files. The
-output of the Maxima plotting command will be a list with the names of
-the file(s) created, including their complete path, or empty if no files
-are created. Those files should be deleted after the maxima session ends.
-
-If the format used is either @code{gnuplot} or @code{xmaxima}, and the
-@code{maxout_xxx.gnuplot} or @code{maxout_xxx.xmaxima} was saved,
-@code{gnuplot} or @code{xmaxima} can be run, giving it the name of that
-file as argument, in order to view again a plot previously created in
-Maxima. Thus, when a Maxima plotting command fails, the format can be
-set to @code{gnuplot} or @code{xmaxima} and the plain-text file
-@code{maxout_xxx.gnuplot} (or @code{maxout_xxx.xmaxima}) can be
-inspected to look for the source of the problem.
+When a plotting command fails the file where the plotting commands were
+saved can be inspected to diagnose the problem. Since the
+@code{gnuplot_pipes} format does not create any file, if a plotting
+command fails while using that format it is recommended to repeat the
+same plotting command adding the @mref{gnuplot} option and ending the
+command with semicolon. That way, you can see the name of the file where
+the commands sent to Gnuplot were saved, which can be inspected to
+diagnose the problem (before it is deleted when the Maxima session ends
+or use @mref{gnuplot_out_file} as explained above to create a permanent
+file):
 
 The additional package @ref{draw} provides functions similar to the ones
 described in this section with some extra features, but it only works
@@ -87,8 +98,9 @@ The plotting formats are the following:
 @strong{gnuplot}
 
 Used to launch the external program gnuplot, which must be installed in
-your system.  All plotting commands and data are saved into the file
-@code{maxout_xxx.gnuplot}.
+your system.  All plotting commands and data are saved into a file
+@code{random-string.gnuplot} in the temporary directory, where
+@code{random-string} is a 16-character random string.
 
 @item
 @strong{gnuplot_pipes} (default value)
@@ -104,18 +116,18 @@ function @mref{gnuplot_replot} can be used to modify a plot that has
 already been displayed on the screen or to open again the graphic window
 after it was closed.
 
-This format does not work with some versions of Lisp under Windows and
-it is only used to plot to the screen; whenever graphic files are to be
-created, the format is silently switched to @code{gnuplot} and the
-commands needed to create the graphic file are saved with the data in
-file @code{maxout_xxx.gnuplot}.
+This format is only used to plot to the screen; whenever graphic files are
+to be created, the format is silently switched to @code{gnuplot} and the
+commands needed to create the graphic file are saved with the data into a
+file @code{random-string.gnuplot} in the temporary directory, where
+@code{random-string} is a 16-character random string.
 
 @item
 @strong{mgnuplot}
 
 Mgnuplot is a Tk-based wrapper around gnuplot. It is an old interface
 still included in the Maxima distribution, but it is currently disabled
-because it does not have most of the features introduced by the newer
+because it does not have most of the features introduced by recent
 versions of the plotting commands. Mgnuplot requires an external gnuplot
 installation and, in Unix systems, the Tcl/Tk system.
 
@@ -131,8 +143,10 @@ other parts of Maxima. If Maxima is being run from the Xmaxima console,
 the data and commands are passed to xmaxima through the same socket used
 for the communication between Maxima and the Xmaxima console. When used
 from a terminal or from graphical interfaces different from Xmaxima, the
-commands and data are saved in the file @code{maxout_xxx.xmaxima} and
-xmaxima is run with the name of that file as argument.
+commands and data are saved in a file @code{random-string.xmaxima} in
+the temporary directory, where @code{random-string} is a 16-character
+random string. The program xmaxima is run with the name of that file as
+argument.
 
 @item
 @strong{geomview}
@@ -165,9 +179,13 @@ you may change the value of this variable. For instance,
 @c ===beg===
 @c geomview_command: "/usr/local/bin/my_geomview"$
 @c ===end===
-@example
+@example maxima
 (%i1) geomview_command: "/usr/local/bin/my_geomview"$
 @end example
+
+This variable must contain a string.
+
+See also @mref{gnuplot_command} and @mrefdot{xmaxima_plot_command}
 
 @opencatbox{Categories:}
 @category{Plotting}
@@ -201,9 +219,13 @@ variable. For instance,
 @c ===beg===
 @c gnuplot_command: "/usr/local/bin/my_gnuplot"$
 @c ===end===
-@example
+@example maxima
 (%i1) gnuplot_command: "/usr/local/bin/my_gnuplot"$
 @end example
+
+This variable must contain a string.
+
+See also @mref{geomview_command} and @mrefdot{xmaxima_plot_command}
 
 @opencatbox{Categories:}
 @category{Plotting}
@@ -237,7 +259,7 @@ passed to the gnuplot program when the plot format is
 @code{gnuplot}. Its default value is "-persist ~a" when SBCL or Openmcl
 are used, and "-persist ~s" with other Lisp variants, where "~a" or "~s"
 will be replaced with the name of the file where the gnuplot commands
-have been written (usually "maxout_xxx.gnuplot"). The option
+have been written (usually "random-string.gnuplot"). The option
 @code{-persist} tells gnuplot to exit after the commands in the file
 have been executed, without closing the window that displays the plot.
 
@@ -247,7 +269,7 @@ variable. For example, by changing it to:
 @c ===beg===
 @c gnuplot_view_args: "~s -"$
 @c ===end===
-@example
+@example maxima
 (%i1) gnuplot_view_args: "~s -"$
 @end example
 
@@ -303,16 +325,15 @@ corresponding the maximum 36 iterations would not be black.
 @c julia (-0.55, 0.6, [iterations, 36], [x, -0.3, 0.2],
 @c   [y, 0.3, 0.9], [grid, 400, 400], [color_bar_tics, 0, 6, 36])$
 @c ===end===
-@example
+Warning: line 394 - example input lines must begin with '@c '.
+@example maxima
 @group
 (%i1) julia (-0.55, 0.6, [iterations, 36], [x, -0.3, 0.2],
-      [y, 0.3, 0.9], [grid, 400, 400], [color_bar_tics, 0, 6, 36])$
+  [y, 0.3, 0.9], [grid, 400, 400], [color_bar_tics, 0, 6, 36])$
 @end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting4,8cm}
-@end ifnotinfo
+@altfigure{plotting4,Example of julia command's output}
 
 @opencatbox{Categories:}
 @category{Package dynamics}
@@ -373,14 +394,14 @@ Example:
 @c mandelbrot ([iterations, 30], [x, -2, 1], [y, -1.2, 1.2],
             [grid,400,400])$
 @c ===end===
-@example
+incorrect syntax: end of file while scanning expression.
+
+ ^
+@example maxima
 (%i1) mandelbrot ([iterations, 30], [x, -2, 1], [y, -1.2, 1.2],
-            [grid,400,400])$
 @end example
 
-@ifnotinfo
-@image{figures/plotting5,8cm}
-@end ifnotinfo
+@altfigure{plotting5,Example of mandelbrot command's output}
 
 @opencatbox{Categories:}
 @category{Package dynamics}
@@ -501,26 +522,22 @@ function names.
 @c ===beg===
 @c plot2d (sin(x), [x, -%pi, %pi])$
 @c ===end===
-@example
+@example maxima
 (%i1) plot2d (sin(x), [x, -%pi, %pi])$
 @end example
 
-@ifnotinfo
-@image{figures/plotting6,8cm}
-@end ifnotinfo
+@altfigure{plotting6,Plot of an explicit function}
 
 @item Implicit function.
 
 @c ===beg===
 @c plot2d (x^2-y^3+3*y=2, [x,-2.5,2.5], [y,-2.5,2.5])$
 @c ===end===
-@example
+@example maxima
 (%i1) plot2d (x^2-y^3+3*y=2, [x,-2.5,2.5], [y,-2.5,2.5])$
 @end example
 
-@ifnotinfo
-@image{figures/plotting3,8cm}
-@end ifnotinfo
+@altfigure{plotting3,Plot of an implicit function}
 
 @item Parametric function.
 
@@ -528,14 +545,12 @@ function names.
 @c r: (exp(cos(t))-2*cos(4*t)-sin(t/12)^5)$
 @c plot2d([parametric, r*sin(t), r*cos(t), [t,-8*%pi,8*%pi]])$
 @c ===end===
-@example
+@example maxima
 (%i1) r: (exp(cos(t))-2*cos(4*t)-sin(t/12)^5)$
 (%i2) plot2d([parametric, r*sin(t), r*cos(t), [t,-8*%pi,8*%pi]])$
 @end example
 
-@ifnotinfo
-@image{figures/plotting11,8cm}
-@end ifnotinfo
+@altfigure{plotting11,Plot of a parametric function}
 
 @item Set of points.
 
@@ -543,27 +558,25 @@ function names.
 @c plot2d ([discrete, makelist(i*%pi, i, 1, 5),
 @c                            [0.6, 0.9, 0.2, 1.3, 1]])$
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) plot2d ([discrete, makelist(i*%pi, i, 1, 5),
-                            [0.6, 0.9, 0.2, 1.3, 1]])$
+                           [0.6, 0.9, 0.2, 1.3, 1]])$
+@end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting14,8cm}
-@end ifnotinfo
+@altfigure{plotting14,Plot of a set of points}
 
 @item Contour lines.
 
 @c ===beg===
 @c plot2d ([contour, u^3 + v^2], [u, -4, 4], [v, -4, 4])$
 @c ===end===
-@example
+@example maxima
 (%i1) plot2d ([contour, u^3 + v^2], [u, -4, 4], [v, -4, 4])$
 @end example
 
-@ifnotinfo
-@image{figures/plotting2,8cm}
-@end ifnotinfo
+@altfigure{plotting2,Contour plot}
 
 @end enumerate
 
@@ -575,13 +588,14 @@ to limit the values in the vertical axis:
 @c ===beg===
 @c plot2d (sec(x), [x, -2, 2], [y, -20, 20])$
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) plot2d (sec(x), [x, -2, 2], [y, -20, 20])$
+plot2d: some values will be clipped.
+@end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting7,8cm}
-@end ifnotinfo
+@altfigure{plotting7,Example of the use of the y plotting option}
 
 When the plot box is disabled, no labels are created for the axes. In
 that case, instead of using @mref{xlabel} and @mref{ylabel} to set the
@@ -596,29 +610,27 @@ fill a square.
 @c      [ytics, 2, 2, 6], [label, ["x", 2.9, -0.3],
 @c      ["x^2-1", 0.1, 8]], [title, "A parabola"])$
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) plot2d ( x^2 - 1, [x, -3, 3], nobox, grid2d,
-      [yx_ratio, 1], [axes, solid], [xtics, -2, 4, 2],
-      [ytics, 2, 2, 6], [label, ["x", 2.9, -0.3],
-      ["x^2-1", 0.1, 8]], [title, "A parabola"])$
+     [yx_ratio, 1], [axes, solid], [xtics, -2, 4, 2],
+     [ytics, 2, 2, 6], [label, ["x", 2.9, -0.3],
+     ["x^2-1", 0.1, 8]], [title, "A parabola"])$
+@end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting8,8cm}
-@end ifnotinfo
+@altfigure{plotting8,Plot with axes instead of a box}
 
 A plot with a logarithmic scale in the vertical axis:
 
 @c ===beg===
 @c plot2d (exp(3*s), [s, -2, 2], logy)$
 @c ===end===
-@example
+@example maxima
 (%i1) plot2d (exp(3*s), [s, -2, 2], logy)$
 @end example
 
-@ifnotinfo
-@image{figures/plotting9,8cm}
-@end ifnotinfo
+@altfigure{plotting9,Logarithmic plot}
 
 Plotting functions by name:
 
@@ -628,52 +640,48 @@ Plotting functions by name:
 @c H(x) := if x < 0 then x^4 - 1 else 1 - x^5 $
 @c plot2d ([F, G, H], [u, -1, 1], [y, -1.5, 1.5])$
 @c ===end===
-@example
+@example maxima
 (%i1) F(x) := x^2 $
+@group
 (%i2) :lisp (defun |$g| (x) (m* x x x))
 $g
+@end group
 (%i2) H(x) := if x < 0 then x^4 - 1 else 1 - x^5 $
 (%i3) plot2d ([F, G, H], [u, -1, 1], [y, -1.5, 1.5])$
 @end example
 
-@ifnotinfo
-@image{figures/plotting10,8cm}
-@end ifnotinfo
+@altfigure{plotting10,Various ways to specify a function to plot}
 
-Plot of a circle, using its parametric representation, together with the
-function -@code{|@var{x}|}. The circle will only look like a circle if
-the scale in the two axes is the same, which is done with the option
-@mrefdot{same_xy}
+Plot of a circumference of radius 1 centered at the origin, together with the
+function @code{y=-|@var{x}|}. To prevent the circumference to look like an
+ellipse, option @mref{same_xy} is used to scale the two axes at the same
+rate. Option @mref{nolegend} is also used to remove the legend identifying
+the two functions.
 
 @c ===beg===
-@c plot2d([[parametric, cos(t), sin(t), [t,0,2*%pi]], -abs(x)],
-@c          [x, -sqrt(2), sqrt(2)], same_xy)$
+@c plot2d([x^2+y^2=1, -abs(x)], [x, -1.5, 1.5], [y, -2, 2], same_xy,
+@c         nolegend);
 @c ===end===
-@example
+@example maxima
 @group
-(%i1) plot2d([[parametric, cos(t), sin(t), [t,0,2*%pi]], -abs(x)],
-         [x, -sqrt(2), sqrt(2)], same_xy)$
+(%i1) plot2d([x^2+y^2=1, -abs(x)], [x, -1.5, 1.5], [y, -2, 2], same_xy,
+        nolegend);
+(%o1)                         false
 @end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting12,8cm}
-@end ifnotinfo
+@altfigure{plotting12,Plot of a circle using the same scaling for both axes}
 
 A plot of 200 random numbers between 0 and 9:
 
 @c ===beg===
 @c plot2d ([discrete, makelist ( random(10), 200)])$
 @c ===end===
-@example
-@group
+@example maxima
 (%i1) plot2d ([discrete, makelist ( random(10), 200)])$
-@end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting13,8cm}
-@end ifnotinfo
+@altfigure{plotting13,Plot of 200 random points}
 
 In the next example a table with three columns is saved in a file
 ``data.txt'' which is then read and the second and third column are
@@ -687,18 +695,20 @@ plotted on the two axes:
 @c plot2d ([discrete, transpose(data)[2], transpose(data)[3]],
 @c   [style,points], [point_type,diamond], [color,red])$
 @c ===end===
-@example
+@example maxima
 (%i1) display2d:false$
+@group
 (%i2) with_stdout ("data.txt", for x:0 thru 10 do
                              print (x, x^2, x^3))$
+@end group
 (%i3) data: read_matrix ("data.txt")$
+@group
 (%i4) plot2d ([discrete, transpose(data)[2], transpose(data)[3]],
   [style,points], [point_type,diamond], [color,red])$
+@end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting15,8cm}
-@end ifnotinfo
+@altfigure{plotting15,Plot of points read from a file}
 
 A plot of discrete data points together with a continuous function:
 
@@ -711,21 +721,21 @@ A plot of discrete data points together with a continuous function:
 @c         [xlabel, "pendulum's length (cm)"],
 @c         [ylabel, "period (s)"])$
 @c ===end===
-@example
+@example maxima
 (%i1) xy: [[10, .6], [20, .9], [30, 1.1], [40, 1.3], [50, 1.4]]$
+@group
 (%i2) plot2d([[discrete, xy], 2*%pi*sqrt(l/980)], [l,0,50],
         [style, points, lines], [color, red, blue],
         [point_type, asterisk],
         [legend, "experiment", "theory"],
         [xlabel, "pendulum's length (cm)"],
         [ylabel, "period (s)"])$
+@end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting16,8cm}
-@end ifnotinfo
+@altfigure{plotting16,Example plot using several options}
 
-See also the section about Plotting Options.
+See also the @mref{Plotting Options} section.
 
 @opencatbox{Categories:}
 @category{Plotting}
@@ -753,16 +763,14 @@ Plot of a function of two variables:
 @c plot3d (u^2 - v^2, [u, -2, 2], [v, -3, 3], [grid, 100, 100],
 @c         nomesh_lines)$
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) plot3d (u^2 - v^2, [u, -2, 2], [v, -3, 3], [grid, 100, 100],
         nomesh_lines)$
 @end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting17,8cm}
-@end ifnotinfo
+@altfigure{plotting17,Plot of a function of 2 variables}
 
 Use of the @mref{z} option to limit a function that goes to infinity
  (in this case the function is minus infinity on the x and y axes); this also
@@ -772,16 +780,15 @@ shows how to plot with only lines and no shading:
 @c plot3d ( log ( x^2*y^2 ), [x, -2, 2], [y, -2, 2], [z, -8, 4],
 @c          nopalette, [color, magenta])$
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) plot3d ( log ( x^2*y^2 ), [x, -2, 2], [y, -2, 2], [z, -8, 4],
          nopalette, [color, magenta])$
+log: encountered log(0).
 @end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting18,8cm}
-@end ifnotinfo
+@altfigure{plotting18,Example of the use of option z of plot3d}
 
 The infinite values of z can also be avoided by choosing a grid that
 does not fall on any points where the function is undefined, as in the
@@ -794,18 +801,17 @@ include a color bar that relates colors to values of the z variable:
 @c       color_bar, [xtics, 1], [ytics, 1], [ztics, 4],
 @c       [color_bar_tics, 4])$
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) plot3d (log (x^2*y^2), [x, -2, 2], [y, -2, 2],[grid, 29, 29],
-       [palette, [gradient, red, orange, yellow, green]],
-       color_bar, [xtics, 1], [ytics, 1], [ztics, 4],
-       [color_bar_tics, 4])$
+      [palette, [gradient, red, orange, yellow, green]],
+      color_bar, [xtics, 1], [ytics, 1], [ztics, 4],
+      [color_bar_tics, 4])$
+log: encountered log(0).
 @end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting19,8cm}
-@end ifnotinfo
+@altfigure{plotting19,Example using the grid option of plot3d}
 
 Two surfaces in the same plot. Ranges specific to one of the surfaces can
 be given by placing each expression and its ranges in a separate list;
@@ -817,15 +823,16 @@ definitions.
 @c    4*sin(3*(x^2 + y^2))/(x^2 + y^2), [x, -3, 3], [y, -3, 3]],
 @c    [x, -4, 4], [y, -4, 4])$
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) plot3d ([[-3*x - y, [x, -2, 2], [y, -2, 2]],
    4*sin(3*(x^2 + y^2))/(x^2 + y^2), [x, -3, 3], [y, -3, 3]],
    [x, -4, 4], [y, -4, 4])$
+expt: undefined: 0 to a negative exponent.
+@end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting20,8cm}
-@end ifnotinfo
+@altfigure{plotting20,Plot of two functions of two variables}
 
 Plot of a Klein bottle, defined parametrically:
 
@@ -836,17 +843,17 @@ Plot of a Klein bottle, defined parametrically:
 @c plot3d ([expr_1, expr_2, expr_3], [x, -%pi, %pi],
 @c         [y, -%pi, %pi], [grid, 50, 50])$
 @c ===end===
-@example
+@example maxima
 (%i1) expr_1: 5*cos(x)*(cos(x/2)*cos(y)+sin(x/2)*sin(2*y)+3)-10$
 (%i2) expr_2: -5*sin(x)*(cos(x/2)*cos(y)+sin(x/2)*sin(2*y)+3)$
 (%i3) expr_3: 5*(-sin(x/2)*cos(y)+cos(x/2)*sin(2*y))$
+@group
 (%i4) plot3d ([expr_1, expr_2, expr_3], [x, -%pi, %pi],
         [y, -%pi, %pi], [grid, 50, 50])$
+@end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting21,8cm}
-@end ifnotinfo
+@altfigure{plotting21,Plot of a Klein bottle}
 
 Plot of a ``spherical harmonic'' function, using the predefined
 transformation, @code{spherical_to_xyz} to transform from spherical
@@ -857,14 +864,14 @@ coordinates to rectangular coordinates. See the documentation for
 @c plot3d (sin(2*theta)*cos(phi), [theta,0,%pi], [phi,0,2*%pi],
 @c    [transform_xy, spherical_to_xyz], [grid, 30, 60], nolegend)$
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) plot3d (sin(2*theta)*cos(phi), [theta,0,%pi], [phi,0,2*%pi],
-      [transform_xy, spherical_to_xyz], [grid, 30, 60], nolegend)$
+   [transform_xy, spherical_to_xyz], [grid, 30, 60], nolegend)$
+@end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting22,8cm}
-@end ifnotinfo
+@altfigure{plotting22,Plot of a spherical harmonic function}
 
 Use of the pre-defined function @code{polar_to_xy} to transform from
 cylindrical to rectangular coordinates.  See the documentation for
@@ -874,16 +881,14 @@ cylindrical to rectangular coordinates.  See the documentation for
 @c plot3d (r^.33*cos(th/3), [r,0,1], [th,0,6*%pi], nobox,
 @c     nolegend, [grid, 12, 80], [transform_xy, polar_to_xy])$
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) plot3d (r^.33*cos(th/3), [r,0,1], [th,0,6*%pi], nobox,
     nolegend, [grid, 12, 80], [transform_xy, polar_to_xy])$
 @end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting23,8cm}
-@end ifnotinfo
+@altfigure{plotting23,Example using option polar_to_xy of plot3d}
 
 Plot of a sphere using the transformation from spherical to rectangular
 coordinates. Option @mref{same_xyz} is used to get the three axes
@@ -896,7 +901,7 @@ surface correctly.
 @c   [transform_xy, spherical_to_xyz], [mesh_lines_color,blue],
 @c   [palette,[gradient,"#1b1b4e", "#8c8cf8"]])$
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) plot3d ( 5, [theta,0,%pi], [phi,0,2*%pi], same_xyz, nolegend,
   [transform_xy, spherical_to_xyz], [mesh_lines_color,blue],
@@ -904,9 +909,7 @@ surface correctly.
 @end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting24,8cm}
-@end ifnotinfo
+@altfigure{plotting24,Example using option xpherical_to_xyz of plot3d}
 
 Definition of a function of two-variables using a matrix.  Notice the
 single quote in the definition of the function, to prevent @code{plot3d}
@@ -918,15 +921,13 @@ indices.
 @c f(x, y) := float('M [round(x), round(y)])$
 @c plot3d (f(x,y), [x,1,4], [y,1,4], [grid,3,3], nolegend)$
 @c ===end===
-@example
+@example maxima
 (%i1) M: matrix([1,2,3,4], [1,2,3,2], [1,2,3,4], [1,2,3,3])$
 (%i2) f(x, y) := float('M [round(x), round(y)])$
 (%i3) plot3d (f(x,y), [x,1,4], [y,1,4], [grid,3,3], nolegend)$
 @end example
 
-@ifnotinfo
-@image{figures/plotting25,8cm}
-@end ifnotinfo
+@altfigure{plotting25,Plot to represent the values of a matrix in 3D}
 
 By setting the elevation equal to zero, a surface can be seen as a map
 in which each color represents a different level.
@@ -936,7 +937,7 @@ in which each color represents a different level.
 @c        [mesh_lines_color,false], [elevation,0], [azimuth,0],
 @c        color_bar, [grid,80,80], noztics, [color_bar_tics,1])$
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) plot3d (cos (-x^2 + y^3/4), [x,-4,4], [y,-4,4], [zlabel,""],
        [mesh_lines_color,false], [elevation,0], [azimuth,0],
@@ -944,9 +945,7 @@ in which each color represents a different level.
 @end group
 @end example
 
-@ifnotinfo
-@image{figures/plotting26,8cm}
-@end ifnotinfo
+@altfigure{plotting26,2D representation of a surface}
 
 See also @mrefdot{Plotting Options}
 
@@ -959,10 +958,11 @@ See also @mrefdot{Plotting Options}
 @anchor{plot_options}
 @defvr {System variable} plot_options
 
-This option is being kept for compatibility with older versions, but its
-use is deprecated. To set global plotting options, see their current
+This variable is being kept for compatibility with older versions of Wxmaxima,
+but its use is deprecated. To set global plotting options, see their current
 values or remove options, use @mrefcomma{set_plot_option}
-@mref{get_plot_option} and @mrefdot{remove_plot_option}
+@mref{get_plot_option} @mrefcomma{remove_plot_option} and
+@mrefdot{reset_plot_options}
 
 @opencatbox{Categories:}
 @category{Plotting}
@@ -973,7 +973,7 @@ values or remove options, use @mrefcomma{set_plot_option}
 @anchor{remove_plot_option}
 @deffn {Function} remove_plot_option (@var{name})
 
-Removes the default value of an option. The name of the option must be given.
+Removes the global value of an option. The name of the option must be given.
 
 See also @mrefcomma{set_plot_option} @mref{get_plot_option} and
 @mref{Plotting Options}.
@@ -983,11 +983,23 @@ See also @mrefcomma{set_plot_option} @mref{get_plot_option} and
 @closecatbox
 @end deffn
 @c -----------------------------------------------------------------------------
+@anchor{reset_plot_options}
+@deffn {Function} reset_plot_options ()
+
+Sets the default global values of the plotting options. After changing
+the global values of some plotting options, this function is used to
+recovered the same values as when Maxima was started.
+
+@opencatbox{Categories:}
+@category{Plotting}
+@closecatbox
+@end deffn
+@c -----------------------------------------------------------------------------
 @anchor{set_plot_option}
 @deffn {Function} set_plot_option (@var{option})
 
-Accepts any of the options listed in the section Plotting Options, and
-saves them for use in plotting commands. The values of the options set
+Accepts any of the options listed in the section @mrefcomma{Plotting Options}
+and saves them for use in plotting commands. The values of the options set
 in each plotting command will have precedence, but if those options are
 not given, the default values set with this function will be used.
 
@@ -996,7 +1008,7 @@ list of options (after modifying the option given). If called without
 any arguments, it will simply show the list of current default options.
 
 See also @mrefcomma{remove_plot_option} @mref{get_plot_option} and the section
-on Plotting Options.
+on @mrefdot{Plotting Options}
 
 Example:
 
@@ -1005,15 +1017,17 @@ Modification of the @mref{grid} values.
 @c ===beg===
 @c set_plot_option ([grid, 30, 40]);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) set_plot_option ([grid, 30, 40]);
 (%o1) [[plot_format, gnuplot_pipes], [grid, 30, 40], 
-[run_viewer, true], [axes, true], [nticks, 29], [adapt_depth, 5], 
-[color, blue, red, green, magenta, black, cyan], 
-[point_type, bullet, box, triangle, plus, times, asterisk], 
-[palette, [gradient, green, cyan, blue, violet], 
-[gradient, magenta, violet, blue, cyan, green, yellow, orange, 
-red, brown, black]], [gnuplot_preamble, ], [gnuplot_term, default]]
+[run_viewer, true], [axes, true], [nticks, 29], 
+[adapt_depth, 5], [color, blue, red, green, magenta, black, 
+cyan], [point_type, bullet, box, triangle, plus, times, 
+asterisk], [palette, [hue, 0.33333333, 0.7, 1, 0.5], 
+[hue, 0.8, 0.7, 1, 0.4]], [gnuplot_svg_background, white], 
+[gnuplot_preamble, ], [gnuplot_term, default]]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1038,27 +1052,62 @@ transform them into x, y and z coordinates.
 @end deffn
 
 @c -----------------------------------------------------------------------------
+@anchor{xmaxima_plot_command}
+@defvr {System variable} xmaxima_plot_command
+
+This variable stores the name of the command used to run the xmaxima
+program when the plot format is @code{xmaxima}.
+Its default value is "xmaxima". If the xmaxima
+program is not found unless you give its complete path or if you want to
+try a different version of it, you may change the value of this
+variable. For instance,
+
+@c ===beg===
+@c xmaxima_plot_command: "/usr/local/bin/my_xmaxima"$
+@c ===end===
+@example maxima
+(%i1) xmaxima_plot_command: "/usr/local/bin/my_xmaxima"$
+@end example
+
+This variable must contain a string.
+
+See also @mref{gnuplot_command} and @mrefdot{geomview_command}
+
+@opencatbox{Categories:}
+@category{Plotting}
+@closecatbox
+@end defvr
+
+@c -----------------------------------------------------------------------------
 @node Plotting Options, Gnuplot Options, Functions and Variables for Plotting, Plotting
 @section Plotting Options
 @c -----------------------------------------------------------------------------
 
-All options consist of a list starting with one of the keywords in this
-section, followed by one or more values. If the option appears inside
-one of the plotting commands, its value will be local for that
-command. It the option is given as argument to
-@mrefcomma{set_plot_option} its value will be global and used in all
-plots, unless it is overridden by a local value.
+There is a variable plot_options which is kept for backward
+compatibility with old versions of Wxmaxima but it is not used by the
+plotting programs.  The global options used by the plotting programs are
+in a list which can only be accessed or modified in Maxima using
+functions @mrefcomma{set_plot_option} @mrefcomma{get_plot_option}
+@mrefcomma{remove_plot_option} and @mrefdot{reset_plot_options}
 
-Some of the options may have different effects in different plotting
-commands as it will be pointed out in the following list. The options
-that accept among their possible values true or false, can also be set
-to true by simply writing their names, and false by writing their names
-with the prefix no. For instance, typing @code{logx} as an option is
-equivalent to writing @code{[logx, true]} and @code{nobox} is equivalent
-to @code{[box, false]}. When just the name of the option is used for an
+Plotting options can also be included inside a plotting command, in which
+case they have effect only for that plotting command, without changing the
+global values of those options.
+
+Plotting options consist of a list starting with one of the keywords in
+this section, followed by one or more values.  The options that accept
+among their possible values true or false, can also be set to true by
+simply writing their names, and false by writing their names with the
+prefix no. For instance, typing @code{logx} as an option is equivalent
+to writing @code{[logx, true]} and @code{nobox} is equivalent to
+@code{[box, false]}. When just the name of the option is used for an
 option which cannot have a value @code{true}, it means that any value
 previously assigned to that option will be removed, leaving it to the
-graphic program to decide what to do.
+graphic program to decide what to do. There are also some abbreviations
+for some options as will be shown below.
+
+Some of the options may have different effects in different plotting
+commands as it will be pointed out for those particular options.
 
 @c -----------------------------------------------------------------------------
 @anchor{adapt_depth}
@@ -1217,6 +1266,30 @@ See also @mrefdot{azimuth}
 @end defvr
 
 @c -----------------------------------------------------------------------------
+@anchor{gnuplot}
+@defvr {Plot option} gnuplot
+
+This is an abbreviation for @code{[plot_format, gnuplot]}. See
+@mrefdot{plot_format}
+
+@opencatbox{Categories:}
+@category{Plotting}
+@closecatbox
+@end defvr
+
+@c -----------------------------------------------------------------------------
+@anchor{gnuplot_pipes}
+@defvr {Plot option} gnuplot_pipes
+
+This is an abbreviation for @code{[plot_format, gnuplot_pipes]}. See
+@mrefdot{plot_format}
+
+@opencatbox{Categories:}
+@category{Plotting}
+@closecatbox
+@end defvr
+
+@c -----------------------------------------------------------------------------
 @anchor{grid}
 @defvr {Plot option} grid [grid, @var{integer}, @var{integer}]
 Default value: @code{30}, @code{30}
@@ -1278,6 +1351,7 @@ coordinates indicated after each label.
 
 @c -----------------------------------------------------------------------------
 @anchor{legend}
+@anchor{nolegend}
 @defvr {Plot option} legend [legend, @var{string_1}, @dots{}, @
 @var{string_n}], legend, nolegend
 
@@ -1447,13 +1521,17 @@ therefore, as being part of the curve to be plotted.
 
 @c -----------------------------------------------------------------------------
 @anchor{plot_format}
-@defvr {Plot option} plot_format [plot_format, @var{format}]
+@defvr {Plot option} plot_format [plot_format, @var{format}], @
+gnuplot, gnuplot_pipes, xmaxima
 
 Default value: @code{gnuplot}, in Windows systems, or @code{gnuplot_pipes} in
 other systems.
 
 Where @var{format} is one of the following: gnuplot, xmaxima, mgnuplot,
-gnuplot_pipes or geomview.
+gnuplot_pipes or geomview. The three possibilities:
+@code{[plot_format, gnuplot]}, @code{[plot_format, gnuplot_pipes]} and
+@code{[plot_format, xmaxima]}, can be abbreviated
+by the keywords @code{gnuplot}, @code{gnuplot_pipes} and @code{xmaxima}.
 
 It sets the format to be used for plotting as explained in
 @mrefdot{Plotting Formats}
@@ -1580,14 +1658,14 @@ terminal is @code{default} or when the Gnuplot terminal is set to
 @code{dumb} (see @mref{gnuplot_term}) and can have a true or false
 value.
 
-If the terminal is @code{default}, a file @code{maxout_xxx.gnuplot} (or
+If the terminal is @code{default}, a file @code{random-string.gnuplot} (or
 other name specified with @mref{gnuplot_out_file}) is created with the
 gnuplot commands necessary to generate the plot. Option @code{run_viewer}
 controls whether or not Gnuplot will be launched to execute those
 commands and show the plot.
 
 If the terminal is @code{default}, gnuplot is run to execute the
-commands in @code{maxout_xxx.gnuplot}, producing another file
+commands in @code{random-string.gnuplot}, producing another file
 @code{maxplot.txt} (or other name specified with
 @mref{gnuplot_out_file}). Option @code{run_viewer} controls whether or
 not that file, with an ASCII representation of the plot, will be shown
@@ -1770,7 +1848,6 @@ will be replaced by the current plot.
 @closecatbox
 @end defvr
 
-
 @c -----------------------------------------------------------------------------
 @anchor{x}
 @defvr {Plot option} x [x, @var{min}, @var{max}]
@@ -1788,13 +1865,26 @@ horizontal domain that will be shown in the plot.
 
 @c -----------------------------------------------------------------------------
 @anchor{xlabel}
-@defvr {Plot option} xlabel [xlabel, @var{string}]
+@defvr {Plot option} xlabel [xlabel, @var{string}], noxlabel
 
 Specifies the @var{string} that will label the first axis; if this
 option is not used, that label will be the name of the independent
 variable, when plotting functions with @mref{plot2d} the name of the
 first variable, when plotting surfaces with @mref{plot3d}, or the first
-expression in the case of a parametric plot.
+expression in the case of a parametric plot. @code{noxlabel} is equivalent
+to @code{[xlabel, ""]}, which does not print any label on the first axis.
+
+@opencatbox{Categories:}
+@category{Plotting}
+@closecatbox
+@end defvr
+
+@c -----------------------------------------------------------------------------
+@anchor{xmaxima}
+@defvr {Plot option} xmaxima
+
+This is an abbreviation for @code{[plot_format, xmaxima]}. See
+@mrefdot{plot_format}
 
 @opencatbox{Categories:}
 @category{Plotting}
@@ -1857,13 +1947,14 @@ shown in the plot.
 
 @c -----------------------------------------------------------------------------
 @anchor{ylabel}
-@defvr {Plot option} ylabel [ylabel, @var{string}]
+@defvr {Plot option} ylabel [ylabel, @var{string}], noylabel
 
 Specifies the @var{string} that will label the second axis; if this
 option is not used, that label will be ``y'', when plotting explicit
 functions with @mref{plot2d}, or the name of the second variable, when
 plotting surfaces with @mref{plot3d}, or the second expression in the
-case of a parametric plot.
+case of a parametric plot. @code{noylabel} is equivalent to
+@code{[ylabel, ""]}, which does not print any label on the second axis.
 
 @opencatbox{Categories:}
 @category{Plotting}
@@ -1918,13 +2009,14 @@ shown in the plot.
 
 @c -----------------------------------------------------------------------------
 @anchor{zlabel}
-@defvr {Plot option} zlabel [zlabel, @var{string}]
+@defvr {Plot option} zlabel [zlabel, @var{string}], nozlabel
 
 Specifies the @var{string} that will label the third axis, when using
-@mrefdot{plot3d}  If this option is not used, that label will be ``z'', when
-plotting surfaces, or the third expression in the case of a parametric
-plot.  It can not be used with @mref{set_plot_option} and it will be
-ignored by @mrefdot{plot2d}
+@mrefdot{plot3d} If this option is not used, that label will be ``z'',
+when plotting surfaces, or the third expression in the case of a
+parametric plot.  It can not be used with @mref{set_plot_option} and it
+will be ignored by @mrefdot{plot2d} @code{nozlabel} is equivalent to
+@code{[zlabel, ""]}, which does not print any label on the third axis.
 
 @opencatbox{Categories:}
 @category{Plotting}
@@ -1996,11 +2088,11 @@ gnuplot terminal used will be specified by the value of the option
 @item
 @strong{dumb}
 
-Gnuplot output is saved to a file @code{maxout_xxx.gnuplot} using "ASCII
+Gnuplot output is saved to a file @code{random-string.txt} using "ASCII
 art" approximation to graphics. If the option @mref{gnuplot_out_file} is
 set to @var{filename}, the plot will be saved there, instead of the
-default @code{maxout_xxx.gnuplot}. The settings for the ``dumb'' terminal of
-Gnuplot are given by the value of option
+default @code{random-string.gnuplot}. The settings for the ``dumb''
+terminal of Gnuplot are given by the value of option
 @mrefdot{gnuplot_dumb_term_command} If option @mref{run_viewer} is set
 to true and the plot_format is @code{gnuplot} that ASCII representation
 will also be shown in the Maxima or Xmaxima console.
@@ -2048,18 +2140,12 @@ path of the temporary directory. The complete name of the files created
 by the plotting commands is always sent as output of those commands so
 they can be seen if the command is ended by semi-colon.
 
-When used in conjunction with the @mref{gnuplot_term} option, it can be
-used to save the plot in a file, in one of the graphic formats supported
-by Gnuplot. To create PNG, PDF, Postscript or SVG, it is easier to use
-options @mrefcomma{png_file} @mrefcomma{pdf_file} @mrefcomma{ps_file}
-or @mrefdot{svg_file}
-
 @opencatbox{Categories:}
 @category{Plotting}
 @closecatbox
 @end defvr
 
-     @c -----------------------------------------------------------------------------
+@c -----------------------------------------------------------------------------
 @anchor{gnuplot_script_file}
 @defvr {Plot option} gnuplot_script_file [gnuplot_script_file, @var{file_name_or_function}]
 
@@ -2076,35 +2162,46 @@ and deleted when Maxima is closed.
 In this example, the script file name is set to ``sin.gnuplot'', in the
 current directory.
 
-@example
+@c ===beg===
+@c plot2d( sin(x), [x,0,2*%pi], [gnuplot_script_file, "./sin.gnuplot"]);
+@c ===end===
+@example maxima
+@group
 (%i1) plot2d( sin(x), [x,0,2*%pi], [gnuplot_script_file, "./sin.gnuplot"]);
-
-(%o1) ["./sin.gnuplot"]
+(%o1)                    [./sin.gnuplot]
+@end group
 @end example
 
-In this example, @code{gnuplot_maxout_prt(@var{file})} is a function
-that takes the default file name, @var{file}. It constructs a full file
-name for the data file by interpolating a random 8-digit integer with a
-pad of zeros into the default file name (``maxout'' followed by the id
-number of the Maxima process, followed by ``.gnuplot''). The temporary
-directory is determined by @mref{maxima_tempdir} (it is ``/tmp'' in this
-example).
+In this example, @code{gnuplot_prt(@var{file})} is a function that takes
+the default file name, @var{file}. It constructs a full file name for
+the data file by interpolating a random 8-digit integer with a pad of
+zeros into the default file name (a 16-character random string followed
+by ``.gnuplot''). The temporary directory is determined by
+@mref{maxima_tempdir} (it is ``/tmp'' in this example).
 
-@example
-(%i1) gnuplot_maxout_prt(file) := block([beg,end],
-        [beg,end] : split(file,"."),
-        printf(false,"~a_~8,'0d.~a",beg,random(10^8-1),end)) $
-
-(%i2) plot2d( sin(x), [x,0,2*%pi], [gnuplot_script_file, gnuplot_maxout_prt]);
-
-(%o2) ["/tmp/maxout68715_09606909.gnuplot"]
+@c ===beg===
+@c gnuplot_prt(file) := block([beg,end],
+@c        [beg,end] : split(file,"."),
+@c        printf(false,"~a_~8,'0d.~a",beg,random(10^8-1),end)) $
+@c plot2d( sin(x), [x,0,2*%pi], [gnuplot_script_file, gnuplot_prt]);
+@c ===end===
+@example maxima
+@group
+(%i1) gnuplot_prt(file) := block([beg,end],
+       [beg,end] : split(file,"."),
+       printf(false,"~a_~8,'0d.~a",beg,random(10^8-1),end)) $
+@end group
+@group
+(%i2) plot2d( sin(x), [x,0,2*%pi], [gnuplot_script_file, gnuplot_prt]);
+(%o2)       [/tmp/nxuo4x28s6wocvjw_99211646.gnuplot]
+@end group
 @end example
 
 By default, the script would have been saved in a file named
-@code{maxoutXXXXX.gnuplot} (XXXXX=68715 in this example) in the temporary
-directory. If the print statement in function @code{gnuplot_maxout_prt}
-above included a directory path, the file would have been saved in that
-directory rather than in the temporary directory.
+@code{random-string.gnuplot} (random-string = nxuo4x28s6wocvjw_99211646 in this
+example) in the temporary directory. If the print statement in function
+@code{gnuplot_prt} above included a directory path, the file would have
+been saved in that directory rather than in the temporary directory.
 
 @opencatbox{Categories:}
 @category{Plotting}

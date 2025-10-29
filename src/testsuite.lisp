@@ -21,10 +21,8 @@
 	((mlist simp) "rtest_rules"
 	 #+allegro ((mlist simp) 11 13))
         "rtestnset" 
-        ;; ACL 10.1 cannot load stringproc as it has no (get-encoding) function.
-        #-allegro
         ((mlist simp) "rtest1"
-	 ((mlist simp) 183 185 186))
+	 ((mlist simp)))
         ((mlist simp) "rtest1a" ((mlist simp) 33))
         ((mlist simp) "rtest2" ((mlist simp) 86 95))
 	"rtest4"
@@ -59,9 +57,8 @@
 	;; bug #329. Fixed post-16.1.3.
 	;; Test 50 still sometimes fails in ecl 16.1.2
         ((mlist simp) "rtest16"
-	 #-(or ecl allegro) ((mlist simp) 525 526)
-	 #+ecl ((mlist simp) 525 526)
-	 #+allegro ((mlist simp) 50 242 525 526))
+	 #-allegro ((mlist simp))
+	 #+allegro ((mlist simp) 50 242))
         "rtestode"
 	"rtestode_zp"
         ((mlist simp) "rtest3" ((mlist simp) 146))
@@ -79,7 +76,7 @@
                 ((mlist simp) 16 17 40 52 53 57 97 109))
         "rtestconjugate"
         ((mlist simp) "rtestsum"
-	 ((mlist simp) 23 24 38 95))
+	 ((mlist simp) 23 24 38))
 	;; Tested with acl 10.1
 	((mlist simp) "rtest_trig"
 	 #+allegro ((mlist simp) 58))
@@ -87,8 +84,7 @@
         "rtest_diff_invtrig"
         "rtest_scalarp"
         "rtest_everysome"
-        ((mlist simp) "rtestint"
-	 ((mlist simp) 232))
+        ((mlist simp) "rtestint" ((mlist simp)))
         "rtest_numth"
         "rtestifactor"
         ((mlist simp) "rtest_equal"
@@ -103,7 +99,7 @@
         ((mlist simp) "rtest_map"
 	 ((mlist simp) 2 3 4))
         ((mlist simp) "rtest_sign"
-	 ((mlist simp) 21 25 30 40 65 145 180))
+	 ((mlist simp) 21 25 30 40 145))
         "rtest_algebraic"
 	;; Using the gcl version 2.6.14 the tests pass.
 	;;
@@ -117,7 +113,7 @@
         ((mlist simp) "rtest_elliptic"
 	 #-allegro ((mlist simp) 135)
 	 #+allegro ((mlist simp) 92 135))
-        "rtest_integrate"
+        ((mlist simp) "rtest_integrate" ((mlist simp) 826 827))
         "rtest_integrate_special"
         ((mlist simp) "rtest_sqrt"
 	 ((mlist simp) 89))
@@ -143,19 +139,22 @@
                          124 125 126 127 132 133 135 136 137
                          224 238 
                          239 240 241 242 243 244 245 246 249
-                         259 261 262 267 268 269 270 271 272
-                         280 281 282))
+                         261 262 267 268 269 270 271 272
+                         280 281 282 357 358))
          ((mlist simp) "rtest_limit_gruntz"
           ((mlist simp) 20 25 28 29 30 36 37 38 39 86 96))
 
          ((mlist simp) "rtest_limit_wester"
           ((mlist simp) 12 13))
-          
+
+         ((mlist simp) "rtest_great" ((mlist simp)))
+        
+         ((mlist simp) "rtest_atan2" ((mlist simp) 65))
         "rtest_gcd"
 	;; The tests that failed with abcl 1.5.0
 	((mlist simp) "rtest_hg"
-	 #+(or gcl abcl) ((mlist simp) 87 120)
-	 #-(or gcl abcl) ((mlist simp) 87))
+	 #+(or gcl abcl) ((mlist simp) 120)
+	 #-(or gcl abcl) ((mlist simp)))
 	((mlist simp) "rtest_nfloat"
 	 #-gcl((mlist simp) 25))
 	((mlist simp) "rtest_ilt")
@@ -173,7 +172,8 @@
 ;; can actually find these files. (file_search_maxima is a good choice.)
 (defparameter $share_testsuite_files
   '((mlist simp)
-    "rtest_facexp"
+    ((mlist simp) "rtest_facexp"
+    #+gcl ((mlist simp) 37))
     "rtest_orthopoly"
     "rtest_pslq"
     "rtestflatten"
@@ -192,15 +192,10 @@
 
     "rtest_odelin"
     "rtestezunits"
-    ;; ACL 10.1 cannot load stringproc as it has no (get-encoding) function.
-    #-allegro
     "rtest_numericalio"
     "rtest_simplify_sum"
     "rtest_solve_rec"
-    ;; ACL 10.1 cannot load stringproc as it has no (get-encoding) function.
-    #-allegro
     ((mlist simp) "rtest_stringproc")
-    #-allegro
     ((mlist simp) "rtest_md5sum")
     "rtest_opproperties"
     "rtest_stats"
@@ -269,7 +264,7 @@
      #+clisp
      ((mlist simp) 27 38 61 63 65 69)
      #+gcl
-     ((mlist simp) 7 29 38 39 40 48 61)
+     ((mlist simp) 7 38 39 40 61)
      ;; The tests that failed with abcl 1.5.0
      #+abcl
      ((mlist simp) 38 40 61 63 65 69)
@@ -287,7 +282,7 @@
     ((mlist simp) "rtest_abs_integrate" ((mlist) 173 249))
     "rtest_pochhammer"
     ((mlist simp) "rtest_to_poly_solve"
-     #+gcl ((mlist simp) 64 74 80 116 140 141 168 184 212 242 245 322)
+     #+gcl ((mlist simp) 64 74 80 116 140 141 168 184 242 245 322)
      #-(or gcl) ((mlist simp) 64 74 80 116 140 141 168 184 242 245 322)
      )
     ((mlist simp) "rtest_sym"
@@ -312,8 +307,6 @@
      "rtest_fft"
      "rtest_rfft"
      "rtest_wrstcse"
-     ;; ACL 10.1 cannot load stringproc as it has no (get-encoding) function.
-     #-(or ecl abcl)
      "rtest_draw"
      ((mlist simp) "rtest_engineering_format"
       #+abcl

@@ -1635,7 +1635,7 @@
           (- *gf-char* (the integer ,a)) )))
 ))
 
-#+gcl (eval-when (compile load eval) 
+#+gcl (eval-when (:compile-toplevel :load-toplevel :execute) 
   (progn
     (push '((fixnum fixnum) fixnum #.(compiler::flags compiler::rfa)
             "(fixnum)(((long long)(#0))%((long long)(#1)))" ) 

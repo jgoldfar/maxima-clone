@@ -60,7 +60,7 @@ Some examples of elliptic functions:
 @c diff (jacobi_sn (u, m), u);
 @c diff (jacobi_sn (u, m), m);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) jacobi_sn (u, m);
 (%o1)                    jacobi_sn(u, m)
@@ -102,7 +102,7 @@ Some examples of elliptic integrals:
 @c diff (elliptic_f (phi, m), phi);
 @c diff (elliptic_f (phi, m), m);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) elliptic_f (phi, m);
 (%o1)                  elliptic_f(phi, m)
@@ -330,7 +330,7 @@ Some examples:
 @c jacobi_am(0.5, 1.5);
 @c jacobi_am(1.5b0, 1.5b0+%i);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) jacobi_am(z,0);
 (%o1)                           z
@@ -362,18 +362,16 @@ Some examples:
 @c ===beg===
 @c plot2d([jacobi_am(x,.4),jacobi_am(x,.7),jacobi_am(x,.99),jacobi_am(x,.999999)],[x,0,10*%pi]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) plot2d([jacobi_am(x,.4),jacobi_am(x,.7),jacobi_am(x,.99),jacobi_am(x,.999999)],[x,0,10*%pi]);
 (%o1)                         false
 @end group
 @end example
 
-@ifnotinfo
 Compare this plot with the plot from @urldlmf{22.16.iv}:
 
-@image{figures/jacobi_am}
-@end ifnotinfo
+@altfigure{jacobi_am,Plot of the jacobi_am function for 4 different parameters}
 
 @opencatbox{Categories:}
 @category{Elliptic functions}
@@ -779,6 +777,11 @@ m4_displaymath(
 <<<@math{integrate(1/2*(t+x)^(-1/2)/(t+y), t, 0, inf)}>>>
 )
 
+See
+@url{https://arxiv.org/pdf/math/9409227, Numerical Computation of Real
+or Complex Elliptic Integrals}
+for more information.
+
 This integral is related to many elementary functions in the following
 way:
 
@@ -852,6 +855,11 @@ m4_displaymath(
 <<<@math{R_D(x,y,z) = 3/2*integrate(1/(sqrt(t+x)*sqrt(t+y)*sqrt(t+z)*(t+z)), t, 0, inf)}>>>
 )
 
+See
+@url{https://arxiv.org/pdf/math/9409227, Numerical Computation of Real
+or Complex Elliptic Integrals}
+for more information.
+
 We also have the special values
 
 m4_displaymath(
@@ -869,7 +877,9 @@ R_D(0,2,1) &= 3 \sqrt{\pi} \frac{\Gamma(\frac{3}{4})}{\Gamma(\frac{1}{4})}
 )
 
 
-It is also related to the complete elliptic E function as follows
+It is also related to the complete elliptic integral of the second
+kind, @math{E},
+(@mref{elliptic_ec}) as follows 
 
 m4_displaymath(
 <<<E(m) = R_F(0, 1 - m, 1) - \frac{m}{3} R_D(0, 1 - m, 1)>>>
@@ -892,6 +902,11 @@ m4_displaymath(
 <<<@math{R_F(x,y,z) = 1/2*integrate(1/(sqrt(t+x)*sqrt(t+y)*sqrt(t+z)), t, 0, inf)}>>>
 )
 
+See
+@url{https://arxiv.org/pdf/math/9409227, Numerical Computation of Real
+or Complex Elliptic Integrals}
+for more information.
+
 We also have the special values
 
 m4_displaymath(
@@ -907,7 +922,9 @@ R_F(i,-i,0) &= \frac{\Gamma({\frac{1}{4}})^2}{4\sqrt{\pi}}
 >>>
 )
 
-It is also related to the complete elliptic E function as follows
+It is also related to the complete elliptic integral of the second
+kind, @math{E},
+(@mref{elliptic_ec}) as follows 
 
 m4_displaymath(
 <<<E(m) = R_F(0, 1 - m, 1) - \frac{m}{3} R_D(0, 1 - m, 1)>>>
@@ -930,6 +947,41 @@ m4_displaymath(
 <<<
 @math{R_J(x,y,z) = 1/2*integrate(1/(sqrt(t+x)*sqrt(t+y)*sqrt(t+z)*(t+p)), t, 0, inf)}
 >>>)
+
+See
+@url{https://arxiv.org/pdf/math/9409227, Numerical Computation of Real
+or Complex Elliptic Integrals}
+for more information.
+
+It is related to the elliptic integral of the third kind (@mref{elliptic_pi})
+by
+
+m4_displaymath(
+<<<\int_0^\phi {1\over \left(1+n\sin^2\theta\right) \sqrt{1-m\sin^2\theta}}
+\, d\theta = R_F(c-1,c-m,c) - {n\over 3}R_j(c-1,c-m,c,c+n)>>>,
+<<<
+@example
+  phi
+ ⌠
+ ⎮                         1
+ ⎮    ─────────────────────────────────────────── dtheta = 
+ ⎮                  2               2
+ ⌡    sqrt(1 - m sin (theta)) (n sin (theta) + 1)
+  0
+                                      carlson_rj(c - 1, c - m, c, n + c) n
+        carlson_rf(c - 1, c - m, c) - ────────────────────────────────────
+                                                       3
+@end example
+>>>
+)
+
+where
+m4_mathdot(
+<<<c = \csc\phi>>>,
+<<<c = csc phi>>>
+)
+Note that this differs in our definition of @mref{elliptic_pi} by the
+sign of the parameter @math{n}.
 
 @opencatbox{Categories:}
 @category{Elliptic integrals}

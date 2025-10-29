@@ -93,12 +93,12 @@
      on (setq rule (cons (list d s elm (1- col)) rule))
      (go l2)))
 
-(declare-top (special j))
+(declare-top (special *j*)) ;; Why does this need to be a special variable?
 
 (defun singp (x ml col n)
   (declare (fixnum col n))
-  (prog (i (j col) l) 
-     (declare (fixnum  j))
+  (prog (i (*j* col) l) 
+     (declare (fixnum  *j*))
      (setq l ml)
      (if (null ml)
 	 (go loop)
@@ -106,13 +106,13 @@
 	       ml (cdr ml)))
      (cond ((member i rzl* :test #'equal) (return t))
 	   ((zrow x i col n) (return (setq rzl*(cons i rzl*)))))
-     loop (cond ((> j n) (return nil))
-		((every #'(lambda (i) (equal (aref x i j) 0)) l)
+     loop (cond ((> *j* n) (return nil))
+		((every #'(lambda (i) (equal (aref x i *j*) 0)) l)
 		 (return t)))
-     (incf j)
+     (incf *j*)
      (go loop)))
 
-(declare-top (unspecial j))
+(declare-top (unspecial *j*))
 
 (defun tdbu (x n)
   (declare (fixnum n))

@@ -177,30 +177,6 @@
       (md5-final nil -1 len) )))
 
 
-(defmfun $md5sum (s &optional (rtype '$string))
-  (let (bytes len)
-    (cond
-      ((stringp s)
-        (setq bytes (string-to-octets s)) )
-      ((and (integerp s) (>= s 0))
-        (setq bytes (number-to-octets s)) )
-      (($listp s)
-        (setq bytes (cdr s)) )
-      ((streamp s)
-       (return-from md5sum-impl (md5sum-stream s rtype)))
-      (t 
-        (gf-merror (intl:gettext 
-          "`md5sum': Argument must be a string, non-negative integer, list of octets, or stream." ))))
-    (setq len (length bytes) 
-          *h5* '(#x67452301 #xefcdab89 #x98badcfe #x10325476) )
-    (do ((off len)) 
-        ((< off 64.) (md5-final bytes off len))
-      (setq off (- off 64.))
-      (md5-update (butlast bytes off))
-      (setq bytes (last bytes off)) )
-    (setq *h5* (mapcar #'swap-endian32 *h5*))
-    (md5sum-return rtype)))
-
 (defun md5sum-return (rtype)
   (cond
     ((equal rtype '$list)
@@ -226,6 +202,30 @@
 
   (setq *h5* (mapcar #'swap-endian32 *h5*))
   (md5sum-return rtype))
+
+(defmfun $md5sum (s &optional (rtype '$string))
+  (let (bytes len)
+    (cond
+      ((stringp s)
+        (setq bytes (string-to-octets s)) )
+      ((and (integerp s) (>= s 0))
+        (setq bytes (number-to-octets s)) )
+      (($listp s)
+        (setq bytes (cdr s)) )
+      ((streamp s)
+       (return-from md5sum-impl (md5sum-stream s rtype)))
+      (t 
+        (gf-merror (intl:gettext 
+          "`md5sum': Argument must be a string, non-negative integer, list of octets, or stream." ))))
+    (setq len (length bytes) 
+          *h5* '(#x67452301 #xefcdab89 #x98badcfe #x10325476) )
+    (do ((off len)) 
+        ((< off 64.) (md5-final bytes off len))
+      (setq off (- off 64.))
+      (md5-update (butlast bytes off))
+      (setq bytes (last bytes off)) )
+    (setq *h5* (mapcar #'swap-endian32 *h5*))
+    (md5sum-return rtype)))
 
 (eval-when
     (:compile-toplevel :execute)

@@ -3,7 +3,6 @@
 #  Copyright William F. Schelter.  All rights reserved.    #
 #                                                          #
 #     Modified by Jaime E. Villate                         #
-#     Time-stamp: "2024-03-27 16:06:40 villate"            #
 ############################################################
 
 proc rungeKutta { f g t0 x0 y0 h nsteps} {

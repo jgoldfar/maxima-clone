@@ -1,7 +1,3 @@
-# -*-mode: tcl; fill-column: 75; tab-width: 8; coding: iso-latin-1-unix -*-
-#
-#       $Id: Bindings.tcl,v 1.10 2007-03-23 00:05:06 villate Exp $
-#
 ###### Bindings.tcl ######
 ############################################################
 # Netmath       Copyright (C) 1998 William F. Schelter     #
@@ -86,32 +82,28 @@ proc vMAXSetCNTextBindings {w} {
     bind CNtext <Control-Key-V>  {tk_textPaste %W ;break}
 }
 
-
-global maxima_priv
-set maxima_priv(doublek) 0
+set ::xmaxima_priv(doublek) 0
 
 bind OpenMathText <Control-Key-k><Control-Key-k> {
-    set maxima_priv(doublek) 1
+    set ::xmaxima_priv(doublek) 1
 }
 bind OpenMathText <Control-Key-K><Control-Key-K> {
-    set maxima_priv(doublek) 1
+    set ::xmaxima_priv(doublek) 1
 }
 
-global maxima_priv
 if {0} {
     # xmaxima should not be binding the Text class
-    if {! [info exists maxima_priv(bindings_added) ] } {
+    if {! [info exists ::xmaxima_priv(bindings_added) ] } {
 	bind Text <Control-Key-k> "+openMathControlK %W"
 	bind Text <B3-Motion> [bind Text <B2-Motion>]
 	bind Text <Button-3> [bind Text <Button-2>]
 
-	set maxima_priv(bindings_added) 1
+	set ::xmaxima_priv(bindings_added) 1
     }
 } else {
     bind OpenMathText <Control-Key-k> "+openMathControlK %W"
     bind OpenMathText <Control-Key-K> "+openMathControlK %W"
 }
-
 
 #mike - I'm decreeing windows Cut/Copy/Paste conventions for
 # keybindings, and will preobably reserve Alt-key for menu shortcuts.
@@ -170,8 +162,6 @@ bind OpenMathText <Control-Key-w> {
     }
 }
 
-
-
 proc openMathAnyKey { win keysym s  } {
     # puts "$win `$keysym' `$s'"
     if { "$s" != "" } {
@@ -186,25 +176,24 @@ proc openMathAnyKey { win keysym s  } {
 
 #mike this code is impenetrable:
 proc OpenMathYank {win level} {
-    global maxima_priv
     #puts "doing OpenMathYank $win $level"
     if { $level == 0 } {
-	set maxima_priv(currentwin) $win
+	set ::xmaxima_priv(currentwin) $win
 	pushCommand $win OpenMathYank [list $win $level]
-	set maxima_priv(point) insert
+	set ::xmaxima_priv(point) insert
 	$win mark set beforeyank insert
 	$win mark gravity beforeyank left
 	eval [peekl killRing "" ]
-    } elseif { ![info exists maxima_priv(lastcom,$win)]} {
+    } elseif { ![info exists ::xmaxima_priv(lastcom,$win)]} {
 	#mike this case was not forseen in the code below and
 	# it always occurs on the first Yank if nothing has benn Killed
     } elseif { [catch {
-	set last $maxima_priv(lastcom,$win)
+	set last $::xmaxima_priv(lastcom,$win)
 	set m [lindex [lindex $last 1] 1]
 	incr m
 	if { [lindex $last 0] == "OpenMathYank" && \
-		"$maxima_priv(currentwin)" == "$win" && \
-		"$maxima_priv(point)" == "insert"} {
+		"$::xmaxima_priv(currentwin)" == "$win" && \
+		"$::xmaxima_priv(point)" == "insert"} {
 	    set doit 1
 	} else {
 	    #mike the following was missing, and its 
@@ -277,16 +266,13 @@ proc saveText { win args } {
     return $result
 }
 
-
-
 proc openMathControlK { win } {
-    global maxima_priv
-    if { $maxima_priv(doublek) != 0 } {
+    if { $::xmaxima_priv(doublek) != 0 } {
 	set now [popl killRing ""]
     } else {
 	set now ""
     }
-    set maxima_priv(doublek) 0
+    set ::xmaxima_priv(doublek) 0
     if { [$win compare insert == "insert lineend" ]  } {
 	if { [$win compare insert < end] } {
 	    append now "\nTins {[ldelete sel [$win tag names insert]]} {\n}"

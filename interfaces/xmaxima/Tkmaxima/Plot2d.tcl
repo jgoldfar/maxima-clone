@@ -4,8 +4,6 @@
 # For distribution under GNU public License.  See COPYING.tcl
 #
 #     Modified by Jaime E. Villate
-#     Time-stamp: "2024-03-26 20:25:15 villate"
-#
 ######################################################################
 
 global plot2dOptions
@@ -386,15 +384,15 @@ proc replot2d { win } {
 	set xbound [expr {$x1-0.08*$width}]
     }
     $c create text $xbound [expr {($y1+$y2)/2.0}] -anchor center -angle 90 \
-       -text [oget $win yaxislabel] -font {helvetica 16 normal} -tags axislabel
+       -text [oget $win yaxislabel] -font {TkDefaultFont 16 normal} -tags axislabel
     if {$nobox != 0  && $ymin*$ymax < 0  && ($axes == {x} || $axes == {xy})} {
 	$c create text [expr {$x2-0.01*$width}] \
             [expr { [$rtosy 0]+0.02*$height}] -anchor ne -tags axislabel \
-            -text [oget $win xaxislabel] -font {helvetica 16 normal}
+            -text [oget $win xaxislabel] -font {TkDefaultFont 16 normal}
     } else {
 	$c create text [expr {($x1 + $x2)/2}] [expr {$y2 + 0.08*$height}] \
 	    -anchor center -text [oget $win xaxislabel] \
-	    -font {helvetica 16 normal} -tags axislabel
+	    -font {TkDefaultFont 16 normal} -tags axislabel
     }
 
     # Create a PostScript file, if requested
@@ -742,11 +740,10 @@ proc drawPlot {win listpts args } {
     if { $nolegend == 0 } {plot2dDrawLabel $win $label $fill}}
 
 proc drawPointsForPrint { c } {
-    global maxima_priv
     foreach v [$c find withtag point] {
 	set tags [ldelete point [$c gettags $v]]
 	desetq "x y" [$c coords $v]
-	desetq "pointsize fill" $maxima_priv(pointimage,[$c itemcget $v -image])
+	desetq "pointsize fill" $::xmaxima_priv(pointimage,[$c itemcget $v -image])
 	catch {
 	    $c create oval [expr {$x -$pointsize}] \
 		[expr {$y -$pointsize}] [expr {$x +$pointsize}] \
@@ -755,15 +752,14 @@ proc drawPointsForPrint { c } {
 	    $c delete $v}}}
 
 proc getPoint { size color } {
-    global maxima_priv
     set im {}
-    if { ![catch { set im $maxima_priv(pointimage,$size,$color) }] } {
+    if { ![catch { set im $::xmaxima_priv(pointimage,$size,$color) }] } {
 	return $im
     }
-    catch { set data $maxima_priv(bitmap,disc[expr {$size * 2}])
+    catch { set data $::xmaxima_priv(bitmap,disc[expr {$size * 2}])
 	set im [image create bitmap -data $data -foreground $color]
-	set maxima_priv(pointimage,$size,$color) $im
-	set maxima_priv(pointimage,$im) "$size $color"}
+	set ::xmaxima_priv(pointimage,$size,$color) $im
+	set ::xmaxima_priv(pointimage,$im) "$size $color"}
     return $im}
 
 proc sliderCommandPlot2d { win var val } {

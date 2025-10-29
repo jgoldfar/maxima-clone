@@ -1,6 +1,5 @@
 ;; xmaxima.lisp: routines for Maxima's interface to xmaxima
 ;; Copyright (C) 2007-2021 J. Villate
-;; Time-stamp: "2024-03-25 08:58:31 villate"
 ;; 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License
@@ -377,6 +376,7 @@
           (format st "} ")))))))
 
 (defmethod plot3d-command ((plot xmaxima-plot) functions options titles)
+  (declare (ignore titles))
   (let ((i 0) fun xrange yrange lvars trans)
     (setf
      (slot-value plot 'data)
@@ -437,20 +437,14 @@
         (format $pstream "}~%"))))))
 
 (defmethod plot-shipout ((plot xmaxima-plot) options &optional output-file)
+  (declare (ignore options))
   (let ((file (plot-file-path (format nil "~a.xmaxima" (random-name 16)))))
     (cond ($show_openplot
            (with-open-file (fl
                             #+sbcl (sb-ext:native-namestring file)
                             #-sbcl file
                             :direction :output :if-exists :supersede)
-             (princ (slot-value plot 'data) fl))
-           ($system (concatenate 'string *maxima-prefix* 
-                                 (if (string= *autoconf-windows* "true")
-                                     "\\bin\\" "/bin/") 
-                                 $xmaxima_plot_command)
-                    #-(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-                    (format nil " ~s &" file)
-                    #+(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-                    file))
+                           (princ (slot-value plot 'data) fl))
+           ($system $xmaxima_plot_command (format nil $gnuplot_file_args file)))
           (t (princ (slot-value plot 'data)) ""))
     (cons '(mlist) (cons file output-file))))

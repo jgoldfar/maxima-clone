@@ -553,9 +553,7 @@ a Legendre polynomial.
 (%o1)
 @end example
 
-@ifnotinfo
-@image{figures/orthopoly1,8cm}
-@end ifnotinfo
+@altfigure{orthopoly1,Plot of the Legrende polynomial of order 5}
 
 The @i{entire} expression @code{legendre_p (5, x)} is quoted; this is 
 different than just quoting the function name using @code{'legendre_p (5, @var{x})}.

@@ -13,12 +13,12 @@ install-maxima-info: $(wildcard $(infoname).info* $(infoname)-index.lisp)
 	  if test -f $(builddir)/$$b; then \
 	    t=`dirname $$d/$$b`; \
             test -d $$t || $(mkinstalldirs) $$t; \
-	    echo " $(INSTALL_DATA) BUILDDIR/$$b $$d/$$b"; \
+	    echo " $(INSTALL_DATA) $(builddir)/$$b $$d/$$b"; \
 	    $(INSTALL_DATA) $(builddir)/$$b $$d/$$b; \
 	  elif test -f $(srcdir)/$$s; then \
 	    t=`dirname $$d/$$s`; \
             test -d $$t || $(mkinstalldirs) $$t; \
-	    echo " $(INSTALL_DATA) SRCDIR/$$s $$d/$$s"; \
+	    echo " $(INSTALL_DATA) $(srcdir)/$$s $$d/$$s"; \
 	    $(INSTALL_DATA) $(srcdir)/$$s $$d/$$s; \
 	  elif test -f $$p; then \
 	    t=`dirname $$d/$$p`; \

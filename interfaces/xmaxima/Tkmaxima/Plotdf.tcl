@@ -4,7 +4,6 @@
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
 #     Modified by Jaime E. Villate                         #
-#     Time-stamp: "2024-03-28 14:51:52 villate"            #
 ############################################################
 
 global plotdfOptions
@@ -23,6 +22,7 @@ set plotdfOptions {
     {xcenter 0.0 {(xcenter,ycenter) is the origin of the window}}
     {ycenter 0.0 "see xcenter"}
     {bbox "" "xmin ymin xmax ymax .. overrides the -xcenter etc"}
+    {algorithm "adamsMoulton" "can be rungeKutta, rungeKuttaA or adamsMoulton"}
     {tinitial 0.0 "The initial value of variable t"}
     {nsteps 300 "Number of steps to do in one pass"}
     {xfun "" "A semi colon separated list of functions to plot as well"}
@@ -100,22 +100,19 @@ proc doIntegrateScreen { win sx sy  } {
 }
 
 proc doIntegrate { win x0 y0 } {
-    makeLocal $win xradius yradius c dxdt dydt tinitial tstep nsteps \
+    makeLocal $win xradius yradius c dxdt dydt algorithm tinitial tstep nsteps \
         direction linewidth tinitial versus_t xmin xmax ymin ymax parameters \
         width height
     linkLocal $win didLast trajectoryStarts
     set linewidth [expr {$linewidth*[vectorlength $width $height]/1000.}]
     set arrowshape [scalarTimesVector $linewidth {3 5 2}]
 
-    # method can be rungeKutta, rungeKuttaA or adamsMoulton
-    set method {adamsMoulton}
     oset $win trajectory_at [format "%.10g  %.10g" $x0 $y0]
     lappend trajectoryStarts [list $x0 $y0]
     set didLast {}
     # puts "doing at $trajectory_at"
-    # A reasonabel value of tstep has already been set up in drawDF by
-    # using the maximum length of the field vectors. This is just in case.
-    if {$tstep eq {}} {set tstep 0.1}
+    set steps $nsteps
+    set integrator $algorithm
 
     set todo {1}
     switch -- $direction {
@@ -150,7 +147,7 @@ proc doIntegrate { win x0 y0 } {
                         set arrow {last}
                         set coords {}}}}
             set h [expr {$sgn*$tstep}]
-            set form [list $method xff yff $tinitial $x0 $y0 $h $nsteps]
+            set form [list $integrator xff yff $tinitial $x0 $y0 $h $nsteps]
 
             # puts "doing: $form"
             # pts will be a list with values of t, x and y, at the initial
@@ -263,7 +260,7 @@ proc drawArrowScreen { c atx aty dfx dfy color } {
 proc drawDF { win tinitial } {
     global axisGray
     makeLocal  $win xmin xmax xcenter ycenter c ymin ymax transform vectors \
-        xaxislabel yaxislabel nobox axes width height narrows tstep
+        xaxislabel yaxislabel nobox axes width height narrows
     set rtosx rtosx$win
     set rtosy rtosy$win
     set storx storx$win
@@ -295,7 +292,6 @@ proc drawDF { win tinitial } {
 		append all " $len $dfx $dfy "
 		if { $min > $len } {set min $len}
                         if { $max < $len } {set max $len}}}
-        if {$tstep eq {}} {oset $win tstep [expr {$stepsize/(10.0*$max)}]}
 	set arrowmin [expr {0.25*$stepsize}]
 	set arrowrange [expr {0.85*$stepsize - $arrowmin}]
 	set s1 [expr {($arrowrange*$min+$arrowmin*$min-$arrowmin*$max)/($min-$max)}]
@@ -356,15 +352,15 @@ proc drawDF { win tinitial } {
 	set xbound [expr {$x1-0.08*$width}]
     }
     $c create text $xbound [expr {($y1+$y2)/2.0}] -anchor center -angle 90 \
-       -text [oget $win yaxislabel] -font {helvetica 16 normal} -tags axislabel
+       -text [oget $win yaxislabel] -font {TkDefaultFont 16 normal} -tags axislabel
     if {$nobox != 0  && $ymin*$ymax < 0  && ($axes == {x} || $axes == {xy})} {
 	$c create text [expr {$x2-0.01*$width}] \
             [expr { [$rtosy 0]+0.02*$height}] -anchor ne -tags axislabel \
-            -text [oget $win xaxislabel] -font {helvetica 16 normal}
+            -text [oget $win xaxislabel] -font {TkDefaultFont 16 normal}
     } else {
 	$c create text [expr {($x1 + $x2)/2}] [expr {$y2 + 0.08*$height}] \
 	    -anchor center -text [oget $win xaxislabel] \
-	    -font {helvetica 16 normal} -tags axislabel
+	    -font {TkDefaultFont 16 normal} -tags axislabel
     }
 }
 
@@ -399,7 +395,11 @@ proc plotdf { args } {
     getOptions $plotdfOptions $args -usearray [oarray $win]
     oset $win didLast {}
     # Makes extra vertical space for sliders
-    linkLocal $win sliders height
+    linkLocal $win sliders height tstep xradius yradius
+    # Default value for tstep equal to the plot box's diagonal divided by 400
+    if { "$tstep" == "" } {
+	set tstep [expr {[vectorlength $xradius $yradius] / 200.0}]
+    }
     if {[string length $sliders] > 0} {
         oset $win height [expr {$height + 40*[llength [split $sliders ,]]}]}
 
@@ -471,10 +471,21 @@ proc doConfigdf { win } {
     pack $frdydx.dxdt  $frdydx.dydt -side bottom  -fill x -expand 1
     pack $frdydx.dydxbut $frdydx.dydtbut -side left -fill x -expand 1
 
-    foreach w {narrows parameters xfun linewidth xradius yradius xcenter ycenter tinitial versus_t nsteps direction curves vectors fieldlines } {
+    foreach w {narrows parameters xfun linewidth xradius yradius xcenter \
+        ycenter tinitial versus_t tstep nsteps direction curves vectors \
+        fieldlines} {
 	mkentry $wb1.$w [oloc $win $w] $w $buttonFont
 	pack $wb1.$w -side bottom -expand 1 -fill x
     }
+    radiobutton $wb1.rk -text "4th order Runge Kutta" \
+        -variable [oloc $win algorithm] -value rungeKutta -anchor w
+    radiobutton $wb1.rka -text "Adaptive-step Runge Kutta" \
+        -variable [oloc $win algorithm] -value rungeKuttaA -anchor w
+    radiobutton $wb1.am -text "Adams-Moulton" \
+        -variable [oloc $win algorithm] -value adamsMoulton -anchor w
+    pack $wb1.rk -side bottom -expand 1 -fill x
+    pack $wb1.rka -side bottom -expand 1 -fill x
+    pack $wb1.am -side bottom -expand 1 -fill x
     mkentry $wb1.trajectory_at [oloc $win trajectory_at] \
 	"Trajectory at" $buttonFont
     bind $wb1.trajectory_at.e <KeyPress-Return> \

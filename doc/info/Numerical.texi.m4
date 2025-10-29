@@ -1,3 +1,4 @@
+@c -*- mode: texinfo -*-
 @menu
 * Introduction to fast Fourier transform::                     
 * Functions and Variables for fast Fourier transform::
@@ -38,19 +39,27 @@ small primes.
 @anchor{polartorect}
 @deffn {Function} polartorect (@var{r}, @var{t})
 
-Translates complex values of the form @code{r %e^(%i t)} to the form
-@code{a + b %i}, where @var{r} is the magnitude and @var{t} is the phase.
-@var{r} and @var{t} are 1-dimensional arrays of the same size.
+Translates complex values of the form @math{r e^{i t}} to the form
+@math{a + b i}, where @math{r} is the magnitude and @math{t} is the phase.
+@math{r} and @math{t} are 1-dimensional arrays of the same size.
 The array size need not be a power of 2.
 
 The original values of the input arrays are
-replaced by the real and imaginary parts, @code{a} and @code{b}, on return.
+replaced by the real and imaginary parts, @math{a} and @math{b}, on return.
 The outputs are calculated as
 
+m4_displaymath(
+<<<\eqalign{
+a &= r \cos t \cr
+b &= r \sin t
+}>>>,
+<<<
 @example
 a = r cos(t)
 b = r sin(t)
 @end example
+>>>
+)
 
 @mref{polartorect} is the inverse function of @mrefdot{recttopolar}
 
@@ -66,21 +75,37 @@ b = r sin(t)
 @anchor{recttopolar}
 @deffn {Function} recttopolar (@var{a}, @var{b})
 
-Translates complex values of the form @code{a + b %i} to the form
-@code{r %e^(%i t)}, where @var{a} is the real part and @var{b} is the imaginary
-part.  @var{a} and @var{b} are 1-dimensional arrays of the same size.
+Translates complex values of the form @math{a + b i} to the form
+@math{r e^{i t}}, where @math{a} is the real part and @math{b} is the imaginary
+part.  @math{a} and @math{b} are 1-dimensional arrays of the same size.
 The array size need not be a power of 2.
 
 The original values of the input arrays are
-replaced by the magnitude and angle, @code{r} and @code{t}, on return.
+replaced by the magnitude and angle, @math{r} and @math{t}, on return.
 The outputs are calculated as
 
+m4_displaymath(
+<<<\eqalign{
+r &= \sqrt{a^2+b^2} \cr
+t &= {\rm atan2}(b, a)
+}>>>,
+<<<
 @example
 r = sqrt(a^2 + b^2)
 t = atan2(b, a)
 @end example
+>>>
+)
 
-The computed angle is in the range @code{-%pi} to @code{%pi}.
+The computed angle is in the range
+m4_math(
+<<<-\pi>>>,
+<<<@code{-%pi}>>>
+)
+to
+m4_mathdot(
+<<<\pi>>>,
+<<<@code{%pi}>>>)
 
 @code{recttopolar} is the inverse function of @mrefdot{polartorect}
 
@@ -101,10 +126,10 @@ Computes the inverse complex fast Fourier transform.
 transform.  The number of elements must be a power of 2.
 The elements must be literal numbers (integers, rationals, floats, or bigfloats)
 or symbolic constants,
-or expressions @code{a + b*%i} where @code{a} and @code{b} are literal numbers
+or expressions @math{a + bi} where @math{a} and @math{b} are literal numbers
 or symbolic constants.
 
-@code{inverse_fft} returns a new object of the same type as @var{y},
+@code{inverse_fft} returns a new object of the same type as @math{y},
 which is not modified.
 Results are always computed as floats
 or expressions @code{a + b*%i} where @code{a} and @code{b} are floats.
@@ -113,12 +138,17 @@ be used instead as a drop-in replacement of @code{inverse_fft} that is
 slower, but supports bfloats. 
 
 The inverse discrete Fourier transform is defined as follows.
-Let @code{x} be the output of the inverse transform.
-Then for @code{j} from 0 through @code{n - 1},
+Let @math{x} be the output of the inverse transform.
+Then for @math{j} from 0 through @math{n - 1},
 
+m4_displaymath(
+<<<x[j] = \sum_{k=0}^{n-1} y[k] e^{-2i\pi j k/n}>>>,
+<<<
 @example
 x[j] = sum(y[k] exp(-2 %i %pi j k / n), k, 0, n - 1)
 @end example
+>>>
+)
 
 As there are various sign and normalization conventions possible,
 this definition of the transform may differ from that used by other mathematical software.
@@ -140,19 +170,24 @@ Real data.
 @c L2 : fft (L1);
 @c lmax (abs (L2 - L));
 @c ===end===
-@example
+@example maxima
 (%i1) load ("fft") $
 (%i2) fpprintprec : 4 $
 (%i3) L : [1, 2, 3, 4, -1, -2, -3, -4] $
+@group
 (%i4) L1 : inverse_fft (L);
-(%o4) [0.0, 14.49 %i - .8284, 0.0, 2.485 %i + 4.828, 0.0, 
-                       4.828 - 2.485 %i, 0.0, - 14.49 %i - .8284]
+(%o4) [0.0, - 14.49 %i - 0.8284, 0.0, 4.828 - 2.485 %i, 0.0, 
+                        2.485 %i + 4.828, 0.0, 14.49 %i - 0.8284]
+@end group
+@group
 (%i5) L2 : fft (L1);
-(%o5) [1.0, 2.0 - 2.168L-19 %i, 3.0 - 7.525L-20 %i, 
-4.0 - 4.256L-19 %i, - 1.0, 2.168L-19 %i - 2.0, 
-7.525L-20 %i - 3.0, 4.256L-19 %i - 4.0]
+(%o5) [1.0, 2.0 - 4.441e-16 %i, 3.0, 4.441e-16 %i + 4.0, - 1.0, 
+                 4.441e-16 %i - 2.0, - 3.0, - 4.441e-16 %i - 4.0]
+@end group
+@group
 (%i6) lmax (abs (L2 - L));
-(%o6)                       3.545L-16
+(%o6)                       4.441e-16
+@end group
 @end example
 
 Complex data.
@@ -165,20 +200,24 @@ Complex data.
 @c L2 : fft (L1);
 @c lmax (abs (L2 - L));
 @c ===end===
-@example
+@example maxima
 (%i1) load ("fft") $
-(%i2) fpprintprec : 4 $                 
+(%i2) fpprintprec : 4 $
 (%i3) L : [1, 1 + %i, 1 - %i, -1, -1, 1 - %i, 1 + %i, 1] $
+@group
 (%i4) L1 : inverse_fft (L);
-(%o4) [4.0, 2.711L-19 %i + 4.0, 2.0 %i - 2.0, 
-- 2.828 %i - 2.828, 0.0, 5.421L-20 %i + 4.0, - 2.0 %i - 2.0, 
-2.828 %i + 2.828]
+(%o4) [4.0, 2.828 %i + 2.828, - 2.0 %i - 2.0, 4.0, 0.0, 
+                           - 2.828 %i - 2.828, 2.0 %i - 2.0, 4.0]
+@end group
+@group
 (%i5) L2 : fft (L1);
-(%o5) [4.066E-20 %i + 1.0, 1.0 %i + 1.0, 1.0 - 1.0 %i, 
-1.55L-19 %i - 1.0, - 4.066E-20 %i - 1.0, 1.0 - 1.0 %i, 
-1.0 %i + 1.0, 1.0 - 7.368L-20 %i]
-(%i6) lmax (abs (L2 - L));                    
-(%o6)                       6.841L-17
+(%o5) [1.0, 1.0 %i + 1.0, 1.0 - 1.0 %i, - 1.0, - 1.0, 
+                                 1.0 - 1.0 %i, 1.0 %i + 1.0, 1.0]
+@end group
+@group
+(%i6) lmax (abs (L2 - L));
+(%o6)                          0.0
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -209,12 +248,17 @@ of only real values (no imaginary parts), @mref{real_fft} can be used
 which is potentially faster.
 
 The discrete Fourier transform is defined as follows.
-Let @code{y} be the output of the transform.
-Then for @code{k} from 0 through @code{n - 1},
+Let @math{y} be the output of the transform.
+Then for @math{k} from 0 through @math{n - 1},
 
+m4_displaymath(
+<<<y[k] = {1\over n} \sum_{j=0}^{n-1} x[j] e^{+2i\pi j k / n}>>>,
+<<<
 @example
 y[k] = (1/n) sum(x[j] exp(+2 %i %pi j k / n), j, 0, n - 1)
 @end example
+>>>
+)
 
 As there are various sign and normalization conventions possible,
 this definition of the transform may differ from that used by other mathematical software.
@@ -222,30 +266,60 @@ this definition of the transform may differ from that used by other mathematical
 When the data @var{x} are real,
 real coefficients @code{a} and @code{b} can be computed such that
 
+m4_displaymath(
+<<<x[j] = \sum_{k=0}^{n/2} \left(a[k] \cos {2\pi j k\over n} + b[k]
+\sin {2\pi j k \over n}\right)>>>,
+<<<
 @example
 x[j] = sum(a[k]*cos(2*%pi*j*k/n)+b[k]*sin(2*%pi*j*k/n), k, 0, n/2)
 @end example
+>>>
+)
 
 with
 
+m4_displaymath(
+<<<\eqalign{
+a[0] &= {\rm realpart}(y[0])\cr
+b[0] &= 0
+}>>>,
+<<<
 @example
 a[0] = realpart (y[0])
 b[0] = 0
 @end example
+>>>
+)
 
-and, for k from 1 through n/2 - 1,
+and, for @math{k} from 1 through @math{n/2 - 1},
 
+m4_displaymath(
+<<<\eqalign{
+a[k] &= {\rm realpart}(y[k] + y[n-k]) \cr
+b[k] &= {\rm imagpart}(y[n-k] - y[k])
+}>>>,
+<<<
 @example
 a[k] = realpart (y[k] + y[n - k])
 b[k] = imagpart (y[n - k] - y[k])
 @end example
+>>>
+)
 
 and
 
+m4_displaymath(
+<<<\eqalign{
+a\left[{n\over 2}\right] &= {\rm realpart}\left(y\left[{n\over 2}\right]\right) \cr
+b\left[{n\over 2}\right] &= 0
+}>>>,
+<<<
 @example
 a[n/2] = realpart (y[n/2])
 b[n/2] = 0
 @end example
+>>>
+)
 
 @code{load("fft")} loads this function.
 
@@ -268,19 +342,24 @@ Real data.
 @c L2 : inverse_fft (L1);
 @c lmax (abs (L2 - L));
 @c ===end===
-@example
+@example maxima
 (%i1) load ("fft") $
 (%i2) fpprintprec : 4 $
 (%i3) L : [1, 2, 3, 4, -1, -2, -3, -4] $
+@group
 (%i4) L1 : fft (L);
-(%o4) [0.0, 1.811 %i - .1036, 0.0, 0.3107 %i + .6036, 0.0, 
-                         0.6036 - 0.3107 %i, 0.0, (- 1.811 %i) - 0.1036]
+(%o4) [0.0, 1.811 %i - 0.1036, 0.0, 0.3107 %i + 0.6036, 0.0, 
+                    0.6036 - 0.3107 %i, 0.0, - 1.811 %i - 0.1036]
+@end group
+@group
 (%i5) L2 : inverse_fft (L1);
-(%o5) [1.0, 2.168L-19 %i + 2.0, 7.525L-20 %i + 3.0, 
-4.256L-19 %i + 4.0, - 1.0, - 2.168L-19 %i - 2.0, 
-- 7.525L-20 %i - 3.0, - 4.256L-19 %i - 4.0]
+(%o5) [1.0, 4.441e-16 %i + 2.0, 3.0, 4.0 - 4.441e-16 %i, - 1.0, 
+                 - 4.441e-16 %i - 2.0, - 3.0, 4.441e-16 %i - 4.0]
+@end group
+@group
 (%i6) lmax (abs (L2 - L));
-(%o6)                       3.545L-16
+(%o6)                       4.441e-16
+@end group
 @end example
 
 Complex data.
@@ -293,18 +372,24 @@ Complex data.
 @c L2 : inverse_fft (L1);
 @c lmax (abs (L2 - L));
 @c ===end===
-@example
+@example maxima
 (%i1) load ("fft") $
 (%i2) fpprintprec : 4 $
 (%i3) L : [1, 1 + %i, 1 - %i, -1, -1, 1 - %i, 1 + %i, 1] $
+@group
 (%i4) L1 : fft (L);
-(%o4) [0.5, 0.5, 0.25 %i - 0.25, (- 0.3536 %i) - 0.3536, 0.0, 0.5, 
-                                        (- 0.25 %i) - 0.25, 0.3536 %i + 0.3536]
+(%o4) [0.5, 0.5, 0.25 %i - 0.25, - 0.3536 %i - 0.3536, 0.0, 0.5, 
+                            - 0.25 %i - 0.25, 0.3536 %i + 0.3536]
+@end group
+@group
 (%i5) L2 : inverse_fft (L1);
-(%o5) [1.0, 1.0 %i + 1.0, 1.0 - 1.0 %i, - 1.0, - 1.0, 1.0 - 1.0 %i, 
-                                                             1.0 %i + 1.0, 1.0]
+(%o5) [1.0, 1.0 %i + 1.0, 1.0 - 1.0 %i, - 1.0, - 1.0, 
+                                 1.0 - 1.0 %i, 1.0 %i + 1.0, 1.0]
+@end group
+@group
 (%i6) lmax (abs (L2 - L));
-(%o6)                       0.0
+(%o6)                          0.0
+@end group
 @end example
 
 Computation of sine and cosine coefficients.
@@ -331,7 +416,7 @@ Computation of sine and cosine coefficients.
 @c f(j) := sum (a[k] * cos (2*%pi*j*k / n) + b[k] * sin (2*%pi*j*k / n), k, 0, n/2) $
 @c makelist (float (f (j)), j, 0, n - 1);
 @c ===end===
-@example
+@example maxima
 (%i1) load ("fft") $
 (%i2) fpprintprec : 4 $
 (%i3) L : [1, 2, 3, 4, 5, 6, 7, 8] $
@@ -343,20 +428,27 @@ Computation of sine and cosine coefficients.
 (%i9) b : make_array (any, n/2 + 1) $
 (%i10) a[0] : realpart (y[0]) $
 (%i11) b[0] : 0 $
+@group
 (%i12) for k : 1 thru n/2 - 1 do
    (a[k] : realpart (y[k] + y[n - k]),
     b[k] : imagpart (y[n - k] - y[k]));
 (%o12)                        done
+@end group
 (%i13) a[n/2] : y[n/2] $
 (%i14) b[n/2] : 0 $
+@group
 (%i15) listarray (a);
 (%o15)          [4.5, - 1.0, - 1.0, - 1.0, - 0.5]
+@end group
+@group
 (%i16) listarray (b);
-(%o16)           [0, - 2.414, - 1.0, - .4142, 0]
-(%i17) f(j) := sum (a[k]*cos(2*%pi*j*k/n) + b[k]*sin(2*%pi*j*k/n), 
-                    k, 0, n/2) $
+(%o16)             [0, 2.414, 1.0, 0.4142, 0]
+@end group
+(%i17) f(j) := sum (a[k] * cos (2*%pi*j*k / n) + b[k] * sin (2*%pi*j*k / n), k, 0, n/2) $
+@group
 (%i18) makelist (float (f (j)), j, 0, n - 1);
-(%o18)      [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
+(%o18)      [1.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -603,21 +695,30 @@ generate programs to be run in Fortran.  See also @mrefdot{stringout}
 @c ev (expr, x=1e155);
 @c ev (expr2, x=1e155);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) expr: 1e-155*x^2 - 5.5*x + 5.2e155;
-                           2
-(%o1)             1.e-155 x  - 5.5 x + 5.2e+155
+                            2
+(%o1)             1.0e-155 x  - 5.5 x + 5.2e155
+@end group
+@group
 (%i2) expr2: horner (%, x), keepfloat: true;
-(%o2)         1.0 ((1.e-155 x - 5.5) x + 5.2e+155)
+(%o2)         1.0 ((1.0e-155 x - 5.5) x + 5.2e155)
+@end group
+@group
 (%i3) ev (expr, x=1e155);
 Maxima encountered a Lisp error:
 
- arithmetic error FLOATING-POINT-OVERFLOW signalled
+ Arithmetic error FLOATING-POINT-OVERFLOW signalled.
+Operation was *, operands (1.0e155 NIL).
 
 Automatically continuing.
 To enable the Lisp debugger set *debugger-hook* to nil.
+@end group
+@group
 (%i4) ev (expr2, x=1e155);
-(%o4)                 7.00000000000001e+154
+(%o4)                 7.000000000000006e154
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -719,32 +820,58 @@ Examples:
 @c bf_find_root (exp(x) = y, x, 0, 100), y = 10;
 @c log(10b0);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) f(x) := sin(x) - x/2;
                                         x
 (%o1)                  f(x) := sin(x) - -
                                         2
+@end group
+@group
 (%i2) find_root (sin(x) - x/2, x, 0.1, %pi);
 (%o2)                   1.895494267033981
+@end group
+@group
 (%i3) find_root (sin(x) = x/2, x, 0.1, %pi);
 (%o3)                   1.895494267033981
+@end group
+@group
 (%i4) find_root (f(x), x, 0.1, %pi);
 (%o4)                   1.895494267033981
+@end group
+@group
 (%i5) find_root (f, 0.1, %pi);
 (%o5)                   1.895494267033981
+@end group
+@group
 (%i6) find_root (exp(x) = y, x, 0, 100);
                             x
 (%o6)           find_root(%e  = y, x, 0.0, 100.0)
+@end group
+@group
 (%i7) find_root (exp(x) = y, x, 0, 100), y = 10;
 (%o7)                   2.302585092994046
+@end group
+@group
 (%i8) log (10.0);
 (%o8)                   2.302585092994046
+@end group
+@group
 (%i9) fpprec:32;
-(%o9)                           32
-(%i10) bf_find_root (exp(x) = y, x, 0, 100), y = 10;
-(%o10)                  2.3025850929940456840179914546844b0
-(%i11) log(10b0);
-(%o11)                  2.3025850929940456840179914546844b0
+(%o9)                          32
+@end group
+@group
+(%i10) 32;
+(%o10)                         32
+@end group
+@group
+(%i11) bf_find_root (exp(x) = y, x, 0, 100), y = 10;
+(%o11)         2.3025850929940456840179914546844b0
+@end group
+@group
+(%i12) log(10b0);
+(%o12)         2.3025850929940456840179914546844b0
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -783,20 +910,32 @@ Examples:
 @c newton (x^2 - a^2, x, a/2, a^2/100);
 @c ev (x^2 - a^2, x = %);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) load ("newton1");
-(%o1)  /maxima/share/numeric/newton1.mac
+(%o1) /maxima/share/numeric/newton1.mac
+@end group
+@group
 (%i2) newton (cos (u), u, 1, 1/100);
-(%o2)                   1.570675277161251
+(%o2)                  1.5706752771612507
+@end group
+@group
 (%i3) ev (cos (u), u = %);
-(%o3)                 1.2104963335033529e-4
+(%o3)                 1.2104963335033528e-4
+@end group
+@group
 (%i4) assume (a > 0);
 (%o4)                        [a > 0]
+@end group
+@group
 (%i5) newton (x^2 - a^2, x, a/2, a^2/100);
-(%o5)                  1.00030487804878 a
+(%o5)                 1.0003048780487804 a
+@end group
+@group
 (%i6) ev (x^2 - a^2, x = %);
                                            2
 (%o6)                6.098490481853958e-4 a
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -812,30 +951,33 @@ Examples:
 
 The Ordinary Differential Equations (ODE) solved by the functions in this
 section should have the form,
-@ifnottex
+
+m4_displaymath(
+<<<{{dy}\over{dx}} = F(x,y)>>>,
+<<<
 @example
        dy
        -- = F(x,y)
        dx
 @end example
-@end ifnottex
-@tex
-$${{dy}\over{dx}} = F(x,y)$$
-@end tex
+>>>
+)
+
 which is a first-order ODE. Higher order differential equations of order
 @var{n} must be written as a system of @var{n} first-order equations of that
 kind. For instance, a second-order ODE should be written as a system of two
 equations
-@ifnottex
+
+m4_displaymath(
+<<<{{dx}\over{dt}} = G(x,y,t) \qquad {{dy}\over{dt}} = F(x,y,t)>>>,
+<<<
 @example
        dx               dy
        -- = G(x,y,t)    -- = F(x,y,t) 
        dt               dt
 @end example
-@end ifnottex
-@tex
-$${{dx}\over{dt}} = G(x,y,t) \qquad {{dy}\over{dt}} = F(x,y,t)$$
-@end tex
+>>>
+)
 
 The first argument in the functions will be a list with the expressions on
 the right-side of the ODE's. The variables whose derivatives are represented
@@ -891,31 +1033,26 @@ numerical method used is 4th order Runge-Kutta with variable time steps.
 
 @b{Plot window menu:}
 
-The menu bar of the plot window has the following seven icons:
+The menu bar of the plot window has the following five buttons:
 
-An X. Can be used to close the plot window.
+Close: can be used to close the plot window.
 
-A wrench and a screwdriver. Opens the configuration menu with several
+Config: opens the configuration menu with several
 fields that show the ODE(s) in use and various other settings. If a pair
 of coordinates are entered in the field @emph{Trajectory at} and the
 @key{enter} key is pressed, a new integral curve will be shown, in
 addition to the ones already shown.
 
-Two arrows following a circle. Replots the direction field with the
-new settings defined in the configuration menu and replots only the last
-integral curve that was previously plotted.
+Save: used to save a copy of the plot, in Postscript format, in the file
+specified in a field of the window that appears when that button is clicked.
 
-Hard disk drive with an arrow. Used to save a copy of the
-plot, in Postscript format, in the file specified in a field of the
-box that appears when that icon is clicked.
+Replot: replots the direction field with the new settings defined in the
+configuration menu and replots only the last integral curve that was
+previously plotted. If you just resized the plot window, the size and
+width of the arrows and curves will be adapted to the new size if you
+click on Replot.
 
-Magnifying glass with a plus sign. Zooms in the plot.
-
-Magnifying glass with a minus sign. Zooms out the plot. The plot can be
-displaced by holding down the right mouse button while the mouse is
-moved.
-
-Icon of a plot. Opens another window with a plot of the two variables
+Time plot: creates two new window showing the plots of the two variables
 in terms of time, for the last integral curve that was plotted.
 
 @b{Plot options:}
@@ -978,6 +1115,12 @@ parameters. The names and ranges of the parameters must be given in a
 string with a comma-separated sequence of elements @code{name=min:max}
 
 @item
+@dfn{tstep} sets the value of the time intervals used in the integration
+algorithm. It must be a floating point number; you might have to adjust
+its value to get good results for the integral curves. If not given, a
+default value will be chosen according to the region to be plotted.
+
+@item
 @dfn{xfun} defines a string with semi-colon-separated sequence
 of functions of @var{x} to be displayed, on top of the direction field.
 Those functions will be parsed by Tcl and not by Maxima.
@@ -1011,11 +1154,11 @@ density of the arrows being drawn. The default value is 225.
 
 @itemize @bullet
 @item
-To show the direction field of the differential equation @math{y' = exp(-x) + y} and the solution that goes through @math{(2, -0.1)}:
+To show the direction field of the differential equation @math{y' = e^{-x} + y} and the solution that goes through @math{(2, -0.1)}:
 @c ===beg===
 @c plotdf(exp(-x)+y,[trajectory_at,2,-0.1])$
 @c ===end===
-@example
+@example maxima
 (%i1) plotdf(exp(-x)+y,[trajectory_at,2,-0.1])$
 @end example
 
@@ -1024,13 +1167,19 @@ To show the direction field of the differential equation @math{y' = exp(-x) + y}
 @end ifnotinfo
 
 @item
-To obtain the direction field for the equation @math{diff(y,x) = x - y^2} and the solution with initial condition @math{y(-1) = 3}, we can use the command:
+To obtain the direction field for the equation
+m4_math(
+<<<dy/dx = x - y^2>>>,
+<<<@code{diff(y,x) = x - y^2}>>>
+)
+
+and the solution with initial condition @math{y(-1) = 3}, we can use the command:
 @c ===beg===
 @c plotdf(x-y^2,[xfun,"sqrt(x);-sqrt(x)"],
 @c          [trajectory_at,-1,3], [direction,forward],
 @c          [y,-5,5], [x,-4,16])$
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) plotdf(x-y^2,[xfun,"sqrt(x);-sqrt(x)"],
          [trajectory_at,-1,3], [direction,forward],
@@ -1038,7 +1187,11 @@ To obtain the direction field for the equation @math{diff(y,x) = x - y^2} and th
 @end group
 @end example
 
-The graph also shows the function @math{y = sqrt(x)}. 
+The graph also shows the function
+m4_mathdot(
+<<<y = \sqrt{x}>>>,
+<<<@code{y = sqrt(x)}>>>
+)
 
 @ifnotinfo
 @image{figures/plotdf2,8cm}
@@ -1046,7 +1199,11 @@ The graph also shows the function @math{y = sqrt(x)}.
 
 @item
 The following example shows the direction field of a harmonic oscillator,
-defined by the two equations @math{dz/dt = v} and @math{dv/dt = -k*z/m},
+defined by the two equations @math{dz/dt = v} and
+m4_mathcomma(
+<<<dv/dt = -kz/m>>>,
+<<<@math{dv/dt = -k*z/m}>>>)
+
 and the integral curve through @math{(z,v) = (6,0)}, with a slider that
 will allow you to change the value of @math{m} interactively (@math{k} is
 fixed at 2):
@@ -1054,7 +1211,7 @@ fixed at 2):
 @c plotdf([v,-k*z/m], [z,v], [parameters,"m=2,k=2"],
 @c            [sliders,"m=1:5"], [trajectory_at,6,0])$
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) plotdf([v,-k*z/m], [z,v], [parameters,"m=2,k=2"],
            [sliders,"m=1:5"], [trajectory_at,6,0])$
@@ -1066,13 +1223,18 @@ fixed at 2):
 @end ifnotinfo
 
 @item
-To plot the direction field of the Duffing equation, @math{m*x''+c*x'+k*x+b*x^3 = 0}, we introduce the variable @math{y=x'} and use:
+To plot the direction field of the Duffing equation,
+m4_mathcomma(
+<<<m x''+c x' + kx + bx^3 = 0>>>,
+<<<@math{m*x''+c*x'+k*x+b*x^3 = 0}>>>
+)
+we introduce the variable @math{y=x'} and use:
 @c ===beg===
 @c plotdf([y,-(k*x + c*y + b*x^3)/m],
 @c              [parameters,"k=-1,m=1.0,c=0,b=1"],
 @c              [sliders,"k=-2:2,m=-1:1"],[tstep,0.1])$
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) plotdf([y,-(k*x + c*y + b*x^3)/m],
              [parameters,"k=-1,m=1.0,c=0,b=1"],
@@ -1097,7 +1259,7 @@ the two state variables as a function of time:
 @c         [a,-10,2], [w,-14,14], [direction,forward],
 @c         [nsteps,300], [sliders,"m=0.1:1"], [versus_t,1])$
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) plotdf([w,-g*sin(a)/l - b*w/m/l], [a,w],
         [parameters,"g=9.8,l=0.5,m=0.3,b=0.05"],
@@ -1144,7 +1306,7 @@ Example:
 @c V: 900/((x+1)^2+y^2)^(1/2)-900/((x-1)^2+y^2)^(1/2)$
 @c ploteq(V,[x,-2,2],[y,-2,2],[fieldlines,"blue"])$
 @c ===end===
-@example
+@example maxima
 (%i1) V: 900/((x+1)^2+y^2)^(1/2)-900/((x-1)^2+y^2)^(1/2)$
 (%i2) ploteq(V,[x,-2,2],[y,-2,2],[fieldlines,"blue"])$
 @end example
@@ -1210,41 +1372,53 @@ Examples:
 
 To solve numerically the differential equation
 
-@ifnottex
+m4_displaymath(
+<<<{{dx}\over{dt}} = t - x^2>>>,
+<<<
 @example
           dx/dt = t - x^2
 @end example
-@end ifnottex
-@tex
-$${{dx}\over{dt}} = t - x^2$$ 
-@end tex
+>>>
+)
 
-With initial value x(t=0) = 1, in the interval of t from 0 to 8 and with
-increments of 0.1 for t, use:
+With initial value @math{x(t=0) = 1}, in the interval of @math{t} from 0 to 8 and with
+increments of 0.1 for @math{t}, use:
 
 @c ===beg===
 @c results: rk(t-x^2,x,1,[t,0,8,0.1])$
 @c plot2d ([discrete, results])$
 @c ===end===
-@example
+@example maxima
 (%i1) results: rk(t-x^2,x,1,[t,0,8,0.1])$
 (%i2) plot2d ([discrete, results])$
 @end example
 
-the results will be saved in the list @code{results} and the plot will show the solution obtained, with @var{t} on the horizontal axis and @var{x} on the vertical axis.
+The results will be saved in the list @code{results} and the plot will show the solution obtained, with @var{t} on the horizontal axis and @var{x} on the vertical axis.
+
+@ifnotinfo
+@image{figures/plotrk,8cm}
+@end ifnotinfo
 
 To solve numerically the system:
 
-@ifnottex
+m4_displaymath(
+<<<\eqalign{
+{dx\over dy} &= 4-x^2-4y^2 \cr
+{dy\over dt} &= y^2 - x^2 + 1
+}>>>,
+<<<
 @example
         dx/dt = 4-x^2-4*y^2     dy/dt = y^2-x^2+1
 @end example
-@end ifnottex
-@tex
-$$\cases{{\displaystyle{dx}\over\displaystyle{dt}} = 4-x^2-4y^2 &\cr &\cr {\displaystyle{dy}\over\displaystyle{dt}} = y^2-x^2+1}$$
-@end tex
-
-for t between 0 and 4, and with values of -1.25 and 0.75 for x and y at t=0:
+>>>
+)
+@c @ifnottex
+@c @end ifnottex
+@c @tex
+@c $$\cases{{\displaystyle{dx}\over\displaystyle{dt}} = 4-x^2-4y^2 &\cr &\cr {\displaystyle{dy}\over\displaystyle{dt}} = y^2-x^2+1}$$
+@c @end tex
+@c 
+for @math{t} between 0 and 4, and with values of -1.25 and 0.75 for @math{x} and @math{y} at @math{t=0}:
 
 @c ===beg===
 @c sol: rk([4-x^2-4*y^2, y^2-x^2+1], [x, y], [-1.25, 0.75],
@@ -1252,14 +1426,22 @@ for t between 0 and 4, and with values of -1.25 and 0.75 for x and y at t=0:
 @c plot2d([discrete, makelist([p[1], p[3]], p, sol)], [xlabel, "t"],
 @c              [ylabel, "y"])$
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) sol: rk([4-x^2-4*y^2, y^2-x^2+1], [x, y], [-1.25, 0.75],
-              [t, 0, 4, 0.02])$
+              [t,0,4,0.02])$
+@end group
+@group
 (%i2) plot2d([discrete, makelist([p[1], p[3]], p, sol)], [xlabel, "t"],
              [ylabel, "y"])$
+@end group
 @end example
 
 The plot will show the solution for variable @var{y} as a function of @var{t}.
+
+@ifnotinfo
+@image{figures/plotrk2,8cm}
+@end ifnotinfo
 
 @opencatbox{Categories:}
 @category{Differential equations}

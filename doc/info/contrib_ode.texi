@@ -340,7 +340,8 @@ zero if @var{soln} is a solution of @var{eqn}.
 @code{gauss_a(a,b,c,x)} and @code{gauss_b(a,b,c,x)} are 2F1 
 hypergeometric functions.  They represent any two independent
 solutions of the hypergeometric differential equation 
-@code{x*(1-x) diff(y,x,2) + [c-(a+b+1)x] diff(y,x) - a*b*y = 0} (A&S 15.5.1).  
+@code{x*(1-x) diff(y,x,2) + [c-(a+b+1)x] diff(y,x) - a*b*y = 0}
+See @urlaands{eqn 15.5.1, 562} and @urldlmf{15.10}.  
 
 The only use of these functions is in solutions of ODEs returned by 
 @mref{odelin} and @mref{contrib_ode}.  The definition and use of these 
@@ -390,8 +391,7 @@ of @mref{gauss_b}@code{(@var{a}, @var{b}, @var{c}, @var{x})}.
 @anchor{kummer_m}
 @deffn {Function} kummer_m (@var{a}, @var{b}, @var{x})
 
-Kummer's M function, as defined in Abramowitz and Stegun,
-@i{Handbook of Mathematical Functions}, Section 13.1.2.
+Kummer's M function, see @urlaands{eqn 13.1.2, 504} and @urldlmf{13.2}.
 
 The only use of this function is in solutions of ODEs returned by 
 @mref{odelin} and @mref{contrib_ode}.  The definition and use of this 
@@ -408,8 +408,7 @@ See also @mrefcomma{kummer_u} @mrefcomma{dkummer_m} and @mrefdot{dkummer_u}
 @anchor{kummer_u}
 @deffn {Function} kummer_u (@var{a}, @var{b}, @var{x})
 
-Kummer's U function, as defined in Abramowitz and Stegun,
-@i{Handbook of Mathematical Functions}, Section 13.1.3.
+Kummer's U function, see @urlaands{eqn 13.1.3, 504} and @urldlmf{13.2.6}.
 
 See @mrefdot{kummer_m}
 
@@ -447,7 +446,8 @@ Simplifies expressions containing Bessel functions @mrefcomma{bessel_j}
 @mrefcomma{bessel_y} @mrefcomma{bessel_i} @mrefcomma{bessel_k}
 @mrefcomma{hankel_1} @mrefcomma{hankel_2} @mref{struve_h}
 and @mrefdot{struve_l}
-Recurrence relations (DLMF §10.6(i))(A&S 9.1.27)
+Recurrence relations  @urlaands{eqn 9.1.27, 361} and @urldlmf{10.6#i}
+@c (DLMF §10.6(i))(A&S 9.1.27)
 are used to replace functions of highest order n
 by functions of order n-1 and n-2.
 
@@ -496,7 +496,7 @@ differ by less than 2.
 @anchor{expintegral_e_simplify}
 @deffn {Function} expintegral_e_simplify (@var{expr})
 Simplify expressions containing exponential integral @mref{expintegral_e}
-using the recurrence (A&S 5.1.14).
+using the recurrence @urlaands{eqn 5.1.14, 229}.
 
    expintegral_e(n+1,z) 
         = (1/n) * (exp(-z)-z*expintegral_e(n,z))      n = 1,2,3 ....

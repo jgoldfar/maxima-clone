@@ -61,6 +61,22 @@
   "If TRUE allows DIFF(X~Y,T) to work where ~ is defined in
 	  SHARE;VECT where VECT_CROSS is set to TRUE.")
 
+(defmfun $listp (x)
+  (and (not (atom x))
+       (not (atom (car x)))
+       (eq (caar x) 'mlist)))
+
+(defun atomchk (e fun 2ndp)
+  (if (or (atom e) (eq (caar e) 'bigfloat))
+      (merror (intl:gettext "~:M: ~Margument must be a non-atomic expression; found ~M") fun (if 2ndp "2nd " "") e)))
+
+(defmfun $member (x e)
+  (atomchk e '$member t)
+  (setq x (specrepcheck x))
+  (dolist (i (margs e))
+    (when (alike1 x (specrepcheck i))
+      (return t))))
+
 (defmfun $substitute (new old &optional (expr nil three-arg?))
   (cond (three-arg? (maxima-substitute new old expr))
 	(t
@@ -540,7 +556,7 @@
                result))
 
 	  ;; extension for pdiff.
-	  ((and (get '$pderivop 'operators) (funcall 'sdiffgrad-pdiff e x)))
+	  ((and (get '$pderivop 'operators) (mfuncall 'sdiffgrad-pdiff e x)))
 
 	  ;; two line extension for hypergeometric.
 	  ((and (equal fun '%hypergeometric) (get '%hypergeometric 'operators))
@@ -994,31 +1010,26 @@
 (defun getop (x)
   (or (and (symbolp x) (get x 'op)) x))
 
-(defmfun $listp (x)
-  (and (not (atom x))
-       (not (atom (car x)))
-       (eq (caar x) 'mlist)))
-
 (defmfun $cons (x e)
   (atomchk (setq e (format1 e)) '$cons t)
-  (mcons-exp-args e (cons x (margs e))))
+  (simplifya (mcons-exp-args e (cons x (margs e))) t))
 
 (defmfun $endcons (x e)
   (atomchk (setq e (format1 e)) '$endcons t)
-  (mcons-exp-args e (append (margs e) (ncons x))))
+  (simplifya (mcons-exp-args e (append (margs e) (ncons x))) t))
 
 (defmfun $reverse (e)
   (atomchk (setq e (format1 e)) '$reverse nil)
-  (mcons-exp-args e (reverse (margs e))))
+  (simplifya (mcons-exp-args e (reverse (margs e))) t))
 
 (defmfun $append (&rest args)
   (if (null args)
-      '((mlist simp))
+      (simplifya '((mlist)) t)
       (let ((arg1 (specrepcheck (first args))) op arrp)
 	(atomchk arg1 '$append nil)
 	(setq op (mop arg1)
 	      arrp (if (member 'array (cdar arg1) :test #'eq) t))
-	(mcons-exp-args
+	(simplifya (mcons-exp-args
 	 arg1
 	 (apply #'append
 		(mapcar #'(lambda (u)
@@ -1027,20 +1038,13 @@
 					 (eq arrp (if (member 'array (cdar u) :test #'eq) t)))
 			      (merror (intl:gettext "append: operators of arguments must all be the same.")))
 			    (margs u))
-			args))))))
+			args)))
+      t))))
 
 (defun mcons-exp-args (e args)
   (if (eq (caar e) 'mqapply)
       (list* (delsimp (car e)) (cadr e) args)
       (cons (delsimp (car e)) args)))
-
-(defmfun $member (x e)
-  (atomchk (setq e ($totaldisrep e)) '$member t)
-  (if (memalike ($totaldisrep x) (margs e)) t))
-
-(defun atomchk (e fun 2ndp)
-  (if (or (atom e) (eq (caar e) 'bigfloat))
-      (merror (intl:gettext "~:M: ~Margument must be a non-atomic expression; found ~M") fun (if 2ndp "2nd " "") e)))
 
 (defun format1 (e)
   (cond (($listp e) e)
@@ -1124,8 +1128,9 @@
       ($rest e (- m n)))))
 
 (defmfun $args (e)
-  (atomchk (setq e (format1 e)) '$args nil)
-	 (cons '(mlist) (margs e)))
+ (let ((formatted (format1 e)))
+  (atomchk formatted '$args nil)
+	 (simplifya (cons '(mlist) (margs formatted)) (eq e formatted))))
 
 (defmfun $delete (x l &optional (n -1 n?))
   (when (and n? (or (not (fixnump n)) (minusp n))) ; if n is set, it must be a nonneg fixnum
@@ -1207,7 +1212,7 @@
 	    
 (defmfun $float (e)
   (cond ((numberp e)
-	 (let ((e1 (float e))) (if (float-inf-p e1) (signal 'floating-point-overflow) e1)))
+	 (let ((e1 (float e))) (if (float-inf-p e1) (error 'floating-point-overflow) e1)))
 	((eq e '$%i)
 	 ;; Handle %i specially.
 	 (mul 1.0 '$%i))
@@ -1253,8 +1258,7 @@
 			      ($float `((%log) ,(third n)))))))
 		 ((complex-number-p n 'integerp)
 		  ;; float(log(n+m*%i)).
-		  (let ((re ($realpart n))
-			(im ($imagpart n)))
+		  (destructuring-bind (re . im) (trisplit n)
 		    (to (or (try-float-computation #'(lambda ()
 						       (log (complex (float re)
 								     (float im)))))
@@ -1270,11 +1274,12 @@
 		  ;;
 		  ;; where s = lcm(d1, d2), n and m are integers
 		  ;;
-		  (let* ((s (lcm ($denom ($realpart n))
-				 ($denom ($imagpart n))))
-			 (p ($expand (mul s n))))
+          (destructuring-bind (re . im) (trisplit n)
+		   (let* ((s (lcm ($denom re)
+			 	  ($denom im)))
+			      (p ($expand (mul s n))))
 		    (add ($float `((%log) ,s))
-			 ($float `((%log) ,p))))))))
+			 ($float `((%log) ,p)))))))))
 	((and (eq (caar e) '%erf)
 	      (eq (second e) '$%i))
 	 ;; Handle like erf(%i).  float(%i) (via recur-apply below)

@@ -1,7 +1,3 @@
-# -*-mode: tcl; fill-column: 75; tab-width: 8; coding: iso-latin-1-unix -*-
-#
-#       $Id: Myhtml1.tcl,v 1.6 2002-09-14 17:25:34 mikeclarkson Exp $
-#
 ###### Myhtml1.tcl ######
 ############################################################
 # Netmath       Copyright (C) 1998 William F. Schelter     #
@@ -53,8 +49,7 @@ defTag netmath -body {
     set paramList [xHMsplitParams $params]
     catch {
 	if { [xHMextract_param $paramList version ""] } {
-	    global maxima_priv
-	    if { [clock scan $version] > [clock scan $maxima_priv(date)] } {
+	    if { [clock scan $version] > [clock scan $::xmaxima_priv(date)] } {
 
 		xHMextract_param $paramList oldversion ""
 		append oldversion $text
@@ -72,7 +67,7 @@ defTag netmath -body {
 defTag math -body {
     set paramList [xHMsplitParams $params]
     upvar #0 xHMtaglist$win taglist
-    global xHMpriv 	 maxima_default
+    global xHMpriv
     set pre {$}
     if { [xHMextract_param $paramList display] } {
 	set pre {$\displaystyle}
@@ -88,7 +83,7 @@ defTag math -body {
     }
     set si [expr {($si < 1 ? 1 : ($si > 7 ? 7 : $si))}]
 
-    set ptsize $maxima_default([lindex $wvar(family) end],$si)
+    set ptsize $::xmaxima_default([lindex $wvar(family) end],$si)
     if { [regexp & $text] }  {
 	set text [xHMconvert_ampersand $text]
     }

@@ -1,12 +1,24 @@
 ;;Copyright William F. Schelter 1990, All Rights Reserved
 ;;
-;; Time-stamp: "2024-03-26 21:44:42 villate"
 
 (in-package :maxima)
 
-(defvar $mgnuplot_command "mgnuplot")
-(defvar $geomview_command "geomview")
-(defvar $xmaxima_plot_command "xmaxima")
+;; For function defmvar :setting-predicate.  Checks that the argument
+;; is a string.  The second value is the message to use when the
+;; argument is not a string.
+(defun string-predicate (val)
+  (values (stringp val)
+          "must be a string"))
+
+(defmvar $mgnuplot_command "mgnuplot"
+  "The command (a string) that will run mgnuplot"
+  :setting-predicate #'string-predicate)
+(defmvar $geomview_command "geomview"
+  "The command (a string) that will run geomview"
+  :setting-predicate #'string-predicate)
+(defmvar $xmaxima_plot_command "xmaxima"
+  "The command (a string) that will run xmaxima"
+  :setting-predicate #'string-predicate)
 
 #|
 Examples
@@ -86,33 +98,18 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
 ;; of it would imply modifying init-cl.lisp when this variable is set.
 (defvar *maxima-plotdir* "")
 
-;; *ROT* AND FRIENDS ($ROT, $ROTATE_PTS, $ROTATE_LIST) CAN PROBABLY GO AWAY !!
-;; THEY ARE UNDOCUMENTED AND UNUSED !!
-;; (defvar *rot* (make-array 9 :element-type 'flonum))
-;; (defvar $rot nil)
-
 ;; Global plot options list; this is a property list.. It is not a
 ;; Maxima variable, to discourage users from changing it directly; it
-;; should be changed via set_plot_option
-
-(defvar *plot-options* 
-  '($plot_format $gnuplot_pipes
-    $grid (30 30) $run_viewer t $axes t
-    ;; With adaptive plotting, 29 nticks should be enough; adapt_depth
-    ;; controls the number of splittings adaptive-plotting will do.
-    $nticks 29 $adapt_depth 5
-    $color ($blue $red $green $magenta $black $cyan)
-    $point_type ($bullet $box $triangle $plus $times $asterisk)
-    $palette (((mlist) $hue 0.33333333 0.7 1 0.5)
-              ((mlist) $hue 0.8 0.7 1 0.4))   
-    $gnuplot_svg_background "white"
-    $gnuplot_preamble "" $gnuplot_term $default))
+;; should be changed via set_plot_option.
+;; The default values will bet set below, after the definition of
+;; function $reset_plot_options.
+(defvar *plot-options*)
 
 ;; Apparently Wxmaxima needs a default plot_options Maxima list pre-defined.
 ;; We will then create such list with minimum content.
 ;; (TO-DO: check whether recent versions of Wxmaxima still require that)
 
-(defvar $plot_options 
+(defmvar $plot_options 
   '((mlist) ((mlist) $plot_format $gnuplot_pipes)))
 
 ;; $plot_realpart option is false by default but *plot-realpart* is true
@@ -126,110 +123,7 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
           ($realpart x)
           nil)))
 
-;; gnuplot_pipes functions. They allow the use of Gnuplot through a
-;; pipe in order to keep it active (this makes it possible for instance,
-;; to rotate a 3d surface with the mouse)
-
 (defvar *missing-data-indicator* "NaN")
-
-(defvar *gnuplot-stream* nil)
-(defvar *gnuplot-command* "")
-
-(defvar $gnuplot_command "gnuplot")
-
-(defun start-gnuplot-process (path)
-  ;; TODO: Forward gnuplot's stderr stream to maxima's stderr output
-  #+clisp (setq *gnuplot-stream* (ext:make-pipe-output-stream path))
-  ;; TODO: Forward gnuplot's stderr stream to maxima's stderr output
-  #+lispworks (setq *gnuplot-stream* (system:open-pipe path))
-  #+cmu (setq *gnuplot-stream*
-              (ext:process-input (ext:run-program path nil :input :stream
-                                                  :output *error-output* :wait nil)))
-  #+scl (setq *gnuplot-stream*
-              (ext:process-input (ext:run-program path nil :input :stream
-                                                  :output *error-output* :wait nil)))
-  #+sbcl (setq *gnuplot-stream*
-               (sb-ext:process-input (sb-ext:run-program path nil
-                                                         :input :stream
-                                                         :output *error-output* :wait nil
-                                                         :search t)))
-  #+gcl (setq *gnuplot-stream*
-              (open (concatenate 'string "| " path) :direction :output))
-  #+ecl (progn
-          (setq *gnuplot-stream* (ext:run-program path nil :input :stream :output *error-output* :error :output :wait nil)))
-  #+ccl (setf *gnuplot-stream*
-              (ccl:external-process-input-stream
-               (ccl:run-program path nil
-                                :wait nil :output *error-output*
-                                :input :stream)))
-  #+allegro (setf *gnuplot-stream* (excl:run-shell-command
-                    path :input :stream :output *error-output* :wait nil))
-  #+abcl (setq *gnuplot-stream* (system::process-input (system::run-program path nil :wait nil)))
-  #-(or clisp cmu sbcl gcl scl lispworks ecl ccl allegro abcl)
-  (merror (intl:gettext "plotting: I don't know how to tell this Lisp to run Gnuplot."))
-  
-  (if (null *gnuplot-stream*)
-    (merror (intl:gettext "plotting: I tried to execute ~s but *GNUPLOT-STREAM* is still null.~%") path))
-
-  ;; set mouse must be the first command send to gnuplot
-  (send-gnuplot-command "set mouse"))
-
-(defun check-gnuplot-process ()
-  (if (null *gnuplot-stream*)
-      (start-gnuplot-process $gnuplot_command)))
-
-(defmfun $gnuplot_close ()
-  (stop-gnuplot-process)
-  "")
-
-(defmfun $gnuplot_start ()
-  (check-gnuplot-process)
-  "")
-
-(defmfun $gnuplot_restart ()
-  ($gnuplot_close)
-  ($gnuplot_start))
-
-(defmfun $gnuplot_send (command)
-  (send-gnuplot-command command))
-
-(defun stop-gnuplot-process ()
-  (unless (null *gnuplot-stream*)
-      (progn
-        (close *gnuplot-stream*)
-        (setq *gnuplot-stream* nil))))
-
-(defun send-gnuplot-command (command &optional recursive)
-  (if (null *gnuplot-stream*)
-      (start-gnuplot-process $gnuplot_command))
-  (handler-case (unless (null command)
-		  (format *gnuplot-stream* "~a ~%" command)
-		  (finish-output *gnuplot-stream*))
-    (error (e)
-      ;; allow gnuplot to restart if stream-error, or just an error is signaled
-      ;; only try to restart once, to prevent an infinite loop 
-      (cond (recursive
-	     (error e))
-	    (t
-	     (warn "~a~%Trying new stream.~%" e)
-	     (setq *gnuplot-stream* nil)
-	     (send-gnuplot-command command t))))))
-
-(defmfun $gnuplot_reset ()
-  (send-gnuplot-command "unset output")
-  (send-gnuplot-command "reset"))
-
-(defmfun $gnuplot_replot (&optional s)
-  (if (null *gnuplot-stream*)
-      (merror (intl:gettext "gnuplot_replot: Gnuplot is not running.")))
-  (cond ((null s)
-         (send-gnuplot-command "replot"))
-        ((stringp s)
-         (send-gnuplot-command s)
-         (send-gnuplot-command "replot"))
-        (t
-         (merror (intl:gettext "gnuplot_replot: argument, if present, must be a string; found: ~M") s)))
-  "")
 
 ;; PLOT OPTIONS PARSING
 ;;
@@ -272,6 +166,28 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
 (defmfun $set_plot_option (&rest value)
   (setq *plot-options* (plot-options-parser value *plot-options*))
   ($get_plot_option))
+
+;; Sets the default plotting options.
+(defmfun $reset_plot_options ()
+  (setq *plot-options* nil)
+  (setf (getf *plot-options* '$gnuplot_term) '$default)
+  (setf (getf *plot-options* '$gnuplot_preamble) "")
+  (setf (getf *plot-options* '$gnuplot_svg_background) "white")
+  (setf (getf *plot-options* '$palette)
+        '(((mlist) $hue 0.33333333 0.7 1 0.5) ((mlist) $hue 0.8 0.7 1 0.4)))
+  (setf (getf *plot-options* '$point_type)
+        '($bullet $box $triangle $plus $times $asterisk))
+  (setf (getf *plot-options* '$color)
+        '($blue $red $green $magenta $black $cyan))
+  (setf (getf *plot-options* '$adapt_depth) 5)
+  (setf (getf *plot-options* '$nticks) 29)
+  (setf (getf *plot-options* '$axes) t)
+  (setf (getf *plot-options* '$run_viewer) t)
+  (setf (getf *plot-options* '$grid) '(30 30))
+  (setf (getf *plot-options* '$plot_format) '$gnuplot_pipes)
+  t)
+
+($reset_plot_options)
 
 ;; Removes option "name" from current plotting options
 (defmfun $remove_plot_option (name)
@@ -316,13 +232,13 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
          (x 0.0)  ( y 0.0)
          (epsy (/ (- maxy miny) nyint))
          (nx (+ nxint 1))
-         (l 0)
+         (l 0) fval (fval-count 0)
          (ny (+ nyint 1))
          (ar (make-array  (+ 12         ; 12  for axes
                              (* 3 nx ny))  :fill-pointer (* 3 nx ny)
                              :element-type t :adjustable t)))
     (declare (type flonum x y epsy epsx)
-             (fixnum nx  ny l)
+             (fixnum nx ny l fval-count)
              (type (cl:array t) ar))
     (loop for j below ny
            initially (setq y miny)
@@ -331,11 +247,15 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
                   do
                   (setf (x-pt ar l) x)
                   (setf (y-pt ar l) y)
-                  (setf (z-pt ar l) (funcall f x y))
+                  (setq fval (funcall f x y))
+                  (if (floatp fval) (setq fval-count (1+ fval-count)))
+                  (setf (z-pt ar l) fval)
                   (incf l)
                   (setq x (+ x epsx))
                   )
            (setq y (+ y epsy)))
+    (if (< fval-count 1)
+        (merror (intl:gettext "plot3d: nothing to plot.~%")))
     (make-polygon  ar  (make-grid-vertices nxint nyint))))
 
 ;; ***** This comment refers to some unexistent function make-vertices ****
@@ -416,36 +336,6 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
       ((mlist simp) ,(- (*  sinph costh))
        ,(* sinph sinth)
        ,cosph))))
-   
-;; pts is a vector of bts [x0,y0,z0,x1,y1,z1,...] and each tuple xi,yi,zi is rotated
-#-abcl (defmfun $rotate_pts(pts rotation-matrix)
-  (or ($matrixp rotation-matrix) (merror (intl:gettext "rotate_pts: second argument must be a matrix.")))
-  (let* ((rot *rot*)
-         (l (length pts))
-         (x 0.0) (y 0.0) (z 0.0)
-         )
-    (declare (type flonum  x y z))
-    (declare (type (cl:array flonum) rot))
-    ($copy_pts rotation-matrix *rot* 0)
-        
-    (loop with j = 0
-           while (< j l)
-           do
-           (setq x (aref pts j))
-           (setq y (aref pts (+ j 1)))
-           (setq z (aref pts (+ j 2)))
-           (loop for i below 3 with a of-type flonum = 0.0
-                  do
-                  (setq a (* x (aref rot (+ (* 3 i) 0))))
-                  (setq a (+ a (* y (aref rot (+ (* 3 i) 1)))))
-                  (setq a (+ a (* z (aref rot (+ (* 3 i) 2)))))
-                  (setf (aref pts (+ j i )) a))
-           (setf j (+ j 3)))))
-
-(defmfun $rotate_list (x)
-  (cond ((and ($listp x) (not (mbagp (second x))))
-         ($list_matrix_entries (ncmul2  $rot x)))
-        ((mbagp x) (cons (car x) (mapcar '$rotate_list (cdr x))))))
 
 (defmfun $get_range (pts k &aux (z 0.0) (max +most-negative-flonum+) (min +most-positive-flonum+))
   (declare (type flonum z max min))
@@ -707,7 +597,7 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
 
 (defun coerce-maxima-function-or-maxima-lambda
     (args expr &key (float-fun '$float))
-  (let ((gensym-args (loop for x in args collect (gensym))))
+  (let ((gensym-args (loop for nil in args collect (gensym))))
     (coerce
       `(lambda ,gensym-args (declare (special ,@gensym-args))
          ;; Just always try to convert the result with
@@ -729,7 +619,7 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
 
 (defun coerce-lisp-function-or-lisp-lambda
     (args expr &key (float-fun '$float))
-  (let ((gensym-args (loop for x in args collect (gensym))))
+  (let ((gensym-args (loop for nil in args collect (gensym))))
     (coerce
       `(lambda ,gensym-args (declare (special ,@gensym-args))
          (let* (($ratprint nil)
@@ -1361,7 +1251,7 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
 ;; points have real values.
 ;; Currently there are no plot options relevant to draw2d-discrete.
 (defun draw2d-discrete (f)
-  (let ((x (third f)) (y (fourth f)) (n-clipped 0) data gaps)
+  (let ((x (third f)) (y (fourth f)) data gaps)
    (cond
       (($listp x)            ; x is a list
        (cond
@@ -1760,11 +1650,19 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
              (setq ymax (car l)))))
     (list '(mlist) ymin ymax)))
 
-#+sbcl (defvar $gnuplot_view_args "-persist ~a")
-#-sbcl (defvar $gnuplot_view_args "-persist ~s")
+(defmvar $gnuplot_view_args
+    #+(or sbcl gcl) "-persist ~a"
+    #-(or sbcl gcl) "-persist ~s"
+    "String of additional command-line options for gnuplot.  See the user
+    manual."
+    :setting-predicate #'string-predicate)
 
-#+(or sbcl openmcl) (defvar $gnuplot_file_args "~a")
-#-(or sbcl openmcl) (defvar $gnuplot_file_args "~s")
+(defmvar $gnuplot_file_args
+    #+(or sbcl openmcl gcl) "~a"
+    #-(or sbcl openmcl gcl) "~s"
+    "Format string for printing the file name for gnuplot to use.  See the
+    user manual."
+    :setting-predicate #'string-predicate)
 
 ;; random-file-name
 ;; Creates a random word of 'count' alphanumeric characters
@@ -1818,41 +1716,6 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
   (if (pathname-directory file)
       file
       (plot-temp-file file preserve-file plot-options)))
-
-(defun gnuplot-process (plot-options &optional file out-file)
-  (let ((gnuplot-term (getf plot-options '$gnuplot_term))
-        (run-viewer (getf plot-options '$run_viewer))
-        #-(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-		(gnuplot-preamble
-         (string-downcase (getf plot-options '$gnuplot_preamble))))
-
-    ;; creates the output file, when there is one to be created
-    (when (and out-file (not (eq gnuplot-term '$default)))
-      #+(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-      ($system $gnuplot_command (format nil $gnuplot_file_args file))
-      #-(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-      ($system (format nil "~a ~a" $gnuplot_command
-                       (format nil $gnuplot_file_args file))))
-
-    ;; displays contents of the output file, when gnuplot-term is dumb,
-    ;; or runs gnuplot when gnuplot-term is default
-    (when run-viewer
-      (case gnuplot-term
-        ($default
-         ;; the options given to gnuplot will be different when the user
-         ;; redirects the output by using "set output" in the preamble
-	 #+(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-	 ($system $gnuplot_command "-persist" (format nil $gnuplot_file_args file))
-	 #-(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-	 ($system 
-	  (format nil "~a ~a" $gnuplot_command
-		  (format nil (if (search "set out" gnuplot-preamble) 
-				  $gnuplot_file_args $gnuplot_view_args)
-			  file))))
-        ($dumb
-         (if out-file
-             ($printfile (car out-file))
-             (merror (intl:gettext "plotting: option 'gnuplot_out_file' not defined."))))))))
 
 ;; PLOT OPTIONS PARSING
 ;; plot-options-parser puts the plot options given into a property list.
@@ -2088,13 +1951,17 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
          ($run_viewer (setf (getf options '$run_viewer) t))
          ($same_xy (setf (getf options '$same_xy) t))
          ($same_xyz (setf (getf options '$same_xyz) t))
+         ($xmaxima (setf (getf options '$plot_format) '$xmaxima))
          ($xtics (remf options '$xtics))
          ($ytics (remf options '$ytics))
          ($zmin (remf options '$zmin))
+         ($gnuplot (setf (getf options '$plot_format) '$gnuplot))
          ($gnuplot_4_0 (setf (getf options '$gnuplot_4_0) t))
+         ($gnuplot_pipes (setf (getf options '$plot_format) '$gnuplot_pipes))
          ($gnuplot_pm3d (setf (getf options '$gnuplot_pm3d) t))
          ($gnuplot_strings (setf (getf options '$gnuplot_strings) t))
-         ($gnuplot_svg_background (setf (getf options '$gnuplot_svg_background) t))
+         ($gnuplot (setf (getf options '$plot_format) '$gnuplot))
+
          ($noaxes (setf (getf options '$axes) nil))
          ($nobox (setf (getf options '$box) nil))
          ($nocolor_bar (setf (getf options '$color_bar) nil))
@@ -2107,20 +1974,19 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
          ($nopalette (setf (getf options '$palette) nil))
          ($noplot_realpart (setf (getf options '$plot_realpart) nil))
          ($norun_viewer (setf (getf options '$run_viewer) nil))
+         ($noxlabel (setf (getf options '$xlabel) ""))
          ($nosame_xy (setf (getf options '$same_xy) nil))
          ($nosame_xyz (setf (getf options '$same_xyz) nil))
          ($notransform_xy (remf options '$transform_xy))
          ($noxtics (setf (getf options '$xtics) nil))
+         ($noylabel (setf (getf options '$ylabel) ""))
          ($noytics (setf (getf options '$ytics) nil))
          ($noztics (setf (getf options '$ztics) nil))
+         ($nozlabel (setf (getf options '$zlabel) ""))
          ($nognuplot_strings (setf (getf options '$gnuplot_strings) nil))
          ($nognuplot_svg_background (setf (getf options '$gnuplot_svg_background) nil))
          (t
           (merror (intl:gettext "Unknown plot option \"~M\".") opt))))))
-  ;; plots that use ASCII art should not use gnuplot_pipes
-  (when (and (eq (getf options '$plot_format) '$gnuplot_pipes)
-             (eq (getf options '$gnuplot_term) '$dumb))
-    (setf (getf options '$plot_format) '$gnuplot))
   options)
 
 ;; natural numbers predicate
@@ -2373,7 +2239,7 @@ plot2d ( x^2+y^2 = 1, [x, -2, 2], [y, -2 ,2]);
   ;; the xrange option is mandatory and will provide the name of
   ;; the horizontal axis and the values of xmin and xmax.
   (let ((xrange-required nil) (bounds-required nil) (yrange-required nil)
-        small huge prange)
+        small huge)
     #-clisp (setq small (- (/ +most-positive-flonum+ 1024)))
     #+clisp (setq small (- (/ most-positive-double-float 1024.0)))
     #-clisp (setq huge (/ +most-positive-flonum+ 1024))
@@ -2390,7 +2256,7 @@ plot2d ( x^2+y^2 = 1, [x, -2, 2], [y, -2 ,2]);
                  ;; prematurely clipped. Don't use most-positive-flonum
                  ;; because draw2d will overflow.
                  (setf (getf options '$xbounds) (list small huge)))
-               (setq prange (check-range ($fourth f))))
+               (check-range ($fourth f)))
               ($contour
                (setq xrange (check-range xrange))
                (setq xrange-required t)
@@ -2398,7 +2264,7 @@ plot2d ( x^2+y^2 = 1, [x, -2, 2], [y, -2 ,2]);
                  (setq yrange-required t)
                  (if (null extra-options)
                      (merror
-                      (intl:gettext "plot2d: Missing interval for variable 2."))
+                      (intl:gettext "plot2d: contour plots require intervals for the variables in the two axes; only one interval was given."))
                      (progn
                        (setq yrange (pop extra-options))
                        (setq yrange (check-range yrange))
@@ -2428,7 +2294,7 @@ plot2d ( x^2+y^2 = 1, [x, -2, 2], [y, -2 ,2]);
                 (setq yrange-required t)
                 (if (null extra-options)
                     (merror
-                     (intl:gettext "plot2d: Missing interval for variable 2."))
+                     (intl:gettext "plot2d: implicit function plots require intervals for the variables in the two axes; only one interval was given."))
                     (progn
                       (setq yrange (pop extra-options))
                       (setq yrange (check-range yrange))

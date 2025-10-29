@@ -16,22 +16,6 @@
 
 (in-package :maxima)
 
-;;; Locations of various types of files. These variables are discussed
-;;; in more detail in the file doc/implementation/dir_vars.txt. Since
-;;; these are already in the maxima package, the maxima- prefix is
-;;; redundant. It is kept for consistency with the same variables in
-;;; shell scripts, batch scripts and environment variables.
-;;; jfa 02/07/04
-
-(defvar *maxima-topdir*)        ;; top-level installation or build directory
-(defvar *maxima-imagesdir*)
-(defvar *maxima-sharedir*)
-(defvar *maxima-srcdir*)
-(defvar *maxima-docdir*)
-(defvar *maxima-layout-autotools*)
-(defvar *maxima-demodir*)
-(defvar *maxima-objdir*)		;; Where to store object (fasl) files.
-
 (defvar *verify-html-index* nil
   "If non-NIL, verify the contents of the html index versus the text
   index.  Set via the command-line option --verify-html-index.")
@@ -80,19 +64,6 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
     (format t "~a:~25t~a~%"
             (string-trim "*" (string-downcase var))
             (symbol-value var))))
-
-(defvar *maxima-lispname*
-        #+clisp "clisp"
-	#+cmu "cmucl"
-	#+scl "scl"
-	#+sbcl "sbcl"
-	#+gcl "gcl"
-	#+allegro "acl"
-	#+openmcl "openmcl"
-	#+abcl "abcl"
-	#+lispworks "lispworks"
-	#+ecl "ecl"
-	#-(or clisp cmu scl sbcl gcl allegro openmcl abcl lispworks ecl) "unknownlisp")
 
 (defun maxima-parse-dirstring (str)
   (let ((sep "/"))
@@ -158,7 +129,7 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
     (setq *maxima-plotdir*   (combine-path maxima-prefix "plotting"))))
 
 (defun default-userdir ()
-  (let ((home-env (maxima-getenv "HOME"))
+  (let ((home-env (or (maxima-getenv "HOME") (maxima-getenv "USERPROFILE")))
 	(base-dir "")
 	(maxima-dir (if (string= *autoconf-windows* "true")
 			"maxima"
@@ -231,14 +202,6 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
                 ((string= language "ru")
                  (setq *maxima-lang-subdir* language))
                 (t  (setq *maxima-lang-subdir* nil))))))))
-
-(flet ((sanitize-string (s)
-	 (map 'string (lambda(x) (if (alphanumericp x) x #\_))
-	      (subseq s 0 (min 142 (length s))))))
-  (defun lisp-implementation-version1 ()
-    (sanitize-string (lisp-implementation-version)))
-  (defun maxima-version1 ()
-    (sanitize-string *autoconf-version*)))
 
 (defun setup-search-lists ()
   "Set up the default values for $file_search_lisp, $file_search_maxima,
@@ -361,32 +324,6 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
   (when (and *maxima-lang-subdir*
 	     (not (probe-file (combine-path *maxima-infodir* *maxima-lang-subdir* "maxima-index.lisp"))))
     (setq *maxima-lang-subdir* nil)))
-
-(defun get-dirs (path &aux (ns (namestring path)))
-  (directory (concatenate 'string
-                          ns
-                          (if (eql #\/ (char ns (1- (length ns)))) "" "/")
-                          "*"
-                          #+(or :clisp :sbcl :ecl :openmcl :gcl) "/")
-             #+openmcl :directories #+openmcl t))
-
-(defun unix-like-basename (path)
-  (let* ((pathstring (namestring path))
-	 (len (length pathstring)))
-    (when (equal (subseq pathstring (- len 1) len) "/")
-      (decf len)
-      (setf pathstring (subseq pathstring 0 len)))
-    (subseq pathstring (1+ (or (position #\/ pathstring :from-end t)
-			       (position #\\ pathstring :from-end t))) len)))
-
-(defun unix-like-dirname (path)
-  (let* ((pathstring (namestring path))
-	 (len (length pathstring)))
-    (when (equal (subseq pathstring (- len 1) len) "/")
-      (decf len)
-      (setf pathstring (subseq pathstring 0 len)))
-    (subseq pathstring 0 (or (position #\/ pathstring :from-end t)
-			     (position #\\ pathstring :from-end t)))))
 
 (defun list-avail-action ()
   (let* ((maxima-verpkglibdir (if (maxima-getenv "MAXIMA-VERPKGLIBDIR")
@@ -589,6 +526,12 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
 						    port-string))
                                      (setf input-stream *standard-input*))
 			 :help-string "Connect Maxima to server on <port>.")
+	 (make-cl-option :names '("--suppress-input-echo")
+			 :action #'(lambda ()
+				     (declare (special *suppress-input-echo*))
+				     (setq *suppress-input-echo* t))
+			 :help-string
+			 "Do not print input expressions when processing noninteractively.")
 	 (make-cl-option :names '("-u" "--use-version")
 			 :argument "<version>"
 			 :action nil
@@ -746,18 +689,19 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
                                      "/share/locale/"
                                      "/locale/")))
           intl::*locale-directories*))
-  ;; Set up $browser for displaying help in browser.
+  ;; Set up $browser for displaying help in browser in Linux.
   (cond ((and (boundp '*autoconf-windows*)
 	      (string-equal *autoconf-windows* "true"))
-	 ;; Starts the default browser on Windows.
-	 (setf $browser "start ~A"))
+	 ;; "start" will open the default browser in Windows.
+	 (setf $browser "start"))
 	((boundp '*autoconf-host*)
-	 ;; Determine what kind of OS we're using from the host and
-	 ;; set up the default browser appropriately.
 	 (cond ((pregexp:pregexp-match-positions "(?:darwin)" *autoconf-host*)
-		(setf $browser "open '~A'"))
+	        ;; "open"  will open the default browser in MacOS.
+		(setf $browser "open"))
 	       ((pregexp:pregexp-match-positions "(?i:linux)" *autoconf-host*)
-		(setf $browser "xdg-open '~A'")))))
+	        ;; "xdg-open"  will open the default browser in Linux.
+		(setf $browser "xdg-open")))))
+
   (setf %e-val (mget '$%e '$numer))
 
   ;; Initialize *bigprimes* here instead of globals.lisp because we
@@ -776,6 +720,7 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
   (setf $pointbound *alpha)
   (setf (gethash '$pointbound *variable-initial-values*)
 	*alpha)
+  (initialize-atan2-hashtable)
   (values))
 
 (defun adjust-character-encoding ()
@@ -801,8 +746,6 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
           :line-terminator (ext:encoding-line-terminator custom:*terminal-encoding*))
 	 custom:*default-file-encoding* custom:*terminal-encoding*)))
 
-(import 'cl-user::run)
-
 (defmfun $to_lisp ()
   (format t "~&Type (to-maxima) to restart, ($quit) to quit Maxima.~%")
   (let ((old-debugger-hook *debugger-hook*))
@@ -814,6 +757,27 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
 
 (defun to-maxima ()
   (throw 'to-maxima t))
+
+(defun interactive-eval (form)
+  "Evaluate FORM, returning whatever it returns but adjust ***, **, *, +++, ++,
+  +, ///, //, /, and -."
+  (setf - form)
+  (let ((results (multiple-value-list (eval form))))
+    (setf /// //
+	  // /
+	  / results
+	  *** **
+	  ** *
+	  * (car results)))
+  (setf +++ ++
+	++ +
+	+ -)
+  (unless (boundp '*)
+    ;; The bogon returned an unbound marker.
+    (setf * nil)
+    (cerror (intl:gettext "Go on with * set to NIL.")
+	    (intl:gettext "EVAL returned an unbound marker.")))
+  /)
 
 (defun maxima-read-eval-print-loop ()
   (when *debugger-hook*
@@ -829,7 +793,7 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
           (when (eq input eof)
             (fresh-line)
             (to-maxima))
-          (format t "~{~&~S~}" (multiple-value-list (eval input))))))))
+          (format t "~{~&~S~}" (interactive-eval input)))))))
 
 (defun maxima-lisp-debugger-repl (condition me-or-my-encapsulation)
   (declare (ignore me-or-my-encapsulation))

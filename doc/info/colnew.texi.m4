@@ -92,9 +92,14 @@ The function arguments are:
 Number of differential equations   (ncomp ≤ 20)
 
 @item m
-Integer list of length @var{ncomp}.  m[j] is the order of the j-th
-differential equation, with @math{1 ≤ m[j] ≤ 4}
-and @math{mstar = sum(m[j]) ≤ 40}.
+Integer list of length @var{ncomp}.  
+m4_math(m_j, m[j]) 
+is the order of the @math{j}-th
+differential equation,
+with 
+m4_math(<<<1 \le m_j \le 4>>>, <<<@math{1 ≤ m[j] ≤ 4}>>>)
+and 
+m4_mathdot(<<<m^* = \sum_j m_j \le 40>>>, <<<@math{mstar = sum(m[j]) ≤ 40}>>>)
 
 @item aleft
 Left end of interval
@@ -103,10 +108,19 @@ Left end of interval
 Right end of interval
 
 @item zeta
-Real list of length @var{mstar}.  zeta[j] is the 
-j-th boundary or side condition point. The list zeta
+@var{zeta} 
+m4_math(<<<(\zeta)>>>, <<<>>>)
+is a real list of length 
+m4_mathdot(<<<m^*>>>,<<<@var{mstar}>>>)
+m4_math(<<<\zeta_j>>>, <<<@code{zeta[j]}>>>) 
+is the 
+@math{j}-th boundary or side condition point. The
+list 
+m4_math(\zeta, zeta) 
 must be ordered, 
-with  zeta[j] ≤ zeta[j+1]. All side condition
+with  
+m4_mathdot(<<<\zeta_j \le \zeta_{j+1}>>>, <<<zeta[j] ≤ zeta[j+1]>>>)
+All side condition
 points must be mesh points in all meshes used,
 see description of ipar[11] and fixpnt below.
 
@@ -120,36 +134,43 @@ A integer list of length 11.  The parameters in ipar are:
     @item 1, if the problem is nonlinear
   @end itemize
   
-  @item @var{ipar[2]} ( = k )@*
+  @item @var{ipar[2]} ( = @math{k} )@*
   Number of collocation points per subinterval , where
-  @math{max(m[i]) ≤ k ≤ 7}.@*
-  If @var{ipar[2]}=0 then colnew sets  k = max(max(m[i])+1, 5-max(m[i]))
+m4_mathdot(<<<\max_j m_j \le k \le 7>>>, <<<@math{max(m[i]) ≤ k ≤ 7}>>>)
+  If @var{ipar[2]}=0 then colnew sets 
+m4_mathdot(<<<k = \max\left(\max_i m_i + 5, 5 - \max_i m_i\right)>>>, <<<k = max(max(m[i])+1, 5-max(m[i]))>>>)
   
-  @item @var{ipar[3]}  ( = n )@*
+  @item @var{ipar[3]}  ( = @math{n} )@*
   Number of subintervals in the initial mesh.@*
-  If @var{ipar[3]} = 0 then colnew arbitrarily sets n = 5.
+  If @var{ipar[3]} = 0 then colnew arbitrarily sets @math{n = 5}.
   
   @item @var{ipar[4]} ( = ntol )@*
   Number of solution and derivative tolerances.@*
-  Require  0 < @var{ntol}  ≤ @var{mstar}.
+  Require 
+m4_mathdot(<<<0 < {\rm ntol} < m^*>>>, <<< 0 < @var{ntol}  ≤ @var{mstar}>>>)
   
   @item @var{ipar[5]}  ( = ndimf )@*
   The length of list @var{fspace}. Its size provides a constraint on @var{nmax}.
   Choose ipar[5] according to the formula
-  @math{ipar[5] ≥ nmax*nsizef} 
+m4_math(<<<{\rm ipar[5]} \ge {\rm nmax} \cdot {\rm nsizef}>>>, <<<@math{ipar[5] ≥ nmax*nsizef}>>>)
   where
-  @math{ nsizef = 4 + 3 * mstar + (5+kd) * kdm + (2*mstar-nrec) * 2*mstar}. 
+m4_mathdot(<<<{\rm nsizef} = 4 + 3m^* + (5 + {\rm kd})\times{\rm kdm} + (2m^* - {\rm nrec})\times 2 m^*>>>, <<<@math{ nsizef = 4 + 3 * mstar + (5+kd) * kdm + (2*mstar-nrec) * 2*mstar}>>>) 
   
   @item @var{ipar[6]} ( = ndimi )@*
   The length of list @var{ispace}. Its size provides a constraint on @var{nmax}, the maximum
   number of subintervals.  Choose @var{ipar[6]} according to the formula
-  @math{ipar[6] ≥ nmax*nsizei}
+m4_math(<<<{\rm ipar[6]} = {\rm nmax}\times {\rm nsizei}>>>, <<<@math{ipar[6] ≥ nmax*nsizei}>>>)
   where
-  @math{nsizei = 3 + kdm}
+m4_math(<<<{\rm nsizei} = 3 + {\rm kdm}>>>, <<<@math{nsizei = 3 + kdm}>>>)
   with
+m4_displaymath(<<<\eqalign{
+    {\rm kdm} &= {\rm kd} + m^* \cr
+    {\rm kd} &= k + {\rm ncomp} \cr
+    {\rm nrec} &= {\it number\, of\, right\, end\, boundary\, conditions} \cr
+  }>>>,<<<
     @math{kdm = kd + mstar}@*
     @math{kd = k * ncomp}@*
-    @math{nrec = number of right end boundary conditions}.
+    @math{nrec = number of right end boundary conditions}>>>).
   
   @item @var{ipar[7]} ( = iprint )@*
   output control
@@ -203,7 +224,7 @@ A integer list of length 11.  The parameters in ipar are:
   @itemize
     @item 0, if the problem is regular
     @item 1, if the first relax factor is =rstart, and the
-        nonlinear iteration does not rely on past covergence
+        nonlinear iteration does not rely on past convergence
         (use for an extra sensitive nonlinear problem only).
     @item 2, if we are to return immediately upon  (a) two
         successive nonconvergences, or  (b) after obtaining
@@ -360,38 +381,72 @@ COLNEW is best learned by example.
 The problem describes a uniformly loaded beam of variable stiffness, simply supported at both ends.
 
 The problem from @ref{gawain-ball,, Gawain&Ball 1978} and is Example 1 from @ref{ascher-1981a,, Ascher 1981a}.
-The maxima code is in file share/colnew/prob1.mac and a Fortran implementation
-is in share/colnew/ex1. 
+The maxima code is in file @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/prob1.mac, share/colnew/prob1.mac} and a Fortran implementation
+is in @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/ex1,share/colnew/ex1}.
+
 
 @noindent The differential equation is
 
-@center @math{(x^3 u'@w{}')'@w{}' = x^3 u'@w{}'@w{}'@w{}' + 6 x^2 u'@w{}'@w{}' + 6x u'@w{}' = 1} over @math{1 ≤ x  ≤ 2}
+
+m4_displaymath(
+<<<(x^3 u'')'' = x^3u'''' + 6x^2u''' + 6xu'' = 1 \quad {\rm over} \quad 1 \le x \le 2>>>,
+<<<@center @math{(x^3 u'@w{}')'@w{}' = x^3 u'@w{}'@w{}'@w{}' + 6 x^2 u'@w{}'@w{}' + 6x u'@w{}' = 1} over @math{1 ≤ x  ≤ 2}>>>)
 
 @noindent with boundary conditions
 
-@center @math{u(1) = 0, u'@w{}'(1) = 0, u(2) = 0, u'@w{}'(2) = 0}
+m4_displaymath(
+<<<\eqalign{
+u(1) &= 0 \cr
+u''(1) &= 0 \cr
+u(2) &= 0 \cr
+u''(2) &= 0}>>>,
+<<<@center @math{u(1) = 0, u'@w{}'(1) = 0, u(2) = 0, u'@w{}'(2) = 0}>>>)
 
 @noindent The exact solution is
 
-@center @math{u(x) = (1/4) (10 ln(2) - 3) (1-x) + (1/2) (1/x + (3+x) ln(x) - x)}
+m4_displaymath(
+<<<u(x) = {{10\log 2 - 3}\over 4}(1-x) + {1\over 2}\left({1\over x} + (3+x)\log x - x\right)>>>,
+<<<@center @math{u(x) = (1/4) (10 ln(2) - 3) (1-x) + (1/2) (1/x + (3+x) ln(x) - x)}>>>)
 
 @noindent There is @var{nconc} = 1 differential equation of fourth order. The list of orders
-@var{m} = [4] and @var{mstar} = sum(m[j]) = 4.
+m4_math(<<<m = [4]>>>, <<<@var{m} = [4]>>>) 
+and
+m4_mathdot(<<<m^* = \sum_j m_j = 4>>>, <<< @var{mstar} = sum(m[j]) = 4>>>)
 
-@noindent The unknown vector of length @var{mstar} is
+@noindent The unknown vector of length 
+m4_math(<<<m^*>>>, <<<@var{mstar}>>>)
+is
 
+m4_displaymath(
+<<<
+\eqalign{
+z(x) &= [z_1(x),z_2(x),z_3(x),z_4(x)] \cr
+     &= [u(x),u'(x),u''(x),u'''(x)]
+}>>>,
+<<<
 @center @math{z(x) = [z_1(x),z_2(x),z_3(x),z_4(x)]}
 
-@center @math{=[u(x),u'(x),u'@w{}'(x),u'@w{}'@w{}'(x)]}.
+@center @math{=[u(x),u'(x),u'@w{}'(x),u'@w{}'@w{}'(x)]}
+>>>)
 
 @noindent The differential equation is expressed as
 
+m4_displaymath(
+<<<
+u''''(x) = F(x,z_1,z_2,z_3,z_4) = 1 - 6 x^2 z_3 - 6x z_2>>>,
+<<<
 @center @math{u'@w{}'@w{}'@w{}'(x) = F(x,z_1,z_2,z_3,z_4) = 1 - 6 x^2 z_3 - 6x z_2}
+>>>)
 
-There are @var{mstar=4} boundary conditions. They are given by a
-function @math{G(z_1,z_2,z_3,z_4)} that returns a list of length mstar.
-The j-th boundary condition applies at @var{x = zeta[j]} and is satisfied
-when @var{g[j] = 0}.  We have
+There are 
+m4_math(<<<m^* = 4>>>, <<<@var{mstar=4}>>>) 
+boundary conditions. They are given by a
+function @math{G(z_1,z_2,z_3,z_4)} that returns a list of length 
+m4_mathdot(<<<m^*>>>, <<<@var{mstar}>>>)
+The @math{j}-th boundary condition applies at 
+m4_math(<<<x = \zeta_j>>>, <<<@var{x = zeta[j]}>>>)
+and is satisfied
+when @math{g[j] = 0}.  We have
 
 @c The {xxxxxx} set the column widths
 @multitable {xxxxxxxxx} {xxxxxxxxx} {xxxxxxxxxx} {xxxxxxxxx}
@@ -414,7 +469,8 @@ when @var{g[j] = 0}.  We have
 @tab @math{z_3}
 @end multitable
 
-giving  @math{zeta = [1.0,1,0,2.0,2.0]}
+giving  
+m4_math(<<<\zeta = [1.0,1,0,2.0,2.0]>>>, <<<@math{zeta = [1.0,1,0,2.0,2.0]}>>>)
 and @math{G(z_1,z_2,z_3,z_4) = [z_1, z_3, z_1, z_3]}.
 
 The Jacobians @var{df} and @var{dg} of @var{f} and @var{g} respectively
@@ -493,7 +549,7 @@ compared to the estimates from the code.
 @c   print("The exact errors are:"),
 @c   printf(true, "   ~{ ~11,4e~}~%", err));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) load("colnew")$
 
@@ -652,7 +708,7 @@ g(z1, z2, z3, z4) )
   print("The exact errors are:"),
   printf(true, "   ~@{ ~11,4e~@}~%", err));
 The exact errors are: 
-     1.7389E-10   6.2679E-9   2.1843E-7   9.5743E-6
+     1.7389e-10   6.2679e-9   2.1843e-7   9.5743e-6
 (%o23)                        false
 @end group
 @end example
@@ -665,20 +721,35 @@ axisymmetric external pressure distribution superimposed on a uniform
 internal pressure distribution.
 The problem is described in @ref{parker-wan,,Parker&Wan 1984} and is Example 2
 from @ref{ascher-1981a,, Ascher 1981a}.
-The maxima code is in file share/colnew/prob2.mac and a Fortran
-implementation is in share/colnew/ex2.
+The maxima code is in file @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/prob2.mac,share/colnew/prob2.mac} and a Fortran
+implementation is in @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/ex2,share/colnew/ex2}.
+
 
 There are two nonlinear differential equations
 for @math{φ} and @math{ψ} over @math{0 < x < 1}.
 
-@math{
-(ε^4/μ)[φ'@w{}' + (1/x) φ' - (1/x^2) φ] + ψ (1-φ/x) - φ = - γ x (1-(1/2)x^2)
-}
+m4_displaymath(
+<<<\eqalign{
+{ε^4 \over μ}\left[φ'' + {1 \over x}φ' - {1\over x^2}φ\right] + ψ \left(1-{1\over x}φ\right) - φ &= - γ x\left(1-{x^2\over 2}\right) \cr
+\mu \left[ψ'@w{}' + {1\over x} ψ' - {1 \over x^2}ψ\right] - φ\left(1-{φ \over {2x}}\right) &= 0
+}>>>,
+<<<@example
+(ε^4/μ)[φ'@w{}' + (1/x) φ' - (1/x^2) φ] + ψ (1-φ/x) - φ =
+    - γ x (1-(1/2)x^2)
+μ [ψ'@w{}' + (1/x) ψ' - (1/x^2)ψ] - φ(1-φ/(2x)) = 0
+@end example
+>>>)
 
-@math{ μ [ψ'@w{}' + (1/x) ψ' - (1/x^2)ψ] - φ(1-φ/(2x)) = 0 }
+m4_dnl @c m4_displaymath(
+m4_dnl @c <<<(ε^4/μ)\left[φ'@w{}' + {1 \over x} φ' - {1\over x^2| φ\right] + ψ \left(1-{φ\over x}\right) - φ = - γ x \left(1-{1\over 2}x^2\right)>>>,
+m4_dnl @c <<<(ε^4/μ)[φ'@w{}' + (1/x) φ' - (1/x^2) φ] + ψ (1-φ/x) - φ = - γ x (1-(1/2)x^2)>>>)
+m4_dnl @c 
+m4_dnl @c m4_displaymath(
+m4_dnl @c <<<μ \left[ψ'@w{}' + {1\over x} ψ' - {1 \over x^2}ψ\right] - φ\left(1-{φ \over {2x}}\right) = 0}>>>,
+m4_dnl @c <<< μ [ψ'@w{}' + (1/x) ψ' - (1/x^2)ψ] - φ(1-φ/(2x)) = 0}>>>)
 
 subject to boundary conditions
-@math{φ = 0} and @math{x ψ' - 0.3 ψ + 0.7 x = 0} at x=0 and x=1.
+@math{φ = 0} and @math{x ψ' - 0.3 ψ + 0.7 x = 0} at @math{x=0} and @math{x=1}.
 
 
 For @math{ε = μ = 0.01}, two solutions exists.  These are obtained by
@@ -689,21 +760,44 @@ guess; and secondly, with the initial conditions given by the
 function @var{solutn}.
 
 There are @var{nconc} = 2 differential equations of second order.
-The list of orders @var{m} = [2,2] and
-@var{mstar} = sum(m[i]) = 4.
+The list of orders 
+m4_math(<<<m = [2,2]>>>, <<<@var{m} = [2,2]>>>)
+ and
+m4_mathdot(<<<m^* = \sum_i m_i = 4>>>, <<<@var{mstar} = sum(m[i]) = 4>>>)
 
-The vector of unknowns of length @var{mstar}=4 is
+The vector of unknowns of length 
+m4_math(<<<m^* = 4>>>, <<<@var{mstar}=4>>>) 
+is
 @math{z(x) = [ φ(x), φ'(x), ψ(x), ψ'(x)]}.
 
 The differential equation is expressed as
 
-@math{[φ'@w{}'(x), ψ'@w{}'(x)]}
+m4_displaymath(
+<<<\eqalign{
+F(x,z_1,z_2,z_3,z_4)
+  &= \left[
+       \matrix{
+         \phi''(x) \cr
+         \psi''(x)
+       }
+     \right]
+     \cr
+  &= \left[
+       \matrix{
+         \displaystyle{z_1 \over x^2} - {z_2 \over x} + \left[z_1-z_3 \left(1-{z_1\over x}\right) - γ x \left(1-{x^2 \over 2}\right)\right] {\mu \over \epsilon^4}
+         \cr 
+         \displaystyle{z_3 \over x^2} - {z_4 \over x} + {z_1 \over μ} \left(1-{z_1\over {2x}}\right)
+       }
+     \right]
+}>>>,
+<<<@math{[φ'@w{}'(x), ψ'@w{}'(x)]}
 
 @math{=F(x,z_1,z_2,z_3,z_4)}
 
 @math{=[z_1/x^2 - z_2/x + (z_1-z_3 (1-z_1/x) - γ x (1-x^2/2))/(ε^4/μ),
 z_3/x^2 - z_4/x + z_1 (1-z_1/(2x))/μ]}
-
+>>>
+)
 
 There are four boundary conditions given by list @math{zeta}
 and function @math{G(z_1,z_2,z_3,z_4)}.
@@ -728,11 +822,15 @@ and function @math{G(z_1,z_2,z_3,z_4)}.
 @tab @math{z_4 - 0.3@ z_3 + 0.7}
 @end multitable
 
-giving @math{zeta=[0.0,0.0,1.0,1.0]} and 
-@math{G(z_1,z_2,z_3,z_4)=[z_1, z_3, z_1, z_4-0.3*z_3+0.7]}
+giving 
+m4_math(<<<\zeta=[0.0,0.0,1.0,1.0]>>>, <<<@math{zeta=[0.0,0.0,1.0,1.0]}>>>)
+and 
+@math{G(z_1,z_2,z_3,z_4)=[z_1, z_3, z_1, z_4-0.3 z_3+0.7]}.
 
-Note that @var{x} is not an argument of function @var{G}.  The 
-value of @var{x=zeta[j]} must be substituted.
+Note that @math{x} is not an argument of function @math{G}.  The 
+value of 
+m4_math(<<<x = \zeta_j>>>, <<<@var{x=zeta[j]}>>>)
+must be substituted.
 
 @c ===beg===
 @c load("colnew")$
@@ -846,7 +944,7 @@ value of @var{x=zeta[j]} must be substituted.
 @c    printf(true, "~5,2f  ~{~15,5e~}~%", x, zval),
 @c    x : x + 0.05);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) load("colnew")$
 
@@ -1085,27 +1183,27 @@ if is(x > xt) then [[0, 0, - cons, - dcons], [0, - d2cons]]
    printf(true, "~5,2f  ~@{~15,5e~@}~%", x, zval),
    x : x + 0.05);
 
- 0.00       0.00000E+0     4.73042E-2   -3.39927E-32    -1.10497E+0
- 0.05       2.36520E-3     4.73037E-2    -5.51761E-2    -1.10064E+0
- 0.10       4.73037E-3     4.73030E-2    -1.09919E-1    -1.08765E+0
- 0.15       7.09551E-3     4.73030E-2    -1.63796E-1    -1.06600E+0
- 0.20       9.46069E-3     4.73039E-2    -2.16375E-1    -1.03569E+0
- 0.25       1.18259E-2     4.73040E-2    -2.67221E-1    -9.96720E-1
- 0.30       1.41911E-2     4.73020E-2    -3.15902E-1    -9.49092E-1
- 0.35       1.65562E-2     4.72980E-2    -3.61986E-1    -8.92804E-1
- 0.40       1.89215E-2     4.72993E-2    -4.05038E-1    -8.27857E-1
- 0.45       2.12850E-2     4.72138E-2    -4.44627E-1    -7.54252E-1
- 0.50       2.36370E-2     4.67629E-2    -4.80320E-1    -6.72014E-1
- 0.55       2.59431E-2     4.51902E-2    -5.11686E-1    -5.81260E-1
- 0.60       2.81093E-2     4.07535E-2    -5.38310E-1    -4.82374E-1
- 0.65       2.99126E-2     2.98538E-2    -5.59805E-1    -3.76416E-1
- 0.70       3.08743E-2     5.53985E-3    -5.75875E-1    -2.65952E-1
- 0.75       3.00326E-2    -4.51680E-2    -5.86417E-1    -1.56670E-1
- 0.80       2.55239E-2    -1.46617E-1    -5.91753E-1    -6.04539E-2
- 0.85       1.37512E-2    -3.46952E-1    -5.93069E-1    -1.40102E-3
- 0.90      -1.25155E-2    -7.52826E-1    -5.93303E-1    -2.86234E-2
- 0.95      -6.94274E-2    -1.65084E+0    -5.99062E-1    -2.48115E-1
- 1.00      2.64233E-14     1.19263E+2    -6.25420E-1    -8.87626E-1
+ 0.00       0.00000e+0     4.73042e-2   -2.72134e-31    -1.10497e+0
+ 0.05       2.36520e-3     4.73037e-2    -5.51761e-2    -1.10064e+0
+ 0.10       4.73037e-3     4.73030e-2    -1.09919e-1    -1.08765e+0
+ 0.15       7.09551e-3     4.73030e-2    -1.63796e-1    -1.06600e+0
+ 0.20       9.46069e-3     4.73039e-2    -2.16375e-1    -1.03569e+0
+ 0.25       1.18259e-2     4.73040e-2    -2.67221e-1    -9.96720e-1
+ 0.30       1.41911e-2     4.73020e-2    -3.15902e-1    -9.49092e-1
+ 0.35       1.65562e-2     4.72980e-2    -3.61986e-1    -8.92804e-1
+ 0.40       1.89215e-2     4.72993e-2    -4.05038e-1    -8.27857e-1
+ 0.45       2.12850e-2     4.72138e-2    -4.44627e-1    -7.54252e-1
+ 0.50       2.36370e-2     4.67629e-2    -4.80320e-1    -6.72014e-1
+ 0.55       2.59431e-2     4.51902e-2    -5.11686e-1    -5.81260e-1
+ 0.60       2.81093e-2     4.07535e-2    -5.38310e-1    -4.82374e-1
+ 0.65       2.99126e-2     2.98538e-2    -5.59805e-1    -3.76416e-1
+ 0.70       3.08743e-2     5.53985e-3    -5.75875e-1    -2.65952e-1
+ 0.75       3.00326e-2    -4.51680e-2    -5.86417e-1    -1.56670e-1
+ 0.80       2.55239e-2    -1.46617e-1    -5.91753e-1    -6.04539e-2
+ 0.85       1.37512e-2    -3.46952e-1    -5.93069e-1    -1.40102e-3
+ 0.90      -1.25155e-2    -7.52826e-1    -5.93303e-1    -2.86234e-2
+ 0.95      -6.94274e-2    -1.65084e+0    -5.99062e-1    -2.48115e-1
+ 1.00      2.63400e-14     1.19263e+2    -6.25420e-1    -8.87626e-1
 (%o40)                        done
 @end group
 @group
@@ -1136,27 +1234,27 @@ if is(x > xt) then [[0, 0, - cons, - dcons], [0, - d2cons]]
    zval : colnew_appsln([x], 4, fspace, ispace)[1],
    printf(true, "~5,2f  ~@{~15,5e~@}~%", x, zval),
    x : x + 0.05);
- 0.00       0.00000E+0     2.04139E+0     0.00000E+0    -9.03975E-1
- 0.05       1.02070E-1     2.04139E+0    -4.52648E-2    -9.07936E-1
- 0.10       2.04139E-1     2.04139E+0    -9.09256E-2    -9.19819E-1
- 0.15       3.06209E-1     2.04140E+0    -1.37379E-1    -9.39624E-1
- 0.20       4.08279E-1     2.04141E+0    -1.85020E-1    -9.67352E-1
- 0.25       5.10351E-1     2.04152E+0    -2.34246E-1    -1.00301E+0
- 0.30       6.12448E-1     2.04303E+0    -2.85454E-1    -1.04663E+0
- 0.35       7.15276E-1     2.10661E+0    -3.39053E-1    -1.09916E+0
- 0.40       8.32131E-1    -2.45181E-1    -3.96124E-1    -1.20544E+0
- 0.45       1.77510E-2    -3.57554E+0    -4.45400E-1    -7.13543E-1
- 0.50       2.25122E-2     1.23608E-1    -4.80360E-1    -6.70074E-1
- 0.55       2.58693E-2     4.85257E-2    -5.11692E-1    -5.81075E-1
- 0.60       2.80994E-2     4.11112E-2    -5.38311E-1    -4.82343E-1
- 0.65       2.99107E-2     2.99116E-2    -5.59805E-1    -3.76409E-1
- 0.70       3.08739E-2     5.55200E-3    -5.75875E-1    -2.65950E-1
- 0.75       3.00325E-2    -4.51649E-2    -5.86417E-1    -1.56669E-1
- 0.80       2.55239E-2    -1.46616E-1    -5.91753E-1    -6.04538E-2
- 0.85       1.37512E-2    -3.46952E-1    -5.93069E-1    -1.40094E-3
- 0.90      -1.25155E-2    -7.52826E-1    -5.93303E-1    -2.86233E-2
- 0.95      -6.94274E-2    -1.65084E+0    -5.99062E-1    -2.48115E-1
- 1.00      2.65413E-14     1.19263E+2    -6.25420E-1    -8.87626E-1
+ 0.00       0.00000e+0     2.04139e+0    5.11228e-33    -9.03975e-1
+ 0.05       1.02070e-1     2.04139e+0    -4.52648e-2    -9.07936e-1
+ 0.10       2.04139e-1     2.04139e+0    -9.09256e-2    -9.19819e-1
+ 0.15       3.06209e-1     2.04140e+0    -1.37379e-1    -9.39624e-1
+ 0.20       4.08279e-1     2.04141e+0    -1.85020e-1    -9.67352e-1
+ 0.25       5.10351e-1     2.04152e+0    -2.34246e-1    -1.00301e+0
+ 0.30       6.12448e-1     2.04303e+0    -2.85454e-1    -1.04663e+0
+ 0.35       7.15276e-1     2.10661e+0    -3.39053e-1    -1.09916e+0
+ 0.40       8.32131e-1    -2.45181e-1    -3.96124e-1    -1.20544e+0
+ 0.45       1.77510e-2    -3.57554e+0    -4.45400e-1    -7.13543e-1
+ 0.50       2.25122e-2     1.23608e-1    -4.80360e-1    -6.70074e-1
+ 0.55       2.58693e-2     4.85257e-2    -5.11692e-1    -5.81075e-1
+ 0.60       2.80994e-2     4.11112e-2    -5.38311e-1    -4.82343e-1
+ 0.65       2.99107e-2     2.99116e-2    -5.59805e-1    -3.76409e-1
+ 0.70       3.08739e-2     5.55200e-3    -5.75875e-1    -2.65950e-1
+ 0.75       3.00325e-2    -4.51649e-2    -5.86417e-1    -1.56669e-1
+ 0.80       2.55239e-2    -1.46616e-1    -5.91753e-1    -6.04538e-2
+ 0.85       1.37512e-2    -3.46952e-1    -5.93069e-1    -1.40094e-3
+ 0.90      -1.25155e-2    -7.52826e-1    -5.93303e-1    -2.86233e-2
+ 0.95      -6.94274e-2    -1.65084e+0    -5.99062e-1    -2.48115e-1
+ 1.00      2.64996e-14     1.19263e+2    -6.25420e-1    -8.87626e-1
 (%o45)                        done
 @end group
 @end example
@@ -1167,10 +1265,7 @@ above, and the figure below,
 @end ifnotinfo
 can be compared with Figure 1 in @ref{ascher-1981a,, Ascher 1981a}.
 
-@ifnotinfo
-@image{figures/colnew-ex2,8cm}
-@end ifnotinfo
-
+@altfigure{colnew-ex2,colnew example 2: deformation of spherical cap}
 
 @subsection Example 3: Rotating flow of viscous incompressible fluid
 
@@ -1178,60 +1273,117 @@ Example 3 from @ref{ascher-1981a,, Ascher 1981a} describes the velocities in the
 boundary layer produced by the rotating flow of a viscous incompressible
 fluid over a stationary infinite disk (@pxref{gawain-ball,,Gawain&Ball 1978}).
 
+The differential equations are:
+m4_displaymath(
+<<<\eqalign{
+G'' + {3-n\over 2} HG' + (n-1)H'G - s(G-1) &= 0 \cr
+H''' + {3-n\over 2} HH'' + n\left(H'\right)^2 - 1 + G^2 -sH' &= 0
+}>>>,
+<<<@example
+G'' + (3-n)/2*H*G'' + (n-1)*H'*G - s*(G-1) = 0
+H''' + (3-n)/2*H*H'' + n(H')^2 - 1 + G^2 - s*H' = 0
+@end example>>>)
+
+with the boundary conditions
+m4_displaymath(
+<<<\eqalign{
+G(0) &= H(0) = H'(0) = 0 \cr
+G(\infty) &= 1 \cr
+H'(\infty) &= 0
+}>>>,
+<<<@example
+G(0) = H(0) = H'(0) = 0
+G(inf) = 1
+H'(inf) = 0
+@end example>>>)
+
 The solution uses a number of techniques to obtain convergence.
 Refer to @ref{ascher-1981a,,Ascher 1981a} for details.
 
-The code is in directory share/colnew.  The maxima code is in file
-prob3.mac.  The reference Fortran implementation is in directory ex3. 
+The maxima code is in file
+@url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/prob3.mac, share/colnew/prob3.mac}.  The reference Fortran implementation is in @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/ex3, share/colnew/ex3}. 
 
 
 @subsection Example 4: Quantum Neumann equation
 
 A more sophisticated example is @ref{bellon-talon,, Bellon&Talon 2005},
 which deals with singularities in the
-solution domain, provides an initial quess to the solution
+solution domain, provides an initial guess to the solution
 and uses continuation to solve the system of non-linear
 differential equations.
 
-The code is in directory share/colnew.  The maxima code is in file
-prob4.mac.  The Fortran
-implementation is in directory ex4. 
+The maxima code is in file
+@url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/prob4.mac, share/colnew/prob4.mac}.  The Fortran
+implementation is in @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/ex4, share/colnew/ex4}. 
 
 
 @subsection Example 5: Simple example of continuation 
 
 This example (@pxref{ascher-et-al,,Ascher et al@comma{} 1995@comma{} Example 9.2}) solves a numerically
 difficult boundary value problem using continuation.
-
-@noindent The linear differential equation is
-@center @math{ε u'@w{}' + x u' = -ε π^2 cos(πx) - (πx) sin(πx)}, @math{-1 < x < 1}
+The maxima code is in file @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/prob5.mac,share/colnew/prob5.mac} and a Fortran
+implementation is in @url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/colnew/ex5,share/colnew/ex5}.
+The linear differential equation is
+m4_displaymath(
+<<<
+\epsilon u'' + x u' = -\epsilon \pi^2 \cos \pi x - \pi x\sin \pi x \quad -1 < x < 1
+>>>,
+<<<@center @math{ε u'@w{}' + x u' = -ε π^2 cos(πx) - (πx) sin(πx)}, @math{-1 < x < 1}>>>
+)
 
 @noindent with boundary conditions
-@center @math{u(-1)=-2} and @math{u(1)=0}
+m4_displaymath(
+<<<\eqalign{
+u(-1) &= -2 \cr
+u(1) &= 0
+}>>>,
+<<<@center @math{u(-1)=-2} and @math{u(1)=0}>>>)
 
 @noindent The exact solution is
-@center @math{u(x) = cos(πx) + erf(x/sqrt(2ε))/erf(1/sqrt(2ε))}
+m4_displaymath(
+<<<
+u(x) = \cos \pi x + {{\rm erf}\left(\displaystyle{x \over \sqrt{2\epsilon}}\right) \over
+{\rm erf}\left(\displaystyle{1 \over \sqrt{2\epsilon}}\right)}
+>>>,
+<<<@center @math{u(x) = cos(πx) + erf(x/sqrt(2ε))/erf(1/sqrt(2ε))}>>>)
 
 When @math{ε} is small the solution has a rapid transition near @math{x=0}
 and is difficult to solve numerically.  COLNEW is able to solve the
-problem for directly for @math{ε=1.0e-6}, but here we will use
-continuation to solve it succesively for
-@math{ε=[1e-2,1e-3,1e-4,1e-5,1e-6]}.
+problem for directly for 
+m4_mathcomma(<<<\epsilon = 10^{-6}>>>,<<<@math{ε=1.0e-6}>>>)
+but here we will use
+continuation to solve it succesively for 
+m4_mathdot(<<<\epsilon = [10^{-2}, 10^{-3}, 10^{-4}, 10^{-5}, 10^{-6}]>>>,
+<<<@math{ε=[1e-2,1e-3,1e-4,1e-5,1e-6]}>>>)
 
 There is @var{nconc} = 1 differential equation of second order.
 The list of orders
-@var{m} = [2] and @var{mstar} = sum(m[j]) = 2.
+m4_math(<<<m = [2]>>>, <<<@var{m} = [2]>>>) 
+and 
+m4_mathdot(<<<m^* = \sum_j m[j] = 2>>>, <<<@var{mstar} = sum(m[j]) = 2>>>)
 
-The unknown vector of length @var{mstar} is
+The unknown vector of length 
+m4_math(<<<m^*>>>, <<<@var{mstar}>>>)
+is
 @math{z(x) = [z_1(x),z_2(x)] = [u(x),u'(x)]}.
 
-The differential equation is expressed as 
-@math{[u'@w{}'(x)] = F(x,z_1,z_2) = [-(x/ε)z_2 - π^2cos(πx) - (πx/ε)sin(πx)]}
+The differential equation is expressed as
+m4_displaymath(
+<<<
+[u''(x)] = F(x,z_1,z_2) = \left[-{x\over \epsilon}z_2 - \pi^2\cos \pi x - {\pi x \over \epsilon}\sin \pi x\right]
+>>>,
+<<<
+@math{[u'@w{}'(x)] = F(x,z_1,z_2) = [-(x/ε)z_2 - π^2cos(πx) - (πx/ε)sin(πx)]}>>>)
 
-There are @var{mstar=2} boundary conditions. They are given by a
-function @math{G(z_1,z_2)} that returns a list of length mstar.
-The j-th boundary condition applies at @var{x = zeta[j]} and is satisfied
-when @var{g[j] = 0}.  We have
+There are 
+m4_math(<<<m^*=2>>>, <<<@var{mstar=2}>>>) 
+boundary conditions. They are given by a
+function @math{G(z_1,z_2)} that returns a list of length 
+m4_mathdot(<<<m^*>>>, @var{mstar})
+The @math{j}-th boundary condition applies at 
+m4_math(<<<x = \zeta_j>>>, <<<@var{x = zeta[j]}>>>) 
+and is satisfied
+when @math{g[j] = 0}.  We have
 
 @multitable {xxxxxxxxx} {xxxxxxxxx} {xxxxxxxxxx} {xxxxxxxxx}
 @headitem j@ @ @ @tab zeta[j]@  @tab Condition@  @tab g[j]
@@ -1245,7 +1397,8 @@ when @var{g[j] = 0}.  We have
 @tab @math{z_1}
 @end multitable
 
-giving  @math{zeta = [-1.0,1,0]}
+giving  
+m4_math(<<<\zeta = [-1.0,1,0]>>>, <<<@math{zeta = [-1.0,1,0]}>>>)
 and @math{G(z_1,z_2) = [z_1+2, z_1]}.
 
 The Jacobians @var{df} and @var{dg} of @var{f} and @var{g} respectively
@@ -1361,16 +1514,17 @@ before @var{e} is set, so that it can be changed in the program.
 @c for e_ in [1e-3,1e-4,1e-5,1e-6] do run_it(e_)$
 @c /* Z is list of solutions z1 = u(x).  Restore order. */
 @c  Z:reverse(Z)$
-@c /* Plot z1=u(x) for each value of e
+@c /* Plot z1=u(x) for each value of e */
 @c  plot2d([
 @c   [discrete,X,Z[1]], [discrete,X,Z[2]], [discrete,X,Z[3]],
 @c   [discrete,X,Z[4]], [discrete,X,Z[5]]],
 @c   [legend,"e=1e-2","e=1e-3","e=1e-4","e=1e-5","e=1e-6"],
 @c   [xlabel,"x"],[ylabel,"u(x)"],
-@c   [png_file,"./colnew-ex5.png"]); */
+@c   [png_file,"./colnew-ex5.png"]);
 @c  done$
 @c ===end===
-@example
+
+@example maxima
 (%i1) load("colnew")$
 (%i2) kill(e,x,z1,z2)$
 @group
@@ -1536,7 +1690,7 @@ before @var{e} is set, so that it can be changed in the program.
 @group
 (%i43) printf(true," e: ~8,3e  iflag ~3d  Mesh size ~3d  max error ~8,3e~%",
   e,iflag,ispace[1],maxerror);
- e: 1.000E-2  iflag   1  Mesh size  16  max error 6.881E-7
+ e: 1.000e-2  iflag   1  Mesh size  16  max error 6.881e-7
 (%o43)                        false
 @end group
 @group
@@ -1568,17 +1722,17 @@ before @var{e} is set, so that it can be changed in the program.
 @end group
 @group
 (%i46) for e_ in [1e-3,1e-4,1e-5,1e-6] do run_it(e_)$
- e: 1.000E-3  iflag   1  Mesh size  20  max error 3.217E-7
- e: 1.000E-4  iflag   1  Mesh size  40  max error 3.835E-7
- e: 1.000E-5  iflag   1  Mesh size  38  max error 8.690E-9
- e: 1.000E-6  iflag   1  Mesh size  60  max error 6.313E-7
+ e: 1.000e-3  iflag   1  Mesh size  20  max error 3.217e-7
+ e: 1.000e-4  iflag   1  Mesh size  40  max error 3.835e-7
+ e: 1.000e-5  iflag   1  Mesh size  38  max error 8.689e-9
+ e: 1.000e-6  iflag   1  Mesh size  60  max error 6.333e-7
 @end group
 @group
 (%i47) /* Z is list of solutions z1 = u(x).  Restore order. */
  Z:reverse(Z)$
 @end group
 @group
-(%i48) /* Plot z1=u(x) for each value of e
+(%i48) /* Plot z1=u(x) for each value of e */
  plot2d([
   [discrete,X,Z[1]], [discrete,X,Z[2]], [discrete,X,Z[3]],
   [discrete,X,Z[4]], [discrete,X,Z[5]]],
@@ -1586,18 +1740,13 @@ before @var{e} is set, so that it can be changed in the program.
   [xlabel,"x"],[ylabel,"u(x)"],
   [png_file,"./colnew-ex5.png"]); */
  done$
+(%o48)  [/tmp/5zscumjmw4lichu2.gnuplot, ./colnew-ex5.png]
 @end group
 @end example
 
-@ifnotinfo
 The figure below shows the solution for
 @math{ε=[10^{-2},10^{-3},10^{-4},10^{-5},10^{-6}]}.
-
-@image{figures/colnew-ex5,8cm}
-@end ifnotinfo
-
-
-
+@altfigure{colnew-ex5,colnew example 5: solution of a boundary value problem}
 
 @node References for colnew, , Examples for colnew, Package colnew
 @section References for colnew
@@ -1616,7 +1765,7 @@ The figure below shows the solution for
 (Ascher 1979a) U. Ascher, J. Christiansen and R. D. Russell,
     A collocation solver for mixed order systems of boundary value problems,
     Math. Comp. 33 (1979), 659-679,
-    @url{https:/doi.org/10.1090/S0025-5718-1979-0521281-7,
+    @url{https://doi.org/10.1090/S0025-5718-1979-0521281-7,
     doi:10.1090/S0025-5718-1979-0521281-7}
 
 @item @anchor{ascher-1979b}
@@ -1631,21 +1780,21 @@ The figure below shows the solution for
 (Ascher 1981a) U. Ascher, J. Christiansen and R. D. Russell,
     Collocation software for boundary-value odes,
     ACM Trans. Math Software 7 (1981), 209-222.
-    @url{https:/doi.org/10.1145/355945.355950,
+    @url{https://doi.org/10.1145/355945.355950,
     doi:10.1145/355945.355950}
 
 @item @anchor{ascher-1981b}
 (Ascher 1981b) U. Ascher, U., J. Christiansen, and R. D. Russell.
    ‘Algorithm 569: COLSYS: Collocation Software for Boundary-Value ODEs [D2]’.
    ACM Transactions on Mathematical Software 7, no. 2 (June 1981): 223–29.
-   @url{https:/doi.org/10.1145/355945.355951,
+   @url{https://doi.org/10.1145/355945.355951,
    doi:10.1145/355945.355951}
 
 @item @anchor{ascher-russell}
 (Ascher&Russell 1981) U. Ascher and R. D. Russell.
    ‘Reformulation of Boundary Value Problems into “Standard” Form’.
    SIAM Review 23, no. 2 (April 1981), 238–54,
-   @url{https:/doi.org/10.1137/1023039, doi:10.1137/1023039}
+   @url{https://doi.org/10.1137/1023039, doi:10.1137/1023039}
 
 @item @anchor{parker-wan}
 (Parker&Wan 1984) David F. Parker and Frederic Y. M. Wan,
@@ -1676,3 +1825,8 @@ The figure below shows the solution for
    doi:10.1016/j.physleta.2005.02.002}
    @url{https://arxiv.org/abs/hep-th/0407005,arXiv:hep-th/0407005}
 @end itemize
+
+@c Local Variables: 
+@c mode: texinfo
+@c TeX-master: "include-maxima"
+@c End: 

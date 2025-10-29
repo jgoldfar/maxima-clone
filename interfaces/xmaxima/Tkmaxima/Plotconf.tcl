@@ -4,13 +4,12 @@
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
 #     Modified by Jaime E. Villate                         #
-#     Time-stamp: "2024-03-25 21:11:14 villate"            #
 ############################################################
 
 proc makeFrame { w type } {
     # If the plot was produced by Xmaxima's console, it will be in a frame
     # inserted in the console. Otherwise it will be a toplevel window
-    global doExit fontSize buttonfont maxima_priv
+    global doExit fontSize buttonfont
     set win $w
     if { "$w" == "." } {
         set w ""

@@ -87,7 +87,8 @@
 (defun makelabel10 (x)
   (let (*print-radix*
 	(*print-base* 10.))
-    ($concat '|| x $linenum)))
+    ;; x should be a symbol (one of $inchar, $outchar, $linechar)
+    ($concat x $linenum)))
 (defun makelabel (x)
   (setq *linelabel* (makelabel10 x))
   (unless $nolabels
@@ -247,7 +248,7 @@
       (when (not (get x 'sysconst))
 	(remprop x 'lineinfo)
 	(remprop x 'mprops))
-      (dolist (u '(bindtest nonarray evfun evflag opers special mode))
+      (dolist (u '(bindtest nonarray evfun evflag opers mode))
 	(remprop x u))
       (dolist (u opers)
 	(when (and (remprop x u)
@@ -284,6 +285,7 @@
           (remprop x 'defstruct-template)
           (remprop x 'defstruct-default)
           (remprop x 'translate)
+          (remprop x 'operators)
           (setf $structures (delete y $structures :count 1 :test #'equal))))
       (when (and (member x *builtin-symbols* :test #'equal)
 		 (gethash x *builtin-symbol-props*))
@@ -382,7 +384,7 @@
 		    (setf (symbol-value x)
 			  (gethash x *builtin-symbol-values*)))
 		  t)
-		 ((get x 'special)
+		 ((get x 'reset-on-kill)
 		  (makunbound x)
 		  (when (member x *builtin-symbols-with-values* :test #'equal)
 		    (setf (symbol-value x)
@@ -649,12 +651,12 @@
         ($derivative $diff) ($prod $product)
 	($bothcoeff $bothcoef)))
 
-(defun amperchk (name)
+(defun amperchk (name2)
   (cond
-    ((symbolp name) name)
-    ((stringp name)
-     (getalias (or (getopr0 name) (implode (cons #\$ (coerce name 'list))))))
-    (t name)))
+    ((symbolp name2) name2)
+    ((stringp name2)
+     (getalias (or (getopr0 name2) (implode (cons #\$ (coerce name2 'list))))))
+    (t name2)))
 
 (defmspec $stringout (x)
   (setq x (cdr x))

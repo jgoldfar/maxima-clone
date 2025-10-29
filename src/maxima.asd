@@ -125,7 +125,7 @@
     (
      (:module packages :pathname ""
       :components
-      ((:file "f2cl-package")
+      ((:file "f2cl-lib-package")
        (:file "slatec")))
      (:module f2cl-lib :pathname ""
       :depends-on (packages)
@@ -605,6 +605,7 @@
     ;; These are not compiled, for whatever reason
     :components ((:file "autol")
 		 (:file "max_ext")
-		 (:file "init-cl"))))
+		 (:file "../lisp-utils/defsystem") ;; some share packages use defsystem
+	 (:file "init-cl"))))
   :serial t
   :depends-on ())

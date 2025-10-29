@@ -197,7 +197,7 @@ because the pattern argument @code{x} is given to @code{defmatch}.
 @c b;
 @c x;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) matchdeclare (a, lambda ([e], e#0 and freeof(x, e)), b,
                     freeof(x));
@@ -240,7 +240,7 @@ not any other variable, because no pattern argument is given to @code{defmatch}.
 @c linearp (3*z + (y + 1)*z + y^2);
 @c linearp (3*x + (y + 1)*x + y^2);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) matchdeclare (a, lambda ([e], e#0 and freeof(x, e)), b,
                     freeof(x));
@@ -275,7 +275,7 @@ to see if it is a definite integral.
 @c 'integrate (sin(t), t, %pi + x, 2*%pi + x);
 @c checklimits (%);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) matchdeclare ([a, f], true);
 (%o1)                         done
@@ -308,9 +308,9 @@ to see if it is a definite integral.
 (%i8) 'integrate (sin(t), t, %pi + x, 2*%pi + x);
                        x + 2 %pi
                       /
-                      [
-(%o8)                 I          sin(t) dt
-                      ]
+                      |
+(%o8)                 |          sin(t) dt
+                      |
                       /
                        x + %pi
 @end group
@@ -378,7 +378,7 @@ Examples:
 @c disprule (foorule1, ?\+rule1, quux);
 @c ev(%);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) tellsimpafter (foo (x, y), bar (x) + baz (y));
 (%o1)                   [foorule1, false]
@@ -481,24 +481,44 @@ named by @code{current_let_rule_package} is used.  If a call such as
 @code{current_let_rule_package} is not changed.  If not otherwise specified,
 @code{current_let_rule_package} defaults to @code{default_let_rule_package}.
 
-@example
+@c ===beg===
+@c matchdeclare ([a, a1, a2], true)$
+@c oneless (x, y) := is (x = y-1)$
+@c let (a1*a2!, a1!, oneless, a2, a1);
+@c letrat: true$
+@c let (a1!/a1, (a1-1)!);
+@c letsimp (n*m!*(n-1)!/m);
+@c let (sin(a)^2, 1 - cos(a)^2);
+@c letsimp (sin(x)^4);
+@c ===end===
+@example maxima
 (%i1) matchdeclare ([a, a1, a2], true)$
 (%i2) oneless (x, y) := is (x = y-1)$
+@group
 (%i3) let (a1*a2!, a1!, oneless, a2, a1);
 (%o3)         a1 a2! --> a1! where oneless(a2, a1)
+@end group
 (%i4) letrat: true$
+@group
 (%i5) let (a1!/a1, (a1-1)!);
                         a1!
 (%o5)                   --- --> (a1 - 1)!
                         a1
+@end group
+@group
 (%i6) letsimp (n*m!*(n-1)!/m);
 (%o6)                      (m - 1)! n!
+@end group
+@group
 (%i7) let (sin(a)^2, 1 - cos(a)^2);
                         2               2
 (%o7)                sin (a) --> 1 - cos (a)
+@end group
+@group
 (%i8) letsimp (sin(x)^4);
                         4           2
 (%o8)                cos (x) - 2 cos (x) + 1
+@end group
 @end example
 
 @c NEEDS ADDITIONAL EXAMPLES
@@ -519,20 +539,34 @@ and does not simplify the quotient.
 When @code{letrat} is @code{true},
 the numerator, denominator, and their quotient are simplified in that order.
 
-@example
+@c ===beg===
+@c matchdeclare (n, true)$
+@c let (n!/n, (n-1)!);
+@c letrat: false$
+@c letsimp (a!/a);
+@c letrat: true$
+@c letsimp (a!/a);
+@c ===end===
+@example maxima
 (%i1) matchdeclare (n, true)$
+@group
 (%i2) let (n!/n, (n-1)!);
                          n!
 (%o2)                    -- --> (n - 1)!
                          n
+@end group
 (%i3) letrat: false$
+@group
 (%i4) letsimp (a!/a);
                                a!
 (%o4)                          --
                                a
+@end group
 (%i5) letrat: true$
+@group
 (%i6) letsimp (a!/a);
 (%o6)                       (a - 1)!
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -598,11 +632,10 @@ For other ways to do substitutions see also @mrefcomma{subst}
 @c let(y(h)/z,y(h-1));
 @c e1:letsimp(e0);
 @c ===end===
-@example
+@example maxima
 @group
-(%i1) e0:e(k) = -(9*y(k))/(5*z)-u(k-1)/(5*z)+(4*y(k))/(5*z^2)
-                               +(3*u(k-1))/(5*z^2)+y(k)
-                               +(-(2*u(k-1)))/5;
+(%i1) e0: e(k) = -(9*y(k))/(5*z)-u(k-1)/(5*z)+(4*y(k))/(5*z^2)
+                 +(3*u(k-1))/(5*z^2)+y(k)-(2*u(k-1))/5;
                9 y(k)   u(k - 1)   4 y(k)   3 u(k - 1)
 (%o1) e(k) = - ------ - -------- + ------ + ---------- + y(k)
                 5 z       5 z          2          2
@@ -739,7 +772,7 @@ or @code{true} or @code{all}.
 @c matchdeclare (ee, true);
 @c matchdeclare (ff, all);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) matchdeclare (aa, integerp);
 (%o1)                         done
@@ -774,7 +807,7 @@ the match variable is assigned the expression.
 @c defrule (r1, bb^aa, ["integer" = aa, "atom" = bb]);
 @c r1 (%pi^8);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) matchdeclare (aa, integerp, bb, atom);
 (%o1)                         done
@@ -803,7 +836,7 @@ a single expression which satisfies the match predicate, or a sum or product
 @c                bb]);
 @c r2 (8 * (a + b) * sin(x));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) matchdeclare (aa, atom, bb, lambda ([x], not atom(x)));
 (%o1)                         done
@@ -842,7 +875,7 @@ as one match predicate cannot accept terms matched by another.
 @c                bb]);
 @c r2 (8 * (a + b) * %pi * sin(x) / c * 2^n);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) matchdeclare (aa, atom, bb, lambda ([x], not atom(x)));
 (%o1)                         done
@@ -854,8 +887,8 @@ as one match predicate cannot accept terms matched by another.
 @end group
 @group
 (%i3) r1 (8 + a*b + %pi + sin(x) - c + 2^n);
-                                                     n
-(%o3) [all atoms = %pi + 8, all nonatoms = sin(x) + 2  - c + a b]
+                                                               n
+(%o3) [all atoms = %pi + 8, all nonatoms = sin(x) - c + a b + 2 ]
 @end group
 @group
 (%i4) defrule (r2, aa * bb, ["all atoms" = aa, "all nonatoms" =
@@ -864,8 +897,8 @@ as one match predicate cannot accept terms matched by another.
 @end group
 @group
 (%i5) r2 (8 * (a + b) * %pi * sin(x) / c * 2^n);
-                                                n + 3
-                                       (b + a) 2      sin(x)
+                                        n + 3
+                                       2      (b + a) sin(x)
 (%o5) [all atoms = %pi, all nonatoms = ---------------------]
                                                  c
 @end group
@@ -882,7 +915,7 @@ match variables.
 @c printprops (gg, matchdeclare);
 @c printprops (all, matchdeclare);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) matchdeclare ([aa, bb, cc], atom, [dd, ee], integerp);
 (%o1)                         done
@@ -901,12 +934,12 @@ match variables.
 @end group
 @group
 (%i5) printprops (gg, matchdeclare);
-(%o5)              [lambda([x], x > 100, gg)]
+(%o5)              [lambda([x], x > 100)(gg)]
 @end group
 @group
 (%i6) printprops (all, matchdeclare);
-(%o6) [lambda([x], x > 100, gg), floatnump(ff), integerp(ee), 
-                      integerp(dd), atom(cc), atom(bb), atom(aa)]
+(%o6) [atom(aa), atom(bb), atom(cc), integerp(dd), integerp(ee), 
+                         floatnump(ff), lambda([x], x > 100)(gg)]
 @end group
 @end example
 
@@ -1014,7 +1047,7 @@ Examples:
 @c [foo (aa, bb), aa + bb, aa @@ bb, quux (%pi, %e), 
 @c         quux (%e, %pi)];
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) tellsimp (foo (aa, bb), bb - aa);
 (%o1)                   [foorule1, false]
@@ -1101,45 +1134,94 @@ The system variable @code{rules} is the list of rules defined by
 
 Examples:
 
-@example
+@c ===beg===
+@c matchdeclare (x, freeof (%i));
+@c %iargs: false$
+@c tellsimp (sin(%i*x), %i*sinh(x));
+@c trigexpand (sin (%i*y + x));
+@c %iargs:true$
+@c errcatch(0^0);
+@c ev (tellsimp (0^0, 1), simp: false);
+@c 0^0;
+@c remrule ("^", %th(2)[1]);
+@c tellsimp (sin(x)^2, 1 - cos(x)^2);
+@c (1 + sin(x))^2;
+@c expand (%);
+@c sin(x)^2;
+@c kill (rules);
+@c matchdeclare (a, true);
+@c tellsimp (sin(a)^2, 1 - cos(a)^2);
+@c sin(y)^2;
+@c ===end===
+@example maxima
+@group
 (%i1) matchdeclare (x, freeof (%i));
 (%o1)                         done
+@end group
 (%i2) %iargs: false$
+@group
 (%i3) tellsimp (sin(%i*x), %i*sinh(x));
 (%o3)                 [sinrule1, simp-%sin]
+@end group
+@group
 (%i4) trigexpand (sin (%i*y + x));
 (%o4)         sin(x) cos(%i y) + %i cos(x) sinh(y)
+@end group
 (%i5) %iargs:true$
+@group
 (%i6) errcatch(0^0);
- 0
-0  has been generated
+                  0
+expt: undefined: 0
 (%o6)                          []
+@end group
+@group
 (%i7) ev (tellsimp (0^0, 1), simp: false);
 (%o7)                  [^rule1, simpexpt]
+@end group
+@group
 (%i8) 0^0;
 (%o8)                           1
+@end group
+@group
 (%i9) remrule ("^", %th(2)[1]);
 (%o9)                           ^
+@end group
+@group
 (%i10) tellsimp (sin(x)^2, 1 - cos(x)^2);
 (%o10)                 [^rule2, simpexpt]
+@end group
+@group
 (%i11) (1 + sin(x))^2;
                                       2
 (%o11)                    (sin(x) + 1)
+@end group
+@group
 (%i12) expand (%);
                                    2
 (%o12)               2 sin(x) - cos (x) + 2
+@end group
+@group
 (%i13) sin(x)^2;
                                   2
 (%o13)                     1 - cos (x)
+@end group
+@group
 (%i14) kill (rules);
 (%o14)                        done
+@end group
+@group
 (%i15) matchdeclare (a, true);
 (%o15)                        done
+@end group
+@group
 (%i16) tellsimp (sin(a)^2, 1 - cos(a)^2);
 (%o16)                 [^rule3, simpexpt]
+@end group
+@group
 (%i17) sin(y)^2;
                                   2
 (%o17)                     1 - cos (y)
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1246,7 +1328,7 @@ main operator is not a pattern variable.
 @c tellsimpafter (foo (aa (xx)), aa (foo (xx)));
 @c foo (bar (u - v));
 @c ===end===
-@example
+@example maxima
 (%i1) matchdeclare (aa, atom, [ll, mm], listp, xx, true)$
 @group
 (%i2) tellsimpafter (sin (ll), map (sin, ll));
@@ -1287,7 +1369,7 @@ the rule which was defined first is applied.
 @c tellsimpafter (foo (aa), bar_2 (aa));
 @c foo (42);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) matchdeclare (aa, integerp);
 (%o1)                         done
@@ -1317,7 +1399,7 @@ variables.)
 @c foo (42, %e);
 @c bb;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) matchdeclare (aa, integerp, bb, atom);
 (%o1)                         done
@@ -1352,7 +1434,10 @@ Maxima.
 @c define_variable (bb, true, boolean);
 @c foo (42, %e);
 @c ===end===
-@example
+translator: bb was declared with mode boolean, but it has value: 
+                                                               %e
+ -- an error. To debug this try: debugmode(true);
+@example maxima
 @group
 (%i1) matchdeclare (aa, integerp, bb, atom);
 (%o1)                         done
@@ -1369,12 +1454,7 @@ Maxima.
 (%i4) define_variable (bb, true, boolean);
 (%o4)                         true
 @end group
-@group
 (%i5) foo (42, %e);
-translator: bb was declared with mode boolean, but it has value: 
-                                                               %e
- -- an error. To debug this try: debugmode(true);
-@end group
 @end example
 
 Rules are named after main operators.
@@ -1395,7 +1475,7 @@ while names for other functions are Maxima identifiers.
 @c remrule ("^", ?\^rule1);
 @c rules;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) tellsimpafter (foo (%pi + %e), 3*%pi);
 (%o1)                   [foorule1, false]
@@ -1457,7 +1537,7 @@ A worked example: anticommutative multiplication.
 @c expand (%);
 @c factor (expand (sum (s[i], i, 0, 9)^^5));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) gt (i, j) := integerp(j) and i < j;
 (%o1)          gt(i, j) := integerp(j) and (i < j)

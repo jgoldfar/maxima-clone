@@ -367,10 +367,10 @@
   (div* e (simplify `((mfactorial) ,(1- m)))))
 
 (defun remfactor (l p n)
-  (prog (f g)
+  (prog (g)
    loop (cond ((null l)
 	       (return (list (m*l (cons *leadcoef* g)) n)))
-	      ((equal p (car l)) (setq f (cadr l)))
+	      ((equal p (car l)))
 	      (t (setq g (cons (cadr l) g))))
    (setq l (cddr l))
    (go loop)))

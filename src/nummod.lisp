@@ -1,5 +1,5 @@
 ;; Maxima functions for floor, ceiling, and friends
-;; Copyright (C) 2004, 2005, 2007 Barton Willis
+;; Copyright (C) 2004, 2005, 2007, 2025 Barton Willis
 
 ;; Barton Willis
 ;; Department of Mathematics
@@ -51,7 +51,7 @@
 (defun simp-charfun (e yy z)
   (declare (ignore yy))
   (oneargcheck e)
-  (setq e (take '($is) (simplifya (specrepcheck (second e)) z)))
+  (setq e (take '($is) (maybe-simplifya (specrepcheck (second e)) z)))
   (let* (($prederror nil)
 	 (bool (mevalp e)))
     (cond ((eq t bool) 1)
@@ -189,7 +189,7 @@
 
 (defun simp-floor (e e1 z)
   (oneargcheck e)
-  (setq e (simplifya (specrepcheck (nth 1 e)) z))
+  (setq e (maybe-simplifya (specrepcheck (nth 1 e)) z))
 
   (cond ((numberp e) (floor e))
 
@@ -251,9 +251,14 @@
 (defun simplim%floor (expr var val)
   (let* ((arg (cadr expr))
 	 (b (behavior arg var val))
-	 (arglimab (limit arg var val 'think)) ; with $zeroa $zerob
+	 (arglimab (let ((preserve-direction t)) (limit arg var val 'think))) ; with $zeroa $zerob
 	 (arglim (ridofab arglimab)))
-    (cond ((and (= b -1)
+    (cond 
+	  ((eq arglim '$ind) (throw 'limit nil))
+	  ((eq arglim '$infinity) (throw 'limit nil))
+	  ((eq arglim '$minf) '$minf)
+	  ((eq arglim '$inf) '$inf)
+	  ((and (= b -1)
 		(maxima-integerp arglim))
 	   (m- arglim 1))
 	  ((and (= b 1)
@@ -261,7 +266,7 @@
 	   arglim)
 	  ((and ($constantp arglim)
 		(not (maxima-integerp arglim)))
-	   (simplify (list '($floor) arglim)))
+	   (ftake '$floor arglim))
 	  (t
 	   (throw 'limit nil)))))
 
@@ -273,7 +278,7 @@
 
 (defun simp-ceiling (e e1 z)
   (oneargcheck e)
-  (setq e (simplifya (specrepcheck (nth 1 e)) z))
+  (setq e (maybe-simplifya (specrepcheck (nth 1 e)) z))
   (cond ((numberp e) (ceiling e))
 
 	((ratnump e) (ceiling (cadr e) (caddr e)))
@@ -318,9 +323,14 @@
 (defun simplim%ceiling (expr var val)
   (let* ((arg (cadr expr))
 	 (b (behavior arg var val))
-	 (arglimab (limit arg var val 'think)) ; with $zeroa $zerob
+	 (arglimab (let ((preserve-direction t)) (limit arg var val 'think))) ; with $zeroa $zerob
 	 (arglim (ridofab arglimab)))
-    (cond ((and (= b -1)
+    (cond 
+	  ((eq arglim '$ind) (throw 'limit nil))
+	  ((eq arglim '$infinity) (throw 'limit nil))
+	  ((eq arglim '$minf) '$minf)
+	  ((eq arglim '$inf) '$inf)
+	  ((and (= b -1)
 		(maxima-integerp arglim))
 	   arglim)
 	  ((and (= b 1)
@@ -328,7 +338,7 @@
 	   (m+ arglim 1))
 	  ((and ($constantp arglim)
 		(not (maxima-integerp arglim)))
-	   (simplify (list '($ceiling) arglim)))
+	   (ftake '$ceiling arglim))
 	  (t
 	   (throw 'limit nil)))))
 
@@ -346,8 +356,8 @@
 
 (defun simp-nummod (e e1 z)
   (twoargcheck e)
-  (let ((x (simplifya (specrepcheck (cadr e)) z))
-	(y (simplifya (specrepcheck (caddr e)) z)))
+  (let ((x (maybe-simplifya (specrepcheck (cadr e)) z))
+	(y (maybe-simplifya (specrepcheck (caddr e)) z)))
     (cond ((or (equal 0 y) (equal 0 x)) x)
 	  ((equal 1 y) (sub x (ftake* '$floor x)))
 	  ((and ($constantp x) ($constantp y))
@@ -385,7 +395,7 @@
 		  ub)
 		 ((eq sgn '$pos)
 		  lb)
-		 ((alike lb ub)
+		 ((alike1 lb ub)
 		  ;; For floats that are integers, this can
 		  ;; happen. Maybe featurep should catch this.
 		  lb)
@@ -403,9 +413,14 @@
 (defun simplim%round (expr var val)
   (let* ((arg (cadr expr))
 	 (b (behavior arg var val))
-	 (arglimab (limit arg var val 'think)) ; with $zeroa $zerob
+	 (arglimab (let ((preserve-direction t)) (limit arg var val 'think))) ; with $zeroa $zerob
 	 (arglim (ridofab arglimab)))
-    (cond ((and (= b -1)
+    (cond
+	  ((eq arglim '$ind) (throw 'limit nil))
+	  ((eq arglim '$infinity) (throw 'limit nil))
+	  ((eq arglim '$minf) '$minf)
+	  ((eq arglim '$inf) '$inf)
+	  ((and (= b -1)
 		(maxima-integerp (m+ 1//2 arglim)))
 	   (m- arglim 1//2))
 	  ((and (= b 1)
@@ -413,7 +428,7 @@
 	   (m+ arglim 1//2))
 	  ((and ($constantp arglim)
 		(not (maxima-integerp (m+ 1//2 arglim))))
-	   (simplify (list '(%round) arglim)))
+	   (ftake '%round arglim))
 	  (t
 	   (throw 'limit nil)))))
 

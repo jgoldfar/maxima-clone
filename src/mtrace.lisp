@@ -250,7 +250,7 @@
 	((get temp 'shadow)
 	 (put-trace-info fun temp ilist)
 	 (trace-fshadow fun temp (make-trace-hook fun temp handler))
-	 (list fun))
+	 (list (getop fun)))
 	(t
 	 (mtell (intl:gettext "trace: ~@:M is an unknown type of function.~%") fun)
 	 nil)))
@@ -271,7 +271,7 @@
 	    (t
 	     (trace-unfshadow fun (trace-type fun))
 	     (rem-trace-info fun ilist)
-	     (list fun)))
+	     (list (getop fun))))
     (if (member fun trace-handling-stack :test #'eq)
 	;; yes, he has re-defined or untraced the function
 	;; during the trace-handling application.
@@ -288,7 +288,7 @@
   (let ((sym (gensym)))
     (setf (symbol-value sym) 0)
     (setf (trace-level fun) sym))
-  (push fun (cdr ilist))
+  (push (getop fun) (cdr ilist))
   (list fun))
 
 (defun rem-trace-info (fun ilist)
@@ -296,7 +296,7 @@
   (or (member fun trace-handling-stack :test #'eq)
       (setf (trace-level fun) nil))
   (setf (trace-type fun) nil)
-  (setq ilist (delete fun ilist :test #'eq))
+  (setq ilist (delete (getop fun) ilist :test #'eq))
   (list fun))
 
 ;; Placing the TRACE functional hook.
@@ -315,6 +315,7 @@
 (defprop expr expr shadow)
 (defprop mfexpr*s mfexpr* shadow)
 (defprop mfexpr* mfexpr* shadow)
+(defprop operators operators shadow)
 
 (defprop mexpr t mget)
 (defprop mexpr expr shadow)
@@ -424,6 +425,20 @@
 
 (defvar return-to-trace-handle nil)
 
+(defun trace/get-user-visible-args (fun iargs)
+  (case (trace-type fun)
+    ((mfexpr* operators)
+     (values (margs (car iargs)) (cdr iargs)))
+    (otherwise
+     (values iargs '()))))
+
+(defun trace/get-internal-args (fun uargs extras)
+  (case (trace-type fun)
+    ((mfexpr* operators)
+     (cons `((,fun) ,@uargs) extras))
+    (otherwise
+     uargs)))
+
 (defun trace-handler (fun largs)
   (if (or return-to-trace-handle
           (and (not (atom (car largs)))
@@ -442,15 +457,19 @@
 	(bind-sym level-sym level
 		  (do ((ret-vals)
 		       (continuation)
-		       (predicate-arglist))
+		       (predicate-arglist)
+		       (user-args)
+		       (extras))
 		      (nil)
-		    (setq predicate-arglist `(,level $enter ,fun ((mlist) ,@largs)))
-		    (setq largs (trace-enter-break fun level largs))
-		    (trace-enter-print fun level largs)
+		    (multiple-value-setq (user-args extras) (trace/get-user-visible-args fun largs))
+		    (setq predicate-arglist `(,level $enter ,fun ((mlist) ,@user-args)))
+		    (setq user-args (trace-enter-break fun level user-args))
+		    (trace-enter-print fun level user-args)
+		    (setq largs (trace/get-internal-args fun user-args extras))
 		    (cond ((trace-option-p fun '$errorcatch)
 			   (setq ret-vals (macsyma-errset (trace-apply fun largs)))
 			   (cond ((null ret-vals)
-				  (setq ret-vals (trace-error-break fun level largs))
+				  (setq ret-vals (trace-error-break fun level user-args))
 				  (setq continuation (car ret-vals)
 					ret-vals (cdr ret-vals)))
 				 (t
@@ -465,7 +484,7 @@
 		       (trace-exit-print fun level (car ret-vals))
 		       (return (values-list ret-vals)))
 		      ((retry)
-		       (setq largs ret-vals)
+		       (setq largs (trace/get-internal-args fun ret-vals extras))
 		       (mtell "TRACE-HANDLER: reapplying the function ~:@M~%" fun))
 		      ((maxima-error)
 		       (merror "~%TRACE-HANDLER: signaling 'maxima-error' for function ~:@M~%" fun))))))))
@@ -500,21 +519,20 @@
 
 
 (defun trace-enter-print (fun lev largs)
-  (let ((args (if (eq (trace-type fun) 'mfexpr*)
-		  (margs (car largs))
-		  largs)))
-    (if (not (trace-option-p fun '$noprint))
-	(let ((info (trace-option-p fun '$info)))
-	  (cond ((trace-option-p fun '$lisp_print)
-		 (trace-print `(,lev enter ,fun ,args ,@info)))
-		(t
-		 (trace-mprint lev
-			       (intl:gettext " Enter ")
-			       (mopstringnam fun)
-			       " "
-			       `((mlist) ,@args)
-			       (if info " -> " "")
-			       (if info info ""))))))))
+  (if (not (trace-option-p fun '$noprint))
+      (let ((info (trace-option-p fun '$info)))
+        (cond ((trace-option-p fun '$lisp_print)
+               (trace-print `(,lev enter ,fun ,largs ,@info)))
+              (t
+               (trace-mprint lev
+                             (if (eq (trace-type fun) 'operators)
+                                 (intl:gettext " Simp   ")
+                                 (intl:gettext " Call   "))
+                             (mopstringnam fun)
+                             " "
+                             `((mlist) ,@largs)
+                             (if info " -> " "")
+                             (if info info "")))))))
 
 (defun mopstringnam (x)
   (maknam (mstring (getop x))))
@@ -525,7 +543,7 @@
 	(cond ((trace-option-p fun '$lisp_print)
 	       (trace-print `(,lev exit ,fun ,ret-val ,@info)))
 	      (t
-	       (trace-mprint lev (intl:gettext " Exit  ") (mopstringnam fun) " " ret-val
+	       (trace-mprint lev (intl:gettext " Return ") (mopstringnam fun) " " ret-val
 			     (if info " -> " "")
 			     (if info info "")))))))
 
@@ -631,14 +649,15 @@
 
   (let ((mprops (mgetl fun '(mexpr mmacro)))
 	(lprops (getl  fun '(translated-mmacro mfexpr* mfexpr*s)))
-	(fcell-props (getl-lm-fcn-prop fun '(subr lsubr expr macro))))
+	(fcell-props (getl-lm-fcn-prop fun '(subr lsubr expr macro)))
+	(op-props (getl fun '(operators))))
     (cond ($transrun
 	   ;; the default, so its really a waste to have looked for
 	   ;; those mprops. Its better to fix the crock than to
 	   ;; optimize this though!
-	   (or lprops fcell-props mprops))
+	   (or lprops fcell-props mprops op-props))
 	  (t
-	   (or mprops lprops fcell-props)))))
+	   (or mprops lprops fcell-props op-props)))))
 
 (defun make-trace-hook (fun type handler)
   ;; Argument handling according to FUN's TYPE is already done
@@ -654,7 +673,7 @@
     (case type
       ((mexpr)
        (mapply prop largs "A traced function"))
-      ((expr subr lsubr)
+      ((expr subr lsubr operators)
        (apply prop largs))
       ((mfexpr* mfexpr*s)
        (funcall prop (car largs))))))

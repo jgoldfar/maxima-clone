@@ -50,15 +50,15 @@ The change of variable can also be written @code{@var{f(x)} = @var{g(y)}}.
 @c 'integrate (%e**sqrt(a*y), y, 0, 4);
 @c changevar (%, y-z^2/a, z, y);
 @c ===end===
-@example
+@example maxima
 (%i1) assume(a > 0)$
 @group
 (%i2) 'integrate (%e**sqrt(a*y), y, 0, 4);
                       4
                      /
-                     [    sqrt(a) sqrt(y)
-(%o2)                I  %e                dy
-                     ]
+                     |    sqrt(a) sqrt(y)
+(%o2)                |  %e                dy
+                     |
                      /
                       0
 @end group
@@ -66,9 +66,9 @@ The change of variable can also be written @code{@var{f(x)} = @var{g(y)}}.
 (%i3) changevar (%, y-z^2/a, z, y);
                       0
                      /
-                     [                abs(z)
-                   2 I            z %e       dz
-                     ]
+                     |              abs(z)
+                   2 |            %e       z dz
+                     |
                      /
                       - 2 sqrt(a)
 (%o3)            - ----------------------------
@@ -90,25 +90,25 @@ higher degree function.  E.g.,
 @c sum (a[i]*x^(i-2), i, 0, inf);
 @c changevar (%, i-2-n, n, i);
 @c ===end===
-@example
+@example maxima
 @group
-(%i4) sum (a[i]*x^(i-2), i, 0, inf);
+(%i1) sum (a[i]*x^(i-2), i, 0, inf);
                          inf
-                         ====
+                         ____
                          \         i - 2
-(%o4)                     >    a  x
+(%o1)                     >    a  x
                          /      i
-                         ====
+                         ----
                          i = 0
 @end group
 @group
-(%i5) changevar (%, i-2-n, n, i);
+(%i2) changevar (%, i-2-n, n, i);
                         inf
-                        ====
+                        ____
                         \               n
-(%o5)                    >      a      x
+(%o2)                    >      a      x
                         /        n + 2
-                        ====
+                        ----
                         n = - 2
 @end group
 @end example
@@ -130,10 +130,10 @@ top-level Maxima and then translated and compiled to machine code.
 Use @code{load ("dblint")} to access this package.  It uses the Simpson's rule
 method in both the x and y directions to calculate
 
-@tex
-$$\int_a^b \int_{r\left(x\right)}^{s\left(x\right)} f\left(x,y\right) \, dy \, dx.$$
-@end tex
-@ifnottex
+m4_displaymath(
+<<<\int_a^b \int_{r\left(x\right)}^{s\left(x\right)} f\left(x,y\right) \, dy \, dx
+>>>,
+<<<
 @example
 @group
 /b /s(x)
@@ -143,7 +143,7 @@ $$\int_a^b \int_{r\left(x\right)}^{s\left(x\right)} f\left(x,y\right) \, dy \, d
 /a /r(x)
 @end group
 @end example
-@end ifnottex
+>>>)
 
 The function @var{f} must be a translated or compiled function of two variables,
 and @var{r} and @var{s} must each be a translated or compiled function of one
@@ -232,30 +232,33 @@ By using the functions @code{laplace} and @code{ilt} together with the
 @code{solve} or @code{linsolve} functions the user can solve a single
 differential or convolution integral equation or a set of them.
 
+@c WARNING:  This needs manual editing for the last test to put the
+@c answer in the right place.
 @c ===beg===
 @c 'integrate (sinh(a*x)*f(t-x), x, 0, t) + b*f(t) = t**2;
 @c laplace (%, t, s);
 @c linsolve ([%], ['laplace(f(t), t, s)]);
+@c assume(a>0,b>0,a*b>1);
 @c ilt (rhs (first (%)), s, t);
 @c input:pos;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) 'integrate (sinh(a*x)*f(t-x), x, 0, t) + b*f(t) = t**2;
               t
              /
-             [                                    2
-(%o1)        I  f(t - x) sinh(a x) dx + b f(t) = t
-             ]
+             |                                    2
+(%o1)        |  f(t - x) sinh(a x) dx + b f(t) = t
+             |
              /
               0
 @end group
 @group
 (%i2) laplace (%, t, s);
-                               a laplace(f(t), t, s)   2
-(%o2)  b laplace(f(t), t, s) + --------------------- = --
-                                       2    2           3
-                                      s  - a           s
+       a laplace(f(t), t, s)                           2
+(%o2)  --------------------- + b laplace(f(t), t, s) = --
+               2    2                                   3
+              s  - a                                   s
 @end group
 @group
 (%i3) linsolve ([%], ['laplace(f(t), t, s)]);
@@ -267,21 +270,21 @@ differential or convolution integral equation or a set of them.
 @end group
 @group
 (%i4) ilt (rhs (first (%)), s, t);
-Is  a b (a b - 1)  positive, negative, or zero?
-
+Is a b (a b - 1) positive, negative or zero?
 pos;
+
                sqrt(a b (a b - 1)) t
         2 cosh(---------------------)       2
                          b               a t
 (%o4) - ----------------------------- + -------
               3  2      2               a b - 1
              a  b  - 2 a  b + a
-
                                                        2
                                              + ------------------
                                                 3  2      2
                                                a  b  - 2 a  b + a
 @end group
+(%i5) pos;
 @end example
 
 @opencatbox{Categories:}
@@ -307,34 +310,36 @@ Maxima can solve the following integrals, when @mref{intanalysis} is set to
 @code{false}:
 
 @c ===beg===
+@c intanalysis:false;
 @c integrate(1/(sqrt(x+1)+1),x,0,1);
 @c integrate(1/(sqrt(x)+1),x,0,1),intanalysis:false;
-@c integrate(cos(a)/sqrt((tan(a))^2+1),a,-%pi/2,%pi/2);
+@c integrate(cos(a)/sqrt((tan(a))^2+1),a,-%pi/2,%pi/2),intanalysis:false;
 @c intanalysis:false$
 @c integrate(cos(a)/sqrt((tan(a))^2 +1),a,-%pi/2,%pi/2);
 @c ===end===
-@example
-(%i1) integrate(1/(sqrt(x)+1),x,0,1);
-                                1
-                               /
-                               [       1
-(%o1)                          I  ----------- dx
-                               ]  sqrt(x) + 1
-                               /
-                                0
-
-(%i2) integrate(1/(sqrt(x)+1),x,0,1),intanalysis:false;
-(%o2)                            2 - 2 log(2)
-
-(%i3) integrate(cos(a)/sqrt((tan(a))^2 +1),a,-%pi/2,%pi/2);
-The number 1 isn't in the domain of atanh
- -- an error. To debug this try: debugmode(true);
-
-(%i4) intanalysis:false$
-(%i5) integrate(cos(a)/sqrt((tan(a))^2+1),a,-%pi/2,%pi/2);
-                                      %pi
-(%o5)                                 ---
-                                       2
+@example maxima
+@group
+(%i1) intanalysis:false;
+(%o1)                         false
+@end group
+@group
+(%i2) integrate(1/(sqrt(x+1)+1),x,0,1);
+                                              3/2
+(%o2)      - 2 log(sqrt(2) + 1) + 2 log(2) + 2    - 2
+@end group
+@group
+(%i3) integrate(1/(sqrt(x)+1),x,0,1),intanalysis:false;
+(%o3)                     2 - 2 log(2)
+@end group
+@group
+(%i4) integrate(cos(a)/sqrt((tan(a))^2+1),a,-%pi/2,%pi/2),intanalysis:false;
+(%o4)               %i log(2) - %i log(2 %i)
+@end group
+(%i5) intanalysis:false$
+@group
+(%i6) integrate(cos(a)/sqrt((tan(a))^2 +1),a,-%pi/2,%pi/2);
+(%o6)               %i log(2) - %i log(2 %i)
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -437,7 +442,7 @@ Elementary indefinite and definite integrals.
 @c integrate (cos(x)^2 * exp(x), x, 0, %pi);
 @c integrate (x^2 * exp(-x^2), x, minf, inf);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) integrate (sin(x)^3, x);
                            3
@@ -468,28 +473,37 @@ Elementary indefinite and definite integrals.
 @item
 Use of @code{assume} and interactive query.
 
+@c WARNING:  This needs manual editing to get the answers to the
+@c questions in the right place.
 @c ===beg===
 @c assume (a > 1)$
 @c integrate (x**a/(x+1)**(5/2), x, 0, inf);
 @c input:no;
 @c input:neg;
 @c ===end===
-@example
+@example maxima
 (%i1) assume (a > 1)$
 @group
 (%i2) integrate (x**a/(x+1)**(5/2), x, 0, inf);
-    2 a + 2
-Is  -------  an integer?
-       5
-
+Is a an integer?
 no;
-Is  2 a - 3  positive, negative, or zero?
 
-neg;
-                                   3
-(%o2)                  beta(a + 1, - - a)
-                                   2
 @end group
+@group
+Is 2 a - 1 positive, negative or zero?
+neg;
+                            3
+(%o2)                  beta(- - a, a + 1)
+                            2
+@end group
+@group
+Is 2 a - 1 positive, negative or zero?
+no;
+                            3
+(%o2)                  beta(- - a, a + 1)
+                            2
+@end group
+(%i3) neg;
 @end example
 
 @item
@@ -502,22 +516,22 @@ derivation @code{diff(r(x))} of an unspecified function @code{r(x)}.
 @c diff (log (q (r (x))), x);
 @c integrate (%, x);
 @c ===end===
-@example
+@example maxima
 @group
-(%i3) gradef (q(x), sin(x**2));
-(%o3)                         q(x)
+(%i1) gradef (q(x), sin(x**2));
+(%o1)                         q(x)
 @end group
 @group
-(%i4) diff (log (q (r (x))), x);
+(%i2) diff (log (q (r (x))), x);
                       d               2
                      (-- (r(x))) sin(r (x))
                       dx
-(%o4)                ----------------------
+(%o2)                ----------------------
                             q(r(x))
 @end group
 @group
-(%i5) integrate (%, x);
-(%o5)                     log(q(r(x)))
+(%i3) integrate (%, x);
+(%o3)                     log(q(r(x)))
 @end group
 @end example
 
@@ -533,7 +547,7 @@ noun form @code{'integrate} in the result.  See also
 @c integrate (1/%, x);
 @c grind (%);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) expand ((x-4) * (x^3+2*x+1));
                     4      3      2
@@ -542,9 +556,9 @@ noun form @code{'integrate} in the result.  See also
 @group
 (%i2) integrate (1/%, x);
                               /  2
-                              [ x  + 4 x + 18
-                              I ------------- dx
-                              ]  3
+                              | x  + 4 x + 18
+                              | ------------- dx
+                              |  3
                  log(x - 4)   / x  + 2 x + 1
 (%o2)            ---------- - ------------------
                      73               73
@@ -552,6 +566,7 @@ noun form @code{'integrate} in the result.  See also
 @group
 (%i3) grind (%);
 log(x-4)/73-('integrate((x^2+4*x+18)/(x^3+2*x+1),x))/73$
+(%o3)                         done
 @end group
 @end example
 
@@ -565,10 +580,10 @@ body of @code{f_2}.
 @c ===beg===
 @c f_1 (a) := integrate (x^3, x, 1, a);
 @c ev (f_1 (7), nouns);
-@c /* Note parentheses around integrate(...) here */      f_2 (a) := ''(integrate (x^3, x, 1, a));
+@c /* Note parentheses around integrate(...) here */  f_2 (a) := ''(integrate (x^3, x, 1, a));
 @c f_2 (7);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) f_1 (a) := integrate (x^3, x, 1, a);
                                      3
@@ -579,8 +594,7 @@ body of @code{f_2}.
 (%o2)                          600
 @end group
 @group
-(%i3) /* Note parentheses around integrate(...) here */
-      f_2 (a) := ''(integrate (x^3, x, 1, a));
+(%i3) /* Note parentheses around integrate(...) here */      f_2 (a) := ''(integrate (x^3, x, 1, a));
                                    4
                                   a    1
 (%o3)                   f_2(a) := -- - -
@@ -616,7 +630,7 @@ Examples:
 @c integration_constant : 'k;
 @c integrate (x^2 = 1, x);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) integrate (x^2 = 1, x);
                            3
@@ -663,7 +677,7 @@ Examples:
 @c reset (integration_constant_counter);
 @c integrate (x^2 = 1, x);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) integrate (x^2 = 1, x);
                            3
@@ -720,17 +734,17 @@ form:
 @c integrate_use_rootsof: false$
 @c integrate (1/(1+x+x^5), x);
 @c ===end===
-@example
+@example maxima
 (%i1) integrate_use_rootsof: false$
 @group
 (%i2) integrate (1/(1+x+x^5), x);
-        /  2
-        [ x  - 4 x + 5
-        I ------------ dx                            2 x + 1
-        ]  3    2                2            5 atan(-------)
-        / x  - x  + 1       log(x  + x + 1)          sqrt(3)
-(%o2)   ----------------- - --------------- + ---------------
-                7                 14             7 sqrt(3)
+      /  2
+      | x  - 4 x + 5
+      | ------------ dx                            2 x + 1
+      |  3    2                2            5 atan(-------)
+      / x  - x  + 1       log(x  + x + 1)          sqrt(3)
+(%o2) ----------------- - --------------- + ---------------
+              7                 14             7 sqrt(3)
 @end group
 @end example
 
@@ -742,25 +756,26 @@ function:
 @c integrate_use_rootsof: true$
 @c integrate (1/(1+x+x^5), x);
 @c ===end===
-@example
-(%i3) integrate_use_rootsof: true$
+@example maxima
+(%i1) integrate_use_rootsof: true$
 @group
-(%i4) integrate (1/(1+x+x^5), x);
-      ====        2
-      \       (%r4  - 4 %r4 + 5) log(x - %r4)
-       >      -------------------------------
-      /                    2
-      ====            3 %r4  - 2 %r4
-                        3      2
-      %r4 in rootsof(%r4  - %r4  + 1, %r4)
-(%o4) ----------------------------------------------------------
-               7
-
-                                                      2 x + 1
-                                  2            5 atan(-------)
-                             log(x  + x + 1)          sqrt(3)
-                           - --------------- + ---------------
-                                   14             7 sqrt(3)
+(%i2) integrate (1/(1+x+x^5), x);
+       ____
+       \                                         2
+(%o2) ( >                                   ((%r1  - 4 %r1 + 5)
+       /
+       ----
+                         3      2
+       %r1 in rootsof(%r1  - %r1  + 1, %r1)
+                                          2
+                     2               log(x  + x + 1)
+ log(x - %r1))/(3 %r1  - 2 %r1))/7 - ---------------
+                                           14
+          2 x + 1
+   5 atan(-------)
+          sqrt(3)
+ + ---------------
+      7 sqrt(3)
 @end group
 @end example
 
@@ -837,69 +852,74 @@ Examples:
 @c laplace ('diff (f (x), x), x, s);
 @c diff (diff (delta (t), t), t);
 @c laplace (%, t, s);
-@c assume(a>0)$
+@c assume(a>1)$
 @c declare(a, integer)$
 @c laplace(gamma_incomplete(a,t),t,s),gamma_expand:true;
 @c factor(laplace(gamma_incomplete(1/2,t),t,s));
-@c assume(exp(%pi*s)>1)$
+@c assume(exp(%pi*s)>1, n > 0)$
 @c laplace(sum((-1)^n*unit_step(t-n*%pi)*sin(t),n,0,inf),t,s),
-@c    simpsum;
+@c   simpsum;
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) laplace (exp (2*t + a) * sin(t) * t, t, s);
                             a
                           %e  (2 s - 4)
-(%o1)                    ---------------
-                           2           2
-                         (s  - 4 s + 5)
+(%o1)             -----------------------------
+                   4      3       2
+                  s  - 8 s  + 26 s  - 40 s + 25
+@end group
+@group
 (%i2) laplace ('diff (f (x), x), x, s);
 (%o2)             s laplace(f(x), x, s) - f(0)
+@end group
+@group
 (%i3) diff (diff (delta (t), t), t);
                           2
                          d
 (%o3)                    --- (delta(t))
                            2
                          dt
-(%i4) laplace (%, t, s);
-                            !
-               d            !         2
-(%o4)        - -- (delta(t))!      + s  - delta(0) s
-               dt           !
-                            !t = 0
-(%i5) assume(a>0)$
-(%i6) laplace(gamma_incomplete(a,t),t,s),gamma_expand:true;
-                                              - a - 1
-                         gamma(a)   gamma(a) s
-(%o6)                    -------- - -----------------
-                            s            1     a
-                                        (- + 1)
-                                         s
-(%i7) factor(laplace(gamma_incomplete(1/2,t),t,s));
-                                              s + 1
-                      sqrt(%pi) (sqrt(s) sqrt(-----) - 1)
-                                                s
-(%o7)                 -----------------------------------
-                                3/2      s + 1
-                               s    sqrt(-----)
-                                           s
-(%i8) assume(exp(%pi*s)>1)$
-(%i9) laplace(sum((-1)^n*unit_step(t-n*%pi)*sin(t),n,0,inf),t,s),
-         simpsum;
-@group
-                         %i                         %i
-              ------------------------ - ------------------------
-                              - %pi s                    - %pi s
-              (s + %i) (1 - %e       )   (s - %i) (1 - %e       )
-(%o9)         ---------------------------------------------------
-                                       2
 @end group
-(%i9) factor(%);
-                                      %pi s
-                                    %e
-(%o9)                   -------------------------------
-                                             %pi s
-                        (s - %i) (s + %i) (%e      - 1)
-
+@group
+(%i4) laplace (%, t, s);
+                            |
+               d            |         2
+(%o4)        - -- (delta(t))|      + s  - delta(0) s
+               dt           |
+                            |t = 0
+@end group
+(%i5) assume(a>1)$
+(%i6) declare(a, integer)$
+@group
+(%i7) laplace(gamma_incomplete(a,t),t,s),gamma_expand:true;
+                                       - a - 1
+                  gamma(a)   gamma(a) s
+(%o7)             -------- - -----------------
+                     s            1     a
+                                 (- + 1)
+                                  s
+@end group
+@group
+(%i8) factor(laplace(gamma_incomplete(1/2,t),t,s));
+                                       s + 1
+               sqrt(%pi) (sqrt(s) sqrt(-----) - 1)
+                                         s
+(%o8)          -----------------------------------
+                         3/2      s + 1
+                        s    sqrt(-----)
+                                    s
+@end group
+(%i9) assume(exp(%pi*s)>1, n > 0)$
+@group
+(%i10) laplace(sum((-1)^n*unit_step(t-n*%pi)*sin(t),n,0,inf),t,s),
+  simpsum;
+                              %pi s
+                            %e
+(%o10)           ------------------------------
+                    %pi s       2     %pi s
+                 (%e      - 1) s  + %e      - 1
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -951,17 +971,20 @@ Two examples where @code{ilt} fails:
 @c pwilt ((s^2+2)/(s^2-1), s, t);
 @c ===end===
 @example
+@group
 (%i1) pwilt (exp(-s)*s/(s^3-2*s-s+2), s, t);
-                                       t - 1       - 2 (t - 1)
-                             (t - 1) %e        2 %e
-(%o1)         hstep(t - 1) (--------------- - ---------------)
-                                    3                 9
-                                    
+                        t - 1               - 2 (t - 1)
+                      %e      (t - 1)   2 %e
+(%o1)   hstep(t - 1) (--------------- - ---------------)
+                             3                 9
+@end group
+@group
 (%i2) pwilt ((s^2+2)/(s^2-1), s, t);
-                                         t       - t
-                                     3 %e    3 %e
-(%o2)                    delta(t) + ----- - -------
-                                       2        2
+                                  t       - t
+                              3 %e    3 %e
+(%o2)              delta(t) + ----- - -------
+                                2        2
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1004,28 +1027,25 @@ when @code{prefer_d} is @code{true}.
 @c factor(ex:specint(%e^-(t^2/8)*exp(-s*t),t));
 @c specint(ex,t),prefer_d=true;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) assume(s>0);
-(%o1)                               [s > 0]
+(%o1)                        [s > 0]
 @end group
 @group
-(%i2) factor(specint(ex:%e^-(t^2/8)*exp(-s*t),t));
-                                         2
-                                      2 s
-(%o2)           - sqrt(2) sqrt(%pi) %e     (erf(sqrt(2) s) - 1)
+(%i2) factor(ex:specint(%e^-(t^2/8)*exp(-s*t),t));
+                        2
+                     2 s
+(%o2)    - sqrt(2) %e     sqrt(%pi) (erf(sqrt(2) s) - 1)
 @end group
 @group
 (%i3) specint(ex,t),prefer_d=true;
-                                                          2
-                                                         s
-                                                         --
-                                                 s       8
-                    parabolic_cylinder_d(- 1, -------) %e
-                                              sqrt(2)
-(%o3)               ---------------------------------------
-                                    sqrt(2)
-
+                             2
+                          2 s
+(%o3) specint(- sqrt(2) %e     sqrt(%pi) erf(sqrt(2) s), t)
+                                                  2
+                                               2 s
+                           + specint(sqrt(2) %e     sqrt(%pi), t)
 @end group
 @end example
 
@@ -1047,7 +1067,7 @@ variable @var{z} assumes the value @var{z_0}.  The residue is the coefficient of
 @c residue (s/(s**2+a**2), s, a*%i);
 @c residue (sin(a*x)/x**4, x, 0);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) residue (s/(s**2+a**2), s, a*%i);
                                 1
@@ -1088,12 +1108,12 @@ with.
 @c risch (x^2*erf(x), x);
 @c diff(%, x), ratsimp;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) risch (x^2*erf(x), x);
-                                                        2
-             3                      2                - x
-        %pi x  erf(x) + (sqrt(%pi) x  + sqrt(%pi)) %e
+                             2
+             3            - x              2
+        %pi x  erf(x) + %e     (sqrt(%pi) x  + sqrt(%pi))
 (%o1)   -------------------------------------------------
                               3 %pi
 @end group
@@ -1147,7 +1167,7 @@ Examples:
 @c specint (t^(1/2) * bessel_j(1, 2 * a^(1/2) * t^(1/2)) 
 @c               * exp(-p*t), t);
 @c ===end===
-@example
+@example maxima
 (%i1) assume (p > 0, a > 0)$
 @group
 (%i2) specint (t^(1/2) * exp(-a*t/4) * exp(-p*t), t);
@@ -1160,8 +1180,8 @@ Examples:
 @group
 (%i3) specint (t^(1/2) * bessel_j(1, 2 * a^(1/2) * t^(1/2))
               * exp(-p*t), t);
-                                   - a/p
-                         sqrt(a) %e
+                           - a/p
+                         %e      sqrt(a)
 (%o3)                    ---------------
                                 2
                                p
@@ -1170,56 +1190,77 @@ Examples:
 
 Examples for exponential integrals:
 
-@example
-(%i4) assume(s>0,a>0,s-a>0)$
-(%i5) ratsimp(specint(%e^(a*t)
-                      *(log(a)+expintegral_e1(a*t))*%e^(-s*t),t));
+@c ===beg===
+@c assume(s>0,a>0,s-a>0)$
+@c ratsimp(specint(%e^(a*t)*(log(a)+expintegral_e1(a*t))*%e^(-s*t),t));
+@c logarc:true$
+@c gamma_expand:true$
+@c radcan(specint((cos(t)*expintegral_si(t) -sin(t)*expintegral_ci(t))*%e^(-s*t),t));
+@c ratsimp(specint((2*t*log(a)+2/a*sin(a*t) -2*t*expintegral_ci(a*t))*%e^(-s*t),t));
+@c ===end===
+@example maxima
+(%i1) assume(s>0,a>0,s-a>0)$
+@group
+(%i2) ratsimp(specint(%e^(a*t)*(log(a)+expintegral_e1(a*t))*%e^(-s*t),t));
+                             log(s)
+(%o2)                        ------
+                             s - a
+@end group
+(%i3) logarc:true$
+(%i4) gamma_expand:true$
+@group
+(%i5) radcan(specint((cos(t)*expintegral_si(t) -sin(t)*expintegral_ci(t))*%e^(-s*t),t));
                              log(s)
 (%o5)                        ------
-                             s - a
-(%i6) logarc:true$
-
-(%i7) gamma_expand:true$
-
-radcan(specint((cos(t)*expintegral_si(t)
-                     -sin(t)*expintegral_ci(t))*%e^(-s*t),t));
-                             log(s)
-(%o8)                        ------
                               2
                              s  + 1
-ratsimp(specint((2*t*log(a)+2/a*sin(a*t)
-                      -2*t*expintegral_ci(a*t))*%e^(-s*t),t));
+@end group
+@group
+(%i6) ratsimp(specint((2*t*log(a)+2/a*sin(a*t) -2*t*expintegral_ci(a*t))*%e^(-s*t),t));
                                2    2
                           log(s  + a )
-(%o9)                     ------------
+(%o6)                     ------------
                                 2
                                s
+@end group
 @end example
 
 Results when using the expansion of @mref{gamma_incomplete} and when changing 
 the representation to @mref{expintegral_e1}:
 
-@example
-(%i10) assume(s>0)$
-(%i11) specint(1/sqrt(%pi*t)*unit_step(t-k)*%e^(-s*t),t);
-                                            1
-                            gamma_incomplete(-, k s)
-                                            2
-(%o11)                      ------------------------
-                               sqrt(%pi) sqrt(s)
-
-(%i12) gamma_expand:true$
-(%i13) specint(1/sqrt(%pi*t)*unit_step(t-k)*%e^(-s*t),t);
-                              erfc(sqrt(k) sqrt(s))
-(%o13)                        ---------------------
-                                     sqrt(s)
-
-(%i14) expintrep:expintegral_e1$
-(%i15) ratsimp(specint(1/(t+a)^2*%e^(-s*t),t));
-                              a s
-                        a s %e    expintegral_e1(a s) - 1
-(%o15)                - ---------------------------------
-                                        a
+@c ===beg===
+@c assume(s>0)$
+@c specint(1/sqrt(%pi*t)*unit_step(t-k)*%e^(-s*t),t);
+@c gamma_expand:true$
+@c specint(1/sqrt(%pi*t)*unit_step(t-k)*%e^(-s*t),t);
+@c expintrep:expintegral_e1$
+@c ratsimp(specint(1/(t+a)^2*%e^(-s*t),t));
+@c ===end===
+@example maxima
+(%i1) assume(s>0)$
+@group
+(%i2) specint(1/sqrt(%pi*t)*unit_step(t-k)*%e^(-s*t),t);
+                                     1
+                    gamma_incomplete(-, k s)
+                                     2
+(%o2)               ------------------------
+                       sqrt(%pi) sqrt(s)
+@end group
+(%i3) gamma_expand:true$
+@group
+(%i4) specint(1/sqrt(%pi*t)*unit_step(t-k)*%e^(-s*t),t);
+                      erfc(sqrt(k) sqrt(s))
+(%o4)                 ---------------------
+                             sqrt(s)
+@end group
+(%i5) expintrep:expintegral_e1$
+@group
+(%i6) ratsimp(specint(1/(t+a)^2*%e^(-s*t),t));
+                       a s
+                 a s %e    expintegral_e1(a s) - 1
+(%o6)          - ---------------------------------
+                                 a
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1453,10 +1494,10 @@ Examples:
 @c quad_qag (x^(1/2)*log(1/x), x, 0, 1, 3, 'epsrel=5d-8);
 @c integrate (x^(1/2)*log(1/x), x, 0, 1);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) quad_qag (x^(1/2)*log(1/x), x, 0, 1, 3, 'epsrel=5d-8);
-(%o1)    [.4444444444492108, 3.1700968502883E-9, 961, 0]
+(%o1)  [0.44444444445742953, 8.737223570614865e-9, 899, 0]
 @end group
 @group
 (%i2) integrate (x^(1/2)*log(1/x), x, 0, 1);
@@ -1550,10 +1591,10 @@ Examples:
 @c ===beg===
 @c quad_qags (x^(1/2)*log(1/x), x, 0, 1, 'epsrel=1d-10);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) quad_qags (x^(1/2)*log(1/x), x, 0, 1, 'epsrel=1d-10);
-(%o1)   [.4444444444444448, 1.11022302462516E-15, 315, 0]
+(%o1) [0.44444444444444475, 1.1102230246251565e-15, 315, 0]
 @end group
 @end example
 
@@ -1656,10 +1697,10 @@ Examples:
 @c quad_qagi (x^2*exp(-4*x), x, 0, inf, 'epsrel=1d-8);
 @c integrate (x^2*exp(-4*x), x, 0, inf);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) quad_qagi (x^2*exp(-4*x), x, 0, inf, 'epsrel=1d-8);
-(%o1)        [0.03125, 2.95916102995002E-11, 105, 0]
+(%o1)       [0.03125, 2.9591610299500215e-11, 105, 0]
 @end group
 @group
 (%i2) integrate (x^2*exp(-4*x), x, 0, inf);
@@ -1751,36 +1792,38 @@ Examples:
 @c integrate (2^(-alpha)*(((x-1)^2 + 4^(-alpha))*(x-2))^(-1), x, 0, 5);
 @c ev (%, alpha=5, numer);
 @c ===end===
-@example
+@example maxima
 @group
-(%i1) quad_qawc (2^(-5)*((x-1)^2+4^(-5))^(-1), x, 2, 0, 5,
-                 'epsrel=1d-7);
-(%o1)    [- 3.130120337415925, 1.306830140249558E-8, 495, 0]
+(%i1) quad_qawc (2^(-5)*((x-1)^2+4^(-5))^(-1), x, 2, 0, 5, 'epsrel=1d-7);
+(%o1) [- 3.130120337415925, 1.3068301402495579e-8, 495, 0]
 @end group
 @group
-(%i2) integrate (2^(-alpha)*(((x-1)^2 + 4^(-alpha))*(x-2))^(-1),
-      x, 0, 5);
+(%i2) integrate (2^(-alpha)*(((x-1)^2 + 4^(-alpha))*(x-2))^(-1), x, 0, 5);
 Principal Value
-                       alpha
-        alpha       9 4                 9
-       4      log(------------- + -------------)
-                      alpha           alpha
-                  64 4      + 4   64 4      + 4
-(%o2) (-----------------------------------------
-                        alpha
-                     2 4      + 2
-
-       3 alpha                       3 alpha
-       -------                       -------
-          2            alpha/2          2          alpha/2
-    2 4        atan(4 4       )   2 4        atan(4       )   alpha
-  - --------------------------- - -------------------------)/2
-              alpha                        alpha
-           2 4      + 2                 2 4      + 2
+          2 alpha - 1      2 alpha + 4
+         2            log(2            + 1)
+(%o2) (- ----------------------------------
+                     2 alpha
+                    2        + 1
+    3 alpha       alpha + 2     2 alpha - 1      2 alpha
+   2        atan(2         )   2            log(2        + 1)
+ - ------------------------- + ------------------------------
+          2 alpha                        2 alpha
+         2        + 1                   2        + 1
+    3 alpha + 1       alpha     3 alpha       alpha
+   2            atan(2     )   2        atan(2     )
+ - ------------------------- + ---------------------
+          2 alpha                   2 alpha
+         2        + 1              2        + 1
+    2 alpha           2 alpha
+   2        log(3)   2        log(2)   alpha
+ + --------------- - ---------------)/2
+     2 alpha           2 alpha
+    2        + 1      2        + 1
 @end group
 @group
 (%i3) ev (%, alpha=5, numer);
-(%o3)                    - 3.130120337415917
+(%o3)                 - 3.1301203374159177
 @end group
 @end example
 
@@ -1876,10 +1919,10 @@ Examples:
 @c integrate (exp(-x^2)*cos(x), x, 0, inf);
 @c ev (%, numer);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) quad_qawf (exp(-x^2), x, 0, 1, 'cos, 'epsabs=1d-9);
-(%o1)   [.6901942235215714, 2.84846300257552E-11, 215, 0]
+(%o1)  [0.6901942235215714, 2.848463002545743e-11, 215, 0]
 @end group
 @group
 (%i2) integrate (exp(-x^2)*cos(x), x, 0, inf);
@@ -1890,7 +1933,7 @@ Examples:
 @end group
 @group
 (%i3) ev (%, numer);
-(%o3)                   .6901942235215714
+(%o3)                  0.6901942235215714
 @end group
 @end example
 
@@ -1993,27 +2036,28 @@ Examples:
 @c ===beg===
 @c quad_qawo (x^(-1/2)*exp(-2^(-2)*x), x, 1d-8, 20*2^2, 1, cos);
 @c rectform (integrate (x^(-1/2)*exp(-2^(-alpha)*x) * cos(x), x, 0, inf));
-@c input:pos;
 @c ev (%, alpha=2, numer);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) quad_qawo (x^(-1/2)*exp(-2^(-2)*x), x, 1d-8, 20*2^2, 1, cos);
-(%o1)     [1.376043389877692, 4.72710759424899E-11, 765, 0]
+(%o1) [1.3760433898776214, 4.7271075942489915e-11, 765, 0]
 @end group
 @group
-(%i2) rectform (integrate (x^(-1/2)*exp(-2^(-alpha)*x) * cos(x),
-      x, 0, inf));
-                   alpha/2 - 1/2            2 alpha
-        sqrt(%pi) 2              sqrt(sqrt(2        + 1) + 1)
-(%o2)   -----------------------------------------------------
-                               2 alpha
-                         sqrt(2        + 1)
+(%i2) rectform (integrate (x^(-1/2)*exp(-2^(-alpha)*x) * cos(x), x, 0, inf));
+         alpha + 1
+         --------- - 1
+             2                    2 alpha
+        2              sqrt(sqrt(2        + 1) %pi + %pi)
+(%o2)   -------------------------------------------------
+                             2 alpha
+                       sqrt(2        + 1)
 @end group
 @group
 (%i3) ev (%, alpha=2, numer);
-(%o3)                     1.376043390090716
+(%o3)                   1.376043390090716
 @end group
+(%i4) ev (%, alpha=2, numer);
 @end example
 
 @opencatbox{Categories:}
@@ -2107,30 +2151,24 @@ Examples:
 @c ===beg===
 @c quad_qaws (1/(x+1+2^(-4)), x, -1, 1, -0.5, -0.5, 1, 'epsabs=1d-9);
 @c integrate ((1-x*x)^(-1/2)/(x+1+2^(-alpha)), x, -1, 1);
-@c input:pos;
 @c ev (%, alpha=4, numer);
 @c ===end===
-@example
+@example maxima
 @group
-(%i1) quad_qaws (1/(x+1+2^(-4)), x, -1, 1, -0.5, -0.5, 1,
-                 'epsabs=1d-9);
-(%o1)     [8.750097361672832, 1.24321522715422E-10, 170, 0]
+(%i1) quad_qaws (1/(x+1+2^(-4)), x, -1, 1, -0.5, -0.5, 1, 'epsabs=1d-9);
+(%o1)  [8.750097361672843, 1.2761903591126173e-8, 130, 0]
 @end group
 @group
 (%i2) integrate ((1-x*x)^(-1/2)/(x+1+2^(-alpha)), x, -1, 1);
-       alpha
-Is  4 2      - 1  positive, negative, or zero?
-
-pos;
-                          alpha         alpha
-                   2 %pi 2      sqrt(2 2      + 1)
-(%o2)              -------------------------------
-                               alpha
-                            4 2      + 2
+                            alpha
+                           2      %pi
+(%o2)                 --------------------
+                            alpha + 1
+                      sqrt(2          + 1)
 @end group
 @group
 (%i3) ev (%, alpha=4, numer);
-(%o3)                     8.750097361672829
+(%o3)                   8.75009736167283
 @end group
 @end example
 
@@ -2225,14 +2263,14 @@ Examples:
 @c quad_qagp(x^3*log(abs((x^2-1)*(x^2-2))),x,0,3,[1,sqrt(2)]);
 @c quad_qags(x^3*log(abs((x^2-1)*(x^2-2))), x, 0, 3);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) quad_qagp(x^3*log(abs((x^2-1)*(x^2-2))),x,0,3,[1,sqrt(2)]);
-(%o1)   [52.74074838347143, 2.6247632689546663e-7, 1029, 0]
+(%o1) [52.740748383471434, 2.6247632689546663e-7, 1029, 0]
 @end group
 @group
 (%i2) quad_qags(x^3*log(abs((x^2-1)*(x^2-2))), x, 0, 3);
-(%o2)   [52.74074847951494, 4.088443219529836e-7, 1869, 0]
+(%o2)  [52.74074847951494, 4.088443219529836e-7, 1869, 0]
 @end group
 @end example
 

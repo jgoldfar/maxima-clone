@@ -3,11 +3,10 @@
 # Copyright (C) 1998 William F. Schelter                   #
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
-#     Time-stamp: "2024-03-25 19:20:02 villate"            #
 ############################################################
 
 proc CMmenu { win } {
-    global buttonfont maxima_priv
+    global buttonfont
     set menubar $win.textcommands
     set win $menubar
     if { [winfo exists $menubar] } {
@@ -20,19 +19,14 @@ proc CMmenu { win } {
 	$menubar add $win.$v
     }
 
-
     ####### begin help button
-
     setHelp $win.help {Bring down a menu with some help options}
     set m [oget $win.help menu]
     #oset $win showHelpBar "show help bar"
-    set file $maxima_priv(pReferenceToc)
+    set file $::xmaxima_priv(pReferenceToc)
     $m add command -underline 0 -label {Maxima Help} \
 	-command "OpenMathOpenUrl \"file:/$file\""
-
-    global tcl_platform
-
-    if {$tcl_platform(platform) == "windows"} {
+    if {$::tcl_platform(platform) == "windows"} {
 	set browse start
     } else {
 	# FIXME: get a browser object
@@ -45,22 +39,19 @@ proc CMmenu { win } {
 	-command [list $browse https://sourceforge.net/projects/maxima/]
     $m add command -underline 0 -label {Bug Reports} \
 	-command [list $browse https://sourceforge.net/p/maxima/bugs/]
-
     $m add sep
-    set dir $maxima_priv(pTestsDir)
+    set dir $::xmaxima_priv(pTestsDir)
     $m add command -underline 0 -label {Run Tests} \
 	-command "sendMaxima \[oget $win textwin\] {:lisp (progn (xchdir \"$dir\")(load \"tests.lisp\"))\n}"
 
-
     ####### begin file button
-
     setHelp $win.file {Bring down a menu with some file options}
     set m [oget $win.file menu]
     #oset $win showFileBar "show file bar"
     $m add command -underline 0 -label {Toggle Browser Visibility} \
 	-help {Toggle display of Browser} -command {if { [catch { pack info .browser }] } { pack .browser -side bottom } else { pack forget .browser }}
     $m add command -underline 0 -label {Exit} \
-        -command "maxExit $maxima_priv(cConsoleText)" \
+        -command "maxExit $::xmaxima_priv(cConsoleText)" \
 	-help  "End this session of Maxima"
     $m add command -underline 0 -label {Interrupt   C-c C-c} -command "CMinterrupt \[oget $win textwin\]" \
 	-help  "Interrupt the Maxima process and reset the filter"
@@ -76,10 +67,7 @@ proc CMmenu { win } {
 	    {This console is used mainly in debugging xmaxima}
     }
 
-
-
     ####### begin edit button
-
     setHelp $win.edit {Bring down a menu with some edit options}
     set m [oget $win.edit menu]
     #oset $win showEditBar "show edit bar"

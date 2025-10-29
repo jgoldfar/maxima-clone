@@ -12,7 +12,7 @@
 )
 
 #-cmucl
-(eval-when (compile load eval)
+(eval-when (:compile-toplevel :load-toplevel :execute)
 ;;;; Borrowed from cmucl src/code/extensions.lisp.  Used in parsing
 ;;;; lambda lists.
 
@@ -272,6 +272,9 @@
 ;; function NAME is called the first time.  The value of :DEPRECATED-P
 ;; is a symbol naming the function that should be used instead.
 ;;
+;; If the keyword :INLINE-IMPL is specified, the impl function is
+;; declared to be an inline function.
+;;
 ;; For example:
 ;;
 ;;   (defun-checked-form ($foo foo-impl :deprecated-p $bar) ...)
@@ -289,7 +292,8 @@
 ;; used when printing out error messages for incorrect number of
 ;; arguments.
 
-(defmacro defun-checked-form ((name impl-name &key deprecated-p) lambda-list &body body)
+(defmacro defun-checked-form ((name impl-name &key deprecated-p inline-impl)
+                              lambda-list &body body)
   ;; Carefully check the number of arguments and print a nice message
   ;; if the number doesn't match the expected number.
   (multiple-value-bind (required-args
@@ -354,13 +358,46 @@
 	  (parse-body body nil t)
 	(setf doc-string (if doc-string (list doc-string)))
 	`(progn
+       ,(cond
+	      (keywords-present-p
+	       `(define-compiler-macro ,name (&rest ,rest-name)
+		  ,(format nil "Compiler-macro to convert calls to ~S to ~S" name impl-name)
+		  (let ((args (append (subseq ,rest-name 0 ,required-len)
+				      (defmfun-keywords ',pretty-fname
+					  (nthcdr ,required-len ,rest-name)
+					',maxima-keywords))))
+		    `(,',impl-name ,@args))))
+	      (t
+	       `(define-compiler-macro ,name (&rest ,rest-name)
+		  ,(format nil "Compiler-macro to convert calls to ~S to ~S" name impl-name)
+		  `(,',impl-name ,@,rest-name))))
+           ,@(when inline-impl
+               `((declaim (inline ,impl-name))))
 	   (defun ,impl-name ,lambda-list
 	     ,impl-doc
 	     ,@decls
 	     (block ,name
 	       (let ((%%pretty-fname ',pretty-fname))
 		 (declare (ignorable %%pretty-fname))
-		 ,@forms)))
+           ;; For simple functions with only required arguments, locally define
+           ;; an inlined proxy function $FOO that forwards to FOO-IMPL.
+           ;; Within the proxy function, prevent FOO-IMPL from being inlined,
+           ;; as that would cause infinite recursive inlining.
+           ;; This mechanism catches direct and indirect (e.g. MAPCAR) recursion
+           ;; and avoids going through $FOO with argument checking each time.
+           ,@(if (and required-args
+                      (null optional-args)
+                      (not restp)
+                      (not keywords-present-p)
+                      (not allow-other-keys-p))
+               `((flet ((,name ,required-args
+                          (declare (notinline ,impl-name))
+                          ,(format nil "Proxy function to forward ~S calls to ~S" name impl-name)
+                          (,impl-name ,@required-args)))
+                   ;; GCL doesn't like the IGNORABLE declaration.
+                   (declare #-gcl (ignorable #',name) (inline ,name))
+		           ,@forms))
+               forms))))
 
 	   (let ,(when deprecated-p `((,warning-done-var nil)))
 	     (defun ,name (&rest ,args)
@@ -419,20 +456,7 @@
 				  (nthcdr ,required-len ,args)
 				',maxima-keywords))))
 		    (t
-		     `(apply #',impl-name ,args))))))
-	   ,(cond
-	      (keywords-present-p
-	       `(define-compiler-macro ,name (&rest ,rest-name)
-		  ,(format nil "Compiler-macro to convert calls to ~S to ~S" name impl-name)
-		  (let ((args (append (subseq ,rest-name 0 ,required-len)
-				      (defmfun-keywords ',pretty-fname
-					  (nthcdr ,required-len ,rest-name)
-					',maxima-keywords))))
-		    `(,',impl-name ,@args))))
-	      (t
-	       `(define-compiler-macro ,name (&rest ,rest-name)
-		  ,(format nil "Compiler-macro to convert calls to ~S to ~S" name impl-name)
-		  `(,',impl-name ,@,rest-name)))))))))
+		     `(apply #',impl-name ,args)))))))))))
 
 ;; Define a Lisp function that should check the number of arguments to
 ;; a function and print out a nice Maxima error message instead of
@@ -463,14 +487,25 @@
 (defmacro defmfun (name-maybe-prop lambda-list &body body)
   ;; NAME-MAYBE-PROP can be either a symbol or a list.  If a symbol,
   ;; it's just the name of the function to be defined.  If a list, it
-  ;; must have the form (name &keyword :properties :deprecated-p)
+  ;; must have the form
+  ;;
+  ;;   (name &keyword properties deprecated-p inline-impl)
+  ;;
   ;; where NAME is the name of the function to be defined.  The
-  ;; keyword args control what is generated.  The value of :PROPERTIES
+  ;; keyword args control what is generated.
+  ;;
+  ;; The value of :PROPERTIES
   ;; is a list of lists denoting properties that are set for this
   ;; function.  Each element of the list must be of the form (PROPERTY
-  ;; VALUE).  The value of :DEPRECATED-P is a symbol (unquoted) naming
+  ;; VALUE).
+  ;;
+  ;; The value of :DEPRECATED-P is a symbol (unquoted) naming
   ;; the function that should be used instead of this function because
   ;; this function is deprecated.
+  ;;
+  ;; The value of :INLINE-IMPL determines if the generated impl
+  ;; function should be declared inline or not.  Default is NIL
+  ;; meaning no inline declaration.
   ;;
   ;;   (defmfun ($polarform :properties ((evfun t))) (xx) ...)
   ;;
@@ -483,7 +518,7 @@
   ;;
   ;; This will print a message stating that "foo" is deprecated and to
   ;; use "bar" instead.
-  (destructuring-bind (name &key properties deprecated-p)
+  (destructuring-bind (name &key properties deprecated-p inline-impl)
       (if (symbolp name-maybe-prop)
 	  (list name-maybe-prop)
 	  name-maybe-prop)
@@ -530,7 +565,10 @@
            (unless (char= #\$ (aref (string name) 0))
 	     (warn "First character of function name must start with $: ~S~%" name))
 	   `(progn
-	      (defun-checked-form (,name ,impl-name :deprecated-p ,deprecated-p) ,lambda-list
+	      (defun-checked-form (,name ,impl-name
+                                   :deprecated-p ,deprecated-p
+                                   :inline-impl ,inline-impl)
+                                  ,lambda-list
 		,@body)
 	      ,@(add-props)
 	      ,@(func-props)
@@ -698,6 +736,15 @@
 
             (defun ,simp-name (,form-arg ,unused-arg ,z-arg)
 	      (declare (ignore ,unused-arg))
+              (let ((pretty-name
+                      ;; The function signature in Maxima syntax so
+                      ;; the user knows what the function really is.
+                      `((mqapply) ((,',verb-name array) ,',@subfun-arglist)
+                        ,',@lambda-list)))
+                (sub-arg-count-check ,(length subfun-arglist)
+                                     ,(length lambda-list)
+                                     ,form-arg
+                                     pretty-name))
               (multiple-value-bind (,@subfun-arglist)
                   (values-list (mapcar #'(lambda (arg)
                                            (simpcheck arg ,z-arg))
@@ -751,8 +798,11 @@
 	    (defun ,simp-name (,form-arg ,unused-arg ,z-arg)
 	      (declare (ignore ,unused-arg)
 		       (ignorable ,z-arg))
-	      (arg-count-check ,(length lambda-list)
-			       ,form-arg)
+              (let ((pretty-name `((,',noun-name) ,@(rest (dollarify ',lambda-list)))))
+                ;;(format t "pretty-name = ~A~%" pretty-name)
+	        (arg-count-check ,(length lambda-list)
+			         ,form-arg
+                                 pretty-name))
 	      (let ,arg-forms
 	        ;; Allow args to give-up if the default args won't work.
 	        ;; Useful for the (rare?) case like genfact where we want
@@ -764,3 +814,72 @@
 		         ;; That would fit in better with giving up.
 		         (eqtest (list '(,noun-name) ,@lambda-list) ,form-arg)))
 	          ,@body)))))))))
+
+
+;; Helper function to check the number of subscripts and arguments to a
+;; subscripted function.
+;;
+(defun sub-arg-count-check (required-sub-count required-arg-count expr pretty-name)
+  (let* ((subs (subfunsubs expr))
+         (args (subfunargs expr))
+         (sub-count (length subs))
+         (arg-count (length args))
+         (subs-ok (= sub-count required-sub-count))
+         (args-ok (= arg-count required-arg-count)))
+    (cond
+      ((and subs-ok args-ok)) ; Handle the expected case first (fastest).
+      ((and (not subs-ok) (not args-ok))
+       (merror (intl:gettext "~M:~%    expected exactly ~M subscripts but got ~M: ~M;~%    ~
+                                  expected exactly ~M arguments but got ~M: ~M")
+         pretty-name
+         required-sub-count sub-count `((mlist) ,@subs)
+         required-arg-count arg-count `((mlist) ,@args)))
+      ((not subs-ok)
+        (merror (intl:gettext "~M: expected exactly ~M subscripts but got ~M: ~M")
+         pretty-name
+         required-sub-count sub-count `((mlist) ,@subs)))
+      ((not args-ok)
+        (merror (intl:gettext "~M: expected exactly ~M arguments but got ~M: ~M")
+         pretty-name
+         required-arg-count arg-count `((mlist) ,@args))))))
+
+;;; ----------------------------------------------------------------------------
+;;; Utilities for argument error checking
+;;; ----------------------------------------------------------------------------
+
+;; WNA-ERR: Wrong Number of Arguments error
+;;
+;; If REQUIRED-ARG-COUNT is non-NIL, then we check that EXPR has the
+;; correct number of arguments. A informative error message is shown
+;; if the number of arguments is not given.
+;;
+;; Otherwise, EXPR must be a symbol and a generic message is printed.
+;; (This is for backward compatibility for existing uses of WNA-ERR.)
+(defun wna-err (exprs &optional required-arg-count (pretty-name (caar exprs)))
+  (if required-arg-count
+      (let ((op pretty-name)
+	    (actual-count (length (rest exprs))))
+	(merror (intl:gettext "~M: expected exactly ~M arguments but got ~M: ~M")
+		op required-arg-count actual-count (list* '(mlist) (rest exprs))))
+      (merror (intl:gettext "~:@M: wrong number of arguments.")
+	      exprs)))
+
+(defun improper-arg-err (exp fn)
+  (merror (intl:gettext "~:M: improper argument: ~M") fn exp))
+
+;; These check for the correct number of operands within Macsyma expressions,
+;; not arguments in a procedure call as the name may imply.
+
+(declaim (inline arg-count-check))
+(defun arg-count-check (required-arg-count expr &optional (pretty-name (caar expr)))
+  (unless (= required-arg-count (length (rest expr)))
+    (wna-err expr required-arg-count pretty-name)))
+
+(declaim (inline oneargcheck))
+(defun oneargcheck (expr)
+  (arg-count-check 1 expr))
+
+(declaim (inline twoargcheck))
+(defun twoargcheck (expr)
+  (arg-count-check 2 expr))
+

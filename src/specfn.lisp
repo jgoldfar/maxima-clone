@@ -115,7 +115,7 @@
          (add (div (take '(%zeta) 2) 2)
               (mul '((rat simp) -1 2)
                    (power (take '(%log) 2) 2))))
-        ((alike1 arg 2)
+        ((eql arg 2)
          ;; li[2](2) = %pi^2/4 - %i*%pi*log(2)
          ;;
          ;; See http://functions.wolfram.com/10.07.03.0007.01.  But
@@ -127,7 +127,7 @@
          (sub (div (power '$%pi 2)
                    4)
               (mul '$%pi '$%i (ftake '%log 2))))
-        ((alike1 arg '$%i)
+        ((eq arg '$%i)
          ;; li[2](%i) = %i*%catalan - %pi^2/48
          ;;
          ;; See http://functions.wolfram.com/10.07.03.0008.01
@@ -664,7 +664,7 @@
   (cond ((equal x 0) 0)
 	((equal x 0.0) 0.0)
 	((zerop1 x) ($bfloat 0))	;bfloat case
-	((alike1 x '$%e)
+	((eq x '$%e)
 	 ;; W(%e) = 1
 	 1)
 	((alike1 x '((mtimes simp) ((rat simp) -1 2) ((%log simp) 2)))
@@ -932,6 +932,51 @@
 		(give-up)))))
       (t
        (give-up)))))
+
+;; References:
+;;  - https://en.wikipedia.org/wiki/Bateman_function 
+;;  - https://www.researchgate.net/publication/350992070_The_Bateman_Functions_Revisited_After_90_Years_--_A_Survey_of_Old_and_New_Results
+;;
+;; 
+(def-simplifier (kbateman :subfun-arglist (v)) (z)
+  (let ((vn (integer-representation-p v)))
+    (cond
+      ((and vn (>= vn 0))
+       ;; kbateman[n](z), for integer n >= 0
+       (let ((signz (asksign z)))
+         (cond
+           ((eq signz '$zero)
+            ;; kbateman[n](0) = 2/%pi/n*sin(%pi*n/2)
+            (if (zerop vn)
+                0
+                (mul (div 2 (mul '$%pi vn))
+                     (ftake '%sin (div (mul '$%pi vn) 2)))))
+           ((and (evenp vn) (eq signz '$positive))
+            ;; kbateman[2*n](x) = (-1)^n*x*exp(x)/n!*diff(x^(n-1)*exp(-2*x),x,n)
+            ;; for x >= 0.
+            (let ((n (/ vn 2))
+                  (zarg (gensym)))
+              ;; Handle small n directly and use the formula for larger values.
+              (cond
+                ((= n 0)
+                 (ftake '%exp (neg z)))
+                ((= n 1)
+                 (mul 2 z (ftake '%exp (neg z))))
+                ((= n 2)
+                 (mul 2 z (sub z 1)
+                      (ftake '%exp (neg z))))
+                (t
+                 ($factor
+                  ($substitute z zarg
+                               (mul
+                                (div (mul (expt -1 n) zarg (ftake '%exp zarg))
+                                     (ftake '%gamma (add 1 n)))
+                                ($diff (mul (power zarg (sub n 1))
+                                            (ftake '%exp (mul -2 zarg)))
+                                       zarg
+                                       n))))))))
+           (t (give-up)))))
+      (t (give-up)))))
 
 (in-package "BIGFLOAT")
 
@@ -1290,6 +1335,7 @@
 	   (values (polylog-log-series s z)))
 	  ((> (abs z) 1.5)
 	   (polylog-inversion-formula s z)))))
+
 
 ;;; Computation of Catalan's constant
 (in-package #:bigfloat)
@@ -1327,3 +1373,4 @@
               (+ sum a)))
         ((< (abs a) limit)
          (maxima::to (/ sum 2))))))
+

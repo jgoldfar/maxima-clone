@@ -114,6 +114,9 @@ Do not load the init file(s) on startup.
 .TP
 \fB\-\-no\-verify\-html\-index\fR
 Do not verify on startup that the set of html topics is consistent with text topics.
+.TP
+\fB\-\-suppress\-input\-echo\fR
+Do not print input expressions when processing noninteractively.
 
 .SH INTRODUCTORY INSTRUCTIONS
 Upon initialization,

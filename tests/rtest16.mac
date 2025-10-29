@@ -636,7 +636,7 @@ ode2('diff(y,x)-%i*y-sin(x),y,x);
 y = (%c-%i*(x-%i*%e^-(2*%i*x)/2)/2)*%e^(%i*x);
 
 /*
- * Bug ID: 826623 "simplifer returns %i*%i"
+ * Bug ID: 826623 "simplifier returns %i*%i"
  * 
  * Some examples to show simplification of expressions of the form
  * (a*b*...)^q*(a*b*...)^r, where q+r=1
@@ -1995,12 +1995,14 @@ errcatch(elliptic_f(2,1));
 map(lambda([x], featurep(x, 'irrational)),[42,%pi,%phi,%e]);
 [false, true, true, true]$
 
-/* #2501 %pi/8 is definitely not an integer */
-integrate(log(cot(x)-1),x,0,%pi/4);
-(%i*li[2]((%i+1)/2)-%i*li[2](-((%i-1)/2)))/2 -(%i*(2*li[2](%i+1)-2*li[2](1-%i))+%pi*log(2))/4$
+/* #2501 %pi/8 is definitely not an integer
+  A better answer is %pi*log(2))/8, but this is correct.*/
+block([ans : integrate(log(cot(x)-1),x,0,%pi/4)], [ans, expand(float(ans))]);
+[-((%i*li[2]((1-%i)/2))/2)+(%i*li[2](-((-%i-1)/2)))/2+%catalan, 0.27219826128795016]$
 
+/* A better answer is -%pi*log(4)/4, but this is correct.*/
 integrate(log(cos(x)),x,0,%pi/2);
-%i*%pi^2/24-(6*%pi*log(4)+%i*%pi^2)/24$
+(%i*%pi^2)/24-(2*%pi*log(4)+(%i*%pi^2)/3)/8$
 
 map(lambda([x], featurep(x, noninteger)),[sqrt(5),%pi,%pi/3, %pi/8,log(42),99/2013]);
 [true,true,true,true,true,true]$
@@ -2889,8 +2891,9 @@ done;
 
 /* Bug #4326: "sin(asec(x)), cos(acsc(x)) and many more are incorrectly simplified" */
 
+block
 (
-	err : 0.0,
+	[err : 0.0, a, b],
 	for outer in [sin, cos, tan, csc, sec, cot] do
 	(
 		for inner in [asin, acos, atan, acsc, asec, acot] do
@@ -2906,7 +2909,7 @@ done;
 	is(err < 1e-10)
 );
 true$
-kill(err);
+kill(err); /* No longer needed, but kept here so that test numbers don't change. */
 done$
 
 /* Bug #4450:  add tests for psi */
@@ -2972,3 +2975,233 @@ psi[2](1/8)-2*%pi^3*cot((7*%pi)/8)*csc((7*%pi)/8)^2;
 /* psi[s](a) for a > maxpsinegint, which uses the reflection formula */
 psi[1](-5/2);
 %pi^2/2+964/225;
+
+/* Ordering of integers and floats that have the same value. */
+map(orderlessp,
+	[0,    1,    -1,   0.0,   1.0,   -1.0],
+	[0.0,  1.0,  -1.0, 0,     1,     -1]);
+	[true, true, true, false, false, false];
+
+/* Ordering of a^b and (a^b)^c */
+map(orderlessp,
+	[ a^b,      (a^b)^0.5, (a^b)^1.5, (a^b)^2.5,  (-1)^a,      ((-1)^a)^0.5, ((-1)^a)^1.5, ((-1)^a)^2.5],
+	[(a^b)^0.5,  a^b,      (a^b)^2.5, (a^b)^1.5, ((-1)^a)^0.5,  (-1)^a,      ((-1)^a)^2.5, ((-1)^a)^1.5]);
+[true, false, true, false, true, false, true, false]$
+
+/* Bug #4458: orderlessp(A, B) with unsimplified A can modify A in place by marking it as simplified, when it's not */
+block([simp : false, a], a : %e^(z/1), orderlessp(a, (simp : true, -log(z+1))), a^2);
+%e^(2*z);
+
+/* Ordering of bigfloats: Check that bigfloats of the same precision are ordered numerically by ordergreatp. */
+block (
+	[R, L, P, A, B],
+	R : make_random_state(false),               /* Save random state, restore later. */
+	set_random_state(make_random_state(31137)), /* Random numbers, but same every time. */
+	L : makelist(bfloat(random(21) - 10) * bfloat(%e) ^ (random(200.0) - 100.0), i, 1, 100),
+	set_random_state(R),
+	P : cartesian_product_list(L, L),
+	A : map(lambda([pair], ordergreatp(first(pair), second(pair))), P),
+	B : map(lambda([pair], is(first(pair) > second(pair))), P),
+	is(A = B)
+);
+true;
+
+/* Bug #4504: "properties shows properties with NIL value" */
+/* "sin" DOES distribute over bags. */
+/* "solve" does NOT distribute over bags, because giving it a list means solving a system of equations. */
+[member("distributes over bags", properties(sin)), member("distributes over bags", properties(solve))];
+[true, false];
+
+/* Bug #4506: "Subscripted function simplifiers don't check subscript/argument count" */
+[errcatch(psi[0]()), errcatch(psi[0](x, y)), errcatch(psi[0, 1](x))];
+[[], [], []];
+
+/* Bug #4507: "rectform uses conjugate when it doesn't help" */
+block([result], declare(z, complex), result : rectform(gamma(z)), kill(z), result);
+'realpart(gamma(z))+%i*'imagpart(gamma(z));
+
+/* Bug #4500: "rectform of set" */
+rectform({1, %i});
+'realpart({1,%i})+%i*'imagpart({1,%i});
+rectform(1 # %i);
+'realpart(1 # %i)+%i*'imagpart(1 # %i);
+
+/* From mailing list discussion: "alike1 / great and bigfloats of different precisions" (2025-03-01)
+   Test that bigfloat zeros with different precisions are treated as being different. */
+block(
+	[z16 : block([fpprec : 16], bfloat(0)),
+	 z17 : block([fpprec : 17], bfloat(0))],
+	[is(z16 - z17 = 0.0b0),
+	 is(z16 = z17),
+	 is(z17 = z16),
+	 ordergreatp(z16, z17),
+	 ordergreatp(z17, z16)]
+);
+[true, false, false, false, true];
+
+/* Test that orderlessp is a total ordering on binary bigfloats. */
+block(
+	[L : [], fpprec : fpprec],
+	local(totalorderp),
+	
+	/* totalorderp by Stavros Macrakis */
+	totalorderp(func, domain) := block(
+		[ord, i, j, res : []],
+		ord : sort(domain, func),
+		i : 0,
+		for eli in ord do (
+			i : i + 1,
+			j : 0,
+			for elj in ord do (
+				j : j + 1,
+				if func(eli, elj) # is(i < j) and not(eli = elj) then push([i, j, eli, elj], res)
+			)
+		),
+		res
+	),
+	
+	for i : -4 thru 4 do (
+		for fpprec : 1 thru 11 step 2 do (
+			push(bfloat(25 * i), L),
+			push(bfloat(5 * i), L),
+			push(bfloat(i), L),
+			push(bfloat(i / 5), L),
+			push(bfloat(i / 25), L)
+		)
+	),
+	
+	/* Test for total order. */
+	totalorderp(orderlessp, L)
+);
+[];
+
+block(
+	[expr, exponentialize : false, L : []],
+	push(expr : sin(x) ^ 2 + cos(x) ^ 2, L),
+	exponentialize : true,
+	push(expr, L),
+	push(ratsimp(resimplify(expr)), L),
+	reverse(L)
+);
+[sin(x)^2+cos(x)^2,sin(x)^2+cos(x)^2,1];
+
+/* Bug #4548: float(10^400) returns false on GCL */
+errcatch(float(10^400));
+[];
+
+/* Bug #3839 */
+limit(asin(3+%i*x),x,0,plus);
+%pi-asin(3);
+limit(asin(3+%i*x),x,0,minus);
+asin(3);
+limit(rectform(asin(3+%i*x)),x,0,plus);
+%pi/2-(%i*log(17-3*2^(5/2)))/2;
+
+/* Bug #3889 */
+limit((cos(x)-1)/(sin(x)+sqrt(2-2*cos(x))),x,0,plus);
+0;
+
+/* Bug #3923 */
+limit(r*cos(r)/sqrt(1-cos(r)^2),r,0);
+ind;
+
+/* Bug #4041 */
+listp(splitfield(x^4+x^2+1,x));
+true;
+
+/* Bug #3667 */
+csign(csc(x+%i*y));
+complex;
+
+/* Bug #3585 */
+imagpart(li[4](-0.75));
+0;
+
+/* Bug #3545 */
+ratsimp(integrate(%e^-(2*%i*%pi*t)*(%e^(2*%i*%pi*t)+1),t,-1/6,1/6));
+(2*%pi+3^(3/2))/(6*%pi);
+
+/* Bug #3508 */
+max(zeroa,zerob);
+'max(zeroa,zerob);
+
+/* Bug #3160 */
+ratsimp(diff(integrate(log(4-5*x^3)^5,x),x)-log(4-5*x^3)^5);
+0;
+
+/* Bug #3135 */
+gruntz(atan2(x^2-2,x^3-3*x),x,sqrt(2),minus);
+-%pi;
+
+/* Bug #3141 */
+gruntz((x^(1/x)-1)*sqrt(x),x,0,plus),domain:complex;
+0;
+
+/* Bug #3137 */
+gruntz(abs(sin(x))/sqrt(1-cos(x)),x,0,plus);
+sqrt(2);
+
+/* Bug #3080 */
+integrate(cos(x/atan(x)),x);
+'integrate(cos(x/atan(x)),x);
+
+/* Bug #2940 */
+errcatch(integrate(cot(x),x,0,inf));
+[];
+
+/* Bug #2899 */
+limit((1+sqrt(n+1))^(-n-1)/(1+sqrt(n))^(-n),n,inf);
+0;
+
+/* Bug #2706 */
+limit((%e^(-sqrt(-z))*(w*sqrt(-z)*%e^(2*sqrt(-z))-w*sqrt(-z)))/(2*z),z,0);
+-w;
+
+/* Bug #2583 */
+integrate(x^(8*%i-1),x);
+-((%i*x^(8*%i))/8);
+
+/* Bug #2487 */
+integrate(x^(1/3)/(x^(2/3)+1),x,0,8);
+6-(3*log(5))/2;
+limit(-log(1+x^(2/3)),x,0,plus),algebraic:true;
+0;
+
+/* Bug #2357 */
+is("string">0);
+false;
+
+/* Bug #1768 */
+csign(sqrt(x));
+complex;
+
+/* #4560 integrals of the form integrate((a*z+a*b)^p*%e^(c*z+d),z) */
+integrate((a*z+a*b)^p*%e^(c*z+d),z);
+-((%e^(d-b*c)*expintegral_e(-p,-((c*(a*z+a*b))/a))*(a*z+a*b)^(p+1))/a)$
+
+/* Bug #4451 */
+ratsimp(%e^(%i*sqrt(%pi+1)/2)/%pi), algebraic;
+%e^((%i*sqrt(%pi+1))/2)/%pi;
+
+(kill(values),kill(facts), 0);
+0$
+
+/* Simple tests for kbateman */
+assume(x>0);
+[x > 0];
+
+kbateman[0](x);
+exp(-x);
+
+kbateman[2](x);
+2*exp(-x)*x;
+
+makelist(kbateman[n](0), n, 0, 5);
+[0,2/%pi,0,-2/(3*%pi), 0, 2/(5*%pi)];
+
+kill(x);
+done$
+
+contexts;
+[initial, global]$
+

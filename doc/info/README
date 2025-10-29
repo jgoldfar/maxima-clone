@@ -37,6 +37,11 @@ the user would need to select one (or all) without knowing how they
 differ.  But using `@fname`, there's only one function and the help is
 imediately displayed.
 
+Adding figures to the manual
+----------------------------
+
+Please read the README file in the subdirectory figures.
+
 How to test the documentation?
 ==============================
 
@@ -58,10 +63,13 @@ have proven helpful:
   make pdf PDFTEX=xetex
   to select xetex for building it.
 
-
 - Do all of the documentation types look like they should?
 
 - Is the documentation accessible to the ? and ?? commands of maxima?
+
+- Can the HTML version of the manual be browsed with a Web browser?
+  (it should be found in the subdirectory share/maxima/<version_number>/doc/html
+  in the installation directory.
 
 Documentation internals
 =======================

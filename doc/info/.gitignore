@@ -22,18 +22,21 @@ Elliptic.texi
 Integration.texi
 Matrices.texi
 MathFunctions.texi
+Numerical.texi
 Special.texi
 distrib.texi
+odepack.texi
 orthopoly.texi
 zeilberger.texi
 trigtools.texi
 format.texi
 lapack.texi
 minpack.texi
+levin.texi
 
 *.chm
 *.t2p
-*.pdf
+maxima.pdf
 *.vrs
 *.aux
 *.fn

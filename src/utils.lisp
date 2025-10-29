@@ -33,7 +33,7 @@
   #+sbcl    (sb-ext:posix-getenv envvar)
   #+clisp   (ext:getenv envvar)
   #+(or openmcl mcl)     (ccl::getenv envvar)
-  #+lispworks (hcl:getenv envvar)
+  #+lispworks (lw:environment-variable envvar)
   #+abcl (ext:getenv envvar)
   )
 
@@ -46,11 +46,10 @@
   #+sbcl               (sb-ext:quit :unix-status exit-code)
   #+allegro            (excl:exit exit-code :quiet t)
   #+(or mcl openmcl)   (ccl:quit exit-code)
-  #+gcl                (system::quit exit-code)
   #+ecl                (si:quit exit-code)
-  #+lispworks          (lispworks:quit)
-  #+abcl               (cl-user::quit)
-  #+gcl                (lisp::bye)
+  #+lispworks          (lispworks:quit :status exit-code)
+  #+abcl               (ext:quit :status exit-code)
+  #+gcl                (system:bye exit-code)
   #+cmucl
   (handler-case (ext:quit nil exit-code)
     ;; Only the most recent versions of cmucl support an exit code.
@@ -130,9 +129,9 @@
 ;;;     else store the value under the appropriate property.
 ;;;
 
-(defun cput (bas val sel)
+(defun cput (base val sel)
   (cond ((null val)
-	 (zl-remprop bas sel)
+	 (zl-remprop base sel)
 	 nil)
 	(t
-	 (putprop bas val sel))))
+	 (putprop base val sel))))

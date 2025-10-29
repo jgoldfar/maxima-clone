@@ -56,12 +56,25 @@ user's default lisp implementation. E.g. to select CMUCL create a @code{maximarc
 You can also use the command option @code{-l <lisp>} or @code{--lisp=<lisp>} to select the Lisp when starting Maxima.
 
 @cindex .xmaximarc
-
-In the file @code{.xmaximarc} (in the users home directory) Xmaxima stores personal settings.
-
+@cindex xmaxima_default
 @cindex .xmaxima_history
+@cindex xmaxima_history
 
-In the file @code{.xmaxima_history} (in the users home directory) Xmaxima stores the command history.
+If you run Maxima using the graphical interface Xmaxima, the default
+configuration of that interface will be saved in the file
+@code{xmaxima_default} and the history of the last 200 commands will be
+saved in the file @code{xmaxima_history} in a sub-directory maxima (or
+Maxima in Windows) of the user's local configuration directory.
+
+In Linux systems, the user's local configuration directory is usually
+@code{/home/<username>/.config} and in Windows systems it is usually
+@code{<Drive_letter>:/Users/<username>/AppData/Local}. Notice that in
+both systems those directories are hidden, and their default value can
+be changed with an environment variable (@code{XDG_CONFIG_HOME} in Linux
+or @code{LOCALAPPDATA} in Windows). If the local configuration directory
+is not found, those two files will be saved in the users home directory
+and with the names @code{.xmaximarc} and @code{.xmaxima_history}, as in
+older versions of Xmaxima.
 
 @opencatbox{Categories:}
 @category{Session management}
@@ -231,28 +244,106 @@ information.
 
 @c -----------------------------------------------------------------------------
 @anchor{system}
-@deffn {Function} system (@var{command})
+@deffn {Function} system @
+@fname {system} (@var{command}, @var{arg_1}, ..., @var{arg_n}) @
+@fname {system} (@var{command})
 
-Executes @var{command} as a separate process.  The command is passed to the
-default shell for execution.  @code{system} is not supported by all operating
-systems, but generally exists in Unix and Unix-like environments.
+Executes @var{command} as a separate process.
+The command is passed to the default shell for execution.
 
-Supposing @code{_hist.out} is a list of frequencies which you wish to plot as a
-bar graph using @code{xgraph}.
+@code{system} is implemented by a command execution function
+in the Lisp implementation which compiled Maxima,
+and therefore the behavior of @code{system}
+varies with the operating system and Lisp implementation.
+@code{system} is known to work on Windows and Linux systems,
+and might also work on other systems.
+
+All combinations of Lisp implementation and operating system
+allow command arguments as @var{arg_1}, ..., @var{arg_n},
+and some allow command arguments as part of @var{command}.
+SBCL on Windows and Clozure CL on Windows are known to require
+command arguments to be specified as @var{arg_1}, ..., @var{arg_n}.
+
+@code{system} does not attempt to quote or escape spaces or other characters
+in @var{command} or in @var{arg_1}, ..., @var{arg_n};
+all arguments are supplied verbatim to the command execution function of the Lisp implementation.
+
+Standard output from @var{command} is displayed on the Maxima console by default,
+and may be captured by @code{with_stdout}.
+
+For most Lisp implementations,
+the call to @code{system} returns after @var{command} has completed.
+Job control operations,
+such as executing a command asynchronously with respect to Maxima,
+are not known to have the expected effect.
+
+Examples:
+
+@c OMIT ===beg=== / ===end=== IN THESE EXAMPLES SINCE OUTPUT VARIES FROM SYSTEM TO SYSTEM
+
+@code{system} executes @var{command} as a separate process.
+The output of the command @code{dir} varies from one system to another.
+
+@c system ("dir", maxima_tempdir);
 
 @example
-(%i1) (with_stdout("_hist.out",
-           for i:1 thru length(hist) do (
-             print(i,hist[i]))),
-       system("xgraph -bar -brw .7 -nl < _hist.out"));
+(%i1) system ("dir", maxima_tempdir);
+config-err-UsLLQM
+gnome-software-0TNK22
+MozillaUpdateLock-6939C585ADF59520
+snap-private-tmp
+systemd-private-169e359ab2d94b208622fa96dd88c05e-colord.service-ZP9Xn7
+(%o1)                           0
 @end example
 
-In order to make the plot be done in the background (returning control to
-Maxima) and remove the temporary file after it is done do:
+All combinations of Lisp implementation and operating system
+allow command arguments as @var{arg_1}, ..., @var{arg_n}.
+
+@c system ("echo", "Hello", "world", "glad", "to", "meet", "you");
 
 @example
-system("(xgraph -bar -brw .7 -nl < _hist.out;  rm -f _hist.out)&")
+(%i1) system ("echo", "Hello", "world", "glad", "to", "meet", "you");
+Hello world glad to meet you
+(%o1)                           0
 @end example
+
+Standard output from @var{command} is displayed on the Maxima console by default,
+and may be captured by @code{with_stdout}.
+
+@c my_output: sconcat (maxima_tempdir, "/tmp.out");
+@c with_stdout (my_output, system ("dir"));
+@c S: openr (my_output);
+@c readline (S);
+@c readline (S);
+@c readline (S);
+
+@example
+(%i1) my_output: sconcat (maxima_tempdir, "/tmp.out");
+(%o1)                     /tmp/tmp.out
+(%i2) with_stdout (my_output, system ("dir"));
+(%o2)                           0
+(%i3) S: openr (my_output);
+(%o3)               #<FILE-STREAM @{7B500975@}>
+(%i4) readline (S);
+(%o4)                      aclocal.m4
+(%i5) readline (S);
+(%o5)                         admin
+(%i6) readline (S);
+(%o6)                        archive
+@end example
+
+For most Lisp implementations,
+the call to @code{system} returns after @var{command} has completed.
+@code{xfontsel} is a utility to inspect fonts for the X Windows system;
+@code{system} returns after the user clicks the "quit" button.
+
+@c system ("xfontsel");
+
+@example
+(%i1) system ("xfontsel");
+(%o1)                           0
+@end example
+
 @end deffn
 
 @c -----------------------------------------------------------------------------

@@ -201,7 +201,7 @@ in the interval of integration.")
 		 (*sin-cos-recur* ())  (*dintexp-recur* ())  (*dintlog-recur* 0.)
 		 (ans nil)  (orig-exp exp)  (orig-var ivar)
 		 (orig-ll ll)  (orig-ul ul)
-		 (*pcprntd* nil)  (*nodiverg* nil)  ($logabs t)  ; (limitp t)
+		 (*pcprntd* nil)  (*nodiverg* nil)  ($logabs nil)  ; (limitp t)
 		 (rp-polylogp ())
                  ($%edispflag nil) ; to get internal representation
 		 ($m1pbranch ())) ;Try this out.
@@ -296,12 +296,15 @@ in the interval of integration.")
 	  t)))
 
 (defun antideriv (a ivar)
-  (let ((limitp ())
-	(ans ())
-	(generate-atan2 ()))
-    (setq ans (sinint a ivar))
-    (cond ((among '%integrate ans)  nil)
-	  (t (simplify ans)))))
+"Either return an explicit antiderivative (not an integral nounform) of 'a' with 
+ respect to 'ivar' or return nil when Maxima is unable to find an antiderivative."
+  (let ((limitp nil) ;setting limitp to true causes testsuite failures and asksign called on gensyms
+        (ans nil)
+		($numer nil)
+        ($logabs nil)
+        (generate-atan2 nil))
+      (setq ans (sinint a ivar))
+      (if (among '%integrate ans) nil ans)))
 
 ;; This routine tries to take a limit a couple of ways.
 (defun get-limit (exp ivar val &optional (dir '$plus dir?))
@@ -416,7 +419,8 @@ in the interval of integration.")
 (defun defint (exp ivar ll ul)
   (let ((old-assumptions *defint-assumptions*)  
         (*current-assumptions* ())
-        (limitp t))
+        (limitp t)
+		($logabs nil))
     (unwind-protect
 	 (prog ()
             (multiple-value-setq (*current-assumptions* ll ul)
@@ -516,7 +520,7 @@ in the interval of integration.")
 
 (defun method-by-limits (exp ivar ll ul)
   (let ((old-assumptions *defint-assumptions*))
-    (multiple-value-bind (*current-assumptions* ll ul)
+    (multiple-value-setq (*current-assumptions* ll ul)
         (make-defint-assumptions 'noask ivar ll ul))
 
     ;;Should be a PROG inside of unwind-protect, but Multics has a compiler
@@ -593,15 +597,21 @@ in the interval of integration.")
 		(setq result (cv exp ivar ll ul))))
 	  (t ()))))
 
+(defun symmetric-intervalp (ll ul)
+ "Return true iff the interval with endpoints 'll' (lower limit) and 'ul' (upper limit)
+   is symmetric."
+   (and (or (alike1 ul (neg ll)) (and (eq ul '$inf) (eq ll '$minf)))))
+
 (defun principal-value-integral (exp ivar ll ul poles)
-  (let ((anti-deriv ()))
-    (cond ((not (null (setq anti-deriv (antideriv exp ivar))))
+  (let ((anti-deriv nil))
+    (cond ((and (symmetric-intervalp ll ul) (oddfn exp ivar)) 0) ;odd integrand, symmetric interval
+	((not (null (setq anti-deriv (antideriv exp ivar))))
 	   (cond ((not (null poles))
 		  (multiple-value-bind (ignore new-ll new-ul)
                       (order-limits 'ask ivar ll ul)
                     (declare (ignore ignore))
 		    (cond ((take-principal anti-deriv new-ll new-ul ivar poles))
-			  (t ())))))))))
+			  (t nil)))))))))
 
 ;; adds up integrals of ranges between each pair of poles.
 ;; checks if whole thing is divergent as limits of integration approach poles.
@@ -770,8 +780,8 @@ in the interval of integration.")
 (defun make-defint-assumptions (ask-or-not ivar ll ul)
   (values
    (cond ((null
-           (multiple-value-setq (result ll ul)
-             (order-limits ask-or-not ivar ll ul)))
+           (let ((result)) (multiple-value-setq (result ll ul)
+             (order-limits ask-or-not ivar ll ul)) result))
           ())
 	 (t (mapc 'forget *defint-assumptions*)
 	    (setq *defint-assumptions* ())
@@ -986,19 +996,22 @@ in the interval of integration.")
 (defun whole-intsubs (e a b ivar)
   (cond ((easy-subs e a b ivar))
 	(t
-         (let (new-ll new-ul)
            ;; Note: MAKE-DEFINT-ASSUMPTIONS may reorder the limits A
            ;; and B, but I (rtoy) don't think that's should ever
            ;; happen because the limits should already be in the
            ;; correct order when this function is called.  We don't
            ;; check for that, though.
-           (multiple-value-setq (*current-assumptions* new-ll new-ul)
+           ;; UPDATE: We do now. In integrate(exp(-x^2-1/x^2),x,-inf,inf), the
+           ;; limits were changed by MAKE-DEFINT-ASSUMPTIONS.
+           ;; Ignoring that didn't lead to a wrong result, maybe by "luck".
+           ;; So just always use the limits returned by MAKE-DEFINT-ASSUMPTIONS.
+           (multiple-value-setq (*current-assumptions* a b)
 	       (make-defint-assumptions 'ask ivar a b)) ;get forceful!
          
 	   (let (($algebraic t))
 	     (setq e (sratsimp e))
 	     (cond ((limit-subs e a b ivar))
-		   (t (same-sheet-subs e a b ivar))))))))
+		   (t (same-sheet-subs e a b ivar)))))))
 
 ;; Try easy substitutions.  Return NIL if we can't.
 (defun easy-subs (e ll ul ivar)
@@ -1193,11 +1206,16 @@ in the interval of integration.")
 		  (eq ($sign (m+ n (m- (deg-var (car nn*) ivar))))
 		      '$pos))
               (not (alike1 (cadr nn*) term))
-	      (multiple-value-setq (term updn)
-                (ptimes%e (cadr nn*) n ivar))
-	      term)
+              (let (result)
+                ;; Call ptimes%e and make sure we update updn, but
+                ;; only want the return value from it to determine we
+                ;; this AND clause is true.
+	        (multiple-value-setq (result updn)
+                  (ptimes%e (cadr nn*) n ivar))
+	        result))
          (values term updn))
-	(t (throw 'ptimes%e nil))))
+	(t
+         (throw 'ptimes%e (values nil updn)))))
 
 (defun csemidown (n d ivar)
   (let ((*pcprntd* t)) ;Not sure what to do about PRINCIPAL values here.
@@ -1361,6 +1379,7 @@ in the interval of integration.")
 	  (t nil))))
 
 (defun ztoinf (grand ivar ll ul)
+  (assert (and (zerop1 ll) (eq ul '$inf)))
   (prog (n d sn sd varlist
 	 s nc dc
 	 ans r $savefactors *checkfactors* temp test-var
@@ -1503,6 +1522,7 @@ in the interval of integration.")
 	   (setq exp (mapcar 'pdis (cdr (oddelm (cdr exp)))))))))
 
 (defun mtoinf (grand ivar ll ul)
+  (assert (and (eq ll '$minf) (eq ul '$inf)))
   (prog (ans ans1 sd sn pp pe n d s nc dc $savefactors *checkfactors* temp
          nn-var dn-var)
      (setq $savefactors t)
@@ -1512,7 +1532,7 @@ in the interval of integration.")
 	   ((involve-var grand ivar '(%sin %cos))
 	    (cond ((and (evenfn grand ivar)
 			(or (setq temp (scaxn grand ivar))
-			    (setq temp (ssp grand ivar ll ul))))
+			    (setq temp (ssp grand ivar 0 ul))))
 		   (return (m*t 2. temp)))
 		  ((setq temp (mtosc grand ivar))
 		   (return temp))
@@ -1819,7 +1839,8 @@ in the interval of integration.")
 
 ;; integrate(a*sc(r*x)^k/x^n,x,0,inf).
 (defun ssp (exp ivar ll ul)
-  (prog (u n c arg)
+  (assert (and (zerop1 ll) (eq ul '$inf)))
+  (prog (n c arg)
      ;; Get the argument of the involved trig function.
      (when (null (setq arg (involve-var exp ivar '(%sin %cos))))
        (return nil))
@@ -1883,6 +1904,7 @@ in the interval of integration.")
 ;;
 (defun scmp (c n ivar ll ul)
   ;; Compute sign(r)*r^(n-1)*integrate(sin(y)^k/y^n,y,0,inf)
+  (assert (and (zerop1 ll) (eq ul '$inf)))
   (destructuring-bind (mult r k)
       c
     (let ((recursion (sinsp k n)))
@@ -2502,6 +2524,7 @@ in the interval of integration.")
 
 ;; Handles beta integrals.
 (defun batapp (e ivar ll ul)
+  (assert (eq ul '$inf)) ; only supports upper limit = infinity
   (cond ((not (or (equal ll 0)
 		  (eq ll '$minf)))
 	 (setq e (subin-var (m+ ll ivar) e ivar))))
@@ -2758,7 +2781,7 @@ in the interval of integration.")
 		         (aref i-vals (- c k)))
 	           ans))))
       (setf (aref j-vals 0) 0)
-      (prog (*leadcoef* res)
+      (prog (*leadcoef*)
          (dotimes (c m (return (logcpi n d m ivar)))
            (multiple-value-bind (res plm factors pl rl pl1 rl1)
                (logcpi n d c ivar)
@@ -3323,7 +3346,7 @@ in the interval of integration.")
 
 ;;; given (b*x^n+a)^m returns (m a n b)
 (defun bxm (e ind ivar)
-  (let (m r)
+  (let (r)
     (cond ((or (atom e)
 	       (mnump e)
 	       (involve-var e ivar '(%log %sin %cos %tan))

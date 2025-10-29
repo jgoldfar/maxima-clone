@@ -24,9 +24,11 @@ integrate(3^log(x),x);
 integrate(sqrt(x+1/x-2),x,0,1);
 4/3$
 
-/* bug reported by kevin ellwood.  fixed mar 11 2004 */
-integrate(exp(-k*t)/sqrt(k*t),t);
-sqrt(%pi)*erf(sqrt(k*t))/k$
+/* bug reported by kevin ellwood.  fixed mar 11 2004 
+Let's locally set `expintrep : gamma_incomplete` because it makes it easier to verify the answer is correct.
+*/
+block([expintrep : gamma_incomplete], integrate(exp(-k*t)/sqrt(k*t),t));
+-(gamma_incomplete(1/2,k*t)/k)$
 
 /* a bug in chebyf.  fixed 20 apr 2004. */
 
@@ -312,7 +314,7 @@ f(x):=x+3;
 kill(f);
 done;
 
-/* trignometric and hyperbolic functions of complex arguments */
+/* trigonometric and hyperbolic functions of complex arguments */
 sin(%i*z);
 %i*sinh(z);
 cos(%i*z);
@@ -680,16 +682,13 @@ factor(integrate(1/(sin(x)^2+1),x,0,3*%pi));
  * Bug [1504505] integrate( 1/(x^8-1),x,0,1/2) => internal error
  *
  * Fixed in residu.lisp, 1.5.
- *
- * The call to factor is to get rid of some numerical factors.
  */
-ratsimp(ev(logcontract((integrate(1/(x^8-1),x,0,1/2))),algebraic) + 
-(sqrt(2)*log((2^(3/2)+5)/(2^(3/2)-5)/-1)
-      +2*sqrt(2)*atan((sqrt(2)+2)/2)
-      +2*sqrt(2)*atan((sqrt(2)-2)/2)+log(9)
-      +4*atan(1/2))
- /16);
-0;
+block([ans : integrate(1/(x^8-1),x,0,1/2)],[ans, expand(float(ans))]);
+[-(log((5*sqrt(2)+4)/2^(5/2))/2^(7/2))
+        +log((5*sqrt(2)-4)/2^(5/2))/2^(7/2)+atan((sqrt(2)-1)/sqrt(2))/2^(5/2)
+        +atan((-sqrt(2)-1)/sqrt(2))/2^(5/2)+(%i*%pi-log(2))/8-log(3/2)/8
+        -atan(1/2)/4-(%i*%pi)/8,-0.500217463872434]$
+
 
 /*
  * Bug [ 1582625 ] integrate(t^2*log(t)/((t^2-1)*(t^4+1)), t, 0, 1) wrong?
@@ -913,7 +912,7 @@ block ([foo],
     foo : integrate (cos(a*x)/(1 + x^2), x, 0, inf),
     forget (equal (a, 0)),
     foo);
-%e^-a * (%pi*%e^(2*a) + %pi)/4;
+(%e^-a*(%e^(2*a)+1)*%pi)/4$
 
 /* verify that verbified math functions are not evaluated to numbers
  * bug reported to mailing list 2007-11-19
@@ -1567,7 +1566,7 @@ done;
 /* SF bug #3399: "trigreduce gives malformed property list error" */
 
 trigreduce (atan (tan (x + y + z)));
-x + y + z;
+atan (tan (x + y + z));
 
 /* this is the original example from the bug report;
  * verify that it doesn't trigger an error, but do not inspect the result itself
@@ -1579,6 +1578,88 @@ block ([expr, A, B, a, b, x, y],
   errcatch (trigreduce(expr)),
   if %% = [] then 'failed('trigreduce(expr)) else true);
 true;
+
+/* SF bug #3579: "Overly eager simplification in trigreduce" */
+
+/* first verify that trigreduce honors global flag triginverses */
+
+(reset (triginverses), triginverses);
+true;
+
+trigreduce (atan (tan (x + y + z)));
+atan (tan (x + y + z));
+
+trigreduce (tan (atan (x + y + z)));
+x + y + z;
+
+block ([triginverses: all], trigreduce (atan (tan (x + y + z))));
+x + y + z;
+
+block ([triginverses: all], trigreduce (tan (atan (x + y + z))));
+x + y + z;
+
+block ([triginverses: false], trigreduce (atan (tan (x + y + z))));
+atan (tan (x + y + z));
+
+block ([triginverses: false], trigreduce (tan (atan (x + y + z))));
+tan (atan (x + y + z));
+
+/* examples from #3579 */
+
+trigreduce (atan(tan(x)));
+atan(tan(x));
+
+trigreduce (atan(sin(x)/cos(x)));
+atan(tan(x));
+
+trigreduce(atan( tan(7*%pi/13) ));
+-6*%pi/13;
+
+trigreduce(atan( sin(7*%pi/13) / cos(7*%pi/13) ));
+-6*%pi/13;
+
+carg( cos(7*%pi/13) + %i*sin(7*%pi/13) );
+7*%pi/13$
+
+trigreduce(carg( cos(7*%pi/13) + %i*sin(7*%pi/13) ));
+7*%pi/13;
+
+(z: cos ( 13 * %pi / 15 ) + %i * sin ( 13 * %pi / 15 ),
+ carg ( z ));
+13*%pi/15$
+
+atan ( tan ( 13 * %pi / 15 ) ) + %pi;
+13*%pi/15;
+
+trigreduce ( carg ( z ) );
+13*%pi/15;
+
+/* example from SF bug #3981: "Trigreduce doesn't return principal value of atan(tan(...))" */
+
+(c:3*(cos(5*%pi/13)+%i*sin(5*%pi/13)),
+ d:4*(cos(7*%pi/13)+%i*sin(7*%pi/13)),
+ carg(c*d),
+ trigreduce(%%));
+12*%pi/13;
+
+/* examples from SF bug #4208: "Error with complex numbers - example with trigreduce" */
+
+trigreduce(carg(c/d));
+-2*%pi/13$
+
+trigreduce(carg(cos(3*%pi/5)+%i * sin(3*%pi/5)));
+3*%pi/5;
+
+/* examples from SF bug #4418: "arctan and trigreduce error" */
+
+trigreduce(atan(tan((3*%pi)/5)));
+-2*%pi/5;
+
+trigreduce(atan(sin((3*%pi)/5)/cos((3*%pi)/5)));
+-2*%pi/5;
+
+trigreduce(carg(cos((3*%pi)/5)+%i*sin((3*%pi)/5)));
+3*%pi/5;
 
 /* SF bug #3413: "false in definite integral of rational"
  * SF bug #2644: "integrate(1/(1+s^7),s,0,%pi) includes a 'false' term"
@@ -1653,3 +1734,8 @@ forget(xp > 0);
 integrate(cos(2*x)*diff(f(x),x),x);
 'integrate(cos(2*x)*'diff(f(x),x,1),x);
 
+/*
+ * SF bug 4601: regression in spherical_bessel_j integral
+ */
+integrate(spherical_bessel_j(1,x)^2, x, 0, inf);
+%pi/6;

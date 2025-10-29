@@ -1,7 +1,6 @@
 ###### Matrix.tcl #################################################
 #
 #   Copyright (C) 2024 Jaime E. Villate
-#   Time-stamp: "2024-03-20 14:40:38 villate
 #
 #  For distribution under GNU public License. See COPYING.tcl
 #  (Based on William F. Schelter's work, Copyright (C) 1998)

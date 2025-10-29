@@ -97,23 +97,36 @@
 ;;; Globals for the Maxima Users
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defvar $expintexpand nil
+(defmvar $expintexpand nil
   "When not nil we expand for a half integral parameter of the Exponential 
    Integral in a series in terms of the Erfc or Erf function and for positive 
-   integer in terms of the Ei function.")
-
-(defvar $expintrep nil
-  "Change the representation of the Exponential Integral. 
-   Values are: gamma_incomplete, expintegral_e1, expintegral_ei, 
-   expintegral_li, expintegral_trig, expintegral_hyp.")
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Global to this file
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   integer in terms of the Ei function."
+  :setting-list (t nil %erf))
 
 (defvar *expintflag* '(%expintegral_e1   %expintegral_ei  %expintegral_li
                        $expintegral_trig $expintegral_hyp %gamma_incomplete)
   "Allowed flags to transform the Exponential Integral.")
+
+(defmvar $expintrep nil
+  "Change the representation of the Exponential Integral. 
+   Values are: gamma_incomplete, expintegral_e1, expintegral_ei, 
+   expintegral_li, expintegral_trig, expintegral_hyp."
+  :setting-predicate
+  #'(lambda (val)
+      (let ((result
+              (or (null val)
+                  (member val *expintflag*))))
+        (values result
+                (let ((*print-case* :downcase))
+                  (format nil "~%  must be false or one of~{~<~%    ~1,80:; ~A~>~^,~}"
+                          (mapcar #'(lambda (v)
+                                      (stripdollar ($verbify v)))
+                                  *expintflag*)))))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Global to this file
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun simp-domain-error (&rest args)
   (if errorsw
@@ -1356,11 +1369,15 @@
 
 (defprop %expintegral_si simplim%expintegral_si simplim%function)
 
-(defun simplim%expintegral_si (expr var val)
-  ;; Look for the limit of the argument.
-  (let ((z (limit (cadr expr) var val 'think)))
-    ;; All cases are handled by the simplifier of the function.
-    (take '(%expintegral_si) z)))
+(defun simplim%expintegral_si (e x pt)
+ (let ((lim (limit (cadr e) x pt 'think)))
+	(cond ((eq lim '$infinity) (throw 'limit t))
+		    ((eq lim '$ind) '$ind)
+		    ((eq lim '$zerob) '$zerob)
+		    ((eq lim '$zeroa) '$zeroa)
+	      ((eq lim '$und) (throw 'limit nil))
+        ;;The expintegral_si simplifier handles expintegral_si(minf & inf)
+        (t (ftake '%expintegral_si lim)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1685,18 +1702,22 @@
 
 (defprop %expintegral_ci simplim%expintegral_ci simplim%function)
 
-(defun simplim%expintegral_ci (expr var val)
-  ;; Look for the limit of the argument.
-  (let ((z (limit (cadr expr) var val 'think)))
-  (cond
-    ;; Handle an argument 0 at this place
-    ((or (zerop1 z)
-         (eq z '$zeroa)
-         (eq z '$zerob))
-     '$minf)
-    (t
-     ;; All other cases are handled by the simplifier of the function.
-     (take '(%expintegral_ci) z)))))
+(defun simplim%expintegral_ci (e x pt)
+ (let ((lim (limit (cadr e) x pt 'think)))
+	(cond ((eq lim '$infinity) 
+		     ;; Is the limit +/- %i x inf?
+         (setq lim (limit (div (cadr e) '$%i) x pt 'think))
+		 	   (cond ((eq lim '$inf) '$inf)
+			         ((eq lim '$minf) '$inf)
+				       (t (throw 'limit nil))))
+		    ((eq lim '$ind)
+		  	   (if (eq t (mgrp (cadr e) 0)) '$ind (throw 'limit nil)))
+		    ((eq lim '$zerob) '$minf)
+		    ((eq lim '$zeroa) '$minf)
+		    ((eql lim 0) '$minf)
+	      ((eq lim '$und) (throw 'limit nil))
+        ;; The general simplifier for expintegral_ci handles inputs minf & inf
+		    (t (ftake '%expintegral_ci lim)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

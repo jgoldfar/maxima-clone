@@ -63,7 +63,7 @@
 (defvar *dsksetup-errset-value* t)
 
 (defun dsksetup (x fn fname)
-  (let (list maxima-error (errset *dsksetup-errset-value*))
+  (let (list (errset *dsksetup-errset-value*))
     (setq savefile
 	  (if (or (eq $file_output_append '$true) (eq $file_output_append t))
 	      (open fname :direction :output :if-exists :append :if-does-not-exist :create)
@@ -80,8 +80,7 @@
 	     (improper-arg-err u fn))))
     (setq list (ncons (car x))
 	  x (cdr x))
-    (if (null (errset (dskstore x list)))
-	(setq maxima-error t))
+    (errset (dskstore x list))
     (close savefile)
     (namestring (truename savefile))))
 

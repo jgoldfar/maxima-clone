@@ -3,7 +3,6 @@
 # Copyright (C) 1998 William F. Schelter                   #
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
-#     Time-stamp: "2024-03-25 20:06:43 villate"            #
 ############################################################
 # Usage:
 # catch {close $socket}
@@ -39,11 +38,11 @@
 #----------------------------------------------------------------
 #
 proc myVwait { var  } {
-    global _waiting maxima_priv
+    global _waiting
     set tem [split $var "(" ]
     set variable [lindex $tem 0]
     global $variable
-    lappend maxima_priv(myVwait) $variable
+    lappend ::xmaxima_priv(myVwait) $variable
     set index ""
     if { [llength $tem ] > 1 } {
 	set index [lindex [split [lindex $tem 1] ")" ] 0]
@@ -57,7 +56,7 @@ proc myVwait { var  } {
         #puts "still waiting _waiting=$_waiting"
 	update
     }
-    set maxima_priv(myVwait) [ ldelete $variable $maxima_priv(myVwait)]
+    set ::xmaxima_priv(myVwait) [ ldelete $variable $::xmaxima_priv(myVwait)]
     trace vdelete $variable w $action
 }
 
@@ -74,14 +73,13 @@ proc _myaction { ind name1 name2 op } {
 # proc myVwait { x args } {uplevel "#0"  vwait $x }
 if { "[info commands vwait]" == "vwait"  } {
     proc myVwait { x  } {
-        global maxima_priv
 # Fix for Tcl 8.5: linking unreachable global variables used to be ignored
 # in Tcl 8.4 but in 8.5 it raises an error. The catch command should
 # restore the Tcl 8.4 behavior. (villate, 20080513)
 	catch {global $x}
-	lappend maxima_priv(myVwait) $x
+	lappend ::xmaxima_priv(myVwait) $x
 	vwait $x
-	set maxima_priv(myVwait) [ ldelete $x $maxima_priv(myVwait)]
+	set ::xmaxima_priv(myVwait) [ ldelete $x $::xmaxima_priv(myVwait)]
     }
 }
 
@@ -124,13 +122,13 @@ proc  msleep { n } {
 }
 
 proc message { msg } {
-    global maxima_priv _debugSend
+    global _debugSend
     if { $_debugSend } { puts "setting message=<$msg>" }
-    catch { set maxima_priv(load_rate) $msg }
+    catch { set ::xmaxima_priv(load_rate) $msg }
 }
 
 proc sendOne { program  com }  {
-    global  pdata maxima_priv
+    global  pdata
     incr pdata($program,currentExpr)
     set socket $pdata($program,socket)
 
@@ -476,28 +474,25 @@ proc statServer  {server {timeout 1000}} {
 }
 
 proc isAlive1 { s } {
-    global maxima_priv
     if { [catch { read $s } ] } {
-	set maxima_priv(isalive) -1
+	set ::xmaxima_priv(isalive) -1
     } else {
-	set maxima_priv(isalive) 1
+	set ::xmaxima_priv(isalive) 1
     }
     close $s
 }
 
 proc isAlive { server {timeout 1000} } {
-    global maxima_priv
-
     if { [ catch { set s [eval socket -async $server] } ] } { return -1 }
-    set maxima_priv(isalive) 0
+    set ::xmaxima_priv(isalive) 0
     fconfigure $s -blocking 0
     fileevent    $s writable     "isAlive1 $s"
-    set c1 "set maxima_priv(isalive) -2"
+    set c1 "set ::xmaxima_priv(isalive) -2"
     set after_id [after $timeout $c1]
-    myVwait maxima_priv(isalive)
+    myVwait ::xmaxima_priv(isalive)
     catch { close $s}
     after cancel $after_id
-    return $maxima_priv(isalive)
+    return $::xmaxima_priv(isalive)
 }
 
 proc debugsend { s } {

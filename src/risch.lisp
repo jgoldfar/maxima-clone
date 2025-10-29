@@ -108,6 +108,7 @@
   (prog ($%e_to_numlog $logsimp risch-y z risch-var risch-ratform risch-liflag
 	 risch-mainvar varlist genvar $ratfac $ratalgdenom risch-degree
 	 rischform-value risch-trigint risch-hypertrigint risch-operator)
+     (declare (ignorable rischform-value))
      (if (specrepp exp)
 	 (setq exp (specdisrep exp)))
      (if (specrepp risch-intvar)
@@ -236,8 +237,9 @@
 		      risch-expflag risch-mainvar risch-expint risch-degree))
      (dolist (rat risch-logptdx)
        (let (rischlogeprog-value)
+         (declare (ignorable rischlogeprog-value))
 	 (setq risch-y
-	       (rischadd (multiple-value-setq (rischlogeprog-value risch-expint)
+	       (rischadd (multiple-value-setq (rischlogeprog-value risch-expint risch-expstuff)
 			   (rischlogeprog rat risch-ratform nil risch-intvar risch-expstuff
 					  risch-var risch-expflag risch-mainvar risch-expint))
 			 risch-y))))
@@ -416,7 +418,7 @@
 			      (maxima-substitute (get risch-var 'rischexpr) newvar new-int))))))
 	    (return (rischnoun p risch-ratform risch-intvar)))))
     (values (impl p risch-switch1)
-	    risch-expint)))
+	    risch-expint risch-expstuff)))
 
 
 (defun findint (exp)
@@ -940,7 +942,7 @@
 
 (defun rischexplog (expexpflag flag f a l
 		    risch-ratform risch-intvar risch-liflag risch-degree risch-y risch-var risch-mainvar)
-  (prog (lcm yy risch-m p risch-alphar risch-gamma delta
+  (prog (lcm yy p risch-gamma delta
 	 mu r s tt denom ymu rbeta expg n eta logeta logdiff
 	 temp risch-cary risch-nogood vector aarray rmu rrmu rarray
 	 risch-beta
@@ -952,7 +954,7 @@
 			   (rzero))
 			  (t
 			   (rischzero))))))
-     (multiple-value-setq (p risch-alphar)
+     (setq p
        (findpr (cdr (partfrac a risch-var))
 	       (cdr (partfrac f risch-var))
 	       risch-y
@@ -1160,7 +1162,7 @@
      (setq rarray (cdr rarray))
      (when rarray (go array2loop))
      (setq rarray (reverse aarray))
-     (multiple-value-setq (temp risch-m)
+     (setq temp
        (lsa rarray))
      (when (or (eq temp 'singular)
 	       (eq temp 'inconsistent))

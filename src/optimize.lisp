@@ -9,7 +9,7 @@
 
 (in-package :maxima)
 
-(eval-when (compile load eval)
+(eval-when (:compile-toplevel :load-toplevel :execute)
           (import '(compiler::inline-unsafe compiler::inline-always compiler::boolean
                                             compiler::definline ) 'cl-maxima))
 
