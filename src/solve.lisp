@@ -846,7 +846,11 @@
 	      `((mplus) ((mminus) ,(cadr *myvar))
 		((mexpt) $%e ,exp)))
 	     (t (go fail))))
-     (return (solve (simplify inverse) *var mult))
+
+     (setq inverse (errcatch (simplify inverse)))
+     (when inverse
+       (return (solve (car inverse) *var mult)))
+
      fail (return (setq *failures
 			(cons (simplify `((mequal) ,*myvar ,exp))
 			      (cons mult *failures))))))
