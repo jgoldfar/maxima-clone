@@ -1033,3 +1033,38 @@ inf$
 
 (kill(facts),0);
 0$
+
+/* SF bug #4627: "box(inf) causes infinite recursion in limit and integrate" */
+
+/* preliminaries -- verify that box works as expected in test cases */
+
+box(1);
+box(1);
+
+box(2, "FOO");
+box(2, "FOO");
+
+box(2, "FOO");
+''(box(2, "FOO"));
+
+/* now back to bug report */
+
+limit(x,x,box(3));
+box(3);
+
+integrate(x,x,0,box(3));
+box(3)^2/2;
+
+limit(x,x,box(3),minus);
+box(3);
+
+limit(x,x,box(3),plus);
+box(3);
+
+/* provokes "third argument must be a finite value or one of: inf, minf, infinity" */
+errcatch (limit(x,x,box(inf)));
+[];
+
+/* provokes "integral is divergent" */
+errcatch (integrate(x,x,0,box(inf)));
+[];

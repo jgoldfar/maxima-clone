@@ -175,13 +175,13 @@ block ([display2d_unicode: true], print_string_2d ('matrix([a, b, c])));
 └         ┘
 ";
 
-block ([display2d_unicode: true], print_string_2d ('?mbox(a)));
+block ([display2d_unicode: true], print_string_2d (box(a)));
 "╔═╗
 ║a║
 ╚═╝
 ";
 
-block ([display2d_unicode: true], print_string_2d ('?mlabox (a, b)));
+block ([display2d_unicode: true], print_string_2d (box (a, b)));
 "b═╗
 ║a║
 ╚═╝

@@ -1131,6 +1131,8 @@
 
 ;;;; Operator Specific Data
 
+(def-mheader $box (mbox))
+
 (def-nud-equiv |$]| delim-err)
 (def-led-equiv |$]| erb-err)
 (def-lbp     |$]| 5.)

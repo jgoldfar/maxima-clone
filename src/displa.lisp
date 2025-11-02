@@ -1280,8 +1280,13 @@
         (dim-mabs `((mabs) ,(first a)) result))
       (dimension-function form result))))
 
-(displa-def mbox dim-mbox)
-(displa-def %mbox dim-mbox)
+(displa-def mbox dim-mbox-or-mlabox)
+(displa-def %mbox dim-mbox-or-mlabox)
+
+(defun dim-mbox-or-mlabox (form result &aux dummy)
+  (if (= (length form) 3)
+    (dim-mlabox form result)
+    (dim-mbox form result)))
 
 (defun dim-mbox (form result &aux dummy)
   (setq dummy (dimension (cadr form) nil 'mparen 'mparen nil 0))

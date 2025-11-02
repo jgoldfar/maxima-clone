@@ -736,7 +736,7 @@ the hashtable.")
 
 ;;;; BOX
 
-;; Set the the property reversealias
+;; Reverse alias makes MBOX and MLABOX display as box in 1-d output.
 (defprop mbox $box reversealias)
 (defprop mlabox $box reversealias)
 
@@ -746,15 +746,16 @@ the hashtable.")
 (defmfun $lpart (e &rest args)
   (mpart args nil (list e) nil '$lpart))
 
-(defmfun $box (e &optional (l nil l?))
+(defmfun make-mbox (e &optional (l nil l?))
   (if l?
       (list '(mlabox) e (box-label l))
       (list '(mbox) e)))
 
-(defun box (e label)
-  (if (eq label t)
-      (list '(mbox) e)
-      ($box e (car label))))
+(setf (get 'mbox 'operators)
+      (lambda (x y z)
+        (declare (ignore y))
+        (let ((mbox-args (if z (mapcar (lambda (a) (simplifya a z)) (cdr x)) (cdr x))))
+          (apply 'make-mbox mbox-args))))
 
 (defun box-label (x)
   (if (atom x)
