@@ -1425,7 +1425,7 @@ synonyms for @code{[logy, true]} and @code{[logy, false]}.
 @c -----------------------------------------------------------------------------
 @anchor{mesh_lines_color}
 @defvr {Plot option} mesh_lines_color [mesh_lines_color, @var{color}], @
-mesh_lines_color, no_mesh_lines
+mesh_lines_color, nomesh_lines
 
 Default value: @code{black}
 
@@ -1435,7 +1435,7 @@ is being used.  It accepts the same colors as for the option
 can also be given a value @code{false} to eliminate completely the mesh
 lines. The single keyword @code{mesh_lines_color} removes any previously
 defined colors, leaving it to the graphic program to decide what color
-to use. The keyword @code{no_mesh_lines} is a synonym for
+to use. The keyword @code{nomesh_lines} is a synonym for
 @code{[mesh_lines_color, false]}
 
 @opencatbox{Categories:}
