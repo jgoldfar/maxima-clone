@@ -605,15 +605,18 @@
 ;; This supports simplifying regular functions and also subscripted
 ;; functions.
 ;;
-;; (def-simplifier (base-name &key (simpcheck :default)
-;;                                 subfun-arglist
-;;                                 custom-defmfun)
+;; (def-simplifier (base-name-and-options
 ;;                 lambda-list
 ;;                 &body body)
 ;;
-;; The base name can also be a lambda-list of the form (name &key
-;; (simpcheck :default) (subfun-arglist arg-list)).  The NAME is the
-;; BASE-NAME of the simpiflier.
+;; BASE-NAME-AND-OPTIONS can be a symbol denoting the name of the
+;; simplifier.  This can also be a list of the form:
+;;
+;;   (base-name &key
+;;              (simpcheck :default)
+;;              subfun-arglist arg-list)
+;;
+;; BASE-NAME here is the name of the simplifier.
 ;;
 ;; The keyword arg :SIMPCHECK supports two values: :DEFAULT and
 ;; :CUSTOM, with :DEFAULT as the default.  :CUSTOM means the generated
@@ -633,9 +636,9 @@
 ;; set.  For REALPART and IMAGPART, adding these properties make these
 ;; functions cause failures in the test suite.  (This needs further
 ;; investigation.)
-
+;;
 ;; Note also that the args for the simplifier only supports a fixed
-;; set of required arguments.  Not optional or rest arguments are
+;; set of required arguments.  No optional or rest arguments are
 ;; supported.  No checks are made for this.  If you need this, you'll
 ;; have to write your own simplifier.  Use the above macro expansion
 ;; to see how to define the appropriate properties for the simplifer.
@@ -784,7 +787,7 @@
         (t
          ;; 
          `(progn
-	    ;; Define the noun function if CUSTOM-DEFMFUN is not set.
+	    ;; Define the verb function if CUSTOM-DEFMFUN is not set.
             ,@(unless custom-defmfun
 	        `((defmfun ,verb-name (,@lambda-list)
 	            (ftake ',noun-name ,@lambda-list))))
@@ -795,14 +798,13 @@
             ;; FIXME: This probably needs more work.  Why should these
             ;; properties not be set for realpart/imagpart?
             ,@(unless custom-defmfun
-                `((
-                   (defprop ,verb-name ,noun-name alias)
+                `((defprop ,verb-name ,noun-name alias)
 
 	           ;; The reversealias property is needed by grind to print out
 	           ;; the right thing.  Without it, grind(jacobi_sn(x,m)) prints
 	           ;; '?%jacobi_sn(x,m)".  Also needed for labels in plots which
 	           ;; would show up as %jacobi_sn instead of jacobi_sn.
-	           (defprop ,noun-name ,verb-name reversealias))))
+	           (defprop ,noun-name ,verb-name reversealias)))
 
 	    ;; Set up properties
 	    (defprop ,noun-name ,simp-name operators)
