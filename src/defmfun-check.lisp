@@ -766,20 +766,25 @@
         (t
          ;; 
          `(progn
-	    ;; Define the noun function if there's custom-defmfun is not set.
+	    ;; Define the noun function if CUSTOM-DEFMFUN is not set.
             ,@(unless custom-defmfun
 	        `((defmfun ,verb-name (,@lambda-list)
-	            (ftake ',noun-name ,@lambda-list))
-                  ;; Custom-defmfun's shouldn't define alias and
-                  ;; reversealias properties.  For example, this
-                  ;; messes up realpart/imagpart.
-                  (defprop ,verb-name ,noun-name alias)
+	            (ftake ',noun-name ,@lambda-list))))
+            ;; Custom-defmfun's shouldn't define alias and
+            ;; reversealias properties.  For example, this messes up
+            ;; realpart/imagpart.
+            ;;
+            ;; FIXME: This probably needs more work.  Why should these
+            ;; properties not be set for realpart/imagpart?
+            ,@(unless custom-defmfun
+                `((
+                   (defprop ,verb-name ,noun-name alias)
 
-	          ;; The reversealias property is needed by grind to print out
-	          ;; the right thing.  Without it, grind(jacobi_sn(x,m)) prints
-	          ;; '?%jacobi_sn(x,m)".  Also needed for labels in plots which
-	          ;; would show up as %jacobi_sn instead of jacobi_sn.
-	          (defprop ,noun-name ,verb-name reversealias)))
+	           ;; The reversealias property is needed by grind to print out
+	           ;; the right thing.  Without it, grind(jacobi_sn(x,m)) prints
+	           ;; '?%jacobi_sn(x,m)".  Also needed for labels in plots which
+	           ;; would show up as %jacobi_sn instead of jacobi_sn.
+	           (defprop ,noun-name ,verb-name reversealias))))
 
 	    ;; Set up properties
 	    (defprop ,noun-name ,simp-name operators)
