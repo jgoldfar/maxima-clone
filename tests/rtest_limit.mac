@@ -452,6 +452,10 @@ limit( ((1/%pi)*(atan(n/%pi) + %pi/2))^n, n, inf);
 limit(x*expintegral_ei(x), x, 0);
 0;
 
+/* #4276 expintegral_ei incorrect behavior at infinity */
+limit(((expintegral_ei(x)/%e^x)*x-1)*x,x,inf);
+1;
+
 /* #3865 crash from taking limit of factorial(x) + 1 */
 limit(factorial(x) + 1, x, 0);
 2;

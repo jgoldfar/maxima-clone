@@ -970,8 +970,8 @@ ignoring dummy variables and array indices."
 			(cond ((not (equal (setq gcp (gcpower n dn)) 1))
 			       (return (colexpt n dn gcp)))
 			      ((and (eq '$inf val)
-				    (or (involve dn '(mfactorial %gamma))
-					(involve n '(mfactorial %gamma))))
+				    (or (involve dn '(mfactorial %gamma %expintegral_ei))
+					(involve n '(mfactorial %gamma %expintegral_ei))))
 			       (return (limfact n dn))))))
 		  ((eq n1 d1) (setq lim-sign 1) (go cp))
 		  (t (setq lim-sign -1) (go cp))))
@@ -1209,8 +1209,8 @@ ignoring dummy variables and array indices."
 	  ((eq (caar ans) '%limit)  ())
 	  (t ans))))
 
-;; substitute asymptotic approximations for gamma, factorial, and
-;; polylogarithm
+;; substitute asymptotic approximations for gamma, factorial,
+;; polylogarithm, and expintegral_ei
 (defun stirling0 (e)
    (cond ((atom e) e)
 	((and (setq e (cons (car e) (mapcar 'stirling0 (cdr e))))
@@ -1243,6 +1243,10 @@ ignoring dummy variables and array indices."
 	 (li-asymptotic-expansion (m- (car (subfunsubs e)) 1) 
 				   (car (subfunsubs e))
 				   (car (subfunargs e))))
+	((and (eq (caar e) '%expintegral_ei)
+	      (let ((arglim (limit (cadr e) var val 'think)))
+		(eq arglim '$inf)))
+	 (ei-asymptotic-expansion $lhospitallim (cadr e)))
 	(t e)))
 
 (defun stirling (x)

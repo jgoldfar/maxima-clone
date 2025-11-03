@@ -862,6 +862,18 @@
                      (max *debug-expint-fracbfloatmaxit* i)))
              (return r))))))))
 
+
+;; computes first pw terms of asymptotic expansion of expintegral_ei(z)
+;; DLMF 8.20.2, using Ei(x) = E_1(-x)
+(defun ei-asymptotic-expansion (pw z)
+  (m* (m^ '$%e z)
+      (m^ z -1)
+      (m+l (loop for k from 0 to pw collect
+		 (m* `((mfactorial) ,k)
+		     (m^ z (m- k)))))))
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Part 2: The implementation of the Exponential Integral E1
