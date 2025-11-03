@@ -614,7 +614,9 @@
 ;;
 ;;   (base-name &key
 ;;              (simpcheck :default)
-;;              subfun-arglist arg-list)
+;;              subfun-arglist
+;;              arg-list
+;;              skip-properties)
 ;;
 ;; BASE-NAME here is the name of the simplifier.
 ;;
@@ -629,13 +631,14 @@
 ;; li[s](x), we only have one arg, S, so use ":SUBFUN-ARG-LIST (S)."
 ;;
 ;; The keyword arg :CUSTOM-DEFMFUN indicates that this simplifier
-;; should not define a DEFMFUN function for the BASE-NAME.  Currently,
-;; this is needed for REALPART and IMAGPART simplifiers which have a
-;; special DEFMFUN that is needed since the default doesn't work.
-;; This also means that the ALIAS and REVERSEALIAS properties are not
-;; set.  For REALPART and IMAGPART, adding these properties make these
-;; functions cause failures in the test suite.  (This needs further
-;; investigation.)
+;; should not define a default DEFMFUN function for the BASE-NAME.
+;;
+;; The keyword arg :SKIP-PROPERTIES is a list of properties that
+;; should not be set for this simplifier.  Currently, this is needed
+;; for REALPART and IMAGPART simplifiers which don't work (why?) when
+;; the ALIAS and REVERSEALIAS properties are set.  If they are set,
+;; the simplifiers cause failures in the test suite.  (This needs
+;; further investigation.)
 ;;
 ;; Note also that the args for the simplifier only supports a fixed
 ;; set of required arguments.  No optional or rest arguments are
