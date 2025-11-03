@@ -618,27 +618,35 @@
 ;;              arg-list
 ;;              skip-properties)
 ;;
-;; BASE-NAME here is the name of the simplifier.
+;; The arguments are:
 ;;
-;; The keyword arg :SIMPCHECK supports two values: :DEFAULT and
-;; :CUSTOM, with :DEFAULT as the default.  :CUSTOM means the generated
-;; code does not call SIMPCHECK on the args, as shown above.  It is up
-;; to the body to do the necessary work.
+;;   BASE-NAME
+;;     the name of the simplifier, a symbol.
 ;;
-;; The keyword arg :SUBFUN-ARG-LIST indicates that this is a
-;; simplifier for subscripted functions like li[s](x).  The argument
-;; must be a list of the names of the subscripts of the function.  For
-;; li[s](x), we only have one arg, S, so use ":SUBFUN-ARG-LIST (S)."
+;;   :SIMPCHECK
+;;     :SIMPCHECK supports two values: :DEFAULT and :CUSTOM, with
+;;     :DEFAULT as the default.  :CUSTOM means the generated code does
+;;     not call SIMPCHECK on the args.  It is up to the body to do the
+;;     necessary work.
 ;;
-;; The keyword arg :CUSTOM-DEFMFUN indicates that this simplifier
-;; should not define a default DEFMFUN function for the BASE-NAME.
+;;   :SUBFUN-ARG-LIST indicates that this is a
+;;     :SUBFUN-ARG-LIST indicates that this is a simplifier for
+;;     subscripted functions like li[s](x).  The argument must be a
+;;     list of the names of the subscripts of the function.  For
+;;     li[s](x), we only have one arg, S, so use ":SUBFUN-ARG-LIST
+;;     (S)."
 ;;
-;; The keyword arg :SKIP-PROPERTIES is a list of properties that
-;; should not be set for this simplifier.  Currently, this is needed
-;; for REALPART and IMAGPART simplifiers which don't work (why?) when
-;; the ALIAS and REVERSEALIAS properties are set.  If they are set,
-;; the simplifiers cause failures in the test suite.  (This needs
-;; further investigation.)
+;;   :CUSTOM-DEFMFUN
+;;     :CUSTOM-DEFMFUN indicates that this simplifier should not
+;;     define a default DEFMFUN function for the BASE-NAME.
+;;
+;;   :SKIP-PROPERTIES
+;;     :SKIP-PROPERTIES is a list of properties that should not be set
+;;     for this simplifier.  Currently, this is needed for REALPART
+;;     and IMAGPART simplifiers which don't work (why?) when the ALIAS
+;;     and REVERSEALIAS properties are set.  If they are set,the
+;;     simplifiers cause failures in the test suite.  (This needs
+;;     further investigation.)
 ;;
 ;; Note also that the args for the simplifier only supports a fixed
 ;; set of required arguments.  No optional or rest arguments are
