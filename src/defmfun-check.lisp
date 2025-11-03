@@ -605,17 +605,35 @@
 ;; This supports simplifying regular functions and also subscripted
 ;; functions.
 ;;
+;; (def-simplifier (base-name &key (simpcheck :default)
+;;                                 subfun-arglist
+;;                                 custom-defmfun)
+;;                 lambda-list
+;;                 &body body)
+;;
 ;; The base name can also be a lambda-list of the form (name &key
 ;; (simpcheck :default) (subfun-arglist arg-list)).  The NAME is the
-;; BASE-NAME of the simpiflier.  The keyword arg :SIMPCHECK supports
-;; two values: :DEFAULT and :CUSTOM, with :DEFAULT as the default.
-;; :CUSTOM means the generated code does not call SIMPCHECK on the
-;; args, as shown above.  It is up to the body to do the necessary
-;; work.  The keyword arg :SUBFUN-ARG-LIST indicates that this is a
+;; BASE-NAME of the simpiflier.
+;;
+;; The keyword arg :SIMPCHECK supports two values: :DEFAULT and
+;; :CUSTOM, with :DEFAULT as the default.  :CUSTOM means the generated
+;; code does not call SIMPCHECK on the args, as shown above.  It is up
+;; to the body to do the necessary work.
+;;
+;; The keyword arg :SUBFUN-ARG-LIST indicates that this is a
 ;; simplifier for subscripted functions like li[s](x).  The argument
 ;; must be a list of the names of the subscripts of the function.  For
 ;; li[s](x), we only have one arg, S, so use ":SUBFUN-ARG-LIST (S)."
 ;;
+;; The keyword arg :CUSTOM-DEFMFUN indicates that this simplifier
+;; should not define a DEFMFUN function for the BASE-NAME.  Currently,
+;; this is needed for REALPART and IMAGPART simplifiers which have a
+;; special DEFMFUN that is needed since the default doesn't work.
+;; This also means that the ALIAS and REVERSEALIAS properties are not
+;; set.  For REALPART and IMAGPART, adding these properties make these
+;; functions cause failures in the test suite.  (This needs further
+;; investigation.)
+
 ;; Note also that the args for the simplifier only supports a fixed
 ;; set of required arguments.  Not optional or rest arguments are
 ;; supported.  No checks are made for this.  If you need this, you'll
