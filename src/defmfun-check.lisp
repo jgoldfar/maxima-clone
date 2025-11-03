@@ -729,7 +729,8 @@
   (destructuring-bind (base-name &key
                                    (simpcheck :default)
                                    (subfun-arglist nil)
-                                   (custom-defmfun nil))
+                                   (custom-defmfun nil)
+                                   (skip-properties nil))
       (if (symbolp base-name-and-options)
 	  (list base-name-and-options)
 	  base-name-and-options)
@@ -791,20 +792,14 @@
             ,@(unless custom-defmfun
 	        `((defmfun ,verb-name (,@lambda-list)
 	            (ftake ',noun-name ,@lambda-list))))
-            ;; Custom-defmfun's shouldn't define alias and
-            ;; reversealias properties.  For example, this messes up
-            ;; realpart/imagpart.
-            ;;
-            ;; FIXME: This probably needs more work.  Why should these
-            ;; properties not be set for realpart/imagpart?
-            ,@(unless custom-defmfun
-                `((defprop ,verb-name ,noun-name alias)
-
-	           ;; The reversealias property is needed by grind to print out
-	           ;; the right thing.  Without it, grind(jacobi_sn(x,m)) prints
-	           ;; '?%jacobi_sn(x,m)".  Also needed for labels in plots which
-	           ;; would show up as %jacobi_sn instead of jacobi_sn.
-	           (defprop ,noun-name ,verb-name reversealias)))
+            ,@(unless (member 'alias skip-properties)
+                `((defprop ,verb-name ,noun-name alias)))
+            ,@(unless (member 'reversealias skip-properties)
+	        ;; The reversealias property is needed by grind to print out
+	        ;; the right thing.  Without it, grind(jacobi_sn(x,m)) prints
+	        ;; '?%jacobi_sn(x,m)".  Also needed for labels in plots which
+	        ;; would show up as %jacobi_sn instead of jacobi_sn.
+	        `((defprop ,noun-name ,verb-name reversealias)))
 
 	    ;; Set up properties
 	    (defprop ,noun-name ,simp-name operators)

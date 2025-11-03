@@ -38,7 +38,9 @@
 
 (defmfun $realpart (xx) (car (trisplit xx)))
 
-(def-simplifier (realpart :custom-defmfun t) (z)
+(def-simplifier (realpart :custom-defmfun t
+                          :skip-properties (alias reversealias))
+    (z)
   (let ((sgn nil))
     (cond ((mnump z) z)
           ((eq (setq sgn ($csign z)) '$imaginary)
@@ -55,7 +57,9 @@
 
 (defmfun $imagpart (xx) (cdr (trisplit xx)))
 
-(def-simplifier (imagpart :custom-defmfun t) (z)
+(def-simplifier (imagpart :custom-defmfun t
+                          :skip-properties (alias reversealias))
+    (z)
   (let ((sgn nil))
     (cond ((mnump z) 0)
           ((eq (setq sgn ($csign z)) '$imaginary)
