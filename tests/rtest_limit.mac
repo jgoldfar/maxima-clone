@@ -1008,6 +1008,10 @@ limit(integrate (bessel_j(0, x) * unit_step(x), x), x, 1);
 limit (integrate (baz(0, x) * foo(x), x), x, 1);
  'limit (integrate (baz(0, x) * foo(x), x), x, 1);
 
+/* #4587 limit of integral expression incorrect, should be 1/e^2, not 0 */
+limit( ( integrate((1-1/t)^t*%e^(%e*t), t, %e, x) / %e^(%e*x) ) , x, inf);
+%e^-2;
+
  /* #4275 ldefint returns zero */
 
  /* not wrong and not optimal*/

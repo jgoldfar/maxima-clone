@@ -3656,13 +3656,26 @@ ignoring dummy variables and array indices."
          (b (fifth e))               ;lower limit or nil if indefinite
 	 (alim) (blim))
     (cond ((and a b ($freeof x ee) ($freeof x var))
-	   (setq alim (limit a x pt 'think))
-	   (setq blim (limit b x pt 'think))
+	   (setq alim (ridofab (limit a x pt 'think)))
+	   (setq blim (ridofab (limit b x pt 'think)))
 	   (if (and (lenient-extended-realp alim) 
 		    (lenient-extended-realp blim)
 		    (not (eq alim '$infinity))
 		    (not (eq blim '$infinity)))
-	       (ftake '%integrate ee var alim blim)
+	       (let ((ans (ftake '%integrate ee var alim blim)))
+		 (if (and (consp ans)
+			  (eq (caar ans) '%integrate))
+		     ;; could not find antideriv
+		     (if (and ; upper limit of integration growing with x
+			      (eq blim '$inf)
+			      (not (eq alim '$minf))
+			      (eq ($sign (limit ee var blim 'think)) '$pos))
+			 ;; divergent, even if could not find antideriv.
+			 ;; could be extended to handle negative ee,
+			 ;; x in lower limit of integration.
+			 '$inf
+		      	 (throw 'limit t))
+		     ans)) ; found antideriv, answer from ftake '%integrate
 	       (throw 'limit t)))
           (t
            (throw 'limit t)))))
