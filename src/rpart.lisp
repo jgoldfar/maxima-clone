@@ -39,6 +39,9 @@
 (defmfun $realpart (xx) (car (trisplit xx)))
 
 (def-simplifier (realpart :custom-defmfun t
+                          ;; DO NOT set the ALIAS and REVERSEALIAS
+                          ;; properties for this simplifier.  It
+                          ;; causes failures in the testsuite.
                           :skip-properties (alias reversealias))
     (z)
   (let ((sgn nil))
@@ -58,6 +61,9 @@
 (defmfun $imagpart (xx) (cdr (trisplit xx)))
 
 (def-simplifier (imagpart :custom-defmfun t
+                          ;; DO NOT set the ALIAS and REVERSEALIAS
+                          ;; properties for this simplifier.  It
+                          ;; causes failures in the testsuite.
                           :skip-properties (alias reversealias))
     (z)
   (let ((sgn nil))
