@@ -25,12 +25,6 @@
 
 ;;; Realpart gives the real part of an expr.
 
-(defmfun $realpart (xx) (car (trisplit xx)))
-
-(defprop $realpart %realpart verb)
-(defprop %realpart $realpart noun)
-(defprop %realpart simp-realpart operators)
-
 (defun risplit-signum (x) ;rectangular form for a signum expression
   (let*  ((z (risplit (cadr x))) (a (car z)) (b (cdr z)) (r)) ;signum(a+%i b), where a and b are real
     (cond ((eq t (meqp b 0)) ;signum(a) -> signum(a) + 0 %i
@@ -42,9 +36,14 @@
 
 (setf (get '%signum 'risplit-function) 'risplit-signum)
 
-(defun simp-realpart (expr z simpflag)
-  (oneargcheck expr)
-  (setq z (simpcheck (cadr expr) simpflag))
+(defmfun $realpart (xx) (car (trisplit xx)))
+
+(def-simplifier (realpart :custom-defmfun t
+                          ;; DO NOT set the ALIAS and REVERSEALIAS
+                          ;; properties for this simplifier.  It
+                          ;; causes failures in the testsuite.
+                          :skip-properties (alias reversealias))
+    (z)
   (let ((sgn nil))
     (cond ((mnump z) z)
           ((eq (setq sgn ($csign z)) '$imaginary)
@@ -52,22 +51,21 @@
           ((eq sgn '$complex)
            (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
                   ($realpart z))
-                 (t 
-                  (eqtest (list '(%realpart) z) expr))))
-          (t 
-           (eqtest (list '(%realpart) z) expr)))))
+                 (t
+                  (give-up))))
+          (t
+           (give-up)))))
 
 ;;; Imagpart gives the imaginary part of an expr.
 
 (defmfun $imagpart (xx) (cdr (trisplit xx)))
 
-(defprop $imagpart %imagpart verb)
-(defprop %imagpart $imagpart noun)
-(defprop %imagpart simp-imagpart operators)
-
-(defun simp-imagpart (expr z simpflag)
-  (oneargcheck expr)
-  (setq z (simpcheck (cadr expr) simpflag))
+(def-simplifier (imagpart :custom-defmfun t
+                          ;; DO NOT set the ALIAS and REVERSEALIAS
+                          ;; properties for this simplifier.  It
+                          ;; causes failures in the testsuite.
+                          :skip-properties (alias reversealias))
+    (z)
   (let ((sgn nil))
     (cond ((mnump z) 0)
           ((eq (setq sgn ($csign z)) '$imaginary)
@@ -75,10 +73,10 @@
           ((eq sgn '$complex)
            (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
                   ($imagpart z))
-                 (t 
-                  (eqtest (list '(%imagpart) z) expr))))
-          (t 
-           (eqtest (list '(%imagpart) z) expr)))))
+                 (t
+                  (give-up))))
+          (t
+           (give-up)))))
 
 ;;; Rectform gives a result of the form a+b*%i.
 

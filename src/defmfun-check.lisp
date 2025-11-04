@@ -605,19 +605,51 @@
 ;; This supports simplifying regular functions and also subscripted
 ;; functions.
 ;;
-;; The base name can also be a lambda-list of the form (name &key
-;; (simpcheck :default) (subfun-arglist arg-list)).  The NAME is the
-;; BASE-NAME of the simpiflier.  The keyword arg :SIMPCHECK supports
-;; two values: :DEFAULT and :CUSTOM, with :DEFAULT as the default.
-;; :CUSTOM means the generated code does not call SIMPCHECK on the
-;; args, as shown above.  It is up to the body to do the necessary
-;; work.  The keyword arg :SUBFUN-ARG-LIST indicates that this is a
-;; simplifier for subscripted functions like li[s](x).  The argument
-;; must be a list of the names of the subscripts of the function.  For
-;; li[s](x), we only have one arg, S, so use ":SUBFUN-ARG-LIST (S)."
+;; (def-simplifier (base-name-and-options
+;;                 lambda-list
+;;                 &body body)
+;;
+;; BASE-NAME-AND-OPTIONS can be a symbol denoting the name of the
+;; simplifier.  This can also be a list of the form:
+;;
+;;   (base-name &key
+;;              (simpcheck :default)
+;;              subfun-arglist
+;;              arg-list
+;;              skip-properties)
+;;
+;; The arguments are:
+;;
+;;   BASE-NAME
+;;     the name of the simplifier, a symbol.
+;;
+;;   :SIMPCHECK
+;;     :SIMPCHECK supports two values: :DEFAULT and :CUSTOM, with
+;;     :DEFAULT as the default.  :CUSTOM means the generated code does
+;;     not call SIMPCHECK on the args.  It is up to the body to do the
+;;     necessary work.
+;;
+;;   :SUBFUN-ARG-LIST indicates that this is a
+;;     :SUBFUN-ARG-LIST indicates that this is a simplifier for
+;;     subscripted functions like li[s](x).  The argument must be a
+;;     list of the names of the subscripts of the function.  For
+;;     li[s](x), we only have one arg, S, so use ":SUBFUN-ARG-LIST
+;;     (S)."
+;;
+;;   :CUSTOM-DEFMFUN
+;;     :CUSTOM-DEFMFUN indicates that this simplifier should not
+;;     define a default DEFMFUN function for the BASE-NAME.
+;;
+;;   :SKIP-PROPERTIES
+;;     :SKIP-PROPERTIES is a list of properties that should not be set
+;;     for this simplifier.  Currently, this is needed for REALPART
+;;     and IMAGPART simplifiers which don't work (why?) when the ALIAS
+;;     and REVERSEALIAS properties are set.  If they are set,the
+;;     simplifiers cause failures in the test suite.  (This needs
+;;     further investigation.)
 ;;
 ;; Note also that the args for the simplifier only supports a fixed
-;; set of required arguments.  Not optional or rest arguments are
+;; set of required arguments.  No optional or rest arguments are
 ;; supported.  No checks are made for this.  If you need this, you'll
 ;; have to write your own simplifier.  Use the above macro expansion
 ;; to see how to define the appropriate properties for the simplifer.
@@ -707,7 +739,9 @@
 (defmacro def-simplifier (base-name-and-options lambda-list &body body)
   (destructuring-bind (base-name &key
                                    (simpcheck :default)
-                                   (subfun-arglist nil))
+                                   (subfun-arglist nil)
+                                   (custom-defmfun nil)
+                                   (skip-properties nil))
       (if (symbolp base-name-and-options)
 	  (list base-name-and-options)
 	  base-name-and-options)
@@ -765,9 +799,18 @@
         (t
          ;; 
          `(progn
-	    ;; Define the noun function.
-	    (defmfun ,verb-name (,@lambda-list)
-	      (ftake ',noun-name ,@lambda-list))
+	    ;; Define the verb function if CUSTOM-DEFMFUN is not set.
+            ,@(unless custom-defmfun
+	        `((defmfun ,verb-name (,@lambda-list)
+	            (ftake ',noun-name ,@lambda-list))))
+            ,@(unless (member 'alias skip-properties)
+                `((defprop ,verb-name ,noun-name alias)))
+            ,@(unless (member 'reversealias skip-properties)
+	        ;; The reversealias property is needed by grind to print out
+	        ;; the right thing.  Without it, grind(jacobi_sn(x,m)) prints
+	        ;; '?%jacobi_sn(x,m)".  Also needed for labels in plots which
+	        ;; would show up as %jacobi_sn instead of jacobi_sn.
+	        `((defprop ,noun-name ,verb-name reversealias)))
 
 	    ;; Set up properties
 	    (defprop ,noun-name ,simp-name operators)
@@ -781,12 +824,6 @@
 	    ;; The verb and alias properties are needed to make things like
 	    ;; quad_qags(jacobi_sn(x,.5)...) work.
 	    (defprop ,verb-name ,noun-name verb)
-	    (defprop ,verb-name ,noun-name alias)
-	    ;; The reversealias property is needed by grind to print out
-	    ;; the right thing.  Without it, grind(jacobi_sn(x,m)) prints
-	    ;; '?%jacobi_sn(x,m)".  Also needed for labels in plots which
-	    ;; would show up as %jacobi_sn instead of jacobi_sn.
-	    (defprop ,noun-name ,verb-name reversealias)
 
 	    ;; Define the simplifier
 	    (defun ,simp-name (,form-arg ,unused-arg ,z-arg)
