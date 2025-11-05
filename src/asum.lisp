@@ -371,12 +371,12 @@
 	   ;; different from the original.  In particular, we want the
 	   ;; floor of y if y was real number.  Otherwise, we leave
 	   ;; it.
-	   (give-up a
-		    (if (and (not (atom b))
-				  (eq (caar b) '$floor))
-			     (cadr b)
-			     b)
-		    c)))))
+	   (give-up :args (list a
+		                (if (and (not (atom b))
+				         (eq (caar b) '$floor))
+			            (cadr b)
+			            b)
+		                c))))))
 
 ;; sum begins
 
