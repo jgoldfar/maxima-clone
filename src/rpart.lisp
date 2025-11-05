@@ -99,6 +99,8 @@
 
 (defmfun $cabs (xx) (cabs xx))
 
+#+nil
+(progn
 (defprop $cabs %cabs verb)
 (defprop %cabs $cabs noun)
 (defprop %cabs simp-cabs operators)
@@ -119,7 +121,29 @@
           ((eq sgn '$neg)
             (mul -1 z))
           (t 
-           (eqtest (list '(mabs) z) expr)))))
+           (eqtest (list '(mabs) z) expr))))))
+
+(def-simplifier (cabs :custom-defmfun t
+                      :skip-properties (alias reversealias))
+    (z)
+  (let ((sgn nil))
+    (cond ((member (setq sgn ($csign z)) '($complex $imaginary))
+           (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
+                  (simplify (list '(mabs) z)))
+                 (t
+                  #+nil
+                  (eqtest (list '(mabs) z) expr)
+                  (give-up :noun-name 'mabs))))
+          ((eq sgn '$zero)
+           0)
+          ((member sgn '($pos $pz))
+           z)
+          ((eq sgn '$neg)
+            (mul -1 z))
+          (t 
+           #+nil
+           (eqtest (list '(mabs) z) expr)
+           (give-up :noun-name 'mabs)))))
 
 ;;; Carg gives the complex argument.
 
