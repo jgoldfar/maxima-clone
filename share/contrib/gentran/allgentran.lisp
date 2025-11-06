@@ -404,7 +404,7 @@
                         ((and (equal (tyi iport) #\>) (equal (tyi iport) #\>))
 	                (setq *vexptrm test)
                         (return nil))
-                        (t (gentranerr 'e nil "single > after active statement" nil))))
+                        (t (gentranerr 'e nil "single > after active statement"))))
 
 	      ((member test '(#\; #\$ #\NULL))
 	       (setq *vexptrm test)))
@@ -599,7 +599,7 @@
         (cond ((or (markedvarp tvar) (not(member (getvartype tvar) (list type nil)))) (setq num (+ 1 num))(go loop))))
 	(put tvar '*vtype* type)
 	(cond ((equal type 'unknown)
-	       (gentranerr 'w tvar "undeclared variable" nil))
+	       (gentranerr 'w tvar "undeclared variable"))
 	      (type
 	       (symtabput nil tvar (list type))))
 	(return tvar)))
@@ -1198,8 +1198,14 @@
 
 
 ;;  error & warning message printing routine  ;;
-(defun gentranerr( msgtype exp msg1 msg2)
-  (if (eq msgtype 'e) ($error exp msg1 msg2) (mtell exp msg1 msg2)))
+(defun gentranerr( msgtype exp msg1)
+  (if (eq msgtype 'e)
+    (if exp
+      ($error "gentran:" exp msg1)
+      ($error "gentran:" msg1))
+    (if exp
+      (mtell (concatenate 'string "gentran: ~M " msg1) exp)
+      (mtell (concatenate 'string "gentran: " msg1)))))
 
 
 
@@ -1843,7 +1849,7 @@
 	   (cond ((not (or (pmstmt f)
 			   (pmexp f)
 			   (pmlogexp f)))
-		  (gentranerr 'e f "cannot be translated" nil)))))
+		  (gentranerr 'e f "cannot be translated")))))
 
 (defun pmexp (s)
   ; exp  ::=  const | var | funcall | ((mminus ~) exp) |       ;
@@ -2844,7 +2850,7 @@
 (defun fortbreak (stmt)
   (declare (ignore stmt))
   (cond ((null *endofloopstack*)
-	 (gentranerr 'e nil "break not inside loop - cannot be translated" nil))
+	 (gentranerr 'e nil "break not inside loop - cannot be translated"))
 	((atom (car *endofloopstack*))
 	 (prog (n1)
 	       (setq n1 (genstmtno))
@@ -3029,7 +3035,7 @@
 	 (gentranerr 'e
 		     nil
 		     "return not inside function - cannot be translated"
-		     nil))))
+		     ))))
 
 (defun fortstmtgp (stmtgp)
   (progn
@@ -4368,11 +4374,11 @@
         (setq inlist (map 'list 'fsearch inlist)) ;; use filesearch to find input files --mds
 	(foreach inf in (setq inlist (preproc inlist)) do
 		 (cond ((listp inf)
-                        (if (not inf)(gentranerr 'e inf "file not found in searchpath" nil)
-			(gentranerr 'e inf "wrong type of arg" nil)))
+                        (if (not inf)(gentranerr 'e inf "file not found in searchpath")
+			(gentranerr 'e inf "wrong type of arg")))
 		       
 		       ((not(open (stripdollar inf) :direction :probe)) ;; rjf 11/1/2018
-			(gentranerr 'e inf "nonexistent input file" nil))
+			(gentranerr 'e inf "nonexistent input file"))
 		       
 		       ))
 	(cond (outlist
@@ -4385,7 +4391,7 @@
 			 (gentranerr 'e
 				     inf
 				     "template file already open for input"
-				     nil))
+				     ))
 			(t
 		        (pushinstk (cons inf (open inf
                                                   :direction :input)))))
@@ -4483,9 +4489,9 @@
 				     (gentranerr 'w
 						 a
 						 "file not open for output"
-						 nil))))
+						 ))))
 			     (t
-			      (gentranerr 'e a "wrong type of arg" nil)))))
+			      (gentranerr 'e a "wrong type of arg")))))
 
 
  (loop for z in args do  (if (not (member z names))(push z names)))
