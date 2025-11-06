@@ -110,6 +110,7 @@ would possibly speed the code.
   (and (mexptp x) (integerp (cadr x)) ($ratnump (caddr x))))
 
 (defun generalized-surd-p (x)
+  "Return true iff x = integer^(rational + ...)"
   (and (mexptp x) (integerp (cadr x)) (mplusp (caddr x)) 
          (or ($ratnump (second (caddr x))) (integerp (second (caddr x))))))
 
