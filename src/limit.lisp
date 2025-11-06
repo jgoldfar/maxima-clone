@@ -189,12 +189,6 @@
 	    (when (indefinite-integral-p exp var)
 		  	(return (cons (list '%limit) args)))
 
-		;; This returns a limit nounform for expressions such as 
-		;; limit(x < 8,x,0), limit(diff(f(x),x,x,0), and ...
-        (unless (eq var genfoo)
-		  (when (limunknown exp)
-			    (return `((%limit) ,@(cons exp1 (cdr args))))))	
-
 	      (setq varlist (ncons var) genvar nil origval val)
 	      ;; Transform limits to minf to limits to inf by
 	      ;; replacing var with -var everywhere.
@@ -350,8 +344,8 @@
                      (t
                       '$ind))))))))
 
-;; Return true when Maxima should return a limit nounform for limit(e,x,var,val).
-(defun limunknown (e)
+(defun limunknown (e var)
+  "Return true when Maxima should return a limit nounform for limit(e,x,var,val)."
   (not (limit-ok e var)))
 
 ;; Return true when Maxima's limit code should be able to determine limit
@@ -664,13 +658,15 @@ ignoring dummy variables and array indices."
 ;; The function `limit1` dispatches `factor` on the expression `exp`. When 
 ;; the expression involves a floating point number, these numbers are converted 
 ;; to rational approximations. This can cause bugs for limit calculations. 
-;; Although a bit inelegant, this code dispatches `simplimit` when `exp` a 
+;; Although a bit inelegant, this code dispatches `simplimit` when `exp` is a 
 ;; floating point number.
 (defun limit (exp var val *i*)
   (cond
     ((among '$und exp)  '$und)
     ((eq var exp)  val)
     ((atom exp)  exp)
+	;; Throw an limit error for expressions such as limit(x < 8,x,0), limit(diff(f(x),x),x,0), and ...
+    ((limunknown exp var) (throw 'limit t))
     ((not (among var exp))
      (cond ((amongl '($inf $minf $infinity $ind) exp)
 	    (simpinf exp))

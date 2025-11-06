@@ -1454,6 +1454,15 @@ block ([display2d : false, stream : make_string_output_stream (),ans],
 "1 Call   taylim [(sqrt(n)+1)^n*(sqrt(n+1)+1)^(-n-1),n,inf,think]
 1 Return taylim zeroa
 "$
+/* \#4619 limit(inf = inf) causes stack overflow*/
+block([ans : limit(minf = minf)], [inpart(ans,0),args(ans)]);
+["=", [minf, minf]]$
+
+block([ans : limit(minf = minf,x,42)], [inpart(ans,0),args(ans)]);
+["=", [minf, minf]]$
+
+block([ans : limit(x < 8)], [inpart(ans,0),args(ans)]);
+["<", [x, 8]]$
 
 /* clean up*/
 (kill(values),0);

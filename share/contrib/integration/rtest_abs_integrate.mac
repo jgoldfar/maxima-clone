@@ -853,6 +853,14 @@ true$
 is('integrate(x^3+3,x,1,5) # 168);
 true$
 
+/* \#4603 Control stack regression with abs_integrate / 5.48.0 */
+/* Of course, a integrate nounform isn't ideal, but at least it isn't a stack 
+overflow.*/
+block([ans : integrate(sin(k*x)/x*erf(x^2),x,0,inf)],
+   [verbify(inpart(ans,0)), args(ans)]);
+['integrate,[(sin(k*x)*erf(x^2))/x,x,0,inf]]$
+
+
 (print("time = ", elapsed_real_time () - start), 0);
 0$
 
