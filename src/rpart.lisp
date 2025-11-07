@@ -123,6 +123,22 @@
           (t 
            (eqtest (list '(mabs) z) expr))))))
 
+;; Simplifier for cabs.  cabs has a special defmfun, so a
+;; custom-defmfun must be true.  The usual properties are needed along
+;; with the usual noun and verb naming convention.  However, we do not
+;; define alias and reversealias properties since the original
+;; implementation didn't have these.  (Why?)
+;;
+;; To further complicate things, when the simplifier wants to give up,
+;; we don't return a form involving %cabs.  It must be mabs instead.
+;; Stavros explains why in
+;; https://sourceforge.net/p/maxima/mailman/message/59255812/, but a
+;; quick summary:
+;;
+;;   The noun is *mabs* because it was going to be the operator *|x|*
+;;   rather than the function *abs(x)*. cf. *mplus, mexpt*, etc.
+;;
+;; abs(x) also simplfies to using mabs instead of %abs.
 (def-simplifier (cabs :custom-defmfun t
                       :skip-properties (alias reversealias))
     (z)
