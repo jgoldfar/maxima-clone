@@ -2309,8 +2309,7 @@
 
 (defun seg (forms)
   ; exp  --+-->  exp                                          ;
-  ;        +-->  (assign    assign    ... assign      exp   ) ;
-  ;                     (1)       (2)           (n-1)    (n)  ;
+  ;        +-->  stmtgp                                       ;
   ; stmt  --+-->  stmt                                        ;
   ;         +-->  stmtgp                                      ;
   ; stmtgp  ----->  stmtgp                                    ;
@@ -2337,9 +2336,15 @@
 		  f))))
 
 (defun segexp (exp type)
-  ; exp  -->  (assign    assign    ... assign      exp   ) ;
+  ; exp  -->  stmtgp                                       ;
+  ;           with stmtgp comprising                       ;
+  ;           (assign    assign    ... assign      exp   ) ;
   ;                  (1)       (2)           (n-1)    (n)  ;
-  (reverse (segexp1 exp type)))
+  ;                                                        ;
+  ; I wonder if it makes sense to extract the list of      ;
+  ; assigned-to variables and supply them to MKSTMTGP.
+
+  (mkstmtgp 0 (reverse (segexp1 exp type))))
 
 (defun segexp1 (exp type)
   ; exp  -->  (exp    assign      assign      ... assign   ) ;
@@ -2358,6 +2363,12 @@
 (defun segexp2 (exp type)
   ; exp  -->  (exp    assign      assign      ... assign   ) ;
   ;               (n)       (n-1)       (n-2)           (1)  ;
+  ;                                                          ;
+  ; From what I can tell, this function doesn't track the    ;
+  ; created temporary variables. I wonder if it would be     ;
+  ; useful to callers to have a separate list of the         ;
+  ; assigned-to variables.                                   ;
+
   (prog (expn assigns newassigns unops op termlist var tmp)
 	(setq expn exp)
 	(loop while (equal (length expn) 2) do

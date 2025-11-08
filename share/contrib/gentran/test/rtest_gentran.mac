@@ -130,3 +130,10 @@ prints
 a=42.0
 
 */
+
+/* SF bug #4631: "Lisp error in gentran with gentranlang = c (attempting symbol operation on non-symbol)" */
+
+(gentranlang: 'c,
+ var:-((sqrt(m_piM^4+W^8*cost^2-W^8+4*P0^2*W^6)+((cost^2-1)*m_nuc^2+W^2*cost^2-W^2)*m_piM^4+sqrt(m_piM^2+P0^2)*(4*W^2*m_nuc*m_piM^2-4*W^2*m_nuc^3+4*W^4*m_nuc)+((2-2*cost^2)*m_nuc^4-4*W^2*cost^2*m_nuc^2-2*W^4*cost^2-2*W^4)*m_piM^2+(cost^2-1)*m_nuc^6+(W^2-W^2*cost^2)*m_nuc^4+(W^4-W^4*cost^2)*m_nuc^2+W^6*cost^2-W^6)/((cost^2-1)*m_piM^4+((2-2*cost^2)*m_nuc^2-2*W^2*cost^2-2*W^2)*m_piM^2+(cost^2-1)*m_nuc^4+(2*W^2-2*W^2*cost^2)*m_nuc^2+W^4*cost^2-W^4)),
+ errcatch (gentran (eval (var))));
+[true];
