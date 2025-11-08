@@ -99,30 +99,6 @@
 
 (defmfun $cabs (xx) (cabs xx))
 
-#+nil
-(progn
-(defprop $cabs %cabs verb)
-(defprop %cabs $cabs noun)
-(defprop %cabs simp-cabs operators)
-
-(defun simp-cabs (expr z simpflag)
-  (oneargcheck expr)
-  (setq z (simpcheck (cadr expr) simpflag))
-  (let ((sgn nil))
-    (cond ((member (setq sgn ($csign z)) '($complex $imaginary))
-           (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
-                  (simplify (list '(mabs) z)))
-                 (t
-                  (eqtest (list '(mabs) z) expr))))
-          ((eq sgn '$zero)
-           0)
-          ((member sgn '($pos $pz))
-           z)
-          ((eq sgn '$neg)
-            (mul -1 z))
-          (t 
-           (eqtest (list '(mabs) z) expr))))))
-
 ;; Simplifier for cabs.  cabs has a special defmfun, so a
 ;; custom-defmfun must be true.  The usual properties are needed along
 ;; with the usual noun and verb naming convention.  However, we do not
@@ -147,8 +123,6 @@
            (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
                   (simplify (list '(mabs) z)))
                  (t
-                  #+nil
-                  (eqtest (list '(mabs) z) expr)
                   (give-up :noun-name 'mabs))))
           ((eq sgn '$zero)
            0)
@@ -157,8 +131,6 @@
           ((eq sgn '$neg)
             (mul -1 z))
           (t 
-           #+nil
-           (eqtest (list '(mabs) z) expr)
            (give-up :noun-name 'mabs)))))
 
 ;;; Carg gives the complex argument.
