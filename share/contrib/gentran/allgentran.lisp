@@ -156,7 +156,7 @@
 ; (mkfil arg)  -->  (stripdollar arg) ;
 ;                                     ;
 ;;;  (cons 'stripdollar m)) --mds
-        (stripdollar m))
+        (if (streamp m) m (stripdollar m)))
 
 (defun posn ()
 ;                       ;
@@ -4388,7 +4388,7 @@
                         (if (not inf)(gentranerr 'e inf "file not found in searchpath")
 			(gentranerr 'e inf "wrong type of arg")))
 		       
-		       ((not(open (stripdollar inf) :direction :probe)) ;; rjf 11/1/2018
+		       ((and (not (streamp inf)) (not(open (stripdollar inf) :direction :probe))) ;; rjf 11/1/2018
 			(gentranerr 'e inf "nonexistent input file"))
 		       
 		       ))
