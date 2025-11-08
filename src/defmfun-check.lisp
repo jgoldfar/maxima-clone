@@ -838,12 +838,13 @@
 	        ;; Allow args to give-up if the default args won't work.
 	        ;; Useful for the (rare?) case like genfact where we want
 	        ;; to give up but want different values for args.
-	        (flet ((give-up (&optional ,@(mapcar #'(lambda (a)
-						         (list a a))
-						     lambda-list))
+	        (flet ((give-up (&key (noun-name ',noun-name)
+                                      (args (list ,@(mapcar #'(lambda (a)
+						                a)
+						            lambda-list))))
 		         ;; Should this also return from the function?
 		         ;; That would fit in better with giving up.
-		         (eqtest (list '(,noun-name) ,@lambda-list) ,form-arg)))
+		         (eqtest (list* (list noun-name) args) ,form-arg)))
 	          ,@body)))))))))
 
 
