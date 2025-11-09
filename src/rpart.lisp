@@ -135,11 +135,14 @@
 
 ;;; Carg gives the complex argument.
 
+#+nil
 (defmfun $carg (xx)
   (cond ((mbagp xx)
 	 (cons (car xx) (mapcar #'$carg (cdr xx))))
 	(t (cdr (absarg xx)))))
 
+#+nil
+(progn
 (defprop $carg %carg verb)
 (defprop %carg $carg noun)
 (defprop %carg simp-carg operators)
@@ -153,7 +156,10 @@
           ((member (setq sgn ($csign z)) '($complex $imaginary))
            (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
                   ($carg z))
-                 (t 
+                 (t
+                  (format t "default~%")
+                  ($carg z)
+                  #+nil
                   (eqtest (list '(%carg) z) expr))))
           ((member sgn '($pos $pz $zero))
            0)
@@ -161,6 +167,36 @@
             '$%pi)
           (t 
            (eqtest (list '(%carg) z) expr)))))
+)
+
+(def-simplifier carg (z)
+  (let ((sgn nil))
+    (flet (($carg (xx)
+             (cond ((mbagp xx)
+	            (cons (car xx) (mapcar #'$carg (cdr xx))))
+	           (t (cdr (absarg xx))))))
+      (cond ((eq z '$%i)
+             (div '$%pi 2))
+            ((member (setq sgn ($csign z)) '($complex $imaginary))
+             (format t "cabs complex/imag case~%")
+             (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
+                    ($carg z))
+                   (t
+                    ;; Complex
+                    (format t "carg complex case~%")
+                    ($carg z))))
+            ((member sgn '($pos $pz $zero))
+             (format t "carg pos/pz/zero case~%")
+             0)
+            ((eq sgn '$neg)
+             (format t "carg neg case~%")
+             '$%pi)
+            ((member sgn '($pnz))
+             (format t "carg pnz case~%")
+             ($carg z))
+            (t
+             (format t "carg default case~%")
+             (give-up))))))
 
 ;; The internal cabs, used by other Macsyma programs.
 (defun cabs (xx) (car (absarg xx t)))
