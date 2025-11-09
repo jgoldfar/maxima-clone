@@ -727,7 +727,7 @@ done;
 /* Do the functions have the appropriate symmetrie? 
    
    With the exception of exponential_ci we get for all tests a double float
-   zero or a Bigfloat zero. Because we use numercial evaluation this is not
+   zero or a Bigfloat zero. Because we use numerical evaluation this is not
    natural and perhaps an effect only true with the GCL Compiler.
    For the function expintegral_ci we get a small imaginary contribution which
    is nearby zero.

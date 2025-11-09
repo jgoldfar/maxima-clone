@@ -475,7 +475,7 @@ will be written.
  default: [] If TRUE will cause values, functions, arrays, and
 rules to be written periodically onto the disk in addition to labelled
 expressions.  TRUE is the default value whereas if DSKALL is FALSE
-then only labelled expresions will be written.
+then only labelled expressions will be written.
 
 @end defvar
 
@@ -804,7 +804,7 @@ ROMBERG_RERR [Default 0.0] -- Desired relative error in the answer.
 
 Note: If IMSL signals an error, a message will be printed on the user's
         console stating the nature of the error. (This error message 
-        may be supressed by setting IMSLVERBOSE to FALSE.)
+        may be suppressed by setting IMSLVERBOSE to FALSE.)
 
 Note: Because this uses a translated Fortran routine, it may not be
         recursively invoked. It does not call itself, but the user should
@@ -847,7 +847,7 @@ Programming Notes (modified version of the IMSL documentation)
    reference for full details.
 @item
 2. The relative error parameter ROMBERG_RERR must be in the interval [0.0,0.1].
-   For example, ROMBERG_RERR=0.1 indicates that the estimate of the intergral 
+   For example, ROMBERG_RERR=0.1 indicates that the estimate of the integral
    is to be correct to one digit, where as ROMBERG_RERR=1.0E-4 calls for four
    digits of accuracy. If DCADRE determines that the relative accuracy
    requirement cannot be satisfied, IER is set to 133 (ROMBERG_RERR should be
@@ -859,7 +859,7 @@ Programming Notes (modified version of the IMSL documentation)
    order to give a reasonable value for ROMBERG_AERR, the user must know 
    the approximate magnitude of the integral being computed. In many cases,
    it is satisfactory to use AERR=0.0. In this case, only the relative error
-   requirement is satisfied in the compuatation.
+   requirement is satisfied in the computation.
 @item
 4. We quote from the reference, ``A very cautious man would accept DCADRE 
    only if IER [the warning or error code] is 0 or 65. The merely reasonable
