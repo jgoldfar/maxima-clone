@@ -97,6 +97,7 @@
 ;;; be syntactically real without being real (e.g. sqrt(x), x<0).  Thus
 ;;; Cabs must lead an independent existence from Abs.
 
+#+nil
 (defmfun $cabs (xx) (cabs xx))
 
 ;; Simplifier for cabs.  cabs has a special defmfun, so a
@@ -115,23 +116,23 @@
 ;;   rather than the function *abs(x)*. cf. *mplus, mexpt*, etc.
 ;;
 ;; abs(x) also simplfies to using mabs instead of %abs.
-(def-simplifier (cabs :custom-defmfun t
-                      :skip-properties (alias reversealias))
-    (z)
-  (let ((sgn nil))
-    (cond ((member (setq sgn ($csign z)) '($complex $imaginary))
-           (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
-                  (simplify (list '(mabs) z)))
-                 (t
-                  (give-up :noun-name 'mabs))))
-          ((eq sgn '$zero)
-           0)
-          ((member sgn '($pos $pz))
-           z)
-          ((eq sgn '$neg)
-            (mul -1 z))
-          (t 
-           (give-up :noun-name 'mabs)))))
+(def-simplifier cabs (z)
+  (flet (($cabs (xx)
+           (cabs xx)))
+    (let ((sgn nil))
+      (cond ((member (setq sgn ($csign z)) '($complex $imaginary))
+             (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
+                    ($cabs z))
+                   (t
+                    ($cabs z))))
+            ((eq sgn '$zero)
+             0)
+            ((member sgn '($pos $pz))
+             z)
+            ((eq sgn '$neg)
+             (mul -1 z))
+            (t
+             ($cabs z))))))
 
 ;;; Carg gives the complex argument.
 
