@@ -102,8 +102,8 @@
   (car (absarg xx t)))
 
 (def-simplifier cabs (z)
-  (let ((sgn nil))
-    (cond ((member (setq sgn ($csign z)) '($complex $imaginary))
+  (let ((sgn ($csign z)))
+    (cond ((member sgn '($complex $imaginary))
            (cabs z))
           ((eq sgn '$zero)
            0)
