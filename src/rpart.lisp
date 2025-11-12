@@ -135,40 +135,6 @@
 
 ;;; Carg gives the complex argument.
 
-#+nil
-(defmfun $carg (xx)
-  (cond ((mbagp xx)
-	 (cons (car xx) (mapcar #'$carg (cdr xx))))
-	(t (cdr (absarg xx)))))
-
-#+nil
-(progn
-(defprop $carg %carg verb)
-(defprop %carg $carg noun)
-(defprop %carg simp-carg operators)
-
-(defun simp-carg (expr z simpflag)
-  (oneargcheck expr)
-  (setq z (simpcheck (cadr expr) simpflag))
-  (let ((sgn nil))
-    (cond ((eq z '$%i)
-           (div '$%pi 2))
-          ((member (setq sgn ($csign z)) '($complex $imaginary))
-           (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
-                  ($carg z))
-                 (t
-                  (format t "default~%")
-                  ($carg z)
-                  #+nil
-                  (eqtest (list '(%carg) z) expr))))
-          ((member sgn '($pos $pz $zero))
-           0)
-          ((eq sgn '$neg)
-            '$%pi)
-          (t 
-           (eqtest (list '(%carg) z) expr)))))
-)
-
 (def-simplifier carg (z)
   (let ((sgn nil))
     (labels
