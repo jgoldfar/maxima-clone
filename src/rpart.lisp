@@ -171,20 +171,21 @@
 
 (def-simplifier carg (z)
   (let ((sgn nil))
-    (flet (($carg (xx)
-             (cond ((mbagp xx)
-	            (cons (car xx) (mapcar #'$carg (cdr xx))))
-	           (t (cdr (absarg xx))))))
+    (labels
+        ((carg (xx)
+           (cond ((mbagp xx)
+	          (cons (car xx) (mapcar #'carg (cdr xx))))
+	         (t (cdr (absarg xx))))))
       (cond ((eq z '$%i)
              (div '$%pi 2))
             ((member (setq sgn ($csign z)) '($complex $imaginary))
              (format t "cabs complex/imag case~%")
              (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
-                    ($carg z))
+                    (carg z))
                    (t
                     ;; Complex
                     (format t "carg complex case~%")
-                    ($carg z))))
+                    (carg z))))
             ((member sgn '($pos $pz $zero))
              (format t "carg pos/pz/zero case~%")
              0)
@@ -193,7 +194,7 @@
              '$%pi)
             ((member sgn '($pnz))
              (format t "carg pnz case~%")
-             ($carg z))
+             (carg z))
             (t
              (format t "carg default case~%")
              (give-up))))))
