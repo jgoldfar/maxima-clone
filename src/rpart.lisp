@@ -126,24 +126,18 @@
       (cond ((eq z '$%i)
              (div '$%pi 2))
             ((member (setq sgn ($csign z)) '($complex $imaginary))
-             (format t "cabs complex/imag case~%")
              (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
                     (carg z))
                    (t
                     ;; Complex
-                    (format t "carg complex case~%")
                     (carg z))))
             ((member sgn '($pos $pz $zero))
-             (format t "carg pos/pz/zero case~%")
              0)
             ((eq sgn '$neg)
-             (format t "carg neg case~%")
              '$%pi)
             ((member sgn '($pnz))
-             (format t "carg pnz case~%")
              (carg z))
             (t
-             (format t "carg default case~%")
              (give-up))))))
 
 ;; Some objects can only appear at the top level of a legal simplified
