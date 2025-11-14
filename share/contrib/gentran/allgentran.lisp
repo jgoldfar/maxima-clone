@@ -156,7 +156,7 @@
 ; (mkfil arg)  -->  (stripdollar arg) ;
 ;                                     ;
 ;;;  (cons 'stripdollar m)) --mds
-        (stripdollar m))
+        (if (streamp m) m (stripdollar m)))
 
 (defun posn ()
 ;                       ;
@@ -1071,7 +1071,7 @@
 		(merror "atomic arg required" x))))
 	((numberp x)
 	 x)
-	((member (char (string x) 0) '(#\$ #\% #\&))
+	((member (char (string x) 0) '(#\$ #\%))
 	 (intern (subseq (string x) 1)))
 	(t
 	 x)))
@@ -1277,8 +1277,8 @@
 		     ((equal ind 4)
 		      (gcomplex exp))))
 
-	       ((char= (char (string exp) 0) #\&)
-		(format nil "\"~A\"" (stripdollar1 exp)))
+	       ((stringp exp)
+		(format nil "\"~a\"" exp))
 	       ((eq exp t) (cond ((eq (stripdollar1 $gentranlang) 'c) 1)
 				 (t '| .true. |)))
 	       (t
@@ -2285,8 +2285,7 @@
       (equal s t)))
 
 (defun pmstring (s)
-  (and (atom s)
-       (equal (car (explodec s)) '&)))
+  (stringp s))
 
 (defun pmid (s)
   (and (atom s)
@@ -3178,9 +3177,7 @@
    (append (append type (fortexp name))
 	   (aconc params (mkterpri)))))
 
-(defun quotstring (arg)
-(if (stringp arg) (compress (cons #\" (append (exploden arg) '(#\"))))  ;; -mds fix absent "..." in fortwrite of strings
-        arg))
+(defun quotstring (arg) arg)
 
 (defun mkffortwrite (arglist)
   (append (append (list (mkforttab) 'write '|(*,*)| '| | )
@@ -4388,7 +4385,7 @@
                         (if (not inf)(gentranerr 'e inf "file not found in searchpath")
 			(gentranerr 'e inf "wrong type of arg")))
 		       
-		       ((not(open (stripdollar inf) :direction :probe)) ;; rjf 11/1/2018
+		       ((and (not (streamp inf)) (not(open (stripdollar inf) :direction :probe))) ;; rjf 11/1/2018
 			(gentranerr 'e inf "nonexistent input file"))
 		       
 		       ))

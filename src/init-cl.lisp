@@ -210,7 +210,7 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
 	 (lisp-patterns (list ext "lisp"))
 	 (maxima-patterns '("mac" "wxm"))
 	 (lisp+maxima-patterns (append lisp-patterns maxima-patterns))
-	 (demo-patterns '("dem"))
+	 (demo-patterns '("dem" "demo"))
 	 (usage-patterns '("usg")))
 
     (flet ((build-search-list (path-info)

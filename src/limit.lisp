@@ -3249,7 +3249,7 @@ ignoring dummy variables and array indices."
 	       (let* ((z (trisplit arglim)) (xx (car z))  (yy (cdr z)) (sgn))
            ;; When yy vanishes, find the sign of xx. But when the sign is 'pnz', 
 		   ;; use asksign. We could use 'meqp' or 'askequal' to  test for a vanishing yy,
-		   ;; but for now, we'll test for a syntatic zero 
+		   ;; but for now, we'll test for a syntactic zero
 			(when (eql 0 yy)
 				(setq sgn (maybe-asksign xx))
 				(when (eq sgn '$pnz)
