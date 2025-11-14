@@ -97,41 +97,22 @@
 ;;; be syntactically real without being real (e.g. sqrt(x), x<0).  Thus
 ;;; Cabs must lead an independent existence from Abs.
 
-(defmfun $cabs (xx) (cabs xx))
+;; The internal cabs, used by other Macsyma programs.
+(defun cabs (xx)
+  (car (absarg xx t)))
 
-;; Simplifier for cabs.  cabs has a special defmfun, so a
-;; custom-defmfun must be true.  The usual properties are needed along
-;; with the usual noun and verb naming convention.  However, we do not
-;; define alias and reversealias properties since the original
-;; implementation didn't have these.  (Why?)
-;;
-;; To further complicate things, when the simplifier wants to give up,
-;; we don't return a form involving %cabs.  It must be mabs instead.
-;; Stavros explains why in
-;; https://sourceforge.net/p/maxima/mailman/message/59255812/, but a
-;; quick summary:
-;;
-;;   The noun is *mabs* because it was going to be the operator *|x|*
-;;   rather than the function *abs(x)*. cf. *mplus, mexpt*, etc.
-;;
-;; abs(x) also simplfies to using mabs instead of %abs.
-(def-simplifier (cabs :custom-defmfun t
-                      :skip-properties (alias reversealias))
-    (z)
-  (let ((sgn nil))
-    (cond ((member (setq sgn ($csign z)) '($complex $imaginary))
-           (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
-                  (simplify (list '(mabs) z)))
-                 (t
-                  (give-up :noun-name 'mabs))))
+(def-simplifier cabs (z)
+  (let ((sgn ($csign z)))
+    (cond ((member sgn '($complex $imaginary))
+           (cabs z))
           ((eq sgn '$zero)
            0)
           ((member sgn '($pos $pz))
            z)
           ((eq sgn '$neg)
-            (mul -1 z))
-          (t 
-           (give-up :noun-name 'mabs)))))
+           (mul -1 z))
+          (t
+           (cabs z)))))
 
 ;;; Carg gives the complex argument.
 
@@ -161,9 +142,6 @@
             '$%pi)
           (t 
            (eqtest (list '(%carg) z) expr)))))
-
-;; The internal cabs, used by other Macsyma programs.
-(defun cabs (xx) (car (absarg xx t)))
 
 ;; Some objects can only appear at the top level of a legal simplified
 ;; expression: CRE forms and equations in particular.
