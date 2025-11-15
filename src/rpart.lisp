@@ -126,16 +126,12 @@
       (cond ((eq z '$%i)
              (div '$%pi 2))
             ((member (setq sgn ($csign z)) '($complex $imaginary))
-             (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
-                    (carg z))
-                   (t
-                    ;; Complex
-                    (carg z))))
+             (carg z))
             ((member sgn '($pos $pz $zero))
              0)
             ((eq sgn '$neg)
              '$%pi)
-            ((member sgn '($pnz))
+            ((eq sgn '$pnz)
              (carg z))
             (t
              (give-up))))))
