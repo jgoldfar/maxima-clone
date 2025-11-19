@@ -44,7 +44,8 @@
 (defun unix-like-dirname (path)
   "A Lisp equivalent of the Unix program dirname.  This strips the last
   component from the given PATH.  The last non-slash component and
-  trailing slashes are removed."
+  trailing slashes are removed.  In particular for \"a/b/c/\", this
+  returns \"a/b\", not \"a/b/c/\"."
   (let* ((pathstring (namestring path))
 	 (len (length pathstring)))
     (when (equal (subseq pathstring (- len 1) len) "/")
