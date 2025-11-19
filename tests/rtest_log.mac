@@ -431,7 +431,7 @@ integrate(log(t*(1-t))^5/(1-t),t,0,1/2);
 'integrate(log(t*(1-t))^5/(1-t),t,0,1/2);
 
 integrate(exp(-t)*log(t),t,0,1);
-'integrate(exp(-t)*log(t),t,0,1);
+-gamma_incomplete(0, 1) - %gamma$
 
 /* Hier fehlen noch Integrale */
 

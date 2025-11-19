@@ -1249,7 +1249,40 @@ ignoring dummy variables and array indices."
 	      (let ((arglim (limit (cadr e) var val 'think)))
 		(eq arglim '$inf)))
 	 (ei-asymptotic-expansion $lhospitallim (cadr e)))
+	((eq (caar e) '%gamma_incomplete) (gamma-incomplete-asymptotic e var val $lhospitallim))
 	(t e)))
+
+;; See http://dlmf.nist.gov/8.11.i
+(defun gamma-incomplete-asymptotic (e x pt n)
+	(let* ((aaa (second e)) (z (third e)) (xxx (limit z x pt 'think)))
+		(cond 
+          ;; Case 1: Asymptotic expansion when z -> +/- inf and aaa is free of x
+          ;; For the series, see http://dlmf.nist.gov/8.11.i
+		  ((and (or (eq '$inf xxx) (eq '$minf xxx)) (freeof x aaa))
+		         (let ((f 1) (s 0))
+		           (dotimes (k n)
+				      (setq s (add s f))
+                      (setq f (mul f (div (add aaa -1 (- k)) z))))
+				 ;; return z^(a-1)*exp(-z)*s
+				 (mul (ftake 'mexpt z (sub aaa 1)) (ftake 'mexpt '$%e (mul -1 z)) s)))
+           ;; Case 2: Asymptotic expansion when z -> 0, aaa integer, and aaa <= 0
+		   ;; For the series, see http://dlmf.nist.gov/8.4.E15
+		   ((and (zerop2 xxx) (integerp aaa) (>= 0 aaa))
+		      (let ((s 0))
+		      (flet ((fn (k) (if (eql (add k aaa) 0) 
+			                        0 
+									(div (power (neg z) k) (mul (ftake 'mfactorial k) (add k aaa))))))
+					(dotimes (k n)
+						(setq s (add s (fn k))))
+					
+					(sub (mul
+					       (div (ftake 'mexpt -1 (neg aaa)) (ftake 'mfactorial (neg aaa)))
+					       (sub 
+					         (simplifya (subfunmake '$psi (list 0) (list (add (neg aaa) 1))) nil)
+						     (ftake '%log z)))
+						 (mul (ftake 'mexpt z (neg aaa)) s)))))
+	       ;; Case 3: fall back			
+           (t (ftake '%gamma_incomplete aaa z)))))
 
 (defun stirling (x)
   "Return sqrt(2*%pi/x)*(x/%e)^x, the Stirling approximation of
