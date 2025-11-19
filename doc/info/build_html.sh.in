@@ -198,6 +198,8 @@ if [ -n "@USE_PYGMENTS@" ]; then
     SET_HIGHLIGHT="--set-customization-variable HIGHLIGHT_SYNTAX=pygments"
 fi
 
+SET_HIGHLIGHT="-c HIGHLIGHT_SYNTAX='pygmentize -f html -l '"
+
 # Currently the Russian documentation has errors in it, so we're just
 # going to force makeinfo to build anyway.
 #
@@ -211,17 +213,18 @@ fi
 # There should be no errors in the texi files so don't use "--force -e
 # 10000" to force building the docs.  We want to fail building if
 # there are errors now.
-TEXIOPT="$FORCE --html -c OUTPUT_ENCODING_NAME=UTF-8 -e 10000 --document-lang=$language -I . -I $languagedir --css-ref=manual.css -I ../.. -I @abs_srcdir@/figures --init-file $texiinitfile ${SET_HTML_MATH} ${SET_HIGHLIGHT}"
-# Show the commands. 
 set -x
-@MAKEINFO@ $FORCE --split=chapter --no-node-files --output="$languagedestdir" $TEXIOPT maxima.texi
+TEXIOPT="$FORCE --html -c OUTPUT_ENCODING_NAME=UTF-8 -e 10000 --document-lang=$language -I . -I $languagedir --css-ref=manual.css -I ../.. -I @abs_srcdir@/figures --init-file $texiinitfile ${SET_HTML_MATH}"
+echo $TEXIOPT
+# Show the commands. 
+@MAKEINFO@ $FORCE -c HIGHLIGHT_SYNTAX='pygmentize -f html -l %l' --split=chapter --no-node-files --output="$languagedestdir" $TEXIOPT maxima.texi
 rc=$?
 if [ $rc -ne 0 ]; then
     echo Failed to build multi-page html docs
     exit $rc
 fi
 
-@MAKEINFO@ $FORCE --no-split --output="$languagedestdir/maxima_singlepage.html" $TEXIOPT maxima.texi
+@MAKEINFO@ $FORCE -c HIGHLIGHT_SYNTAX='pygmentize -f html -l %l' --no-split --output="$languagedestdir/maxima_singlepage.html" $TEXIOPT maxima.texi
 rc=$?
 if [ $rc -ne 0 ]; then
     echo Failed to build single page html doc
