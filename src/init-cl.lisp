@@ -327,19 +327,6 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
 
 (defun list-avail-action ()
   (cond
-    #+nil
-    ((maxima-getenv "MAXIMA_LOCAL")
-     ;; We're running maxima-local in the src tree.
-     (let ((maxima-dir (if (maxima-getenv "MAXIMA_PREFIX")
-			   (combine-path (maxima-getenv "MAXIMA_PREFIX") "src")
-			   (combine-path (maxima-parse-dirstring *autoconf-libdir*)
-					 *autoconf-package* *autoconf-version*))))
-       (dolist (p (directory (concatenate 'string maxima-dir "/*")))
-         (let* ((pname (namestring p))
-                (binary-dir-posn (search "src/binary-" pname)))
-           (when binary-dir-posn
-             (let ((name (subseq pname (+ binary-dir-posn 11))))
-               (format t "version ~a, lisp ~a~%" *autoconf-version* name)))))))
     ((maxima-getenv "MAXIMA_LOCAL")
      ;; We're running maxima-local in the src tree.
      (let ((maxima-dir (if (maxima-getenv "MAXIMA_PREFIX")
