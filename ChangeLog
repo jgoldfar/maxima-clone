@@ -15,7 +15,8 @@ Bug fixes for numbered bugs:
  * \#4615: carg range is not in (-%pi, %pi]
  * \#4603: Control stack regression with abs_integrate / 5.48.0
  * \#4619: limit(inf = inf) causes stack overflow
-
+ * \#4633: integrate(exp(- t) log(t), t, 0, 1) --> integral nounform
+ 
 Changes in the Windows installer:
 ---------------------------------
  * Update SBCL
