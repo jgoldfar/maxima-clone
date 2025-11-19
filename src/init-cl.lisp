@@ -329,14 +329,17 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
   (cond
     ((maxima-getenv "MAXIMA_LOCAL")
      ;; We're running maxima-local in the src tree.
-     (let ((maxima-dir (if (maxima-getenv "MAXIMA_PREFIX")
-			   (combine-path (maxima-getenv "MAXIMA_PREFIX") "src")
-			   (combine-path (maxima-parse-dirstring *autoconf-libdir*)
-					 *autoconf-package*)))
+     (let ((maxima-dir (maxima-getenv "MAXIMA_PREFIX"))
            ;; I (rtoy) am lazy.  Just use regexp to match
            ;; "src/binary-foo" which is the directory containing the
            ;; build using lisp "foo".
            (pattern (pregexp:pregexp "src/binary-([^/]+)")))
+       ;; maxima-local MUST define MAXIMA_PREFIX envvar so we know where we are.
+       (unless maxima-dir
+         (format t "Environment variable MAXIMA_PREFIX not defined by maxima-local.~%~
+                    Cannot list available versions.  Exiting.~%")
+         (bye))
+       (setf maxima-dir (combine-path maxima-dir "src"))
        (format t "Available versions:~%")
        (dolist (p (directory (concatenate 'string maxima-dir "/*")))
          (destructuring-bind (&optional whole-match lisp-name)
