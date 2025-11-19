@@ -3,6 +3,7 @@ Maxima 5.48-post change log
 
 Bug fixes for numbered bugs:
 ----------------------------
+ * \#3041: limit(inf*(zeroa+inf)) => und, should be inf
  * \#3750: Quoting atan2 inhibits simplification
  * \#4383: great not transitive (so simplifya not idempotent)
  * \#4577: Update CSS for examples and nav bar
