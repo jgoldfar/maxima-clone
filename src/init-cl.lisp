@@ -332,7 +332,8 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
      (let ((maxima-dir (maxima-getenv "MAXIMA_PREFIX"))
            ;; I (rtoy) am lazy.  Just use regexp to match
            ;; "src/binary-foo" which is the directory containing the
-           ;; build using lisp "foo".
+           ;; build using lisp "foo".  Since it's a directory, the
+           ;; pattern should not include the slash.
            (pattern (pregexp:pregexp "src/binary-([^/]+)")))
        ;; maxima-local MUST define MAXIMA_PREFIX envvar so we know where we are.
        (unless maxima-dir
@@ -341,7 +342,7 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
          (bye))
        (setf maxima-dir (combine-path maxima-dir "src"))
        (format t "Available versions:~%")
-       (dolist (p (directory (concatenate 'string maxima-dir "/*")))
+       (dolist (p (get-dirs (concatenate 'string maxima-dir "/*")))
          (destructuring-bind (&optional whole-match lisp-name)
              (pregexp:pregexp-match pattern (namestring p))
            (declare (ignore whole-match))
@@ -360,11 +361,7 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
        (format t "Available versions:~%")
        (unless (equal (subseq maxima-verpkglibdir (- len 1) len) "/")
          (setf maxima-verpkglibdir (concatenate 'string maxima-verpkglibdir "/")))
-       (format t "maxima-verpkglibdir = ~A~%" maxima-verpkglibdir)
-       (format t "unix-like-dirname = ~A~%" (unix-like-dirname maxima-verpkglibdir))
-       (format t "get-dirs = ~A~%" (get-dirs (unix-like-dirname maxima-verpkglibdir)))
        (dolist (version (get-dirs (unix-like-dirname maxima-verpkglibdir)))
-         (format t "version = ~A~%" version)
          (dolist (lisp (get-dirs version))
 	   (setf lisp-string (unix-like-basename lisp))
 	   (when (search "binary-" lisp-string)
