@@ -574,23 +574,20 @@ limit(1/inf-1/minf);
 0;
 
 /* 1-arg limit: limit(a*inf-inf) => minf - ID: 1385306 
-These are long-standing bugs. The global `assume(a > 0)` shouldn't be needed, but removing it causes some
-calls to `asksign`. */
+These are long-standing bugs. For L1 & L2, the assumption 0 < a shouldn't be needed, but without it, 
+Maxima does an asksign. */
 block([L1,L2,L3,L4,L5,L6], 
    map('forget, facts(a)),
-   assume(a > 0),
-   L1 :limit(a*inf-inf),
+   assume(0 < a, a < 1), 
+   L1 : limit(a*inf-inf),
    L2 : limit((a-1)*inf),
-   assume(a<1), 
+   forget(0 < a, a < 1),
+   assume(a > 1),
    L3 : limit(a*inf-inf),
    L4 : limit((a-1)*inf),
-   forget(a < 1),
-   assume(a > 1),
-   L5 : limit(a*inf-inf),
-   L6 : limit((a-1)*inf),
-   forget(a > 0),
-   [L1,L2,L3,L4,L5,L6]);
-[und, und, minf, minf,inf,inf]$
+   forget(a > 1),
+   [L1,L2,L3,L4]);
+  [minf, minf, inf,inf]$
 
 /* limit(1 - (-1/2)^inf) --> inf - ID: 2853506 */
 limit(1 - (-1/2)^inf);

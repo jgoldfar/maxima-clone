@@ -137,8 +137,7 @@
 	       (logcombed ()) (lhp? ())
 	       (varlist ()) (ans ()) (genvar ()) (loginprod? ())
 	       (limit-answers ()) (limitp t) (simplimplus-problems ())
-	       (lenargs (length args))
-	       (genfoo ()))
+	       (lenargs (length args)))
 	   (declare (special lhcount *behavior-count-now* exp var val *indicator
 			     taylored origval logcombed lhp?
 			     varlist genvar loginprod? limitp))
@@ -154,7 +153,7 @@
                 ;; The expression is 'T or 'NIL. Return immediately.
                 (return exp1))
 	      (cond ((= lenargs 1)
-		     (setq var (setq genfoo (gensym)) ; Use a gensym. Not foo.
+		     (setq var (gensym)
 		           val 0))
 		    (t
 		     (setq var (second args))
@@ -221,16 +220,23 @@
 	      ;; Make assumptions about limit var being very small or very large.
 	      ;; Assumptions are forgotten upon exit.
 	      (unless (= lenargs 1)
-		(limit-context var val dr))
-            ;; Resimplify in light of new assumptions. Changing ($expand exp 1 0)
-			;; to ($expand exp 0 0) results in a bad testsuite failure for
-			;; (assume(a>2), limit(integrate(t/log(t),t,2,a)/a,a,inf)) and
-			;; some testsuite results that are more messy.
+		    (limit-context var val dr))
+
+			;; Use $expand to resimplify `exp` in light of new assumptions. When `exp` is free of the limit 
+			;; `var`, perform pure simplification using ($expand exp 0 0)  otherwise, call ($expand exp 1 0).
+			;; Replacing ($expand exp 1 0) with ($expand exp 0 0) causes a serious testsuite failure for
+            ;; (assume(a > 2), limit(integrate(t/log(t), t, 2, a)/a, a, inf)) and produces messier results 
+			;; in other cases.
+
+            ;; Performing pure simplification for expressions free of the limit variable
+            ;; fixes the bug: limit(inf*(zeroa + inf)) -> und. Eventually, the call to ($expand exp 1 0) 
+			;; be replaced with ($expand exp 0 0) for all limit expressions `exp`.
+
             (setq exp (resimplify 
 			          ($minfactorial
 			          (extra-simp 
-					  ($expand exp 1 0)))))
-           
+					  ($expand exp (if ($freeof var exp) 0 1) 0)))))
+			          
 	      (if (not (or (real-epsilonp val)		;; if direction of limit not specified
 			   (infinityp val)))
 		  (setq ans (both-side exp var val))	;; compute from both sides
