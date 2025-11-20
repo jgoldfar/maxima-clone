@@ -198,7 +198,9 @@ if [ -n "@USE_PYGMENTS@" ]; then
     SET_HIGHLIGHT="--set-customization-variable HIGHLIGHT_SYNTAX=pygments"
 fi
 
-SET_HIGHLIGHT="-c HIGHLIGHT_SYNTAX='pygmentize -f html -l '"
+if [ -n "@USE_CUSTOM_HILITE@" ]; then
+    SET_CUSTOM=true
+fi    
 
 # Currently the Russian documentation has errors in it, so we're just
 # going to force makeinfo to build anyway.
@@ -217,14 +219,14 @@ set -x
 TEXIOPT="$FORCE --html -c OUTPUT_ENCODING_NAME=UTF-8 -e 10000 --document-lang=$language -I . -I $languagedir --css-ref=manual.css -I ../.. -I @abs_srcdir@/figures --init-file $texiinitfile ${SET_HTML_MATH}"
 echo $TEXIOPT
 # Show the commands. 
-@MAKEINFO@ $FORCE -c HIGHLIGHT_SYNTAX='pygmentize -f html -l %l' --split=chapter --no-node-files --output="$languagedestdir" $TEXIOPT maxima.texi
+@MAKEINFO@ $FORCE ${SET_CUSTOM:+-c HIGHLIGHT_SYNTAX='pygmentize -f html -l %l'} --split=chapter --no-node-files --output="$languagedestdir" $TEXIOPT maxima.texi
 rc=$?
 if [ $rc -ne 0 ]; then
     echo Failed to build multi-page html docs
     exit $rc
 fi
 
-@MAKEINFO@ $FORCE -c HIGHLIGHT_SYNTAX='pygmentize -f html -l %l' --no-split --output="$languagedestdir/maxima_singlepage.html" $TEXIOPT maxima.texi
+@MAKEINFO@ $FORCE ${SET_CUSTOM:+-c HIGHLIGHT_SYNTAX='pygmentize -f html -l %l'} --no-split --output="$languagedestdir/maxima_singlepage.html" $TEXIOPT maxima.texi
 rc=$?
 if [ $rc -ne 0 ]; then
     echo Failed to build single page html doc
