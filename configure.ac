@@ -644,18 +644,19 @@ AC_ARG_ENABLE(syntax-highlighting,
   [case "${enableval}" in
           yes|highlightjs) syntax_highlighting=highlightjs ;;
           pygments) syntax_highlighting=pygments ;;
+          custom-pygments) syntax_highlighting=custom-pygments ;;
           no)  syntax_highlighting=false ;;
           *) AC_MSG_ERROR(bad value ${enableval} for --enable-syntax-highlighting) ;;
    esac],
   [syntax_highlighting=false])
 
-AS_IF([test "x$syntax_highlighting" = "xpygments"],
+AS_IF([test "x$syntax_highlighting" = "xpygments" || test "xsyntax_highlighting" = "xcustom-pygments"],
   [AC_CHECK_PROG([pygmentize_found], [pygmentize],
     true,
     false)
     AS_IF([test "x$pygmetize_found" = "xfalse"],
       AC_MSG_FAILURE(
-        [--enable-syntax-highlighting set to "pygments" but pygmentize not found]))])
+        [--enable-syntax-highlighting set to "pygments" or "custom-pygments" but pygmentize not found]))])
 
 AS_IF([test "x$syntax_highlighting" = "xpygments"],
   [AC_CHECK_PROG([pygmentize_found], [pygmentize],
@@ -880,7 +881,7 @@ EOF
              AC_MSG_ERROR([Makeinfo version (${makeinfo_version_string}) too old to use pygments for syntax highlighting.  Disable or use highlightjs])
            fi
         fi
-        if test x${syntax_highlighting} = xcustom; then
+        if test x${syntax_highlighting} = "xcustom-pygments"; then
            USE_CUSTOM_HILITE=true
         fi
         AC_SUBST(TEXI_EXTRA_HEAD)
