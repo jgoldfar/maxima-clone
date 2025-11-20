@@ -684,6 +684,114 @@ Or disable building of the docs using
   fi
 fi
 
+# Description: Extracts and separates the components (N, M, P, and 'dev' suffix) 
+#              from version strings and sets them as global shell variables. 
+#              This version uses only basic POSIX shell features, including the 
+#              'test' command for all conditionals, and avoids Bash-specific 
+#              constructs like 'local', arrays, '[[ ... ]]', and the 'grep -o' option.
+#
+# Patterns supported:
+# 1. N.M.P (e.g., 5.2.10)
+# 2. N.M (e.g., 5.2, P defaults to 0)
+# 3. N.Mdev (e.g., 5.2dev, P defaults to 0)
+#
+
+VERSION_N=""
+VERSION_M=""
+VERSION_P=""
+VERSION_SUFFIX=""
+
+extract_version_from() {
+    # NOTE: All variables defined here (input_string, full_version, etc.) 
+    # will be set globally due to the absence of 'local'.
+    
+    input_string="$1"
+    
+    # 1. Clear global version variables for a clean start
+    VERSION_N=""
+    VERSION_M=""
+    VERSION_P=""
+    VERSION_SUFFIX=""
+
+    # Check for empty input using 'test'
+    if test -z "$input_string"; then
+        echo "Error: No input string provided." >&2
+        return 1
+    fi
+
+    echo "--- Parsing: \"$input_string\" ---"
+
+    full_version=""
+    temp_match=""
+
+    
+    # PRIORITY 1: Try to extract the N.Mdev format (most specific)
+    # Basic RegEx pattern supports multi-digit N and M: [[0-9]][[0-9]]*\.[[0-9]][[0-9]]*dev
+    temp_match=$(echo "$input_string" | grep '[[0-9]][[0-9]]*\.[[0-9]][[0-9]]*dev' | head -n 1)
+
+    # Check if a dev version was found using 'test'
+    if test -n "$temp_match"; then
+        # Case 1: N.Mdev format found
+        
+        # Use sed to isolate the captured pattern: .* (junk before) (\(capture\)) .* (junk after)
+        full_version=$(echo "$temp_match" | sed 's/.*\([[0-9]][[0-9]]*\.[[0-9]][[0-9]]*dev\).*/\1/')
+        
+        # Set global variables
+        VERSION_N=$(echo "$full_version" | cut -d'.' -f1)
+        # Remove 'dev' before cutting the minor version
+        VERSION_M=$(echo "$full_version" | sed 's/dev$//' | cut -d'.' -f2)
+        VERSION_SUFFIX="dev"
+
+        echo "Found: ${VERSION_N}.${VERSION_M}${VERSION_SUFFIX}. Variables set globally."
+
+    else
+        # PRIORITY 2: Try to extract N.M.P format (three components)
+        # Pattern for multi-digit N.M.P
+        temp_match=$(echo "$input_string" | grep '[[0-9]][[0-9]]*\.[[0-9]][[0-9]]*\.[[0-9]][[0-9]]*' | head -n 1)
+
+        # Check if N.M.P was found using 'test'
+        if test -n "$temp_match"; then
+            # Case 2a: N.M.P found. Isolate it with sed.
+            full_version=$(echo "$temp_match" | sed 's/.*\([[0-9]][[0-9]]*\.[[0-9]][[0-9]]*\.[[0-9]][[0-9]]*\).*/\1/')
+        else
+            # PRIORITY 3: If N.M.P not found, try to extract N.M format (two components)
+            # Pattern for multi-digit N.M
+            temp_match=$(echo "$input_string" | grep '[[0-9]][[0-9]]*\.[[0-9]][[0-9]]*' | head -n 1)
+
+            # Check if N.M was found using 'test'
+            if test -n "$temp_match"; then
+                # Case 2b: N.M found. Isolate it with sed.
+                full_version=$(echo "$temp_match" | sed 's/.*\([[0-9]][[0-9]]*\.[[0-9]][[0-9]]*\).*/\1/')
+            fi
+        fi
+        
+        # Check if any version was successfully isolated
+        if test -z "$full_version"; then
+            echo "Error: No matching version number found in: \"$input_string\"" >&2
+            return 1
+        fi
+
+        # Case 2: N.M.P or N.M format found
+        
+        # Set global variables
+        VERSION_N=$(echo "$full_version" | cut -d'.' -f1)
+        VERSION_M=$(echo "$full_version" | cut -d'.' -f2)
+        P_raw=$(echo "$full_version" | cut -d'.' -f3)
+        VERSION_P=${P_raw:-0} # Default P to 0 if not present
+        VERSION_SUFFIX="" # Ensure suffix is cleared
+
+        display_version="${VERSION_N}.${VERSION_M}"
+        # Use 'test' command for comparison
+        if test "$VERSION_P" != "0"; then
+            display_version="${display_version}.${VERSION_P}"
+        fi
+        
+        echo "Found: ${display_version}. Variables set globally."
+    fi
+    
+    return 0
+}
+
 if test x"${enable_build_docs}" = xtrue ; then
     if test x"${makeinfo_found}" = xfalse ; then
         AC_MSG_ERROR(No makeinfo found; consider --disable-build-docs)
@@ -694,29 +802,30 @@ if test x"${enable_build_docs}" = xtrue ; then
     makeinfo_old=false
     if test x"${makeinfo_found}" = xtrue; then
 	AC_MSG_CHECKING([if makeinfo version >= 5.1])
-	dnl expr is looking for something like "junk<digits-or-dots>"
-	dnl assuming that the end of the version string contains the
-	dnl version number consisting of digits separated by a period.
-	dnl This allows for version numbers like 6.8.90.
-	makeinfo_version_string=`expr "\`$MAKEINFO --version | head -1\`" : '.* \([[.0-9]][[.0-9]]*\)'`
-	dnl echo Makeinfo version ${makeinfo_version}
+        dnl Extract the version number from makeinfo
+        extract_version_from "`$MAKEINFO --version | head -1`"
 
-	dnl From makeinfo_version, extract out the major and minor
-	dnl version numbers.  We only need the major and minor version
-	dnl numbers.
-	makeinfo_major=`expr $makeinfo_version_string : '\([[0-9]][[0-9]]*\)'`
-	makeinfo_minor=`expr $makeinfo_version_string : '[[0-9]][[0-9]]*\.\([[0-9]][[0-9]]*\)'`
+        makeinfo_major="$VERSION_N"
+        makeinfo_minor="$VERSION_M"
+        makeinfo_patch="${VERSION_P}"
+        dnl Treat a suffix of dev as being patch 99.
+        if test -n "$VERSION_SUFFIX"; then
+            makeinfo_patch=99
+        fi
+
 	dnl echo major ${makeinfo_major}
 	dnl echo minor ${makeinfo_minor}
+        dnl echo patch ${makeinfo_patch}
 
 	dnl Create a numerical version number by multiplying the major
-	dnl version by 100 and adding the minor version.  This assumes
-	dnl the minor version is always less than or equal to 99.
-	makeinfo_version=`expr ${makeinfo_major} \* 100 \+ ${makeinfo_minor}`
+	dnl version by 1000 and adding the 100 times minor version and
+	dnl adding the patch version.  This assumes the minor and
+	dnl patch version is always less than or equal to 99.
+        makeinfo_version=`expr ${makeinfo_major} \* 10000 \+ ${makeinfo_minor} \* 100 \+ ${makeinfo_patch}`
 	
 	dnl If version is older than 5.1, it's too old for generating
 	dnl maxima docs.
-	if test ${makeinfo_version} -lt 501; then
+	if test ${makeinfo_version} -lt 50100; then
 	    AC_MSG_ERROR([Makeinfo version (${makeinfo_version_string}) too old; consider --disable-build-docs])
 	else
             AC_MSG_RESULT([${makeinfo_version_string} (6.8 or later preferred)])
@@ -725,7 +834,7 @@ if test x"${enable_build_docs}" = xtrue ; then
         dnl Enable JS highlighting of examples in the HTML docs.
         dnl The API has changed between 6.8 and 7.0, so we need to substitute the
         dnl the appropriate things.
-        if test ${makeinfo_version} -le 608; then
+        if test ${makeinfo_version} -le 60800; then
            TEXI_EXTRA_HEAD='$options->{"EXTRA_HEAD"} = '
            HLJS_CSS_SELECTOR="'pre.example'"
            TEXI_EXTRA_TAIL=''
@@ -757,24 +866,21 @@ EOF
            HIGHLIGHT2="<script> hljs.configure({languages: [['Maxima']], cssSelector: ${HLJS_CSS_SELECTOR}}); hljs.highlightAll(); </script>"
         fi
         if test x${syntax_highlighting} = xpygments; then
-           if test ${makeinfo_version} -ge 702; then
+           if test ${makeinfo_version} -ge 70200; then
              USE_PYGMENTS=true
            else
              AC_MSG_ERROR([Makeinfo version (${makeinfo_version_string}) too old to use pygments for syntax highlighting.  Disable or use highlightjs])
            fi
         fi
-        if test x${syntax_highlighting} = xpygments; then
-           if test ${makeinfo_version} -ge 702; then
-             USE_PYGMENTS=true
-           else
-             AC_MSG_ERROR([Makeinfo version (${makeinfo_version_string}) too old to use pygments for syntax highlighting.  Disable or use highlightjs])
-           fi
+        if test x${syntax_highlighting} = xcustom; then
+           USE_CUSTOM_HILITE=true
         fi
         AC_SUBST(TEXI_EXTRA_HEAD)
         AC_SUBST(TEXI_EXTRA_TAIL)
 	AC_SUBST(HIGHLIGHT1)
 	AC_SUBST(HIGHLIGHT2)
         AC_SUBST(USE_PYGMENTS)
+        AC_SUBST(USE_CUSTOM_HILITE)
         TEXI2HTML=texi2html.init
         AC_SUBST(TEXI2HTML)
 
@@ -782,7 +888,7 @@ EOF
 	dnl need to include MathJax ourselves when building the HTML
 	dnl files.
 	need_mathjax=false
-	if test ${makeinfo_version} -le 608; then
+	if test ${makeinfo_version} -le 60800; then
 	    need_mathjax=true
 	fi
 	if test x"${need_mathjax}" = xtrue; then
