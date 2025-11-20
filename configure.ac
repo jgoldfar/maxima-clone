@@ -836,7 +836,8 @@ fi
 
 dnl languages
 AC_ARG_ENABLE(lang-de,
-	[  --enable-lang-de             German language support],
+	[AS_HELP_STRING([--enable-lang-de],
+        [German language support])],
      	[case "${enableval}" in
        		yes) lang_de=true  ;;
        		no)  lang_de=false ;;
@@ -847,7 +848,8 @@ AC_ARG_ENABLE(lang-de,
 AM_CONDITIONAL(LANG_DE, test x$lang_de = xtrue)
 
 AC_ARG_ENABLE(lang-ja,
-	[  --enable-lang-ja             Japanese language support],
+	[AS_HELP_STRING([--enable-lang-ja],
+        [Japanese language support])],
      	[case "${enableval}" in
        		yes) lang_ja=true  ;;
        		no)  lang_ja=false ;;
@@ -858,7 +860,8 @@ AC_ARG_ENABLE(lang-ja,
 AM_CONDITIONAL(LANG_JA, test x$lang_ja = xtrue)
 
 AC_ARG_ENABLE(lang-es,
-	[  --enable-lang-es             Spanish language support],
+	[AS_HELP_STRING([--enable-lang-es],
+        [Spanish language support])],
      	[case "${enableval}" in
        		yes) lang_es=true  ;;
        		no)  lang_es=false ;;
@@ -870,7 +873,8 @@ AC_SUBST(lang_es)
 AM_CONDITIONAL(LANG_ES, test x$lang_es = xtrue)
 
 AC_ARG_ENABLE(lang-pt,
-	[  --enable-lang-pt             Portuguese language support],
+	[AS_HELP_STRING([--enable-lang-pt],
+        [Portuguese language support])],
      	[case "${enableval}" in
        		yes) lang_pt=true  ;;
        		no)  lang_pt=false ;;
@@ -882,7 +886,8 @@ AC_SUBST(lang_pt)
 AM_CONDITIONAL(LANG_PT, test x$lang_pt = xtrue)
 
 AC_ARG_ENABLE(lang-pt_BR,
-	[  --enable-lang-pt_BR          Brazilian Portuguese language support],
+	[AS_HELP_STRING([--enable-lang-pt_BR],
+        [Brazilian Portuguese language support])],
      	[case "${enableval}" in
        		yes) lang_pt_br=true  ;;
        		no)  lang_pt_br=false ;;
@@ -894,7 +899,8 @@ AC_SUBST(lang_pt_br)
 AM_CONDITIONAL(LANG_PT_BR, test x$lang_pt_br = xtrue)
 
 AC_ARG_ENABLE(lang-ru,
-	[  --enable-lang-ru             Russian language support],
+	[AS_HELP_STRING([--enable-lang-ru],
+        [Russian language support])],
      	[case "${enableval}" in
        		yes) lang_ru=true  ;;
        		no)  lang_ru=false ;;
@@ -907,7 +913,8 @@ AM_CONDITIONAL(LANG_RU, test x$lang_ru = xtrue)
 dnl Optionally build the windows CHM help files
 dnl default to false as requires win32 and Microsoft HTML Help Workshop
 AC_ARG_ENABLE(chm,
-  [  --enable-chm                 Build Windows CHM help files],
+  [AS_HELP_STRING([--enable-chm],
+  [Build Windows CHM help files])],
   [case "${enableval}" in
        		yes) chm=true ;;
        		no)  chm=false ;;
@@ -946,7 +953,8 @@ fi
 
 dnl Make the build quiet
 AC_ARG_ENABLE(quiet_build,
-  [  --enable-quiet-build         Make the build quieter],
+  [AS_HELP_STRING([--enable-quiet-build],
+  [Make the build quieter])],
   [case "${enableval}" in
      yes) quiet_build=true ;;
      no)  quiet_build=false ;;
@@ -958,7 +966,8 @@ AM_CONDITIONAL(QUIET_BUILD, test x${quiet_build} = xtrue)
 dnl Optionally build xmaxima.exe under windows
 dnl default to false as additional software
 AC_ARG_ENABLE(xmaxima_exe,
-  [  --enable-xmaxima-exe         Build Windows xmaxima.exe for installer],
+  [AS_HELP_STRING([--enable-xmaxima-exe],
+  [Build Windows xmaxima.exe for installer])],
   [case "${enableval}" in
        		yes) xmaxima_exe=true ;;
        		no)  xmaxima_exe=false ;;
@@ -970,7 +979,8 @@ AM_CONDITIONAL(XMAXIMA_EXE, test x$xmaxima_exe = xtrue)
 dnl Optionally build winkill.exe under windows
 dnl default to false as additional software
 AC_ARG_ENABLE(winkill_exe,
-  [  --enable-winkill             Build Windows winkill.exe and winkill_lib.dll for installer],
+  [AS_HELP_STRING([--enable-winkill],
+  [Build Windows winkill.exe and winkill_lib.dll for installer])],
   [case "${enableval}" in
        		yes) winkill_exe=true ;;
        		no)  winkill_exe=false ;;
@@ -981,7 +991,8 @@ AM_CONDITIONAL(WINKILL_EXE, test x$winkill_exe = xtrue)
 
 dnl Should we build a win64 installer?
 AC_ARG_ENABLE(win64-installer,
-  [  --enable-win64-installer     Build a 64bit installer on Windows],
+  [AS_HELP_STRING([--enable-win64-installer],
+  [Build a 64bit installer on Windows])],
   [case "${enableval}" in
                 yes) win64_installer=true ;;
                 no) win64_installer=false ;;
@@ -1187,7 +1198,8 @@ The gcl ANSI-CL check returned
 fi
 
 AC_ARG_ENABLE(gcl-alt-link,
-	[  --enable-gcl-alt-link        Use GCL's alternate linking mechanism],
+	[AS_HELP_STRING([--enable-gcl-alt-link],
+        [Use GCL's alternate linking mechanism])],
      	[case "${enableval}" in
        		yes) gcl_alt_link=true ;;
        		no)  gcl_alt_link=false ;;
@@ -1322,7 +1334,7 @@ AC_SUBST(ABCL_JAR)
 AC_SUBST(JRE)
 
 AC_ARG_WITH(posix-shell,
-	[AS_HELP_STRING([--with-posix-shell=<path>]
+	[AS_HELP_STRING([--with-posix-shell=<path>],
         [Use <shell> for maxima script (default /bin/sh)])],
 	[posix_shell_list="${withval}"],
 	[posix_shell_list="/bin/sh /bin/bash /usr/bin/bash /usr/local/bin/bash"])
