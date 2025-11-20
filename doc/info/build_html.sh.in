@@ -195,10 +195,13 @@ if [ -z "@NEED_MATHJAX@" ]; then
 fi
 
 if [ -n "@USE_PYGMENTS@" ]; then
+    # Use texinfo's default pygments highlighting.  This prevents any
+    # styling of the highlighting.
     SET_HIGHLIGHT="--set-customization-variable HIGHLIGHT_SYNTAX=pygments"
 fi
 
 if [ -n "@USE_CUSTOM_HILITE@" ]; then
+    # Tell makeinfo we're using our own highlighting command.
     SET_CUSTOM=true
 fi    
 
@@ -219,6 +222,11 @@ set -x
 TEXIOPT="$FORCE --html -c OUTPUT_ENCODING_NAME=UTF-8 -e 10000 --document-lang=$language -I . -I $languagedir --css-ref=manual.css -I ../.. -I @abs_srcdir@/figures --init-file $texiinitfile ${SET_HTML_MATH}"
 echo $TEXIOPT
 # Show the commands. 
+set -x
+# NOTE: We need to do the SET_CUSTOM here instead of putting it in
+# TEXIOPT because shell quoting is all wrong that way.  Make sure we
+# use the same pygmentize options here and below for the singlepage
+# version.
 @MAKEINFO@ $FORCE ${SET_CUSTOM:+-c HIGHLIGHT_SYNTAX='pygmentize -f html -l %l'} --split=chapter --no-node-files --output="$languagedestdir" $TEXIOPT maxima.texi
 rc=$?
 if [ $rc -ne 0 ]; then
