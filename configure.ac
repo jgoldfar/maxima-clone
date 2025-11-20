@@ -818,7 +818,12 @@ if test x"${enable_build_docs}" = xtrue ; then
             makeinfo_patch=99
             makeinfo_version_string="${makeinfo_version_string}${VERSION_SUFFIX}"
         else
-            makeinfo_version_string="${makeinfo_version_string}${VERSION_P}"
+            dnl Don't include the patch version if it's 0.
+            if test "${VERSION_P}" = "0"; then
+              makeinfo_version_string="${makeinfo_version_string}"
+            else
+              makeinfo_version_string="${makeinfo_version_string}${VERSION_P}"
+            fi
         fi
 
         dnl echo string ${makeinfo_version_string}
@@ -882,18 +887,22 @@ EOF
            fi
         fi
         if test x${syntax_highlighting} = "xcustom-pygments"; then
-           dnl This tells build_html.sh to use a custom call to
-           dnl pgymentize so that we can use the style sheets we want.
-           USE_CUSTOM_HILITE=true
+           if test ${makeinfo_version} -le 70200; then
+             AC_MSG_ERROR([Makeinfo version (${makeinfo_version_string}) too old to use custom-pygments for syntax highlighting.  Disable or use highlightjs or pygments])
+           else  
+             dnl This tells build_html.sh to use a custom call to
+             dnl pgymentize so that we can use the style sheets we want.
+             USE_CUSTOM_HILITE=true
 
-           dnl To create these style sheets, do
-           dnl
-           dnl    pygmentize -S default -f html > pygments.light.css
-           dnl    pygmentize -S rrt -f html > pygments.dark.css
-           dnl
-           dnl Change "default" and "rrt" to choose different styles
-           dnl for light and dark modes, respectively.
-           CUSTOM_PYGMENTS_CSS='<link rel="stylesheet" href="pgyments.light.css"><link rel="stylesheet" href="pgyments.dark.css">'
+             dnl To create these style sheets, do
+             dnl
+             dnl    pygmentize -S default -f html > pygments.light.css
+             dnl    pygmentize -S rrt -f html > pygments.dark.css
+             dnl
+             dnl Change "default" and "rrt" to choose different styles
+             dnl for light and dark modes, respectively.
+             CUSTOM_PYGMENTS_CSS='<link rel="stylesheet" href="pgyments.light.css"><link rel="stylesheet" href="pgyments.dark.css">'
+           fi
         fi
         AC_SUBST(TEXI_EXTRA_HEAD)
         AC_SUBST(TEXI_EXTRA_TAIL)
