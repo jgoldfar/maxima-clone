@@ -918,7 +918,8 @@ AM_CONDITIONAL(CHM, test x$chm = xtrue)
 dnl hhc is the HTML Help Compiler for CHM documentation
 hhc_default_name=hhc$EXEEXT
 AC_ARG_WITH(hhc,
-	[  --with-hhc=<prog>            Use HTML Help Compiler executable <prog> (default hhc)],
+	[AS_HELP_STRING([--with-hhc=<prog>],
+        [Use HTML Help Compiler executable <prog> (default hhc)])],
 	[hhc=true
 	if test "$withval" = "yes"; then
 		HHC="${hhc_default_name}"
@@ -1197,7 +1198,8 @@ AC_ARG_ENABLE(gcl-alt-link,
 AM_CONDITIONAL(GCL_ALT_LINK, test x$gcl_alt_link = xtrue)
 
 AC_ARG_WITH(default-lisp,
-	[  --with-default-lisp=<lisp>   Set default lisp implementation to <lisp>],
+	[AS_HELP_STRING([--with-default-lisp=<lisp>],
+        [Set default lisp implementation to <lisp>])],
      	[case "${withval}" in
        		clisp)
 			if test x"${clisp}" = xtrue ; then
@@ -1320,12 +1322,14 @@ AC_SUBST(ABCL_JAR)
 AC_SUBST(JRE)
 
 AC_ARG_WITH(posix-shell,
-	[  --with-posix-shell=<path>    Use <shell> for maxima script (default /bin/sh)],
+	[AS_HELP_STRING([--with-posix-shell=<path>]
+        [Use <shell> for maxima script (default /bin/sh)])],
 	[posix_shell_list="${withval}"],
 	[posix_shell_list="/bin/sh /bin/bash /usr/bin/bash /usr/local/bin/bash"])
 
 AC_ARG_WITH(wish,
-	[  --with-wish=<prog>           Use <prog> for Tk wish shell (default wish)],
+	[AS_HELP_STRING([--with-wish=<prog>],
+        [Use <prog> for Tk wish shell (default wish)])],
 	[WISH="${withval}"],
 	[WISH="wish"])
 AC_SUBST(WISH)
@@ -1392,7 +1396,8 @@ AC_SUBST(default_layout_autotools)
 AC_SUBST(LDFLAGS)
 
 AC_ARG_WITH(emacs-prefix,
-	[  --emacs-prefix=<path>        Where to install the emacs modes to],
+	[AS_HELP_STRING([--emacs-prefix=<path>],
+        [Where to install the emacs modes to])],
 	[EMACSDIR="$withval"],
 	[EMACSDIR="${datarootdir}/emacs/site-lisp"])
 AC_SUBST(EMACSDIR)
