@@ -640,7 +640,7 @@ AC_ARG_ENABLE(build-docs,
 AC_ARG_ENABLE(syntax-highlighting,
   [AS_HELP_STRING([--enable-syntax-highlighting],
     [Enable syntax highlighting for the HTML manual (default = no).
-       Set to "highlightjs" to use highlightjs or "pygments" to use pygments.  No value implies highlightjs])],
+       Set to "highlightjs" to use highlightjs, "pygments" to use pygments or "custom-pygments" to use custom pygments styling.  No value implies highlightjs])],
   [case "${enableval}" in
           yes|highlightjs) syntax_highlighting=highlightjs ;;
           pygments) syntax_highlighting=pygments ;;
