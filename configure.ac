@@ -684,6 +684,9 @@ Or disable building of the docs using
   fi
 fi
 
+dnl This function was created by Gemini because I was too lazy to
+dnl figure this out myself.
+
 # Description: Extracts and separates the components (N, M, P, and 'dev' suffix) 
 #              from version strings and sets them as global shell variables. 
 #              This version uses only basic POSIX shell features, including the 
@@ -719,7 +722,7 @@ extract_version_from() {
         return 1
     fi
 
-    echo "--- Parsing: \"$input_string\" ---"
+    # echo "--- Parsing: \"$input_string\" ---"
 
     full_version=""
     temp_match=""
@@ -742,7 +745,7 @@ extract_version_from() {
         VERSION_M=$(echo "$full_version" | sed 's/dev$//' | cut -d'.' -f2)
         VERSION_SUFFIX="dev"
 
-        echo "Found: ${VERSION_N}.${VERSION_M}${VERSION_SUFFIX}. Variables set globally."
+        # echo "Found: ${VERSION_N}.${VERSION_M}${VERSION_SUFFIX}. Variables set globally."
 
     else
         # PRIORITY 2: Try to extract N.M.P format (three components)
@@ -805,14 +808,19 @@ if test x"${enable_build_docs}" = xtrue ; then
         dnl Extract the version number from makeinfo
         extract_version_from "`$MAKEINFO --version | head -1`"
 
-        makeinfo_major="$VERSION_N"
-        makeinfo_minor="$VERSION_M"
+        makeinfo_major="${VERSION_N}"
+        makeinfo_minor="${VERSION_M}"
         makeinfo_patch="${VERSION_P}"
+        makeinfo_version_string="${VERSION_N}.${VERSION_M}"
         dnl Treat a suffix of dev as being patch 99.
-        if test -n "$VERSION_SUFFIX"; then
+        if test -n "${VERSION_SUFFIX}"; then
             makeinfo_patch=99
+            makeinfo_version_string="${makeinfo_version_string}${VERSION_SUFFIX}"
+        else
+            makeinfo_version_string="${makeinfo_version_string}${VERSION_P}"
         fi
 
+        dnl echo string ${makeinfo_version_string}
 	dnl echo major ${makeinfo_major}
 	dnl echo minor ${makeinfo_minor}
         dnl echo patch ${makeinfo_patch}
