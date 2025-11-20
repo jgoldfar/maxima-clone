@@ -882,7 +882,18 @@ EOF
            fi
         fi
         if test x${syntax_highlighting} = "xcustom-pygments"; then
+           dnl This tells build_html.sh to use a custom call to
+           dnl pgymentize so that we can use the style sheets we want.
            USE_CUSTOM_HILITE=true
+
+           dnl To create these style sheets, do
+           dnl
+           dnl    pygmentize -S default -f html > pygments.light.css
+           dnl    pygmentize -S rrt -f html > pygments.dark.css
+           dnl
+           dnl Change "default" and "rrt" to choose different styles
+           dnl for light and dark modes, respectively.
+           CUSTOM_PYGMENTS_CSS='<link rel="stylesheet" href="pgyments.light.css"><link rel="stylesheet" href="pgyments.dark.css">'
         fi
         AC_SUBST(TEXI_EXTRA_HEAD)
         AC_SUBST(TEXI_EXTRA_TAIL)
@@ -890,6 +901,7 @@ EOF
 	AC_SUBST(HIGHLIGHT2)
         AC_SUBST(USE_PYGMENTS)
         AC_SUBST(USE_CUSTOM_HILITE)
+        AC_SUBST(CUSTOM_PYGMENTS)
         TEXI2HTML=texi2html.init
         AC_SUBST(TEXI2HTML)
 

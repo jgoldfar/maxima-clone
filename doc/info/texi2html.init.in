@@ -2,5 +2,6 @@
 <link rel="alternate icon" href="figures/favicon.ico">
 @HIGHLIGHT1@
 @HIGHLIGHT2@
+@CUSTOM_PYGMENTS_CSS@
 @NEED_MATHJAX@}
 @TEXI_EXTRA_TAIL@;
