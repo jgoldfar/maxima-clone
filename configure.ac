@@ -887,7 +887,7 @@ EOF
            fi
         fi
         if test x${syntax_highlighting} = "xcustom-pygments"; then
-           if test ${makeinfo_version} -le 70200; then
+           if test ${makeinfo_version} -lt 70299; then
              AC_MSG_ERROR([Makeinfo version (${makeinfo_version_string}) too old to use custom-pygments for syntax highlighting.  Disable or use highlightjs or pygments])
            else  
              dnl This tells build_html.sh to use a custom call to
