@@ -156,7 +156,7 @@ expressions. @code{batch} evaluates every input expression in the file
 unless there is an error. If user input is requested (by @mref{asksign}
 or @mrefcomma{askinteger} for example) @code{batch} pauses to collect
 the requisite input and then continue; if @code{batch_answers_from_file}
-is @code{true}, the input is read from the file itself
+is @code{true}, the input is read from the file itself. See also
 @mrefdot{batch_answers_from_file}
 
 @c CTRL-C BREAKS batch IN CMUCL, BUT CLISP (ALTHOUGH IT SHOWS "User break") 
@@ -266,7 +266,7 @@ result.
 The command-line option @code{--batch-string} binds
 @code{batch_answers_from_file} to @code{true}. The @code{run_testsuite}
 function, as a default, also binds @code{batch_answers_from_file} to
-@code{true}. @mref{command_line_options} and @mrefdot{run_testsuite}
+@code{true}. See also @mref{command_line_options} and @mrefdot{run_testsuite}
 
 @opencatbox{Categories:}
 @category{File input}
