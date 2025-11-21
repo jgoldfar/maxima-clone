@@ -17,17 +17,6 @@ export MAXIMA_HTMLDIR
 MAXIMA_LOCAL=yes
 export MAXIMA_LOCAL
 
-# report the compiled in Lisp versions
-if [ x"$1" = "x--list-avail" ]; then
-    V="@VERSION@"
-    echo "Available versions:"
-    for i in src/binary-* ; do
-        L=`echo $i | sed s/src.binary-//`
-        echo "version $V, lisp $L"
-    done;
-    exit;
-fi;
-
 # quick fix for plotting with plot_format=openmath (bug 3052)
 if [ ! -d "@abs_top_srcdir@/bin" ]; then
     mkdir -p "@abs_top_srcdir@/bin"
