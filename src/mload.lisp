@@ -21,11 +21,15 @@
     (errset (pathname x))))
 
 (defun get-dirs (path &aux (ns (namestring path)))
+  "Find all the directories in the directory given by PATH.  We do not
+  descend into the subdirectories."
+  ;; Basically get a directory listing from "<path>/*/".  The last
+  ;; slash tells DIRECTORY to return just the directories in PATH.
   (directory (concatenate 'string
                           ns
                           (if (eql #\/ (char ns (1- (length ns)))) "" "/")
                           "*"
-                          #+(or :clisp :sbcl :ecl :openmcl :gcl) "/")
+                          #+(or :clisp :sbcl :ecl :openmcl :gcl :cmucl) "/")
              #+openmcl :directories #+openmcl t))
 
 (defun unix-like-basename (path)
@@ -38,16 +42,20 @@
 			       (position #\\ pathstring :from-end t) -1)) len)))
 
 (defun unix-like-dirname (path)
+  "A Lisp equivalent of the Unix program dirname.  This strips the last
+  component from the given PATH.  The last non-slash component and
+  trailing slashes are removed.  In particular for \"a/b/c/\", this
+  returns \"a/b\", not \"a/b/c/\"."
   (let* ((pathstring (namestring path))
 	 (len (length pathstring)))
     (when (equal (subseq pathstring (- len 1) len) "/")
       (decf len)
       (setf pathstring (subseq pathstring 0 len)))
     (let ((last-slash (or (position #\/ pathstring :from-end t)
-			              (position #\\ pathstring :from-end t))))
+			  (position #\\ pathstring :from-end t))))
       (if last-slash
-        (subseq pathstring 0 last-slash)
-        "."))))
+          (subseq pathstring 0 last-slash)
+          "."))))
 
 (defmfun $filename_merge (&rest file-specs)
   (when (or (null file-specs) (cddr file-specs))

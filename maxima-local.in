@@ -12,17 +12,10 @@ MAXIMA_OBJDIR="@abs_top_builddir@/binary"
 export MAXIMA_OBJDIR
 MAXIMA_HTMLDIR=${MAXIMA_DOC_PREFIX}
 export MAXIMA_HTMLDIR
-
-# report the compiled in Lisp versions
-if [ x"$1" = "x--list-avail" ]; then
-    V=`./maxima-local --version | sed s/Maxima.//`
-    echo "Available versions:"
-    for i in src/binary-* ; do
-        L=`echo $i | sed s/src.binary-//`
-        echo "version $V, lisp $L"
-    done;
-    exit;
-fi;
+# Tell lisp that we're running maxima-local.  Primarily so Lisp can
+# produce the right values with --list-avail.  Any value is OK.
+MAXIMA_LOCAL=yes
+export MAXIMA_LOCAL
 
 # quick fix for plotting with plot_format=openmath (bug 3052)
 if [ ! -d "@abs_top_srcdir@/bin" ]; then
