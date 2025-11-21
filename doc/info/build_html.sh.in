@@ -218,9 +218,7 @@ fi
 # There should be no errors in the texi files so don't use "--force -e
 # 10000" to force building the docs.  We want to fail building if
 # there are errors now.
-set -x
 TEXIOPT="$FORCE --html -c OUTPUT_ENCODING_NAME=UTF-8 -e 10000 --document-lang=$language -I . -I $languagedir --css-ref=manual.css -I ../.. -I @abs_srcdir@/figures --init-file $texiinitfile ${SET_HTML_MATH} ${SET_HIGHLIGHT}"
-echo $TEXIOPT
 # Show the commands. 
 set -x
 # NOTE: We need to do the SET_CUSTOM here instead of putting it in
