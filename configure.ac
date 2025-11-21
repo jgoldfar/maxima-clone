@@ -872,12 +872,38 @@ if test x"${enable_build_docs}" = xtrue ; then
            dnl Make sure HIGHLIGHT1 and HIGHLIGHT2 are all on one line
            dnl because these variables are placed in the Makefile and
            dnl make doesn't support multiple-line variable
-           dnl assignments.
-           HIGHLIGHT1=$(cat <<EOF
-<link rel="stylesheet" media="(prefers-color-scheme: light)" href="$CDN/$HIGHLIGHT_VER/styles/$LIGHTMODE" integrity="$LIGHTMODECSS_HASH"  crossorigin="anonymous"> <link rel="stylesheet" media="(prefers-color-scheme: dark)" href="$CDN/$HIGHLIGHT_VER/styles/$DARKMODE" integrity="$DARKMODECSS_HASH" crossorigin="anonymous"> <script src="$CDN/$HIGHLIGHT_VER/highlight.min.js" integrity="$HIGHLIGHTJS_HASH"  crossorigin="anonymous"></script> <script src="$CDN/$HIGHLIGHT_VER/languages/maxima.min.js" integrity="$MAXIMAJS_HASH" crossorigin="anonymous"></script>
+           dnl assignments.  Hence, use tr to remove newlines from the
+           dnl HERE document.  The HERE document makes it easier to read
+           dnl and understand what's being done.
+           HIGHLIGHT1="$(cat | tr -s '\n' ' ' <<EOF
+<link rel="stylesheet"
+      media="(prefers-color-scheme: light)"
+      href="$CDN/$HIGHLIGHT_VER/styles/$LIGHTMODE"
+      integrity="$LIGHTMODECSS_HASH"
+      crossorigin="anonymous">
+<link rel="stylesheet"
+      media="(prefers-color-scheme: dark)"
+      href="$CDN/$HIGHLIGHT_VER/styles/$DARKMODE"
+      integrity="$DARKMODECSS_HASH"
+      crossorigin="anonymous">
+<script src="$CDN/$HIGHLIGHT_VER/highlight.min.js"
+        integrity="$HIGHLIGHTJS_HASH"
+        crossorigin="anonymous">
+</script>
+<script src="$CDN/$HIGHLIGHT_VER/languages/maxima.min.js"
+        integrity="$MAXIMAJS_HASH"
+        crossorigin="anonymous">
+</script>
 EOF
-)
-           HIGHLIGHT2="<script> hljs.configure({languages: [['Maxima']], cssSelector: ${HLJS_CSS_SELECTOR}}); hljs.highlightAll(); </script>"
+)"
+           HIGHLIGHT2="$(cat | tr -s '\n' ' ' <<EOF
+<script>
+  hljs.configure({languages: [['Maxima']],
+                  cssSelector: ${HLJS_CSS_SELECTOR}});
+  hljs.highlightAll();
+</script>
+EOF
+)"
         fi
         if test x${syntax_highlighting} = xpygments; then
            if test ${makeinfo_version} -ge 70200; then
@@ -901,7 +927,15 @@ EOF
              dnl
              dnl Change "default" and "rrt" to choose different styles
              dnl for light and dark modes, respectively.
-             CUSTOM_PYGMENTS_CSS='<link rel="stylesheet" href="pgyments.light.css"><link rel="stylesheet" href="pgyments.dark.css">'
+             CUSTOM_PYGMENTS_CSS="$(cat | tr -s '\n' ' ' <<EOF
+<link rel="stylesheet"
+      href="pygments.light.css"
+      media="(prefers-color-scheme: light)">
+<link rel="stylesheet"
+      href="pygments.dark.css"
+      media="(prefers-color-scheme: dark)">
+EOF
+)"
            fi
         fi
         AC_SUBST(TEXI_EXTRA_HEAD)
