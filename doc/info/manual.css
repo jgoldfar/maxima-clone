@@ -1,10 +1,36 @@
 /* Define variable for background color for examples */
 :root {
+    /* Default light mode colors */
+    --background-color: #ffffff; /* White background */
+    --text-color: black;
     --example-background-color: rgb(238,238,255);
+    --link-color: #00f;
+    --link-visited-color: #a0a;
+    --hover-background-color: #555753;
+    --hover-color: #cdf;
+    --nav-panel-background-color: #CDCCDD;
+    --div-titlebox-background-color: rgb(200,255,255);
+    --div-synopsisbox-backgraound-color: rgb(255,220,255);
+    --pre-example-border: 1px solid rgb(180,180,180);
+    --div-categorybox-border: 1px solid gray;
+    --div-categorybox-background-color: #fdf6e3;
 }
 @media (prefers-color-scheme: dark) {
     :root {
+        /* Dark Mode Overrides */
+        --background-color: #444;
+        --text-color: #eee;
         --example-background-color: #aab;
+        --link-color: #9df;
+        --link-visited-color: #9fd;
+        --hover-background-color: #ddd;
+        --hover-color: #55f;
+        --nav-panel-background-color: #555;
+        --div-titlebox-background-color: black;
+        --div-synopsisbox-backgraound-color: black;
+        --pre-example-border: 1px solid black;
+        --div-categorybox-border: 1px solid gray;
+        --div-categorybox-background-color: #544;
     }
 }
 
@@ -17,8 +43,8 @@ div.example {
 /* end of overrides */
 
 body {
-    color: black;
-    background: white;
+    color: var(--text-color);
+    background: var(--background-color);
     margin-left: 5px;
     margin-right: 5px;
     font-family: Arial, Verdana, Helvetica, sans-serif
@@ -28,12 +54,12 @@ h2 { font-size: 125% }
 h3 { font-size: 110% }
 a:link {
     text-decoration: none;
-    color: #00f
+    color: var(--link-color);
 }
-a:visited {color: #a0a }
+a:visited {color: var(--link-visited-color) }
 a:hover, span.button:hover {
-    background-color: #555753;
-    color: #cdf;
+    background-color: var(--hover-background-color);
+    color: var(--hover-color);
 }
 div.textbox {
     border: solid;
@@ -43,15 +69,16 @@ div.textbox {
 div.titlebox {
     border: none;
     padding-top: 1em 2em;
-    background: rgb(200,255,255)
+    background: var(--div-titlebox-background-color);
 }
 div.synopsisbox {
     border: none;
     padding-top: 1em 2em;
-    background: rgb(255,220,255)
+    background: var(--div-synopsisbox-background-color);
 }
 pre.example, pre.example-preformatted {
-    border: 1px solid rgb(180,180,180);
+    border: var(--pre-example-border);
+    color: var(--text-color);
     padding: 5px;
     background-color: var(--example-background-color);
     /* Add scrollbar for examples for narrow windows */
@@ -70,9 +97,9 @@ div.highlight {
 div.spacerbox { border: none; padding: 2em 0 }
 div.image { margin: 0; padding: 1em; text-align: center }
 div.categorybox {
-    border: 1px solid gray;
+    border: var(--div-categorybox-border);
     padding: 1em;
-    background: #fdf6e3
+    background: var(--div-categorybox-background-color);
 }
 img {
     max-width:80%;
@@ -88,7 +115,7 @@ tt, code { font-family: "Courier New", "DejaVu Sans Mono", monospace }
  * Texinfo 7.1 and later uses div.nav-panel.  6.8 uses div.header.
  */
 div.header, div.nav-panel {
-    background-color: #CDCCDD;
+    background-color: var(--nav-panel-background-color);
     padding: 3px 10px;
 }
 
@@ -117,6 +144,7 @@ dd { margin-left: 0.5em }
     dd { margin-left: 1.5em }
 }
 @media (prefers-color-scheme: dark) {
+/*
     body {
         background: #444;
            color: #eee
@@ -141,7 +169,11 @@ dd { margin-left: 0.5em }
         background-color: var(--example-background-color) !important;
     }
     div.categorybox { background-color: #544 }
-    div.textbox, div.titlebox, div.synopsisbox { color: black;}
+*/
+/*
+    div.textbox, div.titlebox, div.synopsisbox {
+        color: var(--div-titlebox-background-color);}
+*/
 }
 
 /* CSS for pygment highlighting */
