@@ -922,16 +922,18 @@ EOF
 
              dnl To create these style sheets, do
              dnl
-             dnl    pygmentize -S default -f html > pygments.light.css
-             dnl    pygmentize -S rrt -f html > pygments.dark.css
+             dnl    pygmentize -O classprefix=pyg- -S default -f html > pygments.light.css
+             dnl    pygmentize -O classprefix=pyg- -S rrt -f html > pygments.dark.css
              dnl
              dnl Change "default" and "rrt" to choose different styles
              dnl for light and dark modes, respectively.
              CUSTOM_PYGMENTS_CSS="$(cat | tr -s '\n' ' ' <<EOF
 <link rel="stylesheet"
+      type="text/css"
       href="pygments.light.css"
       media="(prefers-color-scheme: light)">
 <link rel="stylesheet"
+      type="text/css"
       href="pygments.dark.css"
       media="(prefers-color-scheme: dark)">
 EOF
