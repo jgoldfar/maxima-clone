@@ -1,7 +1,7 @@
-/* Define variable for background color for examples */
+/* Define colors for light and dark mode */
 :root {
     /* Default light mode colors */
-    --background-color: #ffffff; /* White background */
+    --background-color: white;
     --text-color: black;
     --example-background-color: rgb(238,238,255);
     --link-color: #00f;
@@ -61,6 +61,7 @@ a:hover, span.button:hover {
     background-color: var(--hover-background-color);
     color: var(--hover-color);
 }
+/*
 div.textbox {
     border: solid;
     border-width: thin;
@@ -76,6 +77,7 @@ div.synopsisbox {
     padding-top: 1em 2em;
     background: var(--div-synopsisbox-background-color);
 }
+*/
 pre.example, pre.example-preformatted {
     border: var(--pre-example-border);
     color: var(--text-color);
