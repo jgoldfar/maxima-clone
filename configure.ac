@@ -260,58 +260,6 @@ if test x"${cmucl}" = xtrue ; then
 	fi
 fi
 
-dnl n.b. scl_default_name is hardcoded in "with" message
-scl_default_name=scl
-SCL_RUNTIME=lisp
-AC_ARG_ENABLE(scl,
-	[AS_HELP_STRING([--enable-scl],
-        [Use SCL])],
-     	[case "${enableval}" in
-       		yes) scl=true 
-		     lisps_enabled="${lisps_enabled} scl"
-                     explicit_lisp=true ;;
-       		no)  scl=false ;;
-		*) AC_MSG_ERROR(bad value ${enableval} for --enable-scl) ;;
-     	esac
-	explicit_lisp=true],
-	[scl=false])
-AC_ARG_WITH(scl,
-	[AS_HELP_STRING([--with-scl=<prog>],
-        [Use SCL executable <prog> (default scl)])],
-	[scl=true
-	lisps_enabled="${lisps_enabled} scl"
-	explicit_lisp=true
-	if test "$withval" = "yes"; then
-		SCL_NAME="${scl_default_name}"
-	else
-		SCL_NAME="$withval"
-	fi],
-	[SCL_NAME=${scl_default_name}])
-AC_ARG_WITH(scl-runtime,
-	[AS_HELP_STRING([--with-scl-runtime=<path>],
-        [Use SCL runtime <path> (default
-	                          file://library/../bin/lisp)])],
-	[scl=true
-	lisps_enabled="${lisps_enabled} scl"
-	SCL_RUNTIME_PATH="$withval"
-	SCL_RUNTIME=`basename ${SCL_RUNTIME_PATH}`],
-	[])
-if test x"${scl}" = xtrue ; then
-	if test `echo "$SCL_NAME" | sed 's/\(.\).*/\1/'` = "/" ; then
-		if test -x "$SCL_NAME" ; then
-			scl_found=true
-		else
-			scl_found=false
-		fi
-	else
-		AC_CHECK_PROG(scl_found,$SCL_NAME,true,false)
-	fi
-	AC_CHECK_PROG(scl_found,$SCL_NAME,true,false)
-	if test x"${scl_found}" = xfalse ; then
-		AC_MSG_WARN(scl executable ${SCL_NAME} not found in PATH)
-	fi
-fi
-
 dnl n.b. sbcl_default_name is hardcoded in "with" message
 sbcl_default_name=sbcl
 AC_ARG_ENABLE(sbcl,
@@ -1027,7 +975,6 @@ if test x"${explicit_lisp}" = xfalse ; then
   	AC_CHECK_PROG(clisp_found,${clisp_default_name},true,false)
 	AC_CHECK_PROG(gcl_found,${gcl_default_name},true,false)
 	AC_CHECK_PROG(cmucl_found,$CMUCL_NAME,true,false)
-	AC_CHECK_PROG(scl_found,$SCL_NAME,true,false)
 	AC_CHECK_PROG(sbcl_found,$SBCL_NAME,true,false)
 	AC_CHECK_PROG(acl_found,$ACL_NAME,true,false)
 	AC_CHECK_PROG(openmcl_found,$OPENMCL_NAME,true,false)
@@ -1046,10 +993,6 @@ if test x"${explicit_lisp}" = xfalse ; then
 		cmucl=true
 		lisps_enabled="${lisps_enabled} cmucl"
 	fi
-	if test x"${scl_found}" = xtrue ; then
-		scl=true
-		lisps_enabled="${lisps_enabled} scl"
-	fi
 	if test x"${sbcl_found}" = xtrue ; then
 	   	sbcl=true
 		lisps_enabled="${lisps_enabled} sbcl"
@@ -1063,7 +1006,7 @@ if test x"${explicit_lisp}" = xfalse ; then
 		lisps_enabled="${lisps_enabled} ecl"
 	fi
 	if test x"${lisps_enabled}" = x; then
-		AC_MSG_ERROR(No lisp implementation specified and none of the default executables [${clisp_default_name}(clisp),${gcl_default_name}(GCL),${cmucl_default_name}(CMUCL),${scl_default_name}(SCL),${sbcl_default_name}(SBCL),${acl_default_name}(ACL),${openmcl_default_name}(OpenMCL),${ecl_default_name}(ECL)] were found in PATH)
+		AC_MSG_ERROR(No lisp implementation specified and none of the default executables [${clisp_default_name}(clisp),${gcl_default_name}(GCL),${cmucl_default_name}(CMUCL),${sbcl_default_name}(SBCL),${acl_default_name}(ACL),${openmcl_default_name}(OpenMCL),${ecl_default_name}(ECL)] were found in PATH)
 	fi
 fi
 
@@ -1073,7 +1016,6 @@ AM_CONDITIONAL(CLISP_EXEC, test x$clisp_exec = xtrue)
 AM_CONDITIONAL(GCL, test x$gcl = xtrue)
 AM_CONDITIONAL(CMUCL, test x$cmucl = xtrue)
 AM_CONDITIONAL(CMUCL_EXEC, test x${cmucl_exec} = xtrue)
-AM_CONDITIONAL(SCL, test x$scl = xtrue)
 AM_CONDITIONAL(SBCL, test x$sbcl = xtrue)
 AM_CONDITIONAL(SBCL_EXEC, test x$sbcl_exec = xtrue)
 AM_CONDITIONAL(ACL, test x$acl = xtrue)
@@ -1135,30 +1077,6 @@ flag.)
    if test ! "${count}" = "1" ; then
       AC_MSG_ERROR(an error occurred while checking cmucl runtime)
    fi
-fi
-
-if test x"${scl}" = xtrue; then
-    if test x"${SCL_RUNTIME_PATH}" = x"" ; then
-        SCL_RUNTIME_PATH=`${SCL_NAME} -noinit -nositeinit -quiet -batch -eval '(progn (enumerate-pathname-translations (pathname "file://library/../bin/lisp") (when (probe-file pathname) (format t "~A~%" (unix-namestring pathname)))) (quit))'`
-    fi
-    if test -x "${SCL_RUNTIME_PATH}" ; then
-        echo "scl runtime is \"${SCL_RUNTIME_PATH}\""
-    else
-dnl last chance: find SCL_NAME in path. Use it if it doesn't appear to
-dnl be a shell script.
-	scl_path=`type -p "${SCL_NAME}"`
-	if test x"`grep -c '#!.*bin.*sh.*' ${scl_path}`" = x"0" ; then
-	   	SCL_RUNTIME_PATH="${scl_path}"
-	else
-		AC_MSG_ERROR([Unable to determine SCL runtime path.
-The best guess for SCL runtime, "${SCL_RUNTIME_PATH}", is not
-an executable. Use the argument
-   --with-scl-runtime=<path>
-to set the actual SCL executable. If the SCL lisp command is a shell
-script the SCL executable is the program exec'd by that shell script.])
-	fi
-    fi
-    SCL_RUNTIME=`basename ${SCL_RUNTIME_PATH}`
 fi
 
 if test x"${gcl}" = xtrue; then
@@ -1227,13 +1145,6 @@ AC_ARG_WITH(default-lisp,
 				AC_MSG_ERROR(cmucl not enabled)
 			fi
 			;;
-		scl)
-			if test x"${scl}" = xtrue ; then
-				DEFAULTLISP=scl
-			else
-				AC_MSG_ERROR(scl not enabled)
-			fi
-			;;
 		sbcl)
 			if test x"${sbcl}" = xtrue ; then
 				DEFAULTLISP=sbcl
@@ -1291,8 +1202,6 @@ AC_ARG_WITH(default-lisp,
 		DEFAULTLISP=sbcl
 	elif test x"${cmucl}" = xtrue ; then
 		DEFAULTLISP=cmucl
-	elif test x"${scl}" = xtrue ; then
-		DEFAULTLISP=scl
 	elif test x"${clisp}" = xtrue ; then
 	   	DEFAULTLISP=clisp
 	elif test x"${gcl}" = xtrue ; then
@@ -1518,18 +1427,6 @@ if test x"${cmucl}" = xtrue ; then
 		echo "CMUCL executable image enabled for maxima."
 	else
 		echo Use "--enable-cmucl-exec to build a standalone executable instead."
-	fi
-fi
-if test x"${scl}" = xtrue ; then
-	echo "SCL enabled, using \"${SCL_NAME}\""
-	echo "SCL runtime is \"${SCL_RUNTIME_PATH}\""
-fi
-if test x"${sbcl}" = xtrue ; then
-   	echo "Compiling a maxima image using \"${SBCL_NAME}\""
-	if test x"${sbcl_exec}" = xtrue ; then
-	   	echo "sbcl executable image enabled for maxima."
-	else
-		echo Use "--enable-sbcl-exec to build a standalone executable instead."
 	fi
 fi
 if test x"${gcl}" = xtrue ; then
