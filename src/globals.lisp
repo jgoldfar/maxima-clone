@@ -1692,7 +1692,6 @@
 (defvar *maxima-lispname*
   #+clisp "clisp"
   #+cmu "cmucl"
-  #+scl "scl"
   #+sbcl "sbcl"
   #+gcl "gcl"
   #+allegro "acl"
@@ -1700,7 +1699,7 @@
   #+abcl "abcl"
   #+lispworks "lispworks"
   #+ecl "ecl"
-  #-(or clisp cmu scl sbcl gcl allegro openmcl abcl lispworks ecl) "unknownlisp")
+  #-(or clisp cmu sbcl gcl allegro openmcl abcl lispworks ecl) "unknownlisp")
 
 ;;; Locations of various types of files. These variables are discussed
 ;;; in more detail in the file doc/implementation/dir_vars.txt. Since
