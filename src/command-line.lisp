@@ -166,9 +166,6 @@
 	 ext::*command-line-application-arguments*
 	 (rest ext:*command-line-strings*))
      
-     #+scl
-     (rest ext:*command-line-strings*)
-
      #+sbcl
      (rest sb-ext:*posix-argv*)
 
