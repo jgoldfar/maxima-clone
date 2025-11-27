@@ -197,45 +197,6 @@ clean-cmucl:
 	rm -rf binary-cmucl
 CLEAN_TARGETS += clean-cmucl
 
-## SCL #########################################################################
-if SCL
-
-scllibdir = $(verpkglibdir)/binary-scl
-
-EXECUTESCL = $(SCL_NAME) -noinit -batch
-BUILT_FILES += binary-scl/maxima.core
-scllib_DATA = binary-scl/maxima.core
-
-scl: binary-scl/maxima.core
-
-binary-scl/maxima.core:
-	$(MAKE) bd
-	(echo '$(QUIET) $(LOADDEFSYSTEM) $(DEFSYSTEMCOMPILE)' | $(EXECUTESCL)) && \
-	(echo '$(LOADDEFSYSTEM) $(DEFSYSTEMLOAD) (ext:save-lisp "binary-scl/maxima.core")' | $(EXECUTESCL))
-
-## Just like with clisp, we install an extra copy of SCL. No, I don't
-## understand either. Also, I just read the SCL license agreement. Is
-## the user even allowed to do this?!
-WEIRD_INSTALL_TARGETS += install-scl-copy
-WEIRD_UNINSTALL_TARGETS += uninstall-scl-copy
-install-scl-copy:
-	$(mkinstalldirs) $(DESTDIR)$(scllibdir)
-	$(INSTALL_PROGRAM) @SCL_RUNTIME_PATH@ "$(DESTDIR)$(scllibdir)/@SCL_RUNTIME@"
-uninstall-scl-copy:
-	rm -f "$(DESTDIR)$(scllibdir)/@SCL_RUNTIME@"
-
-scl-depends.mk: maxima.system Makefile *.lisp
-	echo $(call MAKE_DEPENDS,"binary-scl/maxima.core",scl-depends.mk.tmp) | $(EXECUTESCL)
-	sed -e "s#\\\\#/#g" < scl-depends.mk.tmp > scl-depends.mk
-
--include scl-depends.mk
-
-endif
-
-clean-scl:
-	rm -rf binary-scl
-CLEAN_TARGETS += clean-scl
-
 ## ACL #########################################################################
 if ACL
 
