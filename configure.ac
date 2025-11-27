@@ -1429,6 +1429,14 @@ if test x"${cmucl}" = xtrue ; then
 		echo Use "--enable-cmucl-exec to build a standalone executable instead."
 	fi
 fi
+if test x"${sbcl}" = xtrue ; then
+	echo "Compiling a maxima image using \"${SBCL_NAME}\""
+	if test x"${sbcl_exec}" = xtrue ; then
+		echo "sbcl executable image enabled for maxima."
+	else
+		echo Use "--enable-sbcl-exec to build a standalone executable instead."
+	fi
+fi
 if test x"${gcl}" = xtrue ; then
 	echo "Compiling a maxima image using \"${GCL_NAME}\""
 	if test x"${gcl_alt_link}" = xtrue ; then
