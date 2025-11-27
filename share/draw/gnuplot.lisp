@@ -1,7 +1,7 @@
 ;;;                 COPYRIGHT NOTICE
 ;;;  
 ;;;  Copyright (C) 2007-2016 Mario Rodriguez Riotorto
-;;;  Time-stamp: "2025-11-27 12:22:21 Leo Butler"
+;;;  Time-stamp: "2025-11-27 12:27:02 Leo Butler"
 ;;;  
 ;;;  This program is free software; you can redistribute
 ;;;  it and/or modify it under the terms of the
@@ -2857,7 +2857,7 @@
       (setf plotcmd
          (concatenate 'string
             (unless (or *multiplot-is-active*
-                        (member (get-option '$terminal) '($eps $epslatex $epslatex_standalone $cairolatex_pdf)))
+                        (member (get-option '$terminal) '($eps $epslatex $epslatex_standalone $cairolatex_pdf $cairolatex_pdf_standalone)))
                (format nil "set obj 1 fc rgb '~a' fs solid 1.0 noborder ~%"
                        (get-option '$background_color)) )
             (if (equal (get-option '$proportional_axes) '$none)
@@ -3344,6 +3344,11 @@
                            (/ (first (get-option '$dimensions)) 100.0)
                            (/ (second (get-option '$dimensions)) 100.0)
                            (get-option '$file_name)))
+        ($cairolatex_pdf_standalone (format cmdstorage "set terminal cairolatex pdf standalone ~a color size ~acm, ~acm~%set out '~a.tex'"
+                           (write-font-type)
+                           (/ (first (get-option '$dimensions)) 100.0)
+                           (/ (second (get-option '$dimensions)) 100.0)
+                           (get-option '$file_name)))
         (($pdf $multipage_pdf) (format cmdstorage "set terminal pdf dashed enhanced ~a color size ~acm, ~acm~%set out '~a.pdf'"
                            (write-font-type)
                            (/ (first (get-option '$dimensions)) 100.0)
@@ -3488,7 +3493,7 @@
                 (format cmdstorage "~%set size ~a, ~a~%" size1 size2)
                 (format cmdstorage "set origin ~a, ~a~%" origin1 origin2)
                 (unless (or *multiplot-is-active*
-                            (member (get-option '$terminal) '($epslatex $epslatex_standalone $cairolatex_pdf)))
+                            (member (get-option '$terminal) '($epslatex $epslatex_standalone $cairolatex_pdf $cairolatex_pdf_standalone)))
                   (format cmdstorage "set obj 1 rectangle behind from screen ~a,~a to screen ~a,~a~%" 
                                      origin1 origin2 (+ origin1 size1 ) (+ origin2 size2)))  ))
         (setf is1stobj t
@@ -3686,7 +3691,12 @@
                            (/ (first (get-option '$dimensions)) 100.0)
                            (/ (second (get-option '$dimensions)) 100.0)
                            (get-option '$file_name))))
-      ($cairolatex_pdf (format str "set terminal cairolatex pdf ~a color colortext size ~acm, ~acm~%set out '~a.tex'"
+      ($cairolatex_pdf (format str "set terminal cairolatex pdf ~a color size ~acm, ~acm~%set out '~a.tex'"
+                           (write-font-type)
+                           (/ (first (get-option '$dimensions)) 100.0)
+                           (/ (second (get-option '$dimensions)) 100.0)
+                           (get-option '$file_name)))
+      ($cairolatex_pdf_standalone (format str "set terminal cairolatex pdf standalone ~a color size ~acm, ~acm~%set out '~a.tex'"
                            (write-font-type)
                            (/ (first (get-option '$dimensions)) 100.0)
                            (/ (second (get-option '$dimensions)) 100.0)

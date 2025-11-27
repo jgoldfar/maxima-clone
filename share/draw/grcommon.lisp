@@ -984,7 +984,7 @@
                  $dumb $dumb_file $pdf $pdfcairo $wxt $animated_gif $windows
                  $multipage_pdfcairo $multipage_pdf $multipage_eps 
                  $multipage_eps_color $aquaterm $tiff $vrml $obj $stl $pnm $ply
-                 $cairolatex_pdf)))
+                 $cairolatex_pdf $cairolatex_pdf_standalone)))
      (cond
        ((member val terms)
           (when (and (eq val '$png) $draw_use_pngcairo)
