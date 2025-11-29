@@ -936,6 +936,9 @@ EOF
       type="text/css"
       href="pygments.dark.css"
       media="(prefers-color-scheme: dark)">
+<link rel="stylesheet"
+      type="text/css"
+      href="pygments.custom.css">
 EOF
 )"
            fi
