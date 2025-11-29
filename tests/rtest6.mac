@@ -253,6 +253,18 @@ true;
 a: 100;
 100;
 
+block ([L: []], for a in aa1 do push ([a[2], a[1]], L), sort (L));
+[[111, ["foo"]], [222, ["bar"]], [333, ["baz"]], [444, ["quux"]]];
+
+a;
+100;
+
+block ([L: []], for b in aa1 do push ([b[2], b[1]], L), sort (L));
+[[111, ["foo"]], [222, ["bar"]], [333, ["baz"]], [444, ["quux"]]];
+
+b;
+b;
+
 block ([L: []], for [a, b] in aa1 do push ([b, a], L), sort (L));
 [[111, ["foo"]], [222, ["bar"]], [333, ["baz"]], [444, ["quux"]]];
 
@@ -272,6 +284,18 @@ block ([L: []], for [[a], b] in aa1 do push ([b, a], L), sort (L));
 
 ?hash\-table\-p (aa2);
 true;
+
+block ([L: []], for a in aa2 do push ([a[2], a[1]], L), sort (L));
+[[%e, [jj, 543]], [%phi, [cc, 1099]], [%pi, [xx, 99]]];
+
+a;
+100;
+
+block ([L: []], for b in aa2 do push ([b[2], b[1]], L), sort (L));
+[[%e, [jj, 543]], [%phi, [cc, 1099]], [%pi, [xx, 99]]];
+
+b;
+b;
 
 block ([L: []], for [a, b] in aa2 do push ([b, a], L), sort (L));
 [[%e, [jj, 543]], [%phi, [cc, 1099]], [%pi, [xx, 99]]];
@@ -301,6 +325,14 @@ true;
 
 [b, a];
 [-2, 100];
+
+block ([L: []], for b in aa3 do push ([b[1], b[2]], L), sort (L));
+[[["fgh", 3*u*v, giraffe], rhino*elephant],
+ [["glorble", 7*x, emu], 6/cricket],
+ [["mno", "pqr", 1 - 2*u], bessel_j (2, 1 - sqrt(x))]];
+
+b;
+-2;
 
 block ([L: []], for [b, a] in aa3 do push ([b, a], L), sort (L));
 [[["fgh", 3*u*v, giraffe], rhino*elephant],
@@ -340,6 +372,12 @@ true;
 (f: 199, g: 200);
 200;
 
+block ([L: []], for g in hh1 do push ([g[2], g[1]], L), sort (L));
+[[cos(w), [3 - y]], [tan(x), [1/(1 + z)]], [sin(z), [1 + x]]];
+
+g;
+200;
+
 block ([L: []], for [f, g] in hh1 do push ([g, f], L), sort (L));
 [[cos(w), [3 - y]], [tan(x), [1/(1 + z)]], [sin(z), [1 + x]]];
 
@@ -365,6 +403,14 @@ true;
  hh2[456, cos(w)]: sin(u) - cos(v),
  0);
 0;
+
+block ([L: []], for y in hh2 do push ([y[1], y[2]], L), sort (L));
+[[[456, cos(w)], sin(u) - cos(v)],
+ [[678, "blurf"], 876 - mumble],
+ [[987, "sdf"], 777*zxy]];
+
+y;
+y;
 
 block ([L: []], for [x, y] in hh2 do push ([x, y], L), sort (L));
 [[[456, cos(w)], sin(u) - cos(v)],
@@ -395,6 +441,14 @@ true;
  hh3[ewq, 2 - jdssaaq, 3*cxmmz]: sqrt(ytre),
  0);
 0;
+
+block ([L: []], for q in hh3 do push ([q[1], q[2]], L), sort (L));
+[[[asdfg, 1 - rewq, 2*treww], sin(poiur) - cos(kjghds)],
+ [[ewq, 2 - jdssaaq, 3*cxmmz], sqrt(ytre)],
+ [[hgf, fds, jhg], cos(trwq)]];
+
+q;
+q;
 
 block ([L: []], for [p, q] in hh3 do push ([p, q], L), sort (L));
 [[[asdfg, 1 - rewq, 2*treww], sin(poiur) - cos(kjghds)],
@@ -431,6 +485,12 @@ false;
 arrays;
 [bb1];
 
+block ([L: []], for v in bb1 do push ([v[2], v[1]], L), sort (L));
+[[123, ["mumble"]], [234, ["blarf"]], [345, ["blarg"]], [999, ["blurf"]]];
+
+v;
+v;
+
 block ([L: []], for [u, v] in bb1 do push ([v, u], L), sort (L));
 [[123, ["mumble"]], [234, ["blarf"]], [345, ["blarg"]], [999, ["blurf"]]];
 
@@ -452,6 +512,12 @@ arrays;
 [bb1, bb2];
 
 w: 321;
+321;
+
+block ([L: []], for w in bb2 do push ([w[1], w[2]], L), sort (L));
+[[["hgfedc", 3 - blurf], tan(n*%pi)], [["pqr", 1 + %pi], sin(k*%pi)], [["zxy", 2*%pi], cos(m*%pi)]];
+
+w;
 321;
 
 block ([L: []], for [v, w] in bb2 do push ([v, w], L), sort (L));
@@ -479,6 +545,14 @@ block ([L: []], for [[v1, v2], w] in bb2 do push ([v1, v2, w], L), sort (L));
 
 arrays;
 [bb1, bb2, bb3];
+
+block ([L: []], for v in bb3 do push ([v[1], v[2]], L), sort (L));
+[[[hjk, "mumble", cos(y) - x], cot(a - b)],
+ [[uvw, "qwerty", foo(z) + q], sec(2*b - a)],
+ [[zxy, "blah", cos(a) + cos(b)], tan(a + b)]];
+
+v;
+v;
 
 block ([L: []], for [w, v] in bb3 do push ([w, v], L), sort (L));
 [[[hjk, "mumble", cos(y) - x], cot(a - b)],
