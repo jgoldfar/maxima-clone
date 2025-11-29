@@ -1,0 +1,32 @@
+/*
+ * CSS customizations for pygment highlighting
+ */
+
+/*
+ * Pygments uses a line height of 125%, which seems too small compared
+ * to what we used to do.
+ */
+div.highlight pre {
+    line-height: normal !important;
+}
+
+/*
+ * For pygments, make the background color of the highlighted code the
+ * same as the example background color.  Without this, it looks funny.
+ */
+
+div.highlight {
+    background-color: var(--example-background-color) !important;
+}
+
+.example.user-maxima {
+    overflow-x: auto
+}
+
+.highlight.pre {
+    /*
+     * Lines for highlighted examples are too close by default with
+     * pygments.  Make it larger.
+     */
+    line-height: normal !important;
+}
