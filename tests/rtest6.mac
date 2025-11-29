@@ -228,3 +228,370 @@ chain weld bucket;
 
 subst (f = "foo", f(x));
 foo(x);
+
+/* tests for iterating over hash tables
+ * verify both value hash tables ("fast arrays" or created by make_array)
+ * and named hash tables ("undeclared arrays").
+ */
+
+kill (all);
+done;
+
+/* value hash tables: "fast arrays" */
+
+use_fast_arrays: true;
+true;
+
+/* one key */
+
+(aa1["baz"]: 333, aa1["bar"]: 222, aa1["quux"]: 444, aa1["foo"]: 111, 0);
+0;
+
+?hash\-table\-p (aa1);
+true;
+
+a: 100;
+100;
+
+block ([L: []], for [a, b] in aa1 do push ([b, a], L), sort (L));
+[[111, ["foo"]], [222, ["bar"]], [333, ["baz"]], [444, ["quux"]]];
+
+[a, b];
+[100, b];
+
+block ([L: []], for [[a], b] in aa1 do push ([b, a], L), sort (L));
+[[111, "foo"], [222, "bar"], [333, "baz"], [444, "quux"]];
+
+[a, b];
+[100, b];
+
+/* two keys */
+
+(aa2[xx, 99]: %pi, aa2[cc, 1099]: %phi, aa2[jj, 543]: %e, 0);
+0;
+
+?hash\-table\-p (aa2);
+true;
+
+block ([L: []], for [a, b] in aa2 do push ([b, a], L), sort (L));
+[[%e, [jj, 543]], [%phi, [cc, 1099]], [%pi, [xx, 99]]];
+
+[a, b];
+[100, b];
+
+(a2: 300, b: -2);
+-2;
+
+block ([L: []], for [[a1, a2], b] in aa2 do push ([b, a2, a1], L), sort (L));
+[[%e, 543, jj], [%phi, 1099, cc], [%pi, 99, xx]];
+
+[a1, a2, b];
+[a1, 300, -2];
+
+/* three keys */
+
+(aa3["mno", "pqr", 1 - 2*u]: bessel_j (2, 1 - sqrt(x)),
+ aa3["fgh", 3*u*v, giraffe]: rhino*elephant,
+ aa3["glorble", 7*x, emu]: 6/cricket,
+ 0);
+0;
+
+?hash\-table\-p (aa3);
+true;
+
+[b, a];
+[-2, 100];
+
+block ([L: []], for [b, a] in aa3 do push ([b, a], L), sort (L));
+[[["fgh", 3*u*v, giraffe], rhino*elephant],
+ [["glorble", 7*x, emu], 6/cricket],
+ [["mno", "pqr", 1 - 2*u], bessel_j (2, 1 - sqrt(x))]];
+
+[b, a];
+[-2, 100];
+
+block ([L: []], for [[a1, a2, b], a] in aa3 do push ([a1, a2, b, a], L), sort (L));
+[["fgh", 3*u*v, giraffe, rhino*elephant],
+ ["glorble", 7*x, emu, 6/cricket],
+ ["mno", "pqr", 1 - 2*u, bessel_j (2, 1 - sqrt(x))]];
+
+[a1, a2, b, a];
+[a1, 300, -2, 100];
+
+arrays;
+[];
+
+(reset (use_fast_arrays), kill (all));
+done;
+
+/* value hash tables: created by make_array */
+
+/* one key */
+
+(hh1: make_array (hashed, 1), 0);
+0;
+
+?hash\-table\-p (hh1);
+true;
+
+(hh1[1 + x]: sin(z), hh1[3 - y]: cos(w), hh1[1/(1 + z)]: tan(x), 0);
+0;
+
+(f: 199, g: 200);
+200;
+
+block ([L: []], for [f, g] in hh1 do push ([g, f], L), sort (L));
+[[cos(w), [3 - y]], [tan(x), [1/(1 + z)]], [sin(z), [1 + x]]];
+
+[f, g];
+[199, 200];
+
+block ([L: []], for [[f], g] in hh1 do push ([g, f], L), sort (L));
+[[cos(w), 3 - y], [tan(x), 1/(1 + z)], [sin(z), 1 + x]];
+
+[f, g];
+[199, 200];
+
+/* two keys */
+
+(hh2: make_array (hashed, 1, 1), 0);
+0;
+
+?hash\-table\-p (hh2);
+true;
+
+(hh2[678, "blurf"]: 876 - mumble,
+ hh2[987, "sdf"]: 777*zxy,
+ hh2[456, cos(w)]: sin(u) - cos(v),
+ 0);
+0;
+
+block ([L: []], for [x, y] in hh2 do push ([x, y], L), sort (L));
+[[[456, cos(w)], sin(u) - cos(v)],
+ [[678, "blurf"], 876 - mumble],
+ [[987, "sdf"], 777*zxy]];
+
+[x, y];
+[x, y];
+
+block ([L: []], for [[x1, x2], y] in hh2 do push ([x1, x2, y], L), sort (L));
+[[456, cos(w), sin(u) - cos(v)],
+ [678, "blurf", 876 - mumble],
+ [987, "sdf", 777*zxy]];
+
+[x1, x2, y];
+[x1, x2, y];
+
+/* three keys */
+
+(hh3: make_array (hashed, 1, 1, 1), 0);
+0;
+
+?hash\-table\-p (hh3);
+true;
+
+(hh3[hgf, fds, jhg]: cos(trwq),
+ hh3[asdfg, 1 - rewq, 2*treww]: sin(poiur) - cos(kjghds),
+ hh3[ewq, 2 - jdssaaq, 3*cxmmz]: sqrt(ytre),
+ 0);
+0;
+
+block ([L: []], for [p, q] in hh3 do push ([p, q], L), sort (L));
+[[[asdfg, 1 - rewq, 2*treww], sin(poiur) - cos(kjghds)],
+ [[ewq, 2 - jdssaaq, 3*cxmmz], sqrt(ytre)],
+ [[hgf, fds, jhg], cos(trwq)]];
+
+[p, q];
+[p, q];
+
+block ([L: []], for [[p1, p2, p3], q] in hh3 do push ([p1, p2, p3, q], L), sort (L));
+[[asdfg, 1 - rewq, 2*treww, sin(poiur) - cos(kjghds)],
+ [ewq, 2 - jdssaaq, 3*cxmmz, sqrt(ytre)],
+ [hgf, fds, jhg, cos(trwq)]];
+
+[p1, p2, p3, q];
+[p1, p2, p3, q];
+
+arrays;
+[];
+
+kill (all);
+done;
+
+/* named hash tables: "undeclared arrays" */
+
+/* one key */
+
+(bb1["mumble"]: 123, bb1["blarf"]: 234, bb1["blurf"]: 999, bb1["blarg"]: 345, 0);
+0;
+
+?hash\-table\-p (bb1);
+false;
+
+arrays;
+[bb1];
+
+block ([L: []], for [u, v] in bb1 do push ([v, u], L), sort (L));
+[[123, ["mumble"]], [234, ["blarf"]], [345, ["blarg"]], [999, ["blurf"]]];
+
+[u, v];
+[u, v];
+
+block ([L: []], for [[u], v] in bb1 do push ([v, u], L), sort (L));
+[[123, "mumble"], [234, "blarf"], [345, "blarg"], [999, "blurf"]];
+
+[u, v];
+[u, v];
+
+/* two keys */
+
+(bb2["pqr", 1 + %pi]: sin(k*%pi), bb2["zxy", 2*%pi]: cos(m*%pi), bb2["hgfedc", 3 - blurf]: tan(n*%pi), 0);
+0;
+
+arrays;
+[bb1, bb2];
+
+w: 321;
+321;
+
+block ([L: []], for [v, w] in bb2 do push ([v, w], L), sort (L));
+[[["hgfedc", 3 - blurf], tan(n*%pi)], [["pqr", 1 + %pi], sin(k*%pi)], [["zxy", 2*%pi], cos(m*%pi)]];
+
+[v, w];
+[v, 321];
+
+v2: 432;
+432;
+
+block ([L: []], for [[v1, v2], w] in bb2 do push ([v1, v2, w], L), sort (L));
+[["hgfedc", 3 - blurf, tan(n*%pi)], ["pqr", 1 + %pi, sin(k*%pi)], ["zxy", 2*%pi, cos(m*%pi)]];
+
+[v1,v2, w];
+[v1, 432, 321];
+
+/* three keys */
+
+(bb3[zxy, "blah", cos(a) + cos(b)]: tan(a + b),
+ bb3[hjk, "mumble", cos(y) - x]: cot(a - b),
+ bb3[uvw, "qwerty", foo(z) + q]: sec(2*b - a),
+ 0);
+0;
+
+arrays;
+[bb1, bb2, bb3];
+
+block ([L: []], for [w, v] in bb3 do push ([w, v], L), sort (L));
+[[[hjk, "mumble", cos(y) - x], cot(a - b)],
+ [[uvw, "qwerty", foo(z) + q], sec(2*b - a)],
+ [[zxy, "blah", cos(a) + cos(b)], tan(a + b)]];
+
+[w, v];
+[321, v];
+
+block ([L: []], for [[v1, v2, w], v] in bb3 do push ([v1, v2, w, v], L), sort (L));
+[[hjk, "mumble", cos(y) - x, cot(a - b)],
+ [uvw, "qwerty", foo(z) + q, sec(2*b - a)],
+ [zxy, "blah", cos(a) + cos(b), tan(a + b)]];
+
+
+[v1, v2, w, v];
+[v1, 432, 321, v];
+
+/* additional tests for MUNBIND */
+
+kill (all);
+done;
+
+(a: "foo", b: "bar", c: "baz", 0);
+0;
+
+(blurf (a, b, c, d, e, f) := (a + b + c)*(d + e + f),
+ blurf (1, 2, 3, 4, 5, 6));
+90;
+
+[a, b, c, d, e, f];
+["foo", "bar", "baz", d, e, f];
+
+(x1: 123,
+ mumble (a, b, [L]) := (a + b) * lsum (x1, x1, L),
+ mumble (7, 8, 9, 10, 11));
+450;
+
+[a, b, L, x1];
+["foo", "bar", L, 123];
+
+(harrumph (b, 'c, d) := b*c*d,
+ harrumph (111, x1, %pi));
+111*x1*%pi;
+
+[b, c, d];
+["bar", "baz", d];
+
+(blarg[x, b] := x^b,
+ blarg[1 - u, 1 - k]);
+(1 - u)^(1 - k);
+
+[b, x];
+["bar", x];
+
+(y: 999,
+ hurfgh[c](x, y) := (x + y)*c,
+ hurfgh[n](4, 2*w));
+n*(2*w + 4);
+
+[c, x, y];
+["baz", x, 999];
+
+block ([L: []], for b: 10 thru 20 do push (b, L), L);
+[20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10];
+
+[L, b];
+[L, "bar"];
+
+sum (b^2, b, 3, 5);
+50;
+
+b;
+"bar";
+
+product (c/2, c, 6, 8);
+42;
+
+c;
+"baz";
+
+'sum (b^2, b, 3, 5);
+'sum (b^2, b, 3, 5);
+
+b;
+"bar";
+
+'product (c/2, c, 6, 8);
+'product (c/2, c, 6, 8);
+
+c;
+"baz";
+
+block ([d, c, b, a: 111], b: 2, c: 3, a*b*c*d);
+666*d;
+
+[a, b, c, d];
+["foo", "bar", "baz", d];
+
+lambda ([c, f, g, b], (c + f)*(g + b))(x1, 1 - u, %e, %pi);
+(124 - u)*(%e + %pi);
+
+[b, c, f, g];
+["bar", "baz", f, g];
+
+lambda ([a,'b], a^b)(11, x1);
+11^x1;
+
+[a, b, x1];
+["foo", "bar", 123];
+
+lambda ([a,b,[c]], lsum(c1^2, c1, c)^(a^b))(%pi, %e, x1, y, u);
+(u^2  + 1013130)^(%pi^%e);
+
+[a, b, c, c1];
+["foo", "bar", "baz", c1];
