@@ -48,17 +48,17 @@ signum(x^2 + 1);
 (declare(z, complex),0);
 0$
 
-signum(z);
-signum(z)$
+block([ans : signum(z)], [op(ans), args(ans)]);
+[signum,[z]]$
 
 signum(%i);
-signum(%i)$
+%i$
 
 signum(%i - 6);
-signum(%i - 6)$
+%i/sqrt(37)-6/sqrt(37)$
 
-signum(z^2 + 1);
-signum(z^2 + 1)$
+block([ans : signum(z^2 + 1)],[op(ans), args(ans)]);
+[signum,[z^2+1]]$
 
 (assume(p > 0, n < 0, pz >= 0, nz <= 0),0);
 0$
@@ -227,3 +227,54 @@ b^2$
 
 integrate(mod(x,b),x,0,42*b);
 21*b^2$
+
+/* \# 4636 signum(ind) is an error */
+block([ans : signum(ind)], [op(ans),args(ans)]);
+[signum, [ind]]$
+
+block([ans : signum(infinity)], [op(ans),args(ans)]);
+[signum, [infinity]]$
+
+block([ans : signum(und)], [op(ans),args(ans)]);
+[signum, [und]]$
+
+/* overflow/underflow cases also reported in \# 4636 */
+signum(1e-170);
+1.0$
+
+signum(-1e-170);
+-1.0$
+
+signum(1e308);
+1.0$
+
+signum(-1e308);
+-1.0$
+
+signum(1e-170 + %i*1e-170);
+0.7071067811865475*%i + 0.7071067811865475$
+
+signum(1e170 + %i*1e+170);
+0.7071067811865475 * %i + 0.7071067811865475$
+
+signum(1e170);
+1.0$
+
+/* complex numbers */
+signum(5+%i*7);
+(7*%i)/sqrt(74)+5/sqrt(74)$
+
+signum(3.4 + %i);
+0.28216632399155017*%i+0.9593655015712705$
+
+signum(3.4 + %i/15);
+0.019604074934445576*%i+0.9998078216567245$
+
+signum(3.4b0 + %i/15);
+1.96040749344455786124536b-2*%i+9.99807821656724509235131b-1$
+
+facts();
+[]$
+
+contexts;
+[initial, global]$

@@ -1868,7 +1868,9 @@
 	   x)
 		   
 	  (t
-	   (setq sgn ($csign x))
+     ;; Let's catch errors from $csign. Doing so allows signum(ind) to return a signum nounform, for example.
+     (setq sgn (car (let (($errormsg nil) (errcatch t) (errset nil)) (errset ($csign x)))))
+
 	   (cond ((eq sgn '$neg) -1)
 		 ((eq sgn '$zero) 0)
 		 ((eq sgn '$pos) 1)
