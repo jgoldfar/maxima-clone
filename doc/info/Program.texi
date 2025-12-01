@@ -311,6 +311,10 @@ form of the @code{do} statements maxima supports is:
       unless @var{condition} do @var{body}}
 @item
 @code{for @var{variable} in @var{list} do @var{body}}
+@item
+@code{for @var{variable} in @var{expr} do @var{body}}
+@item
+@code{for @var{variable} in @var{hash_table} do @var{body}}
 @end itemize
 
 If the loop is expected to generate a list as output the command
@@ -318,7 +322,7 @@ If the loop is expected to generate a list as output the command
 @xref{Performance considerations for Lists}.
 
 @var{initial_value}, @var{increment}, @var{limit}, and @var{body} can be any
-expression. @var{list} is a list.  If the increment is 1 then "@code{step 1}"
+expression. If the increment is 1 then "@code{step 1}"
 may be omitted; As always, if @code{body} needs to contain more than one command
 these commands can be specified as a comma-separated list surrounded
 by parenthesis or as a @mrefdot{block}
@@ -560,39 +564,126 @@ be returned as the value of the @code{do}.  The @code{block} is exited and this
 value of the @code{do} is returned as the value of the @code{block} because the
 @code{do} is the last statement in the block.)
 
-One other form of the @code{do} is available in Maxima.  The syntax is:
+A @code{for} loop can also iterate over the contents of lists, general expressions, and hash tables, as follows.
 
 @example
 for @var{variable} in @var{list} @var{end_tests} do @var{body}
+
+for @var{variable} in @var{expr} @var{end_tests} do @var{body}
+
+for @var{variable} in @var{hash_table} @var{end_tests} do @var{body}
 @end example
 
-The elements of @var{list} are any expressions which will successively
-be assigned to the @code{variable} on each iteration of the
-@var{body}.  The optional termination tests @var{end_tests} can be
-used to terminate execution of the @code{do}; otherwise it will
-terminate when the @var{list} is exhausted or when a @code{return} is
-executed in the @var{body}.  (In fact, @code{list} may be any
-non-atomic expression, and successive parts are taken.)
+In each case,
+@var{body} is evaluated once for @var{variable} assigned
+each element of @var{list},
+each argument of @var{expr},
+or each key-value pair of @var{hash_table},
+respectively.
+If present,
+@var{end_tests} terminate the loop if any test evaluates to @code{true};
+otherwise the loop terminates when the elements of @var{list},
+the arguments of @var{expr},
+or the key-value pairs of @var{hash_table}
+are exhausted,
+or when @code{return} is executed in @var{body}.
+
+@var{hash_table} may be an undeclared array,
+either as a symbol property (created with @code{use_fast_arrays} equal to @code{false})
+or a value (created with @code{use_fast_arrays} equal to @code{true}),
+or a hash table created by @code{make_array(hashed, ...)}.
+
+Values are assigned to @var{variable} using the general assignment operator @code{":"}.
+Therefore any assignment to a symbol (not a subscripted expression) which is possible via @code{":"}
+is also permissible for iterating over the contents of expressions.
+In particular,
+destructuring assignments are recognized;
+these may be useful to work with the key-value pairs of a hash table.
+
+Examples:
+
+A @code{for} loop can iterate over the elements of a list.
 
 @c ===beg===
-@c for f in [log, rho, atan] do ldisp(f(1))$
-@c ev(%t3,numer);
+@c for f in [log, rho, atan] do ldisp (f(1)) $
 @c ===end===
 @example maxima
 @group
-(%i1) for f in [log, rho, atan] do ldisp(f(1))$
+(%i1) for f in [log, rho, atan] do ldisp (f(1)) $
 (%t1)                           0
 
 (%t2)                        rho(1)
 
                                %pi
-(%t3)                          ---
+(%t3)                          ───
                                 4
-
 @end group
+@end example
+
+A @code{for} loop can iterate over the arguments of a general expression.
+
+@c ===beg===
+@c e: a + 1/2 + %pi*2;
+@c for v in e do ldisp (v) $
+@c ===end===
+@example maxima
 @group
-(%i4) ev(%t3,numer);
-(%o4)                  0.7853981633974483
+(%i1) e: a + 1/2 + %pi*2;
+                                      1
+(%o1)                     a + 2 %pi + ─
+                                      2
+(%i2) for v in e do ldisp (v) $
+(%t2)                           a
+
+(%t3)                         2 %pi
+
+                                1
+(%t4)                           ─
+                                2
+@end group
+@end example
+
+A @code{for} loop can iterate over the key-value pairs of hash tables.
+In this case, the hash table is an undeclared array.
+
+@c ===beg===
+@c (hh["foo"]: 444, hh["bar"]: 222, hh["baz"]: 777) $
+@c for p in hh do ldisp (p);
+@c ===end===
+@example maxima
+@group
+(%i1) (hh["foo"]: 444, hh["bar"]: 222, hh["baz"]: 777) $
+
+(%i2) for p in hh do ldisp (p);
+(%t2)                     [[bar], 222]
+
+(%t3)                     [[baz], 777]
+
+(%t4)                     [[foo], 444]
+
+(%o4)                         done
+@end group
+@end example
+
+Destructuring assignments are recognized;
+these may be useful to work with the key-value pairs of a hash table.
+
+@c ===beg===
+@c (hh["foo"]: 444, hh["bar"]: 222, hh["baz"]: 777) $
+@c for [[k], v] in hh do disp (printf (false, "Key ~a --> value ~a", k, v));
+@c ===end===
+@example maxima
+@group
+(%i1) (hh["foo"]: 444, hh["bar"]: 222, hh["baz"]: 777) $
+
+(%i2) for [[k], v] in hh do disp (printf (false, "Key ~a --> value ~a", k, v));
+                      Key bar --> value 222
+
+                      Key baz --> value 777
+
+                      Key foo --> value 444
+
+(%o2)                         done
 @end group
 @end example
 
