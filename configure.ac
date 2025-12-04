@@ -911,6 +911,12 @@ EOF
            else
              AC_MSG_ERROR([Makeinfo version (${makeinfo_version_string}) too old to use pygments for syntax highlighting.  Disable or use highlightjs])
            fi
+           CUSTOM_PYGMENTS_CSS="$(cat | tr -s '\n' ' ' <<EOF
+<link rel="stylesheet"
+      type="text/css"
+      href="pygments.custom.css">
+EOF
+)"
         fi
         if test x${syntax_highlighting} = "xcustom-pygments"; then
            if test ${makeinfo_version} -lt 70299; then
