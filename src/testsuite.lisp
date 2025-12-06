@@ -216,10 +216,6 @@
     ;; On sbcl 1.4.10 we still get out-of-memory errors on many
     ;; computers on loading lapack => commented these tests out
     ;; for SBCL.    
-    ;;
-    ;;  The following functions were used but not defined: ODEPACK::DUMACH in gcl 2.6.12
-    ;;  and abcl 1.5.0
-
     #-sbcl
     ((mlist simp) "rtest_dgemm")
     #-sbcl
@@ -227,8 +223,6 @@
     #-sbcl
     ((mlist simp) "rtest_dgesv")
     ;;  The following functions were used but not defined: ODEPACK::DUMACH in gcl 2.6.12
-    ;;  and abcl 1.5.0
-    #-abcl
     "rtest_dlsode"
     ((mlist simp) "rtest_fourier_elim"
      ((mlist simp) 146 147 148 149))
