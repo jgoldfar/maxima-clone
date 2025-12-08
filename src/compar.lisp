@@ -1237,9 +1237,34 @@ TDNEG TDZERO TDPN) to store it, and also sets SIGN."
   `(multiple-value-bind (,lhs ,rhs) (compsplt ,expr)
      ,@forms))
 
+(defun sign-float (x)
+  "Maxima sign of a double-float x. Returns one of '$zero, '$pos, '$neg, or '$und (for NaN)"
+  (cond ((not (= x x)) '$und)   ; NaN check
+        ((zerop x) '$zero) ; ignores signed zero
+        ((minusp x) '$neg) ; x < 0
+        ((plusp x) '$pos)  ; x > 0
+        (t (merror "sign-float called on ~M ~%" x))))
+
+(defun sign-complex-float (x)
+  (multiple-value-bind (is-complex re im) (complex-number-p x #'floatp)
+    (cond
+      (is-complex  ;including the pure real case too
+       (cond
+         ((zerop im) (sign-float re)) ;imaginary part is zero, return sign of real part
+         ((and *complexsign* (zerop re)) '$imaginary) ; real part is zero, imaginary part nonzero, return imaginary
+         (*complexsign* '$complex) ;input is complex, return complex
+         (t (imag-err x)))) ;throw error for sign of complex
+      (t nil)))) ;x isn't a float or a complex float, return nil
+
 (defun sign1 (x)
   (setq x (specrepcheck x))
   (setq x (infsimp* x))
+
+  (let ((sgn (sign-complex-float x)))
+   (when sgn 
+    (setq sign sgn)
+     (return-from sign1 sgn))
+
   (when (and *complexsign* (atom x) (eq x '$infinity))
     ;; In Complex Mode the sign of infinity is complex.
     (when *debug-compar* (format t "~& in sign1 detect $infinity.~%"))
@@ -1278,7 +1303,7 @@ TDNEG TDZERO TDPN) to store it, and also sets SIGN."
                                    (setq sign s odds o evens e minus m)))
                            t)))))
 	 (sign exp))
-     (return sign)))
+     (return sign))))
 
 (defun numer (x)
   (let (($numer t) ; currently, no effect on $float, but proposed to

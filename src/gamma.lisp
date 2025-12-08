@@ -2241,30 +2241,29 @@
       (t
         result))))
 
+;; bfhalf is a special variable--it automatically updates when $fpprec is changed
 (defun bfloat-erf (z)
   ;; Warning!  This has round-off problems when abs(z) is very small.
-  (let ((1//2 ($bfloat '((rat simp) 1 2))))
   ;; The argument is real, the result is real too
     ($realpart
       (mul
         (simplify (list '(%signum) z))
         (sub 1
           (mul 
-            (div 1 (power ($bfloat '$%pi) 1//2))
-            (bfloat-gamma-incomplete 1//2 ($bfloat (power z 2)))))))))
+            (div 1 (power ($bfloat '$%pi) bfhalf))
+            (bfloat-gamma-incomplete bfhalf ($bfloat (power z 2))))))))
 
 (defun complex-bfloat-erf (z)
   ;; Warning!  This has round-off problems when abs(z) is very small.
   (let* (($ratprint nil)
-         (1//2 ($bfloat '((rat simp) 1 2)))
          (result
            (cmul
-             (cdiv (cpower (cpower z 2) 1//2) z)
+             (cdiv (cpower (cpower z 2) bfhalf) z)
              (sub 1
                (cmul 
-                 (div 1 (power ($bfloat '$%pi) 1//2))
+                 (div 1 (power ($bfloat '$%pi) bfhalf))
                  (complex-bfloat-gamma-incomplete 
-                   1//2
+                   bfhalf
                    ($bfloat (cpower z 2))))))))
     (cond
       ((zerop1 ($imagpart z))

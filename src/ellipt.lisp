@@ -1711,7 +1711,7 @@ first kind:
     ;;
     ;; E(z|m) = E(z - %pi*round(Re(z)/%pi)|m) + 2*round(Re(z)/%pi)*E(m)
     (let ((period (round (realpart phi) pi)))
-      (+ (base (- phi (* pi period)) m)
+      (+ (base (- phi (* (float pi 1d0) period)) m)
 	 (* 2 period (elliptic-ec m))))))
 
 ;; Complete version

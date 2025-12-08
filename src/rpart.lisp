@@ -756,10 +756,35 @@
 	    (if absflag 0 (genatan (cdr ris) (car ris)))
 	    (cond ((equal (car ris) 0) (absarg-mabs (cdr ris)))
 		  ((equal (cdr ris) 0) (absarg-mabs (car ris)))
-		  (t (powers ($expand (add (powers (car ris) 2)
-					   (powers (cdr ris) 2))
-				      1 0)
-			     (half)))))))))
+		  (t (hypotenuse (car ris) (cdr ris)))))))))
+
+(defun hypotenuse-numerical (re im)
+ "Dispatch the CL abs function to return |re + %i im|. The inputs re and im should be floating point numbers.
+  We trust the compiler to work correctly for all double floats, including denormalized floats, and not needlessly
+  over or underflow."
+  (cond ((zerop im) (abs im))
+        ((zerop re) (abs re))
+        (t (abs (complex re im)))))
+
+(defun hypotenuse (re im)
+ (flet ((hypotenuse-default (re im) ;ok to use when no worries about floating point over/underflow
+          ;; For mixed binary64 and symbolic cases, computing re^2 or im^2 can cause a 
+          ;; floating point overflow. When an error happens, we'll punt to an abs nounform.
+
+          ;; I'd prefer to eliminate the following calls to expand, but doing so causes
+          ;; some testsuite failures.
+          (setq re ($expand re 1 0)
+                im ($expand im 1 0))
+          (or (ignore-errors (ftake 'mexpt (add (mul re re) (mul im im)) 1//2))
+              (ftake 'mabs (add re (mul '$%i im))))))
+
+    (cond ((or ($bfloatp re) ($bfloatp im)) ; at least one bigfloat
+            (hypotenuse-default ($bfloat re) ($bfloat im)))
+
+          ((or (and (floatp re) (mnump im)) (and (mnump re) (floatp im))) ;at least one float part
+             (hypotenuse-numerical ($float re) ($float im)))
+
+          (t (hypotenuse-default re im))))) ;fall back
 
 (defun genatan (num den)
   (let ((arg (take '(%atan2) num den)))

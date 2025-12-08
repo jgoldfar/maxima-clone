@@ -1566,6 +1566,23 @@ pos$
 sign(x^(3/4));
 pz$
 
+/* \#4642 sign(1.0e-310*%i) gives error because 1e-310*x/1e-310 fails */
+errcatch(sign(1.0e-310*%i));
+[]$
+
+sign(1.0e-310);
+pos$
+
+sign(-1.0e-310);
+neg$
+
+csign(1.0e-310*%i);
+imaginary$
+
+csign(1.2e-310 + 1.0e-310*%i);
+complex$
+
+
 /* Clean up!*/
 
 (kill(all),0);

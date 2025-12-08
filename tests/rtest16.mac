@@ -3199,6 +3199,61 @@ kbateman[2](x);
 makelist(kbateman[n](0), n, 0, 5);
 [0,2/%pi,0,-2/(3*%pi), 0, 2/(5*%pi)];
 
+/* \#4642 sign(1.0e-310*%i) gives error because 1e-310*x/1e-310 fails*/
+errcatch(sign(1.0e-310*%i));
+[]$
+
+csign(1.0e-310*%i);
+imaginary$
+
+csign(1.0e-301);
+pos$
+
+csign(-1.0e-301);
+neg$
+
+csign(1.0e-301 + %i * 1.0e-301);
+complex$
+
+errcatch(sign(1.0b-310*%i));
+[]$
+
+csign(1.0b-310*%i);
+imaginary$
+
+csign(1.0b-301);
+pos$
+
+csign(-1.b-301);
+neg$
+
+csign(1.0b-301 + %i * 1.0e-301);
+complex$
+
+/* \#4638 cabs/carg/polarform overflow and underflow*/
+
+cabs(1e-170 + %i*1e-170);
+1.4142135623730951e-170$
+
+cabs(1e170 + %i*1e+170);
+1.4142135623730952e170$
+
+carg(1e170 + %i*1e+170);
+0.7853981633974483$
+
+carg(1e-310 + %i*1e-310);
+0.7853981633974483$
+
+/* Note: 1.4142135623730952e170*%e^(0.7853981633974483*%i) is not simplified! */
+(%emode : false,0);
+0$
+
+block([ans : polarform(1e170 + %i*1e+170)], [inpart(ans,0),inpart(ans,1),inpart(ans,2)]);
+["*",1.4142135623730952e170,%e^(0.7853981633974483*%i)]$
+
+(reset(%emode),0);
+0$
+
 kill(x);
 done$
 
