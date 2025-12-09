@@ -312,7 +312,7 @@
 
 (defun bfloat-double-factorial (z)
   (let* ((pival ($bfloat '$%pi))
-         (bigfloat1 ($bfloat bigfloatone))
+         (bigfloat1 ($bfloat *bigfloatone*))
          (bigfloat2 (add bigfloat1 bigfloat1))
          (bigfloat4 (add bigfloat2 bigfloat2))
          ($ratprint nil))
@@ -2032,10 +2032,10 @@
          (bfloat-log-gamma z))))
     (t
      (let* ((k (* 2 (+ 1 ($entier (* 0.41 $fpprec)))))
-            (m ($bfloat bigfloatone))
+            (m ($bfloat *bigfloatone*))
             (z+k (add z k -1))
             (y (power z+k 2))
-            (x ($bfloat bigfloatzero))
+            (x ($bfloat *bigfloatzero*))
             (ii))
        (dotimes (i (/ k 2))
          (setq ii (* 2 (+ i 1)))
@@ -2080,10 +2080,10 @@
          (complex-bfloat-log-gamma z))))
     (t
      (let* ((k (* 2 (+ 1 ($entier (* 0.41 $fpprec)))))
-            (m ($bfloat bigfloatone))
+            (m ($bfloat *bigfloatone*))
             (z+k (add z k -1))
             (y ($rectform (power z+k 2)))
-            (x ($bfloat bigfloatzero))
+            (x ($bfloat *bigfloatzero*))
             (ii))
        (dotimes (i (/ k 2))
          (setq ii (* 2 (+ i 1)))
@@ -2250,20 +2250,20 @@
         (simplify (list '(%signum) z))
         (sub 1
           (mul 
-            (div 1 (power ($bfloat '$%pi) bfhalf))
-            (bfloat-gamma-incomplete bfhalf ($bfloat (power z 2))))))))
+            (div 1 (power ($bfloat '$%pi) *bfhalf*))
+            (bfloat-gamma-incomplete *bfhalf* ($bfloat (power z 2))))))))
 
 (defun complex-bfloat-erf (z)
   ;; Warning!  This has round-off problems when abs(z) is very small.
   (let* (($ratprint nil)
          (result
            (cmul
-             (cdiv (cpower (cpower z 2) bfhalf) z)
+             (cdiv (cpower (cpower z 2) *bfhalf*) z)
              (sub 1
                (cmul 
-                 (div 1 (power ($bfloat '$%pi) bfhalf))
+                 (div 1 (power ($bfloat '$%pi) *bfhalf*))
                  (complex-bfloat-gamma-incomplete 
-                   bfhalf
+                   *bfhalf*
                    ($bfloat (cpower z 2))))))))
     (cond
       ((zerop1 ($imagpart z))

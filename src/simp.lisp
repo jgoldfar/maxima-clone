@@ -1269,7 +1269,7 @@
 	 (/ (cadr x) (caddr x)))
 	((and (floatp (cadr x)) (floatp (caddr x)) #-ieee-floating-point (not (zerop (caddr x))))
 	 (/ (cadr x) (caddr x)))
-	((and ($bfloatp (cadr x)) ($bfloatp (caddr x)) (not (equal bigfloatzero (caddr x))))
+	((and ($bfloatp (cadr x)) ($bfloatp (caddr x)) (not (equal *bigfloatzero* (caddr x))))
 	 ;; Call BIGFLOATP to ensure that arguments have same precision.
 	 ;; Otherwise FPQUOTIENT could return a spurious value.
 	 (bcons (fpquotient (cdr (bigfloatp (cadr x))) (cdr (bigfloatp (caddr x))))))
@@ -1893,10 +1893,10 @@
          (cond ((mnump r1) (addk 0.0 r1))
                ;; Do not simplify the type of the number away.
                (t (list '(mexpt simp) r1 1.0))))
-        ((equal r2 bigfloatone)
+        ((equal r2 *bigfloatone*)
          (cond ((mnump r1) ($bfloat r1))
                ;; Do not simplify the type of the number away.
-               (t (list '(mexpt simp) r1 bigfloatone))))
+               (t (list '(mexpt simp) r1 *bigfloatone*))))
 	((zerop1 r1)
 	 (cond ((or (zerop1 r2) (mnegp r2))
 		(if (not errorsw)
@@ -1904,7 +1904,7 @@
 		    (throw 'errorsw t)))
 	       (t (zerores r1 r2))))
 	((or (zerop1 r2) (onep1 r1))
-	 (cond ((or ($bfloatp r1) ($bfloatp r2)) bigfloatone)
+	 (cond ((or ($bfloatp r1) ($bfloatp r2)) *bigfloatone*)
 	       ((or (floatp r1) (floatp r2)) 1.0)
 	       (t 1)))
 	((or ($bfloatp r1) ($bfloatp r2)) ($bfloat (list '(mexpt) r1 r2)))
@@ -2196,7 +2196,7 @@
                   ;; A numeric constant like %e, %pi, ... and 
                   ;; exponent is a float or bigfloat value.
                   (return (if (and (member gr *builtin-numeric-constants*)
-                                   (equal pot bigfloatone))
+                                   (equal pot *bigfloatone*))
                               ;; Return a bigfloat value.
                               ($bfloat gr)
                               ;; Return a float value.
@@ -2742,7 +2742,7 @@
 			   (t (list '(mexpt simp) '$%e pot))))
 
 (defun zerores (r1 r2)
-  (cond ((or ($bfloatp r1) ($bfloatp r2)) bigfloatzero)
+  (cond ((or ($bfloatp r1) ($bfloatp r2)) *bigfloatzero*)
 	((or (floatp r1) (floatp r2)) 0.0)
 	(t 0)))
 

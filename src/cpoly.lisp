@@ -1057,12 +1057,12 @@
 	     dx (fpquotient (fpdifference (fplog (aref *shr-sl* *nn*))
 					  (fplog (aref *shr-sl* 0)))
 			    (intofp *nn*))
-	     *polysc1* (fpentier (bcons (fpplus (cdr bfhalf)
+	     *polysc1* (fpentier (bcons (fpplus (cdr *bfhalf*)
 						(fpquotient dx *logbas*))))
 	     x (fpplus x (fptimes* (intofp (* *polysc1* *nn*))
 				   (fptimes* *logbas*
-					     (cdr bfhalf))))
-	     *polysc* (fpentier (bcons (fpplus (cdr bfhalf) (fpquotient x *logbas*))))))
+					     (cdr *bfhalf*))))
+	     *polysc* (fpentier (bcons (fpplus (cdr *bfhalf*) (fpquotient x *logbas*))))))
     (cond ((equalp (aref *shr-sl* i) (intofp 0))
 	   (setq j (1+ j)))
 	  (t
@@ -1142,7 +1142,7 @@
 	  ((or bool1
 	       (fpgreaterp omp mp)
 	       ;;(not (< relstp 0.05))
-	       (fpgreaterp relstp (cdr bfhalf)))
+	       (fpgreaterp relstp (cdr *bfhalf*)))
 	   (if (fpgreaterp (fptimes* (intofp 0.1) mp)
 			   omp)
 	       (return t)
@@ -1199,7 +1199,7 @@
       (cond ((and (not *bool*)
 		  test
 		  (not (= j l2)))
-	     (cond ((fpgreaterp (fptimes* (cdr bfhalf) (bf-cmod-sl *zr* *zi*))
+	     (cond ((fpgreaterp (fptimes* (cdr *bfhalf*) (bf-cmod-sl *zr* *zi*))
 				(bf-cmod-sl (fpdifference *tr* otr)
 					    (fpdifference *ti* oti)))
 		    (cond (pasd
@@ -1231,7 +1231,7 @@
 	;; bfloat epsilon.  2^(-fpprec)
 	(*are* (bf-scale-float (intofp 2) (- fpprec)))
 	(*mre* (intofp 0))
-	(xx (fproot bfhalf 2))
+	(xx (fproot *bfhalf* 2))
 	(yy (intofp 0))
 	;; cos(94deg).  Probably don't need full bfloat precision here.
 	(cosr (intofp -0.0697564737441253007759588351941433286009032016527965250436172961370711270667891229125378568280742923028942076107741717160209821557740512756197740925891665208235244345674420755726285778495732000059330205461129612198466216775458241726113210999152981126990497403794217445425671287263223529689424188857433131142804))
@@ -1469,7 +1469,7 @@
 	(*infin* (intofp +most-positive-flonum+))
 	(*are* (bf-scale-float (intofp 2) (- fpprec)))
 	(*mre* (intofp 0))
-	(xx (fproot bfhalf 2))
+	(xx (fproot *bfhalf* 2))
 	(yy (intofp 0))
 	;; cos(94deg)
 	(cosr (intofp

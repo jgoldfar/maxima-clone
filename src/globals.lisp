@@ -793,19 +793,27 @@
   rounding purposes."
   :properties ((assign 'fpprec1)))
 
-(defmvar bigfloatzero '((bigfloat simp 56.) 0 0)
-  "Bigfloat representation of 0"
+(defmvar *bigfloatzero*
+    '((bigfloat simp 56.) 0 0)
+  "Bigfloat representation of 0  Automatically updated whenever fpprec
+  is set."
   in-core)
 
-(defmvar bigfloatone  '((bigfloat simp 56.) #.(expt 2 55.) 1)
-  "Bigfloat representation of 1"
+(defmvar *bigfloatone*
+    '((bigfloat simp 56.) #.(expt 2 55.) 1)
+  "Bigfloat representation of 1.  Automatically updated whenever fpprec
+  is set."
   in-core)
 
-(defmvar bfhalf	      '((bigfloat simp 56.) #.(expt 2 55.) 0)
-  "Bigfloat representation of 1/2")
+(defmvar *bfhalf*
+    '((bigfloat simp 56.) #.(expt 2 55.) 0)
+  "Bigfloat representation of 1/2.  Automatically updated whenever fpprec
+  is set.")
 
-(defmvar bfmhalf      '((bigfloat simp 56.) #.(- (expt 2 55.)) 0)
-  "Bigfloat representation of -1/2")
+(defmvar *bfmhalf*
+    '((bigfloat simp 56.) #.(- (expt 2 55.)) 0)
+  "Bigfloat representation of -1/2.  Automatically updated whenever
+  fpprec is set.")
 
 (defmvar bigfloat%e   '((bigfloat simp 56.) 48968212118944587. 2)
   "Bigfloat representation of %E")

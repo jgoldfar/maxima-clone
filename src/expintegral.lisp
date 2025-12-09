@@ -703,7 +703,7 @@
 (defun bfloat-expintegral-e (n z)
   (let ((*expint-eps* (power ($bfloat 10.0) (- $fpprec)))
         (*expint-maxit* 5000) ; arbitrarily chosen, we need a better choice
-        (bigfloattwo (add bigfloatone bigfloatone))
+        (bigfloattwo (add *bigfloatone* *bigfloatone*))
         (bigfloat%e ($bfloat '$%e))
         (bigfloat%gamma ($bfloat '$%gamma))
 	(flz (complex ($float ($realpart z)) ($float ($imagpart z)))))
@@ -721,8 +721,8 @@
        (when *debug-expintegral*
          (format t "~&We expand in continued fractions.~%"))
        (let* ((b  (add z n))
-              (c  (div bigfloatone (mul *expint-eps* *expint-eps*)))
-              (d  (cdiv bigfloatone b))
+              (c  (div *bigfloatone* (mul *expint-eps* *expint-eps*)))
+              (d  (cdiv *bigfloatone* b))
               (n1 (- n 1))
               (h  d)
               (e  0.0))
@@ -733,12 +733,12 @@
                  (intl:gettext "expintegral_e: continued fractions failed.")))
 
            (setq b (add b bigfloattwo))
-           (setq d (cdiv bigfloatone (add (mul a d) b)))
+           (setq d (cdiv *bigfloatone* (add (mul a d) b)))
            (setq c (add b (cdiv a c)))
            (setq e (cmul c d))
            (setq h (cmul h e))
             
-           (when (eq ($sign (sub (cabs (sub e bigfloatone)) *expint-eps*)) 
+           (when (eq ($sign (sub (cabs (sub e *bigfloatone*)) *expint-eps*)) 
                      '$neg)
              (when *debug-expintegral*
                (setq *debug-expint-bfloatmaxit*
@@ -750,9 +750,9 @@
          (format t "~&We expand in a power series.~%"))
        (let* ((n1 (- n 1))
               (meuler (mul -1 bigfloat%gamma))
-              (r (if (= n1 0) (sub meuler ($log z)) (div bigfloatone n1)))
-              (f bigfloatone)
-              (e bigfloatzero))
+              (r (if (= n1 0) (sub meuler ($log z)) (div *bigfloatone* n1)))
+              (f *bigfloatone*)
+              (e *bigfloatzero*))
          (do* ((i 1 (+ i 1)))
               ((> i *expint-maxit*)
                (merror (intl:gettext "expintegral_e: series failed.")))
@@ -761,7 +761,7 @@
              ((= i n1)
               (let ((psi meuler))                
                 (dotimes (ii n1)
-                  (setq psi (add psi (cdiv bigfloatone (+ ii 1)))))
+                  (setq psi (add psi (cdiv *bigfloatone* (+ ii 1)))))
                 (setq e (cmul f (sub psi ($log z))))))
              (t 
               (setq e (cdiv (mul -1 f) (- i n1)))))
@@ -783,7 +783,7 @@
 (defun frac-bfloat-expintegral-e (n z)
   (let ((*expint-eps* (power ($bfloat 10.0) (- $fpprec)))
         (*expint-maxit* 5000) ; arbitrarily chosen, we need a better choice
-        (bigfloattwo (add bigfloatone bigfloatone))
+        (bigfloattwo (add *bigfloatone* *bigfloatone*))
         (bigfloat%e ($bfloat '$%e))
         (bigfloat%gamma ($bfloat '$%gamma)))
 
@@ -795,13 +795,13 @@
     (cond
       ((and (or (eq ($sign ($realpart z)) '$pos)
 		(eq ($sign ($realpart z)) '$zero))
-            (eq ($sign (sub (cabs z) bigfloatone)) '$pos))
+            (eq ($sign (sub (cabs z) *bigfloatone*)) '$pos))
        ;; We expand in continued fractions.
        (when *debug-expintegral*
              (format t "We expand in continued fractions.~%"))
        (let* ((b  (add z n))
-              (c  (div bigfloatone (mul *expint-eps* *expint-eps*)))
-              (d  (cdiv bigfloatone b))
+              (c  (div *bigfloatone* (mul *expint-eps* *expint-eps*)))
+              (d  (cdiv *bigfloatone* b))
               (n1 (sub n 1))
               (h  d)
               (e  0.0))
@@ -812,12 +812,12 @@
                  (intl:gettext "expintegral_e: continued fractions failed.")))
 
            (setq b (add b bigfloattwo))
-           (setq d (cdiv bigfloatone (add (mul a d) b)))
+           (setq d (cdiv *bigfloatone* (add (mul a d) b)))
            (setq c (add b (cdiv a c)))
            (setq e (cmul c d))
            (setq h (cmul h e))
             
-           (when (eq ($sign (sub (cabs (sub e bigfloatone)) *expint-eps*))
+           (when (eq ($sign (sub (cabs (sub e *bigfloatone*)) *expint-eps*))
                   '$neg)
              (when *debug-expintegral*
                (setq *debug-expint-fracbfloatmaxit*
@@ -831,7 +831,7 @@
               (and ($bfloatp n)
                    (eq ($sign n) '$pos)
                    (equal (sub (mul 2 ($fix n)) (mul 2 n))
-                          bigfloatzero)))
+                          *bigfloatzero*)))
        ;; We have a Float or Bigfloat representation of positive integer.
        ;; We call bfloat-expintegral-e.
        (when *debug-expintegral*
@@ -843,16 +843,16 @@
        ;; of an integer) or complex. We expand in a power series.
        (when *debug-expintegral*
              (format t "We expand in a power series.~%"))       
-       (let* ((n1 (sub n bigfloatone))
-              (n2 (sub bigfloatone n))
+       (let* ((n1 (sub n *bigfloatone*))
+              (n2 (sub *bigfloatone* n))
               (gm (take '(%gamma) n2))
-              (r (sub (cmul (cpower z n1) gm) (cdiv bigfloatone n2)))
-              (f bigfloatone)
-              (e bigfloatzero))
+              (r (sub (cmul (cpower z n1) gm) (cdiv *bigfloatone* n2)))
+              (f *bigfloatone*)
+              (e *bigfloatzero*))
          (do ((i 1 (+ i 1)))
              ((> i *expint-maxit*)
               (merror (intl:gettext "expintegral_e: series failed.")))
-           (setq f (cmul (mul -1 bigfloatone) (cmul f (cdiv z i))))
+           (setq f (cmul (mul -1 *bigfloatone*) (cmul f (cdiv z i))))
            (setq e (cdiv (mul -1 f) (sub i n1)))
            (setq r (add r e))
            (when (eq ($sign (sub (cabs e) (cmul (cabs r) *expint-eps*)))
@@ -1180,11 +1180,11 @@
 
 (defun bfloat-expintegral-ei (z)
   (let ((mz (mul -1 z)))
-    (add (cmul (mul -1 bigfloatone) 
+    (add (cmul (mul -1 *bigfloatone*) 
                (bfloat-expintegral-e 1 mz))
-         (sub (cmul (div bigfloatone 2)
+         (sub (cmul (div *bigfloatone* 2)
                     (sub (take '(%log) z)
-                         (take '(%log) (cdiv bigfloatone z))))
+                         (take '(%log) (cdiv *bigfloatone* z))))
               (take '(%log) mz)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

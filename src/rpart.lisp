@@ -689,7 +689,7 @@
 			(t (cons (take '(mabs) l) (genatan 0 l))))))))
 	((eq '$zero (let ((sign-imag-errp nil)) (catch 'sign-imag-err ($sign l))))
 	 (cond ((some-bfloatp l)
-		(cons bigfloatzero bigfloatzero))	; contagious
+		(cons *bigfloatzero* *bigfloatzero*))	; contagious
 	       ((some-floatp l)
 		(cons 0.0 0.0))
 	       (t (cons 0 0))))

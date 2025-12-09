@@ -73,10 +73,10 @@
   (if (or (not (fixnump q)) (< q 1))
       (merror (intl:gettext "fpprec: value must be a positive integer; found: ~M") q))
   (setq fpprec (+ 2 (integer-length (expt 10. q)))
-	bigfloatone ($bfloat 1)
-	bigfloatzero ($bfloat 0)
-	bfhalf (list (car bigfloatone) (cadr bigfloatone) 0)
-	bfmhalf (list (car bigfloatone) (- (cadr bigfloatone)) 0))
+	*bigfloatone* ($bfloat 1)
+	*bigfloatzero* ($bfloat 0)
+	*bfhalf* (list (car *bigfloatone*) (cadr *bigfloatone*) 0)
+	*bfmhalf* (list (car *bigfloatone*) (- (cadr *bigfloatone*)) 0))
   q)
 
 ;; FPSCAN is called by lexical scan when a
@@ -598,7 +598,7 @@
   (let ((fprateps (cdr ($bfloat (if $bftorat
 				    (list '(rat simp) 1 (exptrl 2 (1- fpprec)))
 				    $ratepsilon)))))
-    (or (and (equal x bigfloatzero) (cons 0 1))
+    (or (and (equal x *bigfloatzero*) (cons 0 1))
 	(prog (y a)
 	   (return (do ((xx x (setq y (invertbigfloat
 				       (bcons (fpdifference (cdr xx) (cdr ($bfloat a)))))))
@@ -768,7 +768,7 @@
                       ;; that and signal a domain error if so.  There
                       ;; are no other bfloat values where tan(x) or
                       ;; sin(x) is zero.
-                      (when (equal (second x) bigfloatzero)
+                      (when (equal (second x) *bigfloatzero*)
                         (domain-error (second x) (caar x)))
 		      (invertbigfloat
 		       ($bfloat (list (ncons (safe-get (caar x) 'recip)) y))))
@@ -788,7 +788,7 @@
 
 (defun addbigfloat (h)
   (prog (fans tst r nfans)
-     (setq fans (setq tst bigfloatzero) nfans 0)
+     (setq fans (setq tst *bigfloatzero*) nfans 0)
      (do ((l h (cdr l)))
 	 ((null l))
        (cond ((setq r (bigfloatp (car l)))
@@ -1222,7 +1222,7 @@
 ;; value because 1 is always an exact bfloat.
 (defun fpone ()
   (cond (*decfp (intofp 1))
-	((= fpprec (bigfloat-prec bigfloatone)) (cdr bigfloatone))
+	((= fpprec (bigfloat-prec *bigfloatone*)) (cdr *bigfloatone*))
 	(t (intofp 1))))
 
 ;;----------------------------------------------------------------------------;;
@@ -1729,9 +1729,9 @@
 		 (power -1 n))
 	       (exptbigfloat (bcons (fpminus (cdr p))) n)))
 	((and (< (cadr p) 0) (not (integerp n)))
-	 (cond ((or (equal n 0.5) (equal n bfhalf))
+	 (cond ((or (equal n 0.5) (equal n *bfhalf*))
 		(exptbigfloat p '((rat simp) 1 2)))
-	       ((or (equal n -0.5) (equal n bfmhalf))
+	       ((or (equal n -0.5) (equal n *bfmhalf*))
 		(exptbigfloat p '((rat simp) -1 2)))
 	       (($bfloatp (setq n ($bfloat n)))
 		(cond ((equal n ($bfloat (fpentier n)))
@@ -2193,7 +2193,7 @@
     (cond ((minusp (car fp-x))
 	   ;; asin(-x) = -asin(x);
 	   (mul -1 (fpasin (bcons (fpminus fp-x)))))
-	  ((fplessp fp-x (cdr bfhalf))
+	  ((fplessp fp-x (cdr *bfhalf*))
 	   ;; 0 <= x < 1/2
 	   ;; asin(x) = atan(x/sqrt(1-x^2))
 	   (bcons
@@ -2349,17 +2349,17 @@
 	   (multiple-value-bind (u v)
 	       (complex-atanh x (bcons (intofp 0)))
 	     (add u (mul '$%i v))))
-	  ((fpgreaterp fp-x (cdr bfhalf))
+	  ((fpgreaterp fp-x (cdr *bfhalf*))
 	   ;; atanh(x) = 1/2*log1p(2*x/(1-x))
 	   (bcons
-	    (fptimes* (cdr bfhalf)
+	    (fptimes* (cdr *bfhalf*)
 		      (fplog1p (fpquotient (fptimes* (intofp 2) fp-x)
 					   (fpdifference (fpone) fp-x))))))
 	  (t
 	   ;; atanh(x) = 1/2*log1p(2*x + 2*x*x/(1-x))
 	   (let ((2x (fptimes* (intofp 2) fp-x)))
 	     (bcons
-	      (fptimes* (cdr bfhalf)
+	      (fptimes* (cdr *bfhalf*)
 			(fplog1p (fpplus 2x
 					 (fpquotient (fptimes* 2x fp-x)
 						     (fpdifference (fpone) fp-x)))))))))))
@@ -2424,11 +2424,11 @@
                   (fppi-val (fppi)))
 
 	         (if x-lt-minus-1
-			      (fptimes* fppi-val (cdr bfhalf))
+			      (fptimes* fppi-val (cdr *bfhalf*))
 			      (if x-gt-plus-1
-			          (fptimes* fppi-val (cdr bfmhalf))
+			          (fptimes* fppi-val (cdr *bfmhalf*))
 			          '(0 0))))
-	         (fptimes* (cdr bfmhalf)
+	         (fptimes* (cdr *bfmhalf*)
 		           (fpatan2 (fptimes* (intofp 2) y)
 				    (fpdifference (fptimes* 1-x (fpplus fp1 x))
 					          t1^2))))))
