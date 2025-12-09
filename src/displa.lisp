@@ -1201,6 +1201,7 @@
 (displa-def %matrix dim-$matrix)
 
 (defmvar $display_matrix_brackets t)
+(defmvar $display_matrix_padding_vertical t)
 
 (defun dim-$matrix (form result)
   (prog (dmstr rstr cstr consp cols)
@@ -1227,7 +1228,7 @@
        (do ((c (cdar r) (cdr c))
 	    (nc dmstr (cdr nc))
 	    (cs cstr (cdr cs)) (dummy) (h2 0) (d2 0))
-	   ((null c) (setq d1 (+ d1 h1 h2) h1 (1+ d2)))
+	   ((null c) (setq d1 (+ (if (or $display_matrix_padding_vertical (null rstr)) d1 (1- d1)) h1 h2) h1 (1+ d2)))
 	 (setq dummy (dimension (car c) nil 'mparen 'mparen nil 0)
 	       h2 (max h2 height) d2 (max d2 depth))
 	 (cond ((not (checkfit (+ 14. width))) (setq consp t) (return nil))
@@ -1283,7 +1284,7 @@
 (displa-def mbox dim-mbox-or-mlabox)
 (displa-def %mbox dim-mbox-or-mlabox)
 
-(defun dim-mbox-or-mlabox (form result &aux dummy)
+(defun dim-mbox-or-mlabox (form result)
   (if (= (length form) 3)
     (dim-mlabox form result)
     (dim-mbox form result)))

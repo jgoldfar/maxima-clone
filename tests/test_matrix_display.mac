@@ -143,3 +143,15 @@ print (recip_abs_box_foo3) $
 print (recip_abs_box_foo4) $
 print (recip_abs_box_foo5) $
 
+display_matrix_padding_vertical: false;
+
+recip_abs_box_foo5;
+print (recip_abs_box_foo5);
+
+blurf: print (box (genmatrix (lambda ([i, j], x^i/sum (y[k], k, 1, j)), 8, 5)));
+
+display_matrix_brackets: true;
+
+print (blurf);
+
+reset ();
