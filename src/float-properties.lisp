@@ -125,7 +125,7 @@
 	       (expon (- (caddr f) (bigfloat-prec f))))
 	   (cond ((= 0 significand)
 		   ; ULP is arbitrarily small for bigfloat 0
-		  bigfloatzero)
+		  *bigfloatzero*)
 		 ;; precision of resulting bigfloat not necessarily the same as input
 		 ;; but that doesn't matter, since 2^n can be represented exactly in all
 		 ;; precisions

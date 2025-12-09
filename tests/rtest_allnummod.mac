@@ -266,10 +266,10 @@ trigsimp(ceiling(asin(cos(sqrt(2))^2 + sin(sqrt(2))^2 - 1/7)));
 
 /* SF bug #1644378 */
 
-(x : ?bigfloatone,0);
+(x : ?\*bigfloatone\*,0);
 0$
 
-(ceiling(log(2)), is(x = ?bigfloatone));
+(ceiling(log(2)), is(x = ?\*bigfloatone\*));
 true$
 
 (remvalue(x),0);
