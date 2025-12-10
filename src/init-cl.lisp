@@ -512,7 +512,9 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
 				     ;; $loadprint T so we can see the file being loaded;
 				     ;; unless *maxima-quiet* is T.
 				     (let (($loadprint (not *maxima-quiet*)))
-				       ($load file)))
+                                       ;; If there's an error, catch
+                                       (catch 'macsyma-quit
+				         ($load file))))
 			 :help-string
                          "Preload <file>, which may be any file time accepted by
         Maxima's LOAD function.  The <file> is loaded before any other
