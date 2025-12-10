@@ -17,7 +17,8 @@ Bug fixes for numbered bugs:
  * \#4619: limit(inf = inf) causes stack overflow
  * \#4633: integrate(exp(- t) log(t), t, 0, 1) --> integral nounform
  * \#4636: signum(ind) is an error
- 
+ * \#4647: Maxima error in --preload file causes Lisp error
+
 Changes in the Windows installer:
 ---------------------------------
  * Update SBCL
