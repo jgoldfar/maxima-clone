@@ -815,18 +815,6 @@
   "Bigfloat representation of -1/2.  Automatically updated whenever
   fpprec is set.")
 
-(defmvar bigfloat%e   '((bigfloat simp 56.) 48968212118944587. 2)
-  "Bigfloat representation of %E")
-
-(defmvar bigfloat%pi  '((bigfloat simp 56.) 56593902016227522. 2)
-  "Bigfloat representation of %pi")
-
-(defmvar bigfloat%gamma '((bigfloat simp 56.) 41592772053807304. 0)
-  "Bigfloat representation of %gamma")
-
-(defmvar bigfloat_log2 '((bigfloat simp 56.) 49946518145322874. 0)
-  "Bigfloat representation of log(2)")
-
 ;; Number of bits of precision in the mantissa of newly created bigfloats.
 ;; FPPREC = ($FPPREC+1)*(Log base 2 of 10)
 
