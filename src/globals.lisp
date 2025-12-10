@@ -815,15 +815,19 @@
   "Bigfloat representation of -1/2.  Automatically updated whenever
   fpprec is set.")
 
+#+nil
 (defmvar bigfloat%e   '((bigfloat simp 56.) 48968212118944587. 2)
   "Bigfloat representation of %E")
 
+#+nil
 (defmvar bigfloat%pi  '((bigfloat simp 56.) 56593902016227522. 2)
   "Bigfloat representation of %pi")
 
+#+nil
 (defmvar bigfloat%gamma '((bigfloat simp 56.) 41592772053807304. 0)
   "Bigfloat representation of %gamma")
 
+#+nil
 (defmvar bigfloat_log2 '((bigfloat simp 56.) 49946518145322874. 0)
   "Bigfloat representation of log(2)")
 

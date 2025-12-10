@@ -47,10 +47,13 @@
 (defvar *decfp nil)
 
 ;; FIXME:  These don't appear to be used anywhere.  Remove these.
+#+nil
+(progn
 (defvar max-bfloat-%pi bigfloat%pi)
 (defvar max-bfloat-%e  bigfloat%e)
 (defvar max-bfloat-%gamma bigfloat%gamma)
 (defvar max-bfloat-log2 bigfloat_log2)
+)
 
 
 (declare-top (special *cancelled $bfloat))
