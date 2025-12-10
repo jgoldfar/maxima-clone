@@ -94,7 +94,7 @@
 ;; For an example, see pretty-good-floor-or-ceiling. Code courtesy of Stavros Macrakis.
 
 (defmacro bind-fpprec (val &body exprs)
-  `(let (fpprec *bigfloatzero* *bigfloatone* *bfhalf* bfmhalf)
+  `(let (fpprec *bigfloatzero* *bigfloatone* *bfhalf* *bfmhalf*)
      (let (($fpprec (fpprec1 nil ,val)))
        ,@exprs)))
 
