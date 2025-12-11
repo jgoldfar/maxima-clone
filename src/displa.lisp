@@ -1202,6 +1202,7 @@
 
 (defmvar $display_matrix_brackets t)
 (defmvar $display_matrix_padding_vertical t)
+(defmvar $display_matrix_padding_horizontal t)
 
 (defun dim-$matrix (form result)
   (prog (dmstr rstr cstr consp cols)
@@ -1221,7 +1222,7 @@
      (do ((r (cdr form) (cdr r)) (h1 0) (d1 0))
 	 ((or consp (null r))
 	  (setq width 0)
-	  (do ((cs cstr (cdr cs))) ((null cs)) (setq width (+ 2 (car cs) width)))
+	  (do ((cs cstr (cdr cs))) ((null cs)) (setq width (+ (if $display_matrix_padding_horizontal 2 0) (car cs) width)))
 	  (if (display2d-unicode-enabled)
 	    (setq h1 (1+ (+ h1 d1)) depth (truncate h1 2) height (- h1 depth))
 	    (setq h1 (1- (+ h1 d1)) depth (truncate h1 2) height (- h1 depth))))
@@ -1245,7 +1246,7 @@
 
 (defun matout (dmstr cstr rstr result)
   (when $display_matrix_brackets (push `(d-matrix left ,height ,depth) result))
-  (push #\space result)
+  (when $display_matrix_padding_horizontal (push #\space result))
   (do ((d dmstr (cdr d)) (c cstr (cdr c)) (w 0 0))
       ((null d))
     (do ((d (car d) (cdr d)) (r rstr (cdr r))) ((null d))
@@ -1253,7 +1254,7 @@
       (rplaca (cdar d) (- (truncate (- (car c) (caar d)) 2) w))
       (setq w (truncate (+ (car c) (caar d)) 2))
       (rplaca d (cdar d)))
-    (setq result (cons (list (+ 2 (- (car c) w)) 0) (nreconc (car d) result))))
+    (setq result (cons (list (+ (if $display_matrix_padding_horizontal 2 (if (cdr c) 0 1)) (- (car c) w)) 0) (nreconc (car d) result))))
   (if $display_matrix_brackets
     (setq width (+ 2 width))
     (when $display2d_unicode
