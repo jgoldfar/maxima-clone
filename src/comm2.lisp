@@ -736,7 +736,14 @@ the hashtable.")
 
 ;;;; BOX
 
+;; Alias makes `box` in input parse to symbol MBOX.
+;; (The MHEADER property is only applied to nonatomic expressions;
+;; the alias property covers `box` as a symbol.)
+
+(defprop $box mbox alias)
+
 ;; Reverse alias makes MBOX and MLABOX display as box in 1-d output.
+
 (defprop mbox $box reversealias)
 (defprop mlabox $box reversealias)
 
