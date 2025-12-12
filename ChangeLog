@@ -17,7 +17,10 @@ Bug fixes for numbered bugs:
  * \#4619: limit(inf = inf) causes stack overflow
  * \#4633: integrate(exp(- t) log(t), t, 0, 1) --> integral nounform
  * \#4636: signum(ind) is an error
+ * \#4642 sign(1.0e-310*%i) gives error because 1e-310*x/1e-310 fails
+ * \#4646: minor hstep problems and missing features
  * \#4647: Maxima error in --preload file causes Lisp error
+ * \#4648: autoload problem with hstep
 
 Changes in the Windows installer:
 ---------------------------------
