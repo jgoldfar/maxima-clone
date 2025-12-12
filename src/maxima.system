@@ -749,6 +749,7 @@
 	     (:file "conjugate")
 	     (:file "expintegral")
 	     (:file "gamma")
+		 (:file "hstep")
 	     (:file "mstuff")))
    (:module polynomial :source-pathname ""
 	    :depends-on ("defmfun")

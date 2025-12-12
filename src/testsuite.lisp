@@ -152,6 +152,7 @@
         
          ((mlist simp) "rtest_atan2" ((mlist simp) 65))
         "rtest_gcd"
+        ((mlist simp) "rtest_hstep")
 	;; The tests that failed with abcl 1.5.0
 	((mlist simp) "rtest_hg"
 	 #+(or gcl abcl) ((mlist simp) 120)

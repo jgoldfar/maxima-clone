@@ -406,6 +406,5 @@
   (setf (get f 'autoload) "tocl"))
 
 (dolist (f
-  '($hstep
-    $pwilt))
+  '($pwilt))
   (setf (get f 'autoload) "pwilt"))
