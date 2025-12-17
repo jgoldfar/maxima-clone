@@ -1739,3 +1739,53 @@ integrate(cos(2*x)*diff(f(x),x),x);
  */
 integrate(spherical_bessel_j(1,x)^2, x, 0, inf);
 %pi/6;
+
+/* https://stackoverflow.com/questions/79848443/maximas-trigrat-can-transform-a-real-valued-expression-into-a-non-equivalent-no */
+
+(test_trigrat (e) :=
+     block ([trigrat_e: trigrat (e), d],
+            d: float (trigrat_e) - float (e),
+            if cabs (d) < 1e-14 then true
+                else [ 'expr = e, 'trigrat_expr = trigrat_e, 'difference = d ]),
+     0);
+0;
+
+test_trigrat (sin(3*%pi/47) / sin(11*%pi/47));
+true;
+
+(trigrat_test_cases: [
+     [ p = 37, b = 9, a = makelist (i, i, 1, 36) ],
+     [ p = 37, b = 28, a = makelist (i, i, 1, 36) ],
+     [ p = 37, b = 16, a = 36 ],
+     [ p = 37, b = 21, a = 36 ],
+
+     [ p = 47, b = 11, a = makelist (i, i, 1, 46) ],
+     [ p = 47, b = 36, a = makelist (i, i, 1, 46) ],
+
+     [ p = 53, b = 13, a = 8 ],
+     [ p = 53, b = 40, a = 8 ],
+     [ p = 53, b = 15, a = 41 ],
+     [ p = 53, b = 38, a = 41 ],
+
+     [ p = 61, b = 23, a = 33 ],
+     [ p = 61, b = 38, a = 33 ],
+
+     [ p = 71, b = 24, a = 70 ],
+     [ p = 71, b = 47, a = 70 ],
+
+     [ p = 73, b = 25, a = makelist (i, i, 1, 72) ],
+     [ p = 73, b = 48, a = makelist (i, i, 1, 72) ],
+
+     [ p = 97, b = 6, a = 1 ],
+     [ p = 97, b = 91, a = 1 ]
+ ],
+ ge: sin(%pi * a/p) / sin(%pi * b/p),
+ process_trigrat_test_cases () :=
+     makelist (if atom (rhs (last (e))) then test_trigrat (subst (e, ge))
+                   else block ([ge1: subst (firstn (e, 2), ge)],
+                               map (lambda ([e1], test_trigrat (subst (lhs (last (e)) = e1, ge1))), rhs (last (e)))), e, trigrat_test_cases),
+ unique (flatten (process_trigrat_test_cases ())));
+[true];
+
+test_trigrat (sin(3*%pi/47) / sin(13*%pi/47));
+true;
