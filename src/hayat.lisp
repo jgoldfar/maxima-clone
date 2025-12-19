@@ -2454,7 +2454,7 @@
 
 (defun multiple-%pi (a const func)
   (let (coef)
-    (and (equal ($hipow const '$%pi) 1)
+    (and (multiplep const '$%pi)
 	 ($ratnump (setq coef ($ratcoef const '$%pi 1)))
 	 (cond ((numberp coef) (expand (m- a const) func))
 	       ((equal (caddr coef) 2)
