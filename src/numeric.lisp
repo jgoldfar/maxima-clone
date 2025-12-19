@@ -655,7 +655,357 @@
 			 :imag (maxima::bcons
 				(maxima::fpquotient (maxima::fpminus a-re)
 						    dn)))))))
+
+;; An implementation of Baudin and Smith's robust complex division for
+;; double-floats.  This is a pretty straightforward translation of the
+;; original in https://arxiv.org/pdf/1210.4539.
+;;
+;; This also includes improvements mentioned in
+;; https://lpc.events/event/11/contributions/1005/attachments/856/1625/Complex_divide.pdf.
+;; In particular iteration 1 and 3 are added.  Iteration 2 and 4 were
+;; not added.  The test examples from iteration 2 and 4 didn't change
+;; with or without changes added.
+
+(defvar *use-accurate-complex-div* t
+  "When non-NIL use the accurate complex division algorithm for double-floats.")
+
+(let* (;; This is the value of Scilab's %eps variable.
+       (eps (cl:scale-float 1d0 -52))
+       (rmin least-positive-normalized-double-float)
+       (rbig (cl:/ most-positive-double-float 2))
+       (rmin2 (cl:scale-float 1d0 -53))
+       (rminscal (cl:scale-float 1d0 51))
+       (rmax2 (cl:* rbig rmin2))
+       (be (cl:/ 2 (cl:* eps eps)))
+       (2/eps (cl:/ 2 eps)))
+  (declare (double-float eps rmin rbig rmin2 rminscal rmax2 be 2/eps))
+  (defun cdiv-double-float (x y)
+    (declare (type (cl:complex double-float) x y)
+             (optimize (speed 3) (safety 0)))
+    (labels
+	((internal-compreal (a b c d r tt)
+	   (declare (double-float a b c d r tt))
+	   ;; Compute the real part of the complex division
+	   ;; (a+ib)/(c+id), assuming |c| <= |d|.  r = d/c and tt = 1/(c+d*r).
+	   ;;
+	   ;; The realpart is (a*c+b*d)/(c^2+d^2).
+	   ;;
+	   ;;   c^2+d^2 = c*(c+d*(d/c)) = c*(c+d*r)
+	   ;;
+	   ;; Then
+	   ;;
+	   ;;   (a*c+b*d)/(c^2+d^2) = (a*c+b*d)/(c*(c+d*r))
+	   ;;                       = (a + b*d/c)/(c+d*r)
+	   ;;                       = (a + b*r)/(c + d*r).
+	   ;;
+	   ;; Thus tt = (c + d*r).
+	   (cond ((cl:>= (cl:abs r) rmin)
+		  (let ((br (cl:* b r)))
+		    #+nil
+		    (format t "br = ~A~%" br)
+		    (if (cl:/= br 0)
+			(cl:/ (cl:+ a br) tt)
+			;; b*r underflows.  Instead, compute
+			;;
+			;; (a + b*r)*tt = a*tt + b*tt*r
+			;;              = a*tt + (b*tt)*r
+			;; (a + b*r)/tt = a/tt + b/tt*r
+			;;              = a*tt + (b*tt)*r
+			(cl:+ (cl:/ a tt)
+			      (cl:* (cl:/ b tt)
+			            r)))))
+		 (t
+		  ;; r = 0 so d is very tiny compared to c.
+		  ;;
+		  ;; (a + b*r)/tt = (a + b*(d/c))/tt
+		  (cl:/ (cl:+ a (cl:* d (cl:/ b c)))
+		        tt))))
+	 (robust-subinternal (a b c d)
+	   (declare (double-float a b c d))
+	   (let* ((r (cl:/ d c))
+		  (tt (cl:+ c (cl:* d r))))
+	     ;; e is the real part and f is the imaginary part.  We
+	     ;; can use internal-compreal for the imaginary part by
+	     ;; noticing that the imaginary part of (a+i*b)/(c+i*d) is
+	     ;; the same as the real part of (b-i*a)/(c+i*d).
+	     (let ((e (internal-compreal a b c d r tt))
+		   (f (internal-compreal b (cl:- a) c d r tt)))
+	       (values e
+		       f))))
+	 
+	 (robust-internal (x y)
+	   (declare (type (cl:complex double-float) x y))
+	   (let ((a (cl:realpart x))
+		 (b (cl:imagpart x))
+		 (c (cl:realpart y))
+		 (d (cl:imagpart y)))
+             (declare (double-float a b c d))
+	     (flet ((maybe-scale (abs-tst a b c d)
+                      (declare (double-float abs-tst a b c d))
+		      ;; This implements McGehearty's iteration 3 to
+		      ;; handle the case when some values are too big
+		      ;; and should be scaled down.  Also if some
+		      ;; values are too tiny, scale them up.
+		      (let ((abs-a (cl:abs a))
+			    (abs-b (cl:abs b)))
+			(if (or (cl:> abs-tst rbig)
+				(cl:> abs-a rbig)
+				(cl:> abs-b rbig))
+			    (setf a (cl:* a 0.5d0)
+				  b (cl:* b 0.5d0)
+				  c (cl:* c 0.5d0)
+				  d (cl:* d 0.5d0))
+			    (if (cl:< abs-tst rmin2)
+				(setf a (cl:* a rminscal)
+				      b (cl:* b rminscal)
+				      c (cl:* c rminscal)
+				      d (cl:* d rminscal))
+				(if (or (and (cl:< abs-a rmin)
+					     (cl:< abs-b rmax2)
+					     (cl:< abs-tst rmax2))
+					(and (cl:< abs-b rmin)
+					     (cl:< abs-a rmax2)
+					     (cl:< abs-tst rmax2)))
+				    (setf a (cl:* a rminscal)
+					  b (cl:* b rminscal)
+					  c (cl:* c rminscal)
+					  d (cl:* d rminscal)))))
+                        (values a b c d))))
+	       (cond
+		 ((cl:<= (cl:abs d) (cl:abs c))
+		  ;; |d| <= |c|, so we can use robust-subinternal to
+		  ;; perform the division.
+		  (multiple-value-bind (a b c d)
+                      (maybe-scale (cl:abs c) a b c d)
+		    (multiple-value-bind (e f)
+		        (robust-subinternal a b c d)
+		      (cl:complex e f))))
+		 (t
+		  ;; |d| > |c|.  So, instead compute
+		  ;;
+		  ;;   (b + i*a)/(d + i*c) = ((b*d+a*c) + (a*d-b*c)*i)/(d^2+c^2)
+		  ;;
+		  ;; Compare this to (a+i*b)/(c+i*d) and we see that
+		  ;; realpart of the former is the same, but the
+		  ;; imagpart of the former is the negative of the
+		  ;; desired division.
+		  (multiple-value-bind (a b c d)
+                      (maybe-scale (cl:abs d) a b c d)
+		    (multiple-value-bind (e f)
+		        (robust-subinternal b a d c)
+		      (cl:complex e (cl:- f))))))))))
+      (let* ((a (cl:realpart x))
+	     (b (cl:imagpart x))
+	     (c (cl:realpart y))
+	     (d (cl:imagpart y))
+	     (ab (cl:max (cl:abs a) (cl:abs b)))
+	     (cd (cl:max (cl:abs c) (cl:abs d)))
+	     (s 1d0))
+        (declare (double-float s))
+	;; If a or b is big, scale down a and b.
+	(when (cl:>= ab rbig)
+	  (setf x (cl:/ x 2)
+		s (cl:* s 2)))
+	;; If c or d is big, scale down c and d.
+	(when (cl:>= cd rbig)
+	  (setf y (cl:/ y 2)
+		s (cl:/ s 2)))
+	;; If a or b is tiny, scale up a and b.
+	(when (cl:<= ab (cl:* rmin 2/eps))
+	  (setf x (cl:* x be)
+		s (cl:/ s be)))
+	;; If c or d is tiny, scale up c and d.
+	(when (cl:<= cd (cl:* rmin 2/eps))
+	  (setf y (cl:* y be)
+		s (cl:* s be)))
+	(cl:* s
+	      (robust-internal x y))))))
+
+;; Smith's algorithm for complex division for (complex single-float).
+;; We convert the parts to double-floats before computing the result.
+(defun cdiv-single-float (x y)
+  (declare (type (complex single-float) x y))
+  (let ((a (float (realpart x) 1d0))
+	(b (float (imagpart x) 1d0))
+	(c (float (realpart y) 1d0))
+	(d (float (imagpart y) 1d0)))
+    (cond ((< (abs c) (abs d))
+	   (let* ((r (/ c d))
+		  (denom (+ (* c r) d))
+		  (e (float (/ (+ (* a r) b) denom) 1f0))
+		  (f (float (/ (- (* b r) a) denom) 1f0)))
+	     (complex e f)))
+	  (t
+	   (let* ((r (/ d c))
+		  (denom (+ c (* d r)))
+		  (e (float (/ (+ a (* b r)) denom) 1f0))
+		  (f (float (/ (- b (* a r)) denom) 1f0)))
+	     (complex e f))))))
+
+
+;;; Simple test program for accurate complex double-float division.
+#+nil
+(defun test-cdiv-double ()
+  (flet ((rel-err (computed expected)
+           ;; Relative error in terms of bits of accuracy.  This is the
+           ;; definition used by Baudin and Smith.  A result of 53 means the two
+           ;; numbers have identical bits.  For complex numbers, we use the min
+           ;; of the bits of accuracy of the real and imaginary parts.
+           (flet ((rerr (c e)
+	            (let ((diff (cl:abs (cl:- c e))))
+	              (if (cl:zerop diff)
+		          (cl:float-digits diff)
+		          (cl:floor (cl:- (cl:log (cl:/ diff (cl:abs e)) 2d0)))))))
+             (cl:min (rerr (cl:realpart computed) (cl:realpart expected))
+	             (rerr (cl:imagpart computed) (cl:imagpart expected)))))
+         (parse-%a (string)
+           ;; A very rudimentary parser for the printed hexadecimal
+           ;; floating-point representation as produced the the %a
+           ;; format for printf.
+           (let* ((sign (if (char= (aref string 0) #\-)
+		            -1
+		            1))
+	          (dot-posn (position #\. string))
+	          (p-posn (position #\p string))
+	          (lead (parse-integer string :start (1- dot-posn) :end dot-posn))
+	          (frac (parse-integer string :start (1+ dot-posn) :end p-posn :radix 16))
+	          (exp (parse-integer string :start (1+ p-posn))))
+             (cl:* sign
+                   (cl:scale-float (cl:float (cl:+ (cl:ash lead 52)
+			                           frac)
+			               1d0)
+		                   (cl:- exp 52))))))
+    (let ((test-cases
+            ;; Tests for complex division.  Tests 1-10 are from Baudin and Smith.
+            ;; Test 11 is an example from Maxima.  Test 12 is an example from the
+            ;; ansi-tests.  Tests 13-16 are for examples for improvement
+            ;; iterations 1-4 from McGehearty.
+            ;;
+            ;; Each test is a list of values: x, y, z-true (the value of x/y), and
+            ;; the bits of accuracy.
+            (list
+             ;; 1
+             (list (cl:complex 1d0 1d0)
+	           (cl:complex 1d0 (cl:scale-float 1d0 1023))
+	           (cl:complex (cl:scale-float 1d0 -1023)
+		               (cl:scale-float -1d0 -1023))
+	           53)
+             ;; 2
+             (list (cl:complex 1d0 1d0)
+	           (cl:complex (cl:scale-float 1d0 -1023) (cl:scale-float 1d0 -1023))
+	           (cl:complex (cl:scale-float 1d0 1023) 0)
+	           53)
+             ;; 3
+             (list (cl:complex (cl:scale-float 1d0 1023) (cl:scale-float 1d0 -1023))
+	           (cl:complex (cl:scale-float 1d0 677) (cl:scale-float 1d0 -677))
+	           (cl:complex (cl:scale-float 1d0 346) (cl:scale-float -1d0 -1008))
+	           53)
+             ;; 4
+             (list (cl:complex (cl:scale-float 1d0 1023) (cl:scale-float 1d0 1023))
+	           (cl:complex 1d0 1d0)
+	           (cl:complex (cl:scale-float 1d0 1023) 0)
+	           53)
+             ;; 5
+             (list (cl:complex (cl:scale-float 1d0 1020) (cl:scale-float 1d0 -844))
+	           (cl:complex (cl:scale-float 1d0 656) (cl:scale-float 1d0 -780))
+	           (cl:complex (cl:scale-float 1d0 364) (cl:scale-float -1d0 -1072))
+	           53)
+             ;; 6
+             (list (cl:complex (cl:scale-float 1d0 -71) (cl:scale-float 1d0 1021))
+	           (cl:complex (cl:scale-float 1d0 1001) (cl:scale-float 1d0 -323))
+	           (cl:complex (cl:scale-float 1d0 -1072) (cl:scale-float 1d0 20))
+	           53)
+             ;; 7
+             (list (cl:complex (cl:scale-float 1d0 -347) (cl:scale-float 1d0 -54))
+	           (cl:complex (cl:scale-float 1d0 -1037) (cl:scale-float 1d0 -1058))
+	           (cl:complex 3.898125604559113300d289 8.174961907852353577d295)
+	           53)
+             ;; 8
+             (list (cl:complex (cl:scale-float 1d0 -1074) (cl:scale-float 1d0 -1074))
+	           (cl:complex (cl:scale-float 1d0 -1073) (cl:scale-float 1d0 -1074))
+	           (cl:complex 0.6d0 0.2d0)
+	           53)
+             ;; 9
+             (list (cl:complex (cl:scale-float 1d0 1015) (cl:scale-float 1d0 -989))
+	           (cl:complex (cl:scale-float 1d0 1023) (cl:scale-float 1d0 1023))
+	           (cl:complex 0.001953125d0 -0.001953125d0)
+	           53)
+             ;; 10
+             (list (cl:complex (cl:scale-float 1d0 -622) (cl:scale-float 1d0 -1071))
+	           (cl:complex (cl:scale-float 1d0 -343) (cl:scale-float 1d0 -798))
+	           (cl:complex 1.02951151789360578d-84 6.97145987515076231d-220)
+	           53)
+             ;; 11
+             ;; From Maxima
+             (list #c(5.43d-10 1.13d-100)
+	           #c(1.2d-311 5.7d-312)
+	           #c(3.691993880674614517999740937026568563794896024143749539711267954d301
+	              -1.753697093319947872394996242210428954266103103602859195409591583d301)
+	           52)
+             ;; 12
+             ;; Found by ansi tests. z/z should be exactly 1.
+             (list #c(1.565640716292489d19 0.0d0)
+	           #c(1.565640716292489d19 0.0d0)
+	           #c(1d0 0)
+	           53)
+             ;; 13
+             ;; Iteration 1.  Without this, we would instead return
+             ;;
+             ;;   (cl:complex (parse-%a "0x1.ba8df8075bceep+155") (parse-%a "-0x1.a4ad6329485f0p-895"))
+             ;;
+             ;; whose imaginary part is quite a bit off.
+             (list (cl:complex (parse-%a "0x1.73a3dac1d2f1fp+509") (parse-%a "-0x1.c4dba4ba1ee79p-620"))
+	           (cl:complex (parse-%a "0x1.adf526c249cf0p+353") (parse-%a "0x1.98b3fbc1677bbp-697"))
+	           (cl:complex (parse-%a "0x1.BA8DF8075BCEEp+155") (parse-%a "-0x1.A4AD628DA5B74p-895"))
+	           53)
+             ;; 14
+             ;; Iteration 2.
+             (list (cl:complex (parse-%a "-0x0.000000008e4f8p-1022") (parse-%a "0x0.0000060366ba7p-1022"))
+	           (cl:complex (parse-%a "-0x1.605b467369526p-245") (parse-%a "0x1.417bd33105808p-256"))
+	           (cl:complex (parse-%a "0x1.cde593daa4ffep-810") (parse-%a "-0x1.179b9a63df6d3p-799"))
+	           52)
+             ;; 15
+             ;; Iteration 3
+             (list (cl:complex (parse-%a "0x1.cb27eece7c585p-355 ") (parse-%a "0x0.000000223b8a8p-1022"))
+	           (cl:complex (parse-%a "-0x1.74e7ed2b9189fp-22") (parse-%a "0x1.3d80439e9a119p-731"))
+	           (cl:complex (parse-%a "-0x1.3b35ed806ae5ap-333") (parse-%a "-0x0.05e01bcbfd9f6p-1022"))
+	           53)
+             ;; 16
+             ;; Iteration 4
+             (list (cl:complex (parse-%a "-0x1.f5c75c69829f0p-530") (parse-%a "-0x1.e73b1fde6b909p+316"))
+	           (cl:complex (parse-%a "-0x1.ff96c3957742bp+1023") (parse-%a "0x1.5bd78c9335899p+1021"))
+	           (cl:complex (parse-%a "-0x1.423c6ce00c73bp-710") (parse-%a "0x1.d9edcf45bcb0ep-708"))
+	           52)
+             )))
+      (loop for k from 1
+	    for test in test-cases
+	    do
+	       (destructuring-bind (x y z-true expected-rel)
+	           test
+	         (let* ((z (cdiv-double-float x y))
+		        (rel (rel-err z z-true)))
+                   (format t "Test ~D ~A~%"
+                           k (if (< rel expected-rel) "failed" "passed"))
+                   (format t "  x    = ~A~%" x)
+                   (format t "  y    = ~A~%" y)
+                   (format t "  z    = ~A~%" z)
+                   (format t "  true = ~A~%" z-true)
+                   (format t "  acc  = ~D, expected ~D~%" rel expected-rel)))))))
+
 ;;; Divide two numbers
+(defmethod two-arg-/ ((a cl:complex) (b cl:complex))
+  (typecase a
+    ((cl:complex cl:double-float)
+     (typecase b
+       ((cl:complex cl:double-float)
+        (if *use-accurate-complex-div*
+            (cdiv-double-float a b)
+            (cl:/ a b)))
+       (t
+        (cl:/ a b))))
+    (t
+     (cl:/ a b))))
+
 (defmethod two-arg-/ ((a number) (b number))
   (cl:/ a b))
 
