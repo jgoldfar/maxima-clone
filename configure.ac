@@ -1377,7 +1377,9 @@ doc/info/ru/Makefile \
 doc/info/ru/include-maxima.texi \
 doc/intromax/Makefile doc/man/Makefile doc/man/maxima.1 doc/man/ru/Makefile doc/man/ru/maxima.1 doc/man/de/Makefile doc/man/de/maxima.1 \
 doc/share/Makefile interfaces/Makefile interfaces/emacs/Makefile \
-interfaces/emacs/emaxima/Makefile interfaces/emacs/imaxima/Makefile \
+interfaces/emacs/emaxima/Makefile \
+interfaces/emacs/imaxima/Makefile \
+interfaces/emacs/imaxima/doc/Makefile \
 interfaces/emacs/misc/Makefile interfaces/xmaxima/Makefile \
 interfaces/xmaxima/autoconf-variables.tcl interfaces/xmaxima/Tkmaxima/Header.tcl \
 interfaces/xmaxima/doc/Makefile interfaces/xmaxima/doc/figures/Makefile \
@@ -1385,13 +1387,21 @@ interfaces/xmaxima/msgs/Makefile interfaces/xmaxima/win32/Makefile \
 plotting/mgnuplot share/Makefile demo/Makefile plotting/Makefile locale/Makefile \
 share/contrib/Makefile
 share/contrib/guess/Makefile \
+share/contrib/guess/doc/Makefile \
 share/contrib/integration/Makefile \
+share/contrib/integration/doc/Makefile \
 share/contrib/lurkmathml/Makefile \
+share/contrib/lurkmathml/doc/Makefile \
 share/contrib/maxima-odesolve/Makefile \
+share/contrib/maxima-odesolve/doc/Makefile \
 share/contrib/symplectic_ode/Makefile \
+share/contrib/symplectic_ode/doc/Makefile \
 share/nelder_mead/Makefile \
+share/nelder_mead/doc/Makefile \
 share/raddenest/Makefile \
+share/raddenest/doc/Makefile \
 share/draw/Makefile share/logic/Makefile \
+share/draw/doc/Makefile share/logic/doc/Makefile \
 src/lisp])
 AC_OUTPUT
 
