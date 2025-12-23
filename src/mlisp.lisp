@@ -532,28 +532,10 @@ wrapper for this."
   (setf $values (delete var $values :count 1 :test #'eq)))
 
 (defun munbind (vars)
-  (let ((foo))
-    (dolist (var (reverse vars))
-      ;; This is a bit of a mess. We should avoid assigning MUNBOUND
-      ;; and instead call MUNBIND-MAKUNBOUND, because some variables
-      ;; cannot be assigned MUNBOUND due to declarations or custom setters.
-      ;; It is easy to detect these cases when VAR is just a symbol,
-      ;; but I don't see a straightforward way to handle it when VAR is
-      ;; a nonatomic expression, so the code for the non-symbol branch
-      ;; will fail if the expression contains a symbol for which
-      ;; MUNBOUND cannot be assigned.
-      (if (symbolp var)
-        (if (eq (car mspeclist) munbound)
-          (munbind-makunbound var)
-          (mset var (car mspeclist)))
-        (progn
-          (let ((munbindp t))
-            (mset var (car mspeclist)))
-          (mapcar (lambda (x) (push x foo)) (cdr ($listofvars var)))))
-      (setq mspeclist (cdr mspeclist) bindlist (cdr bindlist)))
-    (dolist (var foo)
-      (when (and (boundp var) (eq (symbol-value var) munbound))
-        (munbind-makunbound var)))))
+  (dolist (var (reverse vars))
+    (let ((munbindp t))
+      (mset var (car mspeclist)))
+    (setq mspeclist (cdr mspeclist) bindlist (cdr bindlist))))
 
 ;;This takes the place of something like
 ;; (DELETE (ASSOC (NCONS VAR) $DEPENDENCIES) $DEPENDENCIES 1)
@@ -653,6 +635,9 @@ wrapper for this."
 	      (if (mget x '$numer)
 		  (merror (intl:gettext "assignment: cannot assign to ~M; it is a declared numeric quantity.") x)
 		  (merror (intl:gettext "assignment: cannot assign to ~M") x)))
+	    (when (and munbindp (eq y munbound))
+	      (munbind-makunbound x)
+          (return nil))
 	    (let ((f (get x 'assign)))
 	      (if (and f (or (not (eq x y))
 			     (member f '(neverset) :test #'eq)))

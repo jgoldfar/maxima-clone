@@ -669,3 +669,23 @@ lambda ([a,b,[c]], lsum(c1^2, c1, c)^(a^b))(%pi, %e, x1, y, u);
 
 [a, b, c, c1];
 ["foo", "bar", "baz", c1];
+
+/* ensure that unbound loop variable which has an ASSIGN property
+ * is not assigned the value of MUNBOUND (a symbol) in the loop clean-up.
+ */
+
+(kill (foo),
+ define_variable (foo, 1111, integer),
+ remvalue (foo),
+ ?boundp (foo));
+false;
+
+errcatch (foo: 'abcd); /* expected to provoke assignment error */
+[];
+
+block ([L: []], for [foo] in [[11], [22], [33]] do push (foo, L), L);
+[33, 22, 11];
+
+?boundp (foo);
+false;
+
