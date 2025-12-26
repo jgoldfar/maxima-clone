@@ -790,7 +790,7 @@ extract_version_from() {
             display_version="${display_version}.${VERSION_P}"
         fi
         
-        echo "Found: ${display_version}. Variables set globally."
+        # echo "Found: ${display_version}. Variables set globally."
     fi
     
     return 0
@@ -822,7 +822,7 @@ if test x"${enable_build_docs}" = xtrue ; then
             if test "${VERSION_P}" = "0"; then
               makeinfo_version_string="${makeinfo_version_string}"
             else
-              makeinfo_version_string="${makeinfo_version_string}${VERSION_P}"
+              makeinfo_version_string="${makeinfo_version_string}.${VERSION_P}"
             fi
         fi
 
@@ -919,7 +919,7 @@ EOF
 )"
         fi
         if test x${syntax_highlighting} = "xcustom-pygments"; then
-           if test ${makeinfo_version} -lt 70299; then
+           if test ${makeinfo_version} -lt 70290; then
              AC_MSG_ERROR([Makeinfo version (${makeinfo_version_string}) too old to use custom-pygments for syntax highlighting.  Disable or use highlightjs or pygments])
            else  
              dnl This tells build_html.sh to use a custom call to
