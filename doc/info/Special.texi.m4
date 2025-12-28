@@ -76,7 +76,7 @@ parabolic_cylinder_d (v,z)     Parabolic cylinder D function
 The Bessel function of the first kind of order @math{v} and argument @math{z}.
 See @urlaands{eqn 9.1.10, 360} and @urldlmf{10.2.E2}.
 
-@code{bessel_j} is defined as
+@mref{bessel_j} is defined as
 
 m4_displaymath(
 <<<J_v(z) = \sum_{k=0}^{\infty }{{{\left(-1\right)^{k}\,\left(z\over 2\right)^{v+2\,k}
@@ -94,7 +94,7 @@ m4_displaymath(
 
 although the infinite series is not used for computations.
 
-When @code{besselexpand} is @code{true}, @code{bessel_j} is expanded in terms
+When @mref{besselexpand} is @mref{true}, @mref{bessel_j} is expanded in terms
 of elementary functions when the order @math{v} is half of an odd integer. 
 See @mrefdot{besselexpand}
 
@@ -111,7 +111,7 @@ See @mrefdot{besselexpand}
 The Bessel function of the second kind of order @math{v} and argument @math{z}.
 See @urlaands{eqn 9.1.2, 358} and @urldlmf{10.2.E3}.
 
-@code{bessel_y} is defined as
+@mref{bessel_y} is defined as
 m4_displaymath(
 <<<Y_v(z) = {{\cos(\pi v)\, J_v(z) - J_{-v}(z)}\over{\sin{\pi v}}}>>>,
 <<<@example
@@ -124,7 +124,7 @@ m4_displaymath(
 when @math{v} is not an integer.  When @math{v} is an integer @math{n},
 the limit as @math{v} approaches @math{n} is taken.
 
-When @code{besselexpand} is @code{true}, @code{bessel_y} is expanded in terms
+When @mref{besselexpand} is @mref{true}, @mref{bessel_y} is expanded in terms
 of elementary functions when the order @math{v} is half of an odd integer. 
 See @mrefdot{besselexpand}
 
@@ -141,7 +141,7 @@ See @mrefdot{besselexpand}
 The modified Bessel function of the first kind of order @math{v} and argument
 @math{z}. See @urlaands{eqn 9.6.10, 375} and @urldlmf{10.25.E2}.
 
-@code{bessel_i} is defined as
+@mref{bessel_i} is defined as
 m4_displaymath(
 <<<I_v(z) = \sum_{k=0}^{\infty } {{1\over{k!\,\Gamma
  \left(v+k+1\right)}} {\left(z\over 2\right)^{v+2\,k}}}>>>,
@@ -158,7 +158,7 @@ m4_displaymath(
 
 although the infinite series is not used for computations.
 
-When @code{besselexpand} is @code{true}, @code{bessel_i} is expanded in terms
+When @mref{besselexpand} is @mref{true}, @mref{bessel_i} is expanded in terms
 of elementary functions when the order @math{v} is half of an odd integer. 
 See @mrefdot{besselexpand}
 
@@ -176,7 +176,7 @@ See @mrefdot{besselexpand}
 The modified Bessel function of the second kind of order @math{v} and argument
 @math{z}. See @urlaands{eqn 9.6.2, 375} and @urldlmf{10.27.E4}.
 
-@code{bessel_k} is defined as
+@mref{bessel_k} is defined as
 m4_displaymath(
 <<<K_v(z) = {1\over 2} \pi\, {I_{-v}(z)-I_{v}(z) \over \sin v\pi}>>>,
 <<<@example
@@ -189,7 +189,7 @@ m4_displaymath(
 when @math{v} is not an integer.  If @math{v} is an integer @math{n},
 then the limit as @math{v} approaches @math{n} is taken.
 
-When @code{besselexpand} is @code{true}, @code{bessel_k} is expanded in terms
+When @mref{besselexpand} is @mref{true}, @mref{bessel_k} is expanded in terms
 of elementary functions when the order @math{v} is half of an odd integer. 
 See @mrefdot{besselexpand}
 
@@ -207,7 +207,7 @@ See @mrefdot{besselexpand}
 The Hankel function of the first kind of order @math{v} and argument @math{z}.
 See @urlaands{eqn 9.1.3, 358} and @urldlmf{10.4.E3}.
 
-@code{hankel_1} is defined as
+@mref{hankel_1} is defined as
 
 m4_displaymath(
 <<<H^{(1)}_v(z) = J_v(z) + i Y_v(z)>>>,
@@ -216,15 +216,15 @@ m4_displaymath(
 @end example>>>
 )
 
-Maxima evaluates @code{hankel_1} numerically for a complex order @math{v} and 
+Maxima evaluates @mref{hankel_1} numerically for a complex order @math{v} and 
 complex argument @math{z} in float precision. The numerical evaluation in 
 bigfloat precision is not supported.
 
-When @code{besselexpand} is @code{true}, @code{hankel_1} is expanded in terms
+When @mref{besselexpand} is @mref{true}, @mref{hankel_1} is expanded in terms
 of elementary functions when the order @math{v} is half of an odd integer. 
 See @mrefdot{besselexpand}
 
-Maxima knows the derivative of @code{hankel_1} wrt the argument @math{z}.
+Maxima knows the derivative of @mref{hankel_1} wrt the argument @math{z}.
 
 Examples:
 
@@ -245,7 +245,7 @@ Numerical evaluation:
 @end group
 @end example
 
-Expansion of @code{hankel_1} when @code{besselexpand} is @code{true}:
+Expansion of @mref{hankel_1} when @mref{besselexpand} is @mref{true}:
 
 @c ===beg===
 @c hankel_1(1/2,z),besselexpand:true;
@@ -259,7 +259,7 @@ Expansion of @code{hankel_1} when @code{besselexpand} is @code{true}:
 @end group
 @end example
 
-Derivative of @code{hankel_1} wrt the argument @math{z}. The derivative wrt the 
+Derivative of @mref{hankel_1} wrt the argument @math{z}. The derivative wrt the 
 order @math{v} is not supported. Maxima returns a noun form:
 
 @c ===beg===
@@ -294,7 +294,7 @@ order @math{v} is not supported. Maxima returns a noun form:
 The Hankel function of the second kind of order @math{v} and argument @math{z}.
 See @urlaands{eqn 9.1.4, 358} and @urldlmf{10.4.E3}.
 
-@code{hankel_2} is defined as
+@mref{hankel_2} is defined as
 
 m4_displaymath(
 <<<H^{(2)}_v(z) = J_v(z) - i Y_v(z)>>>,
@@ -304,17 +304,17 @@ m4_displaymath(
 @end example
 >>>)
 
-Maxima evaluates @code{hankel_2} numerically for a complex order @math{v} and 
+Maxima evaluates @mref{hankel_2} numerically for a complex order @math{v} and 
 complex argument @math{z} in float precision. The numerical evaluation in 
 bigfloat precision is not supported.
 
-When @code{besselexpand} is @code{true}, @code{hankel_2} is expanded in terms
+When @mref{besselexpand} is @mref{true}, @mref{hankel_2} is expanded in terms
 of elementary functions when the order @math{v} is half of an odd integer. 
 See @mrefdot{besselexpand}
 
-Maxima knows the derivative of @code{hankel_2} wrt the argument @math{z}.
+Maxima knows the derivative of @mref{hankel_2} wrt the argument @math{z}.
 
-For examples see @code{hankel_1}.
+For examples see @mref{hankel_1}.
 
 @opencatbox{Categories:}
 @category{Bessel functions}
@@ -325,13 +325,13 @@ For examples see @code{hankel_1}.
 @c -----------------------------------------------------------------------------
 @anchor{besselexpand}
 @defvr {Option variable} besselexpand
-Default value: @code{false}
+Default value: @mref{false}
 
 @c REPHRASE
 Controls expansion of the Bessel, Hankel and Struve functions
 when the order is half of
 an odd integer.  In this case, the functions can be expanded
-in terms of other elementary functions.  When @code{besselexpand} is @code{true},
+in terms of other elementary functions.  When @mref{besselexpand} is @mref{true},
 the Bessel function is expanded.
 
 @c ===beg===
@@ -423,7 +423,7 @@ symbolic work, it is probably preferable to work with the expression
 @anchor{scaled_bessel_i0}
 @deffn {Function} scaled_bessel_i0 (@var{z}) 
 
-Identical to @code{scaled_bessel_i(0,z)}.
+Identical to @mxref{scaled_bessel_i, scaled_bessel_i(0@comma{}z)}.
 
 @opencatbox{Categories:}
 @category{Bessel functions}
@@ -435,7 +435,7 @@ Identical to @code{scaled_bessel_i(0,z)}.
 @anchor{scaled_bessel_i1}
 @deffn {Function} scaled_bessel_i1 (@var{z})
 
-Identical to @code{scaled_bessel_i(1,z)}.
+Identical to @mxref{scaled_bessel_i, scaled_bessel_i(1@comma{}z)}.
 @opencatbox{Categories:}
 @category{Bessel functions}
 @category{Special functions}
@@ -684,14 +684,15 @@ it's a good idea to request a couple of extra.
 
 @c -----------------------------------------------------------------------------
 @anchor{bfpsi}
+@anchor{bfpsi0}
 @deffn  {Function} bfpsi (@var{n}, @var{z}, @var{fpprec})
 @deffnx {Function} bfpsi0 (@var{z}, @var{fpprec})
 
-@code{bfpsi} is the polygamma function of real argument @var{z} and
+@mref{bfpsi} is the polygamma function of real argument @var{z} and
 integer order @var{n}.  See @ref{polygamma, psi} for further
-information.  @code{bfpsi0} is the digamma function.
-@code{bfpsi0(@var{z}, @var{fpprec})} is equivalent to @code{bfpsi(0,
-@var{z}, @var{fpprec})}.
+information.  @mref{bfpsi0} is the digamma function.
+@mxref{bfpsi0, bfpsi0(@var{z}@comma{} @var{fpprec})} is equivalent to
+@mxref{bfpsi, bfpsi(0@comma{} @var{z}@comma{} @var{fpprec})}.
 
 These functions return bigfloat values.
 @var{fpprec} is the bigfloat precision of the return value.
@@ -785,27 +786,27 @@ m4_displaymath(
                          0
 @end example>>>)
 
-Maxima simplifies @code{gamma} for positive integer and positive and negative 
+Maxima simplifies @mref{gamma} for positive integer and positive and negative 
 rational numbers. For half integral values the result is a rational number
 times 
 m4_mathdot(<<<\sqrt{\pi}>>>,<<<sqrt(%pi)>>>)
 The simplification for integer values is controlled by 
-@code{factlim}. For integers greater than @code{factlim} the numerical result of 
-the factorial function, which is used to calculate @code{gamma}, will overflow. 
-The simplification for rational numbers is controlled by @code{gammalim} to 
-avoid internal overflow. See @code{factlim} and @code{gammalim}.
+@mref{factlim}. For integers greater than @mref{factlim} the numerical result of 
+the factorial function, which is used to calculate @mref{gamma}, will overflow. 
+The simplification for rational numbers is controlled by @mref{gammalim} to 
+avoid internal overflow. See @mref{factlim} and @mref{gammalim}.
 
-For negative integers @code{gamma} is not defined.
+For negative integers @mref{gamma} is not defined.
 
-Maxima can evaluate @code{gamma} numerically for real and complex values in float
+Maxima can evaluate @mref{gamma} numerically for real and complex values in float
 and bigfloat precision.
 
-@code{gamma} has mirror symmetry.
+@mref{gamma} has mirror symmetry.
 
-When @mref{gamma_expand} is @code{true}, Maxima expands @code{gamma} for 
+When @mref{gamma_expand} is @mref{true}, Maxima expands @mref{gamma} for 
 arguments @code{z+n} and @code{z-n} where @code{n} is an integer.
 
-Maxima knows the derivative of @code{gamma}.
+Maxima knows the derivative of @mref{gamma}.
 
 Examples:
 
@@ -855,7 +856,7 @@ Numerical evaluation for real and complex values:
 @end group
 @end example
 
-@code{gamma} has mirror symmetry:
+@mref{gamma} has mirror symmetry:
 
 @c ===beg===
 @c declare(z,complex)$
@@ -869,8 +870,8 @@ Numerical evaluation for real and complex values:
 @end group
 @end example
 
-Maxima expands @code{gamma(z+n)} and @code{gamma(z-n)}, when @mref{gamma_expand} 
-is @code{true}:
+Maxima expands @mxref{gamma, gamma(z+n)} and @mxref{gamma,gamma(z-n)}, when @mref{gamma_expand} 
+is @mref{true}:
 
 @c ===beg===
 @c gamma_expand:true$
@@ -886,7 +887,7 @@ is @code{true}:
 @end group
 @end example
 
-The derivative of @code{gamma}:
+The derivative of @mref{gamma}:
 
 @c ===beg===
 @c diff(gamma(z),z);
@@ -901,7 +902,7 @@ The derivative of @code{gamma}:
 
 See also @mrefdot{makegamma}
 
-The Euler-Mascheroni constant is @code{%gamma}.
+The Euler-Mascheroni constant is @mref{%gamma}.
 
 @opencatbox{Categories:}
 @category{Gamma and factorial functions}
@@ -910,6 +911,7 @@ The Euler-Mascheroni constant is @code{%gamma}.
 @end deffn
 
 @c -----------------------------------------------------------------------------
+@anchor{log_gamma}
 @deffn {Function} log_gamma (@var{z})
 
 The natural logarithm of the gamma function.
@@ -987,8 +989,8 @@ m4_displaymath(
 )
 
 See also @mref{gamma_expand} for controlling how
-@code{gamma_incomplete} is expressed in terms of elementary functions
-and @code{erfc}.
+@mref{gamma_incomplete} is expressed in terms of elementary functions
+and @mref{erfc}.
 
 Also see the related functions @mref{gamma_incomplete_regularized} and
 @mref{gamma_incomplete_generalized}.
@@ -1059,12 +1061,12 @@ Also see @mref{gamma_incomplete} and @mref{gamma_incomplete_regularized}.
 @c -----------------------------------------------------------------------------
 @anchor{gamma_expand}
 @defvr {Option variable} gamma_expand
-Default value: @code{false}
+Default value: @mref{false}
 
-@code{gamma_expand} controls expansion of @mref{gamma_incomplete}.
-When @code{gamma_expand} is @code{true}, @code{gamma_incomplete(v,z)}
+@mref{gamma_expand} controls expansion of @mref{gamma_incomplete}.
+When @mref{gamma_expand} is @mref{true}, @mxref{gamma_incomplete, gamma_incomplete(v@comma{}z)}
 is expanded in terms of
-@code{z}, @code{exp(z)}, and @mref{gamma_incomplete} or @mref{erfc} when possible.
+@code{z}, @mxref{exp, exp(z)}, and @mref{gamma_incomplete} or @mref{erfc} when possible.
 
 @c ===beg===
 @c gamma_incomplete(2,z);
@@ -1130,11 +1132,11 @@ is expanded in terms of
 Default value: 10000
 
 @c REPHRASE
-@code{gammalim} controls simplification of the gamma
+@mref{gammalim} controls simplification of the gamma
 function for integral and rational number arguments.  If the absolute
-value of the argument is not greater than @code{gammalim}, then
-simplification will occur.  Note that the @code{factlim} switch controls
-simplification of the result of @code{gamma} of an integer argument as well.
+value of the argument is not greater than @mref{gammalim}, then
+simplification will occur.  Note that the @mref{factlim} switch controls
+simplification of the result of @mref{gamma} of an integer argument as well.
 
 @opencatbox{Categories:}
 @category{Gamma and factorial functions}
@@ -1193,8 +1195,8 @@ m4_displaymath(
 (@urldlmf{5.12.E1} and @urlaands{eqn 6.2.1, 258}).
 
 Maxima simplifies the beta function for positive integers and rational 
-numbers, which sum to an integer. When @code{beta_args_sum_to_integer} is 
-@code{true}, Maxima simplifies also general expressions which sum to an integer. 
+numbers, which sum to an integer. When @mref{beta_args_sum_to_integer} is 
+@mref{true}, Maxima simplifies also general expressions which sum to an integer. 
 
 For @var{a} or @var{b} equal to zero the beta function is not defined.
 
@@ -1203,12 +1205,13 @@ argument. The exception is for @var{a=-n}, @var{n} a positive integer
 and @var{b} a positive integer with @code{b<=n}, it is possible to define an
 analytic continuation. Maxima gives for this case a result.
 
-When @mref{beta_expand} is @code{true}, expressions like @code{beta(a+n,b)} and 
-@code{beta(a-n,b)} or @code{beta(a,b+n)} and @code{beta(a,b-n)} with @code{n} 
+When @mref{beta_expand} is @mref{true}, expressions like @mxref{beta, beta(a+n@comma{}b)} and 
+@mxref{beta, beta(a-n@comma{}b)} or @mxref{beta, beta(a@comma{}b+n)}
+and @mxref{beta, beta(a@comma{}b-n)} with @code{n} 
 an integer are simplified.
 
 Maxima can evaluate the beta function for real and complex values in float and 
-bigfloat precision. For numerical evaluation Maxima uses @code{log_gamma}:
+bigfloat precision. For numerical evaluation Maxima uses @mref{log_gamma}:
 
 @example
            - log_gamma(b + a) + log_gamma(b) + log_gamma(a)
@@ -1220,7 +1223,7 @@ Maxima knows that the beta function is symmetric and has mirror symmetry.
 Maxima knows the derivatives of the beta function with respect to @var{a} or 
 @var{b}.
 
-To express the beta function as a ratio of gamma functions see @code{makegamma}. 
+To express the beta function as a ratio of gamma functions see @mref{makegamma}. 
 
 Examples:
 
@@ -1252,7 +1255,7 @@ Simplification for two rational numbers as arguments which sum to an integer:
 @end group
 @end example
 
-When setting @code{beta_args_sum_to_integer} to @code{true} more general 
+When setting @mref{beta_args_sum_to_integer} to @mref{true} more general 
 expression are simplified, when the sum of the arguments is an integer:
 
 @c ===beg===
@@ -1283,8 +1286,8 @@ The possible results, when one of the arguments is a negative integer:
 @end group
 @end example
 
-@code{beta(a+n,b)} or @code{beta(a-n,b)} with @code{n} an integer simplifies when 
-@mref{beta_expand} is @code{true}:
+@mxref{beta, beta(a+n@comma{}b)} or @mxref{beta, beta(a-n@comma{}b)} with @code{n} an integer simplifies when 
+@mref{beta_expand} is @mref{true}:
 
 @c ===beg===
 @c beta_expand:true$
@@ -1377,6 +1380,7 @@ The derivative of the beta function wrt @code{a}:
 @end deffn
 
 @c -----------------------------------------------------------------------------
+@anchor{beta_incomplete}
 @deffn {Function} beta_incomplete (@var{a}, @var{b}, @var{z})
 
 The basic definition of the incomplete beta function
@@ -1451,29 +1455,29 @@ m4_displaymath(
 @c                             k = 0
 @c @end example
 
-Maxima uses this definition to simplify @code{beta_incomplete} for @var{a} a 
+Maxima uses this definition to simplify @mref{beta_incomplete} for @var{a} a 
 negative integer.
 
-For @var{a} a positive integer, @code{beta_incomplete} simplifies for any 
+For @var{a} a positive integer, @mref{beta_incomplete} simplifies for any 
 argument @var{b} and @var{z} and for @var{b} a positive integer for any 
 argument @var{a} and @var{z}, with the exception of @var{a} a negative integer.
 
 For @math{z=0} and 
 m4_mathcomma(<<<{\rm Re}(a) > 0>>>, <<<realpart(a)>0>>>)
-@code{beta_incomplete} has the 
+@mref{beta_incomplete} has the 
 specific value zero. For @math{z=1} and 
 m4_mathcomma(<<<{\rm Re}(b) > 0>>>, <<<realpart(b)>0>>>)
-@code{beta_incomplete} simplifies to the beta function @code{beta(a,b)}.
+@mref{beta_incomplete} simplifies to the beta function @mxref{beta, beta(a@comma{}b)}.
 
-Maxima evaluates @code{beta_incomplete} numerically for real and complex values 
+Maxima evaluates @mref{beta_incomplete} numerically for real and complex values 
 in float or bigfloat precision. For the numerical evaluation an expansion of the 
 incomplete beta function in continued fractions is used.
 
-When the option variable @mref{beta_expand} is @code{true}, Maxima expands
-expressions like @code{beta_incomplete(a+n,b,z)} and
-@code{beta_incomplete(a-n,b,z)} where n is a positive integer.
+When the option variable @mref{beta_expand} is @mref{true}, Maxima expands
+expressions like @mxref{beta_incomplete, beta_incomplete(a+n@comma{}b@comma{}z)} and
+@mxref{beta_incomplete, beta_incomplete(a-n@comma{}b@comma{}z)} where @math{n} is a positive integer.
 
-Maxima knows the derivatives of @code{beta_incomplete} with respect to the 
+Maxima knows the derivatives of @mref{beta_incomplete} with respect to the 
 variables @var{a}, @var{b} and @var{z} and the integral with respect to the 
 variable @var{z}.
 
@@ -1577,7 +1581,7 @@ Numerical evaluation in float or bigfloat precision:
 @end group
 @end example
 
-For @math{abs(z)>1} @code{beta_incomplete} returns a complex result:
+For @math{abs(z)>1} @mref{beta_incomplete} returns a complex result:
 
 @c ===beg===
 @c beta_incomplete(0.25,0.50,1.7);
@@ -1606,7 +1610,7 @@ Results for more general complex arguments:
 @end group
 @end example
 
-Expansion, when @mref{beta_expand} is @code{true}:
+Expansion, when @mref{beta_expand} is @mref{true}:
 
 @c ===beg===
 @c beta_incomplete(a+1,b,z),beta_expand:true;
@@ -1629,7 +1633,7 @@ Expansion, when @mref{beta_expand} is @code{true}:
 @end group
 @end example
  
-Derivative and integral for @code{beta_incomplete}:
+Derivative and integral for @mref{beta_incomplete}:
 
 @c ===beg===
 @c diff(beta_incomplete(a, b, z), z);
@@ -1680,28 +1684,28 @@ beta_incomplete_regularized(a, b, z) =
 @c                                              beta(a, b)
 @c @end example
 
-As for @code{beta_incomplete} this definition is not complete. See 
+As for @mref{beta_incomplete} this definition is not complete. See 
 @url{https://functions.wolfram.com/GammaBetaErf/BetaRegularized/} for a complete definition of
-@code{beta_incomplete_regularized}.
+@mref{beta_incomplete_regularized}.
 
-@code{beta_incomplete_regularized} simplifies @var{a} or @var{b} a positive 
+@mref{beta_incomplete_regularized} simplifies @var{a} or @var{b} a positive 
 integer.
 
 For @math{z=0} and 
 m4_mathcomma(<<<{\rm Re}(a)>0>>>, <<<realpart(a) > 0>>>)
-@code{beta_incomplete_regularized} has 
+@mref{beta_incomplete_regularized} has 
 the specific value 0. For @math{z=1} and 
 m4_mathcomma(<<<{\rm Re}(b) > 0>>>, <<<realpart(b)>0>>>) 
-@code{beta_incomplete_regularized} simplifies to 1.
+@mref{beta_incomplete_regularized} simplifies to 1.
 
-Maxima can evaluate @code{beta_incomplete_regularized} for real and complex 
+Maxima can evaluate @mref{beta_incomplete_regularized} for real and complex 
 arguments in float and bigfloat precision.
 
-When @mref{beta_expand} is @code{true}, Maxima expands 
-@code{beta_incomplete_regularized} for arguments @math{a+n} or @math{a-n}, 
+When @mref{beta_expand} is @mref{true}, Maxima expands 
+@mref{beta_incomplete_regularized} for arguments @math{a+n} or @math{a-n}, 
 where n is an integer.
 
-Maxima knows the derivatives of @code{beta_incomplete_regularized} with respect 
+Maxima knows the derivatives of @mref{beta_incomplete_regularized} with respect 
 to the variables @var{a}, @var{b}, and @var{z} and the integral with respect to 
 the variable @var{z}.
 
@@ -1783,7 +1787,7 @@ precision:
 @end group
 @end example
 
-Expansion, when @mref{beta_expand} is @code{true}:
+Expansion, when @mref{beta_expand} is @mref{true}:
 
 @c ===beg===
 @c beta_incomplete_regularized(a+1,b,z);
@@ -1829,6 +1833,7 @@ The derivative and the integral wrt @var{z}:
 @end deffn
 
 @c -----------------------------------------------------------------------------
+@anchor{beta_incomplete_generalized}
 @deffn {Function} beta_incomplete_generalized (@var{a}, @var{b}, @var{z1}, @var{z2})
 
 The basic definition of the generalized incomplete beta function is
@@ -1859,7 +1864,7 @@ m4_displaymath(
 @c @end group
 @c @end example
 
-Maxima simplifies @code{beta_incomplete_regularized} for @var{a} and @var{b} 
+Maxima simplifies @mref{beta_incomplete_regularized} for @var{a} and @var{b} 
 a positive integer.
 
 For 
@@ -1869,7 +1874,7 @@ m4_math(z_1 = 0, z1=0)
 or 
 m4_mathcomma(z_2 = 0, z2=0)
 Maxima simplifies
-@code{beta_incomplete_generalized} to @code{beta_incomplete}.
+@mref{beta_incomplete_generalized} to @mref{beta_incomplete}.
 For 
 m4_math({\rm Re}(b) > 0, realpart(b)>0) 
 and 
@@ -1877,22 +1882,22 @@ m4_math(z_1 = 1, z1=1)
 or 
 m4_mathcomma(z_2 = 1, z2=1) 
 Maxima simplifies to an 
-expression with @code{beta} and @code{beta_incomplete}.
+expression with @mref{beta} and @mref{beta_incomplete}.
 
-Maxima evaluates @code{beta_incomplete_regularized} for real and complex values 
+Maxima evaluates @mref{beta_incomplete_regularized} for real and complex values 
 in float and bigfloat precision.
 
-When @mref{beta_expand} is @code{true}, Maxima expands 
-@code{beta_incomplete_generalized} for @math{a+n} and @math{a-n}, @var{n} a 
+When @mref{beta_expand} is @mref{true}, Maxima expands 
+@mref{beta_incomplete_generalized} for @math{a+n} and @math{a-n}, @var{n} a 
 positive integer.
 
-Maxima knows the derivative of @code{beta_incomplete_generalized} with respect 
+Maxima knows the derivative of @mref{beta_incomplete_generalized} with respect 
 to the variables @var{a}, @var{b}, @var{z1}, and @var{z2} and the integrals with
 respect to the variables @var{z1} and @var{z2}.
 
 Examples:
 
-Maxima simplifies @code{beta_incomplete_generalized} for @var{a} and @var{b} a 
+Maxima simplifies @mref{beta_incomplete_generalized} for @var{a} and @var{b} a 
 positive integer:
 
 @c ===beg===
@@ -1993,7 +1998,7 @@ Numerical evaluation for complex arguments in float or bigfloat precision:
 @end example
 
 Expansion for @math{a+n} or @math{a-n}, @var{n} a positive integer, when 
-@mref{beta_expand} is @code{true}: 
+@mref{beta_expand} is @mref{true}: 
 
 @c ===beg===
 @c beta_expand:true$
@@ -2058,7 +2063,7 @@ Derivative wrt the variable @var{z1} and integrals wrt @var{z1} and @var{z2}:
 @defvr {Option variable} beta_expand
 Default value: false
 
-When @code{beta_expand} is @code{true}, @code{beta(a,b)} and related 
+When @mref{beta_expand} is @mref{true}, @mxref{beta, beta(a@comma{}b)} and related 
 functions are expanded for arguments like @math{a+n} or @math{a-n}, 
 where @math{n} is an integer.
 
@@ -2070,11 +2075,12 @@ where @math{n} is an integer.
 @closecatbox
 @end defvr
 
+@anchor{beta_args_sum_to_integer}
 @defvr {Option variable} beta_args_sum_to_integer
 Default value: false
 
-When @code{beta_args_sum_to_integer} is @code{true}, Maxima simplifies 
-@code{beta(a,b)}, when the arguments @var{a} and @var{b} sum to an integer.
+When @mref{beta_args_sum_to_integer} is @mref{true}, Maxima simplifies 
+@mxref{beta, beta(a@comma{}b)}, when the arguments @var{a} and @var{b} sum to an integer.
 
 @xref{beta} for examples.
 
@@ -2093,13 +2099,13 @@ When @code{beta_args_sum_to_integer} is @code{true}, Maxima simplifies
 @deffn {Function} psi [@var{n}](@var{x})
 
 @c The derivative of @code{log (gamma (@var{x}))} of order @code{@var{n}+1}.
-@code{psi[n](x)} is the polygamma function (@urldlmf{5.2E2},
+@mxref{psi, psi[n](x)} is the polygamma function (@urldlmf{5.2E2},
 @urldlmf{5.15}, @urlaands{eqn 6.3.1, 258} and @urlaands{eqn 6.4.1, 260}) defined by
 m4_displaymath(
 <<<\psi^{(n)}(x) = {d^{n+1}\over{dx^{n+1}}} \log\Gamma(x)>>>,
 <<<@math{diff(log(gamma(x)), x, n+1)}>>>)
-Thus, @code{psi[0](@var{x})} is the first derivative,
-@code{psi[1](@var{x})} is the second derivative, etc.
+Thus, @mxref{psi, psi[0](@var{x})} is the first derivative,
+@mxref{psi, psi[1](@var{x})} is the second derivative, etc.
 
 Maxima can compute some exact values for rational args as well for
 float and bfloat args.  Several variables control what range of
@@ -2109,15 +2115,15 @@ will return an
 exact value, if possible.  See @mref{maxpsiposint},
 @mref{maxpsinegint}, @mref{maxpsifracnum}, and
 @mrefdot{maxpsifracdenom} That is, @math{x} must lie between
-@code{maxpsinegint} and @code{maxpsiposint}.  If the absolute value of
+@mref{maxpsinegint} and @mref{maxpsiposint}.  If the absolute value of
 the fractional part of @math{x} is rational and has a numerator less
-than @code{maxpsifracnum} and has a denominator less than
-@code{maxpsifracdenom}, 
+than @mref{maxpsifracnum} and has a denominator less than
+@mref{maxpsifracdenom}, 
 m4_math(<<<\psi^{(0)}(x)>>>,<<<psi[0](x)>>>) 
 will
 return an exact value.
 
-The function @mref{bfpsi} in the @code{bffac} package can compute
+The function @mref{bfpsi} in the @mref{bffac} package can compute
 numerical values.
 
 @c ===beg===
@@ -2168,7 +2174,7 @@ numerical values.
 @defvr {Option variable} maxpsiposint
 Default value: 20
 
-@code{maxpsiposint} is the largest positive integer value for
+@mref{maxpsiposint} is the largest positive integer value for
 which 
 m4_math(<<<\psi^{(n)}(m)>>>,<<<psi[n](x)>>>)
 gives an exact value for
@@ -2215,12 +2221,12 @@ rational @math{x}.
 @defvr {Option variable} maxpsinegint
 Default value: -10
 
-@code{maxpsinegint} is the most negative value for
+@mref{maxpsinegint} is the most negative value for
 which 
 m4_math(<<<\psi^{(0)}(x)>>>,<<<psi[0](x)>>>) 
 will try to compute an exact
 value for rational @math{x}.  That is if @math{x} is less than
-@code{maxpsinegint}, 
+@mref{maxpsinegint}, 
 m4_math(<<<\psi^{(n)}(x)>>>,<<<psi[n](x)>>>) 
 will not
 return simplified answer, even if it could.
@@ -2271,9 +2277,9 @@ return simplified answer, even if it could.
 Default value: 6
 
 Let @math{x} be a rational number of the form @math{p/q}.
-If @math{p} is greater than @code{maxpsifracnum},
+If @math{p} is greater than @mref{maxpsifracnum},
 then 
-m4_math(<<<\psi^{(0)}(x)>>>,<<<@code{psi[0](x)}>>>) 
+m4_math(<<<\psi^{(0)}(x)>>>,<<<@mxref{psi, psi[0](x)}>>>) 
 will not try to
 return a simplified value.
 
@@ -2326,9 +2332,9 @@ return a simplified value.
 Default value: 6
 
 Let @math{x} be a rational number of the form @math{p/q}.
-If @math{q} is greater than @code{maxpsifracdenom},
+If @math{q} is greater than @ref{maxpsifracdenom},
 then 
-m4_math(<<<\psi^{(0)}(x)>>>,<<<@code{psi[@var{0}](@var{x})}>>>) 
+m4_math(<<<\psi^{(0)}(x)>>>,<<<@mref{psi[@var{0}](@var{x})}>>>) 
 will
 not try to return a simplified value.
 
@@ -2474,6 +2480,7 @@ This can be written in terms of other functions.  @xref{expintrep} for examples.
 @closecatbox
 @end deffn
 
+@anchor{expintegral_ei}
 @deffn {Function} expintegral_ei (@var{x})
 The Exponential Integral Ei(x) defined as
 
@@ -2493,6 +2500,7 @@ This can be written in terms of other functions.  @xref{expintrep} for examples.
 @closecatbox
 @end deffn
 
+@anchor{expintegral_li}
 @deffn {Function} expintegral_li (@var{x})
 The Exponential Integral li(x) defined as
 
@@ -2610,21 +2618,21 @@ This can be written in terms of other functions.  @xref{expintrep} for examples.
 Default value: false
 
 Change the representation of one of the exponential integrals,
-@code{expintegral_e(m, z)}, @code{expintegral_e1}, or
-@code{expintegral_ei} to an equivalent form if possible.
+@mxref{expintegral_e, expintegral_e(m@comma{}z)}, @mref{expintegral_e1}, or
+@mref{expintegral_ei} to an equivalent form if possible.
 
-Possible values for @code{expintrep} are @code{false},
-@code{gamma_incomplete}, @code{expintegral_e1}, @code{expintegral_ei},
-@code{expintegral_li}, @code{expintegral_trig}, or
+Possible values for @mref{expintrep} are @mref{false},
+@mref{gamma_incomplete}, @mref{expintegral_e1}, @mref{expintegral_ei},
+@mref{expintegral_li}, @code{expintegral_trig}, or
 @code{expintegral_hyp}.
 
-@code{false} means that the representation is not changed.  Other
+@mref{false} means that the representation is not changed.  Other
 values indicate the representation is to be changed to use the
 function specified where @code{expintegral_trig} means
 @mref{expintegral_si}, @mref{expintegral_ci}; and @code{expintegral_hyp}
 means @mref{expintegral_shi} or @mref{expintegral_chi}.
 
-Here are some examples for @code{expintrep} set to @code{gamma_incomplete}:
+Here are some examples for @mref{expintrep} set to @mref{gamma_incomplete}:
 @c ===beg===
 @c expintrep:'gamma_incomplete;
 @c expintegral_e1(z);
@@ -2680,7 +2688,7 @@ Here are some examples for @code{expintrep} set to @code{gamma_incomplete}:
 @end group
 @end example
 
-For @code{expintrep} set to @code{expintegral_e1}:
+For @mref{expintrep} set to @mref{expintegral_e1}:
 
 @c ===beg===
 @c expintrep:'expintegral_e1;
@@ -2734,7 +2742,7 @@ For @code{expintrep} set to @code{expintegral_e1}:
 @end group
 @end example
 
-For @code{expintrep} set to @code{expintegral_ei}:
+For @mref{expintrep} set to @mref{expintegral_ei}:
 
 @c ===beg===
 @c expintrep:'expintegral_ei;
@@ -2803,7 +2811,7 @@ For @code{expintrep} set to @code{expintegral_ei}:
 @end group
 @end example
 
-For @code{expintrep} set to @code{expintegral_li}:
+For @mref{expintrep} set to @mref{expintegral_li}:
 
 @c ===beg===
 @c expintrep:'expintegral_li;
@@ -2874,7 +2882,7 @@ For @code{expintrep} set to @code{expintegral_li}:
 @end group
 @end example
 
-For @code{expintrep} set to @code{expintegral_trig}:
+For @mref{expintrep} set to @code{expintegral_trig}:
 
 @c ===beg===
 @c expintrep:'expintegral_trig;
@@ -2929,7 +2937,7 @@ For @code{expintrep} set to @code{expintegral_trig}:
 @end group
 @end example
 
-For @code{expintrep} set to @code{expintegral_hyp}:
+For @mref{expintrep} set to @code{expintegral_hyp}:
 
 @c ===beg===
 @c expintrep:'expintegral_hyp;
@@ -2990,9 +2998,9 @@ For @code{expintrep} set to @code{expintegral_hyp}:
 @defvr {Option variable} expintexpand 
 Default value: false
 
-Expand @code{expintegral_e(n,z)} for half
-integral values in terms of @code{erfc} or @code{erf} and
-for positive integers in terms of @code{expintegral_ei}.
+Expand @mxref{expintegral_e, expintegral_e(n@comma{}z)} for half
+integral values in terms of @mref{erfc} or @mref{erf} and
+for positive integers in terms of @mref{expintegral_ei}.
 
 @c ===beg===
 @c expintegral_e(1/2,z);
@@ -3159,14 +3167,14 @@ See flags @mref{erf_representation} and @mref{hypergeometric_representation}.
 @defvr {Option variable} erf_representation
 Default value: false
 
-@code{erf_representation} controls how the error functions are
-represented.  It must be set to one of @code{false}, @code{erf},
-@code{erfc}, or @code{erfi}.  When set to @code{false}, the error functions are not
-modified.  When set to @code{erf}, all error functions (@mref{erfc},
+@mref{erf_representation} controls how the error functions are
+represented.  It must be set to one of @mref{false}, @mref{erf},
+@mref{erfc}, or @mref{erfi}.  When set to @mref{false}, the error functions are not
+modified.  When set to @mref{erf}, all error functions (@mref{erfc},
 @mref{erfi}, @mref{erf_generalized}, @mref{fresnel_s} and
 @mref{fresnel_c}) are converted to @mref{erf} functions.  Similarly,
-@code{erfc} converts error functions to @mref{erfc}.  Finally
-@code{erfi} converts the functions to @mref{erfi}.
+@mref{erfc} converts error functions to @mref{erfc}.  Finally
+@mref{erfi} converts the functions to @mref{erfi}.
 
 Converting to @mref{erf}:
 @c ===beg===
@@ -3429,7 +3437,7 @@ m4_displaymath(
 
 (@urlaands{eqn 12.1.3, 496}) and (@urldlmf{11.2.E1}).
 
-When @code{besselexpand} is @code{true}, @code{struve_h} is expanded in terms
+When @mref{besselexpand} is @mref{true}, @mref{struve_h} is expanded in terms
 of elementary functions when the order @math{v} is half of an odd integer. 
 See @mrefdot{besselexpand}
 
@@ -3450,7 +3458,7 @@ m4_displaymath(
 
 (@urlaands{eqn 12.2.1, 498}) and (@urldlmf{11.2.E2}).
 
-When @code{besselexpand} is @code{true}, @code{struve_l} is expanded in terms
+When @mref{besselexpand} is @mref{true}, @mref{struve_l} is expanded in terms
 of elementary functions when the order @math{v} is half of an odd integer. 
 See @mrefdot{besselexpand}
 
@@ -3467,8 +3475,9 @@ The Hypergeometric Functions are defined in Abramowitz and Stegun,
 @urlaands{15, 555}.
 
 Maxima has very limited knowledge of these functions.  They
-can be returned from function @code{hgfred}.
+can be returned from function @mref{hgfred}.
 
+@anchor{%m}
 @deffn {Function} %m [@var{k},@var{u}] (@var{z}) 
 Whittaker M function (@urlaands{eqn 13.1.32, 505}):
 
@@ -3504,6 +3513,7 @@ where @math{U(a,b,z)} is Kummer's second solution of the confluent hypergeometri
 @end deffn
 
 
+@anchor{%f}
 @deffn {Function} %f [@var{p},@var{q}] (@var{[a],[b],z}) 
 The 
 m4_math(<<<_{p}F_{q}(a_1,a_2,...,a_p;b_1,b_2,...,b_q;z)>>>,<<<pFq(a_1,a_2,...,a_p;b_1,b_2,...,b_q;z)>>>) 
@@ -3516,10 +3526,11 @@ where @var{a} a list of length @var{p} and
 @closecatbox
 @end deffn
 
+@anchor{hypergeometric}
 @deffn {Function} hypergeometric ([@var{a1}, ..., @var{ap}],[@var{b1}, ... ,@var{bq}], x)
-The hypergeometric function. Unlike Maxima's @code{%f} hypergeometric
-function, the function @code{hypergeometric} is a simplifying
-function; also, @code{hypergeometric} supports complex double and
+The hypergeometric function. Unlike Maxima's @mref{%f} hypergeometric
+function, the function @mref{hypergeometric} is a simplifying
+function; also, @mref{hypergeometric} supports complex double and
 big floating point evaluation. For the Gauss hypergeometric function,
 that is @math{p = 2} and @math{q = 1}, floating point evaluation
 outside the unit circle is supported, but in general, it is not
@@ -3527,7 +3538,7 @@ supported.
 
 When the option variable @code{expand_hypergeometric} is true (default
 is false) and one of the arguments @code{a1} through @code{ap} is a
-negative integer (a polynomial case), @code{hypergeometric} returns an
+negative integer (a polynomial case), @mref{hypergeometric} returns an
 expanded polynomial. 
 
 Examples:
@@ -3587,16 +3598,17 @@ Both double float and big float evaluation is supported:
 @end example
 @end deffn
 
+@anchor{hypergeometric_simp}
 @deffn {Function} hypergeometric_simp (@var{e})
 
-@code{hypergeometric_simp} simplifies hypergeometric functions
-by applying @code{hgfred}
+@mref{hypergeometric_simp} simplifies hypergeometric functions
+by applying @mref{hgfred}
 to the arguments of any hypergeometric functions in the expression @var{e}.
 
-Only instances of @code{hypergeometric} are affected;
-any @code{%f}, @code{%w}, and @code{%m} in the expression @var{e} are not affected.
+Only instances of @mref{hypergeometric} are affected;
+any @mref{%f}, @mref{%w}, and @mref{%m} in the expression @var{e} are not affected.
 Any unsimplified hypergeometric functions are returned unchanged
-(instead of changing to @code{%f} as @code{hgfred} would).
+(instead of changing to @mref{%f} as @mref{hgfred} would).
 
 @code{load("hypergeometric");} loads this function.
 
@@ -3650,8 +3662,8 @@ Simplify the generalized hypergeometric function in terms of other,
 simpler, forms.  @var{a} is a list of numerator parameters and @var{b}
 is a list of the denominator parameters. 
 
-If @code{hgfred} cannot simplify the hypergeometric function, it returns
-an expression of the form @code{%f[p,q]([a], [b], x)} where @var{p} is
+If @mref{hgfred} cannot simplify the hypergeometric function, it returns
+an expression of the form @mxref{%f, %f[p@comma{}q]([a]@comma{} [b]@comma{} x)} where @var{p} is
 the number of elements in @var{a}, and @var{q} is the number of elements
 in @var{b}.  This is the usual 
 m4_math(<<<_pF_q>>>,<<<@code{pFq}>>>) 
