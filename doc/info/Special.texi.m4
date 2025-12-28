@@ -3498,6 +3498,14 @@ m4_displaymath(
 @closecatbox
 @end deffn
 
+@anchor{expand_hypergeometric}
+@defvr {Option variable} expand_hypergeometric
+Default value: @mref{false}
+
+When @mref{true}, @mref{hypergeometric} will return a polynomial if
+the hypergeometric function represents a polynomial.
+@end defvr
+
 @anchor{%w}
 @deffn {Function} %w [@var{k},@var{u}] (@var{z}) 
 Whittaker W function (@urlaands{eqn 13.1.33, 505}):
@@ -3536,8 +3544,8 @@ that is @math{p = 2} and @math{q = 1}, floating point evaluation
 outside the unit circle is supported, but in general, it is not
 supported.
 
-When the option variable @code{expand_hypergeometric} is true (default
-is false) and one of the arguments @code{a1} through @code{ap} is a
+When the option variable @mref{expand_hypergeometric} is @mref{true} (default
+is @mref{false}) and one of the arguments @code{a1} through @code{ap} is a
 negative integer (a polynomial case), @mref{hypergeometric} returns an
 expanded polynomial. 
 
@@ -3554,7 +3562,7 @@ Examples:
 @end group
 @end example
 
-Polynomial cases automatically expand when @code{expand_hypergeometric} is true:
+Polynomial cases automatically expand when @mref{expand_hypergeometric} is true:
 
 @c ===beg===
 @c hypergeometric([-3],[7],x);
@@ -3742,7 +3750,7 @@ can be returned from function @mref{specint}.
 
 @anchor{parabolic_cylinder_d}
 @deffn {Function} parabolic_cylinder_d (@var{v}, @var{z}) 
-The parabolic cylinder function @code{parabolic_cylinder_d(v,z)}. (@urlaands{eqn 19.3.1, 687}).
+The parabolic cylinder function @mxref{parabolic_cylinder_d, parabolic_cylinder_d(v@comma{}z)}. (@urlaands{eqn 19.3.1, 687}).
 
 @c See https://mathworld.wolfram.com/ParabolicCylinderFunction.html for more info.
 The solution of the Weber differential equation
@@ -3754,8 +3762,8 @@ m4_mathcomma(<<<D_{\nu}(z)>>>, <<<@code{parabolic_cylinder_d(v,z)}>>>)
 the parabolic cylinder d function.
 
 Function @mref{specint} can return expressions containing
-@code{parabolic_cylinder_d(v,z)} if the option variable
-@mref{prefer_d} is @code{true}.
+@mxref{parabolic_cylinder_d, parabolic_cylinder_d(v@comma{}z)} if the option variable
+@mref{prefer_d} is @mref{true}.
 
 @opencatbox{Categories:}
 @category{Special functions}
@@ -3769,6 +3777,7 @@ Function @mref{specint} can return expressions containing
 @section Functions and Variables for Special Functions
 
 
+@anchor{lambert_w}
 @deffn {Function} lambert_w (@var{z})
 The principal branch of Lambert's W function W(z) (@urldlmf{4.13}), the solution of 
 m4_displaymath(
@@ -3779,6 +3788,7 @@ m4_displaymath(
 @closecatbox
 @end deffn
 
+@anchor{generalized_lambert_w}
 @deffn {Function} generalized_lambert_w (@var{k}, @var{z})
 The @var{k}-th branch of Lambert's W function W(z) (@urldlmf{4.13}), the solution
 of 
@@ -3786,11 +3796,12 @@ m4_mathdot(<<<z=W(z)e^{W(z)}>>>,z = W(z) * exp(W(z)))
 
 The principal branch, denoted 
 m4_math(W_p(z),Wp(z)) 
-in DLMF, is @code{lambert_w(z) = generalized_lambert_w(0,z)}.
+in DLMF, is @mxref{lambert_w,lambert_w(z)} @code{=}
+@mxref{generalized_lambert_w, generalized_lambert_w(0@comma{}z)}.
 
 The other branch with real values, denoted 
 m4_math(W_m(z), Wm(z)) 
-in DLMF, is @code{generalized_lambert_w(-1,z)}.
+in DLMF, is @mxref{generalized_lambert_w, generalized_lambert_w(-1@comma{}z)}.
 @opencatbox{Categories:}
 @category{Special functions}
 @closecatbox
@@ -3853,8 +3864,8 @@ m4_displaymath(
 >>>)
 where
 m4_math(
-<<<W>>>,<<<%w>>>)
-is the @ref{%w, Whittaker W function}.
+<<<W>>>,<<<@mref{%w}>>>)
+is the @mxref{%w, Whittaker W function}.
 
 Some examples:
 @c ===beg===
@@ -3896,7 +3907,7 @@ Some examples:
 @end example
 
 Maxima can
-calculate the Laplace transform of @code{kbateman} using @mref{laplace}
+calculate the Laplace transform of @mref{kbateman} using @mref{laplace}
 or @mrefcomma{specint} as shown below:
 
 @c ===beg===
