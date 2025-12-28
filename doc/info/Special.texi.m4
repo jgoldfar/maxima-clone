@@ -2618,8 +2618,9 @@ This can be written in terms of other functions.  @xref{expintrep} for examples.
 Default value: @mref{false}
 
 Change the representation of one of the exponential integrals,
-@mxref{expintegral_e, expintegral_e(m@comma{}z)}, @mref{expintegral_e1}, or
-@mref{expintegral_ei} to an equivalent form if possible.
+@mxref{expintegral_e, expintegral_e(m@comma{}z)},
+@mxref{expintegral_e1, expintegral_e1(z)}, or
+@mxref{expintegral_ei, expintegral_ei(x)} to an equivalent form if possible.
 
 @c This might be better if it were arranged as a description list
 @c listing each possible value and what it means.
