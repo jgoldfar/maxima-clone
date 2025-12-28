@@ -2615,24 +2615,58 @@ This can be written in terms of other functions.  @xref{expintrep} for examples.
 
 @anchor{expintrep}
 @defvr {Option variable} expintrep
-Default value: false
+Default value: @mref{false}
 
 Change the representation of one of the exponential integrals,
 @mxref{expintegral_e, expintegral_e(m@comma{}z)}, @mref{expintegral_e1}, or
 @mref{expintegral_ei} to an equivalent form if possible.
 
-Possible values for @mref{expintrep} are @mref{false},
-@mref{gamma_incomplete}, @mref{expintegral_e1}, @mref{expintegral_ei},
-@mref{expintegral_li}, @code{expintegral_trig}, or
-@code{expintegral_hyp}.
+@c This might be better if it were arranged as a description list
+@c listing each possible value and what it means.
+@c Possible values for @mref{expintrep} are @mref{false},
+@c @mref{gamma_incomplete}, @mref{expintegral_e1}, @mref{expintegral_ei},
+@c @mref{expintegral_li}, @mref{expintegral_trig}, or
+@c @mref{expintegral_hyp}.
 
-@mref{false} means that the representation is not changed.  Other
-values indicate the representation is to be changed to use the
-function specified where @code{expintegral_trig} means
-@mref{expintegral_si}, @mref{expintegral_ci}; and @code{expintegral_hyp}
-means @mref{expintegral_shi} or @mref{expintegral_chi}.
+@c @mref{false} means that the representation is not changed.  Other
+@c values indicate the representation is to be changed to use the
+@c function specified where
+@c @anchor{expintegral_trig}
+@c @mref{expintegral_trig} means
+@c @mref{expintegral_si}, @mref{expintegral_ci}; and
+@c @anchor{expintegral_hyp}
+@c @mref{expintegral_hyp}
+@c means @mref{expintegral_shi} or @mref{expintegral_chi}.
+@c
+@c The anchors here must use a different name than the actual variable
+@c name because some of the names refer to functions and we don't want
+@c to link to the functions.  We want links to come back here.
+The possible values for @mref{expintrep} are:
+@table @code
+@item false
+The representation is not changed.
+@anchor{expintrep-gamma-incomplete}
+@item gamma_incomplete
+The representation uses @mref{gamma_incomplete}.
+@anchor{expintrep-expintegral-e1}
+@item expintegral_e1
+The representation uses @mref{expintegral_e1}.
+@anchor{expintrep-expintegral-ei}
+@item expintegral_ei
+The representation uses @mref{expintegral_ei}.
+@anchor{expintrep-expintegral-li}
+@item expintegral_li
+The representation uses @mref{expintegral_li}.
+@anchor{expintrep-expintegral-trig}
+@item expintegral_trig
+The representation uses @mref{expintegral_si} or @mref{expintegral_ci}.
+@anchor{expintrep-expintegral-hyp}
+@item expintegral_hyp
+The representation uses @mref{expintegral_shi} or @mref{expintegral_chi}.
+@end table
 
-Here are some examples for @mref{expintrep} set to @mref{gamma_incomplete}:
+Here are some examples for @mref{expintrep} set to
+@mxref{expintrep-gamma-incomplete, gamma_incomplete}:
 @c ===beg===
 @c expintrep:'gamma_incomplete;
 @c expintegral_e1(z);
@@ -2688,7 +2722,7 @@ Here are some examples for @mref{expintrep} set to @mref{gamma_incomplete}:
 @end group
 @end example
 
-For @mref{expintrep} set to @mref{expintegral_e1}:
+For @mref{expintrep} set to @mxref{expintrep-expintegral-e1, expintegral_e1}:
 
 @c ===beg===
 @c expintrep:'expintegral_e1;
@@ -2742,7 +2776,7 @@ For @mref{expintrep} set to @mref{expintegral_e1}:
 @end group
 @end example
 
-For @mref{expintrep} set to @mref{expintegral_ei}:
+For @mref{expintrep} set to @mxref{expintrep-expintegral-ei,expintegral_ei}:
 
 @c ===beg===
 @c expintrep:'expintegral_ei;
@@ -2811,7 +2845,7 @@ For @mref{expintrep} set to @mref{expintegral_ei}:
 @end group
 @end example
 
-For @mref{expintrep} set to @mref{expintegral_li}:
+For @mref{expintrep} set to @mxref{expintrep-expintegral-li,expintegral_li}:
 
 @c ===beg===
 @c expintrep:'expintegral_li;
@@ -2882,7 +2916,7 @@ For @mref{expintrep} set to @mref{expintegral_li}:
 @end group
 @end example
 
-For @mref{expintrep} set to @code{expintegral_trig}:
+For @mref{expintrep} set to @mxref{expintrep-expintegral-trig,expintegral_trig}:
 
 @c ===beg===
 @c expintrep:'expintegral_trig;
@@ -2937,7 +2971,7 @@ For @mref{expintrep} set to @code{expintegral_trig}:
 @end group
 @end example
 
-For @mref{expintrep} set to @code{expintegral_hyp}:
+For @mref{expintrep} set to @mref{expintrep-expintegral-hyp,expintegral_hyp}:
 
 @c ===beg===
 @c expintrep:'expintegral_hyp;
