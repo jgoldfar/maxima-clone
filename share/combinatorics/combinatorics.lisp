@@ -84,7 +84,7 @@
 ;;; lower, whose elements are integers between 1 and n, without repetitions.
 (defun $cyclep (cm n)
   ;; a cycle must be a maxima list
-  (or (and (integerp n) (> n 1)) (return-from $cyclep nil))
+  (or (and (integerp n) (>= n 0)) (return-from $cyclep nil))
   (or ($listp cm) (return-from $cyclep nil))
   (dolist (i (rest cm))
     ;; cycle elements must be positive integers, less or equal to n
