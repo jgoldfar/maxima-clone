@@ -634,7 +634,8 @@ See @mrefcomma{airy_ai} and @mrefdot{airy_bi}
 @section Gamma and Factorial Functions
 @c -----------------------------------------------------------------------------
 
-The gamma function and the related beta, psi and incomplete gamma 
+The @mref{gamma} function and the related @mref{beta},
+@mxref{polygamma, psi} and @mxref{gamma_incomplete,incomplete gamma}
 functions are defined in Abramowitz and Stegun,
 @i{Handbook of Mathematical Functions}, Chapter 6.
 
@@ -1528,7 +1529,7 @@ Simplification for @var{a} and @var{b} a positive integer:
 @end group
 @end example
 
-@var{a} is a negative integer and @math{b<=(-a)}, Maxima simplifies:
+@var{a} is a negative integer and @math{b\le -a}, Maxima simplifies:
 
 @c ===beg===
 @c beta_incomplete(-3,1,z);
@@ -2972,7 +2973,7 @@ For @mref{expintrep} set to @mxref{expintrep-expintegral-trig,expintegral_trig}:
 @end group
 @end example
 
-For @mref{expintrep} set to @mref{expintrep-expintegral-hyp,expintegral_hyp}:
+For @mref{expintrep} set to @mxref{expintrep-expintegral-hyp,expintegral_hyp}:
 
 @c ===beg===
 @c expintrep:'expintegral_hyp;

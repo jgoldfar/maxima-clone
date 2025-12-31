@@ -59,7 +59,7 @@
 @c Macros for cross references
 
 @macro mref {nodename}
-@code{@ref{\nodename\}}
+@ref{\nodename\,,@code{\nodename\}}
 @end macro
 
 @c Like mref, but use TEXT instead of the nodename in the output.
