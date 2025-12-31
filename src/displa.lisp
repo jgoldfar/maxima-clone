@@ -35,7 +35,7 @@
 (defmvar $lmxchar "["  "Character used for drawing the left edge of a matrix.")
 (defmvar $rmxchar "]"  "Character used for drawing the right edge of a matrix.")
 
-(defvar linearray (make-array 80. :initial-element nil))
+(defvar linearray (make-array 1000. :initial-element nil))
 
 (defun maxima-display (form &key (stream *standard-output*) )
   (let ((*standard-output* stream))
@@ -50,9 +50,6 @@
 	     (cond (*alt-display2d* (apply *alt-display2d* form ()))
 		   (t
 		    (let ((displayp t)
-			  (linearray (if displayp
-					 (make-array 80. :initial-element nil)
-					 linearray))
 			  (mratp (checkrat form))
 			  (maxht     1) (maxdp   0) (width   0)
 			  (height    0) (depth   0) (level   0) (size   2)

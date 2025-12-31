@@ -166,8 +166,8 @@ and develop DOE Macsyma, now called Maxima.
 @b{Packages}
 * Package affine::              Working with groups of polynomials.
 * Package alt-display::            Alternative display.
-* Package atensor::             Algebraic Tensor Manipulation.
 * Package asympa::                 Asymptotic analysis.
+* Package atensor::             Algebraic Tensor Manipulation.
 * Package augmented_lagrangian::   Augmented Lagrangian.
 * Package bernstein::              Bernstein polynomials.
 * Package bitwise::                Manipulate bits of integers.
@@ -206,8 +206,8 @@ and develop DOE Macsyma, now called Maxima.
 * Package lindstedt::              Lindstedt.
 * Package linearalgebra::          Functions for linear algebra.
 * Package lsquares::               Least squares.
-* Package makeOrders::             Polynomial utility.
 * Package minpack::                MINPACK functions for minimization and roots
+* Package makeOrders::             Polynomial utility.
 * Package mnewton::                Newton's method to solve equations.
 * Package numericalio::            Reading and writing files.
 * Package odepack::                Numerical ODE solver
@@ -239,7 +239,7 @@ and develop DOE Macsyma, now called Maxima.
 * Documentation Categories::        Documentation categories
 @end ifhtml
 
-@comment @detailmenu
+@detailmenu
 @b{ --- The Detailed Node Listing --- }
 
 Introduction
@@ -688,7 +688,7 @@ Package zeilberger
 
 Understanding maxima's output
 * Error and warning messages::
-@comment @end detailmenu
+@end detailmenu
 @end menu
 
 @c  Put the @node lines here, rather than in the @included files,
@@ -834,15 +834,15 @@ Understanding maxima's output
 @chapter Program Flow
 @include Program.texi
 
-@node Debugging, Package affine, Program Flow, Top
+@node Debugging, Error and warning messages, Program Flow, Top
 @chapter Debugging
 @include Debugging.texi
 
-@node Error and warning messages,  , Package zeilberger, Top
+@node Error and warning messages,  , Debugging, Top
 @chapter Error and warning messages
 @include errormessages.texi
 
-@node Package affine, Package alt-display, Debugging, Top
+@node Package affine, Package alt-display, Error and warning messages, Top
 @chapter Package affine
 @include Affine.texi
 
@@ -1106,17 +1106,17 @@ Understanding maxima's output
 @chapter Package wrstcse
 @include wrstcse.texi
 
-@node Package zeilberger, Error and warning messages, Package wrstcse, Top
+@node Package zeilberger, Function and Variable Index, Package wrstcse, Top
 @chapter Package zeilberger
 @include zeilberger.texi
 
 @c end includes
 
 @ifnothtml
-@node Function and Variable Index,  , Error and warning messages, Top
+@node Function and Variable Index,  , Package zeilberger, Top
 @end ifnothtml
 @ifhtml
-@node Function and Variable Index,  , Error and warning messages, Top
+@node Function and Variable Index,  , Package zeilberger, Top
 @end ifhtml
 @appendix Function and Variable Index
 

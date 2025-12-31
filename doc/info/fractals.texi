@@ -104,7 +104,7 @@ Example:
 
 @end deffn
 
-@node Definitions for complex fractals, Definitions for Koch snowflakes, Definitions for IFS fractals, Top
+@node Definitions for complex fractals, Definitions for Koch snowflakes, Definitions for IFS fractals, Package fractals
 @section Definitions for complex fractals
 
 @anchor{mandelbrot_set}
@@ -210,7 +210,7 @@ See also @mref{julia_parameter}.
 
 @end deffn
 
-@node Definitions for Koch snowflakes, Definitions for Peano maps, Definitions for complex fractals, Top
+@node Definitions for Koch snowflakes, Definitions for Peano maps, Definitions for complex fractals, Package fractals
 @section Definitions for Koch snowflakes
 
 

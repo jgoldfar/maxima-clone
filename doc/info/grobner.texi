@@ -3,7 +3,7 @@
 * Functions and Variables for grobner ::
 @end menu
 
-@node Introduction to grobner, Functions and Variables for grobner, Top, Top
+@node Introduction to grobner, Functions and Variables for grobner, Package grobner, Package grobner
 @section Introduction to grobner
 
 @code{grobner} is a package for working with Groebner bases in Maxima.
@@ -86,7 +86,7 @@ inverse lexicographic order
 
 @end itemize
 
-@node Functions and Variables for grobner, , Introduction to grobner, Top
+@node Functions and Variables for grobner, , Introduction to grobner, Package grobner
 @section Functions and Variables for grobner 
 
 @subsection Global switches for grobner
