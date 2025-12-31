@@ -8,7 +8,7 @@ mechanism.
 * Functions and Variables for bitwise::
 @end menu
 
-@node Functions and Variables for bitwise, , Top, Top
+@node Functions and Variables for bitwise, , Package bitwise, Package bitwise
 @section Functions and Variables for bitwise
 
 @anchor{bit_not}

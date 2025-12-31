@@ -4,6 +4,7 @@
 * Characters::
 * String Processing::
 * Octets and Utilities for Cryptography::
+* Regular Expressions::
 @end menu
 
 @c -----------------------------------------------------------------------------
@@ -2291,6 +2292,11 @@ See @ref{octets_to_string} for examples and some more information.
 
 @node Regular Expressions,  , Octets and Utilities for Cryptography
 @section Regular Expressions
+
+@menu
+* Introduction to Regular Expressions::
+* Functions and Variables::
+@end menu
 
 @node Introduction to Regular Expressions, Functions and Variables, Regular Expressions, Regular Expressions
 @subsection Introduction to Regular Expressions
