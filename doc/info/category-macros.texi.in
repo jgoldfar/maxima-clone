@@ -62,8 +62,11 @@
 @code{@ref{\nodename\}}
 @end macro
 
+@c Like mref, but use TEXT instead of the nodename in the output.
+@c Thus, @mxref{beta, beta(a@comma{}b)} will link to the beta
+@c function, but the display will be ``beta(a,b)''
 @macro mxref {nodename, text}
-@code{@ref{\nodename\, \text\}}
+@ref{\nodename\,,@code{\text\}}
 @end macro
 
 @macro mrefdot {nodename}
