@@ -308,7 +308,7 @@ m4_mathdot(<<<{\rm dc}(u,m) =
 
 @anchor{jacobi_am}
 @deffn {Function} jacobi_am (@var{u}, @var{m})
-The Jacobi amplitude function, @code{jacobi_am}, is defined implicitly by (see
+The Jacobi amplitude function, @mref{jacobi_am}, is defined implicitly by (see
 @url{http://functions.wolfram.com/09.24.02.0001.01})
 m4_math(<<<z = {\rm am}(w, m)>>>,<<<z = am(w, m)>>>)
 where @math{w = F(z,m)} where @math{F(z,m)} is the incomplete elliptic
@@ -702,7 +702,7 @@ m4_mathdot(
 )
 
 
-This is related to @code{elliptic_e} by
+This is related to @mref{elliptic_e} by
 
 m4_displaymath(
 <<<E(u,m) = E(\sin^{-1} {\rm sn}(u, m), m)>>>
@@ -742,7 +742,7 @@ m4_displaymath(
 )
 
 For certain values of @math{m}, the value of the integral is known in
-terms of @math{Gamma} functions.  Use @mref{makegamma} to evaluate them.
+terms of @mxref{gamma, Gamma} functions.  Use @mref{makegamma} to evaluate them.
 
 @opencatbox{Categories:}
 @category{Elliptic integrals}
@@ -760,7 +760,7 @@ m4_displaymath(
 )
 
 For certain values of @math{m}, the value of the integral is known in
-terms of @math{Gamma} functions.  Use @mref{makegamma} to evaluate them.
+terms of @mxref{gamma, Gamma} functions.  Use @mref{makegamma} to evaluate them.
 
 @opencatbox{Categories:}
 @category{Elliptic integrals}
