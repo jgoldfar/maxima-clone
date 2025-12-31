@@ -16,17 +16,21 @@ wilcoxon (X, C) := block ([X1, X0, X10, R, n1, n0, Rsum, W],
             Rsum : sum (R[i], i, 1, n1),
             W : (Rsum - n1 * (n1 + 1) / 2) / (n1 * n0)));
 
-ranks (L) := block ([n : length (L), x, dx, runs, %ranks, L1, L2], 
-    makelist ([L[i], i], i, 1, n),
-    sort (%%, lambda ([x, y], orderlessp (first (x), first (y)))),
-    [L1 : map (first, %%), L2 : map (second, %%)],
-    makelist ([L2[i], i], i, 1, n),
-    sort (%%, lambda ([x, y], orderlessp (first (x), first (y)))),
-    %ranks : map (second, %%),
-    runs : find_runs_nontrivial (L1),
+load ("combinatorics");
+
+ranks_no_rank_averaging (L) := perm_inverse (ordering (L));
+
+ordering (L, [P]) :=
+   (P: if P = [] then 'orderlessp else P[1],
+    map (second, sort (makelist ([L[i], i], i, 1, length (L)), P)));
+
+ranks (L) := block ([order: ordering (L), sorted, %ranks],
+    %ranks: perm_inverse (order),
+    sorted: permute (order, L),
+    runs: find_runs_nontrivial (sorted),
     for e in runs do block ([avg_rank],
-        avg_rank : (1/second(e)) * sum (%ranks [L2[i]], i, first(e), first(e) + second(e) - 1),
-        for i : first(e) thru first(e) + second(e) - 1 do %ranks [L2[i]] : avg_rank),
+        avg_rank : (1/second(e)) * sum (%ranks [order[i]], i, first(e), first(e) + second(e) - 1),
+        for i : first(e) thru first(e) + second(e) - 1 do %ranks [order[i]] : avg_rank),
     %ranks);
 
 find_runs (x) := 
@@ -40,17 +44,3 @@ find_runs (x) :=
 find_runs_nontrivial (x) :=
    (find_runs (x),
     sublist (%%, lambda ([e], second (e) > 1)));
-
-permute (L, p) :=
-    map
-       (second,
-        sort
-           (map (lambda ([x, i], [i, x]), L, p),
-            lambda ([a, b], orderlessp (first(a),  first(b)))));
-
-inverse_permutation (p) :=
-    map
-       (second,
-        sort
-           (makelist ([p[i], i], i, 1, length (p)),
-            lambda ([a, b], orderlessp (first(a), first(b)))));
