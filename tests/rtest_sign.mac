@@ -1596,3 +1596,13 @@ values;
 
 contexts;
 [initial,global]$
+
+/* SF bug #4655: sign("foo") => Lisp error */
+
+block ([S: make_string_output_stream (), S1],
+       with_stdout (S, errcatch (sign ("foo"))),
+       S1: get_output_stream_string (S),
+       close (S),
+       S1);
+"sign: sign undefined for foo
+";
