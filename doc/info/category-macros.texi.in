@@ -1,41 +1,45 @@
+@c==============================================================================
+@c Use @fname for additional definitions of maxima functions (defined
+@c by @deffn).
+@c
+@c This is the default.  It is replaced with appropriate definitions
+@c for different output form
+@macro fname {name}
+@*\name\
+@end macro
 @ifhtml
+@unmacro fname
 @macro fname {name}
 @*@ @ @ @ @b{\name\}
 @end macro
 @end ifhtml
 @iftex
+@unmacro fname
 @macro fname {name}
 @*@t{\name\}
 @end macro
 @end iftex
 @ifinfo
+@unmacro fname
 @macro fname {name}
 @*\name\
 @end macro
 @end ifinfo
-@c Handle all the cases not handled above (xml, docbook, etc.)
-@ifnothtml
-@ifnottex
-@ifnotinfo
-@macro fname {name}
-@*\name\
-@end macro
-@end ifnotinfo
-@end ifnottex
-@end ifnothtml
 
-@c Handle all the cases not handled above (xml, docbook, etc.)
-@ifnothtml
-@ifnottex
-@ifnotinfo
-@macro figure {file}
-(Figure \file\)
+@c==============================================================================
+@c Macros for category boxes.  By default, they do nothing.  But for
+@c HTML, we redefine them to produce a useful category box to display.
+@macro opencatbox {label}
 @end macro
-@end ifnotinfo
-@end ifnottex
-@end ifnothtml
+
+@macro category {name}
+@end macro
+
+@macro closecatbox {}
+@end macro
 
 @ifhtml
+@unmacro opencatbox
 @macro opencatbox {label}
 @html
 <div class=categorybox>
@@ -43,6 +47,7 @@
 @end html
 @end macro
 
+@unmacro category
 @macro category {name}
 @html
 @ref{Category: \name\, \name\}
@@ -50,14 +55,19 @@
 @end html
 @end macro
 
+@unmacro closecatbox
 @macro closecatbox {}
 @html
 </div>
 @end html
 @end macro
+@end ifhtml
 
+@c==============================================================================
 @c Macros for cross references
-
+@c
+@c These are the defaults which will be replaced with appropriate ones
+@c for different outputs.
 @macro mref {nodename}
 @ref{\nodename\,,@code{\nodename\}}
 @end macro
@@ -69,6 +79,8 @@
 @ref{\nodename\,,@code{\text\}}
 @end macro
 
+@c The following are like @mref, but are followed by a punctuation
+@c character because the spacing is off if we do "@mref{foo}."
 @macro mrefdot {nodename}
 @code{@ref{\nodename\}}.
 @end macro
@@ -105,68 +117,53 @@
 @ref{\nodename\},
 @end macro
 
-@end ifhtml
-
-@c Non html versions of the macros
-
-@ifnothtml
-
-@macro opencatbox {label}
-@end macro
-
-@macro category {name}
-@end macro
-
-@macro closecatbox {}
-@end macro
-
 @c Macros for cross references
 
-@ifnottex
-@macro mref {nodename}
-@code{\nodename\}
-@end macro
+@c @ifnottex
+@c @macro mref {nodename}
+@c @code{\nodename\}
+@c @end macro
 
-@macro mxref {nodename, text}
-@code{\text\}
-@end macro
+@c @macro mxref {nodename, text}
+@c @code{\text\}
+@c @end macro
 
-@macro mrefdot {nodename}
-@code{\nodename\}.
-@end macro
+@c @macro mrefdot {nodename}
+@c @code{\nodename\}.
+@c @end macro
 
-@macro mxrefdot {nodename, text}
-@code{\text\}.
-@end macro
+@c @macro mxrefdot {nodename, text}
+@c @code{\text\}.
+@c @end macro
 
-@macro mrefcomma {nodename}
-@code{\nodename\},
-@end macro
+@c @macro mrefcomma {nodename}
+@c @code{\nodename\},
+@c @end macro
 
-@macro mxrefcomma {nodename, text}
-@code{\text\},
-@end macro
+@c @macro mxrefcomma {nodename, text}
+@c @code{\text\},
+@c @end macro
 
-@macro mrefparen {nodename}
-@code{\nodename\})
-@end macro
+@c @macro mrefparen {nodename}
+@c @code{\nodename\})
+@c @end macro
 
-@macro nref {nodename}
-\nodename\
-@end macro
+@c @macro nref {nodename}
+@c \nodename\
+@c @end macro
 
-@macro nxref {nodename, text}
-\text\
-@end macro
+@c @macro nxref {nodename, text}
+@c \text\
+@c @end macro
 
-@macro nrefdot {nodename}
-\nodename\.
-@end macro
+@c @macro nrefdot {nodename}
+@c \nodename\.
+@c @end macro
 
-@macro nrefcomma {nodename}
-\nodename\,
-@end macro
-@end ifnottex
+@c @macro nrefcomma {nodename}
+@c \nodename\,
+@c @end macro
+@c @end ifnottex
 
 @iftex
 @tex
@@ -179,53 +176,65 @@
 \gdef\mmref#1{{\def\SETtxiomitxrefpg{true}\def\xrefprintnodename##1{##1}\ref{#1}}}
 @end tex
 
+@unmacro mref
 @macro mref {nodename}
 @code{@mmref{\nodename\}}
 @end macro
 
+@unmacro mxref
 @macro mxref {nodename, text}
-@code{@ref{\nodename\, \text\}}
+@code{@ref{\nodename\,, \text\}}
 @end macro
 
+@unmacro mrefdot
 @macro mrefdot {nodename}
 @mref{\nodename\}.
 @end macro
 
+@unmacro mxrefdot
 @macro mxrefdot {nodename, text}
 @mxref{\nodename\,\text\}.
 @end macro
 
+@unmacro mrefcomma
 @macro mrefcomma {nodename}
 @mref{\nodename\},
 @end macro
 
+@unmacro mxrefcomma
 @macro mxrefcomma {nodename, text}
 @mxref{\nodename\, \text\},
 @end macro
 
+@unmacro mrefparen
 @macro mrefparen {nodename}
 @mref{\nodename\})
 @end macro
 
+@unmacro nref
 @macro nref {nodename}
 @ref{\nodename\}
 @end macro
 
+@unmacro nxref
 @macro nxref {nodename, text}
 @ref{\nodename\, \text\}
 @end macro
 
+@unmacro nrefdot
 @macro nrefdot {nodename}
 @ref{\nodename\}.
 @end macro
 
+@unmacro nrefcomma
 @macro nrefcomma {nodename}
 @ref{\nodename\},
 @end macro
 
 @end iftex
-@end ifnothtml
 
+
+@c==============================================================================
 @c Macros for figures
 
 @ifnottex
@@ -236,17 +245,27 @@
 @end iftex
 
 @c figure takes only one parameter, the name of the figure (without extension)
+
+@c Default implementation.  It is replaced with appropriate
+@c definitions for different output formats.
+@macro figure {file}
+(Figure \file\)
+@end macro
+
 @ifhtml
+@unmacro figure
 @macro figure {file}
 @image{@value{figuresfolder}/\file\}
 @end macro
 @end ifhtml
 @iftex
+@unmacro figure
 @macro figure {file}
 @center @image{@value{figuresfolder}/\file\, 10cm}
 @end macro
 @end iftex
 @ifinfo
+@unmacro figure
 @macro figure {file}
 @*(Figure \file\)
 @end macro
