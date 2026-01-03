@@ -101,22 +101,6 @@
 @mref{\nodename\}
 @end macro
 
-@macro nref {nodename}
-@ref{\nodename\}
-@end macro
-
-@macro nxref {nodename, text}
-@ref{\nodename\, \text\}
-@end macro
-
-@macro nrefdot {nodename}
-@ref{\nodename\}.
-@end macro
-
-@macro nrefcomma {nodename}
-@ref{\nodename\},
-@end macro
-
 @c Macros for cross references
 
 @c @ifnottex
@@ -184,51 +168,6 @@
 @unmacro mxref
 @macro mxref {nodename, text}
 @code{@ref{\nodename\,, \text\}}
-@end macro
-
-@unmacro mrefdot
-@macro mrefdot {nodename}
-@mref{\nodename\}.
-@end macro
-
-@unmacro mxrefdot
-@macro mxrefdot {nodename, text}
-@mxref{\nodename\,\text\}.
-@end macro
-
-@unmacro mrefcomma
-@macro mrefcomma {nodename}
-@mref{\nodename\},
-@end macro
-
-@unmacro mxrefcomma
-@macro mxrefcomma {nodename, text}
-@mxref{\nodename\, \text\},
-@end macro
-
-@unmacro mrefparen
-@macro mrefparen {nodename}
-@mref{\nodename\})
-@end macro
-
-@unmacro nref
-@macro nref {nodename}
-@ref{\nodename\}
-@end macro
-
-@unmacro nxref
-@macro nxref {nodename, text}
-@ref{\nodename\, \text\}
-@end macro
-
-@unmacro nrefdot
-@macro nrefdot {nodename}
-@ref{\nodename\}.
-@end macro
-
-@unmacro nrefcomma
-@macro nrefcomma {nodename}
-@ref{\nodename\},
 @end macro
 
 @end iftex
