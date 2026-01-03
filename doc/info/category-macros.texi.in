@@ -101,54 +101,7 @@
 @mref{\nodename\}
 @end macro
 
-@c Macros for cross references
-
-@c @ifnottex
-@c @macro mref {nodename}
-@c @code{\nodename\}
-@c @end macro
-
-@c @macro mxref {nodename, text}
-@c @code{\text\}
-@c @end macro
-
-@c @macro mrefdot {nodename}
-@c @code{\nodename\}.
-@c @end macro
-
-@c @macro mxrefdot {nodename, text}
-@c @code{\text\}.
-@c @end macro
-
-@c @macro mrefcomma {nodename}
-@c @code{\nodename\},
-@c @end macro
-
-@c @macro mxrefcomma {nodename, text}
-@c @code{\text\},
-@c @end macro
-
-@c @macro mrefparen {nodename}
-@c @code{\nodename\})
-@c @end macro
-
-@c @macro nref {nodename}
-@c \nodename\
-@c @end macro
-
-@c @macro nxref {nodename, text}
-@c \text\
-@c @end macro
-
-@c @macro nrefdot {nodename}
-@c \nodename\.
-@c @end macro
-
-@c @macro nrefcomma {nodename}
-@c \nodename\,
-@c @end macro
-@c @end ifnottex
-
+@c Xref macros for the pdf file
 @iftex
 @tex
 \gdef\linkcolor{0 .5 0}
