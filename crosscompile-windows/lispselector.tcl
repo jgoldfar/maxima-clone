@@ -51,10 +51,10 @@ set documentation "One can use different LISP (the programming language, in whic
 Currently this Windows installer supports:
 "
 
-if {$clisp == 1} { append documentation "- ABCL (https://www.clisp.org)" }
-if {$sbcl == 1} { append documentation "- ABCL (https://www.sbcl.org)" }
-if {$abcl == 1} { append documentation "- ABCL (https://www.abcl.org)" }
-if {$ccl == 1} { append documentation "- CCL (https://ccl.clozure.com)" }
+if {$clisp == 1} { append documentation "- CLISP (https://www.clisp.org)\n" }
+if {$sbcl == 1} { append documentation "- SBCL (https://www.sbcl.org)\n" }
+if {$abcl == 1} { append documentation "- ABCL (https://www.abcl.org)\n" }
+if {$ccl == 1} { append documentation "- CCL (https://ccl.clozure.com)\n" }
 
 append documentation "
 Which Lisp you select, may depend on your needs:
