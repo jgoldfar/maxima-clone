@@ -2280,7 +2280,7 @@ Default value: 6
 Let @math{x} be a rational number of the form @math{p/q}.
 If @math{p} is greater than @mref{maxpsifracnum},
 then 
-m4_math(<<<\psi^{(0)}(x)>>>,<<<@mxref{psi, psi[0](x)}>>>) 
+m4_math(<<<\psi^{(0)}(x)>>>,<<<psi[0](x)>>>) 
 will not try to
 return a simplified value.
 
@@ -2335,7 +2335,7 @@ Default value: 6
 Let @math{x} be a rational number of the form @math{p/q}.
 If @math{q} is greater than @ref{maxpsifracdenom},
 then 
-m4_math(<<<\psi^{(0)}(x)>>>,<<<@mref{psi[@var{0}](@var{x})}>>>) 
+m4_math(<<<\psi^{(0)}(x)>>>,<<<psi[@var{0}](@var{x})>>>) 
 will
 not try to return a simplified value.
 
@@ -3900,7 +3900,7 @@ m4_displaymath(
 >>>)
 where
 m4_math(
-<<<W>>>,<<<@mref{%w}>>>)
+<<<W>>>,<<<%w>>>)
 is the @mxref{%w, Whittaker W function}.
 
 Some examples:
