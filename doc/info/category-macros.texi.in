@@ -82,23 +82,23 @@
 @c The following are like @mref, but are followed by a punctuation
 @c character because the spacing is off if we do "@mref{foo}."
 @macro mrefdot {nodename}
-@code{@ref{\nodename\}}.
+@ref{\nodename\}.
 @end macro
 
 @macro mxrefdot {nodename, text}
-@code{@ref{\nodename\, \text\}}.
+@mxref{\nodename\, \text\}.
 @end macro
 
 @macro mrefcomma {nodename}
-@code{@ref{\nodename\}},
+@mref{\nodename\},
 @end macro
 
 @macro mxrefcomma {nodename, text}
-@code{@ref{\nodename\, \text\}},
+@mxref{\nodename\, \text\},
 @end macro
 
 @macro mrefparen {nodename}
-@code{@ref{\nodename\}})
+@mref{\nodename\}
 @end macro
 
 @macro nref {nodename}
