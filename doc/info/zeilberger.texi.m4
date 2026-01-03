@@ -2,6 +2,8 @@
 @menu
 * Introduction to zeilberger::
 * Functions and Variables for zeilberger::
+* General global variables::
+* Variables related to the modular test::
 @end menu
 
 @node Introduction to zeilberger, Functions and Variables for zeilberger, Package zeilberger, Package zeilberger
