@@ -125,6 +125,26 @@
 
 @end iftex
 
+@c Xref macros for the online help.  We don't want xref's to look
+@c like "*note: foo" in Maxima's online help.  But for the info
+@c manual, we do want this so that an info reader can have clickable
+@c links.
+@c
+@c Thus, if the variable "textmanual" is set, we assume we're
+@c generating an info file
+@ifinfo
+@ifset textmanual
+@unmacro mref
+@macro mref {nodename}
+@code{\nodename\}
+@end macro
+
+@unmacro mxref
+@macro mxref {nodename, text}
+@code{\text\}
+@end macro
+@end ifset
+@end ifinfo
 
 @c==============================================================================
 @c Macros for figures

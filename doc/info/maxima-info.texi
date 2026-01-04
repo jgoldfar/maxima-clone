@@ -1,7 +1,7 @@
 \input texinfo
-@setfilename  maxima.info
+@setfilename  maxima-info.info
 @finalout
-@set textmanual
+@clear textmanual
 @include include-maxima.texi
 
 @c Include documentation categories
