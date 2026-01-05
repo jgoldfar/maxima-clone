@@ -68,9 +68,9 @@ maxima.info : maxima.texi $(maxima_TEXINFOS)
 	$(MAKEINFO) $(AM_MAKEINFOFLAGS) $(MAKEINFOFLAGS) \
 	  --split-size=1000000 $(srcdir)/maxima.texi
 
-maxima-info.info : maxima-info.texi $(maxima_TEXINFOS)
-	$(MAKEINFO) $(AM_MAKEINFOFLAGS) $(MAKEINFOFLAGS) \
-	  --split-size=1000000 $(srcdir)/maxima-info.texi
+maxima-info.info : maxima.texi $(maxima_TEXINFOS)
+	$(MAKEINFO) -o maxima-info.info -D infomanual $(AM_MAKEINFOFLAGS) $(MAKEINFOFLAGS) \
+	  --split-size=1000000 $(srcdir)/maxima.texi
 html: index.html
 
 maxima-index.lisp: build_index.pl maxima.info
