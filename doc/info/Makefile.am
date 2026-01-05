@@ -65,11 +65,11 @@ all-local: html maxima.info maxima-info.info maxima-index.lisp maxima-index-html
 infoname = maxima
 include $(top_srcdir)/common-info.mk
 maxima.info : maxima.texi $(maxima_TEXINFOS)
-	$(MAKEINFO) $(AM_MAKEINFOFLAGS) $(MAKEINFOFLAGS) \
+	$(MAKEINFO) -D textmanual $(AM_MAKEINFOFLAGS) $(MAKEINFOFLAGS) \
 	  --split-size=1000000 $(srcdir)/maxima.texi
 
 maxima-info.info : maxima.texi $(maxima_TEXINFOS)
-	$(MAKEINFO) -o maxima-info.info -D infomanual $(AM_MAKEINFOFLAGS) $(MAKEINFOFLAGS) \
+	$(MAKEINFO) -o maxima-info.info $(AM_MAKEINFOFLAGS) $(MAKEINFOFLAGS) \
 	  --split-size=1000000 $(srcdir)/maxima.texi
 html: index.html
 

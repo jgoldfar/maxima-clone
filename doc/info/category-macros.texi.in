@@ -133,7 +133,7 @@
 @c Thus, if the variable "textmanual" is set, we assume we're
 @c generating an info file
 @ifinfo
-@ifclear infomanual
+@ifset textmanual
 @unmacro mref
 @macro mref {nodename}
 @code{\nodename\}
@@ -143,7 +143,7 @@
 @macro mxref {nodename, text}
 @code{\text\}
 @end macro
-@end ifclear
+@end ifset
 @end ifinfo
 
 @c==============================================================================
