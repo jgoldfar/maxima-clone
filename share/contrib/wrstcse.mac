@@ -173,14 +173,14 @@ wc_inputvalueranges(wc_x,[show_toln]):=
             makelist(
                 append(
                     [lhs(wc_i)],
-                    wc_mintypmax(rhs(wc_i)),
+                    map('rhs,wc_mintypmax(rhs(wc_i))),
                     [%wc_tols(rhs(wc_i))]
                 ),
                 wc_i,wc_x
             )        
         else
             makelist(
-                append([lhs(wc_i)],wc_mintypmax(rhs(wc_i))),
+                append([lhs(wc_i)],map('rhs,wc_mintypmax(rhs(wc_i)))),
                 wc_i,wc_x
             )
     )
