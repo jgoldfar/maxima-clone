@@ -40,8 +40,8 @@ wc_typicalvalues(vals);
 [a=b,b=2];
 ratsimp(wc_inputvalueranges(vals));
 matrix(
-	[a,	min=min(a,b,c),	typ=b,	max=max(a,b,c)],
-	[b,	min=1,	typ=2,	max=3]
+	[a,	min(a,b,c),	b,	max(a,b,c)],
+	[b,	1,	2,	3]
 );
 wc_mintypmax(subst(vals,b));
 [min=1,typ=2,max=3];
