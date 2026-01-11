@@ -69,7 +69,7 @@
 @c These are the defaults which will be replaced with appropriate ones
 @c for different outputs.
 @macro mref {nodename}
-@ref{\nodename\,,@code{\nodename\}}
+@code{@ref{\nodename\}}
 @end macro
 
 @c Like mref, but use TEXT instead of the nodename in the output.
