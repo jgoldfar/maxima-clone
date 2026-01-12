@@ -4,3 +4,4 @@ Maxima 5.49-post change log
 Bug fixes for numbered bugs:
 ----------------------------
  * \#4585 Taylor polynomials involving tangent & a quotient
+ * \#4634 Divergent integral simplifies to -1/4 with simplify_sum
