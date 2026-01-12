@@ -1464,6 +1464,12 @@ block([ans : limit(minf = minf,x,42)], [inpart(ans,0),args(ans)]);
 block([ans : limit(x < 8)], [inpart(ans,0),args(ans)]);
 ["<", [x, 8]]$
 
+/* \#4634 Divergent integral simplifies to -1/4 with simplify_sum */
+/* I put the test simplify_sum( sum(n*(-1)^n,n,1,inf)) into rtest_simplify_sum. Here is
+the other test mentioned in ticket 4634. */
+limit(((-1)^N*(2*N+1))/4-1/4,N,inf);
+und$
+
 /* clean up*/
 (kill(values),0);
 0$
