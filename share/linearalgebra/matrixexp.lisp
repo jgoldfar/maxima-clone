@@ -31,7 +31,7 @@
 ;; When mat is a square matrix, return exp(mat * x). The second 
 ;; argument is optional and it defaults to 1.
 
-(defun $matrixexp (mat &optional (x 1))
+(defmfun $matrixexp (mat &optional (x 1))
   (let ((sp) (d) (p) (id) (n ($length ($args mat))) (f) ($scalarmatrixp nil))
     ($ratvars)
     ($require_square_matrix mat '$first '$matrixexp)
@@ -59,7 +59,7 @@
 	(list var (nth 2 e))
       (merror "The ~:M argument to `~:M' must be a lambda form with ~:M variable(s)" pos fun-name n))))
 
-(defun $matrixfun (lamexpr mat)
+(defmfun $matrixfun (lamexpr mat)
   (let ((z (gensym)) (expr) (var) (sp) (d) (p) (di) 
 	(n ($length ($args mat))) (f 0) ($scalarmatrixp nil))
 
@@ -107,7 +107,7 @@
      nil)))
 
 
-(defun $spectral_rep (mat)
+(defmfun $spectral_rep (mat)
   ($require_square_matrix mat '$first '$spectral_rep)
   (let (($gcd '$spmod) ($algebraic t) ($resultant '$subres) (ord) (zi)
 	($ratfac nil) (z (gensym)) (res) (m) (n ($length ($args mat))) 
