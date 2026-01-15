@@ -1370,16 +1370,16 @@ false;
 /* SF bug #2913: trigrat crashes with variable name "e" */
 
 trigrat(c^x * sin(x));
-%i*abs(c)^x*sin(x)*sin(atan2(0, c)*x) + abs(c)^x*sin(x)*cos(atan2(0, c)*x);
+c^x*sin(x);
 
 trigrat(d^x * sin(x));
-%i*abs(d)^x*sin(x)*sin(atan2(0, d)*x) + abs(d)^x*sin(x)*cos(atan2(0, d)*x);
+d^x * sin(x)$
 
 trigrat(e^x * sin(x));
-%i*abs(e)^x*sin(x)*sin(atan2(0, e)*x) + abs(e)^x*sin(x)*cos(atan2(0, e)*x);
+e^x * sin(x);
 
 trigrat(f^x * sin(x));
-%i*abs(f)^x*sin(x)*sin(atan2(0, f)*x) + abs(f)^x*sin(x)*cos(atan2(0, f)*x);
+f^x * sin(x);
 
 (check_eigenvectors (M) := block ([vals, vecs, mults, eqns],
   [[vals, mults], vecs] : eigenvectors (M),
@@ -1789,3 +1789,7 @@ true;
 
 test_trigrat (sin(3*%pi/47) / sin(13*%pi/47));
 true;
+
+/* \#4554 trigrat often makes expressions unnecessarily complicated */
+trigrat(f(sin(2*x)));
+f(sin(2*x))$
