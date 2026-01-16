@@ -142,7 +142,6 @@ wc_typicalvalues(wc_x):=
     );
 
 /* Convenience function: Get the minimum, the typical and the maximal value */
-
 wc_mintypmax(wc_x,[wc_params]):=block([wc_allvalues,wc_param1,min,wc_typ,max],
     if length(wc_params) < 1 then
         wc_param1:wc_defaultvaluespertol
@@ -162,6 +161,34 @@ wc_mintypmax(wc_x,[wc_params]):=block([wc_allvalues,wc_param1,min,wc_typ,max],
 );
 /* Make this function map over equations */
  ?putprop('mintypmax, ?cdr([?mlist,?mequal]), '?distribute_over)$
+
+/* wc_mintypmax, but solves wc_equation numerically to wx_var,
+expecting ec_var to lie between wc_var_min and wc_var_max */
+wc_mintypmax_num(wc_equation, wc_var, wc_var_min, wc_var_max, [wc_params]):=
+block([wc_allvalues, wc_param1, min, wc_typ,max],
+    if length(wc_params) < 1 then
+        wc_param1:wc_defaultvaluespertol
+    else
+        wc_param1:inpart(wc_params,1),
+
+    if wc_param1 < 2 then
+       error("wc_mintypmax_num: The optional parameter needs to be > 2"),
+    
+    wc_allvalues:makelist(
+        apply(
+            'find_root,
+            [i,wc_var,wc_var_min,wc_var_max]
+        ),
+        i,
+        wc_systematic(wc_equation)
+    ),
+    min:apply('min,wc_allvalues),
+    wc_typ:find_root(wc_typicalvalues(wc_equation),wc_var,wc_var_min,wc_var_max),
+    max:apply('max,wc_allvalues),
+        ['min=min,'typ=wc_typ,'max=max]
+);
+
+
 
 /* A function that pretty-prints the value ranges the input values are in */
 wc_inputvalueranges(wc_x,[show_toln]):=
