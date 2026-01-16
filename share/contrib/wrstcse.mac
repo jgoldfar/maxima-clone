@@ -170,9 +170,6 @@ block([wc_allvalues, wc_param1, min, wc_typ,max],
         wc_param1:wc_defaultvaluespertol
     else
         wc_param1:inpart(wc_params,1),
-
-    if wc_param1 < 2 then
-       error("wc_mintypmax_num: The optional parameter needs to be > 2"),
     
     wc_allvalues:makelist(
         apply(
