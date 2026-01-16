@@ -74,6 +74,8 @@ wc_systematic(wc_x,[wc_valuespertol]):=block(
     
     /* Default the number of values per tolerance parameter to 3 */
     if wc_valuespertol=[] then wc_valuespertol:wc_defaultvaluespertol else wc_valuespertol:first(wc_valuespertol),
+    if (wc_valuespertol < 2) and (wc_valuespertol >-1) then
+       error("wc_mintypmax_num: The optional parameter needs to be negative or > 2"),
     makelist(
         (
             subst(
