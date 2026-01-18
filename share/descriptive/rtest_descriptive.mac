@@ -4,6 +4,15 @@
 (load(descriptive), float_approx_equal_tolerance : 1e-12, 0);
 0$
 
+mean ([]);
+und;
+
+mean (matrix ());
+und;
+
+mean (matrix ([]));
+[];
+
 mean([a, b, c]);
 (c+b+a)/3$
 

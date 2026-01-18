@@ -373,8 +373,16 @@ mean (x, [w]) :=
            [w, sum_w]: if w = [] then [1, n] else [w[1], if listp (w[1]) then lsum (w1, w1, w[1]) else n*w[1]],
            verify_weights ('mean, w, n),
            if listp(x) or matrixp(x)
-               then block ([e: apply ("+", w * args(x)) / sum_w],
-                           ratsimp_nonnumeric (e))
+               then if n > 0
+                        then block ([e: apply ("+", w * args(x)) / sum_w],
+                                    ratsimp_nonnumeric (e))
+                        /* mean is undefined if x is empty (sum is well-defined and length is well-defined, but not sum/length);
+                         * there are various possibilities here, such as triggering an error or returning false,
+                         * just return und for now.
+                         * Also, I suppose that any other functions of lists or matrices should likewise
+                         * try to return something meaningful for empty data.
+                         */
+                        else und
                else error("mean: first argument must be a list or matrix; found", x));
 
 verify_weights (fn, w, n) :=
