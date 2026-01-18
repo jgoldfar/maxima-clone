@@ -577,43 +577,43 @@ Example:
 @c load("wrstcse")$
 @c ratprint:false$
 @c vals: [
-@c    f=(1+tol["f"]*.01),
+@c    f=(1+tol["f"]*.2),
 @c    A=(1+tol["A"]*.1)
 @c  ]$
 @c wc_inputvalueranges(vals,true);
 @c assume(U_In>0);
-@c eq:cos(x)=x;
-@c x=wc_mintypmax_num(eq,x,0,1);
+@c eq:cos(2*%pi*f*x)=A*x;
+@c x=wc_mintypmax_num(subst(vals,eq),x,0,.3);
 @c ===end===
 @example maxima
 (%i1) load("wrstcse")$
 (%i2) ratprint:false$
 @group
 (%i3) vals: [
-   f=(1+tol["f"]*.01),
+   f=(1+tol["f"]*.2),
    A=(1+tol["A"]*.1)
  ]$
 @end group
 @group
 (%i4) wc_inputvalueranges(vals,true);
-                  [ f  0.99  1  1.01  [tol ] ]
-                  [                       f  ]
-(%o4)             [                          ]
-                  [ A  0.9   1  1.1   [tol ] ]
-                  [                       A  ]
+                   [ f  0.8  1  1.2  [tol ] ]
+                   [                     f  ]
+(%o4)              [                        ]
+                   [ A  0.9  1  1.1  [tol ] ]
+                   [                     A  ]
 @end group
 @group
 (%i5) assume(U_In>0);
 (%o5)                      [U_In > 0]
 @end group
 @group
-(%i6) eq:cos(x)=x;
-(%o6)                      cos(x) = x
+(%i6) eq:cos(2*%pi*f*x)=A*x;
+(%o6)                 cos(2 %pi f x) = A x
 @end group
 @group
-(%i7) x=wc_mintypmax_num(eq,x,0,1);
-(%o7) x = [min = 0.7390851332151607, typ = 0.7390851332151607, 
-                                        max = 0.7390851332151607]
+(%i7) x=wc_mintypmax_num(subst(vals,eq),x,0,.3);
+(%o7) x = [min = 0.18165213379777342, typ = 0.21544061525279004, 
+                                        max = 0.2646539803703126]
 @end group
 @end example
 @end deffn
