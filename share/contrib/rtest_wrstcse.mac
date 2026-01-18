@@ -133,3 +133,5 @@ done;
 done;
 (kill(val1),done);
 done;
+wc_mintypmax_num(x=tol[1]+tol[2]+3,x,0,7);
+[min=1.0,typ=3.0,max=5.0];
