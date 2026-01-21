@@ -155,7 +155,7 @@
 		   #+lispworks (pathname-type (compile-file-pathname "foo.lisp"))
 		   #-(or gcl cmu clisp allegro openmcl lispworks) ""))
       (if (member type (list bin-ext "lisp" "lsp")  :test 'equalp)
-	  (let ((*read-base* 10.)) #-sbcl (load file) #+sbcl (with-compilation-unit nil (load file)))
+	  (let ((*read-base* 10.) (*print-base* 10.)) #-sbcl (load file) #+sbcl (with-compilation-unit nil (load file)))
 	  ($load file)))))
 
 (defvar autoload 'generic-autoload)
@@ -200,6 +200,7 @@
 	 (*package* (find-package :maxima))
 	 ($load_pathname path)
 	 (*read-base* 10.)
+	 (*print-base* 10.)
 	 (tem (errset #-sbcl (load (pathname file)) #+sbcl (with-compilation-unit nil (load (pathname file))))))
     (or tem (merror (intl:gettext "loadfile: failed to load ~A") (namestring path)))
     (namestring path)))
