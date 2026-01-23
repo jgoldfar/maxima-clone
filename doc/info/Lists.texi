@@ -141,6 +141,76 @@ Examples:
 @c NEEDS CLARIFICATION AND EXAMPLES
 
 @c -----------------------------------------------------------------------------
+@anchor{accumulate}
+@deffn {Function} accumulate @
+@fname{accumulate} (@var{op}, @var{X}, @var{X0}) @
+@fname{accumulate} (@var{op}, @var{X})
+
+Returns a list comprising the partial results of @var{op} applied to successive elements of the list @var{X}.
+
+@var{op} must be a function of two arguments, or an n-ary function.
+
+When the optional argument @var{X0} is present,
+@code{accumulate} returns
+@code{[@var{X0}, @var{op}(@var{X0}, @var{X}[1]), @var{op}(@var{op}(@var{X0}, @var{X[1]}), @var{X}[2]), ...]}.
+
+When the optional argument @var{X0} is absent,
+@code{accumulate} returns
+@code{[@var{X}[1], @var{op}(@var{X}[1], @var{X}[2]), @var{op}(@var{op}(@var{X}[1], @var{X[2]}), @var{X}[3]), ...]}.
+
+The final element returned by @code{accumulate} is the same as the result returned by @mrefdot{lreduce}
+The difference is that @code{accumulate} also returns the partial results leading up to the final element.
+
+Examples:
+
+@c ===beg===
+@c accumulate ("+", [a, b, c]);
+@c accumulate ("+", [a, b, c], 10);
+@c accumulate ("*", [a, b, c]);
+@c accumulate ("/", [a, b, c], 100);
+@c accumulate (f, [a, b, c], 0);
+@c lreduce (f, [a, b, c], 0);
+@c accumulate ("+", [2, 3, 5, 7, 11, 13, 17, 19]);
+@c ===end===
+@example maxima
+@group
+(%i1) accumulate ("+", [a, b, c]);
+(%o1)                 [a, b + a, c + b + a]
+@end group
+@group
+(%i2) accumulate ("+", [a, b, c], 10);
+(%o2)       [10, a + 10, b + a + 10, c + b + a + 10]
+@end group
+@group
+(%i3) accumulate ("*", [a, b, c]);
+(%o3)                    [a, a b, a b c]
+@end group
+@group
+(%i4) accumulate ("/", [a, b, c], 100);
+                           100  100   100
+(%o4)                [100, ---, ---, -----]
+                            a   a b  a b c
+@end group
+@group
+(%i5) accumulate (f, [a, b, c], 0);
+(%o5)   [0, f(0, a), f(f(0, a), b), f(f(f(0, a), b), c)]
+@end group
+@group
+(%i6) lreduce (f, [a, b, c], 0);
+(%o6)                  f(f(f(0, a), b), c)
+@end group
+@group
+(%i7) accumulate ("+", [2, 3, 5, 7, 11, 13, 17, 19]);
+(%o7)            [2, 5, 10, 17, 28, 41, 58, 77]
+@end group
+@end example
+
+@opencatbox{Categories:}
+@category{Lists}
+@closecatbox
+@end deffn
+
+@c -----------------------------------------------------------------------------
 @anchor{append}
 @deffn {Function} append (@var{list_1}, @dots{}, @var{list_n})
 

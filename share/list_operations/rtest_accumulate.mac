@@ -1,0 +1,68 @@
+accumulate ("*", []);
+[];
+
+accumulate ("*", [], 999);
+[ 999 ];
+
+accumulate ("+", [%pi]);
+[ %pi ];
+
+kill (foo);
+done;
+
+accumulate (foo, [%pi]);
+[ %pi ];
+
+accumulate (foo, [%pi], 1000);
+[ 1000, foo (1000, %pi) ];
+
+accumulate (foo, [%pi, %e, %phi, %gamma]);
+[ %pi, foo (%pi, %e), foo (foo (%pi, %e), %phi), foo (foo (foo (%pi, %e), %phi), %gamma) ];
+
+accumulate (foo, [%pi, %e, %phi, %gamma], 0);
+[ 0, foo (0, %pi), foo (foo (0, %pi), %e), foo (foo (foo (0, %pi), %e), %phi), foo (foo (foo (foo (0, %pi), %e), %phi), %gamma) ];
+
+accumulate (foo, [%pi, %e, %phi, %gamma], 1234);
+[ 1234, foo (1234, %pi), foo (foo (1234, %pi), %e), foo (foo (foo (1234, %pi), %e), %phi), foo (foo (foo (foo (1234, %pi), %e), %phi), %gamma) ];
+
+accumulate ("-", [%pi]);
+[ %pi ];
+
+accumulate ("-", [%pi], 1000);
+[ 1000, 1000 - %pi ];
+
+accumulate ("+", [%pi, %e, %phi, %gamma]);
+[ %pi, %pi + %e, %pi + %e + %phi, %pi + %e + %phi + %gamma ];
+
+accumulate ("+", [%pi, %e, %phi, %gamma], 0);
+[ 0, %pi, %pi + %e, %pi + %e + %phi, %pi + %e + %phi + %gamma ];
+
+accumulate ("+", [%pi, %e, %phi, %gamma], 1234);
+[ 1234, 1234 + %pi, 1234 + %pi + %e, 1234 + %pi + %e + %phi, 1234 + %pi + %e + %phi + %gamma ];
+
+accumulate ("*", [%pi, %e, %phi, %gamma]);
+[ %pi, %pi * %e, %pi * %e * %phi, %pi * %e * %phi * %gamma ];
+
+(%edispflag: true, 0);
+0;
+
+accumulate ("/", [%pi, %e, %phi, %gamma], 2);
+[ 2, 2 / %pi, 2 / (%e * %pi), 2 / (%e * %phi * %pi), 2 / (%e * %gamma * %phi * %pi) ];
+
+(reset (%edispflag), 0);
+0;
+
+/*
+accumulate ("+", foomatrix: matrix ([11, 22, 33], [44, 55, 66], [77, 88, 99], [110, 121, 132]));
+''(matrix ([ 11, 22, 33 ],
+           [ 11 + 44, 22 + 55, 33 + 66 ],
+           [ 11 + 44 + 77, 22 + 55 + 88, 33 + 66 + 99 ],
+           [ 11 + 44 + 77 + 110, 22 + 55 + 88 + 121, 33 + 66 + 99 + 132 ]));
+
+accumulate ("+", foomatrix: matrix ([11, 22, 33], [44, 55, 66], [77, 88, 99], [110, 121, 132]), [%pi, %phi, %gamma]);
+''(matrix ([ %pi, %phi, %gamma ],
+           [ %pi + 11, %phi + 22, %gamma + 33 ],
+           [ %pi + 11 + 44, %phi + 22 + 55, %gamma + 33 + 66 ],
+           [ %pi + 11 + 44 + 77, %phi + 22 + 55 + 88, %gamma + 33 + 66 + 99 ],
+           [ %pi + 11 + 44 + 77 + 110, %phi + 22 + 55 + 88 + 121, %gamma + 33 + 66 + 99 + 132 ]));
+ */
