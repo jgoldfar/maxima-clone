@@ -1,10 +1,6 @@
 accumulate (f%, x, [optional]) :=
     if listp (x)
         then accumulate_list (f%, x, optional)
-    /* disallow matrix argument; leave code in place while I contemplate whether to make it permanent
-    elseif matrixp (x)
-        then accumulate_matrix (f%, x, optional)
-     */
         else error ("accumulate: argument must be a list or a matrix.");
 
 accumulate_list (f%, x, optional) :=
@@ -31,9 +27,3 @@ accumulate_list (f%, x, optional) :=
                  for z in x1
                      do push (f% (y[1], z), y),
                  reverse (y)));
-
-/*
-accumulate_matrix (f%, x, optional) :=
-    block ([listarith: true],
-           apply (matrix, accumulate_list (f%, args (x), optional)));
- */
