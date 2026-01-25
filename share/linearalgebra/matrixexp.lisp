@@ -28,6 +28,78 @@
 
 ($put '$matrixexp 1 '$version)
 
+(defmfun $spectral_rep (mat)
+  ($require_square_matrix mat '$first '$spectral_rep)
+  (let (($gcd '$spmod) ($algebraic t) ($resultant '$subres) (ord) (zi)
+	($ratfac nil) (z (gensym)) (res) (m) (n ($length ($args mat))) 
+	(p) (p1) (p2) (sp) (proj) ($scalarmatrixp nil))
+
+    ($ratvars)
+    (setq p ($newdet (sub mat (mul z ($ident n)))))
+    (if (oddp n) (setq p (mul -1 p)))
+
+    ;; p1 = (z - z1)(z - z2) ... (z - zk), where z1 thru zk are
+    ;; the distinct zeros of p.
+
+    (setq p1 ($first ($divide p ($gcd p ($diff p z) z) z)))
+    (setq p2 ($resultant p1 ($diff p1 z) z))
+
+    (cond ((and (not ($constantp p2)) (not (alike1 0 p2)))
+	   ($ratvars)
+	   (setq p2 ($sqfr p2))
+	   (if (mminusp p2) (setq p2 (mul -1 p2)))
+	   (setq p2 (if (mtimesp p2) (margs p2) (list p2)))
+	   (setq p2 (mapcar #'(lambda (s) (if (mexptp s) (nth 1 s) s)) p2))
+	   (setq p2 (fapply 'mtimes p2))
+	(mtell "Proviso: assuming ~:M ~%" (ftake 'mnotequal p2 0))))
+
+    (setq sp ($solve p z))
+    (setq sp (mapcar '$rhs (cdr sp)))
+    (cond ((not (eql n (apply #'+ (cdr $multiplicities))))
+	   (print `(ratvars = ,$ratvars gcd = '$gcd algebraic = ,$algebraic))
+	   (print `(ratfac = ,$ratfac))
+	   (merror "Unable to find the spectrum")))
+   
+    (setq res ($fullratsimp (ncpower (sub (mul z ($ident n)) mat) -1) z))
+    (setq m (length sp))
+    (dotimes (i m)
+      (setq zi (nth i sp))
+      (setq ord (nth (+ i 1) $multiplicities))
+      (push (matrix-map #'(lambda (e) (rational-residue e z zi p ord)) res) 
+	    proj))
+
+    (setq proj (nreverse proj))
+    (setq m (length proj))
+    (dotimes (i m)
+      (setq mat (sub mat (mul (nth i sp) (nth i proj)))))
+       
+    (cond ((check-spectral-rep proj n)
+            (ftake 'mlist (fapply 'mlist sp) (fapply 'mlist proj) ($fullratsimp mat nil)))
+	        (t
+	          (merror "Unable to find the spectral representation")))))
+  
+(defun check-spectral-rep (proj n)
+  (let* ((m (length proj)) (okay) (zip ($zeromatrix n n)) (qi) 
+	 ($gcd '$spmod) ($algebraic t) ($ratfac nil))
+    ($ratvars)
+
+    (setq proj (mapcar #'(lambda (s) ($fullratsimp s nil)) proj))
+    (setq okay (like ($ident n) ($fullratsimp (apply 'add proj) nil)))
+    
+    (dotimes (i m)
+      (setq qi (nth i proj))
+      (setq qi ($fullratsimp (sub qi (ncmul2 qi qi)) nil))
+      (setq okay (and okay (like zip qi))))
+    
+    (dotimes (i m)
+      (setq qi (nth i proj))
+      (dotimes (j i)
+	(setq okay (and okay (alike1 zip ($fullratsimp
+					(ncmul2 qi (nth j proj)) nil))))
+	(setq okay (and okay (alike1 zip ($fullratsimp 
+					(ncmul2 (nth j proj) qi) nil))))))
+    okay))  
+      
 ;; When mat is a square matrix, return exp(mat * x). The second 
 ;; argument is optional and it defaults to 1.
 
@@ -107,78 +179,6 @@
      nil)))
 
 
-(defmfun $spectral_rep (mat)
-  ($require_square_matrix mat '$first '$spectral_rep)
-  (let (($gcd '$spmod) ($algebraic t) ($resultant '$subres) (ord) (zi)
-	($ratfac nil) (z (gensym)) (res) (m) (n ($length ($args mat))) 
-	(p) (p1) (p2) (sp) (proj) ($scalarmatrixp nil))
-
-    ($ratvars)
-    (setq p ($newdet (sub mat (mul z ($ident n)))))
-    (if (oddp n) (setq p (mul -1 p)))
-
-    ;; p1 = (z - z1)(z - z2) ... (z - zk), where z1 thru zk are
-    ;; the distinct zeros of p.
-
-    (setq p1 ($first ($divide p ($gcd p ($diff p z) z) z)))
-    (setq p2 ($resultant p1 ($diff p1 z) z))
-
-    (cond ((and (not ($constantp p2)) (not (alike1 0 p2)))
-	   ($ratvars)
-	   (setq p2 ($sqfr p2))
-	   (if (mminusp p2) (setq p2 (mul -1 p2)))
-	   (setq p2 (if (mtimesp p2) (margs p2) (list p2)))
-	   (setq p2 (mapcar #'(lambda (s) (if (mexptp s) (nth 1 s) s)) p2))
-	   (setq p2 (fapply 'mtimes p2))
-	(mtell "Proviso: assuming ~:M ~%" (ftake 'mnotequal p2 0))))
-
-    (setq sp ($solve p z))
-    (setq sp (mapcar '$rhs (cdr sp)))
-    (cond ((not (eql n (apply #'+ (cdr $multiplicities))))
-	   (print `(ratvars = ,$ratvars gcd = '$gcd algebraic = ,$algebraic))
-	   (print `(ratfac = ,$ratfac))
-	   (merror "Unable to find the spectrum")))
-   
-    (setq res ($fullratsimp (ncpower (sub (mul z ($ident n)) mat) -1) z))
-    (setq m (length sp))
-    (dotimes (i m)
-      (setq zi (nth i sp))
-      (setq ord (nth (+ i 1) $multiplicities))
-      (push (matrix-map #'(lambda (e) (rational-residue e z zi p ord)) res) 
-	    proj))
-
-    (setq proj (nreverse proj))
-    (setq m (length proj))
-    (dotimes (i m)
-      (setq mat (sub mat (mul (nth i sp) (nth i proj)))))
-       
-    (cond ((check-spectral-rep proj n)
-            (ftake 'mlist (fapply 'mlist sp) (fapply 'mlist proj) ($fullratsimp mat nil)))
-	        (t
-	          (merror "Unable to find the spectral representation")))))
-  
-(defun check-spectral-rep (proj n)
-  (let* ((m (length proj)) (okay) (zip ($zeromatrix n n)) (qi) 
-	 ($gcd '$spmod) ($algebraic t) ($ratfac nil))
-    ($ratvars)
-
-    (setq proj (mapcar #'(lambda (s) ($fullratsimp s nil)) proj))
-    (setq okay (like ($ident n) ($fullratsimp (apply 'add proj) nil)))
-    
-    (dotimes (i m)
-      (setq qi (nth i proj))
-      (setq qi ($fullratsimp (sub qi (ncmul2 qi qi)) nil))
-      (setq okay (and okay (like zip qi))))
-    
-    (dotimes (i m)
-      (setq qi (nth i proj))
-      (dotimes (j i)
-	(setq okay (and okay (alike1 zip ($fullratsimp
-					(ncmul2 qi (nth j proj)) nil))))
-	(setq okay (and okay (alike1 zip ($fullratsimp 
-					(ncmul2 (nth j proj) qi) nil))))))
-    okay))  
-      
       
 
     
