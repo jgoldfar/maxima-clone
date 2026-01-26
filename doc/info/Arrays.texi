@@ -484,6 +484,126 @@ where @var{A} is an array and @var{i_1}, @dots{}, @var{i_n} are integers.
 @end deffn
 
 @c -----------------------------------------------------------------------------
+@anchor{contains}
+@deffn {Function} contains (@var{A}, @var{L})
+
+Returns @code{true} if the undeclared array or hash table @var{A} contains the key or keys (i.e., subscripts) @var{L},
+otherwise @code{false}.
+
+@var{A} must be an undeclared array,
+or a hash table value returned by @mref{make_array}
+or created as an undeclared array with @mref{use_fast_arrays} equal to @code{true}.
+
+@var{L} must be supplied as a list even if there is only one key.
+
+See also @mref{arrayinfo} which returns all the keys for an undeclared array or hash table.
+
+Examples:
+
+@code{aa} is an undeclared array, which has one key.
+The key must be supplied to @code{contains} as a list even though there is only one.
+
+@c ===beg===
+@c aa["abc"]: "defghi";
+@c arrayinfo (aa);
+@c contains (aa, ["abc"]);
+@c contains (aa, ["abcd"]);
+@c ===end===
+@example maxima
+@group
+(%i1) aa["abc"]: "defghi";
+(%o1)                        defghi
+@end group
+@group
+(%i2) arrayinfo (aa);
+(%o2)                  [hashed, 1, [abc]]
+@end group
+@group
+(%i3) contains (aa, ["abc"]);
+(%o3)                         true
+@end group
+@group
+(%i4) contains (aa, ["abcd"]);
+(%o4)                         false
+@end group
+@end example
+
+@code{bb} is a hash table returned by @code{make_array}.
+@code{bb} has one key.
+
+@c ===beg===
+@c bb: make_array ('hashed);
+@c bb[9876]: 1 + x + y + z;
+@c arrayinfo (bb);
+@c contains (bb, [9876]);
+@c contains (bb, [1234]);
+@c ===end===
+@example maxima
+@group
+(%i1) bb: make_array ('hashed);
+(%o1) 
+    @{Lisp Array: #<HASH-TABLE :TEST EQUAL :COUNT 1 @{1202136213@}>@}
+@end group
+@group
+(%i2) bb[9876]: 1 + x + y + z;
+(%o2)                     z + y + x + 1
+@end group
+@group
+(%i3) arrayinfo (bb);
+(%o3)                 [hash_table, 1, 9876]
+@end group
+@group
+(%i4) contains (bb, [9876]);
+(%o4)                         true
+@end group
+@group
+(%i5) contains (bb, [1234]);
+(%o5)                         false
+@end group
+@end example
+
+@code{cc} is a hash table created as an undeclared array with @code{use_fast_arrays} equal to @code{true}.
+@code{cc} has two keys.
+
+@c ===beg===
+@c use_fast_arrays: true $
+@c cc["xyz", 123]: 1729;
+@c cc;
+@c arrayinfo (cc);
+@c contains (cc, ["xyz", 123]);
+@c contains (cc, [567, "ghi"]);
+@c ===end===
+@example maxima
+(%i1) use_fast_arrays: true $
+@group
+(%i2) cc["xyz", 123]: 1729;
+(%o2)                         1729
+@end group
+@group
+(%i3) cc;
+(%o3) 
+    @{Lisp Array: #<HASH-TABLE :TEST EQUAL :COUNT 1 @{1202136733@}>@}
+@end group
+@group
+(%i4) arrayinfo (cc);
+(%o4)            [hash_table, true, [xyz, 123]]
+@end group
+@group
+(%i5) contains (cc, ["xyz", 123]);
+(%o5)                         true
+@end group
+@group
+(%i6) contains (cc, [567, "ghi"]);
+(%o6)                         false
+@end group
+@end example
+
+@opencatbox{Categories:}
+@category{Arrays}
+@closecatbox
+@end deffn
+
+@c -----------------------------------------------------------------------------
 @anchor{fillarray}
 @deffn {Function} fillarray (@var{A}, @var{B})
 

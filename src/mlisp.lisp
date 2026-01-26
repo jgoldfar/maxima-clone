@@ -1701,6 +1701,38 @@ wrapper for this."
     (if (not (= n (length (car l1))))
 	(merror (intl:gettext "matrix: all rows must be the same length.")))))
 
+(defmfun $contains (a sub)
+  (cond
+    ((not ($listp sub)) (merror (intl:gettext "contains: second argument must be a list; found: ~M") sub))
+    ((symbolp a) (contains-for-undeclared-array a sub))
+    ((hash-table-p a) (contains-for-lisp-hash-table a sub))
+    (t
+      (merror (intl:gettext "contains: ~M is neither an undeclared array nor a hash table.") a))))
+
+;; This is adapted from the first part of HARRFIND.
+(defun contains-for-undeclared-array (a sub)
+  (prog (ary iteml)
+     (setq ary (symbol-array (mget a 'hashar)))
+     (when (null ary) (merror (intl:gettext "contains: ~M doesn't appear to be an undeclared array.") a))
+     (cond ((not (= (aref ary 2) (length (cdr sub))))
+	    (merror (intl:gettext "contains array ~:M must have ~:M indices; found: ~M") a (aref ary 2) sub)))
+     (setq sub (cdr sub))
+     (setq iteml (aref ary (+ 3 (rem (hasher sub) (aref ary 0)))))
+     a    (cond ((null iteml) (go b))
+		((alike (caar iteml) sub) (return t)))
+     (setq iteml (cdr iteml))
+     (go a)
+     b nil))
+
+(defun contains-for-lisp-hash-table (a sub)
+  ;; If SUB looks like [something], then assume the key is something.
+  ;; But if SUB looks like [something, something else, ...], then assume the key is (something, something else, ...).
+  ;; This is kind of terrible, but inevitable here since foo[something]: 1234 uses something as the key, not (something).
+  (let ((key (if (= (length (cdr sub)) 1) (cadr sub) (cdr sub))))
+  (multiple-value-bind (value is-present) (gethash key a)
+    (declare (ignore value))
+    is-present)))
+
 (defun harrfind (form)
   (prog (ary y lispsub iteml sub ncells nitems)
      (setq ary (symbol-array (mget (caar form) 'hashar)))

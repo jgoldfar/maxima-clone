@@ -1221,3 +1221,43 @@ apply (arrayinfo, [L[2]]);
  S1);
 "Hello";
 
+/* tests for function 'contains' */
+
+(kill (aa), 0);
+0;
+
+/* argument aa isn't an undeclared array or hash table */
+errcatch (contains (aa, [1111]));
+[];
+
+(reset (use_fast_arrays), aa["abc"]: 123, 0);
+0;
+
+/* need to supply key as a list */
+errcatch (contains (aa, "abc"));
+[];
+
+contains (aa, ["abc"]);
+true;
+
+contains (aa, ["abcd"]);
+false;
+
+(kill (bb), bb: make_array ('hashed), bb[1234]: "blurf", 0);
+0;
+
+contains (bb, [1234]);
+true;
+
+contains (bb, [3456]);
+false;
+
+(kill (cc), use_fast_arrays: true, cc["abc", 123]: 555, 0);
+0;
+
+contains (cc, ["abc", 123]);
+true;
+
+contains (cc, [333, "xyz"]);
+false;
+
