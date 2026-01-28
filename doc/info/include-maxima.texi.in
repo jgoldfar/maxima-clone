@@ -218,6 +218,7 @@ and develop DOE Macsyma, now called Maxima.
 * Package pytranslate::            Maxima to Python Translation
 * Package quantum_computing::      Quantum computing circuits simulator.
 * Package ratpow::                 Determine the coefficients of polynoms.
+* Package rk_adaptive::            Solves ODEs numerically with adaptive step size
 * Package romberg::                Romberg method for numerical integration.
 * Package simplex::                Linear programming.
 * Package simplification::         Simplification rules and functions.
@@ -1054,11 +1055,15 @@ Understanding maxima's output
 @chapter Package quantum_computing
 @include quantum_computing.texi
 
-@node Package ratpow, Package romberg, Package quantum_computing, Top
+@node Package ratpow, Package rk_adaptive, Package quantum_computing, Top
 @chapter Package ratpow
 @include ratpow.texi
 
-@node Package romberg, Package simplex, Package ratpow, Top
+@node Package rk_adaptive, Package romberg, Package ratpow, Top
+@chapter Package rk_adaptive
+@include rk_adaptive.texi
+
+@node Package romberg, Package simplex, Package rk_adaptive, Top
 @chapter Package romberg
 @include romberg.texi
 

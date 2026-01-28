@@ -300,6 +300,7 @@
       ((mlist simp) 9 10 11))
      "rtest_fft"
      "rtest_rfft"
+     "rtest_rk_adaptive"
      "rtest_wrstcse"
      "rtest_draw"
      ((mlist simp) "rtest_engineering_format"

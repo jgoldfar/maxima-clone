@@ -1366,7 +1366,8 @@ iterations made. Each element in the results list is itself another list
 with @var{m}+1 elements: the value of the independent variable, followed
 by the values of the dependent variables corresponding to that point.
 
-See also @mrefcomma{drawdf} @mref{desolve} and @mrefdot{ode2}
+See also @mrefcomma{drawdf} @mrefcomma{rk_adaptive} @mref{desolve} and
+@mrefdot{ode2}
 
 Examples:
 

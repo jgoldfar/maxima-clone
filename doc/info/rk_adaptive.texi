@@ -1,0 +1,49 @@
+@menu
+* Introduction to rk_adaptive::
+* Functions and Variables for rk_adaptive::
+@end menu
+
+@node Introduction to rk_adaptive, Functions and Variables for rk_adaptive, Package rk_adaptive, Package rk_adaptive
+@section Introduction to rk_adaptive
+
+@code{rk_adaptive} employs the runge-kutta method for numberically solving differential
+equations, but other than @code{rk} it tries to find a sensible step size, which reduces
+both runtime and amount of data produced.
+
+@node Functions and Variables for rk_adaptive, , Introduction to rk_adaptive, Package rk_adaptive
+@section Functions and Variables for rk_adaptive
+
+@anchor{rk_adaptive}
+@deffn {Function} rk_adaptive (@var{expr}, @var{vars}, @var{vars_initval}, @var{var},
+@var{startval}, @var{endval}, @var{params1...})
+
+Tries to solve the ODE whose derivates are defined by @code{expr} to the variables
+@code{vars}, starting at their initial values @code{vars_initval}.
+The independent variable (in physics: normally time) is @code{var}, being stepped from
+@code{startval} to @code{endval}.
+
+Sometimes it speeds up the calculation to use a floating-point number as
+@code{startval}, as using floars will prevent all results from becoming endless rational
+numbers.
+
+The following optional parameters are accepted:
+
+@itemize
+@item @code{maxstep=num}: The maximum step size to be used.
+@item @code{minstep=num}: The minimum step size to be used.
+@item @code{timestep_initial=num}: The initial guess for the optimum time step to start with.
+@item @code{maxabserr=num}: The maximum absolute error of the resulting curves.
+@item @code{maxrelerr=num}: The maximum relative error of the resulting curves as a
+      fallback for variables with big values for which @code{maxabserr} might be too sensitive.
+@end itemize
+
+See also @mrefdot{rk}
+
+Example:
+@c ===beg===
+@c pnts:rk_adaptive(-1/10*x,x,1,t,0,100)  $
+@c ===end===
+@example maxima
+(%i1) pnts:rk_adaptive(-1/10*x,x,1,t,0,100)  $
+@end example
+@end deffn
