@@ -1,19 +1,19 @@
-/* Todo: We could sometimes recycle values of offset_1step or offset_2steps */
+/* Todo: We could sometimes recycle values of deriv_1step or deriv_2steps */
 rk_adaptive(expr,vars,vars_initval,var,startval,endval,[params]):=block(
     [
         result,
         point,
-        offset_1step,
-        offset_2steps,
+        deriv_1step,
+        deriv_2steps,
         time:startval,
         timestep:float((endval-startval)/1000),
         err,
-        maxabserr:1e-6,
+        maxabserr:1e-4,
         maxrelerr:1e-6,
         maxstep:(endval-startval)/100,
         minstep:(endval-startval)/1000000,
         sgn,
-        nexttime,
+        currtimestep,
         minstepwarn:false
     ],
     /* Interpret the optional parameters */
@@ -46,30 +46,30 @@ rk_adaptive(expr,vars,vars_initval,var,startval,endval,[params]):=block(
     do (
         do (
             /* Calculate the next 2 points */
-            offset_1step:sgn*subst(var=time+timestep,
+            deriv_1step:sgn*subst(var=time,
                 subst(map("=",vars,point),expr)
-            )*timestep,
-            offset_2steps:offset_1step+sgn*subst(var=time+timestep*2,
-                subst(map("=",vars,point+offset_1step),expr)
-            )*timestep,
+            ),
+            deriv_2steps:sgn*subst(var=time+timestep,
+                subst(map("=",vars,point+deriv_1step*timestep),expr)
+            ),
             /* Calculate the error. Err=1 is the limit */
             err:apply('max,
                 map(
                     lambda(
-                        [pnt,offs_1step,offs_2steps],
+                        [pnt,drv_1step,drv_2steps],
                         if cabs(pnt) > maxrelerr then
                            min(
-                               cabs(2*offs_1step-offs_2steps)/maxabserr,
-                               cabs((offs_1step-offs_2steps)/pnt)/maxrelerr
+                               cabs(drv_1step-drv_2steps)/maxabserr,
+                               cabs((drv_1step-drv_2steps)/pnt)/maxrelerr
                            )
                         else
-                            cabs(2*offs_1step-offs_2steps)/maxabserr
+                            cabs(drv_1step-drv_2steps)/maxabserr
                     ),
-                    point,offset_1step,offset_2steps
+                    point,deriv_1step,deriv_2steps
                 )
             ),
-            /* Save the time offset_1step is at */
-            nexttime:time+timestep,
+            /* Save the time deriv_1step is at */
+            currtimestep:timestep,
             /* See if we should adjust the time step width */
             if err>1.0 then
                 timestep:sgn*max(sgn*timestep/2,sgn*minstep)
@@ -84,9 +84,9 @@ rk_adaptive(expr,vars,vars_initval,var,startval,endval,[params]):=block(
             ),
             if err<=1 then return()
         ),
-        time:nexttime,
-        push(append([time],point+offset_1step),result),
-        point:point+offset_1step,
+        time:time+currtimestep,
+        push(append([time],point+deriv_1step*currtimestep),result),
+        point:point+deriv_1step*timestep,
         if sgn*time>sgn*endval then return()
     ),
     if minstepwarn = true then warning("rk_adaptive: Didn't meet the tolerance goal."),
