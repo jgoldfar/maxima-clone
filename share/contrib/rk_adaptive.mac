@@ -13,8 +13,9 @@ rk_adaptive(expr,vars,vars_initval,var,startval,endval,[params]):=block(
         maxstep:(endval-startval)/100,
         minstep:(endval-startval)/1000000,
         sgn,
-        currtimestep,
-        minstepwarn:false
+        minstepwarn:false,
+        keep_1step:false,
+        debug:false
     ],
     /* Interpret the optional parameters */
     for i in params do
@@ -24,6 +25,7 @@ rk_adaptive(expr,vars,vars_initval,var,startval,endval,[params]):=block(
         if lhs(i)='timestep_initial then timestep:rhs(i) else
         if lhs(i)='maxabserr then maxabserr:rhs(i) else
         if lhs(i)='maxrelerr then maxrelerr:rhs(i) else
+        if lhs(i)='debug then debug:rhs(i) else
         warning("rk_adaptive: Found a unknown param")
     ),
     if maxrelerr <= 0 then error("rk_adaptive: Illegal value for maxrelerr"),
@@ -38,20 +40,26 @@ rk_adaptive(expr,vars,vars_initval,var,startval,endval,[params]):=block(
     if not listp(vars) then vars:[vars],
     if not listp(vars_initval) then vars_initval:[vars_initval],
 
+    if debug=true then
+    (
+        file:openw("debug.txt")
+    ),
+
     /* Add the starting point to the result */
     point:vars_initval,
     result:[append([startval],vars_initval)],
-
     /* Now calculate the other points */
     do (
         do (
             /* Calculate the next 2 points */
-            deriv_1step:sgn*subst(var=time,
-                subst(map("=",vars,point),expr)
-            ),
+            if not keep_1step then
+                deriv_1step:sgn*subst(var=time,
+                    subst(map("=",vars,point),expr)
+                ),
             deriv_2steps:sgn*subst(var=time+timestep,
                 subst(map("=",vars,point+deriv_1step*timestep),expr)
             ),
+            keep_1step:false,
             /* Calculate the error. Err=1 is the limit */
             err:apply('max,
                 map(
@@ -68,25 +76,40 @@ rk_adaptive(expr,vars,vars_initval,var,startval,endval,[params]):=block(
                     point,deriv_1step,deriv_2steps
                 )
             ),
-            /* Save the time deriv_1step is at */
-            currtimestep:timestep,
             /* See if we should adjust the time step width */
             if err>1.0 then
-                timestep:sgn*max(sgn*timestep/2,sgn*minstep)
-            else if err<.25 then
-                timestep:sgn*min(maxstep*sgn,timestep*2),
-
-            /* See if we are happy with the results for this point*/
-            if timestep=minstep then
             (
-                minstepwarn:true,
+                timestep:timestep/2,
+                /* See if we have arrived at the minimum step width */
+                if sgn*timestep<=sgn*minstep then
+                (
+                    timestep:sgn*minstep,
+                    time:time+timestep,
+                    push(append([time],point+deriv_1step*timestep),result),
+                    point:point+deriv_1step*timestep,
+                    minstepwarn:true,
+                    return()
+                )
+            )
+            else
+            (
+                time:time+timestep,
+                push(append([time],point+deriv_1step*timestep),result),
+                point:point+deriv_1step*timestep,
+                if err<.25 then
+                (
+                    timestep:timestep*2,
+                    if timestep*sgn > maxstep*sgn then
+                        timestep:maxstep*sgn
+                )
+                else
+                (
+                    deriv_1step:deriv_2steps,
+                    keep_1step:true
+                ),
                 return()
-            ),
-            if err<=1 then return()
+            )
         ),
-        time:time+currtimestep,
-        push(append([time],point+deriv_1step*currtimestep),result),
-        point:point+deriv_1step*timestep,
         if sgn*time>sgn*endval then return()
     ),
     if minstepwarn = true then warning("rk_adaptive: Didn't meet the tolerance goal."),
