@@ -22,6 +22,8 @@ rk_adaptive(expr,vars,vars_initval,var,startval,endval,[params]):=block(
     /* Interpret the optional parameters */
     for i in params do
     (
+        if not numberp(rhs(i)) then error (sconcat("rk_adaptive: Expected a number for parameter ",
+            lhs(i))),
         if lhs(i)='maxstep then maxstep:rhs(i) else
         if lhs(i)='minstep then minstep:rhs(i) else
         if lhs(i)='timestep_initial then timestep:rhs(i) else
