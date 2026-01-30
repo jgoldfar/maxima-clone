@@ -51,7 +51,7 @@
 	(mequal "=") (mgreaterp ">") (mlessp "<") (mleqp "<=") (mgeqp ">=")
 	(mnotequal "#") (mand "and") (mor "or") (mnot "not") (msetq ":")
 	(mdefine ":=") (mdefmacro "::=") (mquote "'") (mlist "[")
-	(mset "::") (mfactorial "!") (marrow "-->") (mprogn "(")
+	(mset "::") (mfactorial "!") (%genfact "!!") (marrow "-->") (mprogn "(")
 	(mcond "if") (mdo "do") (mdoin "do_in")))
 
 (mapc #'(lambda (x) (putprop (car x) (cadr x) 'op))
