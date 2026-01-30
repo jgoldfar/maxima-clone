@@ -10,8 +10,8 @@ rk_adaptive(expr,vars,vars_initval,var,startval,endval,[params]):=block(
         err,
         maxabserr:1e-4,
         maxrelerr:1e-6,
-        maxstep:(endval-startval)/100,
-        minstep:(endval-startval)/1000000,
+        maxstep:abs(endval-startval)/100,
+        minstep:abs(endval-startval)/1000000,
         sgn:1,
         minstepwarn:false,
         keep_1step:false
@@ -19,6 +19,9 @@ rk_adaptive(expr,vars,vars_initval,var,startval,endval,[params]):=block(
     mode_declare(keep_1step,boolean),
     mode_declare(minstepwarn,boolean),
     mode_declare(sgn,integer),
+
+    if endval >= startval then sgn:1 else sgn:-1,
+
     /* Interpret the optional parameters */
     for i in params do
     (
@@ -26,7 +29,7 @@ rk_adaptive(expr,vars,vars_initval,var,startval,endval,[params]):=block(
             lhs(i))),
         if lhs(i)='maxstep then maxstep:rhs(i) else
         if lhs(i)='minstep then minstep:rhs(i) else
-        if lhs(i)='timestep_initial then timestep:rhs(i) else
+                if lhs(i)='timestep_initial then timestep:rhs(i) else
         if lhs(i)='maxabserr then maxabserr:rhs(i) else
         if lhs(i)='maxrelerr then maxrelerr:rhs(i) else
         warning("rk_adaptive: Found a unknown param")
@@ -35,9 +38,8 @@ rk_adaptive(expr,vars,vars_initval,var,startval,endval,[params]):=block(
     if maxabserr <= 0 then error("rk_adaptive: Illegal value for maxabserr"),
     if maxstep <= 0 then error("rk_adaptive: Illegal value for maxstep"),
     if minstep <= 0 then error("rk_adaptive: Illegal value for minstep"),
-    if timestep_initial = 0 then error("rk_adaptive: Illegal value for timestep_initial"),
+    if timestep*sgn <= 0 then error("rk_adaptive: Illegal value for timestep_initial"),
     /* Do we need to reverse some comparisons since the time we end is before the time we start at? */
-    if endval >= startval then sgn:1 else sgn:-1,
     /* Make sure our first 3 arguments are lists */
     if not listp(expr) then expr:[expr],
     if not listp(vars) then vars:[vars],
@@ -51,10 +53,10 @@ rk_adaptive(expr,vars,vars_initval,var,startval,endval,[params]):=block(
         do (
             /* Calculate the next 2 points */
             if not keep_1step then
-                deriv_1step:sgn*subst(var=time,
+                deriv_1step:subst(var=time,
                     subst(map("=",vars,point),expr)
                 ),
-            deriv_2steps:sgn*subst(var=time+timestep,
+            deriv_2steps:subst(var=time+timestep,
                 subst(map("=",vars,point+deriv_1step*timestep),expr)
             ),
             keep_1step:false,

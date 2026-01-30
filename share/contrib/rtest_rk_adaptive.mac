@@ -34,5 +34,11 @@ true;
 is(length(data[1])>3000);
 true;
 
+(data:rk_adaptive(1/10*x,x,1,t,100.0,0,maxabserr=1e-4),done);
+done;
+
+is(apply('max,map(lambda([t,x],abs(x-%e^(-10)*%e^(t/10))),data[1],data[2]))<1e-3);
+true;
+
 (kill(data),done);
 done;
