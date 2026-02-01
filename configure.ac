@@ -805,7 +805,7 @@ if test x"${enable_build_docs}" = xtrue ; then
     dnl 'makeinfo --version' and extract out the version digits.
     makeinfo_old=false
     if test x"${makeinfo_found}" = xtrue; then
-	AC_MSG_CHECKING([if makeinfo version >= 5.1])
+	AC_MSG_CHECKING([if makeinfo version > 5.1])
         dnl Extract the version number from makeinfo
         extract_version_from "`$MAKEINFO --version | head -1`"
 
@@ -837,9 +837,9 @@ if test x"${enable_build_docs}" = xtrue ; then
 	dnl patch version is always less than or equal to 99.
         makeinfo_version=`expr ${makeinfo_major} \* 10000 \+ ${makeinfo_minor} \* 100 \+ ${makeinfo_patch}`
 	
-	dnl If version is older than 5.1, it's too old for generating
+	dnl If version is older than or equal to 5.1, it's too old for generating
 	dnl maxima docs.
-	if test ${makeinfo_version} -lt 50100; then
+	if test ${makeinfo_version} -le 50100; then
 	    AC_MSG_ERROR([Makeinfo version (${makeinfo_version_string}) too old; consider --disable-build-docs])
 	else
             AC_MSG_RESULT([${makeinfo_version_string} (6.8 or later preferred)])
