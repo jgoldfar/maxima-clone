@@ -13,11 +13,10 @@ rk_adaptive(expr,vars,vars_initval,var,startval,endval,[params]):=block(
         maxstep:abs(endval-startval)/100,
         minstep:abs(endval-startval)/1000000,
         sgn:1,
-        minstepwarn:false,
+        minstepduration:0,
         keep_1step:false
     ],
     mode_declare(keep_1step,boolean),
-    mode_declare(minstepwarn,boolean),
     mode_declare(sgn,integer),
 
     if endval >= startval then sgn:1 else sgn:-1,
@@ -87,7 +86,7 @@ rk_adaptive(expr,vars,vars_initval,var,startval,endval,[params]):=block(
                     time:time+timestep,
                     push(append([time],point+deriv_1step*timestep),result),
                     point:point+deriv_1step*timestep,
-                    minstepwarn:true,
+                    minstepduration:minstepduration+timestep,
                     return()
                 )
             )
@@ -112,7 +111,13 @@ rk_adaptive(expr,vars,vars_initval,var,startval,endval,[params]):=block(
         ),
         if sgn*time>sgn*endval then return()
     ),
-    if minstepwarn = true then warning("rk_adaptive: Didn't meet the tolerance goal."),
+    if minstepduration>0 then warning(
+        sconcat(
+            "rk_adaptive: Ignored the tolerance goal for ",
+            minstepduration,
+            " units of ",var
+        )
+    ),
     /* Convert the result into a more user-friendly format (tm)*/
     args(transpose(apply('matrix,reverse(result))))
 );
