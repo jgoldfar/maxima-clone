@@ -187,7 +187,27 @@ block([wc_allvalues, wc_param1, min, wc_typ,max],
         ['min=min,'typ=wc_typ,'max=max]
 );
 
+/* Determines the minimum value of wc_x in the tolerance range */
+wc_min([wc_params]):=
+    apply('min,apply('wc_systematic,wc_params));
 
+/* Determines the maximum value of wc_x in the tolerance range */
+wc_max([wc_params]):=
+    apply('max,apply('wc_systematic,wc_params));
+
+/* A function that sets all the input values to their max value */
+wc_inputvalues_max(wc_x):=
+    makelist(
+        apply(op(i),[lhs(i),wc_max(rhs(i))]),
+        i,wc_x
+    );
+
+/* A function that sets all the input values to their max value */
+wc_inputvalues_min(wc_x):=
+    makelist(
+        apply(op(i),[lhs(i),wc_min(rhs(i))]),
+        i,wc_x
+    );
 
 /* A function that pretty-prints the value ranges the input values are in */
 wc_inputvalueranges(wc_x,[show_toln]):=

@@ -151,16 +151,14 @@ Example:
 @end example
 @end deffn
 
-@anchor{wc_inputvalueranges}
-@deffn {Function} wc_inputvalueranges (@var{expression}, [@var{show_tols}])
+@anchor{wc_inputvalues_min}
+@deffn {Function} wc_inputvalues_min (@var{listofinputvalues})
 
-Convenience function: Displays a list which parameter can vary between
-which values.
+Sets all the input values contained in @var{listofinputvalues} to their
+minimum values and returns the result. Helpful for example when trying
+to determine the minimum result of complicated filters;
 
-If @var{show_tols} is @code{true} then this function additionally displays
-which @var{tol[n]} each variable is affected by.
-
-See also @mref{wc_mintypmax2tol} and @mrefdot{wc_inputvalueassumptions}
+See also @mrefdot{wc_inputvalues_min}
 
 Example:
 @c ===beg===
@@ -171,7 +169,8 @@ Example:
 @c    R_3= 2000.0*(1+tol["R_3"]*.01)
 @c  ];
 @c wc_inputvalueranges(vals);
-@c wc_inputvalueranges(vals,true);
+@c vals_min:wc_inputvalues_min(vals);
+@c wc_inputvalueranges(vals_min);
 @c ===end===
 @example maxima
 (%i1) load("wrstcse")$
@@ -197,16 +196,144 @@ R_3 = 2000.0 (0.01 tol    + 1)]
            [ R_3  1980.0  2000.0        2020.0       ]
 @end group
 @group
-(%i4) wc_inputvalueranges(vals,true);
-(%o4) 
-   [ R_1  989.0   1000.0  1010.9999999999999  [tol    , tol   ] ]
-   [                                              Temp     R_1  ]
-   [                                                            ]
-   [ R_2  1978.0  2000.0  2021.9999999999998  [tol    , tol   ] ]
-   [                                              Temp     R_2  ]
-   [                                                            ]
-   [ R_3  1980.0  2000.0        2020.0            [tol   ]      ]
-   [                                                  R_3       ]
+(%i4) vals_min:wc_inputvalues_min(vals);
+(%o4)       [R_1 = 989.0, R_2 = 1978.0, R_3 = 1980.0]
+@end group
+@group
+(%i5) wc_inputvalueranges(vals_min);
+                 [ R_1  989.0   989.0   989.0  ]
+                 [                             ]
+(%o5)            [ R_2  1978.0  1978.0  1978.0 ]
+                 [                             ]
+                 [ R_3  1980.0  1980.0  1980.0 ]
+@end group
+@end example
+@end deffn
+
+@anchor{wc_inputvalues_max}
+@deffn {Function} wc_inputvalues_max (@var{listofinputvalues})
+
+Sets all the input values contained in @var{listofinputvalues} to their
+maximum values and returns the result. Helpful for example when trying
+to determine the maximum result of complicated filters;
+
+See also @mrefdot{wc_inputvalues_min}
+
+Example:
+@c ===beg===
+@c fpprintprec:4;
+@c load("wrstcse")$
+@c vals: [
+@c    R_1= 1000.0*(1+tol["R_1"]*.01+tol["Temp"]*.001),
+@c    R_2= 2000.0*(1+tol["R_2"]*.01+tol["Temp"]*.001),
+@c    R_3= 2000.0*(1+tol["R_3"]*.01)
+@c  ];
+@c wc_inputvalueranges(vals);
+@c vals_max:wc_inputvalues_max(vals);
+@c wc_inputvalueranges(vals_max);
+@c ===end===
+@example maxima
+@group
+(%i1) fpprintprec:4;
+(%o1)                           4
+@end group
+(%i2) load("wrstcse")$
+@group
+(%i3) vals: [
+   R_1= 1000.0*(1+tol["R_1"]*.01+tol["Temp"]*.001),
+   R_2= 2000.0*(1+tol["R_2"]*.01+tol["Temp"]*.001),
+   R_3= 2000.0*(1+tol["R_3"]*.01)
+ ];
+(%o3) [R_1 = 1000.0 (0.001 tol     + 0.01 tol    + 1), 
+                              Temp           R_1
+R_2 = 2.0e+3 (0.001 tol     + 0.01 tol    + 1), 
+                       Temp           R_2
+R_3 = 2.0e+3 (0.01 tol    + 1)]
+                      R_3
+@end group
+@group
+(%i4) wc_inputvalueranges(vals);
+               [ R_1   989.0    1000.0  1.011e+3 ]
+               [                                 ]
+(%o4)          [ R_2  1.978e+3  2.0e+3  2.022e+3 ]
+               [                                 ]
+               [ R_3  1.98e+3   2.0e+3  2.02e+3  ]
+@end group
+@group
+(%i5) vals_max:wc_inputvalues_max(vals);
+(%o5)    [R_1 = 1.011e+3, R_2 = 2.022e+3, R_3 = 2.02e+3]
+@end group
+@group
+(%i6) wc_inputvalueranges(vals_max);
+              [ R_1  1.011e+3  1.011e+3  1.011e+3 ]
+              [                                   ]
+(%o6)         [ R_2  2.022e+3  2.022e+3  2.022e+3 ]
+              [                                   ]
+              [ R_3  2.02e+3   2.02e+3   2.02e+3  ]
+@end group
+@end example
+@end deffn
+
+@anchor{wc_inputvalueranges}
+@deffn {Function} wc_inputvalueranges (@var{expression}, [@var{show_tols}])
+
+Convenience function: Displays a list which parameter can vary between
+which values.
+
+If @var{show_tols} is @code{true} then this function additionally displays
+which @var{tol[n]} each variable is affected by.
+
+See also @mref{wc_mintypmax2tol} and @mrefdot{wc_inputvalueassumptions}
+
+Example:
+@c ===beg===
+@c fpprintprec:4;
+@c load("wrstcse")$
+@c vals: [
+@c    R_1= 1000.0*(1+tol["R_1"]*.01+tol["Temp"]*.001),
+@c    R_2= 2000.0*(1+tol["R_2"]*.01+tol["Temp"]*.001),
+@c    R_3= 2000.0*(1+tol["R_3"]*.01)
+@c  ];
+@c wc_inputvalueranges(vals);
+@c wc_inputvalueranges(vals,true);
+@c ===end===
+@example maxima
+@group
+(%i1) fpprintprec:4;
+(%o1)                           4
+@end group
+(%i2) load("wrstcse")$
+@group
+(%i3) vals: [
+   R_1= 1000.0*(1+tol["R_1"]*.01+tol["Temp"]*.001),
+   R_2= 2000.0*(1+tol["R_2"]*.01+tol["Temp"]*.001),
+   R_3= 2000.0*(1+tol["R_3"]*.01)
+ ];
+(%o3) [R_1 = 1000.0 (0.001 tol     + 0.01 tol    + 1), 
+                              Temp           R_1
+R_2 = 2.0e+3 (0.001 tol     + 0.01 tol    + 1), 
+                       Temp           R_2
+R_3 = 2.0e+3 (0.01 tol    + 1)]
+                      R_3
+@end group
+@group
+(%i4) wc_inputvalueranges(vals);
+               [ R_1   989.0    1000.0  1.011e+3 ]
+               [                                 ]
+(%o4)          [ R_2  1.978e+3  2.0e+3  2.022e+3 ]
+               [                                 ]
+               [ R_3  1.98e+3   2.0e+3  2.02e+3  ]
+@end group
+@group
+(%i5) wc_inputvalueranges(vals,true);
+      [ R_1   989.0    1000.0  1.011e+3  [tol    , tol   ] ]
+      [                                      Temp     R_1  ]
+      [                                                    ]
+(%o5) [ R_2  1.978e+3  2.0e+3  2.022e+3  [tol    , tol   ] ]
+      [                                      Temp     R_2  ]
+      [                                                    ]
+      [ R_3  1.98e+3   2.0e+3  2.02e+3       [tol   ]      ]
+      [                                          R_3       ]
 @end group
 @end example
 @end deffn
@@ -516,7 +643,10 @@ If @var{n} is negative, @var{-n} random values are used instead.
 If no @var{n} is given, @var{wc_defaultvaluespertol} is assumed.
 
 See also @mrefcomma{wc_mintypmax_percent} @mrefcomma{wc_mintypmax_rss}
-@mrefcomma{wc_mintypmax_num} @mref{wc_ewc_simplify} and @mrefdot{wc_systematic}
+@mrefcomma{wc_mintypmax_num}
+@mrefcomma{wc_min}
+@mrefcomma{wc_max}
+@mref{wc_ewc_simplify} and @mrefdot{wc_systematic}
 
 Example:
 @c ===beg===
@@ -1201,6 +1331,116 @@ Example:
 @group
 (%i8) is(tol[R_2]>2);
 (%o8)                        unknown
+@end group
+@end example
+@end deffn
+
+@anchor{wc_min}
+@deffn {Function} wc_min (@var{expr}, [@var{num}])
+
+Outputs only the minimum value of @var{expr}). If @var{num} is present it tells
+maxima how many samples to try out of the range of each tolerance.
+
+See also @mrefcomma{wc_max} @mref{wc_typicalvalues} and @mrefdot{wc_mintypmax}
+
+Example:
+@c ===beg===
+@c load("wrstcse");
+@c vals:[
+@c     R_1=100*(1+1/100*tol["R1"])*(1+1/100*tol["Temp"]),
+@c     R_2=200*(1+1/100*tol["R2"])*(1+1/100*tol["Temp"])];
+@c rtotal:R_Total=R_1+R_2;
+@c wc_mintypmax(subst(vals,rhs(rtotal)));
+@c wc_min(subst(vals,rhs(rtotal)));
+@c ===end===
+@example maxima
+@group
+(%i1) load("wrstcse");
+(%o1) /home/gunter/src/maxima-code/share/contrib/wrstcse.mac
+@end group
+@group
+(%i2) vals:[
+    R_1=100*(1+1/100*tol["R1"])*(1+1/100*tol["Temp"]),
+    R_2=200*(1+1/100*tol["R2"])*(1+1/100*tol["Temp"])];
+                  tol         tol
+                     R1          Temp
+(%o2) [R_1 = 100 (----- + 1) (------- + 1), 
+                   100          100
+                                        tol         tol
+                                           R2          Temp
+                             R_2 = 200 (----- + 1) (------- + 1)]
+                                         100          100
+@end group
+@group
+(%i3) rtotal:R_Total=R_1+R_2;
+(%o3)                  R_Total = R_2 + R_1
+@end group
+@group
+(%i4) wc_mintypmax(subst(vals,rhs(rtotal)));
+                     29403                   30603
+(%o4)         [min = -----, typ = 300, max = -----]
+                      100                     100
+@end group
+@group
+(%i5) wc_min(subst(vals,rhs(rtotal)));
+                              29403
+(%o5)                         -----
+                               100
+@end group
+@end example
+@end deffn
+
+@anchor{wc_max}
+@deffn {Function} wc_max (@var{expr}, [@var{num}])
+
+Outputs only the maximum value of @var{expr}). If @var{num} is present it tells
+maxima how many samples to try out of the range of each tolerance.
+
+See also @mrefcomma{wc_max} @mref{wc_typicalvalues} and @mrefdot{wc_mintypmax}
+
+Example:
+@c ===beg===
+@c load("wrstcse");
+@c vals:[
+@c     R_1=100*(1+1/100*tol["R1"])*(1+1/100*tol["Temp"]),
+@c     R_2=200*(1+1/100*tol["R2"])*(1+1/100*tol["Temp"])];
+@c rtotal:R_Total=R_1+R_2;
+@c wc_mintypmax(subst(vals,rhs(rtotal)));
+@c wc_max(subst(vals,rhs(rtotal)));
+@c ===end===
+@example maxima
+@group
+(%i1) load("wrstcse");
+(%o1) /home/gunter/src/maxima-code/share/contrib/wrstcse.mac
+@end group
+@group
+(%i2) vals:[
+    R_1=100*(1+1/100*tol["R1"])*(1+1/100*tol["Temp"]),
+    R_2=200*(1+1/100*tol["R2"])*(1+1/100*tol["Temp"])];
+                  tol         tol
+                     R1          Temp
+(%o2) [R_1 = 100 (----- + 1) (------- + 1), 
+                   100          100
+                                        tol         tol
+                                           R2          Temp
+                             R_2 = 200 (----- + 1) (------- + 1)]
+                                         100          100
+@end group
+@group
+(%i3) rtotal:R_Total=R_1+R_2;
+(%o3)                  R_Total = R_2 + R_1
+@end group
+@group
+(%i4) wc_mintypmax(subst(vals,rhs(rtotal)));
+                     29403                   30603
+(%o4)         [min = -----, typ = 300, max = -----]
+                      100                     100
+@end group
+@group
+(%i5) wc_max(subst(vals,rhs(rtotal)));
+                              30603
+(%o5)                         -----
+                               100
 @end group
 @end example
 @end deffn
