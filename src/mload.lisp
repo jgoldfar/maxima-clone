@@ -1098,30 +1098,6 @@
 			    (mapcar #'namestring pathnames))))
 		 (return-from new-file-search (namestring (first pathnames))))))))))
 
-(defun save-linenumbers (&key (c-lines t) d-lines (from 1) (below $linenum) a-list
-			 (file  "/tmp/lines")
-			 &aux input-symbol ($linel 79))
-  (cond ((null a-list) (setq a-list (loop for i from from below below collecting i))))
-  (with-open-file (st file :direction :output)
-    (format st "/* -*- Mode: MACSYMA; Package: MACSYMA -*- */")
-    (format st "~%~%       /*    ~A     */  ~%"
-	    (let ((tem (cdddr
-				(multiple-value-list (get-decoded-time)))))
-		      (format nil "~a:~a:~a" (car tem) (cadr tem) (caadr tem))))
-    (loop for i in a-list
-	   when (and c-lines (boundp (setq input-symbol (intern (format nil "$~A~A" '#:c i)))))
-	   do
-	   (format st "~% C~3A;  "   i)
-	   (mgrind (symbol-value input-symbol) st)
-	   (format st ";")
-	   when (and d-lines
-		     (boundp (setq input-symbol (intern (format nil "$~A~A" '#:d i)))))
-	   do
-	   (format st "~% D~3A:  "   i)
-	   (mgrind (symbol-value input-symbol) st)
-	   (format st "$"))))
-
-
 (defmfun $printfile (file)
   (setq file ($file_search1 file '((mlist) $file_search_usage)))
   (with-open-file (st file)
