@@ -2,12 +2,12 @@
  * I release this file under the terms of the GNU General Public License.
  */
 
-(kill (all),
- file_search_maxima : cons ("./###.mac", file_search_maxima),
- file_search_lisp : cons ("./###.lisp", file_search_lisp),
- load (amatrix),
- load (wilcoxon),
- set_random_state (make_random_state (1234)), 0);
+(if ?mget ('wilcoxon, '?mexpr) = false
+     then (kill (all),
+           load (amatrix),
+           load (wilcoxon)),
+ set_random_state (make_random_state (1234)),
+ 0);
 0;
 
 /* first some tests of the ordering and ranks function */

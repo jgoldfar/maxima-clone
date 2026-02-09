@@ -33,14 +33,11 @@ ranks (L) := block ([order: ordering (L), sorted, %ranks],
         for i : first(e) thru first(e) + second(e) - 1 do %ranks [order[i]] : avg_rank),
     %ranks);
 
-find_runs (x) := 
-    if x = [] then []
-    else block ([dx, ii, di],
-        dx : makelist (x[i] - x[i - 1], i, 2, length (x)),
-        ii : cons (1, 1 + ev (sublist_indices (dx, lambda ([x], x # 0 and x # 0.0 and x # 0b0)))),
-        di : endcons (length (x) + 1 - last (ii), makelist (ii[i + 1] - ii[i], i, 1, length (ii) - 1)),
-        makelist ([ii[i], di[i]], i, 1, length (di)));
+load ("descriptive");
 
 find_runs_nontrivial (x) :=
-   (find_runs (x),
-    sublist (%%, lambda ([e], second (e) > 1)));
+    if x = [] then []
+        else block ([runs: find_runs (x), by_twos],
+                    /* rearrange runs(...) to list of pairs as expected in this function */
+                    map (lambda ([a, b], [a, b]), cons (1, 1 + accumulate ("+", rest (runs@lengths, -1))), runs@lengths),
+                    sublist (%%, lambda ([e], second (e) > 1)));
