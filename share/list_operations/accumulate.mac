@@ -4,11 +4,11 @@ accumulate (f%, x, [optional]) :=
         else error ("accumulate: argument must be a list or a matrix.");
 
 accumulate_list (f%, x, optional) :=
-    block ([x0: if optional # [] then first (optional),
-            x1, y],
+    block ([x0, x0_present, x1, y],
+           [x0, x0_present]: if optional # [] then [ first (optional), true ],
            if x = []
-               then (if x0 # false then [ x0 ] else [])
-           else (if x0 # false
+               then (if x0_present then [ x0 ] else [])
+           else (if x0_present
                      /* When an initial value is supplied, that initial value
                       * is the first element of the return value.
                       * This agrees with the behavior of accumulate-like functions

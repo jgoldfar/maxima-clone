@@ -49,5 +49,17 @@ accumulate ("*", [%pi, %e, %phi, %gamma]);
 accumulate ("/", [%pi, %e, %phi, %gamma], 2);
 [ 2, 2 / %pi, 2 / (%e * %pi), 2 / (%e * %phi * %pi), 2 / (%e * %gamma * %phi * %pi) ];
 
+accumulate ("or", [ false, false, true, true, false, false ]);
+[ false, false, true, true, true, true ];
+
+accumulate ("and", [ true, true, true, false, false, true ]);
+[ true, true, true, false, false, false ];
+
+accumulate ("or", [ false, false, true, true, false, false ], false);
+[ false, false, false, true, true, true, true ];
+
+accumulate ("and", [ true, true, true, false, false, true ], true);
+[ true, true, true, true, false, false, false ];
+
 (reset (%edispflag), 0);
 0;
