@@ -303,10 +303,12 @@
 
 (defmfun ($oddp :inline-impl t) (x)
   (cond ((integerp x) (oddp x))
+	((atom x) nil)
 	(($integerp x) (oddp (cadr x)))))
 
 (defmfun ($evenp :inline-impl t) (x)
   (cond ((integerp x) (evenp x))
+	((atom x) nil)
 	(($integerp x) (not (oddp (cadr x))))))
 
 ;; EVEN works for any arbitrary lisp object since it does an integer
