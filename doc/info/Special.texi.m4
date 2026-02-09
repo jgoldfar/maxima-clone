@@ -9,6 +9,7 @@
 * Struve Functions::
 * Hypergeometric Functions::
 * Parabolic Cylinder Functions::
+* Sinc Function::
 * Functions and Variables for Special Functions::  
 @end menu
 
@@ -3996,3 +3997,52 @@ Returns @code{imagpart(nzeta(z))}.
 @closecatbox
 @end deffn
 
+@deffn {Function} sinc (@var{x})
+
+The function @code{sinc} is defined by 
+m4_displaymath(
+<<<{\rm sinc}(x) =
+\left\{
+\matrix{
+{\sin(x) \over x}, & \hbox{if } x \neq 0\cr
+1,                 & \hbox{if } x = 0 \cr
+}
+\right.
+>>>)
+making @code{sinc} continuous at zero. The definition used here is the @emph{unnormalized} version of the @code{sinc}
+function.
+
+When @code{%piargs} is true (the default), @code{sinc(@var{x})} evaluates to an exact value when @var{x} is an 
+explicit integer multiple of @code{pi}, @code{pi/4}, or @code{pi/6}. For other nonzero symbolic arguments, 
+@code{sinc} does not simplify to @code{sin(x)/x}. 
+
+For real or complex floating-point arguments (double or big floats), @code{sinc} returns a floating-point 
+value in rectangular form. When @code{numer} is true, @code{sinc} returns a floating-point value in rectangular 
+form for all numeric arguments, including rational numbers and big float numbers.
+
+@example
+(%i1) sinc(%pi);
+(%o1) 0
+
+(%i2) %piargs : false$
+
+(%i3) sinc(pi);
+(%o3) sinc(%pi)
+
+(%i4) sinc(1.0 + 5.0*%i);
+(%o4) 10.111782590680328 - 10.466747175403242 %i
+
+(%i5) sinc(1 + 5*%i);
+(%o5) sinc(5 %i + 1)
+
+(%i6) sinc(1 + 5*%i), numer;
+(%o6) 10.111782590680328 - 10.466747175403242 %i
+
+(%i7) sinc(1.2b0 + 5.6b0*%i), numer;
+(%o7) 12.975676863468044 - 19.724089614291696 %
+
+@end example
+@opencatbox{Categories:}
+@category{Special functions}
+@closecatbox
+@end deffn

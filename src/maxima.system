@@ -750,6 +750,7 @@
 	     (:file "expintegral")
 	     (:file "gamma")
 		 (:file "hstep")
+		 (:file "sinc")
 	     (:file "mstuff")))
    (:module polynomial :source-pathname ""
 	    :depends-on ("defmfun")
