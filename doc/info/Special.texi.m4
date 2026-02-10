@@ -9,7 +9,6 @@
 * Struve Functions::
 * Hypergeometric Functions::
 * Parabolic Cylinder Functions::
-* Sinc Function::
 * Functions and Variables for Special Functions::  
 @end menu
 
@@ -4001,13 +4000,25 @@ Returns @code{imagpart(nzeta(z))}.
 
 The function @code{sinc} is defined by 
 m4_displaymath(
-<<<{\rm sinc}(x) =
-\left\{
+<<<{\rm sinc}(x) = 
+\left@{
 \matrix{
-{\sin(x) \over x}, & \hbox{if } x \neq 0\cr
-1,                 & \hbox{if } x = 0 \cr
+\displaystyle{\frac{\sin x}{x}} & {\rm if} x \neq 0\cr
+ & \cr % For extra vertical space
+1                & {\rm if} x = 0
 }
 \right.
+>>>,
+<<<
+@example
+            ┌                
+            │ sin(x)         
+            │ ──────  x! = 0 
+sinc(x) =   │   x            
+            │                
+            │   1     x = 0  
+            └                
+@end example
 >>>)
 making @code{sinc} continuous at zero. The definition used here is the @emph{unnormalized} version of the @code{sinc}
 function.
@@ -4020,7 +4031,7 @@ For real or complex floating-point arguments (double or big floats), @code{sinc}
 value in rectangular form. When @code{numer} is true, @code{sinc} returns a floating-point value in rectangular 
 form for all numeric arguments, including rational numbers and big float numbers.
 
-@example
+@example maxima
 (%i1) sinc(%pi);
 (%o1) 0
 
