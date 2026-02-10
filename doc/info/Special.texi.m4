@@ -3996,6 +3996,7 @@ Returns @code{imagpart(nzeta(z))}.
 @closecatbox
 @end deffn
 
+@anchor{sinc}
 @deffn {Function} sinc (@var{x})
 
 The function @code{sinc} is defined by 
@@ -4003,9 +4004,9 @@ m4_displaymath(
 <<<{\rm sinc}(x) = 
 \left@{
 \matrix{
-\displaystyle{\frac{\sin x}{x}} & {\rm if} x \neq 0\cr
+\displaystyle{\frac{\sin x}{x}} & {\rm if}\> x \neq 0\cr
  & \cr % For extra vertical space
-1                & {\rm if} x = 0
+1                & {\rm if}\> x = 0
 }
 \right.
 >>>,
@@ -4020,15 +4021,23 @@ sinc(x) =   │   x
             └                
 @end example
 >>>)
-making @code{sinc} continuous at zero. The definition used here is the @emph{unnormalized} version of the @code{sinc}
+making @mref{sinc} continuous at zero. The definition used here is the @emph{unnormalized} version of the @mref{sinc}
 function.
 
-When @code{%piargs} is true (the default), @code{sinc(@var{x})} evaluates to an exact value when @var{x} is an 
-explicit integer multiple of @code{pi}, @code{pi/4}, or @code{pi/6}. For other nonzero symbolic arguments, 
-@code{sinc} does not simplify to @code{sin(x)/x}. 
+When @mref{%piargs} is true (the default),
+m4_math(<<<{\rm sinc}(x)>>>,<<<@math{sinc(x)}>>>)
+evaluates to an exact value when @math{x} is an 
+explicit integer multiple of
+m4_mathcomma(<<<\pi>>>, <<<%pi>>>)
+m4_mathcomma(<<<\pi/4>>>, <<<%pi/4>>>)
+or
+m4_mathdot(<<<\pi/6>>>, <<<%pi/6>>>)
+For other nonzero symbolic arguments, 
+@mref{sinc} does not simplify to
+m4_mathdot(<<<\sin(x)/x>>>,<<<@math{sin(x)/x}>>>)
 
-For real or complex floating-point arguments (double or big floats), @code{sinc} returns a floating-point 
-value in rectangular form. When @code{numer} is true, @code{sinc} returns a floating-point value in rectangular 
+For real or complex floating-point arguments (double or big floats), @mref{sinc} returns a floating-point 
+value in rectangular form. When @mref{numer} is true, @mref{sinc} returns a floating-point value in rectangular 
 form for all numeric arguments, including rational numbers and big float numbers.
 
 @example maxima
