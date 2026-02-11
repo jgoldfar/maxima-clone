@@ -4040,27 +4040,41 @@ For real or complex floating-point arguments (double or big floats), @mref{sinc}
 value in rectangular form. When @mref{numer} is true, @mref{sinc} returns a floating-point value in rectangular 
 form for all numeric arguments, including rational numbers and big float numbers.
 
+@c ===beg===
+@c sinc(%pi);
+@c %piargs : false$
+@c sinc(pi);
+@c sinc(1.0 + 5.0*%i);
+@c sinc(1 + 5*%i);
+@c sinc(1 + 5*%i), numer;
+@c sinc(1.2b0 + 5.6b0*%i), numer;
+@c ===end===
 @example maxima
+@group
 (%i1) sinc(%pi);
-(%o1) 0
-
+(%o1)                           0
+@end group
 (%i2) %piargs : false$
-
+@group
 (%i3) sinc(pi);
-(%o3) sinc(%pi)
-
+(%o3)                       sinc(pi)
+@end group
+@group
 (%i4) sinc(1.0 + 5.0*%i);
-(%o4) 10.111782590680328 - 10.466747175403242 %i
-
+(%o4)      10.111782590680328 - 10.466747175403242 %i
+@end group
+@group
 (%i5) sinc(1 + 5*%i);
-(%o5) sinc(5 %i + 1)
-
+(%o5)                    sinc(5 %i + 1)
+@end group
+@group
 (%i6) sinc(1 + 5*%i), numer;
-(%o6) 10.111782590680328 - 10.466747175403242 %i
-
+(%o6)      10.111782590680328 - 10.466747175403242 %i
+@end group
+@group
 (%i7) sinc(1.2b0 + 5.6b0*%i), numer;
-(%o7) 12.975676863468044 - 19.724089614291696 %
-
+(%o7)      12.975676863468047 - 19.724089614291696 %i
+@end group
 @end example
 @opencatbox{Categories:}
 @category{Special functions}
