@@ -20,7 +20,7 @@
         /* Dark Mode Overrides */
         --background-color: #444;
         --text-color: #eee;
-        --example-background-color: #020262;
+        --example-background-color: #454545;
         --link-color: #9df;
         --link-visited-color: #9fd;
         --hover-background-color: #ddd;
@@ -31,11 +31,6 @@
         --pre-example-border: 1px solid black;
         --div-categorybox-border: 1px solid gray;
         --div-categorybox-background-color: #544;
-    }
-}
-@media (prefers-color-scheme: dark) {
-    :root {
-        --example-background-color: #aab;
     }
 }
 
@@ -155,41 +150,4 @@ dd { margin-left: 0.5em }
     pre.example, pre.example-preformatted { padding: 1em }
     ul,ol { padding-left: 2em }
     dd { margin-left: 1.5em }
-}
-
-/*
- * CSS customizations for pygment highlighting
- */
-
-/*
- * For pygments, make the background color of the highlighted code the
- * same as the example background color.  Without this, it looks funny.
- */
-
-div.highlight {
-    background-color: var(--example-background-color) !important;
-}
-
-.example.user-maxima {
-    overflow-x: auto
-}
-
-.highlight.pre {
-    /*
-     * Lines for highlighted examples are too close by default with
-     * pygments.  Make it larger.
-     */
-    line-height: normal !important;
-}
-
-/* CSS for pygment highlighting */
-.example.user-maxima {
-    overflow-x: auto
-}
-
-.highlight.pre {
-    /* Lines for highlighted examples are too close by default with
-     *  pygments.  Make it larger.
-     */
-    line-height: normal !important;
 }
