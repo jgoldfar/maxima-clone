@@ -101,6 +101,24 @@
 @mref{\nodename\}
 @end macro
 
+@macro nref {nodename}
+\nodename\
+@end macro
+
+@c "n" macros that are like the "m" macros, except it's just the text.
+@c No actual xref is made.  This is needed by the German manual.
+@macro nxref {nodename, text}
+\text\
+@end macro
+
+@macro nrefdot {nodename}
+\nodename\.
+@end macro
+
+@macro nrefcomma {nodename}
+\nodename\,
+@end macro
+
 @c Xref macros for the pdf file
 @iftex
 @tex
