@@ -1640,8 +1640,8 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
     (list '(mlist) ymin ymax)))
 
 (defmvar $gnuplot_view_args
-    #+(or sbcl gcl) "-persist ~a"
-    #-(or sbcl gcl) "-persist ~s"
+    #+(or sbcl openmcl gcl) "-persist ~a"
+    #-(or sbcl openmcl gcl) "-persist ~s"
     "String of additional command-line options for gnuplot.  See the user
     manual."
     :setting-predicate #'string-predicate)

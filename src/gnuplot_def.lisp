@@ -774,8 +774,7 @@
          ;; redirects the output by using "set output" in the preamble
          (if (search "set out" gnuplot-preamble)
              ($system $gnuplot_command (format nil $gnuplot_file_args file))
-             ($system $gnuplot_command "-persist"
-                      (format nil $gnuplot_file_args file))))
+             ($system $gnuplot_command (format nil $gnuplot_view_args file))))
         ($dumb
          (if out-file
              ($printfile (car out-file))
