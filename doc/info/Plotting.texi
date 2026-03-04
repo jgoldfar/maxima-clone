@@ -1283,6 +1283,18 @@ See also @mrefdot{azimuth}
 @end defvr
 
 @c -----------------------------------------------------------------------------
+@anchor{geomview}
+@defvr {Plot option} geomview
+
+This is an abbreviation for @code{[plot_format, geomview]}. See
+@mrefdot{plot_format}
+
+@opencatbox{Categories:}
+@category{Plotting}
+@closecatbox
+@end defvr
+
+@c -----------------------------------------------------------------------------
 @anchor{gnuplot}
 @defvr {Plot option} gnuplot
 
@@ -1539,16 +1551,17 @@ therefore, as being part of the curve to be plotted.
 @c -----------------------------------------------------------------------------
 @anchor{plot_format}
 @defvr {Plot option} plot_format [plot_format, @var{format}], @
-gnuplot, gnuplot_pipes, xmaxima
+gnuplot, gnuplot_pipes, xmaxima, geomview 
 
 Default value: @code{gnuplot}, in Windows systems, or @code{gnuplot_pipes} in
 other systems.
 
 Where @var{format} is one of the following: gnuplot, xmaxima,
-gnuplot_pipes or geomview. The three possibilities:
-@code{[plot_format, gnuplot]}, @code{[plot_format, gnuplot_pipes]} and
-@code{[plot_format, xmaxima]}, can be abbreviated
-by the keywords @code{gnuplot}, @code{gnuplot_pipes} and @code{xmaxima}.
+gnuplot_pipes or geomview. The four possibilities: @code{[plot_format,
+gnuplot]}, @code{[plot_format, gnuplot_pipes]}, @code{[plot_format,
+geomview]} and @code{[plot_format, xmaxima]}, can be abbreviated by the
+keywords @code{gnuplot}, @code{gnuplot_pipes}, @code{geomview} and
+@code{xmaxima}.
 
 It sets the format to be used for plotting as explained in
 @mrefdot{Plotting Formats}

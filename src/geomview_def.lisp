@@ -25,7 +25,10 @@
 
 (defmethod plot3d-command ((plot geomview-plot) functions options titles)
   (declare (ignore titles))
-  (let ((i 0) fun xrange yrange lvars trans)
+  (let ((i 0) fun xrange yrange lvars trans
+        (meshcolor (if (member '$mesh_lines_color options)
+                               (getf options '$mesh_lines_color)
+                               '$black)))
     (setf
      (slot-value plot 'data)
      (concatenate
@@ -75,8 +78,18 @@
             (declare (type (cl:array t) ar))
             (when trans (mfuncall trans ar))
             (when (getf options '$transform_xy)
-                (mfuncall (getf options '$transform_xy) ar))
-            (format $pstream "{ appearance { +smooth }~%MESH ~a ~a ~%"
+              (mfuncall (getf options '$transform_xy) ar))
+            (format $pstream "{~%appearance {~%")
+            ;; TODO: add a function rgb-color-list that returns a list
+            ;; of red blue and green colors, as required by geomview.
+            ;; for the time being, any mash color will bi converted to black
+            (if meshcolor
+                (progn
+                  (format $pstream "+edge material {diffuse 0.361 0.914 0.604 ")
+                 (format $pstream "edgecolor 0 0 0}~%"))
+              (format $pstream "+smooth material {diffuse 0.361 0.914 0.604}~%"))
+            (format $pstream "}~%")
+            (format $pstream "MESH ~a ~a ~%"
                     (+ 1 (first (getf options '$grid)))
                     (+ 1 (second (getf options '$grid))))
             (output-points pl nil)

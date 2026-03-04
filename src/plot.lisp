@@ -1930,6 +1930,7 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
          ($box (setf (getf options '$box) t))
          ($color_bar (setf (getf options '$color_bar) t))
          ($color_bar_tics (remf options '$color_bar_tics))
+         ($geomview (setf (getf options '$plot_format) '$geomview))
          ($grid2d (setf (getf options '$grid2d) t))
          ($legend (remf options '$legend))
          ($mesh_lines_color (remf options '$mesh_lines_color))
