@@ -651,7 +651,7 @@ APPLY means like APPLY.")
 	     ;; to check for mobylossage.
 	     ((> kount $tr_optimize_max_loop)
 	      (tr-format (intl:gettext "warning: I've looped ~A times in macro expansion; just give up and return ~:@M~%")
-	       $tr_optimize_max_loop (caar form))
+	       $tr_optimize_max_loop form)
 	      form)
 	   (setq new-form (toplevel-optimize-1 form))
 	   (cond ((atom new-form)
