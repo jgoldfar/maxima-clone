@@ -321,9 +321,6 @@ APPLY means like APPLY.")
 (defun macsyma-special-op-p (f)
   (getl f '(fsubr fexpr mfexpr* mfexpr*s *fexpr)))
 
-(defun possible-predicate-op-p (f)
-  (member f '(mnotequal mequal $equal mgreaterp mgeqp mlessp mleqp) :test #'eq))
-
 ;;;***************************************************************;;;
 
 ;;; This function is the way to call the TRANSLATOR on an expression with
