@@ -18,29 +18,7 @@
 
 (in-package :maxima)
 
-;; Checks that color is a six-digit hexadecimal number with the prefix #,
-;; or a symbol for one of the 12 pre-defined colors, in which case the
-;; hexadecimal code for that color will be returned. Unknown colors are
-;; converted into black.
-(defun rgb-color (color)
-  (if (plotcolorp color)
-      (case color
-	($red "#ff0000")
-        ($green "#00ff00")
-        ($blue "#0000ff")
-	($magenta "#ff00ff")
-        ($cyan "#00ffff")
-        ($yellow "#ffff00")
-        ($orange "#ffa500")
-        ($violet "#ee82ee")
-        ($brown "#a52a2a")
-        ($gray "#bebebe")
-        ($black "#000000")
-        ($white "#ffffff")
-        (t color))
-      "#000000"))
-
-;; Given a list of valid colors (see rgb-color function) and an object c
+;; Given a list of valid colors (see plotcolors.lisp) and an object c
 ;; that can be a real number or a string, produces a gnuplot color
 ;; specification for c; when c is real, its nearest integer is assigned
 ;; to one of the numbers in the list, using modulo length of the list.

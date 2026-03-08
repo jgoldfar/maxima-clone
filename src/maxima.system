@@ -781,7 +781,8 @@
    (:module graphics-drivers :source-pathname ""
 	    :depends-on ("defmfun")
 	    :components
-	    ((:file "gnuplot_def")
+	    ((:file "plotcolors")
+             (:file "gnuplot_def")
 	     (:file "xmaxima_def")
              (:file "geomview_def")))
    (:module final :source-pathname ""
