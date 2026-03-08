@@ -1,4 +1,4 @@
-;; Functions to manage color in plot2/plot3d and draw2d/draw3d
+;; Functions to manage colors in plot2/plot3d and draw2d/draw3d
 (in-package :maxima)
 
 ;; Converts a string to lower-case, removing spaces, minus signs, and underscores
@@ -9,6 +9,11 @@
         (string-trim 
            "\""
            (coerce (mstring val) 'string)))))
+
+;; hash table of color names and corresponding numerical values.
+;; all the 139 color names of HTML/CSS are accepted. Grey can be used
+;; as synomym for gray, fuchsia is a synonym for magenta, and aqua is
+;; a synonym for cyan.
 
 (defvar *color-table* (make-hash-table :test 'equal))
 (setf (gethash "aliceblue" *color-table*) "#f0f8ff"
@@ -162,8 +167,8 @@
 
 ;; Returns true if the given symbol or string is a valid plot color;
 ;; namely, a valid color name or a six-digit hexadecimal number with a # suffix.
-;; The color names can be in upper or lower case (or a mix of both)
-;; and with any spaces, hyphens or undescores.
+;; The color names can be in upper or lower case (or a mix of both),
+;; including any spaces, hyphens or undescores.
 (defun plotcolorp (clr)
   (let ((color (atom-to-downcased-string (ensure-string clr))))
     (cond ((and (stringp color) (string= (subseq color 0 1) "#")
@@ -186,8 +191,8 @@
      (/ (parse-integer hex2 :radix 16) 255.0)
      (/ (parse-integer hex3 :radix 16) 255.0))))
 
-;; Returns the corresponding color code forthe given symbol or string, in the
-;; for ##rrggbb, where rr, gg and bb are hexadecimal numbers beween 0 and 255,
+;; Returns the corresponding color code fort he given symbol or string, in the
+;; ##rrggbb form, where rr, gg and bb are hexadecimal numbers beween 0 and 255,
 ;; or nil if the symbol or string does not represent a valid color.
 (defun rgb-color (clr)
   (let ((color (atom-to-downcased-string (ensure-string clr))) code)
