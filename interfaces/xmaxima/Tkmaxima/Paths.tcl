@@ -77,7 +77,7 @@ proc setMaxDir {} {
     #      change of --prefix.)
     #      Yes, MAXIMA_DIRECTORY means the same thing. We only include
     #      it for some level of backward compatibility.
-    if { [info exists env(MAXIMA_DIRECTORY)] } {
+    if { [info exists ::env(MAXIMA_DIRECTORY)] } {
 	set ::env(MAXIMA_PREFIX) $::env(MAXIMA_DIRECTORY)
     }
 
@@ -93,7 +93,7 @@ proc setMaxDir {} {
     # be found in init-cl.lisp.
 
     # The following section should be considered temporary work-around.
-    if { [info exists env(MAXIMA_VERPKGDATADIR)] } {
+    if { [info exists ::env(MAXIMA_VERPKGDATADIR)] } {
 	set ::xmaxima_priv(maxima_verpkgdatadir) $::env(MAXIMA_VERPKGDATADIR)
     }
     # End temporary workaround. It's only a workaround because the next
@@ -106,7 +106,7 @@ proc setMaxDir {} {
 
     if {[info exists ::xmaxima_priv(maxima_prefix)]} {
 	# drop through
-    } elseif { [info exists env(MAXIMA_PREFIX)] } {
+    } elseif { [info exists ::env(MAXIMA_PREFIX)] } {
 	set ::xmaxima_priv(maxima_prefix) $::env(MAXIMA_PREFIX)
     } else {
 	set ::xmaxima_priv(maxima_prefix) $::autoconf(prefix)
@@ -114,9 +114,9 @@ proc setMaxDir {} {
     if {[info exists ::xmaxima_priv(maxima_verpkgdatadir)]} {
 	# drop through
     } else {
-	if { [info exists env(MAXIMA_DATADIR)] } {
+	if { [info exists ::env(MAXIMA_DATADIR)] } {
 	    set maxima_datadir $::env(MAXIMA_DATADIR)
-	} elseif { [info exists env(MAXIMA_PREFIX)] } {
+	} elseif { [info exists ::env(MAXIMA_PREFIX)] } {
 	    set maxima_datadir \
 		[file join $::env(MAXIMA_PREFIX) share]
 	} else {
@@ -139,9 +139,9 @@ proc setMaxDir {} {
 
     if {[info exists ::xmaxima_priv(maxima_verpkglibdir)]} {
 	# drop through
-    } elseif { [info exists env(MAXIMA_VERPKGLIBDIR)] } {
+    } elseif { [info exists ::env(MAXIMA_VERPKGLIBDIR)] } {
 	set ::xmaxima_priv(maxima_verpkglibdir) $::env(MAXIMA_VERPKGLIBDIR)
-    } elseif { [info exists env(MAXIMA_PREFIX)] } {
+    } elseif { [info exists ::env(MAXIMA_PREFIX)] } {
 	set ::xmaxima_priv(maxima_verpkglibdir) \
 	    [file join $::env(MAXIMA_PREFIX) lib $::autoconf(package) \
 		 $::autoconf(version)]
@@ -152,7 +152,7 @@ proc setMaxDir {} {
     }
     if {[info exists ::xmaxima_priv(maxima_xmaximadir)]} {
 	# drop through
-    } elseif { [info exists env(MAXIMA_XMAXIMADIR)] } {
+    } elseif { [info exists ::env(MAXIMA_XMAXIMADIR)] } {
 	set ::xmaxima_priv(maxima_xmaximadir) $::env(MAXIMA_XMAXIMADIR)
     } else {
 	set ::xmaxima_priv(maxima_xmaximadir) \
@@ -163,18 +163,18 @@ proc setMaxDir {} {
     ::msgcat::mcload [file join $::xmaxima_priv(maxima_xmaximadir) msgs]
 
     # Define maxima_lang_subdir
-    if { [info exists env(MAXIMA_LANG_SUBDIR)] } {
+    if { [info exists ::env(MAXIMA_LANG_SUBDIR)] } {
 	set ::xmaxima_priv(maxima_lang_subdir) $::env(MAXIMA_LANG_SUBDIR)
     } else {
 	if { $::tcl_platform(platform) == "windows" } {
     	    set wlocale [ ::msgcat::mclocale ]
 	} else {
     	    set wlocale ""
-	    if { [info exists env(LC_ALL)] } { 
+	    if { [info exists ::env(LC_ALL)] } { 
 		set wlocale $::env(LC_ALL) 
-	    } elseif { [info exists env(LC_MESSAGES)] } { 
+	    } elseif { [info exists ::env(LC_MESSAGES)] } { 
 		set wlocale $::env(LC_MESSAGES) 
-	    } elseif { [info exists env(LANG)] } { 
+	    } elseif { [info exists ::env(LANG)] } { 
 		set wlocale $::env(LANG) }
 	}	
 	# Only languages known to Maxima
@@ -327,7 +327,7 @@ proc setMaxDir {} {
     # Make the default something else under Windows 98 as a workaround.
     # This is ugly.
     if {$::tcl_platform(os) == "Windows 95"} {
-	if {![info exists env(MAXIMA_USERDIR)]} {
+	if {![info exists ::env(MAXIMA_USERDIR)]} {
 	    set ::env(MAXIMA_USERDIR) "$::xmaxima_priv(maxima_prefix)/user"
 	}
     }
@@ -358,7 +358,7 @@ proc vMAXSetMaximaCommand {} {
 			      [file native $::xmaxima_priv(xmaxima_maxima)]]
 	    return
 	}
-    } elseif { [info exists env(XMAXIMA_MAXIMA)] } {
+    } elseif { [info exists ::env(XMAXIMA_MAXIMA)] } {
 	set ::xmaxima_priv(xmaxima_maxima) $::env(XMAXIMA_MAXIMA)
 	if {[set exe [auto_execok $::xmaxima_priv(xmaxima_maxima)]] == "" } {
 	    tk_messageBox -title Error -icon error -message \
