@@ -1,7 +1,7 @@
 ;;;                 COPYRIGHT NOTICE
 ;;;  
 ;;;  Copyright (C) 2007-2016 Mario Rodriguez Riotorto
-;;;  Time-stamp: "2025-11-27 12:27:02 Leo Butler"
+;;;  Time-stamp: "2026-03-08 20:05:07 villate"
 ;;;  
 ;;;  This program is free software; you can redistribute
 ;;;  it and/or modify it under the terms of the
@@ -3579,12 +3579,7 @@
                (format cmdstorage "~%unset output~%quit~%~%")
                (format cmdstorage "~%set term dumb~%~%") )
              (close cmdstorage)
-	     #+(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-             ($system $gnuplot_command gfn)
-	     #-(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-	     ($system (format nil "~a \"~a\"" 
-			      $gnuplot_command
-			      gfn) ))
+             ($system $gnuplot_command (format nil $gnuplot_file_args gfn)))
           (t ; non animated gif
              ; command file maxout.gnuplot is now ready
              (format cmdstorage "~%")
@@ -3629,15 +3624,14 @@
 		     ($system $gnuplot_command gfn))
 		 #-(or (and sbcl win32) (and sbcl win64) (and ccl windows))
 		 ($system (if (member (get-option '$terminal) '($screen $aquaterm $wxt $x11 $qt $windows))
-			      (format nil "~a ~a"
-				      $gnuplot_command
+			      (format nil "~a ~a" $gnuplot_command
 				      (format nil $gnuplot_view_args gfn))
-			      (format nil "~a \"~a\"" 
-				      $gnuplot_command
-				      gfn))) ))))
+			    (format nil "~a ~a" 
+				    $gnuplot_command
+				      (format nil $gnuplot_file_args gfn))))))))
 
     ; the output is a simplified description of the scene(s)
-    (reverse scenes-list)) )
+    (reverse scenes-list)))
 
 
 ;; This function transforms an integer number into
