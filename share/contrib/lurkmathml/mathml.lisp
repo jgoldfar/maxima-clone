@@ -193,15 +193,15 @@
            (strcat "<mi>" pname "</mi> ")))))
 
 (defun mathml-paren (x l r)
-  (mathml x (append l '("<mfenced separators=\"\">")) (cons "</mfenced> " r) 'mparen 'mparen))
+  (mathml x (append l '("<mrow><mo>(</mo>")) (cons "<mo>)</mo></mrow> " r) 'mparen 'mparen))
 
 (defun mathml-array (x l r)
   (let ((f))
     (if (eq 'mqapply (caar x))
 	(setq f (cadr x)
 	      x (cdr x)
-	      l (mathml f (append l (list "<mfenced separators=\",\">")) 
-                        (list "</mfenced> ") 'mparen 'mparen))
+	      l (mathml f (append l (list "<mrow>"))
+                        (list "</mrow> ") 'mparen 'mparen))
       (setq f (caar x)
 	    l (mathml (mathmlword f) (append l '("<msub><mrow>")) nil lop 'mfunction)))
     (setq
@@ -294,14 +294,14 @@
 (defprop $false "<mi>false</mi> " mathmlword)
 
 (defprop mprogn mathml-matchfix mathml) ;; mprogn is (<progstmnt>, ...)
-(defprop mprogn (("<mfenced separators=\"\">") "</mfenced> ") mathmlsym)
+(defprop mprogn (("<mrow><mo>(</mo>") "<mo>)</mo></mrow> ") mathmlsym)
 
 (defprop mlist mathml-matchfix mathml)
-(defprop mlist (("<mfenced separators=\"\" open=\"[\" close=\"]\">")"</mfenced> ") mathmlsym)
+(defprop mlist (("<mrow><mo>[</mo>")"<mo>]</mo></mrow> ") mathmlsym)
 
 ;;absolute value
 (defprop mabs mathml-matchfix mathml)
-(defprop mabs (("<mfenced separators=\"\" open=\"|\" close=\"|\">")"</mfenced> ") mathmlsym) 
+(defprop mabs (("<mrow><mo form=\"prefix\">|</mo>")"<mo form=\"postfix\">|</mo></mrow> ") mathmlsym)
 
 (defprop mqapply mathml-mqapply mathml)
 
@@ -420,10 +420,10 @@
 	       r (if (mmminusp (setq x (nformat (caddr x))))
 		    ;; the change in base-line makes parens unnecessary
 		    (if nc
-			(mathml (cadr x) '("</mrow> <mfenced separators=\"\" open=\"<\" close=\">\"> -")(cons "</mfenced></msup> " r) 'mparen 'mparen)
-			(mathml (cadr x) '("</mrow> <mfenced separators=\"\"> -")(cons "</mfenced></msup> " r) 'mparen 'mparen))
+			(mathml (cadr x) '("</mrow> <mrow><mo form=\"prefix\">&lt;</mo> -")(cons "<mo form=\"postfix\">&gt;</mo></mrow></msup> " r) 'mparen 'mparen)
+			(mathml (cadr x) '("</mrow> <mrow> -")(cons "</mrow></msup> " r) 'mparen 'mparen))
 		    (if nc
-			(mathml x (list "</mrow> <mfenced separators=\"\" open=\"<\" close=\">\">")(cons "</mfenced></msup>" r) 'mparen 'mparen)
+			(mathml x (list "</mrow> <mrow><mo form=\"prefix\">&lt;</mo>")(cons "<mo form=\"postifx\">&gt;</mo></mrow></msup>" r) 'mparen 'mparen)
 			(if (and (numberp x) (< x 10))
 			    (mathml x (list "</mrow> ")(cons "</msup> " r) 'mparen 'mparen)
 			    (mathml x (list "</mrow> <mrow>")(cons "</mrow></msup> " r) 'mparen 'mparen))
@@ -472,11 +472,11 @@
 (defprop $matrix mathml-matrix mathml)
 
 (defun mathml-matrix(x l r) ;;matrix looks like ((mmatrix)((mlist) a b) ...)
-  (append l `("<mfenced separators=\"\" open=\"(\" close=\")\"><mtable>")
+  (append l `("<mrow><mo form=\"prefix\">(</mo><mtable>")
 	 (mapcan #'(lambda(y)
 			  (mathml-list (cdr y) (list "<mtr><mtd>") (list "</mtd></mtr> ") "</mtd><mtd>"))
 		 (cdr x))
-	 '("</mtable></mfenced> ") r))
+	 '("</mtable><mo>)</mo></mrow> ") r))
 
 ;; macsyma sum or prod is over integer range, not  low <= index <= high
 ;; Mathml is lots more flexible .. but
@@ -541,7 +541,7 @@
 (defun mathml-at (x l r)
   (let ((s1 (mathml (cadr x) nil nil lop rop))
 	(sub (mathml (caddr x) nil nil 'mparen 'mparen)))
-       (append l '("<msub><mfenced separators=\"\" open=\"\" close=\"|\">") s1  '("</mfenced> <mrow>") sub '("</mrow> </msub> ") r)))
+       (append l '("<msub><mrow>") s1  '("<mo form=\"postfix\">|</mo></mrow> <mrow>") sub '("</mrow> </msub> ") r)))
 
 ;;binomial coefficients
 
@@ -549,11 +549,11 @@
 
 (defun mathml-choose (x l r)
   `(,@l
-    "<mfenced separators=\"\" open=\"(\" close=\")\"><mtable><mtr><mtd>"
+    "<mrow><mo form=\"prefix\">(</mo><mtable><mtr><mtd>"
     ,@(mathml (cadr x) nil nil 'mparen 'mparen)
     "</mtd></mtr> <mtr><mtd>"
     ,@(mathml (caddr x) nil nil 'mparen 'mparen)
-    "</mtd></mtr> </mtable></mfenced> "
+    "</mtd></mtr> </mtable><mo>)</mo></mrow> "
     ,@r))
 
 
