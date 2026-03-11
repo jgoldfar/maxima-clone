@@ -2,7 +2,6 @@ load("alt-display.mac") $
 load(mathml) $
 
 mathml_header : "<?xml version=\"1.0\" encoding=\"utf-8\"?>
-<?xml-stylesheet type=\"text/xsl\" href=\"pmathml.xsl\"?>
 <!DOCTYPE html PUBLIC
 \"-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN\"
 \"http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg.dtd\"
