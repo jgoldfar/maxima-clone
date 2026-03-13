@@ -43,6 +43,6 @@ TESTS += mathml-test-clisp.xml.sh
 endif
 
 mathml-test-%.xml.sh: mathmltest.mac example.mac
-	sed 's|@MAXIMA@|'$(MAXIMA)'|g; s|@LISP@|'$(*)'|g; s|@OUTPUT@|'$(@:.sh=)'|g;' mathmltest.sh > $@
+	sed 's|@MAXIMA@|'"$(MAXIMA)"'|g; s|@LISP@|'$(*)'|g; s|@OUTPUT@|'$(@:.sh=)'|g;' mathmltest.sh > $@
 	chmod 0755 $@
 
