@@ -96,7 +96,7 @@
                    (and itsalabel ;; but is it a user-command-label?
                      (every #'char= (coerce (string $inchar) 'list) (coerce (string mexplabel) 'list))))
 	       (format texport "<pre>~%~a~a;~%</pre>"
-		       (if mexplabel (format texport "~a " mexplabel) "")
+		       (if mexplabel (aformat nil "(~a) " (stripdollar mexplabel)) "")
 		       ($xml_sanitize (with-output-to-string (strm)
 					(mgrind mexp strm)))))
 
@@ -108,7 +108,7 @@
 		       ;; around the whole expression
 		       (mathml mexp nil nil 'mparen 'mparen))
 		 (cond (mexplabel
-			(format texport "<mspace width=\"verythickmathspace\"/> <mtext>~a</mtext> " mexplabel)))
+			(aformat texport "<mspace width=\"verythickmathspace\"/> <mtext>~a</mtext> " (stripdollar mexplabel))))
 		 (format texport "</math>")))
 	(cond(filename(terpri texport); and drain port if not terminal
 		      (close texport)))
