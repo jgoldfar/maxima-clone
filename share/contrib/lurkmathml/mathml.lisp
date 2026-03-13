@@ -91,18 +91,13 @@
 		     (setq mexp (list '(mdefmacro) (cons (list x) (cdadr y)) (caddr y))))
 		    ((setq y (mget x 'aexpr))
 		     (setq mexp (list '(mdefine) (cons (list x 'array) (cdadr y)) (caddr y)))))))
-	(cond ((and (null (atom mexp))
-		    (member (caar mexp) '(mdefine mdefmacro) :test #'eq))
+        (cond ((or (and (null (atom mexp))
+                     (member (caar mexp) '(mdefine mdefmacro) :test #'eq))
+                   (and itsalabel ;; but is it a user-command-label?
+                     (every #'char= (coerce (string $inchar) 'list) (coerce (string mexplabel) 'list))))
 	       (format texport "<pre>~%~a~a;~%</pre>"
 		       (if mexplabel (format texport "~a " mexplabel) "")
 		       ($xml_sanitize (with-output-to-string (strm)
-					(mgrind mexp strm)))))
-
-	      ((and itsalabel ;; but is it a user-command-label?
-		    (every #'char= (coerce (string $inchar) 'list) (coerce (string mexplabel) 'list)))
-	       ;; aha, this is a C-line: do the grinding:
-	       (format texport "<pre>~%~a ~a;~%</pre>" mexplabel
-                       ($xml_sanitize (with-output-to-string (strm)
 					(mgrind mexp strm)))))
 
 	      (t ; display the expression for MathML now:
