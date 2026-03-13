@@ -46,8 +46,22 @@
 	   )
 	  (t (apply 'mathml1  args)))))
 
+(defun $xml_sanitize (x &optional (strings "'\"<>&;#"))
+  (let ((html-entities (mapcar #'(lambda(x) (cons x (reverse (coerce (format nil "&#x~x;" (char-code x)) 'list)))) (coerce strings 'list))))
+    (flet ((safe-assoc (e)
+	     (or (cdr (assoc e html-entities :test #'eql)) e))
+	   (flatten (l)
+	     (do* ((f (car l) (car l))
+		   (r (if (listp f) f (list f)) (cond ((null f) r)
+						      ((listp f) (setq r (append f r)))
+						      (t         (push f r))))
+		   (l (cdr l) (cdr l)))
+		  ((null f) (reverse r)))))
+      (coerce
+       (flatten (mapcar #'safe-assoc (coerce x 'list))) 'string))))
+
 (defun mathml1 (mexplabel &optional filename ) ;; mexplabel, and optional filename
-  (prog (mexp  texport $gcprint ccol x y itsalabel tmpport)
+  (prog (mexp  texport $gcprint ccol x y itsalabel)
 	;; $gcprint = nil turns gc messages off
 	(setq ccol 1)
 	(cond ((null mexplabel)
@@ -79,27 +93,17 @@
 		     (setq mexp (list '(mdefine) (cons (list x 'array) (cdadr y)) (caddr y)))))))
 	(cond ((and (null (atom mexp))
 		    (member (caar mexp) '(mdefine mdefmacro) :test #'eq))
-	       (format texport "<pre>~%" ) 
-	       (cond (mexplabel (format texport "~a " mexplabel)))
-               ;; need to get rid of "<" signs
-               (setq tmpport (make-string-output-stream))
-               (mgrind mexp tmpport)
-               (close tmpport)
-               (format texport "~a" 
-                       (string-substitute "&lt;" #\< (get-output-stream-string tmpport)))
-	       (format texport ";~%</pre>"))
+	       (format texport "<pre>~%~a~a;~%</pre>"
+		       (if mexplabel (format texport "~a " mexplabel) "")
+		       ($xml_sanitize (with-output-to-string (strm)
+					(mgrind mexp strm)))))
 
 	      ((and itsalabel ;; but is it a user-command-label?
-                  (char= (char (string $inchar) 1) (char (string mexplabel) 1)))
+		    (every #'char= (coerce (string $inchar) 'list) (coerce (string mexplabel) 'list)))
 	       ;; aha, this is a C-line: do the grinding:
-	       (format texport "<pre>~%~a " mexplabel)
-               ;; need to get rid of "<" signs
-               (setq tmpport (make-string-output-stream))
-               (mgrind mexp tmpport)
-               (close tmpport)
-               (format texport "~a" 
-                       (string-substitute "&lt;" #\< (get-output-stream-string tmpport)))
-	       (format texport ";~%</pre>"))
+	       (format texport "<pre>~%~a ~a;~%</pre>" mexplabel
+                       ($xml_sanitize (with-output-to-string (strm)
+					(mgrind mexp strm)))))
 
 	      (t ; display the expression for MathML now:
 		 (myprinc "<math xmlns=\"http://www.w3.org/1998/Math/MathML\"> " texport)
@@ -130,14 +134,6 @@
 	      ;; dispatch for object-oriented mathml-ifiying
 	      ((get (caar x) 'mathml) (funcall (get (caar x) 'mathml) x l r))
 	      (t (mathml-function x l r nil))))
-
-(defun string-substitute (newstring oldchar x &aux matchpos)
-  (setq matchpos (position oldchar x))
-  (if (null matchpos) x
-    (concatenate 'string 
-                 (subseq x 0 matchpos)
-                 newstring
-                 (string-substitute newstring oldchar (subseq x (1+ matchpos))))))
 
 ;;; NOTE that we try to include spaces after closing tags (e.g. "</mwhatever> ")
 ;;; so that the line breaking algorithm in myprinc has some spaces where it
