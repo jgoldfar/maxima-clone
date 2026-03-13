@@ -3444,7 +3444,7 @@
 
     ; Make gnuplot versions newer than 5.0 understand that linetype means
     ; we try to set the dash type
-    (format cmdstorage "~%if(GPVAL_VERSION >= 5.0){set for [i=1:8] linetype i dashtype i; set format '%h'}")
+    (format cmdstorage "~%if(GPVAL_VERSION >= 5.0){set for [i=1:8] linetype i dashtype i}")
 
     ;; By default gnuplot assumes everything below 1e-8 to be a rounding error
     ;; and rounds it down to 0. This is handy for standalone gnuplot as it allows
