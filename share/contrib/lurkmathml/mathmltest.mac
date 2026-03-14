@@ -19,9 +19,9 @@ mathml_input_file_name:"";
 define_alt_display(mathml_display1d(x),
     if linenum<0 then linenum:0
     else (
-      printf(true,"<li><div class='input' style='margin: 15px; font-size: large; font-family: monospace; font-weight: bold; color: black;'><span class='input'>"),
+      printf(true,"<li><div class='maxima-input' style='margin: 15px; font-size: large; font-family: monospace; font-weight: bold; color: black;'>"),
       apply(mathml,[?cadr(x)]),
-      printf(true,"</span></div></li>~%")));
+      printf(true,"</div></li>~%")));
 
 define_alt_display(mathml_display2d(x),
   block([color],
