@@ -222,10 +222,17 @@
           ((setf code (gethash color *color-table*)) code)
           (t nil))))
 
-;; Given two color codes in the form #rrggbb and a fraction r between 0
-;; and 1, returns another color code in the form #rrggbb
-(defun interpolate-color (rgb1 rgb2 r)
-  (let* ((c1 (hex-to-numeric-list rgb1)) (c2 (hex-to-numeric-list rgb2)))
-    (numeric-list-to-rgb
-     (mapcar #'+ c1 (mapcar #'(lambda (x) (* r x)) (mapcar #'- c2 c1))))))
+;; Given a fraction r between 0 and 1 and at least two color codes in the form
+;; #rrggbb returns another color code in the form #rrggbb obtained by linear
+;; interpolation of the given colors
+(defun interpolate-color (f rgb1 rgb2 &rest rgb)
+  (let* ((colors (cons rgb1 (cons rgb2 rgb))) (l (length colors)) n r c1 c2)
+    (multiple-value-bind (i x) (floor (* f (1- l))) (setf n i r x))
+    (if (= n (1- l))
+        (last colors)
+      (progn
+        (setq c1 (hex-to-numeric-list (nth n colors)))
+        (setq c2 (hex-to-numeric-list (nth (1+ n) colors)))
+        (numeric-list-to-rgb
+         (mapcar #'+ c1 (mapcar #'(lambda (x) (* r x)) (mapcar #'- c2 c1))))))))
 
