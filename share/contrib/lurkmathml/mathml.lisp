@@ -139,7 +139,8 @@
 (defun mathml-atom (x l r) 
   (append l
 	  (list (cond ((numberp x) (mathmlnumformat x))
-                      ((stringp x) (format nil "<mtext>~a</mtext>" x))
+                      ((and (stringp x) (> (length x) 0) (not (char= #\< (aref x 0)))) (format nil "<mtext>~a</mtext>" x))
+                      ((stringp x) x)
 		      ((and (symbolp x) (get x 'mathmlword)))
 		      (t (mathml-stripdollar x))))
 	  r))
@@ -296,8 +297,8 @@
 (defprop mqapply mathml-mqapply mathml)
 
 (defun mathml-mqapply (x l r)
-  (setq l (mathml (cadr x) l (list "(" ) lop 'mfunction)
-	r (mathml-list (cddr x) nil (cons ")" r) "<mo>,</mo>"))
+  (setq l (mathml (cadr x) l (list "<mo>(</mo>" ) lop 'mfunction)
+	r (mathml-list (cddr x) nil (cons "<mo>)</mo>" r) "<mo>,</mo>"))
   (append l r));; fixed 9/24/87 RJF
 
 (defprop $%i "<mi>&ImaginaryI;</mi> " mathmlword)
