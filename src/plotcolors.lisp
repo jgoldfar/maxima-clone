@@ -1,7 +1,23 @@
 ;; Functions to manage colors in plot2/plot3d and draw2d/draw3d
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; The following notations are used for colors:                               ;
+;;                                                                            ;
+;; 1. A list of red, green and blue, being all numbers between 0 and 1.       ;
+;;                                                                            ;
+;; 2. A string ";rrggbb", where rr, gg and bb are 2-digit hexadecimal numbers ;
+;; (the red, green and blue components).                                      ;
+;;                                                                            ;
+;; 3. A symbol whose name is one of the 139 color names accepted in HTML/CSS. ;
+;;                                                                            ;
+;; 4. A string that after removal of nay white spaces, hyphens and undercores ;
+;; is one of ht ecolor names accepted in HTML/CSS.                            ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (in-package :maxima)
 
-;; Converts a string to lower-case, removing spaces, minus signs, and underscores
+;; Converts a string to lower-case, removing spaces, minus signs, and
+;; underscores
 (defun atom-to-downcased-string (val)
    (remove-if
       #'(lambda (z) (member (char-int z) '(32 45 95)))
@@ -10,11 +26,8 @@
            "\""
            (coerce (mstring val) 'string)))))
 
-;; hash table of color names and corresponding numerical values.
-;; all the 139 color names of HTML/CSS are accepted. Grey can be used
-;; as synomym for gray, fuchsia is a synonym for magenta, and aqua is
-;; a synonym for cyan.
-
+;; Table of the 139 colors names accepted in Maxima plots, which are
+;; the same colors names accepted in HTML and CSS
 (defvar *color-table* (make-hash-table :test 'equal))
 (setf (gethash "aliceblue" *color-table*) "#f0f8ff"
       (gethash "antiquewhite" *color-table*) "#faebd7"
@@ -167,8 +180,8 @@
 
 ;; Returns true if the given symbol or string is a valid plot color;
 ;; namely, a valid color name or a six-digit hexadecimal number with a # suffix.
-;; The color names can be in upper or lower case (or a mix of both),
-;; including any spaces, hyphens or undescores.
+;; The color names can be in upper or lower case (or a mix of both)
+;; and with any spaces, hyphens or undescores.
 (defun plotcolorp (clr)
   (let ((color (atom-to-downcased-string (ensure-string clr))))
     (cond ((and (stringp color) (string= (subseq color 0 1) "#")
@@ -180,7 +193,7 @@
            t)
           (t nil))))
 
-;; given a color in the #rrggbb notation, returns a list with red, green
+;; Given a color in the #rrggbb notation, returns a list with red, green
 ;; and blue values between 0.0 and 1.0
 (defun hex-to-numeric-list (str)
   (let ((hex1 (subseq str 1 3))
@@ -191,8 +204,14 @@
      (/ (parse-integer hex2 :radix 16) 255.0)
      (/ (parse-integer hex3 :radix 16) 255.0))))
 
-;; Returns the corresponding color code fort he given symbol or string, in the
-;; ##rrggbb form, where rr, gg and bb are hexadecimal numbers beween 0 and 255,
+;; Transforms a list c with three components between 0.0 and 1.0 (red,
+;; green and blue components) into a color code #rrggbb
+(defun numeric-list-to-rgb (c)
+  (string-downcase
+   (format nil "#~{~16,2,'0R~}" (mapcar #'(lambda (x) (round (* 255 x))) c))))
+
+;; Returns the corresponding color code ##rrggbb for the given symbol or
+;; string, where rr, gg and bb are hexadecimal numbers beween 0 and 255,
 ;; or nil if the symbol or string does not represent a valid color.
 (defun rgb-color (clr)
   (let ((color (atom-to-downcased-string (ensure-string clr))) code)
@@ -202,4 +221,11 @@
            color)
           ((setf code (gethash color *color-table*)) code)
           (t nil))))
-        
+
+;; Given two color codes in the form #rrggbb and a fraction r between 0
+;; and 1, returns another color code in the form #rrggbb
+(defun interpolate-color (rgb1 rgb2 r)
+  (let* ((c1 (hex-to-numeric-list rgb1)) (c2 (hex-to-numeric-list rgb2)))
+    (numeric-list-to-rgb
+     (mapcar #'+ c1 (mapcar #'(lambda (x) (* r x)) (mapcar #'- c2 c1))))))
+
