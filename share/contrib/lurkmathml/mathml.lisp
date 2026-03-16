@@ -8,6 +8,7 @@
 ;;   small corrections and additions: Andrey Grozin, 2001
 ;;   additional additions: Judah Milgram (JM), September 2001
 ;;   additional corrections: Barton Willis (BLW), October 2001
+;;   corrections and updates, Leo Butler (March 2026)
 
 ;; Usage: mathml(d8,"/tmp/foo.xml"); mathml(d10,"/tmp/foo.xml"); ..
 ;; to append lines d8 and d10 to the mathml file.  If given only
@@ -32,6 +33,28 @@
 (macsyma-module mathml)
 
 (declare-top (special lop rop ccol $gcprint texport $labels $inchar vaxima-main-dir))
+
+(let ((mathml-mathspaces
+  (mapcar (lambda(s)
+	    (cons (car s) (format nil "~fem" (cdr s))))
+          `((veryverythinmathspace              .  ,(/  1 18))
+            (verythinmathspace                  .  ,(/  2 18))
+            (thinmathspace                      .  ,(/  3 18))
+            (mediummathspace                    .  ,(/  4 18))
+            (thickmathspace                     .  ,(/  5 18))
+            (verythickmathspace                 .  ,(/  6 18))
+            (veryverythickmathspace             .  ,(/  7 18))
+            (negativeveryverythinmathspace      .  ,(/ -1 18))
+            (negativeverythinmathspace          .  ,(/ -2 18))
+            (negativethinmathspace              .  ,(/ -3 18))
+            (negativemediummathspace            .  ,(/ -4 18))
+            (negativethickmathspace             .  ,(/ -5 18))
+            (negativeverythickmathspace         .  ,(/ -6 18))
+            (negativeveryverythickmathspace     .  ,(/ -7 18))))))
+  (defun get-mathml-mathspace (sym)
+    "Translation of named spaces to their length in `em' units.
+Ref: https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Values#Constants"
+    (or (cdr (assoc sym mathml-mathspaces)) sym)))
 
 ;; top level command the result of converting the expression x.
 
@@ -107,7 +130,7 @@
 		       ;; around the whole expression
 		       (mathml mexp nil nil 'mparen 'mparen))
 		 (cond (mexplabel
-			(aformat texport "<mspace width=\"verythickmathspace\"/> <mtext>~a</mtext> " (stripdollar mexplabel))))
+			(aformat texport "<mspace width=\"~a\"/> <mtext>~a</mtext> " (get-mathml-mathspace 'verythickmathspace) (stripdollar mexplabel))))
 		 (format texport "</math>")))
 	(cond(filename(terpri texport); and drain port if not terminal
 		      (close texport)))
@@ -278,7 +301,7 @@
         (append l spell-out-expt r))
       (append l formatted r))))
 
-(defprop mprog "<mi>block</mi><mspace width=\"mediummathspace\"/> " mathmlword) 
+(defprop mprog #.(concatenate 'string "<mi>block</mi><mspace width=\"" (get-mathml-mathspace 'mediummathspace) "\"/> ") mathmlword)
 (defprop %erf "<mi>erf</mi> " mathmlword)
 (defprop $erf "<mi>erf</mi> " mathmlword) ;; etc for multicharacter names
 (defprop $true  "<mi>true</mi> "  mathmlword)
@@ -432,7 +455,7 @@
 (defprop mnctimes 109. mathml-rbp)
 
 (defprop mtimes mathml-nary mathml)
-(defprop mtimes "<mspace width=\"thinmathspace\"/>" mathmlsym)
+(defprop mtimes #.(concatenate 'string "<mspace width=\"" (get-mathml-mathspace 'thinmathspace) "\"/>") mathmlsym) ;; thinmathspace
 (defprop mtimes 120. mathml-lbp)
 (defprop mtimes 120. mathml-rbp)
 
@@ -506,12 +529,12 @@
   (let ((s1 (mathml (cadr x) nil nil 'mparen 'mparen));;integrand delims / & d
 	(var (mathml (caddr x) nil nil 'mparen rop))) ;; variable
        (cond((= (length x) 3)
-	     (append l `("<mrow><mo>&int;</mo><mrow>" ,@s1 "</mrow> <mspace width=\"mediummathspace\"/> <mrow><mo>&DifferentialD;</mo><mi>" ,@var "</mi></mrow></mrow> ") r))
-	    (t ;; presumably length 5
+	     (append l `("<mrow><mo>&int;</mo><mrow>" ,@s1 "</mrow> <mspace width=\"" ,(get-mathml-mathspace 'mediummathspace)  "\"/> <mrow><mo>&DifferentialD;</mo><mi>" ,@var "</mi></mrow></mrow> ") r))
+    (t ;; presumably length 5
 	       (let ((low (mathml (nth 3 x) nil nil 'mparen 'mparen))
 		     ;; 1st item is 0
 		     (hi (mathml (nth 4 x) nil nil 'mparen 'mparen)))
-		    (append l `("<mrow><munderover><mo>&int;</mo> <mrow>" ,@low "</mrow> <mrow>" ,@hi "</mrow> </munderover> <mrow>" ,@s1 "</mrow> <mspace width=\"mediummathspace\"/> <mrow><mo>&DifferentialD;</mo><mi>" ,@var "</mi> </mrow></mrow> ") r))))))
+		 (append l `("<mrow><munderover><mo>&int;</mo> <mrow>" ,@low "</mrow> <mrow>" ,@hi "</mrow> </munderover> <mrow>" ,@s1 "</mrow> <mspace width=\"" ,(get-mathml-mathspace 'mediummathspace) "\"/> <mrow><mo>&DifferentialD;</mo><mi>" ,@var "</mi> </mrow></mrow> ") r))))))
 
 (defprop %limit mathml-limit mathml)
 
@@ -710,13 +733,14 @@
      ,arg)))
 
 (defun mathml-mcond (x l r)
-  (append l
-    (mathml (cadr x) '("<mi>if</mi> <mspace width=\"mediummathspace\"/>")
-      '("<mspace width=\"mediummathspace\"/> <mi>then</mi><mspace width=\"mediummathspace\"/> ") 'mparen 'mparen)
-    (if (eql (fifth x) '$false)
-      (mathml (caddr x) nil r 'mcond rop)
-      (append (mathml (caddr x) nil nil 'mparen 'mparen)
-        (mathml (fifth x) '("<mspace width=\"mediummathspace\"/> <mi>else</mi><mspace width=\"mediummathspace\"/> ") r 'mcond rop)))))
+  (let ((mediummathspace (get-mathml-mathspace 'mediummathspace)))
+    (append l
+           (mathml (cadr x) (list "<mi>if</mi> <mspace width=\"" mediummathspace "\"/>")
+                   (list "<mspace width=\"" mediummathspace "\"/> <mi>then</mi><mspace width=\"" mediummathspace "\"/> ") 'mparen 'mparen)
+           (if (eql (fifth x) '$false)
+               (mathml (caddr x) nil r 'mcond rop)
+               (append (mathml (caddr x) nil nil 'mparen 'mparen)
+                       (mathml (fifth x) (list "<mspace width=\"" mediummathspace "\"/> <mi>else</mi><mspace width=\"" mediummathspace "\"/> ") r 'mcond rop))))))
 
 (defprop mdo mathml-mdo mathml)
 (defprop mdo 30. mathml-lbp)
@@ -730,10 +754,10 @@
 ;; these aren't quite right
 
 (defun mathml-mdo (x l r)
-  (mathml-list (mathmlmdo x) l r "<mspace width=\"mediummathspace\"/> "))
+  (mathml-list (mathmlmdo x) l r (concatenate 'string "<mspace width=\"" (get-mathml-mathspace 'mediummathspace) "\"/> ")))
 
 (defun mathml-mdoin (x l r)
-  (mathml-list (mathmlmdoin x) l r "<mspace width=\"mediummathspace\"/> "))
+  (mathml-list (mathmlmdoin x) l r (concatenate 'string "<mspace width=\"" (get-mathml-mathspace 'mediummathspace) "\"/> ")))
 
 (defun mathmlmdo (x)
    (nconc (cond ((second x) `("<mi>for</mi> " ,(second x))))
