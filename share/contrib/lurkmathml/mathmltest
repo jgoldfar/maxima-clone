@@ -13,25 +13,4 @@ done
 
 # Now run Maxima over the test file, to produce tmp-mathmltest-output.xml
 export MAXIMA_USERDIR=$PWD
-rm -f tmp-mathmltest-output.xml
-../../../maxima-local --very-quiet -p mathmltest.mac -b tmp-mathmltest-input.mac > tmp-mathmltest-output.xml
-
-# Make into XHTML
-echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>
-<!DOCTYPE html PUBLIC
-    \"-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN\"
-    \"http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg.dtd\"
-[
-  <!ENTITY mathml \"http://www.w3.org/1998/Math/MathML\">
-]>  
-<html xmlns=\"http://www.w3.org/1999/xhtml\">
-<head>
-<title>Maxima MathML Output Test Page</title>
-</head>
-<body><ol>" > tmp$$.xml
-cat tmp-mathmltest-output.xml >> tmp$$.xml
-mv tmp$$.xml tmp-mathmltest-output.xml
-
-echo "</ol></body>
-</html>" >> tmp-mathmltest-output.xml
-
+../../../maxima-local --very-quiet -p mathmltest.mac --batch-string='mathml_batch("./tmp-mathmltest-input.mac");' > tmp-mathmltest-output.xml
