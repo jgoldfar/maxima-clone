@@ -46,3 +46,4 @@ kill (f, g);
 'at_difference (f (u), u, a, b);
 'at_difference ('integrate (g (w), w), w, 1 - %pi^2, epsilon[3]^4);
 'at_difference (exp (-(1/2)*((z - mu)/sigma)^2) / sigma / sqrt (2*%pi), z, minf, inf);
+z[2]^3;
