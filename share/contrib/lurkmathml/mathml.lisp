@@ -438,7 +438,7 @@ Ref: https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Values#Consta
 			(mathml (cadr x) '("</mrow> <mrow><mo form=\"prefix\">&lt;</mo> -")(cons "<mo form=\"postfix\">&gt;</mo></mrow></msup> " r) 'mparen 'mparen)
 			(mathml (cadr x) '("</mrow> <mrow> -")(cons "</mrow></msup> " r) 'mparen 'mparen))
 		    (if nc
-			(mathml x (list "</mrow> <mrow><mo form=\"prefix\">&lt;</mo>")(cons "<mo form=\"postifx\">&gt;</mo></mrow></msup>" r) 'mparen 'mparen)
+			(mathml x (list "</mrow> <mrow><mo form=\"prefix\">&lt;</mo>")(cons "<mo form=\"postfix\">&gt;</mo></mrow></msup>" r) 'mparen 'mparen)
 			(if (and (numberp x) (< x 10))
 			    (mathml x (list "</mrow> ")(cons "</msup> " r) 'mparen 'mparen)
 			    (mathml x (list "</mrow> <mrow>")(cons "</mrow></msup> " r) 'mparen 'mparen))
