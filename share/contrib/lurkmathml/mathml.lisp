@@ -418,6 +418,7 @@ Ref: https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Values#Consta
 			  (member (get-first-char f) '(#\% #\$) :test #'char=) ;; insist it is a % or $ function
                           (not (member f '(%sum %product %derivative %integrate %at
                                          %lsum %limit) :test #'eq)) ;; what else? what a hack...
+			  (not (member 'array (cdar fx) :test #'eq)) ; fix for x[i]^2
 			  (or (and (atom expon) (not (numberp expon))) ; f(x)^y is ok
 			      (and (atom expon) (numberp expon) (> expon 0))))))
 			      ; f(x)^3 is ok, but not f(x)^-1, which could
