@@ -117,7 +117,7 @@ Ref: https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Values#Consta
                      (member (caar mexp) '(mdefine mdefmacro) :test #'eq))
                    (and itsalabel ;; but is it a user-command-label?
                      (every #'char= (coerce (string $inchar) 'list) (coerce (string mexplabel) 'list))))
-	       (format texport "<pre>~%~a~a;~%</pre>"
+	       (format texport "<pre>~%~a~a;~%</pre>~%"
 		       (if mexplabel (aformat nil "(~a) " (stripdollar mexplabel)) "")
 		       ($xml_sanitize (with-output-to-string (strm)
 					(mgrind mexp strm)))))
@@ -131,7 +131,7 @@ Ref: https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Values#Consta
 		       (mathml mexp nil nil 'mparen 'mparen))
 		 (cond (mexplabel
 			(aformat texport "<mspace width=\"~a\"/> <mtext>~a</mtext> " (get-mathml-mathspace 'verythickmathspace) (stripdollar mexplabel))))
-		 (format texport "</math>")))
+		 (format texport "</math>~%")))
 	(cond(filename(terpri texport); and drain port if not terminal
 		      (close texport)))
 	(return mexplabel)))
