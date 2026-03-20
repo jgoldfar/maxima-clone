@@ -109,7 +109,6 @@ the same color names accepted in HTML and CSS.")
       (gethash "lightsalmon" *color-table*) "#ffa07a"
       (gethash "lightseagreen" *color-table*) "#20b2aa"
       (gethash "lightskyblue" *color-table*) "#87cefa"
-      (gethash "lightslateblue" *color-table*) "#8470ff"
       (gethash "lightslategray" *color-table*) "#778899"
       (gethash "lightslategrey" *color-table*) "#778899"
       (gethash "lightsteelblue" *color-table*) "#b0c4de"
