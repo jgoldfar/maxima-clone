@@ -40,9 +40,9 @@ set plot3dOptions {
     {saturation 0.7 "Default saturation value."}
     {value 0.8 "Default brightness value."}
     {colorrange 0.5 "Range of colors used."}
-    {gradlist {{0 "#00ff00"} {1 "#ff00ff"}} "Color gradient: List of values and colors."}
+    {gradlist {"#00ff00" "#ff00ff"} "Color gradient: List of values and colors."}
     {ncolors 180 "Number of colors used."}
-    {colorscheme "hue" "Coloring Scheme (hue, saturation, value, gray, gradient or 0)."}
+    {colorscheme "gradient" "Coloring Scheme (hue, saturation, value, gray, gradient or 0)."}
     {mesh_lines "black" "Color for the meshes outline, or 0 for no outline."}
 }
 
@@ -243,21 +243,15 @@ proc plot3dcolorFun {win z } {
     if { ($value > 1) || ($value < 0) } {
         set value [expr { $value - floor($value) }]}
     set tem [expr {(double($colorrange)/$ncolors)*round(($z - $zmin)*$ncolors/($zmax - $zmin+.001))}]
+    set frac [expr {($z-$zmin)/($zmax-$zmin)}]
     switch -exact $colorscheme {
 	"hue" { return [hsv2rgb [expr { 360*$tem+$h }] $saturation $value] }
 	"saturation" { return [hsv2rgb $h [expr { $tem+$saturation }] $value] }
 	"value" { return [hsv2rgb $h $saturation [expr {$tem+$value}]] }
-	"gray"  { set g [expr { round( ($tem+$value)*255 ) } ]
+	"gray"  { set g [expr { round( ($frac)*255 ) } ]
 	    return  [format "\#%02x%02x%02x" $g $g $g] }
-        "gradient" {
-            for {set i 0} {$i < [llength $gradlist]} {incr i} {
-                if {$tem < [lindex $gradlist $i 0]} break}
-            if {$i == 0} {
-                return [lindex $gradlist 0 1]
-            }
-            set down [lindex $gradlist [expr $i-1] 0]
-            set up [lindex $gradlist $i 0]
-            return [interpolatecolor [lindex $gradlist [expr $i-1] 1] [lindex $gradlist $i 1] [expr {($tem-$down)/($up-$down)}]]}
+        "gradient" { set args [linsert $gradlist 0 $frac]
+            return [interpolatecolor {*}$args] }
 	"0" { return "#ffffff" }}}
 
 proc setupPlot3dColors { win first_mesh} {

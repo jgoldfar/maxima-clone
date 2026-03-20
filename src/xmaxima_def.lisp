@@ -86,95 +86,41 @@
                (xmaxima-color colors i))))))
 
 (defun xmaxima-palette (palette)
-;; palette should be a list starting with one of the symbols: hue,
-;; saturation, value, gray or gradient.
-;;
-;; If the symbol is gray, it should be followed by two floating point
-;; numbers that indicate the initial gray level and the interval of 
-;; gray values.
-;;
-;; If the symbol is one of hue, saturation or value, it must be followed
-;; by three numbers that specify the hue, saturation and value for the
-;; initial color, and a fourth number that gives the range of values for
-;; the increment of hue, saturation or value.
-;; The values for the initial hue, saturation, value and grayness should
-;; be within 0 and 1, while the range can be higher or even negative.
-;;
-;; If the symbol is gradient, it must be followed by either a list of valid
-;; colors or by a list of lists with two elements, a number and a valid color.
+"Given a valid palette option item, outputs its definition in the
+Xmaxima plotting format."
+(let (type colors-list fun (fun-format " {hue ~,,,,,,'eg} {saturation ~,,,,,,'eg} {value ~,,,,,,'eg} {colorrange ~,,,,,,'eg}"))
+    (if (atom palette)
+      (progn
+        (setq type palette)
+        (unless (or (eq type '$gray) (eq type '$grey))
+          (setf colors-list (cdr (getf *plot-palettes* palette)))))
+      (progn
+        (setq type (car palette))
+        (case type
+              ($gradient (setf colors-list (cdr palette)))
+              (($hue $saturation $value)
+               (setq fun (format nil fun-format (second palette)
+                                 (third palette)
+                                 (fourth palette)
+                                 (fifth palette)))))))
+    (with-output-to-string
+      (st)
+      (case type
+            ($hue (format st "~&~a {colorscheme hue}" fun))
+            ($saturation (format st "~&~a {colorscheme saturation}" fun))
+            ($value (format st "~&~a {colorscheme value}" fun))
+            (($gray $grey) (format st "~&{colorscheme gray}"))
+            (otherwise (format st "~&{colorscheme gradient} ")
+                       (format st "{gradlist {~{~s~^ ~}}}"
+                               (mapcar #'rgb-color colors-list)))))))
 
-  (unless (listp palette) (setq palette (list palette)))
-  (let (hue sat val gray range fun)
-    (case (first palette)
-      ($gray
-       (case (length (rest palette))
-         (2 (setq gray (second palette)) (setq range (third palette)))
-         (t (merror
-             (intl:gettext
-              "palette: gray must be followed by two numbers."))))
-       (when (or (< gray 0) (> gray 1))
-         (setq gray (- gray (floor gray))))
-       (setq fun (format nil "{value ~,,,,,,'eg} {colorrange ~,,,,,,'eg}"
-                         gray range)))
-      (($hue $saturation $value)
-       (case (length (rest palette))
-         (4 (setq hue (second palette))
-            (setq sat (third palette))
-            (setq val (fourth palette))
-            (setq range (fifth palette)))
-         (t (merror
-             (intl:gettext
-              "palette: ~M must be followed by four numbers.")
-              (first palette))))
-       (when (or (< hue 0) (> hue 1)) (setq hue (- hue (floor hue))))
-       (when (or (< sat 0) (> sat 1)) (setq sat (- sat (floor sat))))
-       (when (or (< val 0) (> val 1)) (setq val (- val (floor val))))
-       (setq fun
-             (format nil " {hue ~,,,,,,'eg} {saturation ~,,,,,,'eg} {value ~,,,,,,'eg} {colorrange ~,,,,,,'eg}"
-                     hue sat val range))))
-    (with-output-to-string (st)
-      (case (first palette)
-        ($hue (format st "~&~a {colorscheme hue}" fun))
-        ($saturation (format st "~&~a {colorscheme saturation}" fun))
-        ($value (format st "~&~a {colorscheme value}" fun))
-        ($gray (format st "~&~a {colorscheme gray}" fun))
-        ($gradient
-         (let* ((colors (rest palette)) (n (length colors)) (map nil))
-           ;; map is constructed as (n1 c1 n2 c2 ... nj cj) where ni is a
-           ;; decreasing sequence of numbers (n1=1, nj=0) and ci are colors
-           (cond
-             ;; Maxima list of numbers and colors (((mlist) ni ci) ...)
-             ((listp (first colors))
-              (setq colors (sort colors #'< :key #'cadr))
-              (dotimes (i n)
-                (setq map (cons (rgb-color (third (nth i colors))) ;; color
-                                (cons
-                                 (/ (- (second (nth i colors))   ;; ni minus
-                                       (second (first colors)))  ;; smallest ni
-                                    (- (second (nth (- n 1) colors));; biggest
-                                       (second (first colors)))) ;; - smallest
-                                 map)))))
-             ;; list of only colors
-             (t (dotimes (i n)
-                  (setq map (cons (rgb-color (nth i colors))  ;; color i
-                                  (cons (/ i (1- n)) map))))))    ;; number i
-
-           ;; prints map with the format:  nj, "cj", ...,n1, "c1"  
-           (setq fun (format nil "~{{ ~,,,,,,'eg ~s}~^ ~}" (reverse map)))
-           (format st "~&{colorscheme gradient} ")
-           ;; writes: {gradlist {{nj "cj"} ...{n1 "c1"}}}
-           (format st "{gradlist {~a}}" fun)))
-        (t
-         (merror
-          (intl:gettext
-           "palette: wrong keyword ~M. Must be hue, saturation, value, gray or gradient.")
-          (first palette)))))))
-
-(defun xmaxima-palettes (palette n)
+(defun xmaxima-palettes (palettes n)
   (unless (integerp n) (setq n (round n)))
-  (if (find 'mlist palette :key #'car) (setq palette (list palette)))
-  (xmaxima-palette (rest (nth (mod (- n 1) (length palette)) palette))))
-			 
+  (let (palette)
+    (setq palette (nth (mod (- n 1) (length palettes)) palettes))
+    (when ($listp palette) (setq palette (rest palette)))
+    (xmaxima-palette palette)))
+
 (defmethod plot-preamble ((plot xmaxima-plot) plot-options)
   (let (outfile zmin zmax)
     (setf
@@ -193,7 +139,6 @@
                                '$black))
                 (elev (getf plot-options '$elevation))
                 (azim (getf plot-options '$azimuth)))
-            (if (find 'mlist palette :key #'car) (setq palette (list palette)))
             (if palette
                 (progn
                   (if meshcolor
@@ -425,15 +370,15 @@
                    (second (getf options '$grid))))
                  (ar (polygon-pts pl))
                  (colors (getf options '$color))
-                 (palettes (getf options '$palette)))
+                 (palettes (getf options '$palette)) palette)
             (declare (type (cl:array t) ar))
             (when trans (mfuncall trans ar))
             (when (getf options '$transform_xy)
                 (mfuncall (getf options '$transform_xy) ar))
             (if palettes
-                   (format $pstream " ~a~%" (xmaxima-palettes palettes i))
-                   (format $pstream " {mesh_lines ~a}" (xmaxima-color colors i)))
-              (output-points-tcl $pstream pl (first (getf options '$grid)))))
+                (format $pstream " ~a~%" (xmaxima-palettes palettes i))
+              (format $pstream " {mesh_lines ~a}" (xmaxima-color colors i)))
+            (output-points-tcl $pstream pl (first (getf options '$grid)))))
         (format $pstream "}~%"))))))
 
 (defmethod plot-shipout ((plot xmaxima-plot) options &optional output-file)

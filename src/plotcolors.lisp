@@ -16,9 +16,10 @@
 
 (in-package :maxima)
 
-;; Converts a string to lower-case, removing spaces, minus signs, and
-;; underscores
 (defun atom-to-downcased-string (val)
+"Down-case a string, removing spaces, minus signs, and underscores.
+It is used to allow valid color names to be written as DarkBlue,
+dark_blue or 'Dark blue', all meaning darkblue."
    (remove-if
       #'(lambda (z) (member (char-int z) '(32 45 95)))
       (string-downcase
@@ -26,9 +27,11 @@
            "\""
            (coerce (mstring val) 'string)))))
 
-;; Table of the 139 colors names accepted in Maxima plots, which are
-;; the same colors names accepted in HTML and CSS
-(defvar *color-table* (make-hash-table :test 'equal))
+(defvar *color-table* (make-hash-table :test 'equal)
+"Table of the 139 colors names accepted in Maxima plots, which are
+the same color names accepted in HTML and CSS.")
+
+;; Populate the *color-table* array
 (setf (gethash "aliceblue" *color-table*) "#f0f8ff"
       (gethash "antiquewhite" *color-table*) "#faebd7"
       (gethash "aqua" *color-table*) "#00ffff"
@@ -178,11 +181,22 @@
       (gethash "yellow" *color-table*) "#ffff00"
       (gethash "yellowgreen" *color-table*) "#9acd32")
 
-;; Returns true if the given symbol or string is a valid plot color;
-;; namely, a valid color name or a six-digit hexadecimal number with a # suffix.
-;; The color names can be in upper or lower case (or a mix of both)
-;; and with any spaces, hyphens or undescores.
+(defvar *plot-palettes*
+  '($gray true $grey true
+          $default ((mlist) "greenyellow" "deepskyblue" "magenta")
+          $rainbow ((mlist) "indigo" "royalblue" "mediumseagreen" "yellow"
+                    "orange" "crimson")
+          $tomato  ((mlist) "yellow" "turquoise" "orangered")
+          $ubuntu  ((mlist) "orange" "indigo")
+          $beach   ((mlist) "wheat" "dodgerblue"))
+  "Array of predefined palettes.")
+
 (defun plotcolorp (clr)
+"Returns true if the given symbol or string is a valid plot color; 
+namely, a color name among the predefined colors or a six-digit hexadecimal
+number with a # suffix.
+The color names can be in upper or lower case (or a mix of both)
+and with any spaces, hyphens or underscores."
   (let ((color (atom-to-downcased-string (ensure-string clr))))
     (cond ((and (stringp color) (string= (subseq color 0 1) "#")
                 (= (length color) 7)
@@ -193,9 +207,9 @@
            t)
           (t nil))))
 
-;; Given a color in the #rrggbb notation, returns a list with red, green
-;; and blue values between 0.0 and 1.0
 (defun hex-to-numeric-list (str)
+"Given a color in the #rrggbb notation, returns a list with red, green
+and blue values between 0.0 and 1.0"
   (let ((hex1 (subseq str 1 3))
         (hex2 (subseq str 3 5))
         (hex3 (subseq str 5 7)))
@@ -204,16 +218,16 @@
      (/ (parse-integer hex2 :radix 16) 255.0)
      (/ (parse-integer hex3 :radix 16) 255.0))))
 
-;; Transforms a list c with three components between 0.0 and 1.0 (red,
-;; green and blue components) into a color code #rrggbb
 (defun numeric-list-to-rgb (c)
+"Transform a list with three components between 0.0 and 1.0 (red,
+green and blue components) into a color code #rrggbb"
   (string-downcase
    (format nil "#~{~16,2,'0R~}" (mapcar #'(lambda (x) (round (* 255 x))) c))))
 
-;; Returns the corresponding color code ##rrggbb for the given symbol or
-;; string, where rr, gg and bb are hexadecimal numbers beween 0 and 255,
-;; or nil if the symbol or string does not represent a valid color.
 (defun rgb-color (clr)
+"Find the RGB color code ##rrggbb for a given symbol or string that
+represents one of the predefined colors. Returns nil if the color is
+not in the predefined colors list."
   (let ((color (atom-to-downcased-string (ensure-string clr))) code)
     (cond ((and (stringp color) (string= (subseq color 0 1) "#")
              (= (length color) 7)
@@ -222,10 +236,11 @@
           ((setf code (gethash color *color-table*)) code)
           (t nil))))
 
-;; Given a fraction r between 0 and 1 and at least two color codes in the form
-;; #rrggbb returns another color code in the form #rrggbb obtained by linear
-;; interpolation of the given colors
+
 (defun interpolate-color (f rgb1 rgb2 &rest rgb)
+"Interpolate between two or more colors, given as strings #rrggbb, according
+to a fraction f, between 0 and 1, where 0 gives the first color and 1 the
+last one."
   (let* ((colors (cons rgb1 (cons rgb2 rgb))) (l (length colors)) n r c1 c2)
     (multiple-value-bind (i x) (floor (* f (1- l))) (setf n i r x))
     (if (= n (1- l))
@@ -236,3 +251,22 @@
         (numeric-list-to-rgb
          (mapcar #'+ c1 (mapcar #'(lambda (x) (* r x)) (mapcar #'- c2 c1))))))))
 
+(defmfun $hsv (h s v)
+"Convert a color given as HSV (hue, saturation, value), all between 0 and 1,
+to RGB as a string #rrggbb."
+  (if (zerop s)
+    ;; Achromatic case (gray)
+    (numeric-list-to-rgb (list v v v))
+    (let  (i f p q tt rgb)
+      (multiple-value-setq (i f) (floor (* h 6)))
+      (setq p (* v (- 1 s)))
+      (setq q (* v (- 1 (* s f))))
+      (setq tt (* v (- 1 (* s (- 1 f)))))
+      (case i
+            (0 (setq rgb (list v  tt p)))
+            (1 (setq rgb (list q  v  p)))
+            (2 (setq rgb (list p  v  tt)))
+            (3 (setq rgb (list p  q  v)))
+            (4 (setq rgb (list tt p  v)))
+            (5 (setq rgb (list v  p  q))))
+      (numeric-list-to-rgb rgb))))

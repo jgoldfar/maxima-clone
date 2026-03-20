@@ -162,9 +162,7 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
   (setf (getf *plot-options* '$gnuplot_term) '$default)
   (setf (getf *plot-options* '$gnuplot_preamble) "")
   (setf (getf *plot-options* '$gnuplot_svg_background) "white")
-  (setf (getf *plot-options* '$palette)
-        '(((mlist) $gradient "greenyellow" "deepskyblue" "magenta" )
-          ((mlist) $gradient "royalblue" "sandybrown" "crimson")))
+  (setf (getf *plot-options* '$palette) '($default))
   (setf (getf *plot-options* '$mesh_lines_color) "darkslategray")
   (setf (getf *plot-options* '$point_type)
         '($bullet $box $triangle $plus $times $asterisk))
@@ -1952,8 +1950,6 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
          ($gnuplot_pipes (setf (getf options '$plot_format) '$gnuplot_pipes))
          ($gnuplot_pm3d (setf (getf options '$gnuplot_pm3d) t))
          ($gnuplot_strings (setf (getf options '$gnuplot_strings) t))
-         ($gnuplot (setf (getf options '$plot_format) '$gnuplot))
-
          ($noaxes (setf (getf options '$axes) nil))
          ($nobox (setf (getf options '$box) nil))
          ($nocolor_bar (setf (getf options '$color_bar) nil))
@@ -1987,6 +1983,10 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
 ;; positive real numbers predicate
 (defun realpositivep (x) (or (and (realp x) (> x 0)) nil))
 
+(defun real01p (x)
+  "Test for real numbers between 0 and 1"
+  (or (and (realp x) (>= x 0) (<= x 1)) nil))
+
 ;; possible values for the axes option
 (defun axesoptionp (o) (if (member o '($x $y $solid)) t nil))
 
@@ -1994,19 +1994,6 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
 (defun pointtypep (p)
   (if (member p  '($bullet $circle $plus $times $asterisk $box $square
                   $triangle $delta $wedge $nabla $diamond $lozenge)) t nil))
-
-;; Colors can only be one of the named colors or a six-digit hexadecimal
-;; number with a # suffix.
-(defun plotcolorp (color)
-  (cond ((and (stringp color)
-              (string= (subseq color 0 1) "#")
-              (= (length color) 7)
-              (ignore-errors (parse-integer (subseq color 1 6) :radix 16)))
-         t)
-        ((member color '($red $green $blue $magenta $cyan $yellow
-                         $orange $violet $brown $gray $black $white))
-         t)
-        (t nil)))
 
 ;; tries to convert az into a floating-point number between 0 and 360
 (defun parse-azimuth (az) (mod (coerce-float (meval* az)) 360))
@@ -2103,33 +2090,57 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
      (cadr option) (car option)))
   (cadr option))
 
-;; palette most be one or more Maxima lists starting with the name of one
-;; of the 5 kinds: hue, saturation, value, gray or gradient. The first
-;; four types must be followed by 4 floating-point numbers, while the
-;; gradient type must be followed by a list of valid colors.
 (defun check-option-palette (option)
-  (if (and (= (length option) 2) (null (cadr option)))
-      nil
-      (progn
-        (dolist (item (cdr option))
-          (when (not (and ($listp item)
-                          (member (cadr item)
-                                  '($hue $saturation $value $gray $gradient))))
+"Checks that a palette option is either the color gray (or grey), or a
+maxima list of colors. For backward compatibily, it is also accepted a
+maxima list starting with the keyword $hue, $saturation, $value or $gradient;
+the firstvthree types must be followed by 4 floating-point numbers, while
+ gradient must be followed by a list of at least two valid colors.
+It returns the option, if it is valid, or nil."
+  (let ((items (cdr option)))
+  (if (= (length items) 0)
+    nil
+    (progn
+      (dolist (item items)
+        (cond
+         ((atom item)
+          (unless (getf *plot-palettes* item)
             (merror
              (intl:gettext
-              "Wrong argument ~M for option ~M. Not a valid palette.")
-             item (car option)))
-          (if (eq (cadr item) '$gradient)
-              (dolist (c (cddr item))
-                (unless (plotcolorp c)
-                  (merror
-                   (intl:gettext
-                    "In palette option, ~M is not a valid color")
-                   c)))
+              "Palette: ~M is not one of the predefined palettes.")
+             item)))
+         (($listp item)
+          (if (member (cadr item) '($hue $saturation $value $gradient))
+            (case (cadr item)
+                  ($gradient
+                   (when (< (length (cddr item)) 2)
+                     (merror
+                      (intl:gettext
+                       "Palette: gradient needs at least 2 colors.")))
+                   (dolist (c (cddr item))
+                     (unless (plotcolorp c)
+                       (merror 
+                        (intl:gettext "Palette: ~M is not a valid color") c))))
+                  (($hue $saturation $value)
+                   (setf (cddr item) (mapcar #'coerce-float (cddr item)))
+                   (check-option (butlast (cdr #$[value,0.2,0,0,10]$))
+                                 #'real01p "a number between 0 and 1" 3)
+                   (check-option (cons (cadr item) (last (cdr item)))
+                                 #'realp "a real number" 1)))
             (progn
-              (setf (cddr item) (mapcar #'coerce-float (cddr item)))
-              (check-option (cdr item) #'realp "a real number" 4))))
-        (cdr option))))
+              (when (< (length (cdr item)) 2)
+                (merror
+                 (intl:gettext "Palette: at least 2 colors are required.")))
+              (dolist (c (cdr item))
+                (unless (plotcolorp c)
+                  (merror  (intl:gettext "Palette: ~M is not a valid color")
+                           c))))))
+         (t
+          (merror
+           (intl:gettext
+            "Palette: expecting a valid palette, found ~M.")
+           item))))
+      items))))
 
 ;; style can be one or several of the names of the styles or one or several
 ;; Maxima lists starting with the name of one of the styles. 
@@ -2490,7 +2501,7 @@ plot2d ( x^2+y^2 = 1, [x, -2, 2], [y, -2 ,2]);
 #| plot3d
 Examples:
 
-plot3d (2^(-u^2 + v^2), [u, -3, 3], [v, -2, 2], [palette, false]);
+plot3d (2^(-u^2 + v^2), [u, -3, 3], [v, -2, 2], nopalette);
 
 plot3d ( log ( x^2*y^2 ), [x, -2, 2], [y, -2, 2], [grid, 29, 29]);
 

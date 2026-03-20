@@ -16,7 +16,6 @@
 ##############################################################################
 
 # Transforms a (hue, saturation, value) set into a (red, green, blue) set
-
 proc hsv2rgb {hue sat val} {
     if { $sat < 0 } { set sat [expr 1 -  $sat] }
     if { $val < 0 } { set val [expr 1 -  $val] }
@@ -44,7 +43,7 @@ proc hsv2rgb {hue sat val} {
     }
 }
 
-# transform a color code #rrggbb into a list of three components (red,
+# Transforms a color code #rrggbb into a list of three components (red,
 # green and blue) between 0 and 255
 proc rgb2list {rgb} {
     set num "0x"
@@ -56,22 +55,32 @@ proc rgb2list {rgb} {
     return [format "%d %d %d" $r $g $b]
 }
 
-# transform a list c with three components between 0 and 255 (red,
+# Transforms a list c with three components between 0 and 255 (red,
 # green and blue components) into a color code #rrggbb
 proc list2rgb {c} {
     return [format "\#%02x%02x%02x" [lindex $c 0] [lindex $c 1] [lindex $c 2]]}
 
-# given two colors codes of the form #rrggbb and a number f between 0 and
-# 1, returns another color code #rrggbb inbetween the first two.
-proc interpolatecolor {rgb1 rgb2 f} {
-    set c1 [rgb2list $rgb1]
-    set c2 [rgb2list $rgb2]
-    set r1 [lindex $c1 0]
-    set g1 [lindex $c1 1]
-    set b1 [lindex $c1 2]
-    set r2 [lindex $c2 0]
-    set g2 [lindex $c2 1]
-    set b2 [lindex $c2 2]
-    return [list2rgb [list [expr {round($r1+$f*($r2-$r1))}] [expr {round($g1+$f*($g2-$g1))}] [expr {round($b1+$f*($b2-$b1))}]]]
+# Given a fraction r between 0 and 1 and at least two color codes in the form
+# #rrggbb returns another color code in the form #rrggbb obtained by linear
+# interpolation of the given colors
+proc interpolatecolor {f rgb1 rgb2 args} {
+    set colors [linsert $args 0 $rgb1 $rgb2]
+    set l [llength $colors]
+    set x [expr {$f*($l-1.0)}]
+    set n [expr {int($x)}]
+    set r [expr {$x-int($x)}]
+    if {$n == [expr {$l-1}]} {
+        return [lindex $colors end]
+    } else {
+        set c1 [rgb2list [lindex $colors $n]]
+        set c2 [rgb2list [lindex $colors $n+1]]
+        set r1 [lindex $c1 0]
+        set g1 [lindex $c1 1]
+        set b1 [lindex $c1 2]
+        set r2 [lindex $c2 0]
+        set g2 [lindex $c2 1]
+        set b2 [lindex $c2 2]
+        return [list2rgb [list [expr {round($r1+$r*($r2-$r1))}] [expr {round($g1+$r*($g2-$g1))}] [expr {round($b1+$r*($b2-$b1))}]]]
+    }
 }
 
