@@ -250,7 +250,16 @@ proc plot3dcolorFun {win z } {
 	"value" { return [hsv2rgb $h $saturation [expr {$tem+$value}]] }
 	"gray"  { set g [expr { round( ($frac)*255 ) } ]
 	    return  [format "\#%02x%02x%02x" $g $g $g] }
-        "gradient" { set args [linsert $gradlist 0 $frac]
+        "gradient" {
+            set colors {}
+            # in older versions, elements of gradlists were 2-element lists
+            for {set i 0} {$i < [llength $gradlist]} {incr i} {
+                if {[llength [lindex $gradlist $i]]==2} {
+                    lappend colors [lindex $gradlist $i 1]
+                } else {
+                    lappend colors [lindex $gradlist $i]}
+            }
+            set args [linsert $colors 0 $frac]
             return [interpolatecolor {*}$args] }
 	"0" { return "#ffffff" }}}
 
