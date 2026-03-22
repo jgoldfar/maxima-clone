@@ -42,3 +42,7 @@ factor(%o3);
 (x^5^a^b + 3^7^(a+b))^b^c;
 FOO[1,2];
 FOO[x,y](w);
+kill (f, g);
+'at_difference (f (u), u, a, b);
+'at_difference ('integrate (g (w), w), w, 1 - %pi^2, epsilon[3]^4);
+'at_difference (exp (-(1/2)*((z - mu)/sigma)^2) / sigma / sqrt (2*%pi), z, minf, inf);

@@ -375,6 +375,11 @@ with_stdout (s,
     
     tex ('at (f (u), u = 0)),
     tex (1 / (1 - 'at (diff (f (u), u), u = 0))),
+
+    print ("'at\\_difference noun expressions."),
+    tex ('at_difference (f (u), u, a, b)),
+    tex ('at_difference ('integrate (g (w), w), w, 1 - %pi^2, epsilon[3]^4)),
+    tex ('at_difference (exp (-(1/2)*((z - mu)/sigma)^2) / sigma / sqrt (2*%pi), z, minf, inf)),
     
     print ("Bigfloats."),
     

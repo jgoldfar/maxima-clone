@@ -557,6 +557,27 @@ Ref: https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Values#Consta
 	(sub (mathml (caddr x) nil nil 'mparen 'mparen)))
        (append l '("<msub><mrow>") s1  '("<mo form=\"postfix\">|</mo></mrow> <mrow>") sub '("</mrow> </msub> ") r)))
 
+(defprop %at_difference mathml-at-difference mathml)
+
+;; e.g. 'at_difference(f(x), x, a, b)
+
+(defun mathml-at-difference (e l r)
+  (let*
+    ((f (first (rest e)))
+     (x (second (rest e)))
+     (a (third (rest e)))
+     (b (fourth (rest e)))
+     (mathml-f (mathml f nil nil lop rop))
+     (mathml-sub (mathml (list '(mequal) x a) nil nil 'mparen 'mparen))
+     (mathml-sup (mathml (list '(mequal) x b) nil nil 'mparen 'mparen)))
+    (append l
+            '("<msubsup>")
+            '("<mrow>") mathml-f '("<mo form=\"postfix\">|</mo></mrow>")
+            '("<mrow>") mathml-sub '("</mrow>")
+            '("<mrow>") mathml-sup '("</mrow>")
+            '("</msubsup> ")
+            r)))
+
 ;;binomial coefficients
 
 (defprop %binomial mathml-choose mathml)
