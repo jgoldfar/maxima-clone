@@ -185,7 +185,7 @@ Gnuplot plotting format."
           (setq terminal-command
                 (getf plot-options '$gnuplot_svg_term_command))
         (setq terminal-command
-              (format nil "set term svg font \",14\" ~a~@[ background '~a'~]" gstrings gnuplot-svg-background)))
+              (format nil "set term svg font \",14\" ~a" gstrings)))
       (setq out-file (getf plot-options '$svg_file)))
      ((getf plot-options '$png_file)
       (if (getf plot-options '$gnuplot_png_term_command)
@@ -280,7 +280,11 @@ Gnuplot plotting format."
           (format dest "~a~%" (first terminal-file)))
         (when (second terminal-file)
           (format dest "set output ~s~%" (second terminal-file)))
+        ;; background color
+        (format dest "set obj 1 rectangle behind from screen 0.0,0.0 to screen 1.0,1.0~%")
         ;; options specific to plot3d
+        (format dest "set obj 1 fc rgb ~s fs solid 1.0 noborder~%"
+                (rgb-color (getf plot-options '$background_color)))
         (when (string= (getf plot-options '$type) "plot3d")
           (format dest "set xyplane relative 0~%")
           (if palette

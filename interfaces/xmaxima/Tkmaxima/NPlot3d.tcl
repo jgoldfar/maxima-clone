@@ -101,7 +101,6 @@ proc addOnePlot3d { win data } {
     makeLocal $win flatten
     oset $win colorfun plot3dcolorFun
     oset $win cmap c1
-    global plot3dOptions
     catch { unset  meshes }
     set points ""
 
@@ -237,7 +236,7 @@ proc addOnePlot3d { win data } {
 		incr j
 	    }
 	    setupPlot3dColors $win $first_mesh
-	} elseif { "[assq $type $plot3dOptions notthere]" != "notthere" } {
+	} elseif { "[assq $type $::plot3dOptions notthere]" != "notthere" } {
 	    oset $win $type [lindex $data 1]
 	    if { $type == "zradius" } {
 		# check whether zradius is a number or "auto"

@@ -6,8 +6,7 @@
 #     Modified by Jaime E. Villate                         #
 ############################################################
 
-global plotdfOptions
-set plotdfOptions {
+set ::plotdfOptions {
     {dxdt "x-y^2+sin(x)*.3" {specifies dx/dt = dxdt.  eg -dxdt "x+y+sin(x)^2"} }
     {dydt "x+y" {specifies dy/dt = dydt.  eg -dydt "x-y^2+exp(x)"} }
     {dydx "" { may specify dy/dx = x^2+y,instead of dy/dt = x^2+y and dx/dt=1 }}
@@ -18,6 +17,7 @@ set plotdfOptions {
     {yradius 10 "Height in y direction of the y values"}
     {width 700 "Width of canvas in pixels"}
     {height 600 "Height of canvas in pixels" }
+    {background white "background color"}
     {scrollregion {} "Area to show if canvas is larger" }
     {xcenter 0.0 {(xcenter,ycenter) is the origin of the window}}
     {ycenter 0.0 "see xcenter"}
@@ -382,17 +382,17 @@ proc parseOdeArg {  s } {
 }
 
 proc plotdf { args } {
-    global plotdfOptions printOption printOptions plot2dOptions
+    global printOption printOptions
     # puts "args=$args"
     # to see options add: -debug 1
     set win [assoc -windowname $args]
-    if { "$win" == "" } {set win [getOptionDefault windowname $plotdfOptions] }
+    if { "$win" == "" } {set win [getOptionDefault windowname $::plotdfOptions] }
     if { "[set ode [assoc "-ode" $args]]" != "" }  {
 	set args [delassoc -ode $args]
 	set args [concat [parseOdeArg $ode] $args]
     }
     global [oarray $win]
-    getOptions $plotdfOptions $args -usearray [oarray $win]
+    getOptions $::plotdfOptions $args -usearray [oarray $win]
     oset $win didLast {}
     # Makes extra vertical space for sliders
     linkLocal $win sliders height tstep xradius yradius
@@ -422,7 +422,7 @@ proc plotdf { args } {
 }
 
 proc replotdf { win } {
-    global printOption plotdfOptions
+    global printOption 
     linkLocal $win xfundata data psfile
     if { ![info exists data] } {set data ""}
     makeLocal $win c dxdt dydt tinitial nsteps xfun trajectory_at parameters

@@ -130,8 +130,12 @@ Xmaxima plotting format."
       (slot-value plot 'data)
       (with-output-to-string (dest)            
         (cond ($show_openplot
-               (format dest "~a -data {~%" (getf plot-options '$type)))
-              (t (format dest "{~a " (getf plot-options '$type))))
+               (format dest "~a " (getf plot-options '$type))
+               (format dest "-background ~a -data {~%"
+                       (rgb-color (getf plot-options '$background_color))))
+              (t (format dest "{~a {background ~a} "
+                         (getf plot-options '$type)
+                         (rgb-color (getf plot-options '$background_color)))))
         (when (string= (getf plot-options '$type) "plot3d")
           (let ((palette (getf plot-options '$palette))
                 (meshcolor (if (member '$mesh_lines_color plot-options)

@@ -81,11 +81,11 @@ proc auto_load1 { slave name {namespace ""} } {
 
 proc setupPrintVariables { slave } {
     global printOption fontSize show_balloons getOp parse_table Parser \
-        axisGray plot2dOptions plot3dOptions paperSizes printOptions \
-        doExit fontCourier8 plotdfOptions
+        axisGray paperSizes printOptions \
+        doExit fontCourier8
     foreach v {printOption fontSize show_balloons getOp parse_table Parser
-	axisGray plot2dOptions plot3dOptions paperSizes printOptions
-	doExit  fontCourier8   plotdfOptions ::xmaxima_priv} {
+	axisGray ::plot2dOptions ::plot3dOptions paperSizes printOptions
+	doExit  fontCourier8 ::plotdfOptions ::xmaxima_priv} {
 	if { [array exists  $v] } {
 	    interp eval $slave [list array set $v [array get $v *] ]
 	} else {interp eval $slave [list set $v [set $v ]]}}}

@@ -6,8 +6,7 @@
 #     Modified by Jaime E. Villate
 ######################################################################
 
-global plot2dOptions
-set plot2dOptions {
+set ::plot2dOptions {
     {xradius 10 "Width in x direction of the x values" }
     {yradius 10 "Height in y direction of the y values"}
     {width 700 "Width of canvas in pixels"}
@@ -23,6 +22,7 @@ set plot2dOptions {
     {nolines 0 "If not 0, plot points and nolines"}
     {bargraph 0 "If not 0 this is the width of the bars on a bar graph" }
     {linewidth "1.5" "Width of plot lines" }
+    {background white "background color"}
     {plotpoints 0 "if not 0 plot the points at pointsize" }
     {pointsize 2 "radius in pixels of points" }
     {linecolors {blue green red brown gray black} "colors to use for lines in data plots"}
@@ -44,15 +44,15 @@ proc argSuppliedp { x } {
 }
 
 proc mkPlot2d { args } {
-    global plot2dOptions printOption axisGray
+    global printOption axisGray
     set win [assoc -windowname $args]
     if { "$win" == "" } {
-	set win [getOptionDefault windowname $plot2dOptions]
+	set win [getOptionDefault windowname $::plot2dOptions]
     }
     global  [oarray $win]
     set data [assoc -data $args ]
     
-    getOptions $plot2dOptions $args -usearray [oarray $win]
+    getOptions $::plot2dOptions $args -usearray [oarray $win]
     # Makes extra vertical space for sliders
     linkLocal $win sliders height
     if {[string length $sliders] > 0} {
@@ -81,7 +81,7 @@ proc mkPlot2d { args } {
 }
 
 proc makeFrame2d  { win } {
-    set w [makeFrame $win 2d]
+    set w [makeFrame $win 2d [oget $win background]]
     set top $w
     catch { set top [winfo parent $w]}
     catch {
@@ -297,10 +297,10 @@ proc plot2d { args } {
 }
 
 proc replot2d { win } {
-    global printOption axisGray plot2dOptions
+    global printOption axisGray
     linkLocal $win xfundata data psfile nobox axes
     foreach v $data {
-	if { "[assq [lindex $v 0] $plot2dOptions notthere]" != "notthere" } {
+	if { "[assq [lindex $v 0] $::plot2dOptions notthere]" != "notthere" } {
 	    oset $win [lindex $v 0] [lindex $v 1]
 	}
     }

@@ -6,7 +6,7 @@
 #     Modified by Jaime E. Villate                         #
 ############################################################
 
-proc makeFrame { w type } {
+proc makeFrame { w type background} {
     # If the plot was produced by Xmaxima's console, it will be in a frame
     # inserted in the console. Otherwise it will be a toplevel window
     global doExit fontSize buttonfont
@@ -61,7 +61,7 @@ proc makeFrame { w type } {
     set buttonsLeft 1
 
     # c is the canvas where the plot will be drawn
-    tk::canvas $c -cursor arrow -background white \
+    tk::canvas $c -cursor arrow -background $background \
         -width [oget $win width] -height [oget $win height]
     pack $c -side top -expand 1 -fill both
     bind $c <Motion> "showPosition $w %x %y"

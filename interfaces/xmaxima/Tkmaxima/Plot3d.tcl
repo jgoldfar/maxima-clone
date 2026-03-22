@@ -6,8 +6,7 @@
 #     Modified by Jaime E. Villate 
 ###################################################################
 
-global plot3dOptions
-set plot3dOptions {
+set ::plot3dOptions {
     {xradius 1 "Width in x direction of the x values" }
     {yradius 1 "Height in y direction of the y values"}
 
@@ -34,6 +33,7 @@ set plot3dOptions {
     {nsteps "10 10" "steps in x and y direction"}
     {rotationcenter "" "Origin about which rotation will be done"}
     {windowname ".plot3d" "window name"}
+    {background white "background color"}
     {psfile "" "A filename where the graph will be saved in PostScript."}
     {nobox 0 "if not zero, do not draw the box around the plot."}
     {hue 0.25 "Default hue value."}
@@ -379,10 +379,9 @@ proc set_xy_region_3d { win fac } {
     oset $win ymax [expr {1.5*$ymax/($yradius)}]}
 
 proc plot3d { args } {
-    global  plot3dOptions
     set win [assoc -windowname $args]
     if { "$win" == "" } {
-	set win [getOptionDefault windowname $plot3dOptions] }
+	set win [getOptionDefault windowname $::plot3dOptions] }
     clearLocal $win
     mkPlot3d  $win {*}$args
     #    bind $win <Configure> {}	
@@ -623,8 +622,7 @@ proc drawOneMesh { win  canv k mesh color } {
 
 
 proc makeFrame3d { win } {
-    global plot3dPoints
-    set w [makeFrame $win 3d]
+    set w [makeFrame $win 3d [oget $win background]]
     set top $w
     catch { set top [winfo parent $w]}
     catch {
@@ -635,8 +633,8 @@ proc makeFrame3d { win } {
 }
 
 proc mkPlot3d { win  args } {
-    global plot3dOptions  printOption [oarray $win] axisGray
-    getOptions $plot3dOptions $args -usearray [oarray $win]
+    global printOption [oarray $win] axisGray
+    getOptions $::plot3dOptions $args -usearray [oarray $win]
     setPrintOptions $args
     set printOption(maintitle) ""
     set wb $win.menubar

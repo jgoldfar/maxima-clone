@@ -92,7 +92,8 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
 ;; should be changed via set_plot_option.
 ;; The default values will bet set below, after the definition of
 ;; function $reset_plot_options.
-(defvar *plot-options*)
+(defvar *plot-options*
+  "Default options for the plotting programs")
 
 ;; Apparently Wxmaxima needs a default plot_options Maxima list pre-defined.
 ;; We will then create such list with minimum content.
@@ -156,24 +157,16 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
   (setq *plot-options* (plot-options-parser value *plot-options*))
   ($get_plot_option))
 
-;; Sets the default plotting options.
 (defmfun $reset_plot_options ()
-  (setq *plot-options* nil)
-  (setf (getf *plot-options* '$gnuplot_term) '$default)
-  (setf (getf *plot-options* '$gnuplot_preamble) "")
-  (setf (getf *plot-options* '$gnuplot_svg_background) "white")
-  (setf (getf *plot-options* '$palette) '($default))
-  (setf (getf *plot-options* '$mesh_lines_color) "darkslategray")
-  (setf (getf *plot-options* '$point_type)
-        '($bullet $box $triangle $plus $times $asterisk))
-  (setf (getf *plot-options* '$color)
-        '($blue $red $green $magenta $black $cyan))
-  (setf (getf *plot-options* '$adapt_depth) 5)
-  (setf (getf *plot-options* '$nticks) 29)
-  (setf (getf *plot-options* '$axes) t)
-  (setf (getf *plot-options* '$run_viewer) t)
-  (setf (getf *plot-options* '$grid) '(30 30))
-  (setf (getf *plot-options* '$plot_format) '$gnuplot_pipes)
+  "Sets the default plotting options."
+  (setf
+   *plot-options*
+   '($grid (30 30) $color ($blue $red $green $magenta $black $cyan)
+           $gnuplot_term $default $mesh_lines_color "darkslategray"
+           $palette ($default) $gnuplot_preamble "" $background_color "white"
+           $point_type ($bullet $box $triangle $plus $times $asterisk)
+           $adapt_depth 5 $nticks 29 $axes t $run_viewer t 
+           $plot_format $gnuplot_pipes))
   t)
 
 ($reset_plot_options)
@@ -1743,6 +1736,9 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
                        (setf (caddr opt) (parse-azimuth (caddr opt))))
                    (setf (getf options '$azimuth)
                          (check-option (cdr opt) #'realp "a real number" 1)))
+         ($background_color
+          (setf (getf options '$background_color)
+                (check-option-b (cdr opt) #'plotcolorp "a color" 1)))
          ($box (setf (getf options '$box)
                      (check-option-boole (cdr opt))))
          ($color (setf (getf options '$color)
@@ -1888,8 +1884,8 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
           (setf (getf options '$gnuplot_strings)
                 (check-option-boole (cdr opt))))
          ($gnuplot_svg_background
-          (setf (getf options '$gnuplot_svg_background)
-                (check-option-b (cdr opt) #'stringp "a string" 1)))
+          (setf (getf options '$background_color)
+                (check-option-b (cdr opt) #'plotcolorp "a color" 1)))
          ($gnuplot_preamble
           (setf (getf options '$gnuplot_preamble)
                 (check-option (cdr opt) #'stringp "a string" 1)))
