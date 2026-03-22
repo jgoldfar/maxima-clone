@@ -32,6 +32,88 @@ integrals in terms of unknown functions such as @code{g(x)} and @code{h(x)}.
 @section Functions and Variables for Integration
 @c -----------------------------------------------------------------------------
 
+@anchor{at_difference}
+@deffn {Function} at_difference (@var{expr}, @var{x}, @var{a}, @var{b})
+
+Returns the difference of @var{expr} evaluated with @var{x} equal to @var{b}
+minus @var{expr} evaluated with @var{x} equal to @var{a}.
+
+Noun expressions @code{'at_difference(@var{expr}, @var{x}, @var{a}, @var{b})}
+are displayed with a vertical bar.
+This is a conventional way to represent the value of a definite integral in some contexts.
+
+When @var{expr} is an antiderivative of some function, say @var{f},
+@code{at_difference} is the value of the integral of @var{f} with respect to @var{x}
+over the interval from @var{a} to @var{b},
+assuming that @var{expr} is a continuous function of @var{x} on that interval.
+
+Examples:
+
+@code{at_difference} returns the difference of @var{expr} evaluated with @var{x} equal to @var{b}
+minus @var{expr} evaluated with @var{x} equal to @var{a}.
+
+@c ===beg===
+@c at_difference (sin(u), u, 2, w);
+@c ===end===
+@example maxima
+@group
+(%i1) at_difference (sin(u), u, 2, w);
+(%o1)                    sin(w) - sin(2)
+@end group
+@end example
+
+Noun expressions @code{'at_difference(...)} are displayed with a vertical bar.
+
+@c ===beg===
+@c 'at_difference (sin(u), u, 2, w);
+@c ===end===
+@example maxima
+@group
+(%i1) 'at_difference (sin(u), u, 2, w);
+                                |u = w
+(%o1)                     sin(u)|
+                                |u = 2
+@end group
+@end example
+
+When @var{expr} is an antiderivative of some function, say @var{f},
+@code{at_difference} is the value of the integral of @var{f} with respect to @var{x}
+over the interval from @var{a} to @var{b},
+assuming that @var{expr} is a continuous function of @var{x} on that interval.
+
+@c ===beg===
+@c 'integrate (cos(u), u, 3, 5) = 'at_difference (integrate (cos(u), u), u, 3, 5);
+@c ev (%, at_difference);
+@c ===end===
+@example maxima
+@group
+(%i1) 'integrate (cos(u), u, 3, 5) = 'at_difference (integrate (cos(u), u), u, 3, 5);
+                    5
+                   /
+                   |                    |u = 5
+(%o1)              |  cos(u) du = sin(u)|
+                   |                    |u = 3
+                   /
+                    3
+@end group
+@group
+(%i2) ev (%, at_difference);
+                  5
+                 /
+                 |
+(%o2)            |  cos(u) du = sin(5) - sin(3)
+                 |
+                 /
+                  3
+@end group
+@end example
+
+@opencatbox{Categories:}
+@category{Integral calculus}
+@closecatbox
+
+@end deffn
+
 @c NEEDS WORK
 
 @c -----------------------------------------------------------------------------
