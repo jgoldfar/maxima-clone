@@ -188,9 +188,69 @@ Ref: https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Values#Consta
                    "</mn></msup> </mrow> ")
                   ))))))
 
+(defmvar $mathml_underscore_is_subscript nil
+  "If NIL, only trailing digits are treated as subscripts.
+If T, all underscores (_) are treated as subscripts. If an integer N,
+then, beginning from the right of the symbol name, the first N
+underscores are treated as subscripts.")
+(defmvar $mathml_non_numeric_subscripts nil
+  "If NIL, only digits are treated as subscripts.
+Otherwise, eacj part of a symbol name bounded on the left by an
+underscore may be treated as a subscript; but, see also
+`$MATHML_UNDERSCORE_IS_SUBSCRIPT'.")
+
 (defun mathml-stripdollar(sym)
+  "If SYM is not a symbol, then return SYM;
+else if either $MATHML_UNDERSCORE_IS_SUBSCRIPT is NIL or
+$MATHML_NON_NUMERIC_SUBSCRIPTS is less than 1 (== NIL), then apply
+MATHML-STRIPDOLLAR-DEFAULT to SYM;
+else if $MATHML_UNDERSCORE_IS_SUBSCRIPT is at least one, then
+- split the symbol-name of SYM into strings along the underscores;
+- if there are no underscores, return a suitably marked-up symbol-name;
+- otherwise, collect the subscripts until we have enough (or all of them);
+- return the remaining symbol-name with the subscripts."
+  (declare (special $mathml_underscore_is_subscript $mathml_non_numeric_subscripts))
+  (assert (or (member $mathml_underscore_is_subscript '(t nil))
+	      (fixnump $mathml_underscore_is_subscript))
+	  () "`mathml_underscore_is_subscript' should be an integer or `true' or `false'")
+  (cond ((not (symbolp sym)) sym)
+	((or (null $mathml_underscore_is_subscript)
+	     (and (fixnump $mathml_underscore_is_subscript)
+		  (< $mathml_underscore_is_subscript 1)))
+	 (mathml-stripdollar-default sym))
+	((eq t $mathml_underscore_is_subscript)
+	 (let (($mathml_underscore_is_subscript most-positive-fixnum))
+	   (mathml-stripdollar sym)))
+	((and (fixnump $mathml_underscore_is_subscript)
+	      (>= $mathml_underscore_is_subscript 1))
+	 (block this
+	   (let* ((s (mfuncall '$split (maybe-invert-string-case (string-left-trim '(#\$) (symbol-name sym))) "_"))
+		  (l (length s))
+		  (n-max (min (- l 2) $mathml_underscore_is_subscript)))
+	     (when (< l 3) (return-from this (strcat "<mi>" (cadr s) "</mi>")))
+	     (flet ((subscript-p (x)
+		      (or $mathml_non_numeric_subscripts
+			  (digit-char-p x))))
+	       (do* ((sn (reverse (cdr s))                                  (cdr sn))
+		     (n  1                                                  (1+ n))
+		     (num(every #'subscript-p (car sn))                     (every #'subscript-p (car sn)))
+		     (r  (if num (list "<mi>" (car sn) "</mi>"))            (if num (append (list "<msub><mi>" (car sn) "</mi>") r) r))
+		     (e  (if num " </msub>" "")                             (if num (strcat e "</msub>") e)))
+		    ((or (null (cdr sn))
+			 (null num)
+			 (>= n n-max))
+		     (progn
+		       (when (and (<= n n-max)       ;; the do*-loop did not have a chance to discard the last subscript from SN
+				  (> (length sn) 1)) ;; so we do it manually
+			 (setq sn (cdr sn)))
+		       (format nil "~a<mi>~{~a~^_~}</mi> ~{~a ~} ~a" (if (string= e "") "" "<msub>") (reverse sn) r e)))
+		 )))))
+	(t ;; we should never get here
+	 (error "MATHML-STRIPDOLLAR-DEFAULT: "))))
+
+(defun mathml-stripdollar-default(sym)
   (or (symbolp sym) 
-      (return-from mathml-stripdollar sym))
+      (return-from mathml-stripdollar-default sym))
   (let* ((pname (maybe-invert-string-case (string-left-trim '(#\$) (symbol-name sym))))
 	 (l (length pname))
 	 (begin-sub
