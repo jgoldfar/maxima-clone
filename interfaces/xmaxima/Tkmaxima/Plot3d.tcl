@@ -456,6 +456,7 @@ proc replot3d { win } {
     }
     oset $win lastAnglesPlotted ""
     setView $win ignore
+    $c configure -background [oget $win background]
 
     # Create a PostScript file, if requested
     if { $psfile != "" } {

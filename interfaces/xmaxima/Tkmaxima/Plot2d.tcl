@@ -394,6 +394,7 @@ proc replot2d { win } {
 	    -anchor center -text [oget $win xaxislabel] \
 	    -font {TkDefaultFont 16 normal} -tags axislabel
     }
+    $c configure -background [oget $win background]
 
     # Create a PostScript file, if requested
     if { $psfile != "" } {
