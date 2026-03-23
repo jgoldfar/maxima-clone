@@ -116,7 +116,7 @@ Ref: https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Values#Consta
         (cond ((or (and (null (atom mexp))
                      (member (caar mexp) '(mdefine mdefmacro) :test #'eq))
                    (and itsalabel ;; but is it a user-command-label?
-                     (every #'char= (coerce (string $inchar) 'list) (coerce (string mexplabel) 'list))))
+                     (every #'char= (string $inchar) (string mexplabel))))
 	       (format texport "<pre>~%~a~a;~%</pre>~%"
 		       (if mexplabel (aformat nil "(~a) " (stripdollar mexplabel)) "")
 		       ($xml_sanitize (with-output-to-string (strm)
