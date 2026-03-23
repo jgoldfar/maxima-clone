@@ -60,11 +60,13 @@ proc rgb2list {rgb} {
 proc list2rgb {c} {
     return [format "\#%02x%02x%02x" [lindex $c 0] [lindex $c 1] [lindex $c 2]]}
 
-# Given a fraction r between 0 and 1 and at least two color codes in the form
+# Given a fraction f between 0 and 1 and at least two color codes in the form
 # #rrggbb returns another color code in the form #rrggbb obtained by linear
 # interpolation of the given colors
 proc interpolatecolor {f rgb1 rgb2 args} {
-    set colors [linsert $args 0 $rgb1 $rgb2]
+    set colors [list [rgb2list $rgb1]]
+    lappend colors [rgb2list $rgb2]
+    foreach color $args {lappend colors [rgb2list $color]}
     set l [llength $colors]
     set x [expr {$f*($l-1.0)}]
     set n [expr {int($x)}]
@@ -72,8 +74,8 @@ proc interpolatecolor {f rgb1 rgb2 args} {
     if {$n == [expr {$l-1}]} {
         return [lindex $colors end]
     } else {
-        set c1 [rgb2list [lindex $colors $n]]
-        set c2 [rgb2list [lindex $colors $n+1]]
+        set c1 [lindex $colors $n]
+        set c2 [lindex $colors $n+1]
         set r1 [lindex $c1 0]
         set g1 [lindex $c1 1]
         set b1 [lindex $c1 2]
