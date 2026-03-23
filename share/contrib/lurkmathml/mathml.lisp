@@ -433,12 +433,13 @@ Ref: https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Values#Consta
 		        (t nil))))) ; won't doit. fall through
       (t (setq l (mathml (cadr x) (append l '("<msup><mrow>")) nil lop (caar x))
 	       r (if (mmminusp (setq x (nformat (caddr x))))
-		    ;; the change in base-line makes parens unnecessary
+                    ;; the change in base-line makes parens unnecessary
+                    ;; exponents are wrapped in 〈〉 (= #x3008 #x3009)
 		    (if nc
-			(mathml (cadr x) '("</mrow> <mrow><mo form=\"prefix\">&lt;</mo> -")(cons "<mo form=\"postfix\">&gt;</mo></mrow></msup> " r) 'mparen 'mparen)
+			(mathml (cadr x) '("</mrow> <mrow><mo form=\"prefix\">&#x3008;</mo> -")(cons "<mo form=\"postfix\">&#x3009;</mo></mrow></msup> " r) 'mparen 'mparen)
 			(mathml (cadr x) '("</mrow> <mrow> -")(cons "</mrow></msup> " r) 'mparen 'mparen))
 		    (if nc
-			(mathml x (list "</mrow> <mrow><mo form=\"prefix\">&lt;</mo>")(cons "<mo form=\"postfix\">&gt;</mo></mrow></msup>" r) 'mparen 'mparen)
+			(mathml x (list "</mrow> <mrow><mo form=\"prefix\">&#x3008;</mo>")(cons "<mo form=\"postfix\">&#x3009;</mo></mrow></msup>" r) 'mparen 'mparen)
 			(if (and (numberp x) (< x 10))
 			    (mathml x (list "</mrow> ")(cons "</msup> " r) 'mparen 'mparen)
 			    (mathml x (list "</mrow> <mrow>")(cons "</mrow></msup> " r) 'mparen 'mparen))
