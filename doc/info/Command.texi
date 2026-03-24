@@ -1219,8 +1219,9 @@ Example:
 
 @c -----------------------------------------------------------------------------
 @anchor{declare_index_properties}
-@deffn {Function} declare_index_properties (@var{a}, [@var{p_1}, @var{p_2}, @var{p_3}, ...])
-@deffnx {Function} declare_index_properties ([@var{a}, @var{b}, @var{c}, ...], [@var{p_1}, @var{p_2}, @var{p_3}, ...])
+@deffn {Function} declare_index_properties @
+@fname{declare_index_properties} (@var{a}, [@var{p_1}, @var{p_2}, @var{p_3}, ...]) @
+@fname{declare_index_properties} ([@var{a}, @var{b}, @var{c}, ...], [@var{p_1}, @var{p_2}, @var{p_3}, ...])
 @deffnx {Symbol} postsubscript
 @deffnx {Symbol} postsuperscript
 @deffnx {Symbol} presuperscript

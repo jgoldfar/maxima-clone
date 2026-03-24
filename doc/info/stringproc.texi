@@ -2334,9 +2334,11 @@ will speed up matching.
 @end deffn
 
 @anchor{regex_match_pos}
-@deffn {Function} regex_match_pos (@var{regex}, @var{str})
-@deffnx {Function} regex_match_pos (@var{regex}, @var{str}, @var{start})
-@deffnx {Function} regex_match_pos (@var{regex}, @var{str}, @var{start}, @var{end})
+@deffn {Function} regex_match_pos @
+@fname{regex_match_pos} (@var{regex}, @var{str}) @
+@fname{regex_match_pos} (@var{regex}, @var{str}, @var{start}) @
+@fname{regex_match_pos} (@var{regex}, @var{str}, @var{start}, @var{end})
+
 Return a list consisting of a list of the start and end positions of
 @var{str} where the first match of @var{regex} occurred.  If no match
 is found, returns @code{false}.
@@ -2402,9 +2404,11 @@ parenthesis in the given regular expression.
 @end deffn
 
 @anchor{regex_match}
-@deffn {Function} regex_match (@var{regex}, @var{str})
-@deffnx {Function} regex_match (@var{regex}, @var{str}, @var{start})
-@deffnx {Function} regex_match (@var{regex}, @var{str}, @var{start}, @var{end})
+@deffn {Function} regex_match @
+@fname{regex_match} (@var{regex}, @var{str}) @
+@fname{regex_match} (@var{regex}, @var{str}, @var{start}) @
+@fname{regex_match} (@var{regex}, @var{str}, @var{start}, @var{end})
+
 @code{regex_match} is very similar to @code{regex_match_pos} except
 that it returns the matching substrings instead of the indices of the
 match.  If no match is found, returns @code{false}.

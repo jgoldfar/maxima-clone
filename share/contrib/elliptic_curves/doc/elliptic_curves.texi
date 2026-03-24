@@ -216,8 +216,9 @@ point is indeed on the curve and will return erroneous results if it is not.
 
 @c -----------------------------------------------------------------------------
 
-@deffn {Function} ec_point_order (@var{pt}, @var{ord})
-@deffnx {Function} ec_point_order (@var{pt}, @var{ord}, [[@var{p1}, @var{e1}], @dots{}, [@var{pk}, @var{ek}]])
+@deffn {Function} ec_point_order @
+@* ec_point_order (@var{pt}, @var{ord}) @
+@* ec_point_order (@var{pt}, @var{ord}, [[@var{p1}, @var{e1}], @dots{}, [@var{pk}, @var{ek}]])
 
 Computes the point order of @var{pt} on the current elliptic curve as a factor 
 of the known group order @var{ord} of the curve. 

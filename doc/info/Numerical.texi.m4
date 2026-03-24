@@ -732,10 +732,11 @@ To enable the Lisp debugger set *debugger-hook* to nil.
 @anchor{find_root_error}
 @anchor{find_root_abs}
 @anchor{find_root_rel}
-@deffn  {Function} find_root (@var{expr}, @var{x}, @var{a}, @var{b}, [@var{abserr}, @var{relerr}])
-@deffnx {Function} find_root (@var{f}, @var{a}, @var{b}, [@var{abserr}, @var{relerr}])
-@deffnx {Function} bf_find_root (@var{expr}, @var{x}, @var{a}, @var{b}, [@var{abserr}, @var{relerr}])
-@deffnx {Function} bf_find_root (@var{f}, @var{a}, @var{b}, [@var{abserr}, @var{relerr}])
+@deffn {Function} find_root @
+@fname{find_root} (@var{expr}, @var{x}, @var{a}, @var{b}, [@var{abserr}, @var{relerr}]) @
+@fname{find_root} (@var{f}, @var{a}, @var{b}, [@var{abserr}, @var{relerr}]) @
+@fname{bf_find_root} (@var{expr}, @var{x}, @var{a}, @var{b}, [@var{abserr}, @var{relerr}]) @
+@fname{bf_find_root} (@var{f}, @var{a}, @var{b}, [@var{abserr}, @var{relerr}])
 @deffnx {Option variable} find_root_error
 @deffnx {Option variable} find_root_abs
 @deffnx {Option variable} find_root_rel

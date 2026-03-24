@@ -1453,8 +1453,9 @@ other Maxima functions.
 @end deffn
 
 @anchor{%union}
-@deffn {Operator} %union (@var{soln_1}, @var{soln_2}, @var{soln_3}, ...)
-@deffnx {Operator} %union ()
+@deffn {Operator} %union @
+@fname{%union} (@var{soln_1}, @var{soln_2}, @var{soln_3}, ...) @
+@fname{%union} ()
 
 @code{%union(@var{soln_1}, @var{soln_2}, @var{soln_3}, ...)} represents the union of its arguments,
 each of which represents a solution set,

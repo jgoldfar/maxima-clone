@@ -2508,8 +2508,9 @@ to rational numbers is displayed.
 
 @c -----------------------------------------------------------------------------
 @anchor{ratsimp}
-@deffn  {Function} ratsimp (@var{expr})
-@deffnx {Function} ratsimp (@var{expr}, @var{x_1}, @dots{}, @var{x_n})
+@deffn {Function} ratsimp @
+@fname{ratsimp} (@var{expr}) @
+@fname{ratsimp} (@var{expr}, @var{x_1}, @dots{}, @var{x_n})
 
 Simplifies the expression @var{expr} and all of its subexpressions, including
 the arguments to non-rational functions.  The result is returned as the quotient
@@ -2687,8 +2688,9 @@ Examples:
 
 @c -----------------------------------------------------------------------------
 @anchor{ratvars}
-@deffn  {Function} ratvars (@var{x_1}, @dots{}, @var{x_n})
-@deffnx {Function} ratvars ()
+@deffn {Function} ratvars @
+@fname{ratvars} (@var{x_1}, @dots{}, @var{x_n}) @
+@fname{ratvars} ()
 @deffnx {System variable} ratvars
 
 Declares main variables @var{x_1}, @dots{}, @var{x_n} for rational expressions.
