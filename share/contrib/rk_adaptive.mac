@@ -17,7 +17,8 @@ rk_adaptive(expr,vars,vars_initval,var,startval,endval,[params]):=block(
         keep_1step:false,
         debugmode:false,
         file,
-        debugfile
+        debugfile,
+        stopcriterion:false
     ],
     mode_declare(keep_1step,boolean),
     mode_declare(sgn,integer),
@@ -27,16 +28,20 @@ rk_adaptive(expr,vars,vars_initval,var,startval,endval,[params]):=block(
     /* Interpret the optional parameters */
     for i in params do
     (
-        if lhs(i)='debugfile then (debugfile:rhs(i),debugmode:true) else
+        if lhs(i)='stopcriterion then stopcriterion:rhs(i) else
         (
-            if not numberp(rhs(i)) then error (sconcat("rk_adaptive: Expected a number for parameter ",
-                lhs(i))),
-            if lhs(i)='maxstep then maxstep:rhs(i) else
-            if lhs(i)='minstep then minstep:rhs(i) else
+            if lhs(i)='debugfile then (debugfile:rhs(i),debugmode:true) else
+            (
+                if not numberp(rhs(i)) then
+                    error (sconcat("rk_adaptive: Expected a number for parameter ",
+                    lhs(i))),
+                if lhs(i)='maxstep then maxstep:rhs(i) else
+                if lhs(i)='minstep then minstep:rhs(i) else
                 if lhs(i)='timestep_initial then timestep:rhs(i) else
-            if lhs(i)='maxabserr then maxabserr:rhs(i) else
-            if lhs(i)='maxrelerr then maxrelerr:rhs(i) else
-            warning("rk_adaptive: Found a unknown param")
+                if lhs(i)='maxabserr then maxabserr:rhs(i) else
+                if lhs(i)='maxrelerr then maxrelerr:rhs(i) else
+                warning("rk_adaptive: Found a unknown param")
+            )
         )
     ),
     if maxrelerr <= 0 then error("rk_adaptive: Illegal value for maxrelerr"),
@@ -137,7 +142,8 @@ rk_adaptive(expr,vars,vars_initval,var,startval,endval,[params]):=block(
                 return()
             )
         ),
-        if sgn*time>sgn*endval then return()
+        if sgn*time>sgn*endval then return(),
+        if subst(map("=",vars,point+deriv_1step*timestep),stopcriterion) then return()
     ),
     if minstepduration>0 then warning(
         sconcat(
