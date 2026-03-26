@@ -150,34 +150,34 @@ sin(b) - sin(a);
 'at_difference (sin(x), x, a, b);
 'at_difference (sin(x), x, a, b);
 
-printf (false, "~m", 'at_difference (sin(x), x, a, b));
-"      │x = b
-sin(x)│
-      │x = a
+block([display2d_unicode: false], printf (false, "~m", 'at_difference (sin(x), x, a, b)));
+"      |x = b
+sin(x)|
+      |x = a
 ";
 
-(I: 'integrate (f(x), x, a, b) = 'at_difference ('integrate (f(x), x), x, a, b),
+block([display2d_unicode: false], I: 'integrate (f(x), x, a, b) = 'at_difference ('integrate (f(x), x), x, a, b),
  printf (false, "~m", I));
-" b                    │x = b
-⌠            ⌠        │
-⎮            ⎮        │
-⎮  f(x) dx = ⎮ f(x) dx│
-⎮            ⎮        │
-⌡            ⌡        │
- a                    │x = a
+" b                    |x = b
+/            /        |
+|            |        |
+|  f(x) dx = | f(x) dx|
+|            |        |
+/            /        |
+ a                    |x = a
 ";
 
 I1: subst (f(x) = cos(h*x), I);
 'integrate (cos(h*x), x, a, b) = 'at_difference ('integrate (cos(h*x), x), x, a, b);
 
-printf (false, "~m", I1);
-" b                            │x = b
-⌠                ⌠            │
-⎮                ⎮            │
-⎮  cos(h x) dx = ⎮ cos(h x) dx│
-⎮                ⎮            │
-⌡                ⌡            │
- a                            │x = a
+block([display2d_unicode: false], printf (false, "~m", I1));
+" b                            |x = b
+/                /            |
+|                |            |
+|  cos(h x) dx = | cos(h x) dx|
+|                |            |
+/                /            |
+ a                            |x = a
 ";
 
 I1a: ev (I1, at_difference);
@@ -207,19 +207,19 @@ sin(h*b)/h - sin(h*a)/h = sin(h*b)/h - sin(h*a)/h;
 is (I1f);
 true;
 
-(aa: abs (box ('at_difference ((1 - g(u[k]))/(1 + g(u[k])), u[k], 2/3, 5/7))),
+block([display2d_unicode: false], aa: abs (box ('at_difference ((1 - g(u[k]))/(1 + g(u[k])), u[k], 2/3, 5/7))),
  printf (false, "~m", aa));
-"│╔════════════════╗│
-│║               5║│
-│║         │u  = ─║│
-│║1 - g(u )│ k   7║│
-│║       k │      ║│
-│║─────────│      ║│
-│║g(u ) + 1│      ║│
-│║   k     │     2║│
-│║         │u  = ─║│
-│║           k   3║│
-│╚════════════════╝│
+"""""""""""""""""""|
+|"               5"|
+|"         |u  = -"|
+|"1 - g(u )| k   7"|
+|"       k |      "|
+|"---------|      "|
+|"g(u ) + 1|      "|
+|"   k     |     2"|
+|"         |u  = -"|
+|"           k   3"|
+|""""""""""""""""""|
 ";
 
 ev (aa, at_difference);
