@@ -8,6 +8,8 @@
 ;; Therefore functions can be redefined (essential for share libraries).
 #+ecl (declaim (optimize (debug 2)))
 
+#+ecl (require 'cmp)
+
 #+gcl
 (let ((version-num (+ (* 10000 system::*gcl-major-version*)
 		      (* 100 system::*gcl-minor-version*)
