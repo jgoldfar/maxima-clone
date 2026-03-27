@@ -81,6 +81,7 @@ option(WITH_CLISP "Include CLISP in the installer." YES)
 option(WITH_SBCL "Include SBCL in the installer." YES)
 option(WITH_ABCL "Include ABCL in the installer." NO)
 option(WITH_CCL64 "Include CCL64 in the installer." NO)
+option(WITH_ECL "Include ECL in the installer." NO)
 
 # Concerning the used Lisp versions:
 #  - SBCL is fast, but sometimes runs out of memory in places it really shouldn't
@@ -131,7 +132,7 @@ else()
 endif()
 
 set(WITH_DEFAULT_LISP "sbcl" CACHE STRING "Which Lisp should be used by default?")
-set_property(CACHE WITH_DEFAULT_LISP PROPERTY STRINGS "clisp" "sbcl" "abcl" "ccl64")
+set_property(CACHE WITH_DEFAULT_LISP PROPERTY STRINGS "clisp" "sbcl" "abcl" "ccl64" "ecl")
 
 # If you want to use a updated version of a program,
 # update the version number and the checksum.
@@ -187,6 +188,10 @@ else()
 endif()
 
 execute_process(COMMAND "${CMAKE_CXX_COMPILER}" -print-file-name=libstdc++-6.dll     OUTPUT_VARIABLE MINGW_LIBSTDCPP OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+# wxMaxima and ECL uses C++ threads, include the required mingw library.
+execute_process(COMMAND "${CMAKE_CXX_COMPILER}" -print-file-name=libwinpthread-1.dll OUTPUT_VARIABLE MINGW_LIBWINPTHREAD OUTPUT_STRIP_TRAILING_WHITESPACE)
+message(STATUS "Found libwinpthread at ${MINGW_LIBWINPTHREAD}")
 
 message(STATUS "Found libstdc++ at ${MINGW_LIBSTDCPP}")
 
@@ -274,19 +279,33 @@ else()
     set(CCL64_DEPENDS "")
     set(CCL_ENABLED 0)
 endif()
+if(WITH_ECL)
+    add_subdirectory("gmplib/")
+    add_subdirectory("ecl/")
+    add_subdirectory("winlibs/")
+    set(ECL_CONFIGURE --enable-ecl --with-ecl=${CMAKE_BINARY_DIR}/wine-ecl.sh)
+    set(ECL_DEPENDS ecl winlibs)
+    set(ECL_ENABLED 1)
+else()
+    set(ECL_CONFIGURE "")
+    set(ECL_DEPENDS "")
+    set(ECL_ENABLED 1)
+endif()
 
 configure_file("${CMAKE_SOURCE_DIR}/wine-clisp.sh.tmpl" "${CMAKE_BINARY_DIR}/wine-clisp.sh")
 configure_file("${CMAKE_SOURCE_DIR}/wine-lisp.sh.tmpl" "${CMAKE_BINARY_DIR}/wine-lisp.sh")
 configure_file("${CMAKE_SOURCE_DIR}/wine-sbcl.sh.tmpl" "${CMAKE_BINARY_DIR}/wine-sbcl.sh")
 configure_file("${CMAKE_SOURCE_DIR}/wine-ccl.sh.tmpl" "${CMAKE_BINARY_DIR}/wine-ccl.sh")
+configure_file("${CMAKE_SOURCE_DIR}/wine-ecl.sh.tmpl" "${CMAKE_BINARY_DIR}/wine-ecl.sh")
+configure_file("${CMAKE_SOURCE_DIR}/ecl/ecl-lisp-build.sh.tmpl" "${CMAKE_BINARY_DIR}/ecl-lisp-build.sh")
 
 externalproject_add(maxima
   # first copy the maxima source to a build directory, since out-of-source-builds do not work
   DOWNLOAD_COMMAND rsync -a --exclude=crosscompile-windows/build/ "${CMAKE_SOURCE_DIR}/../"  "${CMAKE_BINARY_DIR}/maxima-prefix/src/maxima"
-  DEPENDS  tcl tk texinfo ${CLISP_DEPENDS} ${SBCL_DEPENDS} ${ABCL_DEPENDS} ${CCL64_DEPENDS}
+  DEPENDS  tcl tk texinfo ${CLISP_DEPENDS} ${SBCL_DEPENDS} ${ABCL_DEPENDS} ${CCL64_DEPENDS} ${ECL_DEPENDS}
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND sh -c "test -x ./bootstrap && ./bootstrap || return 0"
-            COMMAND PATH=${CMAKE_BINARY_DIR}/texinfo-installroot/bin:$ENV{PATH} LANG=C ./configure --host=${HOST} ${CLISP_CONFIGURE} ${SBCL_CONFIGURE} ${ABCL_CONFIGURE} ${CCL64_CONFIGURE} --with-default-lisp=${WITH_DEFAULT_LISP} --prefix=${WINDOWS_DRIVELETTER}:/maxima-${MAXIMAVERSION}
+            COMMAND PATH=${CMAKE_BINARY_DIR}/texinfo-installroot/bin:$ENV{PATH} LANG=C ./configure --host=${HOST} ${CLISP_CONFIGURE} ${SBCL_CONFIGURE} ${ABCL_CONFIGURE} ${CCL64_CONFIGURE} ${ECL_CONFIGURE} --with-default-lisp=${WITH_DEFAULT_LISP} --prefix=${WINDOWS_DRIVELETTER}:/maxima-${MAXIMAVERSION}
   # during the crosscompiling procedure, we call configure with shell scripts (wine-xyz.sh) to use the Windows versions.
   # change that after compiliation to the real binaries (clisp.exe for CLISP, sbcl.exe for SBCL, wx86cl64.exe for CCL64).
   BUILD_COMMAND PATH=${CMAKE_BINARY_DIR}/texinfo-installroot/bin:$ENV{PATH} LANG=C $(MAKE)
@@ -294,6 +313,7 @@ externalproject_add(maxima
         COMMAND sed -i s+^.*wine-clisp.sh+clisp.exe+g src/maxima.bat
         COMMAND sed -i s+^.*wine-sbcl.sh+sbcl.exe+g src/maxima.bat
         COMMAND sed -i s+^.*wine-ccl.sh+wx86cl64.exe+g src/maxima.bat
+        COMMAND sed -i s+^.*wine-ecl.sh+ecl/ecl.exe+g src/maxima.bat
   INSTALL_COMMAND PATH=${CMAKE_BINARY_DIR}/texinfo-installroot/bin:$ENV{PATH} LANG=C $(MAKE) install DESTDIR=${CMAKE_BINARY_DIR}/maxima-installroot/
           COMMAND PATH=${CMAKE_BINARY_DIR}/texinfo-installroot/bin:$ENV{PATH} LANG=C $(MAKE) extradocinstall DESTDIR=${CMAKE_BINARY_DIR}/maxima-installroot/
 )
@@ -321,8 +341,12 @@ install(FILES "${CMAKE_SOURCE_DIR}/../interfaces/xmaxima/win32/win_signals.lisp"
 
 
 install(DIRECTORY ${CMAKE_BINARY_DIR}/maxima-installroot/${WINDOWS_DRIVELETTER}:/maxima-${MAXIMAVERSION}/
-        DESTINATION . COMPONENT Maxima 
-        PATTERN "binary-clisp" EXCLUDE PATTERN "binary-sbcl" EXCLUDE PATTERN "binary-abcl" EXCLUDE PATTERN "binary-ccl64" EXCLUDE)
+        DESTINATION . COMPONENT Maxima
+        PATTERN "binary-clisp" EXCLUDE
+        PATTERN "binary-sbcl" EXCLUDE
+        PATTERN "binary-abcl" EXCLUDE
+        PATTERN "binary-ccl64" EXCLUDE
+        PATTERN "binary-ecl" EXCLUDE)
 if(WITH_ABCL)
     install(DIRECTORY ${CMAKE_BINARY_DIR}/maxima-installroot/${WINDOWS_DRIVELETTER}:/maxima-${MAXIMAVERSION}/
             DESTINATION . COMPONENT ABCL PATTERN "binary-abcl")
@@ -330,6 +354,10 @@ endif()
 if(WITH_CLISP)
     install(DIRECTORY ${CMAKE_BINARY_DIR}/maxima-installroot/${WINDOWS_DRIVELETTER}:/maxima-${MAXIMAVERSION}/
             DESTINATION . COMPONENT CLISP PATTERN "binary-clisp")
+endif()
+if(WITH_ECL)
+    install(DIRECTORY ${CMAKE_BINARY_DIR}/maxima-installroot/${WINDOWS_DRIVELETTER}:/maxima-${MAXIMAVERSION}/
+            DESTINATION . COMPONENT ECL PATTERN "binary-ecl")
 endif()
 if(WITH_SBCL)
     install(DIRECTORY ${CMAKE_BINARY_DIR}/maxima-installroot/${WINDOWS_DRIVELETTER}:/maxima-${MAXIMAVERSION}/
@@ -403,7 +431,6 @@ if(WITH_SBCL)
     cpack_add_component(SBCL
                         DESCRIPTION "The SBCL Lisp compiler.\nOne Lisp compiler is required.")
 endif()
-
 if(WITH_ABCL)
     cpack_add_component(ABCL
                         DESCRIPTION "The ABCL Lisp compiler.\nA Java installation is required.\nOne Lisp compiler is required.")
@@ -411,6 +438,10 @@ endif()
 if(WITH_CCL64)
     cpack_add_component(CCL64
                         DESCRIPTION "The CCL (64Bit) Lisp compiler.\nOne Lisp compiler is required.")
+endif()
+if(WITH_ECL)
+    cpack_add_component(ECL
+                        DESCRIPTION "The ECL Lisp compiler.\nOne Lisp compiler is required.")
 endif()
 
 cpack_add_component(TclTk

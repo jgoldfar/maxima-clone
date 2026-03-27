@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# This script builds Maxima/ECL with the lisp only build procedure.
+# Don't know, why it does not work with the usual ./configure ; make procedure...
+
+# maxima.bat is overwritten by the lisp build procedure, save it and restore it afterwards.
+cp ${CMAKE_BINARY_DIR}/maxima-prefix/src/maxima/src/maxima.bat ${CMAKE_BINARY_DIR}/maxima-prefix/src/maxima/src/maxima.bat.bak
+cd ${CMAKE_BINARY_DIR}/maxima-prefix/src/maxima
+${CMAKE_BINARY_DIR}/wine-ecl.sh --load "configure.lisp" --eval "(configure :interactive nil)" --eval "(quit)"
+cd ${CMAKE_BINARY_DIR}/maxima-prefix/src/maxima/src
+#${CMAKE_BINARY_DIR}/wine-ecl.sh --load "maxima-build.lisp" --eval "(maxima-compile)" --eval "(build-maxima-lib)" --eval "(quit)"
+#${CMAKE_BINARY_DIR}/wine-ecl.sh --load "maxima-build.lisp" --eval "(maxima-compile)" --eval "(maxima-dump)" --eval "(quit)"
+${CMAKE_BINARY_DIR}/wine-ecl.sh --load "maxima-build.lisp" --eval "(maxima-compile)" --eval "(quit)"
+cp ${CMAKE_BINARY_DIR}/maxima-prefix/src/maxima/src/maxima.bat ${CMAKE_BINARY_DIR}/maxima-prefix/src/maxima/src/maxima.bat.bak-after-lisp-build
+cp ${CMAKE_BINARY_DIR}/maxima-prefix/src/maxima/src/maxima.bat.bak ${CMAKE_BINARY_DIR}/maxima-prefix/src/maxima/src/maxima.bat
