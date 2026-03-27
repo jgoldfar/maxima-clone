@@ -102,7 +102,8 @@ Xmaxima plotting format."
                (setq fun (format nil fun-format (second palette)
                                  (third palette)
                                  (fourth palette)
-                                 (fifth palette)))))))
+                                 (fifth palette))))
+              (otherwise (setf colors-list palette)))))
     (with-output-to-string
       (st)
       (case type

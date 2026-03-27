@@ -123,7 +123,8 @@ Gnuplot plotting format."
             ($gradient (setf colors (cdr palette)))
             (($hue $saturation $value)
              (multiple-value-setq (hue sat val range)
-                                  (apply #'values (cdr palette)))))))
+                                  (apply #'values (cdr palette))))
+            (otherwise (setf colors palette)))))
   (with-output-to-string
     (st)
     (case type
