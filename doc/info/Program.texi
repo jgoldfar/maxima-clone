@@ -1170,10 +1170,7 @@ When @code{prederror} is @code{true}, an error message is displayed whenever the
 predicate of an @code{if} statement or an @mref{is} function fails to evaluate
 to either @code{true} or @code{false}.
 
-If @code{false}, @code{unknown} is returned
-instead in this case.  The @code{prederror: false} mode is not supported in
-translated code;
-however, @code{maybe} is supported in translated code.
+If @code{false}, @code{unknown} is returned instead in this case.
 
 See also @mref{is} and @mrefdot{maybe}
 

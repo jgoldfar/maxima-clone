@@ -2671,8 +2671,6 @@ translation as certain incompatibilities may exist between the Lisp
 and Maxima versions.  Principally, the @code{rat} function with more than
 one argument and the @code{ratvars} function should not be used if any
 variables are @code{mode_declare}'d canonical rational expressions (CRE).
-Also the @code{prederror: false} setting
-will not translate.
 @c WHAT ABOUT % AND %% ???
 
 @code{savedef} - if @code{true} will cause the Maxima version of a user
