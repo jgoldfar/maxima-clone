@@ -198,15 +198,33 @@ proc addOnePlot3d { win data } {
 		foreach x $rowx y $rowy z $rowz {
 		    incr j
 		    if { $j != $nj && $i != $ni } {
-			#puts "tes=($i,$j) $x, $y, $z"
-			lappend lmesh [ list \
-					    $k [expr { $k+3 } ] [expr { $k + 3  + ($nj+1)*3}] \
-					    [expr { $k+($nj+1)*3 }] ]
-		    }
-		    incr k 3
-		    lappend points $x $y $z
+			# puts "tes=($i,$j) $x, $y, $z"
+                        set ip1 [expr {$i+1}]
+                        set jp1 [expr {$j+1}]
+                        # only add rectangles with numeric values of z in
+                        # the four vertices.
+                        if {![catch \
+                              {expr {[lindex $zmat $i $j] + \
+                                         [lindex $zmat $i $jp1] + \
+                                         [lindex $zmat $ip1 $j] + \
+                                         [lindex $zmat $ip1 $jp1]} } ] } {
+                            lappend lmesh \
+                                [list $k [expr {$k+3}] [expr {$k+3+($nj+1)*3}] \
+                                     [expr {$k+($nj+1)*3}] ]
+                        }
+                    }
+                    # only add points with numeric values of z.
+                    if {![catch { expr {$z + 1} } ] } {
+                        incr k 3
+                        lappend points $x $y $z
+                    }
 		}
 	    }
+            if { [llength $lmesh] == 0 } {
+                tk_messageBox -title Error -icon error -message \
+                    [mc "plot3d was not given enough data to be plotted."]
+                return
+            }
 	    setupPlot3dColors $win $first_mesh
 	} elseif { 0 && "$type" == "mesh" } {
 	    set first_mesh [llength $lmesh]

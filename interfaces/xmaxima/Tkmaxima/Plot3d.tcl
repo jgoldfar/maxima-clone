@@ -212,9 +212,7 @@ proc addBbox { win } {
 	    $xmax $ymin $zmax \
             $xmin $ymax $zmax \
             $xmax $ymax $zmax "
-    foreach  { a b } { 0 1 0 2 2 3 3 1
-	4 5 4 6 6 7 7 5
-	0 4 1 5 2 6 3 7  }  {
+    foreach  { a b } { 0 1 0 2 2 3 3 1 4 5 4 6 6 7 7 5 0 4 1 5 2 6 3 7 } {
 	set k [expr {$a*3 + $ll}]
 	set l [expr {$b*3 + $ll}]
 	# set plot3dMeshes${win}($k) [list $k $l]
@@ -271,12 +269,13 @@ proc setupPlot3dColors { win first_mesh} {
     foreach tem [lrange $lmesh $first_mesh end] {
         set k [llength $tem]
 	if { $k == 4 } {
-	    set z [expr { ([lindex $points [expr { [lindex $tem 0] + 2 } ]] +
-			   [lindex $points [expr { [lindex $tem 1] + 2 } ]] +
-			   [lindex $points [expr { [lindex $tem 2] + 2 } ]] +
-			   [lindex $points [expr { [lindex $tem 3] + 2 } ]])/
-			  4.0 } ]
-	    catch { set wvar(c1,[lindex $tem 0]) [$colorfun $win $z] }
+            set z0 [lindex $points [expr { [lindex $tem 0] + 2 } ]]
+            set z1 [lindex $points [expr { [lindex $tem 1] + 2 } ]]
+            set z2 [lindex $points [expr { [lindex $tem 2] + 2 } ]]
+            set z3 [lindex $points [expr { [lindex $tem 3] + 2 } ]]
+            if { ![catch { set z [expr {($z0 + $z1 + $z2 + $z3)/4.0}] } ] } {
+                catch { set wvar(c1,[lindex $tem 0]) [$colorfun $win $z] }
+            }
 	}
     }
 }
@@ -426,7 +425,6 @@ proc replot3d { win } {
 		oset $win [string range $v 1 end] $k
 	    }
         }
-	
 	addOnePlot3d $win $data
     }
 
@@ -557,9 +555,7 @@ proc drawMeshes {win canv} {
     proc _xf { x} [info body rtosx$win]
     proc _yf { y} [info body rtosy$win]
     foreach { x y z} $rotated { lappend rotatedxy [_xf $x] [_yf $y] 0 }
-
     foreach k [oget $win meshes] {
-	#puts "drawOneMesh $win $canv $k"
 	#puts "drawOneMesh $win $canv $k"
 	set mesh [lindex $lmesh $k]
 	set col black
@@ -611,6 +607,7 @@ proc drawOneMesh { win  canv k mesh color } {
 	    }
 	}
     } elseif { [string length $color] < 8 && $color != "none"} {
+	# puts "drawing $k,n=$n $coords, points $mesh "
 	if { $mesh_lines != 0 } {
 	    set outline "-outline $mesh_lines"
 	} else {
@@ -643,7 +640,7 @@ proc mkPlot3d { win  args } {
     # catch { destroy $win }
     makeFrame3d $win
     oset $win sliderCommand sliderCommandPlot3d
-    oset $win noaxisticks 1
+    oset $win noaxisticks 0
 
     makeLocal $win buttonFont c
     [winfo parent $c].position config -text {}

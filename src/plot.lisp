@@ -2464,24 +2464,6 @@ plot2d ( x^2+y^2 = 1, [x, -2, 2], [y, -2 ,2]);
                          (setq j -1)))))
            )))
 
-(defun output-points-tcl (dest pl m)
-  (format dest " {matrix_mesh ~%")
-  ;; x y z are done separately:
-  (loop for off from 0 to 2
-     with ar = (polygon-pts pl)
-     with  i of-type fixnum = 0
-     do (setq i off)
-       (format dest "~%{")
-       (loop 
-	  while (< i (length ar))
-	  do (format dest "~% {")
-	    (loop for j to m
-	       do (print-pt (aref ar i))
-		 (setq i (+ i 3)))
-	    (format dest "}~%"))
-       (format dest "}~%"))
-  (format dest "}~%"))
-
 ;; contour_plot now punts to plot2d
 (defmfun $contour_plot (expr &rest optional-args)
   (let ((command "plot2d ([contour, "))

@@ -381,10 +381,10 @@ Xmaxima plotting format."
             (when (getf options '$transform_xy)
                 (mfuncall (getf options '$transform_xy) ar))
             (if palettes
-                (format $pstream " ~a~%" (xmaxima-palettes palettes i))
+                (format $pstream "~a~%" (xmaxima-palettes palettes i))
               (format $pstream " {mesh_lines ~a}" (xmaxima-color colors i)))
             (output-points-tcl $pstream pl (first (getf options '$grid)))))
-        (format $pstream "}~%"))))))
+        (format $pstream "~%}~%"))))))
 
 (defmethod plot-shipout ((plot xmaxima-plot) options &optional output-file)
   (declare (ignore options))
@@ -398,3 +398,30 @@ Xmaxima plotting format."
            ($system $xmaxima_plot_command (format nil $gnuplot_file_args file)))
           (t (princ (slot-value plot 'data)) ""))
     (cons '(mlist) (cons file output-file))))
+
+(defun output-points-tcl (dest pl m)
+"Outputs the 3 coordinates of a grid of points.
+If the grid option is [grid,m,n], the points form a matrix with n+1 rows
+(x dirention) and m+1 columns (ydirection), stored in the array 'points'
+inside de structure dest, one row after another.
+The points coordinates are written into 3 Tcl lists, each one with n+1
+sublists with the coordinates of the m+1 points on each row. The first list
+has the x coordinates, the second one the y coordinates and the third one
+has the z coordinates."
+  (format dest "{matrix_mesh")
+  ;; x y z are done separately:
+  (loop for off from 0 to 2
+     with ar = (polygon-pts pl)
+     with  i of-type fixnum = 0
+     do (setq i off)
+       (format dest "~%{")
+       (loop while (< i (length ar))
+	     do (format dest "~%{")
+	     (loop for j to m
+	           do (if (floatp (aref ar i))
+                        (format dest "~,,,,,,'eg " (aref ar i))
+                        (format dest "~a " *missing-data-indicator*))
+		   (setq i (+ i 3)))
+	     (format dest "}"))
+       (format dest "~%}"))
+  (format dest "~%}"))
