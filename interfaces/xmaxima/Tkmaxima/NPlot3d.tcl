@@ -184,42 +184,32 @@ proc addOnePlot3d { win data } {
 	    }
 	    set nj [expr {[llength [lindex $xmat 0]] -1 }]
 	    set ni [expr {[llength $xmat ] -1 }]
-	    set i -1
 	    set k [llength $points]
-	    foreach rowx $xmat rowy $ymat rowz $zmat {
-		set j -1
-		incr i
-		if { [llength $rowx] != [llength $rowy] } {
-		    error [concat [mc "mismatch"] "rowx:$rowx,rowy:$rowy"]
-		}
-		if { [llength $rowx] != [llength $rowz] } {
-		    error [concat [mc "mismatch"] "rowx:$rowx,rowz:$rowz"]
-		}
-		foreach x $rowx y $rowy z $rowz {
-		    incr j
-		    if { $j != $nj && $i != $ni } {
-			# puts "tes=($i,$j) $x, $y, $z"
-                        set ip1 [expr {$i+1}]
-                        set jp1 [expr {$j+1}]
-                        # only add rectangles with numeric values of z in
-                        # the four vertices.
-                        if {![catch \
-                              {expr {[lindex $zmat $i $j] + \
-                                         [lindex $zmat $i $jp1] + \
-                                         [lindex $zmat $ip1 $j] + \
-                                         [lindex $zmat $ip1 $jp1]} } ] } {
-                            lappend lmesh \
-                                [list $k [expr {$k+3}] [expr {$k+3+($nj+1)*3}] \
-                                     [expr {$k+($nj+1)*3}] ]
-                        }
-                    }
-                    # only add points with numeric values of z.
-                    if {![catch { expr {$z + 1} } ] } {
-                        incr k 3
+            set crn {}
+            foreach rowx $xmat rowy $ymat rowz $zmat {
+                set rowc {}
+                foreach x $rowx y $rowy z $rowz {
+                    if { $z eq {NaN} } {
+                        lappend rowc $z
+                    } else {
+                        lappend rowc $k
                         lappend points $x $y $z
+                        incr k 3
                     }
-		}
-	    }
+                }
+                lappend crn $rowc
+            }
+            for { set i 0 } { $i < $ni } { incr i } {
+                set ip1 [expr {$i+1}]
+                for { set j 0 } { $j < $nj } { incr j } {
+                    set jp1 [expr {$j+1}]
+                    set quad [list [lindex $crn $i $j] [lindex $crn $i $jp1] \
+                                  [lindex $crn $ip1 $jp1] [lindex $crn $ip1 $j]]
+                    if { [lsearch $quad {NaN} ] < 0 } {
+                        lappend lmesh $quad
+                    }
+                }
+            }
             if { [llength $lmesh] == 0 } {
                 tk_messageBox -title Error -icon error -message \
                     [mc "plot3d was not given enough data to be plotted."]
