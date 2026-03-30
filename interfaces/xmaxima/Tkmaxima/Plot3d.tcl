@@ -204,25 +204,50 @@ proc addBbox { win } {
     makeLocal $win xmin xmax ymin ymax zmin zmax cmap
     linkLocal $win points lmesh
     set ll [llength $points]
-    append points " $xmin $ymin $zmin \
-	    $xmax $ymin $zmin \
-            $xmin $ymax $zmin \
-            $xmax $ymax $zmin \
-            $xmin $ymin $zmax \
-	    $xmax $ymin $zmax \
-            $xmin $ymax $zmax \
-            $xmax $ymax $zmax "
+    lappend points $xmin $ymin $zmin $xmax $ymin $zmin $xmin $ymax $zmin
+    lappend points $xmax $ymax $zmin $xmin $ymin $zmax $xmax $ymin $zmax
+    lappend points $xmin $ymax $zmax $xmax $ymax $zmax
     foreach  { a b } { 0 1 0 2 2 3 3 1 4 5 4 6 6 7 7 5 0 4 1 5 2 6 3 7 } {
 	set k [expr {$a*3 + $ll}]
 	set l [expr {$b*3 + $ll}]
 	# set plot3dMeshes${win}($k) [list $k $l]
 	lappend lmesh [list $k $l]
     }
-    lappend lmesh [list $ll]
-    oset $win $cmap,[list $ll [expr {$ll + 3}]] red
-    oset $win $cmap,[list $ll [expr {$ll + 6}]] blue
-    oset $win $cmap,[list $ll [expr {$ll + 12}]] green
+    # Adds the three letters of the 3 axes
+    set xm [expr {0.5*($xmin+$xmax)}]
+    set ym [expr {0.5*($ymin+$ymax)}]
+    set zm [expr {0.5*($zmin+$zmax)}]
+    set dx [expr {0.03*($xmax-$xmin)}]
+    set dy [expr {0.03*($ymax-$ymin)}]
+    set dz [expr {0.04*($zmax-$zmin)}]
+    # the letter x
+    lappend points [expr {$xm-$dx}] $ymin [expr {$zmin-$dz}]
+    lappend points [expr {$xm+$dx}] $ymin [expr {$zmin-3*$dz}]
+    lappend points [expr {$xm+$dx}] $ymin [expr {$zmin-$dz}]
+    lappend points [expr {$xm-$dx}] $ymin [expr {$zmin-3*$dz}]
+    lappend lmesh [list [expr {$ll+24}] [expr {$ll+27}]] 
+    lappend lmesh [list [expr {$ll+30}] [expr {$ll+33}]]
+    # the letter y
+    lappend points $xmin [expr {$ym-$dy}] [expr {$zmin-$dz}]
+    lappend points $xmin $ym [expr {$zmin-2*$dz}]
+    lappend points $xmin [expr {$ym+$dy}] [expr {$zmin-$dz}]
+    lappend points $xmin $ym [expr {$zmin-3*$dz}]
+    lappend lmesh [list [expr {$ll+36}] [expr {$ll+39}]]
+    lappend lmesh [list [expr {$ll+39}] [expr {$ll+42}]]
+    lappend lmesh [list [expr {$ll+39}] [expr {$ll+45}]]
+    # the letter z
+    lappend points [expr {$xmin-3*$dx}] $ymin [expr {$zm+$dz}]
+    lappend points [expr {$xmin-$dx}] $ymin [expr {$zm+$dz}]
+    lappend points [expr {$xmin-3*$dx}] $ymin [expr {$zm-$dz}]
+    lappend points [expr {$xmin-$dx}] $ymin [expr {$zm-$dz}]
+    lappend lmesh [list [expr {$ll+48}] [expr {$ll+51}]] 
+    lappend lmesh [list [expr {$ll+51}] [expr {$ll+54}]]
+    lappend lmesh [list [expr {$ll+54}] [expr {$ll+57}]]
 
+    # adds to lmesh the boundary where the mesh points end in list points
+    lappend lmesh [list $ll]
+    # uses red color for the three axes
+    oset $win $cmap,$ll red
     oset $win special($ll) "drawOval [oget $win c] 3 -fill red -tags axis"
 }
 
