@@ -345,8 +345,8 @@ fully. Consider
 
 The expression in (%o3) will not evaluate to a float; @code{orthopoly} doesn't
 recognize floating point values where it requires an integer. Similarly, 
-numerical evaluation of the @code{pochhammer} function for orders that
-exceed @code{pochhammer_max_index} can be troublesome; consider
+numerical evaluation of the @mref{pochhammer} function for orders that
+exceed @mref{pochhammer_max_index} can be troublesome; consider
 
 @c ===beg===
 @c x :  pochhammer (1, 10), pochhammer_max_index : 5;
@@ -370,7 +370,7 @@ Applying @code{float} doesn't evaluate @var{x} to a float
 @end example
 
 To evaluate @var{x} to a float, you'll need to bind
-@code{pochhammer_max_index} to 11 or greater and apply @code{float} to @var{x}.
+@mref{pochhammer_max_index} to 11 or greater and apply @code{float} to @var{x}.
 
 @c CONTINUING PREVIOUS EXAMPLE HERE
 @c ===beg===
@@ -381,7 +381,7 @@ To evaluate @var{x} to a float, you'll need to bind
 (%o3)                       3628800.0
 @end example
 
-The default value of @code{pochhammer_max_index} is 100;
+The default value of @mref{pochhammer_max_index} is 100;
 change its value after loading @code{orthopoly}.
 
 Finally, be aware that reference books vary on the definitions of the 
@@ -1486,8 +1486,8 @@ To convert a Pochhammer symbol into a quotient of gamma functions,
                             gamma(x)
 @end example
 
-When @var{n} exceeds @code{pochhammer_max_index} or when @var{n} 
-is symbolic, @code{pochhammer} returns a noun form.
+When @var{n} exceeds @mref{pochhammer_max_index} or when @var{n} 
+is symbolic, @mref{pochhammer} returns a noun form.
 
 @c ===beg===
 @c pochhammer (x, n);
@@ -1505,6 +1505,7 @@ is symbolic, @code{pochhammer} returns a noun form.
 
 @end deffn
 
+@anchor{pochhammer_max_index}
 @defvr {Variable} pochhammer_max_index
 Default value: 100
 
@@ -1651,6 +1652,9 @@ m4_displaymath(
 <<<h_n^{(1)}(x) = j_n(x) + iy_n(x)>>>,
 <<<spherical_hankel1(n,x) = spherical_bessel_j(n,x) + %i*spherical_bessel_y(n,x)>>>)
 
+See also @mref{orthopoly_returns_intervals} for how numerical results
+are returned.
+
 @opencatbox{Categories:}
 @category{Package orthopoly}
 @category{Bessel functions}
@@ -1671,6 +1675,9 @@ This is defined by
 m4_displaymath(
 <<<h_n^{(2)}(x) = j_n(x) + iy_n(x)>>>,
 <<<spherical_hankel2(n,x) = spherical_bessel_j(n,x) - %i*spherical_bessel_y(n,x)>>>)
+
+See also @mref{orthopoly_returns_intervals} for how numerical results
+are returned.
 
 @opencatbox{Categories:}
 @category{Package orthopoly}
@@ -1750,6 +1757,9 @@ Some examples:
 (%o5)                     ---------------------------
                                   4 sqrt(%pi)
 @end example
+
+See also @mref{orthopoly_returns_intervals} for how numerical results
+are returned.
 
 @opencatbox{Categories:}
 @category{Package orthopoly}
@@ -1832,6 +1842,9 @@ Some examples:
                                      2      2
 (%o3)                        a (2 a x  + 2 x  - 1)
 @end example
+
+See also @mref{orthopoly_returns_intervals} for how numerical results
+are returned.
 
 @opencatbox{Categories:}
 @category{Package orthopoly}
