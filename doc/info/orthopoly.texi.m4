@@ -103,7 +103,7 @@ center and @var{r} is the radius of the interval. Since Maxima
 does not support arithmetic on intervals, in some situations, such
 as graphics, you want to suppress the error and output only the 
 center of the interval. To do this, set the option
-variable @code{orthopoly_returns_intervals} to @code{false}.
+variable @mref{orthopoly_returns_intervals} to @mref{false}.
 
 @c ===beg===
 @c orthopoly_returns_intervals : false;
@@ -345,8 +345,8 @@ fully. Consider
 
 The expression in (%o3) will not evaluate to a float; @code{orthopoly} doesn't
 recognize floating point values where it requires an integer. Similarly, 
-numerical evaluation of the @code{pochhammer} function for orders that
-exceed @code{pochhammer_max_index} can be troublesome; consider
+numerical evaluation of the @mref{pochhammer} function for orders that
+exceed @mref{pochhammer_max_index} can be troublesome; consider
 
 @c ===beg===
 @c x :  pochhammer (1, 10), pochhammer_max_index : 5;
@@ -370,7 +370,7 @@ Applying @code{float} doesn't evaluate @var{x} to a float
 @end example
 
 To evaluate @var{x} to a float, you'll need to bind
-@code{pochhammer_max_index} to 11 or greater and apply @code{float} to @var{x}.
+@mref{pochhammer_max_index} to 11 or greater and apply @code{float} to @var{x}.
 
 @c CONTINUING PREVIOUS EXAMPLE HERE
 @c ===beg===
@@ -381,7 +381,7 @@ To evaluate @var{x} to a float, you'll need to bind
 (%o3)                       3628800.0
 @end example
 
-The default value of @code{pochhammer_max_index} is 100;
+The default value of @mref{pochhammer_max_index} is 100;
 change its value after loading @code{orthopoly}.
 
 Finally, be aware that reference books vary on the definitions of the 
@@ -534,7 +534,7 @@ To plot expressions that involve the orthogonal polynomials, you
 must do two things:
 @enumerate
 @item 
-Set the option variable @code{orthopoly_returns_intervals} to @code{false},
+Set the option variable @mref{orthopoly_returns_intervals} to @mref{false},
 @item
 Quote any calls to @code{orthopoly} functions.
 @end enumerate
@@ -741,6 +741,9 @@ Some examples:
 (%o5)                         - 3 x sqrt(1 - x )
 @end example
 
+See also @mref{orthopoly_returns_intervals} for how numerical results
+are returned.
+
 @opencatbox{Categories:}
 @category{Package orthopoly}
 @closecatbox
@@ -856,6 +859,9 @@ Some examples:
 (%o4)                            x (4 x  - 3)
 @end example
 
+See also @mref{orthopoly_returns_intervals} for how numerical results
+are returned.
+
 @opencatbox{Categories:}
 @category{Package orthopoly}
 @closecatbox
@@ -923,6 +929,9 @@ w(x) &= \sqrt{1-x^2} \cr
                                      3
 (%o4)                             8 x  - 4 x
 @end example
+
+See also @mref{orthopoly_returns_intervals} for how numerical results
+are returned.
 
 @opencatbox{Categories:}
 @category{Package orthopoly}
@@ -995,6 +1004,9 @@ Some examples:
 
 @end example
 
+See also @mref{orthopoly_returns_intervals} for how numerical results
+are returned.
+
 @opencatbox{Categories:}
 @category{Package orthopoly}
 @closecatbox
@@ -1066,6 +1078,9 @@ Some examples:
 (%o5)                         16 x  - 48 x  + 12
 @end example
 
+See also @mref{orthopoly_returns_intervals} for how numerical results
+are returned.
+
 @opencatbox{Categories:}
 @category{Package orthopoly}
 @closecatbox
@@ -1136,6 +1151,9 @@ Some examples:
                                          2 (a + 1)
 @end example
 
+See also @mref{orthopoly_returns_intervals} for how numerical results
+are returned.
+
 @opencatbox{Categories:}
 @category{Package orthopoly}
 @closecatbox
@@ -1188,6 +1206,9 @@ Some examples:
 (%o4)                            -- - 2 x + 1
                                  2
 @end example
+
+See also @mref{orthopoly_returns_intervals} for how numerical results
+are returned.
 
 @opencatbox{Categories:}
 @category{Package orthopoly}
@@ -1259,6 +1280,10 @@ Some examples:
 (%o5)                             ---- - ---
                                    2      2
 @end example
+
+See also @mref{orthopoly_returns_intervals} for how numerical results
+are returned.
+
 @opencatbox{Categories:}
 @category{Package orthopoly}
 @closecatbox
@@ -1364,10 +1389,11 @@ A recursion relation for foo isn't known to Maxima
 
 @end deffn
 
+@anchor{orthopoly_returns_intervals}
 @defvr {Variable} orthopoly_returns_intervals
 Default value: @code{true}
 
-When @code{orthopoly_returns_intervals} is @code{true}, floating point results are returned in
+When @code{orthopoly_returns_intervals} is @mref{true}, floating point results are returned in
 the form @code{interval (@var{c}, @var{r})}, where @var{c} is the center of an interval
 and @var{r} is its radius. The center can be a complex number; in that
 case, the interval is a disk in the complex plane.
@@ -1460,8 +1486,8 @@ To convert a Pochhammer symbol into a quotient of gamma functions,
                             gamma(x)
 @end example
 
-When @var{n} exceeds @code{pochhammer_max_index} or when @var{n} 
-is symbolic, @code{pochhammer} returns a noun form.
+When @var{n} exceeds @mref{pochhammer_max_index} or when @var{n} 
+is symbolic, @mref{pochhammer} returns a noun form.
 
 @c ===beg===
 @c pochhammer (x, n);
@@ -1479,6 +1505,7 @@ is symbolic, @code{pochhammer} returns a noun form.
 
 @end deffn
 
+@anchor{pochhammer_max_index}
 @defvr {Variable} pochhammer_max_index
 Default value: 100
 
@@ -1625,6 +1652,9 @@ m4_displaymath(
 <<<h_n^{(1)}(x) = j_n(x) + iy_n(x)>>>,
 <<<spherical_hankel1(n,x) = spherical_bessel_j(n,x) + %i*spherical_bessel_y(n,x)>>>)
 
+See also @mref{orthopoly_returns_intervals} for how numerical results
+are returned.
+
 @opencatbox{Categories:}
 @category{Package orthopoly}
 @category{Bessel functions}
@@ -1645,6 +1675,9 @@ This is defined by
 m4_displaymath(
 <<<h_n^{(2)}(x) = j_n(x) + iy_n(x)>>>,
 <<<spherical_hankel2(n,x) = spherical_bessel_j(n,x) - %i*spherical_bessel_y(n,x)>>>)
+
+See also @mref{orthopoly_returns_intervals} for how numerical results
+are returned.
 
 @opencatbox{Categories:}
 @category{Package orthopoly}
@@ -1724,6 +1757,9 @@ Some examples:
 (%o5)                     ---------------------------
                                   4 sqrt(%pi)
 @end example
+
+See also @mref{orthopoly_returns_intervals} for how numerical results
+are returned.
 
 @opencatbox{Categories:}
 @category{Package orthopoly}
@@ -1806,6 +1842,9 @@ Some examples:
                                      2      2
 (%o3)                        a (2 a x  + 2 x  - 1)
 @end example
+
+See also @mref{orthopoly_returns_intervals} for how numerical results
+are returned.
 
 @opencatbox{Categories:}
 @category{Package orthopoly}
