@@ -74,8 +74,6 @@ proc normalizeToLengthOne { v } {
     }
 }
 
-
-
 proc vectorCross { x1 x2 }  {
     list \
 	[expr { [lindex $x1 1]*[lindex $x2 2]- [lindex $x2 1]*[lindex $x1 2]}] \
@@ -189,8 +187,8 @@ proc addOnePlot3d { win data } {
             foreach rowx $xmat rowy $ymat rowz $zmat {
                 set rowc {}
                 foreach x $rowx y $rowy z $rowz {
-                    if { $z eq {NaN} } {
-                        lappend rowc $z
+                    if { [catch {expr {$x+$y+$z}}] } {
+                        lappend rowc {NaN}
                     } else {
                         lappend rowc $k
                         lappend points $x $y $z
@@ -205,8 +203,14 @@ proc addOnePlot3d { win data } {
                     set jp1 [expr {$j+1}]
                     set quad [list [lindex $crn $i $j] [lindex $crn $i $jp1] \
                                   [lindex $crn $ip1 $jp1] [lindex $crn $ip1 $j]]
-                    if { [lsearch $quad {NaN} ] < 0 } {
+                    set k [lsearch $quad {NaN}]
+                    if { $k < 0 } {
                         lappend lmesh $quad
+                    } else {
+                        set quad [lreplace $quad $k $k]
+                        if { [lsearch $quad {NaN} ] < 0 } {
+                            lappend lmesh $quad
+                        }
                     }
                 }
             }

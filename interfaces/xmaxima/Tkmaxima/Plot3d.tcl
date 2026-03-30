@@ -247,7 +247,9 @@ proc addBbox { win } {
     # adds to lmesh the boundary where the mesh points end in list points
     lappend lmesh [list $ll]
     # uses red color for the three axes
-    oset $win $cmap,$ll red
+    oset $win $cmap,$ll[expr {$ll+3}] red
+    oset $win $cmap,$ll[expr {$ll+6}] red
+    oset $win $cmap,$ll[expr {$ll+12}] red
     oset $win special($ll) "drawOval [oget $win c] 3 -fill red -tags axis"
 }
 
@@ -293,15 +295,14 @@ proc setupPlot3dColors { win first_mesh} {
     makeLocal $win colorfun points lmesh
     foreach tem [lrange $lmesh $first_mesh end] {
         set k [llength $tem]
-	if { $k == 4 } {
-            set z0 [lindex $points [expr { [lindex $tem 0] + 2 } ]]
-            set z1 [lindex $points [expr { [lindex $tem 1] + 2 } ]]
-            set z2 [lindex $points [expr { [lindex $tem 2] + 2 } ]]
-            set z3 [lindex $points [expr { [lindex $tem 3] + 2 } ]]
-            if { ![catch { set z [expr {($z0 + $z1 + $z2 + $z3)/4.0}] } ] } {
-                catch { set wvar(c1,[lindex $tem 0]) [$colorfun $win $z] }
+	if { $k > 2 } {
+            set z 0.0
+            for { set i 0 } { $i < $k } { incr i } {
+                set z [expr {$z+[lindex $points [expr {[lindex $tem $i]+2}]]}]
             }
-	}
+            set z [expr {$z/$k}]
+            catch {set wvar(c1,[lindex $tem 0][lindex $tem 1]) [$colorfun $win $z]}
+        }
     }
 }
 
@@ -584,7 +585,7 @@ proc drawMeshes {win canv} {
 	#puts "drawOneMesh $win $canv $k"
 	set mesh [lindex $lmesh $k]
 	set col black
-	catch { set col $ar($cmap,[lindex $mesh 0]) }
+	catch { set col $ar($cmap,[lindex $mesh 0][lindex $mesh 1]) }
 	drawOneMesh $win $canv $k $mesh $col
     }
     $canv delete oldpoly

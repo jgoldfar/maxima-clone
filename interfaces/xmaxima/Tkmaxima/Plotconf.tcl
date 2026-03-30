@@ -168,7 +168,8 @@ proc writePostscript { win } {
     puts $fi $output
     close $fi}
 
-proc vectorlength {a b} {return [expr {sqrt($a*$a+$b*$b)}]}
+proc vectorlength {a b} {
+    return [expr {sqrt($a*$a+$b*$b)}]}
 
 proc setupCanvas { win } {
     makeLocal $win xcenter xradius ycenter yradius
@@ -613,6 +614,8 @@ proc deleteBalloon { c } {
 # be vectors or numbers
 #
 #----------------------------------------------------------------
+# This function only works if the args are all numbers and sorted from
+# smaller to larger. Use matrixMinMax instead (villate, 2026-03-30)
 proc minMax { args } {
     set max [lindex [lindex $args 0] 0] ; set min $max ;
     foreach vec $args {
@@ -626,10 +629,10 @@ proc matrixMinMax { list } {
     set max -10e300
     foreach mat $list {
 	foreach row $mat {
-	    foreach v [ldelete nam $row] {
+	    foreach v $row {
 		if { $v > $max } {catch  { set max [expr {$v + 0}] }}
 		if { $v < $min} {catch  { set min [expr {$v + 0}] }}}}}
-    list $min $max}
+    return [list $min $max]}
 
 proc omPlotAny { data args } {
     # puts "data=<[lindex $data 0]>"
