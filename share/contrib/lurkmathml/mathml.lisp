@@ -239,7 +239,8 @@ else if $MATHML_UNDERSCORE_IS_SUBSCRIPT is at least one, then
 			 (null num)
 			 (>= n n-max))
 		     (progn
-		       (when (and (<= n n-max)       ;; the do*-loop did not have a chance to discard the last subscript from SN
+		       (when (and num                ;; (CAR SN) is a subscript, but
+				  (<= n n-max)       ;; the do*-loop did not have a chance to discard if from SN
 				  (> (length sn) 1)) ;; so we do it manually
 			 (setq sn (cdr sn)))
 		       (format nil "~a<mi>~{~a~^_~}</mi> ~{~a ~} ~a" (if (string= e "") "" "<msub>") (reverse sn) r e)))
