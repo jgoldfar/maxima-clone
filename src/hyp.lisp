@@ -117,7 +117,6 @@
   ;; verify find all of the code that does or does not need this and
   ;; until we can verify all of the test cases are correct.
   (let (;;($radexpand '$all)
-	(*par* arg)
 	(*checkcoefsignlist* nil))
     (hgfsimp-exec (cdr arg-l1) (cdr arg-l2) arg)))
 
@@ -435,7 +434,7 @@
 ;     (cond ((not (alike1 (car arg-l1) n))
 ;	    (setq arg-l1 (reverse arg-l1))))
 
-     (cond ((mnump *par*)
+     (cond ((mnump arg)
             ;; The argument of the hypergeometric function is a number.
             ;; Avoid the following check which does not work for this case.
             (setq v (div (add (cadr arg-l1) n) 2)))
@@ -474,7 +473,7 @@
 			                      (mul -1 n))))))
 		     (gegenpol (mul -1 n)
 			       v
-			       (sub 1 (mul 2 *par*))))))
+			       (sub 1 (mul 2 arg))))))
            (t
             ;; A&S 15.4.6 says
             ;; F(-n, n + a + 1 + b; a + 1; x)
@@ -484,7 +483,7 @@
                          (jacobpol (mul -1 n)
 			           (add (car arg-l2) -1)
 			           (sub (mul 2 v) (car arg-l2))
-                                   (sub 1 (mul 2 *par*)))))))))
+                                   (sub 1 (mul 2 arg)))))))))
 
 ;; Jacobi polynomial
 (defun jacobpol (n a b x)
@@ -1500,7 +1499,7 @@
              (mformat t "   : c = ~A~%" c))
            (let ((psey (gensym)))
              (maxima-substitute
-               *par* psey
+               arg psey
                (mul (power (sub 1 psey) '((rat simp) 3 2))
                     (add a b '((rat simp) 1 2))
                     (inv (add b '((rat simp) 1 2)))
