@@ -496,8 +496,8 @@ else if $MATHML_UNDERSCORE_IS_SUBSCRIPT is at least one, then
                     ;; the change in base-line makes parens unnecessary
                     ;; exponents are wrapped in 〈〉 (= #x3008 #x3009)
 		    (if nc
-			(mathml (cadr x) '("</mrow> <mrow><mo form=\"prefix\">&#x3008;</mo> -")(cons "<mo form=\"postfix\">&#x3009;</mo></mrow></msup> " r) 'mparen 'mparen)
-			(mathml (cadr x) '("</mrow> <mrow> -")(cons "</mrow></msup> " r) 'mparen 'mparen))
+			(mathml (cadr x) '("</mrow> <mrow><mo form=\"prefix\">&#x3008;</mo><mo form=\"prefix\">-</mo>")(cons "<mo form=\"postfix\">&#x3009;</mo></mrow></msup> " r) 'mparen 'mparen)
+			(mathml (cadr x) '("</mrow> <mrow> <mo form=\"prefix\">-</mo>")(cons "</mrow></msup> " r) 'mparen 'mparen))
 		    (if nc
 			(mathml x (list "</mrow> <mrow><mo form=\"prefix\">&#x3008;</mo>")(cons "<mo form=\"postfix\">&#x3009;</mo></mrow></msup>" r) 'mparen 'mparen)
 			(if (and (numberp x) (< x 10))
