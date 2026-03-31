@@ -1378,7 +1378,7 @@
 	(v (cdras 'v l)))
     (cond ((m2-t^2 f *hypgeo-var*)
 	   (setq e (inv (mul -8 e)) v (add v 1))
-	   (f24p146test c v e))
+	   (f24p146test c v e *hypgeo-par*))
 	  ((m2-sqroott f *hypgeo-var*)
 	   ;; We don't do the transformation at this place. Because we take the
 	   ;; square of e we lost the sign and get wrong results.
@@ -1386,12 +1386,12 @@
 	   (f35p147test c v e *hypgeo-par*))
 	  ((m2-t^-1 f *hypgeo-var*)
 	   (setq e (mul -4 e) v (add v 1))
-	   (f29p146test c v e))         ; We have to call with the constant c.
+	   (f29p146test c v e *hypgeo-par*))         ; We have to call with the constant c.
 	  ((and (equal v 0)             ; We have to test for v=0 and to call
 	        (m2-e^-t f *hypgeo-var*))
-	   (f36p147 c e))               ; with the constant c.
+	   (f36p147 c e *hypgeo-par*))               ; with the constant c.
 	  ((and (equal v 0) (m2-e^t f *hypgeo-var*))
-	   (f37p147 c (mul -1 e)))
+	   (f37p147 c (mul -1 e) *hypgeo-par*))
 	  (t 
            (setq *hyp-return-noun-flag* 'other-lt-exponential-to-follow)))))
 
@@ -1433,21 +1433,21 @@
 ;;; Re(a) > 0, Re(v) > 0
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun f24p146test (c v a)
+(defun f24p146test (c v a laplace-par)
   (cond ((and (eq ($asksign a) '$pos)
               (eq ($asksign v) '$pos))
 	 ;; Both a and v must be positive
-	 (f24p146 c v a))
+	 (f24p146 c v a laplace-par))
 	(t
          (setq *hyp-return-noun-flag* 'fail-on-f24p146test))))
 
-(defun f24p146 (c v a)
+(defun f24p146 (c v a laplace-par)
   (mul c
        (take '(%gamma) v)
        (power 2 v)
        (power a (div v 2))
-       (power '$%e (mul a *hypgeo-par* *hypgeo-par*))
-       (dtford (mul 2 *hypgeo-par* (power a '((rat simp) 1 2)))
+       (power '$%e (mul a laplace-par laplace-par))
+       (dtford (mul 2 laplace-par (power a '((rat simp) 1 2)))
                (mul -1 v))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1575,17 +1575,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Check if conditions for f29p146test hold
-(defun f29p146test (c v a)
+(defun f29p146test (c v a laplace-par)
   (cond ((eq ($asksign a) '$pos)
-	 (f29p146 c v a))
+	 (f29p146 c v a laplace-par))
 	(t
          (setq *hyp-return-noun-flag* 'fail-on-f29p146test))))
 
-(defun f29p146 (c v a)
+(defun f29p146 (c v a laplace-par)
   (mul 2 c
-       (power (mul a '((rat simp) 1 4) (inv *hypgeo-par*))
+       (power (mul a '((rat simp) 1 4) (inv laplace-par))
               (div v 2))
-       (ktfork a v)))
+       (ktfork a v laplace-par)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1594,8 +1594,8 @@
 ;;
 ;; Choose bessel_k if the order v is an integer.  (Why?)
 
-(defun ktfork (a v)
-  (let ((z (power (mul a *hypgeo-par*) '((rat simp) 1 2))))
+(defun ktfork (a v laplace-par)
+  (let ((z (power (mul a laplace-par) '((rat simp) 1 2))))
     (cond ((maxima-integerp v)
            (take '(%bessel_k) v z))
           (t
@@ -1637,11 +1637,11 @@
 ;;;   -> a^(-p)*gamma(p,a)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun f36p147 (c a)
+(defun f36p147 (c a laplace-par)
   (let ((-a (mul -1 a)))
     (mul c
-         (power -a (mul -1 *hypgeo-par*))
-         `((%gamma_incomplete_lower simp) ,*hypgeo-par* ,-a))))
+         (power -a (mul -1 laplace-par))
+         `((%gamma_incomplete_lower simp) ,laplace-par ,-a))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -1655,10 +1655,10 @@
 ;;;   -> a^(-p)*gamma_incomplete(-p,a)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun f37p147 (c a)
+(defun f37p147 (c a laplace-par)
   (mul c
-       (power a *hypgeo-par*)
-       (take '(%gamma_incomplete) (mul -1 *hypgeo-par*) a)))
+       (power a laplace-par)
+       (take '(%gamma_incomplete) (mul -1 laplace-par) a)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
