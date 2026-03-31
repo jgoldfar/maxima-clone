@@ -598,12 +598,12 @@ else if $MATHML_UNDERSCORE_IS_SUBSCRIPT is at least one, then
   (let ((s1 (mathml (cadr x) nil nil 'mparen 'mparen));;integrand delims / & d
 	(var (mathml (caddr x) nil nil 'mparen rop))) ;; variable
        (cond((= (length x) 3)
-	     (append l `("<mrow><mo>&int;</mo><mrow>" ,@s1 "</mrow> <mspace width=\"" ,(get-mathml-mathspace 'mediummathspace)  "\"/> <mrow><mo>&DifferentialD;</mo><mi>" ,@var "</mi></mrow></mrow> ") r))
+	     (append l `("<mrow><mo>&int;</mo><mrow>" ,@s1 "</mrow> <mspace width=\"" ,(get-mathml-mathspace 'mediummathspace)  "\"/> <mrow><mo>&DifferentialD;</mo>" ,@var "</mrow></mrow> ") r))
     (t ;; presumably length 5
 	       (let ((low (mathml (nth 3 x) nil nil 'mparen 'mparen))
 		     ;; 1st item is 0
 		     (hi (mathml (nth 4 x) nil nil 'mparen 'mparen)))
-		 (append l `("<mrow><munderover><mo>&int;</mo> <mrow>" ,@low "</mrow> <mrow>" ,@hi "</mrow> </munderover> <mrow>" ,@s1 "</mrow> <mspace width=\"" ,(get-mathml-mathspace 'mediummathspace) "\"/> <mrow><mo>&DifferentialD;</mo><mi>" ,@var "</mi> </mrow></mrow> ") r))))))
+		 (append l `("<mrow><munderover><mo>&int;</mo> <mrow>" ,@low "</mrow> <mrow>" ,@hi "</mrow> </munderover> <mrow>" ,@s1 "</mrow> <mspace width=\"" ,(get-mathml-mathspace 'mediummathspace) "\"/> <mrow><mo>&DifferentialD;</mo>" ,@var " </mrow></mrow> ") r))))))
 
 (defprop %limit mathml-limit mathml)
 
