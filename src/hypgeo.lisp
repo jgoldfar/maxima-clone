@@ -1383,7 +1383,7 @@
 	   ;; We don't do the transformation at this place. Because we take the
 	   ;; square of e we lost the sign and get wrong results.
 	   ;(setq e (mul* e e (inv 4)) v (add v 1))
-	   (f35p147test c v e))
+	   (f35p147test c v e *hypgeo-par*))
 	  ((m2-t^-1 f *hypgeo-var*)
 	   (setq e (mul -4 e) v (add v 1))
 	   (f29p146test c v e))         ; We have to call with the constant c.
@@ -1465,27 +1465,27 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Check if conditions for f35p147 hold
-(defun f35p147test (c v a)
+(defun f35p147test (c v a laplace-par)
   (cond ((eq ($asksign (add v 1)) '$pos)
 	 ;; v must be positive
-	 (f35p147 c v a))
+	 (f35p147 c v a laplace-par))
 	(t
 	 ;; Set a global flag. When *hyp-return-noun-form-p* is T the noun
 	 ;; form will be constructed in the routine DEFEXEC.
 	 (setq *hyp-return-noun-flag* 'fail-on-f35p147test))))
 
-(defun f35p147 (c v a)
+(defun f35p147 (c v a laplace-par)
   ;; We have not done the calculation v->v+1 and a-> a^2/4
   ;; and substitute here accordingly.
   (let ((v (add v 1)))
     (mul c
          (take '(%gamma) (add v v))
          (power 2 (sub 1 v))               ; Is this supposed to be here?
-         (power *hypgeo-par* (mul -1 v))
-         (power '$%e (mul a a '((rat simp) 1 8) (inv *hypgeo-par*)))
+         (power laplace-par (mul -1 v))
+         (power '$%e (mul a a '((rat simp) 1 8) (inv laplace-par)))
          ;; We need an additional factor -1 to get the expected results.
          ;; What is the mathematically reason?
-         (dtford (mul -1 a (inv (power (mul 2 *hypgeo-par*) '((rat simp) 1 2)))) 
+         (dtford (mul -1 a (inv (power (mul 2 laplace-par) '((rat simp) 1 2)))) 
                  (mul -2 v)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
