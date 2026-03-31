@@ -333,10 +333,10 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
   (declare (type (cl:array t) pts))
   (assert (typep pts '(vector t)))
   (loop for i below (length pts) by 3
-         do (setq r (aref pts i))
-         (setq th (aref pts (+ i 1)))
-         (setf (aref pts i) (* r (cos th)))
-         (setf (aref pts (+ i 1)) (* r (sin th)))))
+         do (setq r (elt pts i))
+         (setq th (elt pts (1+ i)))
+         (setf (elt pts i) (* r (cos th)))
+         (setf (elt pts (1+ i)) (* r (sin th)))))
 
 ;; Transformation from spherical coordinates to rectangular coordinates,
 ;; to be used in plot3d. Example of its use:
@@ -349,13 +349,18 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
   (declare (type (cl:array t) pts))
   (assert (typep pts '(vector t)))
   (loop for i below (length pts) by 3
-     do (setq th (aref pts i))
-       (setq ph (aref pts (+ i 1)))
-       (setq r (aref pts (+ i 2)))
-       (setf (aref pts i) (* r (sin th) (cos ph)))
-       (setf (aref pts (+ i 1)) (* r (sin th) (sin ph)))
-       (setf (aref pts (+ i 2)) (* r (cos th)))))
-      
+        do
+        (if (floatp (elt pts (+ i 2)))
+          (progn
+            (setq th (elt pts i))
+            (setq ph (elt pts (+ i 1)))
+            (setq r (elt pts (+ i 2)))
+            (setf (elt pts i) (* r (sin th) (cos ph)))
+            (setf (elt pts (+ i 1)) (* r (sin th) (sin ph)))
+            (setf (elt pts (+ i 2)) (* r (cos th))))
+          (progn
+            (setf (elt pts (+ i 1)) t)
+            (setf (elt pts (+ i 2)) t)))))
 
 ;; return a function suitable for the transform function in plot3d.
 ;; FX, FY, and FZ are functions of three arguments.
