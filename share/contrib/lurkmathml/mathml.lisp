@@ -373,6 +373,13 @@ else if $MATHML_UNDERSCORE_IS_SUBSCRIPT is at least one, then
 (defprop mlist mathml-matchfix mathml)
 (defprop mlist (("<mrow><mo>[</mo>")"<mo>]</mo></mrow> ") mathmlsym)
 
+(defprop mbox mathml-matchfix mathml)
+(defprop mbox (("<menclose notation=\"box\"><menclose notation=\"box\">")"</menclose></menclose>") mathmlsym)
+(defprop mlabox mathml-mlabox mathml)
+(defun mathml-mlabox (x l r)
+  (append l '("<mtable><mtr><mtd columnalign=\"center\" style=\"font-size: 0.8em;\">") (mathml (caddr x) nil nil 'mparen 'mparen)
+	  '("</mtd></mtr><mtr><mtd><menclose notation=\"box\"><menclose notation=\"box\">") (mathml (cadr x) nil nil 'mparen 'mparen) '("</menclose></menclose></mtd></mtr></mtable>") r))
+
 ;;absolute value
 (defprop mabs mathml-matchfix mathml)
 (defprop mabs (("<mrow><mo form=\"prefix\">|</mo>")"<mo form=\"postfix\">|</mo></mrow> ") mathmlsym)
