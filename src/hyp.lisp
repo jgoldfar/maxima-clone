@@ -26,6 +26,10 @@
 ;; When NIL do not automatically expand polynomials as a result
 (defmvar $expand_polynomials t)
 
+;; Used only in freepar and that's not needed anymore.
+#+nil
+(defvar *hyp-par* '$p)
+
 (eval-when
     (:execute :compile-toplevel)
     (defmacro simp (x) `(simplifya ,x ()))
@@ -2366,23 +2370,31 @@
 
 ||#
 
+#+nil
+(progn
+;; FREEVARPAR is not used anywhere
 (defun freevarpar (exp)
   (cond ((freevar exp) (freepar exp))
 	(t nil)))
 
+;; Only called by vfvp to see if EXP is free of ARG or the *hyp-par*.
+;; See freepar comments below.  So all calls to freevarpar2 can be
+;; replaced by just calls to freevar2.  (See vfvp.)
 (defun freevarpar2 (exp arg)
   (cond ((freevar2 exp arg)
          (freepar exp))
 	(t nil)))
 
-;; Why is this needed?
-(setq *par* '$p)
-
+;; This is not useful because *hyp-par* is always '$p and the EXP
+;; never contains '$p from the places where this is called.  Called
+;; from vfvp, which is checking if some combination of the hgfred
+;; parameters are free of z, the arg.
 (defun freepar (exp)
   (cond ((atom exp)
-	 (not (eq exp *par*)))
+	 (not (eq exp *hyp-par*)))
 	(t (and (freepar (car exp))
 		(freepar (cdr exp))))))
+)
 
 ;; Confluent hypergeometric function.
 ;;
@@ -2923,7 +2935,9 @@
 (setq *par* '$p)                           
 
 (defun vfvp (exp arg)
-  (m2 exp `(v freevarpar2 ,arg)))
+  ;; Check to see if EXP is free of ARG. (Used to call freevarpar2,
+  ;; but the par test can never fail.
+  (m2 exp `(v freevar2 ,arg)))
 
 
 (defun fpqform (arg-l1 arg-l2 arg)
