@@ -408,14 +408,13 @@ is used or the option @mref{same_xy} is disabled.
 Example:
 
 @c ===beg===
-@c mandelbrot ([iterations, 30], [x, -2, 1], [y, -1.2, 1.2],
-            [grid,400,400])$
+@c mandelbrot ([iterations,30], [x,-2,1], [y,-1.2,1.2], [grid,400,400])$
 @c ===end===
 incorrect syntax: end of file while scanning expression.
 
  ^
 @example maxima
-(%i1) mandelbrot ([iterations, 30], [x, -2, 1], [y, -1.2, 1.2],
+(%i1) mandelbrot ([iterations,30], [x,-2,1], [y,-1.2,1.2], [grid,400,400])$
 @end example
 
 @altfigure{plotting5,Example of mandelbrot command's output}
