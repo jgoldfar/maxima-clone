@@ -516,8 +516,7 @@
 ;; are made to ensure the hypergeometric function reduces to a
 ;; polynomial.
 (defmfun $hgfpoly (arg-l1 arg-l2 arg)
-  (let ((*par* arg)
-	(n (hyp-negp-in-l (cdr arg-l1))))
+  (let ((n (hyp-negp-in-l (cdr arg-l1))))
     (create-any-poly (cdr arg-l1) (cdr arg-l2) (- n) arg)))
 
 (defun create-any-poly (arg-l1 arg-l2 n arg)
