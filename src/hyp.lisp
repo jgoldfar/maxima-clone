@@ -2936,7 +2936,9 @@
 
 (defun vfvp (exp arg)
   ;; Check to see if EXP is free of ARG. (Used to call freevarpar2,
-  ;; but the par test can never fail.
+  ;; but the par test can never fail.  I think VFVP stands for
+  ;; "Variable Free of Variable or Parameter".  So now it's misnamed.
+  ;; It should probably be renamed.
   (m2 exp `(v freevar2 ,arg)))
 
 
