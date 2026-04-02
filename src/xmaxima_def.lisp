@@ -368,23 +368,22 @@ Xmaxima plotting format."
                   (mtell
                    (intl:gettext
                     "plot3d: keep going and hope for the best.~%")))))
-          (let* ((pl
+          (let* ((points
                   (draw3d
                    fun (third xrange) (fourth xrange) (third yrange)
                    (fourth yrange) (first (getf options '$grid))
                    (second (getf options '$grid))))
-                 (ar (polygon-pts pl))
                  (colors (getf options '$color))
                  (palettes (getf options '$palette)) palette)
-            (declare (type (cl:array t) ar))
-            (when trans (mfuncall trans ar))
+            (declare (type (cl:array t) points))
+            (when trans (mfuncall trans points))
             (when (getf options '$transform_xy)
-                (mfuncall (getf options '$transform_xy) ar))
+                (mfuncall (getf options '$transform_xy) points))
             (if palettes
-                (format $pstream "~a~%" (xmaxima-palettes palettes i))
+                (format $pstream " ~a~%" (xmaxima-palettes palettes i))
               (format $pstream " {mesh_lines ~a}" (xmaxima-color colors i)))
-            (output-points-tcl $pstream pl (first (getf options '$grid)))))
-        (format $pstream "~%}~%"))))))
+            (output-points-tcl $pstream points (first (getf options '$grid)))))
+        (format $pstream "}~%"))))))
 
 (defmethod plot-shipout ((plot xmaxima-plot) options &optional output-file)
   (declare (ignore options))
@@ -399,7 +398,42 @@ Xmaxima plotting format."
           (t (princ (slot-value plot 'data)) ""))
     (cons '(mlist) (cons file output-file))))
 
-(defun output-points-tcl (dest pl m)
+(defmfun $tcl_output (lis i &optional (skip 2))
+  (when (not (typep i 'fixnum))
+    (merror
+      (intl:gettext "tcl_ouput: second argument must be an integer; found ~M")
+                    i))
+  (when (not ($listp lis))
+    (merror
+      (intl:gettext "tcl_output: first argument must be a list; found ~M") lis))
+  (format *standard-output* "~% {")
+  (cond (($listp (second lis))
+         (loop for v in lis
+                do
+                (format *standard-output* "~,,,,,,'eg " (nth i v))))
+        (t
+         (setq lis (nthcdr i lis))
+         (loop  with v = lis  while v
+                 do
+                 (format *standard-output* "~,,,,,,'eg " (car v))
+                 (setq v (nthcdr skip v)))))
+  (format *standard-output* "~% }"))
+
+(defun tcl-output-list ( st lis )
+  (cond ((null lis) )
+        ((atom (car lis))
+         (princ " {  " st)
+         (loop for v in lis
+                count t into n
+                when (eql 0 (mod n 5))
+                do (terpri st)
+                do
+                (format st "~,,,,,,'eg " v))
+         (format st  " }~%"))
+        (t (tcl-output-list st (car lis))
+           (tcl-output-list st (cdr lis)))))
+
+(defun output-points-tcl (dest ar m)
 "Outputs the 3 coordinates of a grid of points.
 If the grid option is [grid,m,n], the points form a matrix with n+1 rows
 (x dirention) and m+1 columns (ydirection), stored in the array 'points'
@@ -411,7 +445,6 @@ has the z coordinates."
   (format dest "{matrix_mesh")
   ;; x y z are done separately:
   (loop for off from 0 to 2
-     with ar = (polygon-pts pl)
      with  i of-type fixnum = 0
      do (setq i off)
        (format dest "~%{")

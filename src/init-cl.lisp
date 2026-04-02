@@ -82,18 +82,16 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
 
 (defun set-pathnames-with-autoconf (maxima-prefix-env maxima-docprefix-env)
   (declare (ignore maxima-docprefix-env))
-  (let (libdir libexecdir datadir infodir
+  (let (libdir datadir infodir
 	(package-version (combine-path *autoconf-package* *autoconf-version*))
 	(binary-subdirectory (concatenate 'string "binary-" *maxima-lispname*)))
     (if maxima-prefix-env
 	(progn
 	  (setq libdir     (combine-path maxima-prefix-env "lib"))
-	  (setq libexecdir (combine-path maxima-prefix-env "libexec"))
 	  (setq datadir    (combine-path maxima-prefix-env "share"))
 	  (setq infodir    (combine-path maxima-prefix-env #+(or cygwin windows win32 win64) "share" "info")))
 	(progn
 	  (setq libdir     (maxima-parse-dirstring *autoconf-libdir*))
-	  (setq libexecdir (maxima-parse-dirstring *autoconf-libexecdir*))
 	  (setq datadir    (maxima-parse-dirstring *autoconf-datadir*))
 	  (setq infodir    (maxima-parse-dirstring *autoconf-infodir*))))
     (setq *maxima-topdir*    (combine-path datadir package-version))

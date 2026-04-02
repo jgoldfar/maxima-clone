@@ -654,17 +654,16 @@ Gnuplot plotting format."
                   (mtell
                    (intl:gettext
                     "plot3d: keep going and hope for the best.~%")))))
-          (let* ((pl
+          (let* ((points
                   (draw3d
                    fun (third xrange) (fourth xrange) (third yrange)
                    (fourth yrange) (first (getf options '$grid))
-                   (second (getf options '$grid))))
-                 (ar (polygon-pts pl)))
-            (declare (type (cl:array t) ar))
-            (when trans (mfuncall trans ar))
+                   (second (getf options '$grid)))))
+            (declare (type (cl:array t) points))
+            (when trans (mfuncall trans points))
             (when (getf options '$transform_xy)
-              (mfuncall (getf options '$transform_xy) ar))
-            (output-points pl (first (getf options '$grid)))
+              (mfuncall (getf options '$transform_xy) points))
+            (output-points points (first (getf options '$grid)))
             (format $pstream "e~%"))))))))
 
 (defmethod plot-shipout ((plot gnuplot-plot) options &optional output-file)
