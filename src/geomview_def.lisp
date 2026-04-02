@@ -70,7 +70,8 @@ between 0 and 1, where 0 gives the first color and 1 the last one."
         (mapcar #'+ c1 (mapcar #'(lambda (x) (* r x)) (mapcar #'- c2 c1)))))))
 
 (defmethod plot-preamble ((plot geomview-plot) options)
-  (let ((meshcolor (getf options '$mesh_lines_color)))
+  (let ((meshcolor (getf options '$mesh_lines_color))
+        (light (getf options '$light)) texture)
     (setf (slot-value plot 'data)
         (with-output-to-string
           (st)
@@ -78,10 +79,11 @@ between 0 and 1, where 0 gives the first color and 1 the last one."
           (format st " 0 0 1 0 0 0 0 0 1}~%")
           (format st "geom {~%LIST~%{~%")
           (format st "appearance { ")
+          (if light (setf texture "smooth") (setf texture "csmooth"))
           (if meshcolor
-            (format st "+edge +csmooth material {edgecolor ~{~,6f~^ ~}} }~%"
-                      (hex-to-numeric-list (rgb-color meshcolor)))
-            (format st "+csmooth }~%"))))
+            (format st "+edge +~a material {edgecolor ~{~,6f~^ ~}} }~%"
+                      texture (hex-to-numeric-list (rgb-color meshcolor)))
+            (format st "+~a }~%" texture))))
     (values)))
 
 (defmethod plot3d-command ((plot geomview-plot) functions options titles)
@@ -171,7 +173,15 @@ between 0 and 1, where 0 gives the first color and 1 the last one."
   (format st "4 16 0 10 2 2 2 0 0 0 0~%")
   (format st "0 0 0 0 1 0 1 1 0 1 0 0 0 0 0~%")
   (format st "0 0 1 1 0 1 1 1 1 0 1 1 0 0 1~%")
-  (format st "0 1 0 0 1 1 1 0 0 1 0 1 1 1 0 1 1 1~%"))
+  (format st "0 1 0 0 1 1 1 0 0 1 0 1 1 1 0 1 1 1~%")
+  (format st "# x, y and z labels~%VECT~%")
+  (format st "5 13 0 2 2 2 3 4 0 0 0 0 0~%")
+  (format st "# letter x~%")
+  (format st "0.47 0 -0.03 0.53 0 -0.09 0.53 0 -0.03 0.47 0 -0.09~%")
+  (format st "# letter y~%")
+  (format st "0 0.5 -0.06 0 0.5 -0.09 0 0.47 -0.03 0 0.5 -0.06 0 0.53 -0.03~%")
+  (format st "# letter z~%")
+  (format st "-0.09 0 0.53 -0.03 0 0.53 -0.09 0 0.47 -0.03 0 0.47~%"))
  
 (defmethod plot-shipout ((plot geomview-plot) options &optional output-file)
   (declare (ignore options))
