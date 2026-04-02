@@ -1972,7 +1972,7 @@ vertices of a triangle or a quadrilateral."
          ($box (setf (getf options '$box) t))
          ($color_bar (setf (getf options '$color_bar) t))
          ($color_bar_tics (remf options '$color_bar_tics))
-         ($cylindrical (setf (getf options '$transform_xy) '$pola_to_xy))
+         ($cylindrical (setf (getf options '$transform_xy) '$polar_to_xy))
          ($geomview (setf (getf options '$plot_format) '$geomview))
          ($grid2d (setf (getf options '$grid2d) t))
          ($legend (remf options '$legend))
