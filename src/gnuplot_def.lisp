@@ -257,7 +257,7 @@ Gnuplot plotting format."
   (let ((palette (getf plot-options '$palette))
         (meshcolor (if (member '$mesh_lines_color plot-options)
                        (getf plot-options '$mesh_lines_color) '$black))
-        (light (getf plot-options '$light)) terminal-file)
+        (lighting (getf plot-options '$lighting)) terminal-file)
     (setq palette (first palette))
     (when ($listp palette) (setq palette (rest palette)))
     ;; sets-up terminal command and output file name
@@ -303,10 +303,14 @@ Gnuplot plotting format."
                             (rgb-color meshcolor))
                     (unless (getf plot-options '$gnuplot_4_0)
                       (format dest "set pm3d depthorder")
-                      (if light
+                      (if lighting
                         (format dest " lighting~%")
                         (format dest "~%"))))
-                  (format dest "set pm3d~%"))
+                  (progn
+                    (format dest "set pm3d depthorder")
+                    (if lighting
+                      (format dest " lighting~%")
+                      (format dest "~%"))))
                 (format dest "unset hidden3d~%")
                 (format dest "set palette ~a~%" (gnuplot-palette palette)))
               (format dest "set hidden3d~%"))

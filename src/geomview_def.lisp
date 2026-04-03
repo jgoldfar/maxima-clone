@@ -72,7 +72,7 @@ between 0 and 1, where 0 gives the first color and 1 the last one."
 (defmethod plot-preamble ((plot geomview-plot) options)
   (let ((meshcolor (getf options '$mesh_lines_color))
         (bgcolor (getf options '$background_color))
-        (light (getf options '$light)) texture)
+        (lighting (getf options '$lighting)) texture)
     (setf (slot-value plot 'data)
         (with-output-to-string
           (st)
@@ -88,7 +88,7 @@ between 0 and 1, where 0 gives the first color and 1 the last one."
            st (getf options '$azimuth) (getf options '$elevation))
           (format st "geom {~%LIST~%{~%")
           (format st "appearance { ")
-          (if light (setf texture "smooth") (setf texture "csmooth"))
+          (if lighting (setf texture "smooth") (setf texture "csmooth"))
           (if meshcolor
             (format st "+edge +~a material {edgecolor ~{~,6f~^ ~}} }~%"
                       texture (hex-to-numeric-list (rgb-color meshcolor)))
@@ -115,7 +115,6 @@ between 0 and 1, where 0 gives the first color and 1 the last one."
                  (x0 (third xrange)) (x1 (fourth xrange))
                  (y0 (third yrange)) (y1 (fourth yrange)) lvars trans faces)
             (incf i)
-               (mtell "Check point 0~%")
             (if ($listp fun)
               (progn
                 (setq lvars `((mlist) ,xvar ,yvar $z))
@@ -175,7 +174,7 @@ between 0 and 1, where 0 gives the first color and 1 the last one."
              (format st "}~%")
              (unless (and (member '$box options) (not (getf options '$box)))
                (geomview-bbox st))
-             (format st "}~%})~%")))))))))
+             (format st "}~%})~%(zoom targetcam 1.5)~%")))))))))
 
 (defmethod plot-shipout ((plot geomview-plot) options &optional output-file)
   (declare (ignore options))
