@@ -71,12 +71,21 @@ between 0 and 1, where 0 gives the first color and 1 the last one."
 
 (defmethod plot-preamble ((plot geomview-plot) options)
   (let ((meshcolor (getf options '$mesh_lines_color))
+        (bgcolor (getf options '$background_color))
         (light (getf options '$light)) texture)
     (setf (slot-value plot 'data)
         (with-output-to-string
           (st)
-          (format st "INST~%transform {0.8660254 0 0.5 0 0.5 0 -0.8660254")
-          (format st " 0 0 1 0 0 0 0 0 1}~%")
+          (format st "(ui-panel tools off)~%(bbox-draw targetgeom no)~%")
+          (if bgcolor
+            (format st "(backcolor targetcam  ~{~,6f~^ ~})~%"
+                    (hex-to-numeric-list (rgb-color bgcolor)))
+            (format st "(backcolor targetcam 1 1 1)~%"))
+          (format st "(camera targetcam {perspective 0})~%")
+          (format st "(geometry plot3d {~%")
+          (format st "INST~%transform~%")
+          (geomview-matrix
+           st (getf options '$azimuth) (getf options '$elevation))
           (format st "geom {~%LIST~%{~%")
           (format st "appearance { ")
           (if light (setf texture "smooth") (setf texture "csmooth"))
@@ -166,40 +175,21 @@ between 0 and 1, where 0 gives the first color and 1 the last one."
              (format st "}~%")
              (unless (and (member '$box options) (not (getf options '$box)))
                (geomview-bbox st))
-             (format st "}~%")))))))))
+             (format st "}~%})~%")))))))))
 
-(defun geomview-bbox (st)
-  (format st "# bounding box~%VECT~%")
-  (format st "4 16 0 10 2 2 2 0 0 0 0~%")
-  (format st "0 0 0 0 1 0 1 1 0 1 0 0 0 0 0~%")
-  (format st "0 0 1 1 0 1 1 1 1 0 1 1 0 0 1~%")
-  (format st "0 1 0 0 1 1 1 0 0 1 0 1 1 1 0 1 1 1~%")
-  (format st "# x, y and z labels~%VECT~%")
-  (format st "5 13 0 2 2 2 3 4 0 0 0 0 0~%")
-  (format st "# letter x~%")
-  (format st "0.47 0 -0.03 0.53 0 -0.09 0.53 0 -0.03 0.47 0 -0.09~%")
-  (format st "# letter y~%")
-  (format st "0 0.5 -0.06 0 0.5 -0.09 0 0.47 -0.03 0 0.5 -0.06 0 0.53 -0.03~%")
-  (format st "# letter z~%")
-  (format st "-0.09 0 0.53 -0.03 0 0.53 -0.09 0 0.47 -0.03 0 0.47~%"))
- 
 (defmethod plot-shipout ((plot geomview-plot) options &optional output-file)
   (declare (ignore options))
-  (let ((file (plot-file-path (format nil "maxout~d.geomview" (getpid))))
-        (bgcolor (getf options '$background_color)) gopts)
-    (setf gopts
-     (format nil "(bbox-draw targetgeom no)(backcolor targetcam ~{~,6f~^ ~})"
-                        (hex-to-numeric-list (rgb-color bgcolor))))
+  (let ((file (plot-file-path (format nil "maxout~d.gcl" (getpid)))))
     (with-open-file (fl
                      #+sbcl (sb-ext:native-namestring file)
                      #-sbcl file
                      :direction :output :if-exists :supersede)
-      (format fl "~a" (slot-value plot 'data)))
-    ($system $geomview_command 
+                    (format fl "~a" (slot-value plot 'data)))
+    ($system $geomview_command
              #-(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-             (format nil " ~s ~s &" gopts file)
+             (format nil " ~s &" file)
              #+(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-             (format nil " ~s ~a &" gopts file))
+             file)
     (cons '(mlist) (cons file output-file))))
 
 (defun check-3dfun (fun x y)
@@ -215,3 +205,33 @@ complicated expressions, or it may be a numerical function)"
     (mtell
      (intl:gettext
       "plot3d: keep going and hope for the best.~%"))))
+         
+(defun geomview-matrix (st az el)
+  (if (and (floatp az) (floatp el))
+    (let* ((p (coerce-float '$%pi)) (a (* (/ az 180d0) p))
+           (e (* (/ el 180d0) p)) (ca (cos a)) (sa (sin a))
+           (ce (cos e)) (se (sin e)))
+      (format st "{~,7f ~,7f ~,7f 0~%" ca (- (* sa ce)) (* sa se))
+      (format st " ~,7f ~,7f ~,7f 0~%" sa (* ca ce) (- (* ca se)))
+      (format st " 0 ~,7f ~,7f 0~%" se ce)
+      (format st " 0 0 0 1}~%"))
+    (progn 
+      (format st "{0.8660254 -0.25 0.4330127 0~%")
+      (format st " 0.5 0.4330127 -0.75 0~%")
+      (format st " 0 0.8660254 0.5 0~%")
+      (format st " 0 0 0 1}~%"))))
+ 
+(defun geomview-bbox (st)
+  (format st "# bounding box~%VECT~%")
+  (format st "4 16 0 10 2 2 2 0 0 0 0~%")
+  (format st "0 0 0 0 1 0 1 1 0 1 0 0 0 0 0~%")
+  (format st "0 0 1 1 0 1 1 1 1 0 1 1 0 0 1~%")
+  (format st "0 1 0 0 1 1 1 0 0 1 0 1 1 1 0 1 1 1~%")
+  (format st "# x, y and z labels~%VECT~%")
+  (format st "5 13 0 2 2 2 3 4 0 0 0 0 0~%")
+  (format st "# letter x~%")
+  (format st "0.47 0 -0.03 0.53 0 -0.09 0.53 0 -0.03 0.47 0 -0.09~%")
+  (format st "# letter y~%")
+  (format st "0 0.5 -0.06 0 0.5 -0.09 0 0.47 -0.03 0 0.5 -0.06 0 0.53 -0.03~%")
+  (format st "# letter z~%")
+  (format st "-0.09 0 0.53 -0.03 0 0.53 -0.09 0 0.47 -0.03 0 0.47~%"))
