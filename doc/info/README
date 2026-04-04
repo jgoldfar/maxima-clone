@@ -114,14 +114,6 @@ function or veriable they document.
 - Is there a way to avoid conflicts if two packages in share/ use the same
   function names?
 
-
-PDF Hyperlinks
---------------
-
-Is there any way to avoid needing a separate input file for PDF generation?
-There has to be a way to make the "\input mmref" conditional without breaking
-things.
-
 Documented TODOs
 ----------------
 
