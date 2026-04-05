@@ -221,8 +221,10 @@ and blue values between 0.0 and 1.0"
 (defun numeric-list-to-rgb (c)
 "Transform a list with three components between 0.0 and 1.0 (red,
 green and blue components) into a color code #rrggbb"
-  (string-downcase
-   (format nil "#~{~16,2,'0R~}" (mapcar #'(lambda (x) (round (* 255 x))) c))))
+  (if (= (length c) 3)
+    (string-downcase
+     (format nil "#~{~16,2,'0R~}" (mapcar #'(lambda (x) (round (* 255 x))) c)))
+    "#000000"))
 
 (defun rgb-color (clr)
 "Find the RGB color code ##rrggbb for a given symbol or string that
@@ -241,32 +243,38 @@ not in the predefined colors list."
 "Interpolate between two or more colors, given as strings #rrggbb, according
 to a fraction f, between 0 and 1, where 0 gives the first color and 1 the
 last one."
-  (let* ((colors (cons rgb1 (cons rgb2 rgb))) (l (length colors)) n r c1 c2)
-    (multiple-value-bind (i x) (floor (* f (1- l))) (setf n i r x))
-    (if (= n (1- l))
-        (last colors)
-      (progn
-        (setq c1 (hex-to-numeric-list (nth n colors)))
-        (setq c2 (hex-to-numeric-list (nth (1+ n) colors)))
-        (numeric-list-to-rgb
-         (mapcar #'+ c1 (mapcar #'(lambda (x) (* r x)) (mapcar #'- c2 c1))))))))
+  (let* ((colors (cons rgb1 (cons rgb2 rgb))) (l (length colors))  c1 c2)
+    (multiple-value-bind
+     (n r) (floor (* f (1- l)))
+     (if (= n (1- l))
+         (last colors)
+       (progn
+         (setq c1 (hex-to-numeric-list (nth n colors)))
+         (setq c2 (hex-to-numeric-list (nth (1+ n) colors)))
+         (numeric-list-to-rgb
+          (mapcar #'+ c1 (mapcar #'(lambda (x) (* r x))
+                                 (mapcar #'- c2 c1)))))))))
 
-(defmfun $hsv (h s v)
+(defmfun $hsv (hue sat val)
 "Convert a color given as HSV (hue, saturation, value), all between 0 and 1,
 to RGB as a string #rrggbb."
-  (if (zerop s)
-    ;; Achromatic case (gray)
-    (numeric-list-to-rgb (list v v v))
-    (let  (i f p q tt rgb)
-      (multiple-value-setq (i f) (floor (* h 6)))
-      (setq p (* v (- 1 s)))
-      (setq q (* v (- 1 (* s f))))
-      (setq tt (* v (- 1 (* s (- 1 f)))))
-      (case i
-            (0 (setq rgb (list v  tt p)))
-            (1 (setq rgb (list q  v  p)))
-            (2 (setq rgb (list p  v  tt)))
-            (3 (setq rgb (list p  q  v)))
-            (4 (setq rgb (list tt p  v)))
-            (5 (setq rgb (list v  p  q))))
-      (numeric-list-to-rgb rgb))))
+  (let ((h (coerce-float hue)) (s (coerce-float sat)) (v (coerce-float val)))
+    (unless (and (real01p h) (real01p s) (real01p v))
+      (merror (intl:gettext "The arguments of hsv must be between 0 and 1.~%")))
+    (if (zerop s)
+      ;; Achromatic case (gray)
+      (numeric-list-to-rgb (list v v v))
+      (let (p q tt rgb)
+        (multiple-value-bind
+         (i f) (floor (* h 6))
+         (setq p (* v (- 1 s)))
+         (setq q (* v (- 1 (* s f))))
+         (setq tt (* v (- 1 (* s (- 1 f)))))
+         (case i
+               ((0 6) (setq rgb (list v  tt p)))
+               (1 (setq rgb (list q  v  p)))
+               (2 (setq rgb (list p  v  tt)))
+               (3 (setq rgb (list p  q  v)))
+               (4 (setq rgb (list tt p  v)))
+               (5 (setq rgb (list v  p  q))))
+         (numeric-list-to-rgb rgb))))))

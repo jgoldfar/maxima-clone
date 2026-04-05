@@ -21,10 +21,10 @@
 Examples
 
 /* plot of z^(1/3)...*/
-plot3d(r^.33*cos(th/3),[r,0,1],[th,0,6*%pi],['grid,12,80],['transform_xy,polar_to_xy],['plot_format,geomview]);
+plot3d(r^.33*cos(th/3),[r,0,1],[th,0,6*%pi],['grid,12,80],['transform_xy,polar_to_xy],'geomview);
 
 /* plot of z^(1/2)...*/
-plot3d(r^.5*cos(th/2),[r,0,1],[th,0,6*%pi],['grid,12,80],['transform_xy,polar_to_xy],['plot_format,xmaxima]);
+plot3d(r^.5*cos(th/2),[r,0,1],[th,0,6*%pi],['grid,12,80],['transform_xy,polar_to_xy],'xmaxima);
 
 /* moebius */
 plot3d([cos(x)*(3+y*cos(x/2)),sin(x)*(3+y*cos(x/2)),y*sin(x/2)],[x,-%pi,%pi],[y,-1,1],['grid,50,15]);
@@ -190,6 +190,7 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
     (format str "~,,,,,,'eg " f)
     (format str "~a " *missing-data-indicator*)))
 
+;; There is currently no need for this polygon structure (villate, 2026-03-31)
 (defstruct (polygon (:type list)
                     (:constructor %make-polygon (pts edges)))
   (dummy '($polygon simp))
@@ -209,36 +210,72 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
     (defmacro make-polygon (a b)
       `(list '($polygon) ,a ,b)))
 
-(defun draw3d (f minx maxx miny maxy  nxint nyint)
-  (let* ((epsx (/ (- maxx minx) nxint))
-         (x 0.0)  ( y 0.0)
+(defun vertices-matrix (points nxint nyint)
+"(vertices-matrix points nxint nyint). Given a vector 'points' and two integers
+nxint and nyint, it returns a matrix in which each row has the indices of the
+points for a given value of y in the mesh, or T if the value of z doesn't
+exist at the corresponding mesh point.
+'points' is a sequence x0 y0 y0 x1 y1 z1 ... with the coordinates of all the
+points in the mesh; the indices in the returned matrix are the positions of
+the corresponding points in the list of valid points (excluding those whose
+z coordinate is not a number)." 
+  (let (vertices row (r 0) (k 0))
+    (loop for j to nyint
+          do
+          (setf row nil)
+          (setf r (* 3 j (1+ nxint)))
+          (loop for i to (* 3 nxint) by 3
+                do
+                (let (pt)
+                  (dotimes (n 3) (push (elt points (+ r i n)) pt))
+                  (if (= (length (remove t pt)) 3)
+                    (progn
+                      (push k row)
+                      (incf k))
+                    (push t row))))
+          (push (reverse row) vertices))
+    (reverse vertices)))
+
+(defun polygons (matrix)
+"(polygons matrix). Creates a list of polygins for rectangular mesh defined
+by 'matrix'.
+Each sublist in matrix has non-negative integers, or T, identifiying the
+points in each row of the mesh; the non-negative integer is the position
+of the (x, y, z) coordinates of the corresponding point in a vector with
+all the points coordinates (ater removal of non-valid points); if the value
+is T, it means that there is no valid point in that position of the mesh.
+The list returned will have sublists of 3 or 4 elements that label the
+vertices of a triangle or a quadrilateral."
+  (let (pols pol (rows (length matrix)) (cols (length (first matrix))))
+    (dotimes (j (1- rows))
+      (dotimes (i (1- cols))
+        (setf pol nil)
+        (push (nth i (nth (1+ j) matrix)) pol)
+        (push (nth (1+ i) (nth (1+ j) matrix)) pol)
+        (push (nth (1+ i) (nth j matrix)) pol)
+        (push (nth i (nth j matrix)) pol)
+        (setf pol (remove t pol))
+        (when (> (length pol) 2) (push pol pols))))
+    (reverse pols)))
+
+(defun draw3d (f minx maxx miny maxy nxint nyint)
+  (let ( (x 0.0) (y 0.0) z (z-count 0) (epsx (/ (- maxx minx) nxint))
          (epsy (/ (- maxy miny) nyint))
-         (nx (+ nxint 1))
-         (l 0) fval (fval-count 0)
-         (ny (+ nyint 1))
-         (ar (make-array  (+ 12         ; 12  for axes
-                             (* 3 nx ny))  :fill-pointer (* 3 nx ny)
-                             :element-type t :adjustable t)))
-    (declare (type flonum x y epsy epsx)
-             (fixnum nx ny l fval-count)
-             (type (cl:array t) ar))
-    (loop for j below ny
-           initially (setq y miny)
-           do (setq x minx)
-           (loop for i below nx
-                  do
-                  (setf (x-pt ar l) x)
-                  (setf (y-pt ar l) y)
-                  (setq fval (funcall f x y))
-                  (if (floatp fval) (setq fval-count (1+ fval-count)))
-                  (setf (z-pt ar l) fval)
-                  (incf l)
-                  (setq x (+ x epsx))
-                  )
-           (setq y (+ y epsy)))
-    (if (< fval-count 1)
-        (merror (intl:gettext "plot3d: nothing to plot.~%")))
-    (make-polygon  ar  (make-grid-vertices nxint nyint))))
+         (points (make-array (* 3 (1+ nxint) (1+ nyint)) :fill-pointer 0
+                             :element-type t)))
+    (declare (type flonum x y epsy epsx) (fixnum z-count)
+             (type (cl:array t) points))
+    (dotimes (j (1+ nyint))
+      (setq y (+ miny (* j epsy)))
+      (dotimes (i (1+ nxint))
+        (setq x (+ minx (* i epsx)))
+        (setq z (funcall f x y))
+        (vector-push x points)
+        (vector-push y points)
+        (vector-push z points)
+        (if (floatp z) (setq z-count (1+ z-count)))))
+    (if (< z-count 1) (merror (intl:gettext "plot3d: nothing to plot.~%")))
+    (values points z-count)))
 
 ;; ***** This comment refers to some unexistent function make-vertices ****
 ;; ***** let's leave it here for the sake of history :)                ****
@@ -333,10 +370,10 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
   (declare (type (cl:array t) pts))
   (assert (typep pts '(vector t)))
   (loop for i below (length pts) by 3
-         do (setq r (aref pts i))
-         (setq th (aref pts (+ i 1)))
-         (setf (aref pts i) (* r (cos th)))
-         (setf (aref pts (+ i 1)) (* r (sin th)))))
+         do (setq r (elt pts i))
+         (setq th (elt pts (1+ i)))
+         (setf (elt pts i) (* r (cos th)))
+         (setf (elt pts (1+ i)) (* r (sin th)))))
 
 ;; Transformation from spherical coordinates to rectangular coordinates,
 ;; to be used in plot3d. Example of its use:
@@ -349,16 +386,23 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
   (declare (type (cl:array t) pts))
   (assert (typep pts '(vector t)))
   (loop for i below (length pts) by 3
-     do (setq th (aref pts i))
-       (setq ph (aref pts (+ i 1)))
-       (setq r (aref pts (+ i 2)))
-       (setf (aref pts i) (* r (sin th) (cos ph)))
-       (setf (aref pts (+ i 1)) (* r (sin th) (sin ph)))
-       (setf (aref pts (+ i 2)) (* r (cos th)))))
-      
+        do
+        (if (floatp (elt pts (+ i 2)))
+          (progn
+            (setq th (elt pts i))
+            (setq ph (elt pts (+ i 1)))
+            (setq r (elt pts (+ i 2)))
+            (setf (elt pts i) (* r (sin th) (cos ph)))
+            (setf (elt pts (+ i 1)) (* r (sin th) (sin ph)))
+            (setf (elt pts (+ i 2)) (* r (cos th))))
+          (progn
+            (setf (elt pts i) t)
+            (setf (elt pts (+ i 1)) t)))))
 
 ;; return a function suitable for the transform function in plot3d.
 ;; FX, FY, and FZ are functions of three arguments.
+;; This function needs to be fixed for the case when coerce-float-fun
+;; returns T instead of a floating-point value.
 (defmfun $make_transform (lvars fx fy fz)
   (setq fx (coerce-float-fun fx lvars "make_transform"))
   (setq fy (coerce-float-fun fy lvars "make_transform"))
@@ -370,12 +414,12 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
               (declare (type (cl:array t) pts))
               (loop for i below (length pts) by 3
                      do 
-                     (setq x1 (aref pts i))
-                     (setq x2 (aref pts (+ i 1)))
-                     (setq x3 (aref pts (+ i 2)))
-                     (setf (aref pts i) (funcall fx x1 x2 x3))
-                     (setf (aref pts (+ 1 i)) (funcall fy x1 x2 x3))
-                     (setf (aref pts (+ 2 i)) (funcall fz x1 x2 x3)))))))
+                     (setq x1 (elt pts i))
+                     (setq x2 (elt pts (+ i 1)))
+                     (setq x3 (elt pts (+ i 2)))
+                     (setf (elt pts i) (funcall fx x1 x2 x3))
+                     (setf (elt pts (+ 1 i)) (funcall fy x1 x2 x3))
+                     (setf (elt pts (+ 2 i)) (funcall fz x1 x2 x3)))))))
 
 ;; Return value is a Lisp function which evaluates EXPR to a float.
 ;; COERCE-FLOAT-FUN always returns a function and never returns a symbol,
@@ -1768,6 +1812,8 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
 			  (if (listp x) x (cons x nil)))))
          ($levels (setf (getf options '$levels)
                         (check-option-levels (cdr opt))))
+         ($lighting (setf (getf options '$lighting)
+                      (check-option-boole (cdr opt))))
          ($logx (setf (getf options '$logx)
                       (check-option-boole (cdr opt))))
          ($logy (setf (getf options '$logy)
@@ -1926,10 +1972,12 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
          ($box (setf (getf options '$box) t))
          ($color_bar (setf (getf options '$color_bar) t))
          ($color_bar_tics (remf options '$color_bar_tics))
+         ($cylindrical (setf (getf options '$transform_xy) '$polar_to_xy))
          ($geomview (setf (getf options '$plot_format) '$geomview))
          ($grid2d (setf (getf options '$grid2d) t))
          ($legend (remf options '$legend))
          ($mesh_lines_color (remf options '$mesh_lines_color))
+         ($lighting (setf (getf options '$lighting) t))
          ($logx (setf (getf options '$logx) t))
          ($logy (setf (getf options '$logy) t))
          ($palette (remf options '$palette))
@@ -1952,6 +2000,7 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
          ($nocolor_bat_tics (setf (getf options '$color_bat_tics) nil))
          ($nogrid2d (setf (getf options '$grid2d) nil))
          ($nolegend (setf (getf options '$legend) nil))
+         ($nolighting (setf (getf options '$lighting) nil))
          ($nologx (setf (getf options '$logx) nil))
          ($nology (setf (getf options '$logy) nil))
          ($nomesh_lines (setf (getf options '$mesh_lines_color) nil))
@@ -1969,6 +2018,7 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
          ($nozlabel (setf (getf options '$zlabel) ""))
          ($nognuplot_strings (setf (getf options '$gnuplot_strings) nil))
          ($nognuplot_svg_background (setf (getf options '$gnuplot_svg_background) nil))
+         ($spherical (setf (getf options'$transform_xy) '$spherical_to_xyz))
          (t
           (merror (intl:gettext "Unknown plot option \"~M\".") opt))))))
   options)
@@ -2393,41 +2443,6 @@ plot2d ( x^2+y^2 = 1, [x, -2, 2], [y, -2 ,2]);
 (defun msymbolp (x)
   (and (symbolp x) (char= (char (symbol-value x) 0) #\$)))
 
-(defmfun $tcl_output (lis i &optional (skip 2))
-  (when (not (typep i 'fixnum))
-    (merror
-      (intl:gettext "tcl_ouput: second argument must be an integer; found ~M")
-                    i))
-  (when (not ($listp lis))
-    (merror
-      (intl:gettext "tcl_output: first argument must be a list; found ~M") lis))
-  (format *standard-output* "~% {")
-  (cond (($listp (second lis))
-         (loop for v in lis
-                do
-                (format *standard-output* "~,,,,,,'eg " (nth i v))))
-        (t
-         (setq lis (nthcdr i lis))
-         (loop  with v = lis  while v
-                 do
-                 (format *standard-output* "~,,,,,,'eg " (car v))
-                 (setq v (nthcdr skip v)))))
-  (format *standard-output* "~% }"))
-
-(defun tcl-output-list ( st lis )
-  (cond ((null lis) )
-        ((atom (car lis))
-         (princ " {  " st)
-         (loop for v in lis
-                count t into n
-                when (eql 0 (mod n 5))
-                do (terpri st)
-                do
-                (format st "~,,,,,,'eg " v))
-         (format st  " }~%"))
-        (t (tcl-output-list st (car lis))
-           (tcl-output-list st (cdr lis)))))
-
 (defun check-range (range &aux tem a b)
   (or (and ($listp range)
            (setq tem (cdr range))
@@ -2445,24 +2460,22 @@ plot2d ( x^2+y^2 = 1, [x, -2, 2], [y, -2 ,2]);
 
 (defmfun $zero_fun (x y) x y 0.0)
 
-(defun output-points (pl &optional m)
+(defun output-points (points &optional m)
   "If m is supplied print blank line every m lines"
   (let ((j -1))
     (declare (fixnum j))
-    (loop for i below (length (polygon-pts pl))
-           with ar = (polygon-pts pl)
-           do (print-pt (aref ar i))
+    (loop for i below (length points)
+           do (print-pt (aref points i))
            (setq i (+ i 1))
-           (print-pt (aref ar i))
+           (print-pt (aref points i))
            (setq i (+ i 1))
-           (print-pt (aref ar i))
+           (print-pt (aref points i))
            (terpri $pstream)
            (cond (m
                   (setq j (+ j 1))
                   (cond ((eql j (the fixnum m))
                          (terpri $pstream)
-                         (setq j -1)))))
-           )))
+                         (setq j -1))))))))
 
 ;; contour_plot now punts to plot2d
 (defmfun $contour_plot (expr &rest optional-args)

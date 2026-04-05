@@ -115,9 +115,8 @@ Ref: https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Values#Consta
 		     (setq mexp (list '(mdefine) (cons (list x 'array) (cdadr y)) (caddr y)))))))
         (cond ((or (and (null (atom mexp))
                      (member (caar mexp) '(mdefine mdefmacro) :test #'eq))
-                   (and itsalabel ;; but is it a user-command-label?
-                     (every #'char= (coerce (string $inchar) 'list) (coerce (string mexplabel) 'list))))
-	       (format texport "<pre>~%~a~a;~%</pre>"
+                   itsalabel)
+	       (format texport "<pre>~%~a~a;~%</pre>~%"
 		       (if mexplabel (aformat nil "(~a) " (stripdollar mexplabel)) "")
 		       ($xml_sanitize (with-output-to-string (strm)
 					(mgrind mexp strm)))))
@@ -131,7 +130,7 @@ Ref: https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Values#Consta
 		       (mathml mexp nil nil 'mparen 'mparen))
 		 (cond (mexplabel
 			(aformat texport "<mspace width=\"~a\"/> <mtext>~a</mtext> " (get-mathml-mathspace 'verythickmathspace) (stripdollar mexplabel))))
-		 (format texport "</math>")))
+		 (format texport "</math>~%")))
 	(cond(filename(terpri texport); and drain port if not terminal
 		      (close texport)))
 	(return mexplabel)))
@@ -188,9 +187,70 @@ Ref: https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Values#Consta
                    "</mn></msup> </mrow> ")
                   ))))))
 
+(defmvar $mathml_underscore_is_subscript nil
+  "If NIL, only trailing digits are treated as subscripts.
+If T, all underscores (_) are treated as subscripts. If an integer N,
+then, beginning from the right of the symbol name, the first N
+underscores are treated as subscripts.")
+(defmvar $mathml_non_numeric_subscripts nil
+  "If NIL, only digits are treated as subscripts.
+Otherwise, eacj part of a symbol name bounded on the left by an
+underscore may be treated as a subscript; but, see also
+`$MATHML_UNDERSCORE_IS_SUBSCRIPT'.")
+
 (defun mathml-stripdollar(sym)
+  "If SYM is not a symbol, then return SYM;
+else if either $MATHML_UNDERSCORE_IS_SUBSCRIPT is NIL or
+$MATHML_NON_NUMERIC_SUBSCRIPTS is less than 1 (== NIL), then apply
+MATHML-STRIPDOLLAR-DEFAULT to SYM;
+else if $MATHML_UNDERSCORE_IS_SUBSCRIPT is at least one, then
+- split the symbol-name of SYM into strings along the underscores;
+- if there are no underscores, return a suitably marked-up symbol-name;
+- otherwise, collect the subscripts until we have enough (or all of them);
+- return the remaining symbol-name with the subscripts."
+  (declare (special $mathml_underscore_is_subscript $mathml_non_numeric_subscripts))
+  (assert (or (member $mathml_underscore_is_subscript '(t nil))
+	      (fixnump $mathml_underscore_is_subscript))
+	  () "`mathml_underscore_is_subscript' should be an integer or `true' or `false'")
+  (cond ((not (symbolp sym)) sym)
+	((or (null $mathml_underscore_is_subscript)
+	     (and (fixnump $mathml_underscore_is_subscript)
+		  (< $mathml_underscore_is_subscript 1)))
+	 (mathml-stripdollar-default sym))
+	((eq t $mathml_underscore_is_subscript)
+	 (let (($mathml_underscore_is_subscript most-positive-fixnum))
+	   (mathml-stripdollar sym)))
+	((and (fixnump $mathml_underscore_is_subscript)
+	      (>= $mathml_underscore_is_subscript 1))
+	 (block this
+	   (let* ((s (mfuncall '$split (maybe-invert-string-case (string-left-trim '(#\$) (symbol-name sym))) "_"))
+		  (l (length s))
+		  (n-max (min (- l 2) $mathml_underscore_is_subscript)))
+	     (when (< l 3) (return-from this (strcat "<mi>" (cadr s) "</mi>")))
+	     (flet ((subscript-p (x)
+		      (or $mathml_non_numeric_subscripts
+			  (digit-char-p x))))
+	       (do* ((sn (reverse (cdr s))                                  (cdr sn))
+		     (n  1                                                  (1+ n))
+		     (num(every #'subscript-p (car sn))                     (every #'subscript-p (car sn)))
+		     (r  (if num (list "<mi>" (car sn) "</mi>"))            (if num (append (list "<msub><mi>" (car sn) "</mi>") r) r))
+		     (e  (if num " </msub>" "")                             (if num (strcat e "</msub>") e)))
+		    ((or (null (cdr sn))
+			 (null num)
+			 (>= n n-max))
+		     (progn
+		       (when (and num                ;; (CAR SN) is a subscript, but
+				  (<= n n-max)       ;; the do*-loop did not have a chance to discard if from SN
+				  (> (length sn) 1)) ;; so we do it manually
+			 (setq sn (cdr sn)))
+		       (format nil "~a<mi>~{~a~^_~}</mi> ~{~a ~} ~a" (if (string= e "") "" "<msub>") (reverse sn) r e)))
+		 )))))
+	(t ;; we should never get here
+	 (error "MATHML-STRIPDOLLAR-DEFAULT: "))))
+
+(defun mathml-stripdollar-default(sym)
   (or (symbolp sym) 
-      (return-from mathml-stripdollar sym))
+      (return-from mathml-stripdollar-default sym))
   (let* ((pname (maybe-invert-string-case (string-left-trim '(#\$) (symbol-name sym))))
 	 (l (length pname))
 	 (begin-sub
@@ -313,6 +373,13 @@ Ref: https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Values#Consta
 (defprop mlist mathml-matchfix mathml)
 (defprop mlist (("<mrow><mo>[</mo>")"<mo>]</mo></mrow> ") mathmlsym)
 
+(defprop mbox mathml-matchfix mathml)
+(defprop mbox (("<menclose notation=\"box\"><menclose notation=\"box\">")"</menclose></menclose>") mathmlsym)
+(defprop mlabox mathml-mlabox mathml)
+(defun mathml-mlabox (x l r)
+  (append l '("<mtable><mtr><mtd columnalign=\"center\" style=\"font-size: 0.8em;\">") (mathml (caddr x) nil nil 'mparen 'mparen)
+	  '("</mtd></mtr><mtr><mtd><menclose notation=\"box\"><menclose notation=\"box\">") (mathml (cadr x) nil nil 'mparen 'mparen) '("</menclose></menclose></mtd></mtr></mtable>") r))
+
 ;;absolute value
 (defprop mabs mathml-matchfix mathml)
 (defprop mabs (("<mrow><mo form=\"prefix\">|</mo>")"<mo form=\"postfix\">|</mo></mrow> ") mathmlsym)
@@ -418,6 +485,7 @@ Ref: https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Values#Consta
 			  (member (get-first-char f) '(#\% #\$) :test #'char=) ;; insist it is a % or $ function
                           (not (member f '(%sum %product %derivative %integrate %at
                                          %lsum %limit) :test #'eq)) ;; what else? what a hack...
+			  (not (member 'array (cdar fx) :test #'eq)) ; fix for x[i]^2
 			  (or (and (atom expon) (not (numberp expon))) ; f(x)^y is ok
 			      (and (atom expon) (numberp expon) (> expon 0))))))
 			      ; f(x)^3 is ok, but not f(x)^-1, which could
@@ -432,12 +500,13 @@ Ref: https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Values#Consta
 		        (t nil))))) ; won't doit. fall through
       (t (setq l (mathml (cadr x) (append l '("<msup><mrow>")) nil lop (caar x))
 	       r (if (mmminusp (setq x (nformat (caddr x))))
-		    ;; the change in base-line makes parens unnecessary
+                    ;; the change in base-line makes parens unnecessary
+                    ;; exponents are wrapped in 〈〉 (= #x3008 #x3009)
 		    (if nc
-			(mathml (cadr x) '("</mrow> <mrow><mo form=\"prefix\">&lt;</mo> -")(cons "<mo form=\"postfix\">&gt;</mo></mrow></msup> " r) 'mparen 'mparen)
-			(mathml (cadr x) '("</mrow> <mrow> -")(cons "</mrow></msup> " r) 'mparen 'mparen))
+			(mathml (cadr x) '("</mrow> <mrow><mo form=\"prefix\">&#x3008;</mo><mo form=\"prefix\">-</mo>")(cons "<mo form=\"postfix\">&#x3009;</mo></mrow></msup> " r) 'mparen 'mparen)
+			(mathml (cadr x) '("</mrow> <mrow> <mo form=\"prefix\">-</mo>")(cons "</mrow></msup> " r) 'mparen 'mparen))
 		    (if nc
-			(mathml x (list "</mrow> <mrow><mo form=\"prefix\">&lt;</mo>")(cons "<mo form=\"postifx\">&gt;</mo></mrow></msup>" r) 'mparen 'mparen)
+			(mathml x (list "</mrow> <mrow><mo form=\"prefix\">&#x3008;</mo>")(cons "<mo form=\"postfix\">&#x3009;</mo></mrow></msup>" r) 'mparen 'mparen)
 			(if (and (numberp x) (< x 10))
 			    (mathml x (list "</mrow> ")(cons "</msup> " r) 'mparen 'mparen)
 			    (mathml x (list "</mrow> <mrow>")(cons "</mrow></msup> " r) 'mparen 'mparen))
@@ -529,12 +598,12 @@ Ref: https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Values#Consta
   (let ((s1 (mathml (cadr x) nil nil 'mparen 'mparen));;integrand delims / & d
 	(var (mathml (caddr x) nil nil 'mparen rop))) ;; variable
        (cond((= (length x) 3)
-	     (append l `("<mrow><mo>&int;</mo><mrow>" ,@s1 "</mrow> <mspace width=\"" ,(get-mathml-mathspace 'mediummathspace)  "\"/> <mrow><mo>&DifferentialD;</mo><mi>" ,@var "</mi></mrow></mrow> ") r))
+	     (append l `("<mrow><mo>&int;</mo><mrow>" ,@s1 "</mrow> <mspace width=\"" ,(get-mathml-mathspace 'mediummathspace)  "\"/> <mrow><mo>&DifferentialD;</mo>" ,@var "</mrow></mrow> ") r))
     (t ;; presumably length 5
 	       (let ((low (mathml (nth 3 x) nil nil 'mparen 'mparen))
 		     ;; 1st item is 0
 		     (hi (mathml (nth 4 x) nil nil 'mparen 'mparen)))
-		 (append l `("<mrow><munderover><mo>&int;</mo> <mrow>" ,@low "</mrow> <mrow>" ,@hi "</mrow> </munderover> <mrow>" ,@s1 "</mrow> <mspace width=\"" ,(get-mathml-mathspace 'mediummathspace) "\"/> <mrow><mo>&DifferentialD;</mo><mi>" ,@var "</mi> </mrow></mrow> ") r))))))
+		 (append l `("<mrow><munderover><mo>&int;</mo> <mrow>" ,@low "</mrow> <mrow>" ,@hi "</mrow> </munderover> <mrow>" ,@s1 "</mrow> <mspace width=\"" ,(get-mathml-mathspace 'mediummathspace) "\"/> <mrow><mo>&DifferentialD;</mo>" ,@var " </mrow></mrow> ") r))))))
 
 (defprop %limit mathml-limit mathml)
 
