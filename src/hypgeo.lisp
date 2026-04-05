@@ -1331,7 +1331,7 @@
 		(setq l (m2-c*t^v u *hypgeo-var*)))
 	   ;; We have u*%e^(-p*t+e*f).  Try to see if U is of the form
 	   ;; c*t^v.  If so, we can handle it here.
-	   (lt-exp l e f *hypgeo-par*))
+	   (lt-exp l e f))
 	  (t
 	   ;; The complicated case.  Remove the e*f term and move it to u.
            (lt-sf-log (mul u (power '$%e (mul e f))))))))
@@ -1373,25 +1373,25 @@
 ;;; L contains the pattern for c*t^v.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun lt-exp (l e f laplace-par)
+(defun lt-exp (l e f)
   (let ((c (cdras 'c l))
 	(v (cdras 'v l)))
     (cond ((m2-t^2 f *hypgeo-var*)
 	   (setq e (inv (mul -8 e)) v (add v 1))
-	   (f24p146test c v e laplace-par))
+	   (f24p146test c v e *hypgeo-par*))
 	  ((m2-sqroott f *hypgeo-var*)
 	   ;; We don't do the transformation at this place. Because we take the
 	   ;; square of e we lost the sign and get wrong results.
 	   ;(setq e (mul* e e (inv 4)) v (add v 1))
-	   (f35p147test c v e laplace-par))
+	   (f35p147test c v e *hypgeo-par*))
 	  ((m2-t^-1 f *hypgeo-var*)
 	   (setq e (mul -4 e) v (add v 1))
-	   (f29p146test c v e laplace-par))         ; We have to call with the constant c.
+	   (f29p146test c v e *hypgeo-par*))         ; We have to call with the constant c.
 	  ((and (equal v 0)             ; We have to test for v=0 and to call
 	        (m2-e^-t f *hypgeo-var*))
-	   (f36p147 c e laplace-par))               ; with the constant c.
+	   (f36p147 c e *hypgeo-par*))               ; with the constant c.
 	  ((and (equal v 0) (m2-e^t f *hypgeo-var*))
-	   (f37p147 c (mul -1 e) laplace-par))
+	   (f37p147 c (mul -1 e) *hypgeo-par*))
 	  (t 
            (setq *hyp-return-noun-flag* 'other-lt-exponential-to-follow)))))
 
