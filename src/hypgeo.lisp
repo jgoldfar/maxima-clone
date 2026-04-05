@@ -44,7 +44,7 @@
 (defvar *debug-hypgeo* nil
   "Print debug information if enabled.")
 
-;; The variables *hypgeovar* and *hypgeo-par* are global to this file
+;; The variables *hypgeo-var* and *hypgeo-par* are global to this file
 ;; only.  They are initialized in the routine defexec. The values are
 ;; never changed.  These globals are introduced to avoid passing the
 ;; values of *hypgeo-par* and *hypgeo-var* through all functions of
@@ -1224,9 +1224,9 @@
 ;;; Compute transform of EXP wrt the variable of integration VAR.
 
 (defun defexec (expr var2)
-  (let* ((*hypgeo-par* 'psey)                ; Set parameter of Laplace transform
-         (*hypgeo-var* var2)                  ; Set variable of integration
-         (*hyp-return-noun-flag* nil) ; Reset the flag
+  (let* ((*hypgeo-par* 'psey)     ; Set parameter of Laplace transform
+         (*hypgeo-var* var2)      ; Set variable of integration
+         (*hyp-return-noun-flag* nil)   ; Reset the flag
          (form expr)
 	 (l (m2-defltep expr var2))
 	 (s (cdras 'a l))) ; Get the parameter of the Laplace transform.
