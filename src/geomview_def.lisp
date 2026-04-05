@@ -19,14 +19,13 @@
 (in-package :maxima)
 
 (defun geomview-palette (palette)
-"Given a valid palette option item, returns a list of colors as
-sublists with 3 components (red, green and blue) between 0 and 1."
+"Given a valid palette, it returns its definition for Geomview."
 (let (colors)
   (if (atom palette)
-    (if (or (eq palette '$gray) (eq palette '$grey))
-      (setf colors '((0 0 0) (1 1 1)))
+    (if (getf *plot-palettes* palette)
       (setf colors (mapcar #'hex-to-numeric-list (mapcar #'rgb-color
-                            (cdr (getf *plot-palettes* palette))))))
+                           (cdr (getf *plot-palettes* palette)))))
+      (unless (setf colors (rgb-color palette)) (setf colors "#ffffff")))
     (case
      (car palette)
      ($gradient
@@ -70,9 +69,7 @@ between 0 and 1, where 0 gives the first color and 1 the last one."
         (mapcar #'+ c1 (mapcar #'(lambda (x) (* r x)) (mapcar #'- c2 c1)))))))
 
 (defmethod plot-preamble ((plot geomview-plot) options)
-  (let ((meshcolor (getf options '$mesh_lines_color))
-        (bgcolor (getf options '$background_color))
-        (lighting (getf options '$lighting)) texture)
+  (let ((bgcolor (getf options '$background_color)))
     (setf (slot-value plot 'data)
         (with-output-to-string
           (st)
@@ -85,22 +82,16 @@ between 0 and 1, where 0 gives the first color and 1 the last one."
           (format st "(geometry plot3d {~%")
           (format st "INST~%transform~%")
           (geomview-matrix
-           st (getf options '$azimuth) (getf options '$elevation))
-          (format st "geom {~%LIST~%{~%")
-          (format st "appearance { ")
-          (if lighting (setf texture "smooth") (setf texture "csmooth"))
-          (if meshcolor
-            (format st "+edge +~a material {edgecolor ~{~,6f~^ ~}} }~%"
-                      texture (hex-to-numeric-list (rgb-color meshcolor)))
-            (format st "+~a }~%" texture))))
-    (values)))
+           st (getf options '$azimuth) (getf options '$elevation)))))
+  (values))
 
 (defmethod plot3d-command ((plot geomview-plot) functions options titles)
   (declare (ignore titles))
-  (let ((i 0) colors (palette (first (getf options '$palette)))
+  (let ((i 0) colors (palette (getf options '$palette))
         (nxint (first (getf options '$grid)))
-        (nyint (second (getf options '$grid))))
-    (when ($listp palette) (setq palette (rest palette)))
+        (nyint (second (getf options '$grid)))
+        (meshcolor (getf options '$mesh_lines_color))
+        (lighting (getf options '$lighting)))
     (when palette (setf colors (geomview-palette palette)))
     (setf
      (slot-value plot 'data)
@@ -113,8 +104,39 @@ between 0 and 1, where 0 gives the first color and 1 the last one."
           (let* ((fun (first f)) (xrange (second f)) (yrange (third f))
                  (xvar (second xrange)) (yvar (second yrange))
                  (x0 (third xrange)) (x1 (fourth xrange))
-                 (y0 (third yrange)) (y1 (fourth yrange)) lvars trans faces)
+                 (y0 (third yrange)) (y1 (fourth yrange))
+                 lvars trans type faces texture (material ""))
             (incf i)
+            (format st "geom {~%LIST~%{~%")
+            (if palette
+              (progn
+                (if (listp colors)
+                  (setf type "COFF")
+                  (progn
+                    (setf type "OFF")
+                    (setf material
+                          (format nil "diffuse ~{~,6f~^ ~}"
+                                  (hex-to-numeric-list colors)))))
+                (if lighting
+                  (setf texture "+smooth")
+                  (setf texture "+csmooth"))
+               (when meshcolor
+                  (setf texture (concatenate 'string texture " +edge"))
+                  (setf material
+                      (concatenate 'string material
+                         (format nil " edgecolor ~{~,6f~^ ~}"
+                             (hex-to-numeric-list (rgb-color meshcolor)))))))
+              (progn
+                (setf type "OFF")
+                (setf texture "-face +edge")
+                (if meshcolor
+                  (setf material
+                      (concatenate 'string material
+                         (format nil " edgecolor ~{~,6f~^ ~}"
+                             (hex-to-numeric-list (rgb-color meshcolor)))))
+                  (concatenate 'string material " edgecolor 0 0 0"))))
+            (format st "appearance { ~a material {~a} {linewidth 2}}~%"
+                    texture material)
             (if ($listp fun)
               (progn
                 (setq lvars `((mlist) ,xvar ,yvar $z))
@@ -150,9 +172,7 @@ between 0 and 1, where 0 gives the first color and 1 the last one."
                          (if (< z minz) (setq minz z))
                          (if (> z maxz) (setq maxz z)))))
                ;; Outputs the points coordinates, normalized from 0 to 1
-               (if palette
-                   (format st "COFF")
-                 (format st "COFF"))
+               (format st type)
                (format st " ~a ~a 0~%" points-count (length faces))
                (let ((rangex (- maxx minx)) (rangey (- maxy miny))
                      (rangez (- maxz minz)))
@@ -165,16 +185,16 @@ between 0 and 1, where 0 gives the first color and 1 the last one."
                                      (/ (- (second pt) miny) rangey)
                                      (/ (- (first pt) minz) rangez)))
                           (format st "~{~,6f~^ ~}" pt)
-                           (if palette
-                             (format st " ~{~,6f ~}1~%"
-                                     (geomview-z-color (third pt) colors))
-                             (format st "~%"))))))
+                          (if (string= type "COFF")
+                            (format st " ~{~,6f ~}1~%"
+                                    (geomview-z-color (third pt) colors))
+                            (format st "~%"))))))
               (dolist (face faces)
                  (format st "~d ~{~d~^ ~}~%" (length face) face)))
-             (format st "}~%")
-             (unless (and (member '$box options) (not (getf options '$box)))
-               (geomview-bbox st))
-             (format st "}~%})~%(zoom targetcam 1.5)~%")))))))))
+             (format st "}~%"))))
+        (unless (and (member '$box options) (not (getf options '$box)))
+          (geomview-bbox st))
+        (format st "}~%})~%(zoom targetcam 1.5)~%"))))))
 
 (defmethod plot-shipout ((plot geomview-plot) options &optional output-file)
   (declare (ignore options))
@@ -221,16 +241,16 @@ complicated expressions, or it may be a numerical function)"
       (format st " 0 0 0 1}~%"))))
  
 (defun geomview-bbox (st)
-  (format st "# bounding box~%VECT~%")
+  (format st "# bounding box~%LIST~%{ appearance {linewidth 2}~%VECT~%")
   (format st "4 16 0 10 2 2 2 0 0 0 0~%")
   (format st "0 0 0 0 1 0 1 1 0 1 0 0 0 0 0~%")
   (format st "0 0 1 1 0 1 1 1 1 0 1 1 0 0 1~%")
-  (format st "0 1 0 0 1 1 1 0 0 1 0 1 1 1 0 1 1 1~%")
-  (format st "# x, y and z labels~%VECT~%")
+  (format st "0 1 0 0 1 1 1 0 0 1 0 1 1 1 0 1 1 1~%}~%")
+  (format st "# x, y and z labels~%LIST~%{ appearance {linewidth 2}~%VECT~%")
   (format st "5 13 0 2 2 2 3 4 0 0 0 0 0~%")
   (format st "# letter x~%")
   (format st "0.47 0 -0.03 0.53 0 -0.09 0.53 0 -0.03 0.47 0 -0.09~%")
   (format st "# letter y~%")
   (format st "0 0.5 -0.06 0 0.5 -0.09 0 0.47 -0.03 0 0.5 -0.06 0 0.53 -0.03~%")
   (format st "# letter z~%")
-  (format st "-0.09 0 0.53 -0.03 0 0.53 -0.09 0 0.47 -0.03 0 0.47~%"))
+  (format st "-0.09 0 0.53 -0.03 0 0.53 -0.09 0 0.47 -0.03 0 0.47~%}~%"))

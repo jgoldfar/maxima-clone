@@ -109,14 +109,12 @@
           (t (format st "with lines lt ~d" (gnuplot-color colors i))))))
 
 (defun gnuplot-palette (palette)
-"Given a valid palette option item, outputs its definition in the
-Gnuplot plotting format."
+"Given a valid palette, it returns its definition for Gnuplot."
 (let (type colors fun hue sat val range)
   (if (atom palette)
-    (progn
-      (setq type palette)
-        (unless (or (eq type '$gray) (eq type '$grey))
-          (setf colors (cdr (getf *plot-palettes* palette)))))
+    (if (getf *plot-palettes* palette)
+      (setf colors (cdr (getf *plot-palettes* palette)))
+      (setf colors (list palette palette)))
     (progn
       (setq type (car palette))
       (case type
@@ -146,19 +144,17 @@ Gnuplot plotting format."
              (setq fun (format nil "~,3f+~,3f*gray-floor(~,3f+~,3f*gray)"
                                val range val range)))
            (format st "model HSV functions ~,3f, ~,3f, ~a" hue sat fun))
-          (($gray $grey)
-           (format st "gray"))
           (otherwise
            (let ((n (length colors)) map)
              (dotimes (i n)
-               (setq map (cons (rgb-color (nth i colors))   ;; color i
-                               (cons (/ i (1- n)) map))))   ;; number i
+               (setq map (cons (or (rgb-color (nth i colors)) "#ffffff")
+                               (cons (/ i (1- n)) map))))
              ;; prints map with the format:  nj, "cj", ...,n1, "c1"  
              (setq fun (format nil "~{~f ~s~^, ~}" (reverse map)))
              ;; outputs the string: defined (nj, "cj", ...,n1, "c1")
              (format st "defined (~a)" fun)))))))
 
-(defun gnuplot-plot3d-command (file palette gstyles colors titles n)
+(defun gnuplot-plot3d-command (file palette gstyles meshcolor titles n)
   (let (title (style "with pm3d"))
     (with-output-to-string
       (out)
@@ -168,7 +164,7 @@ Gnuplot plotting format."
             (if gstyles
 	        (setq style (ensure-string (nth (mod i (length gstyles)) gstyles)))
 	      (setq style
-                    (format nil "with lines lt ~a" (gnuplot-color colors i)))))
+                    (format nil "with lines lc rgb ~s" (rgb-color meshcolor)))))
           (when (> i 1) (format out ", "))
           (if titles
               (setq title (nth (mod i (length titles)) titles))
@@ -258,8 +254,6 @@ Gnuplot plotting format."
         (meshcolor (if (member '$mesh_lines_color plot-options)
                        (getf plot-options '$mesh_lines_color) '$black))
         (lighting (getf plot-options '$lighting)) terminal-file)
-    (setq palette (first palette))
-    (when ($listp palette) (setq palette (rest palette)))
     ;; sets-up terminal command and output file name
     (setq terminal-file (gnuplot-terminal-and-file plot-options))
     (setf
@@ -313,7 +307,7 @@ Gnuplot plotting format."
                       (format dest "~%"))))
                 (format dest "unset hidden3d~%")
                 (format dest "set palette ~a~%" (gnuplot-palette palette)))
-              (format dest "set hidden3d~%"))
+              (format dest "unset pm3d~%"))
           (let ((elev (getf plot-options '$elevation))
                 (azim (getf plot-options '$azimuth)))
             (when (or elev azim)
@@ -353,12 +347,14 @@ Gnuplot plotting format."
                    (null (getf plot-options '$legend)))
           (format dest "unset key~%"))
         ;; plotting box
-        (when (and (member '$box plot-options) (not (getf plot-options '$box)))
-          (format dest "unset border~%")
-          (if (and (getf plot-options '$axes)
-                   (string= (getf plot-options '$type) "plot2d"))
-              (format dest "set xtics axis~%set ytics axis~%set ztics axis~%")
-              (format dest "unset xtics~%unset ytics~%unset ztics~%")))
+        (if (and (member '$box plot-options) (not (getf plot-options '$box)))
+          (progn
+           (format dest "unset border~%")
+           (if (and (getf plot-options '$axes)
+                    (string= (getf plot-options '$type) "plot2d"))
+               (format dest "set xtics axis~%set ytics axis~%set ztics axis~%")
+             (format dest "unset xtics~%unset ytics~%unset ztics~%")))
+          (format dest "set border 4095~%"))          
         ;; 2d grid (specific to plot2d)
         (when (string= (getf plot-options '$type) "plot2d")
           (format dest "set grid front~%")
@@ -623,10 +619,11 @@ Gnuplot plotting format."
           (format $pstream "~a~%" (getf options '$gnuplot_postamble)))
         ;; gnuplot command to produce the 3d plot
         (format $pstream "~a"
-                (gnuplot-plot3d-command "-" (getf options '$palette)
-                                        (getf options '$gnuplot_curve_styles)
-                                        (getf options '$color)
-                                        titles n))
+                (gnuplot-plot3d-command
+                 "-" (getf options '$palette)
+                 (getf options '$gnuplot_curve_styles)
+                 (or (getf options '$mesh_lines_color) "#000000")
+                 titles n))
         ;; generate the mesh points for each surface in the functions stack
         (dolist (f functions)
           (setq i (+ 1 i))

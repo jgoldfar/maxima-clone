@@ -162,8 +162,8 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
   (setf
    *plot-options*
    '($grid (30 30) $color ($blue $red $green $magenta $black $cyan)
-           $gnuplot_term $default $mesh_lines_color "darkslategray"
-           $palette ($default) $gnuplot_preamble "" $background_color "white"
+           $gnuplot_term $default $mesh_lines_color "dimgray"
+           $palette $default $gnuplot_preamble "" $background_color "white"
            $point_type ($bullet $box $triangle $plus $times $asterisk)
            $adapt_depth 5 $nticks 29 $axes t $run_viewer t 
            $plot_format $gnuplot_pipes))
@@ -2137,56 +2137,54 @@ vertices of a triangle or a quadrilateral."
   (cadr option))
 
 (defun check-option-palette (option)
-"Checks that a palette option is either the color gray (or grey), or a
-maxima list of colors. For backward compatibily, it is also accepted a
-maxima list starting with the keyword $hue, $saturation, $value or $gradient;
-the firstvthree types must be followed by 4 floating-point numbers, while
- gradient must be followed by a list of at least two valid colors.
-It returns the option, if it is valid, or nil."
-  (let ((items (cdr option)))
-  (if (= (length items) 0)
-    nil
-    (progn
-      (dolist (item items)
-        (cond
-         ((atom item)
-          (unless (getf *plot-palettes* item)
-            (merror
-             (intl:gettext
-              "Palette: ~M is not one of the predefined palettes.")
-             item)))
-         (($listp item)
-          (if (member (cadr item) '($hue $saturation $value $gradient))
-            (case (cadr item)
-                  ($gradient
-                   (when (< (length (cddr item)) 2)
-                     (merror
-                      (intl:gettext
-                       "Palette: gradient needs at least 2 colors.")))
-                   (dolist (c (cddr item))
-                     (unless (plotcolorp c)
-                       (merror 
-                        (intl:gettext "Palette: ~M is not a valid color") c))))
-                  (($hue $saturation $value)
-                   (setf (cddr item) (mapcar #'coerce-float (cddr item)))
-                   (check-option (butlast (cdr #$[value,0.2,0,0,10]$))
-                                 #'real01p "a number between 0 and 1" 3)
-                   (check-option (cons (cadr item) (last (cdr item)))
-                                 #'realp "a real number" 1)))
-            (progn
-              (when (< (length (cdr item)) 2)
-                (merror
-                 (intl:gettext "Palette: at least 2 colors are required.")))
-              (dolist (c (cdr item))
-                (unless (plotcolorp c)
-                  (merror  (intl:gettext "Palette: ~M is not a valid color")
-                           c))))))
-         (t
+"Checks that a palette option is either a valid color, a maxima list of valid
+colors, or the name of a predfined palette.
+For backward compatibily, it is also accepted a maxima list starting with the
+keyword $hue, $saturation, $value or $gradient; the first three types must be
+followed by 4 floating-point numbers, while gradient must be followed by a
+list of at least two valid colors.
+It returns the definition of the palette, if it is valid, or nil."
+  (let ((palette (cadr option)))
+    (cond
+     ((atom palette)
+      (when (not (getf *plot-palettes* palette))
+        (unless (plotcolorp palette)
           (merror
            (intl:gettext
-            "Palette: expecting a valid palette, found ~M.")
-           item))))
-      items))))
+            "Palette: ~M is not a predefined palette or a valid color.")
+           palette))))
+     (($listp palette)
+      (if (member (cadr palette) '($hue $saturation $value $gradient))
+          (case (cadr palette)
+                ($gradient
+                 (when (< (length (cddr palette)) 2)
+                   (merror
+                    (intl:gettext
+                     "Palette: gradient needs at least 2 colors.")))
+                 (dolist (c (cddr palette))
+                   (unless (plotcolorp c)
+                     (merror 
+                      (intl:gettext "Palette: ~M is not a valid color") c))))
+                (($hue $saturation $value)
+                 (setf (cddr palette) (mapcar #'coerce-float (cddr palette)))
+                 (check-option (butlast (cdr #$[value,0.2,0,0,10]$))
+                               #'real01p "a number between 0 and 1" 3)
+                 (check-option (cons (cadr palette) (last (cdr palette)))
+                               #'realp "a real number" 1)))
+        (progn
+          (when (< (length (cdr palette)) 2)
+            (merror
+             (intl:gettext "Palette: at least 2 colors are required.")))
+          (dolist (c (cdr palette))
+            (unless (plotcolorp c)
+              (merror  (intl:gettext "Palette: ~M is not a valid color")
+                       c)))))
+      (setf palette (cdr palette)))
+     (otherwise
+      (merror
+       (intl:gettext
+        "Palette: expecting a valid palette, found ~M." palette))))
+    palette))
 
 ;; style can be one or several of the names of the styles or one or several
 ;; Maxima lists starting with the name of one of the styles. 

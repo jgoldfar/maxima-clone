@@ -182,14 +182,14 @@ the same color names accepted in HTML and CSS.")
       (gethash "yellowgreen" *color-table*) "#9acd32")
 
 (defvar *plot-palettes*
-  '($gray true $grey true
-          $default ((mlist) "greenyellow" "deepskyblue" "magenta")
-          $rainbow ((mlist) "indigo" "royalblue" "mediumseagreen" "yellow"
-                    "orange" "crimson")
-          $tomato  ((mlist) "yellow" "turquoise" "orangered")
-          $ubuntu  ((mlist) "orange" "indigo")
-          $beach   ((mlist) "wheat" "dodgerblue"))
-  "Array of predefined palettes.")
+  '($default ((mlist) "greenyellow" "deepskyblue" "magenta")
+    $rainbow ((mlist) "indigo" "royalblue" "mediumseagreen" "yellow"
+                       "orange" "crimson")
+    $tomato  ((mlist) "yellow" "turquoise" "orangered")
+    $ubuntu  ((mlist) "orange" "indigo")
+    $beach   ((mlist) "wheat" "dodgerblue")
+    $black_and_white ((mlist) "black" "white"))
+"Array of predefined palettes.")
 
 (defun plotcolorp (clr)
 "Returns true if the given symbol or string is a valid plot color; 

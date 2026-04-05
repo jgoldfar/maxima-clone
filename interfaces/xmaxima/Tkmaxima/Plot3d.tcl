@@ -286,7 +286,8 @@ proc plot3dcolorFun {win z } {
             }
             set args [linsert $colors 0 $frac]
             return [interpolatecolor {*}$args] }
-	"0" { return "#ffffff" }}}
+	"0" { return "#ffffff" }
+        default {return $colorscheme}}}
 
 proc setupPlot3dColors { win first_mesh} {
     upvar #0 [oarray $win] wvar
@@ -606,10 +607,10 @@ proc drawMeshes {win canv} {
 #----------------------------------------------------------------
 #
 
-proc drawOneMesh { win  canv k mesh color } {
+proc drawOneMesh { win canv k mesh color } {
     #k=i*(ny+1)+j
     # k,k+1,k+1+nyp,k+nyp
-    makeLocal $win mesh_lines
+    makeLocal $win mesh_lines colorscheme
     upvar 1 rotatedxy ptsxy
     set n [llength $mesh]
 
@@ -639,8 +640,21 @@ proc drawOneMesh { win  canv k mesh color } {
 	} else {
 	    set outline ""
 	}
-	eval $canv create polygon $coords -tags [list [list poly mesh.$k]] \
-	    -fill $color $outline
+	# eval $canv create polygon $coords -tags [list [list poly mesh.$k]] \
+        #     -fill $color $outline
+	if { $colorscheme == 0 } {
+            if { $mesh_lines != 0 } {
+                set fill "-fill $mesh_lines"
+            } else {
+                set fill "-fill #000000"
+            }
+            lappend coords [lindex $coords 0] [lindex $coords 1]
+            eval $canv create line $coords -tags [list [list poly mesh.$k]] \
+                -width 2 $fill
+        } else {
+            eval $canv create polygon $coords -tags [list [list poly mesh.$k]] \
+                -fill $color $outline
+        }            
     }
 }
 
