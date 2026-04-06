@@ -164,7 +164,7 @@ plot3d([cos(y)*(10.0+6*cos(x)), sin(y)*(10.0+6*cos(x)),-6*sin(x)],
    '($grid (30 30) $color ($blue $red $green $magenta $black $cyan)
            $gnuplot_term $default $mesh_lines_color "dimgray"
            $palette $default $gnuplot_preamble "" $background_color "white"
-           $point_type ($bullet $box $triangle $plus $times $asterisk)
+           $point_type ($bullet mbox $triangle $plus $times $asterisk)
            $adapt_depth 5 $nticks 29 $axes t $run_viewer t 
            $plot_format $gnuplot_pipes))
   t)
@@ -1783,7 +1783,7 @@ vertices of a triangle or a quadrilateral."
          ($background_color
           (setf (getf options '$background_color)
                 (check-option-b (cdr opt) #'plotcolorp "a color" 1)))
-         ($box (setf (getf options '$box)
+         (mbox (setf (getf options 'mbox)
                      (check-option-boole (cdr opt))))
          ($color (setf (getf options '$color)
                        (check-option (cdr opt) #'plotcolorp "a color")))
@@ -1969,7 +1969,7 @@ vertices of a triangle or a quadrilateral."
       ((symbolp opt)
        (case opt
          ($axes (setf (getf options '$axes) t))
-         ($box (setf (getf options '$box) t))
+         (mbox (setf (getf options 'mbox) t))
          ($color_bar (setf (getf options '$color_bar) t))
          ($color_bar_tics (remf options '$color_bar_tics))
          ($cylindrical (setf (getf options '$transform_xy) '$polar_to_xy))
@@ -1995,7 +1995,7 @@ vertices of a triangle or a quadrilateral."
          ($gnuplot_pm3d (setf (getf options '$gnuplot_pm3d) t))
          ($gnuplot_strings (setf (getf options '$gnuplot_strings) t))
          ($noaxes (setf (getf options '$axes) nil))
-         ($nobox (setf (getf options '$box) nil))
+         ($nobox (setf (getf options 'mbox) nil))
          ($nocolor_bar (setf (getf options '$color_bar) nil))
          ($nocolor_bat_tics (setf (getf options '$color_bat_tics) nil))
          ($nogrid2d (setf (getf options '$grid2d) nil))
@@ -2038,7 +2038,7 @@ vertices of a triangle or a quadrilateral."
 
 ;; the 13 possibilities for the point types
 (defun pointtypep (p)
-  (if (member p  '($bullet $circle $plus $times $asterisk $box $square
+  (if (member p  '($bullet $circle $plus $times $asterisk mbox $square
                   $triangle $delta $wedge $nabla $diamond $lozenge)) t nil))
 
 ;; tries to convert az into a floating-point number between 0 and 360
@@ -2384,7 +2384,7 @@ plot2d ( x^2+y^2 = 1, [x, -2, 2], [y, -2 ,2]);
   (setq options (plot-options-parser extra-options options))
   (when (getf options '$y) (setf (getf options '$ybounds) (getf options '$y)))
   ;; Remove axes labels when no box is used in gnuplot
-  (when (and (member '$box options) (not (getf options '$box))
+  (when (and (member 'mbox options) (not (getf options 'mbox))
              (not (eq (getf options '$plot_format) '$xmaxima)))
     (remf options '$xlabel)
     (remf options '$ylabel))
@@ -2648,7 +2648,7 @@ Several functions depending on the two variables v1 and v2:
     (setf (getf options '$palette) nil))
    (setq *plot-realpart* (getf options '$plot_realpart))
   ;; set up the labels for the axes, unless no box is being shown
-  (unless (and (member '$box options) (not (getf options '$box)))
+  (unless (and (member 'mbox options) (not (getf options 'mbox)))
     (if (and (getf options '$xvar) (getf options '$yvar) (null tem))
 	(progn
 	  ;; Don't set xlabel (ylabel) if the user specified one.

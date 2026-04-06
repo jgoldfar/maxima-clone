@@ -192,7 +192,7 @@ between 0 and 1, where 0 gives the first color and 1 the last one."
               (dolist (face faces)
                  (format st "~d ~{~d~^ ~}~%" (length face) face)))
              (format st "}~%"))))
-        (unless (and (member '$box options) (not (getf options '$box)))
+        (unless (and (member 'mbox options) (not (getf options 'mbox)))
           (geomview-bbox st))
         (format st "}~%})~%(zoom targetcam 1.5)~%"))))))
 

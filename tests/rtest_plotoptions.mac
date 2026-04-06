@@ -21,3 +21,31 @@ purple;
 
 get_plot_option('color);
 [color, blue, red, green, magenta, black, cyan];
+
+/* mailing list 2026-04-02: Recent changes to "box" has broken plot options */
+
+(set_plot_option (['box, true]), get_plot_option ('box));
+[box, true];
+
+(set_plot_option (['box, false]), get_plot_option ('box));
+[box, false];
+
+(set_plot_option (['point_type, 'box]), get_plot_option ('point_type));
+[point_type, box];
+
+[house, box]: [3, 4];
+[3, 4];
+
+house;
+3;
+
+box;
+4;
+
+remvalue (box);
+[box];
+
+box;
+box;
+
+

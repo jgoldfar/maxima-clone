@@ -31,7 +31,7 @@
 
 (defun gnuplot-pointtype (type)
   (case type
-        ($bullet 7) ($circle 6) ($plus 1) ($times 2) ($asterisk 3) ($box 5)
+        ($bullet 7) ($circle 6) ($plus 1) ($times 2) ($asterisk 3) (mbox 5)
         ($square 4) ($triangle 9) ($delta 8) ($wedge 11) ($nabla 10)
         ($diamond 13) ($lozenge 12) (t 7)))
 
@@ -347,7 +347,7 @@
                    (null (getf plot-options '$legend)))
           (format dest "unset key~%"))
         ;; plotting box
-        (if (and (member '$box plot-options) (not (getf plot-options '$box)))
+        (if (and (member 'mbox plot-options) (not (getf plot-options 'mbox)))
           (progn
            (format dest "unset border~%")
            (if (and (getf plot-options '$axes)
