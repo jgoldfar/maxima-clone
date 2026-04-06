@@ -2182,8 +2182,8 @@ It returns the definition of the palette, if it is valid, or nil."
       (setf palette (cdr palette)))
      (otherwise
       (merror
-       (intl:gettext
-        "Palette: expecting a valid palette, found ~M." palette))))
+       (intl:gettext "Palette: expecting a valid palette, found ~M.")
+       palette)))
     palette))
 
 ;; style can be one or several of the names of the styles or one or several
