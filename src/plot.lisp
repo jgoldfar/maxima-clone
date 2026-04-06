@@ -2180,7 +2180,7 @@ It returns the definition of the palette, if it is valid, or nil."
               (merror  (intl:gettext "Palette: ~M is not a valid color")
                        c)))))
       (setf palette (cdr palette)))
-     (otherwise
+     (T
       (merror
        (intl:gettext "Palette: expecting a valid palette, found ~M.")
        palette)))
