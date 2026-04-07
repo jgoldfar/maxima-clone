@@ -129,7 +129,10 @@
         (cond ($show_openplot
                (format st "~a " (getf options '$type))
                (format st "-background ~a -data {~%"
-                       (rgb-color (getf options '$background_color))))
+                       (rgb-color (getf options '$background_color)))
+               ;; record Maxima version and date-time
+               (format st "# Created by Maxima ~a~%" *autoconf-version*)
+               (format st "# ~a~%" ($timedate)))
               (t (format st "{~a {background ~a} "
                          (getf options '$type)
                          (rgb-color (getf options '$background_color)))))

@@ -261,7 +261,11 @@
      (concatenate
       'string
       (slot-value plot 'data)
-      (with-output-to-string (dest)
+      (with-output-to-string
+        (dest)
+        ;; record Maxima version and date-time
+        (format dest "# Created by Maxima ~a~%" *autoconf-version*)
+        (format dest "# ~a~%" ($timedate))
         ;; reset initial state
         (format dest "reset~%unset output~%unset multiplot~%set clip two~%")
         ;; user's preamble
@@ -817,4 +821,15 @@
         (t
          (merror (intl:gettext "gnuplot_replot: argument, if present, must be a string; found: ~M") s)))
   "")
+
+(defun plot-set-gnuplot-script-file-name (options)
+"Returns a file name where the Gnuplot commands will be saved."
+  (let ((gnuplot-term (getf options '$gnuplot_term))
+	(gnuplot-out-file (getf options '$gnuplot_out_file)))
+    (if (and (find (getf options '$plot_format) '($gnuplot_pipes $gnuplot))
+             (eq gnuplot-term '$default) gnuplot-out-file)
+	(plot-file-path gnuplot-out-file t options)
+      (plot-file-path (format nil "~a.~a" (random-name 16)
+                              (ensure-string (getf options '$plot_format)))
+                      nil options))))
 

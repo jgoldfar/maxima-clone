@@ -1699,19 +1699,6 @@ vertices of a triangle or a quadrilateral."
       (setq name (format nil "~a~a" name (aref chars (random 36)))))
     name))
 
-;; TODO: This next function should be moved into gnuplot_def.lisp
-;; and instead of the list of options, the argument should be the desired
-;; extension for the file (villate 20240325)
-(defun plot-set-gnuplot-script-file-name (options)
-  (let ((gnuplot-term (getf options '$gnuplot_term))
-	(gnuplot-out-file (getf options '$gnuplot_out_file)))
-    (if (and (find (getf options '$plot_format) '($gnuplot_pipes $gnuplot))
-             (eq gnuplot-term '$default) gnuplot-out-file)
-	(plot-file-path gnuplot-out-file t options)
-      (plot-file-path (format nil "~a.~a" (random-name 16)
-                              (ensure-string (getf options '$plot_format)))
-                      nil options))))
-
 (defun plot-temp-file0 (file &optional (preserve-file nil))
   (let ((filename 
 	 (if *maxima-tempdir* 
@@ -1721,6 +1708,7 @@ vertices of a triangle or a quadrilateral."
       (setf (gethash filename *temp-files-list*) t))
     (format nil "~a" filename)
     ))
+
 (defun plot-temp-file (file &optional (preserve-file nil) (plot-options nil))
   (let (script-name
         (script-name-or-fun

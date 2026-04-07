@@ -73,6 +73,9 @@ between 0 and 1, where 0 gives the first color and 1 the last one."
     (setf (slot-value plot 'data)
         (with-output-to-string
           (st)
+          ;; record Maxima version and date-time
+          (format st "# Created by Maxima ~a~%" *autoconf-version*)
+          (format st "# ~a~%" ($timedate))
           (format st "(ui-panel tools off)~%(bbox-draw targetgeom no)~%")
           (if bgcolor
             (format st "(backcolor targetcam  ~{~,6f~^ ~})~%"
