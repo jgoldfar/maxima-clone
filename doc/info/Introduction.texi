@@ -206,7 +206,7 @@ of @kbd{;}.
 Maxima can generate plots of one or more functions:
 
 @example maxima
-(%i1) plot2d (sin(x)/x, [x, -20, 20])$
+(%i1) plot2d (sinc(x), [x, -20, 20])$
 @end example
 @altfigure{introduction1,Plot of a function}
 @example maxima
