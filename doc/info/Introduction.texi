@@ -215,8 +215,7 @@ Maxima can generate plots of one or more functions:
 @altfigure{introduction2,Plot of several functions}
 @example maxima
 @group
-(%i3) plot3d (sin(sqrt(x^2 + y^2))/sqrt(x^2 + y^2), 
-         [x, -12, 12], [y, -12, 12])$
+(%i3) plot3d (sinc(sqrt(x^2 + y^2)), [x, -12, 12], [y, -12, 12])$
 @end group
 @end example
 @altfigure{introduction3,Plot of a function of two variables}
