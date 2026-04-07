@@ -1999,11 +1999,6 @@
   is greater than 'maxpsifracdenom', then 'psi[<n>](<x>)' will not try
   to return a simplified value.")
 
-;;------------------------------------------------------------------------
-;; From hypgeo.lisp
-(defvar *par* nil
-  "Parameter of Laplace transform.")
-
 (defvar *checkcoefsignlist*)
 ;;------------------------------------------------------------------------
 ;; Miscellaneous vars.
