@@ -434,7 +434,7 @@
 		 (list (car b) 1  (car (last norm))))
 	  alpha beta)))	;;in terms of gamma
 
-(defun $primelmt (f_b p_a c)
+(defmfun $primelmt (f_b p_a c)
   ;;p_a(a) is an irreducible polynomial in K defining an extension
   ;;K[a] of degree n_a. Then f_b(b) is a polynomial in K[a] of degree
   ;;n_f , which defines a new extension K[a,b]. The output is a

@@ -1,7 +1,3 @@
-# -*-mode: tcl; fill-column: 75; tab-width: 8; coding: iso-latin-1-unix -*-
-#
-#       $Id: Textinsert.tcl,v 1.4 2004-03-21 07:30:58 vvzhy Exp $
-#
 ###### Textinsert.tcl ######
 ############################################################
 # Netmath       Copyright (C) 1998 William F. Schelter     #

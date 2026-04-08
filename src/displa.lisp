@@ -35,7 +35,7 @@
 (defmvar $lmxchar "["  "Character used for drawing the left edge of a matrix.")
 (defmvar $rmxchar "]"  "Character used for drawing the right edge of a matrix.")
 
-(defvar linearray (make-array 80. :initial-element nil))
+(defvar linearray (make-array 1000. :initial-element nil))
 
 (defun maxima-display (form &key (stream *standard-output*) )
   (let ((*standard-output* stream))
@@ -50,9 +50,6 @@
 	     (cond (*alt-display2d* (apply *alt-display2d* form ()))
 		   (t
 		    (let ((displayp t)
-			  (linearray (if displayp
-					 (make-array 80. :initial-element nil)
-					 linearray))
 			  (mratp (checkrat form))
 			  (maxht     1) (maxdp   0) (width   0)
 			  (height    0) (depth   0) (level   0) (size   2)
@@ -744,7 +741,7 @@
 				   'mparen 'mparen nil 0))
 		       (t (dimension-superscript
 			   (cons '(diff) l) (cons #\d (cons #\space den)))))
-	     w2 (+ 2 w2 width) h2 (max h2 height) d2 (+ d2 depth)))
+	     w2 (+ 2 w2 width) h2 (max h2 height) d2 (max d2 depth)))
      (setq num (nformat-check (addn num t)))
      (cond ((equal 1 num) (setq num (list #\d) w1 1 h1 1 d1 0))
 	   (t (setq num (dimension-superscript (list '(diff) #\d num) nil)
@@ -1200,6 +1197,10 @@
 (displa-def $matrix dim-$matrix)
 (displa-def %matrix dim-$matrix)
 
+(defmvar $display_matrix_brackets t)
+(defmvar $display_matrix_padding_vertical t)
+(defmvar $display_matrix_padding_horizontal t)
+
 (defun dim-$matrix (form result)
   (prog (dmstr rstr cstr consp cols)
      (setq cols (if ($listp (cadr form)) (length (cadr form)) 0))
@@ -1218,14 +1219,14 @@
      (do ((r (cdr form) (cdr r)) (h1 0) (d1 0))
 	 ((or consp (null r))
 	  (setq width 0)
-	  (do ((cs cstr (cdr cs))) ((null cs)) (setq width (+ 2 (car cs) width)))
+	  (do ((cs cstr (cdr cs))) ((null cs)) (setq width (+ (if $display_matrix_padding_horizontal 2 0) (car cs) width)))
 	  (if (display2d-unicode-enabled)
 	    (setq h1 (1+ (+ h1 d1)) depth (truncate h1 2) height (- h1 depth))
 	    (setq h1 (1- (+ h1 d1)) depth (truncate h1 2) height (- h1 depth))))
        (do ((c (cdar r) (cdr c))
 	    (nc dmstr (cdr nc))
 	    (cs cstr (cdr cs)) (dummy) (h2 0) (d2 0))
-	   ((null c) (setq d1 (+ d1 h1 h2) h1 (1+ d2)))
+	   ((null c) (setq d1 (+ (if (or $display_matrix_padding_vertical (null rstr)) d1 (1- d1)) h1 h2) h1 (1+ d2)))
 	 (setq dummy (dimension (car c) nil 'mparen 'mparen nil 0)
 	       h2 (max h2 height) d2 (max d2 depth))
 	 (cond ((not (checkfit (+ 14. width))) (setq consp t) (return nil))
@@ -1235,14 +1236,14 @@
      (if (> (+ height depth) (length linearray))
 	 (setq consp t))
      (return
-       (cond ((and (not consp) (checkfit (+ 2 width)))
+       (cond ((and (not consp) (checkfit (if $display_matrix_brackets (+ 2 width) width)))
 	      (matout dmstr cstr rstr result))
 	     ((and (not consp) (<= level 2)) (colout form result))
 	     (t (dimension-function form result))))))
 
 (defun matout (dmstr cstr rstr result)
-  (push `(d-matrix left ,height ,depth) result)
-  (push #\space result)
+  (when $display_matrix_brackets (push `(d-matrix left ,height ,depth) result))
+  (when $display_matrix_padding_horizontal (push #\space result))
   (do ((d dmstr (cdr d)) (c cstr (cdr c)) (w 0 0))
       ((null d))
     (do ((d (car d) (cdr d)) (r rstr (cdr r))) ((null d))
@@ -1250,11 +1251,14 @@
       (rplaca (cdar d) (- (truncate (- (car c) (caar d)) 2) w))
       (setq w (truncate (+ (car c) (caar d)) 2))
       (rplaca d (cdar d)))
-    (setq result (cons (list (+ 2 (- (car c) w)) 0) (nreconc (car d) result))))
-  (setq width (+ 2 width))
+    (setq result (cons (list (+ (if $display_matrix_padding_horizontal 2 (if (cdr c) 0 1)) (- (car c) w)) 0) (nreconc (car d) result))))
+  (if $display_matrix_brackets
+    (setq width (+ 2 width))
+    (when $display2d_unicode
+      (setq height (1- height) depth (1- depth))))
   (update-heights height depth)
   (rplaca (car result) (1- (caar result)))
-  (push `(d-matrix right ,height ,depth) result)
+  (when $display_matrix_brackets (push `(d-matrix right ,height ,depth) result))
   result)
 
 (defun colout (form result)
@@ -1264,8 +1268,24 @@
                 collect (list '(mequal) (format nil " Col ~d" k) ($col form k))))
     result ""))
 
-(displa-def mbox dim-mbox)
-(displa-def %mbox dim-mbox)
+(displa-def %determinant dim-determinant)
+
+(defmvar $display_determinant_bars t)
+
+(defun dim-determinant (form result)
+  (let ((a (rest form)))
+    (if (and $display_determinant_bars (= (length a) 1) ($matrixp (first a)))
+      (let ($display_matrix_brackets)
+        (dim-mabs `((mabs) ,(first a)) result))
+      (dimension-function form result))))
+
+(displa-def mbox dim-mbox-or-mlabox)
+(displa-def %mbox dim-mbox-or-mlabox)
+
+(defun dim-mbox-or-mlabox (form result)
+  (if (= (length form) 3)
+    (dim-mlabox form result)
+    (dim-mbox form result)))
 
 (defun dim-mbox (form result &aux dummy)
   (setq dummy (dimension (cadr form) nil 'mparen 'mparen nil 0))
@@ -1284,7 +1304,21 @@
     (dim-mlabox-unicode form result)
     (dim-mlabox-ascii form result)))
 
+(defmvar $display_box_double_lines t)
+
 (defun dim-mlabox-unicode (form result)
+  (if $display_box_double_lines
+    (dim-mlabox-unicode-default form result)
+    (let
+      ((*d-box-char-unicode-horz* (get-unicode-char :box-drawings-light-horizontal))
+       (*d-box-char-unicode-vert* (get-unicode-char :box-drawings-light-vertical))
+       (*d-box-char-unicode-upper-left* (get-unicode-char :box-drawings-light-down-and-right))
+       (*d-box-char-unicode-upper-right* (get-unicode-char :box-drawings-light-down-and-left))
+       (*d-box-char-unicode-lower-right* (get-unicode-char :box-drawings-light-up-and-left))
+       (*d-box-char-unicode-lower-left* (get-unicode-char :box-drawings-light-up-and-right)))
+      (dim-mlabox-unicode-default form result))))
+
+(defun dim-mlabox-unicode-default (form result)
   (prog (dummy)
      (setq dummy (dimension (cadr form) nil 'mparen 'mparen nil 0))
      (cond ((not (checkfit (+ 2 width)))
@@ -1478,12 +1512,17 @@
 ;; Block mode i/o isn't needed since PRINC is used instead of WRITE-CHAR and
 ;; CURSORPOS.
 
-(defun output-linear (result w)
+(defun output-linear (result w &aux i0)
   (draw-linear result bkptdp w)
   (do ((i (1- (+ bkptht bkptdp)) (1- i)))
       ((< i 0))
-    (cond ((null (aref linearray i)))
-	  (t (output-linear-one-line i)))))
+    (cond
+      ((and (null i0) (null (aref linearray i))))
+      (t
+        (when (null i0) (setq i0 i))
+        (if (null (aref linearray i))
+          (mterpri)
+          (output-linear-one-line i))))))
 
 (defun output-linear-one-line (i)
   (prog (line (n 0))
@@ -1680,7 +1719,19 @@
     (d-box-unicode h d w body)
     (d-box-ascii h d w body)))
 
-(defun d-box-unicode (h d w body &aux dmstr)
+(defun d-box-unicode (h d w body)
+  (if $display_box_double_lines
+    (d-box-unicode-default h d w body)
+    (let
+      ((*d-box-char-unicode-horz* (get-unicode-char :box-drawings-light-horizontal))
+       (*d-box-char-unicode-vert* (get-unicode-char :box-drawings-light-vertical))
+       (*d-box-char-unicode-upper-left* (get-unicode-char :box-drawings-light-down-and-right))
+       (*d-box-char-unicode-upper-right* (get-unicode-char :box-drawings-light-down-and-left))
+       (*d-box-char-unicode-lower-right* (get-unicode-char :box-drawings-light-up-and-left))
+       (*d-box-char-unicode-lower-left* (get-unicode-char :box-drawings-light-up-and-right)))
+      (d-box-unicode-default h d w body))))
+
+(defun d-box-unicode-default (h d w body &aux dmstr)
   (setq dmstr `((0 ,h ,*d-box-char-unicode-upper-right* (d-hbar ,w ,*d-box-char-unicode-horz*) ,*d-box-char-unicode-upper-left*)
 		(,(- (+ w 2)) 0)
 		(d-vbar ,h ,d ,*d-box-char-unicode-vert*)

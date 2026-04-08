@@ -761,6 +761,9 @@ When @var{x} is a list,
 When @var{x} is a matrix,
 @code{mean} returns a list comprising the sample mean of each column.
 
+When @var{x} is an empty list or an empty matrix (no rows),
+@code{mean} returns @code{und} (undefined).
+
 @var{w} is an optional per-datum weight.
 @var{w} must either be 1, in which case every datum @var{x[i]} is given equal weight,
 or a list of the same length as @var{x},

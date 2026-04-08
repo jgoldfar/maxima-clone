@@ -46,9 +46,9 @@ References:
 
 [1] Fortran Code is from @url{http://plato.asu.edu/sub/nlores.html#general}
 
-[2] M. J. D. Powell, "A direct search optimization method that models the objective and constraint functions by linear interpolation," in Advances in Optimization and Numerical Analysis, eds. S. Gomez and J.-P. Hennart (Kluwer Academic: Dordrecht, 1994), p. 51-67. 
+[2] M. J. D. Powell, "A direct search optimization method that models the objective and constraint functions by linear interpolation," in Advances in Optimization and Numerical Analysis, eds. S. Gomez and J.-P. Hennart (Kluwer Academic: Dordrecht, 1994), p. 51-67.  @url{https://doi.org/10.1007/978-94-015-8330-5_4, doi:10.1007/978-94-015-8330-5_4}
 
-[3] M. J. D. Powell, "Direct search algorithms for optimization calculations," Acta Numerica 7, 287-336 (1998).  Also available as University of Cambridge, Department of Applied Mathematics and Theoretical Physics,  Numerical Analysis Group, Report NA1998/04 from @url{https://web.archive.org/web/20160607190705/http://www.damtp.cam.ac.uk:80/user/na/reports.html}
+[3] M. J. D. Powell, "Direct search algorithms for optimization calculations," Acta Numerica 7, 287-336 (1998).  @url{https://doi.org/10.1017/S0962492900002841, doi:10.1017/S0962492900002841} Also available as University of Cambridge, Department of Applied Mathematics and Theoretical Physics,  Numerical Analysis Group, Report NA1998/04 from @url{https://web.archive.org/web/20160607190705/http://www.damtp.cam.ac.uk:80/user/na/reports.html}
 
 @opencatbox{Categories:}
 @category{Numerical methods} 
@@ -187,18 +187,18 @@ x_2 &= -{1\over \sqrt{2}}
 @c fmin_cobyla(x1*x2, [x1, x2], [1,1], 
 @c             constraints = [x1^2+x2^2<=1], iprint=1);
 @c ===end===
-@example
+@example maxima
 (%i1) load("fmin_cobyla")$
 @group
-(%i2) fmin_cobyla(x1*x2, [x1, x2], [1,1], 
-                  constraints = [x1^2+x2^2<=1], iprint=1);
-@end group
+(%i2) fmin_cobyla(x1*x2, [x1, x2], [1,1],
+            constraints = [x1^2+x2^2<=1], iprint=1);
    Normal return from subroutine COBYLA
 
-   NFVALS =   66   F =-5.000000E-01    MAXCV = 1.999845E-12
-   X = 7.071058E-01  -7.071077E-01
-(%o2) [[x1 = 0.70710584934848, x2 = - 0.7071077130248], 
-       - 0.49999999999926, [[-1.999955756559757e-12],[]], 66]
+   NFVALS =   64   F =-5.000000E-01    MAXCV = 2.000122E-12
+   X = 7.071076E-01  -7.071060E-01
+(%o2) [[x1 = 0.707107555323284, x2 = - 0.7071060070503778], 
+                                     - 0.4999999999998015, 64, 0]
+@end group
 @end example
 
 Here is the same example but the constraint
@@ -227,6 +227,13 @@ constraints may not be satisfied.  Substituting the solution into the
 constraint equation as shown in @code{%o2} shows that the constraint
 is, of course, violated.
 
-There are additional examples in the share/cobyla/ex directory and in
-share/cobyla/rtest_cobyla.mac.
+There are additional examples in the
+@url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/cobyla/ex,
+share/cobyla/ex} directory and in
+@url{https://sourceforge.net/p/maxima/code/ci/master/tree/share/cobyla/rtest_cobyla.mac,
+share/cobyla/rtest_cobyla.mac}.
 
+@c Local Variables: 
+@c mode: texinfo
+@c TeX-master: "include-maxima"
+@c End: 

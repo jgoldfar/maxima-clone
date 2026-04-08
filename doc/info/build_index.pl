@@ -5,6 +5,11 @@
 require 5.008;
 
 $main_info = $ARGV[0];
+
+if ($#ARGV == 1) {
+    $info_installation_path = $ARGV[1];
+}
+
 $infofile_encoding = ":utf8";
 
 binmode STDOUT, $infofile_encoding;
@@ -252,7 +257,14 @@ print ")))\n";
 
 #        Construct hashtables from the lists given above.
 
-print "(load-info-hashtables (maxima::maxima-load-pathname-directory) deffn-defvr-pairs section-pairs))\n";
+if ($info_installation_path) {
+    $info_path_or_how_to_get_it = "#p\"$info_installation_path/\"";
+}
+else {
+    $info_path_or_how_to_get_it = "(maxima::maxima-load-pathname-directory)";
+}
+
+print "(load-info-hashtables $info_path_or_how_to_get_it deffn-defvr-pairs section-pairs))\n";
 
 # (2.3)  Do we have any items or sections?
 #

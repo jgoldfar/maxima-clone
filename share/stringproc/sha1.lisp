@@ -119,6 +119,64 @@
   (logior (ash i32 (- k)) (logand (ash i32 (- 32. k)) #xffffffff)) )
 
 
+(defvar *k2* 
+  (coerce               ;; the first 32 bits of the fractional parts of ..
+    (mapcar #'(lambda (i) (floor (* (rem (expt (coerce i 'double-float) 1/3) 1.0) #x100000000))) 
+            (subseq *small-primes* 0 64.) ) ;; .. the cube roots of the first 64 primes (2,..,311)
+    'vector ))
+
+(defvar *h2* nil)
+(defvar *w2* nil)
+
+(defun sha256-words (vec)
+  (setq *w2* (make-array 64. :element-type 'integer :initial-element 0))
+  ;; copy 512 bit message into 32 bit big-endian words:
+  (do ((i 0 (1+ i)) (inc -1))
+      ((= i 16.))
+    (setf (svref *w2* i) 
+      (logior (ash (svref vec (incf inc)) 24.)
+              (ash (svref vec (incf inc)) 16.)
+              (ash (svref vec (incf inc))  8.)
+                   (svref vec (incf inc))     )))
+  ;; expand:
+  (do ((i 16. (1+ i)) w s0 s1)
+      ((= i 64.))
+    (setq w (svref *w2* (- i 15.))
+          s0 (logxor (sha-right-rotation w 7)
+                     (sha-right-rotation w 18.)
+                     (ash w -3) )
+          w (svref *w2* (- i 2))
+          s1 (logxor (sha-right-rotation w 17.)
+                     (sha-right-rotation w 19.)
+                     (ash w -10.) ))
+    (setf (svref *w2* i) 
+      (sha+ (svref *w2* (- i 16.)) s0 (svref *w2* (- i 7)) s1) )))
+
+(defun sha256-worker ()
+  (multiple-value-bind (a b c d e f g h) (apply #'values *h2*)
+    (let (s1 t1 s2 t2)
+      (do ((i 0 (1+ i)))
+          ((= i 64.))
+        (setq s1 (logxor (sha-right-rotation e 6)
+                         (sha-right-rotation e 11.)
+                         (sha-right-rotation e 25.) )
+              t1 (logxor (logand e f) (logand (sha-not e) g))
+              t1 (sha+ h s1 t1 (svref *k2* i) (svref *w2* i))
+              s2 (logxor (sha-right-rotation a 2)
+                         (sha-right-rotation a 13.)
+                         (sha-right-rotation a 22.) )
+              t2 (logxor (logand a b) (logand a c) (logand b c))
+              t2 (sha+ s2 t2) )
+        (setq h g
+              g f
+              f e
+              e (sha+ d t1)
+              d c
+              c b
+              b a
+              a (sha+ t1 t2) ))
+      (setq *h2* (mapcar #'sha+ (list a b c d e f g h) *h2*)) )))
+
 (defun sha-update (bytes nr)
   (setq bytes (coerce bytes 'vector))
   (cond
@@ -258,64 +316,6 @@
 
 
 ;; *** SHA256 *************************************************************** ;;
-
-(defvar *k2* 
-  (coerce               ;; the first 32 bits of the fractional parts of ..
-    (mapcar #'(lambda (i) (floor (* (rem (expt (coerce i 'double-float) 1/3) 1.0) #x100000000))) 
-            (subseq *small-primes* 0 64.) ) ;; .. the cube roots of the first 64 primes (2,..,311)
-    'vector ))
-
-(defvar *h2* nil)
-(defvar *w2* nil)
-
-(defun sha256-worker ()
-  (multiple-value-bind (a b c d e f g h) (apply #'values *h2*)
-    (let (s1 t1 s2 t2)
-      (do ((i 0 (1+ i)))
-          ((= i 64.))
-        (setq s1 (logxor (sha-right-rotation e 6)
-                         (sha-right-rotation e 11.)
-                         (sha-right-rotation e 25.) )
-              t1 (logxor (logand e f) (logand (sha-not e) g))
-              t1 (sha+ h s1 t1 (svref *k2* i) (svref *w2* i))
-              s2 (logxor (sha-right-rotation a 2)
-                         (sha-right-rotation a 13.)
-                         (sha-right-rotation a 22.) )
-              t2 (logxor (logand a b) (logand a c) (logand b c))
-              t2 (sha+ s2 t2) )
-        (setq h g
-              g f
-              f e
-              e (sha+ d t1)
-              d c
-              c b
-              b a
-              a (sha+ t1 t2) ))
-      (setq *h2* (mapcar #'sha+ (list a b c d e f g h) *h2*)) )))
-
-(defun sha256-words (vec)
-  (setq *w2* (make-array 64. :element-type 'integer :initial-element 0))
-  ;; copy 512 bit message into 32 bit big-endian words:
-  (do ((i 0 (1+ i)) (inc -1))
-      ((= i 16.))
-    (setf (svref *w2* i) 
-      (logior (ash (svref vec (incf inc)) 24.)
-              (ash (svref vec (incf inc)) 16.)
-              (ash (svref vec (incf inc))  8.)
-                   (svref vec (incf inc))     )))
-  ;; expand:
-  (do ((i 16. (1+ i)) w s0 s1)
-      ((= i 64.))
-    (setq w (svref *w2* (- i 15.))
-          s0 (logxor (sha-right-rotation w 7)
-                     (sha-right-rotation w 18.)
-                     (ash w -3) )
-          w (svref *w2* (- i 2))
-          s1 (logxor (sha-right-rotation w 17.)
-                     (sha-right-rotation w 19.)
-                     (ash w -10.) ))
-    (setf (svref *w2* i) 
-      (sha+ (svref *w2* (- i 16.)) s0 (svref *w2* (- i 7)) s1) )))
 
 (defmfun $sha256sum (s &optional (rtype '$string))
   (let (bytes len)

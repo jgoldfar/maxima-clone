@@ -49,12 +49,12 @@
 	       (t (merror "~&FREEVAR: variable of integration appeared in subscript."))))
 	(t (and (freevar (car a)) (freevar (cdr a))))))
 
-;; Same as varp, but the second arg specifiies the variable to be
+;; Same as varp, but the second arg specifies the variable to be
 ;; tested instead of using the special variable VAR.
 (defun varp2 (x var2)
   (alike1 x var2))
 
-;; Like freevar bug the second arg specifies the variable to be tested
+;; Like freevar but the second arg specifies the variable to be tested
 ;; instead of using the special variable VAR.
 (defun freevar2 (a var2)
   (cond ((atom a) (not (eq a var2)))
@@ -127,6 +127,12 @@
   (let ((ex (simplify ($factor x))))
     (if (not (alike1 ex x)) ex)))
 
+(defun expand-base-of-exp (e x)
+  (cond (($mapatom e) e)
+        ((and (mexptp e) (not (freeof x e)))
+          (ftake 'mexpt ($expand (second e) 1 0) (third e)))
+        (t (recur-apply #'(lambda (q) (expand-base-of-exp q x)) e))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Stage II of the Integrator
@@ -143,7 +149,7 @@
   ;; used only in INTFORM and INTEGRATOR.  I (rtoy) haven't been able
   ;; to figure out exactly how to do that.
 
-  (defun intform (expres var2 &aux w arg)
+  (defun intform (expres var2 &aux w arg ans)
     (declare (special *exp*))
     (cond ((freevar2 expres var2) nil)
           ((atom expres) nil)
@@ -246,8 +252,10 @@
         
           ;; Method 1: Elementary function of exponentials
           ((freevar2 (cadr expres) var2)
-           (cond ((setq w (m2-b*x+a (caddr expres) var2))
-                  (superexpt *exp* var2 (cadr expres) w))
+           (cond ((and (setq w (m2-b*x+a (caddr expres) var2))
+                       (setq ans (superexpt *exp* var2 (cadr expres) w))
+                       (freeof '%integrate ans)
+                       ans))
                  ((intform (caddr expres) var2))
                  ((and (eq '$%e (cadr expres))
                        (isinop (caddr expres) '%log))
@@ -1880,9 +1888,8 @@
 
 ;;; Only called by intform.
 (defun ratlog (var2 form)
-  (prog (b c d y z)
+  (prog (c d y z)
      (setq y form)
-     (setq b (cdr (assoc 'b y :test #'eq)))
      (setq c (cdr (assoc 'c y :test #'eq)))
      (setq y (integrator c var2))
      (when (finds y) (return nil))
@@ -2539,10 +2546,10 @@
           (take '(%gamma_incomplete)
                 (div (add v 1) r)
                 (mul -1 a u (power var2 r)))))
-
-    ((m2-exp-type-3 (facsum-exponent expr var2) var2)
-     (a b c d p)
-     (when *debug-integrate*
+    
+    ((m2-exp-type-3 (expand-base-of-exp (facsum-exponent expr var2) var2) var2)
+      (a b c d p)
+      (when *debug-integrate*
        (format t "~&Type 3: (a*z+b)^p*%e^(c*z+d) : w = ~A~%" w))
      (mul
       const

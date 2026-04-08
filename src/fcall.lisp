@@ -83,7 +83,7 @@
 	 (eval (cons f argl)))
 	((not (symbolp f)) (merror (intl:gettext "apply: expected symbol or function; found: ~M") f))
 	((setq f-prop (get f 'mfexpr*))
-	 (funcall f-prop (cons nil argl)))
+	 (funcall f-prop (cons (list f) argl)))
 	((setq f-prop (mget f 'mexpr))
 	 (cond ((mget f 'mfexprp)
 		(mfunction-call-warn f 'mfexpr)

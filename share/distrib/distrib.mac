@@ -1846,7 +1846,7 @@ cdf_general_finite_discrete(x,v) :=
   elseif not numberp(float(x))
     then error("cdf_general_finite_discrete: x must be a number")
   else
-    if x > 1 then 0
+    if x < 1 then 0
     elseif x >= length(v) then 1
     else sum(v[k],k,1,floor(x)) / sum(v[k],k,1,length(v))$
 

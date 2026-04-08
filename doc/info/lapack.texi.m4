@@ -87,7 +87,7 @@ Example:
 @c M . v - v . D;
 @c transpose (u) . M - D . transpose (u);
 @c ===end===
-@example
+@example maxima
 (%i1) load ("lapack")$
 @group
 (%i2) fpprintprec : 6;
@@ -182,7 +182,7 @@ is equal to @var{A} (ignoring floating point round-off errors).
 @c q . r - M;
 @c mat_norm (%, 1);
 @c ===end===
-@example
+@example maxima
 (%i1) load ("lapack")$
 @group
 (%i2) fpprintprec : 6;
@@ -255,7 +255,7 @@ Examples:
 @c x : dgesv (A, b);
 @c dlange (inf_norm, b - A . x);
 @c ===end===
-@example
+@example maxima
 (%i1) load("lapack")$
 @group
 (%i2) A : matrix ([1, -2.5], [0.375, 5]);
@@ -291,7 +291,7 @@ Examples:
 @c x : dgesv (A, b);
 @c dlange (inf_norm, b - A . x);
 @c ===end===
-@example
+@example maxima
 (%i1) load ("lapack")$
 @group
 (%i2) A : matrix ([1, -0.15], [1.82, 2]);
@@ -327,7 +327,7 @@ The elements of @var{A} and @var{b} must evaluate to real floating point numbers
 @c x : dgesv (A, b);
 @c dlange (inf_norm, b - A . x);
 @c ===end===
-@example
+@example maxima
 (%i1) load ("lapack")$
 @group
 (%i2) A : matrix ([5, -%pi], [1b0, 11/17]);
@@ -457,7 +457,7 @@ Example:
 @c transpose (U) . U;
 @c VT . transpose (VT);
 @c ===end===
-@example
+@example maxima
 (%i1) load ("lapack")$
 @group
 (%i2) fpprintprec : 6;
@@ -684,7 +684,7 @@ for the product.  The default is @code{false}.
 @c dgemm(A,B,c=C,beta=1, alpha=-1);
 @c -A . B + C;
 @c ===end===
-@example
+@example maxima
 (%i1) load ("lapack")$
 @group
 (%i2) A : matrix([1,2,3],[4,5,6],[7,8,9]);
@@ -832,7 +832,7 @@ eigenvalues, and @code{false} or the matrix of the eigenvectors.
 @c E[1];
 @c E[2];
 @c ===end===
-@example
+@example maxima
 (%i1) load("lapack")$
 @group
 (%i2) M: matrix(
@@ -905,3 +905,7 @@ eigenvalues, and @code{false} or the matrix of the eigenvectors.
 
 @end deffn
 
+@c Local Variables: 
+@c mode: texinfo
+@c TeX-master: "include-maxima"
+@c End: 

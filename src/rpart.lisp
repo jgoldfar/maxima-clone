@@ -25,12 +25,6 @@
 
 ;;; Realpart gives the real part of an expr.
 
-(defmfun $realpart (xx) (car (trisplit xx)))
-
-(defprop $realpart %realpart verb)
-(defprop %realpart $realpart noun)
-(defprop %realpart simp-realpart operators)
-
 (defun risplit-signum (x) ;rectangular form for a signum expression
   (let*  ((z (risplit (cadr x))) (a (car z)) (b (cdr z)) (r)) ;signum(a+%i b), where a and b are real
     (cond ((eq t (meqp b 0)) ;signum(a) -> signum(a) + 0 %i
@@ -42,9 +36,14 @@
 
 (setf (get '%signum 'risplit-function) 'risplit-signum)
 
-(defun simp-realpart (expr z simpflag)
-  (oneargcheck expr)
-  (setq z (simpcheck (cadr expr) simpflag))
+(defmfun $realpart (xx) (car (trisplit xx)))
+
+(def-simplifier (realpart :custom-defmfun t
+                          ;; DO NOT set the ALIAS and REVERSEALIAS
+                          ;; properties for this simplifier.  It
+                          ;; causes failures in the testsuite.
+                          :skip-properties (alias reversealias))
+    (z)
   (let ((sgn nil))
     (cond ((mnump z) z)
           ((eq (setq sgn ($csign z)) '$imaginary)
@@ -52,22 +51,21 @@
           ((eq sgn '$complex)
            (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
                   ($realpart z))
-                 (t 
-                  (eqtest (list '(%realpart) z) expr))))
-          (t 
-           (eqtest (list '(%realpart) z) expr)))))
+                 (t
+                  (give-up))))
+          (t
+           (give-up)))))
 
 ;;; Imagpart gives the imaginary part of an expr.
 
 (defmfun $imagpart (xx) (cdr (trisplit xx)))
 
-(defprop $imagpart %imagpart verb)
-(defprop %imagpart $imagpart noun)
-(defprop %imagpart simp-imagpart operators)
-
-(defun simp-imagpart (expr z simpflag)
-  (oneargcheck expr)
-  (setq z (simpcheck (cadr expr) simpflag))
+(def-simplifier (imagpart :custom-defmfun t
+                          ;; DO NOT set the ALIAS and REVERSEALIAS
+                          ;; properties for this simplifier.  It
+                          ;; causes failures in the testsuite.
+                          :skip-properties (alias reversealias))
+    (z)
   (let ((sgn nil))
     (cond ((mnump z) 0)
           ((eq (setq sgn ($csign z)) '$imaginary)
@@ -75,10 +73,10 @@
           ((eq sgn '$complex)
            (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
                   ($imagpart z))
-                 (t 
-                  (eqtest (list '(%imagpart) z) expr))))
-          (t 
-           (eqtest (list '(%imagpart) z) expr)))))
+                 (t
+                  (give-up))))
+          (t
+           (give-up)))))
 
 ;;; Rectform gives a result of the form a+b*%i.
 
@@ -99,61 +97,44 @@
 ;;; be syntactically real without being real (e.g. sqrt(x), x<0).  Thus
 ;;; Cabs must lead an independent existence from Abs.
 
-(defmfun $cabs (xx) (cabs xx))
+;; The internal cabs, used by other Macsyma programs.
+(defun cabs (xx)
+  (car (absarg xx t)))
 
-(defprop $cabs %cabs verb)
-(defprop %cabs $cabs noun)
-(defprop %cabs simp-cabs operators)
-
-(defun simp-cabs (expr z simpflag)
-  (oneargcheck expr)
-  (setq z (simpcheck (cadr expr) simpflag))
-  (let ((sgn nil))
-    (cond ((member (setq sgn ($csign z)) '($complex $imaginary))
-           (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
-                  (simplify (list '(mabs) z)))
-                 (t
-                  (eqtest (list '(mabs) z) expr))))
+(def-simplifier cabs (z)
+  (let ((sgn ($csign z)))
+    (cond ((member sgn '($complex $imaginary))
+           (cabs z))
           ((eq sgn '$zero)
            0)
           ((member sgn '($pos $pz))
            z)
           ((eq sgn '$neg)
-            (mul -1 z))
-          (t 
-           (eqtest (list '(mabs) z) expr)))))
+           (mul -1 z))
+          (t
+           (cabs z)))))
 
 ;;; Carg gives the complex argument.
 
-(defmfun $carg (xx)
-  (cond ((mbagp xx)
-	 (cons (car xx) (mapcar #'$carg (cdr xx))))
-	(t (cdr (absarg xx)))))
-
-(defprop $carg %carg verb)
-(defprop %carg $carg noun)
-(defprop %carg simp-carg operators)
-
-(defun simp-carg (expr z simpflag)
-  (oneargcheck expr)
-  (setq z (simpcheck (cadr expr) simpflag))
+(def-simplifier carg (z)
   (let ((sgn nil))
-    (cond ((eq z '$%i)
-           (div '$%pi 2))
-          ((member (setq sgn ($csign z)) '($complex $imaginary))
-           (cond ((complex-number-p ($expand z) 'bigfloat-or-number-p)
-                  ($carg z))
-                 (t 
-                  (eqtest (list '(%carg) z) expr))))
-          ((member sgn '($pos $pz $zero))
-           0)
-          ((eq sgn '$neg)
-            '$%pi)
-          (t 
-           (eqtest (list '(%carg) z) expr)))))
-
-;; The internal cabs, used by other Macsyma programs.
-(defun cabs (xx) (car (absarg xx t)))
+    (labels
+        ((carg (xx)
+           (cond ((mbagp xx)
+	          (cons (car xx) (mapcar #'carg (cdr xx))))
+	         (t (cdr (absarg xx))))))
+      (cond ((eq z '$%i)
+             (div '$%pi 2))
+            ((member (setq sgn ($csign z)) '($complex $imaginary))
+             (carg z))
+            ((member sgn '($pos $pz $zero))
+             0)
+            ((eq sgn '$neg)
+             '$%pi)
+            ((eq sgn '$pnz)
+             (carg z))
+            (t
+             (give-up))))))
 
 ;; Some objects can only appear at the top level of a legal simplified
 ;; expression: CRE forms and equations in particular.
@@ -708,7 +689,7 @@
 			(t (cons (take '(mabs) l) (genatan 0 l))))))))
 	((eq '$zero (let ((sign-imag-errp nil)) (catch 'sign-imag-err ($sign l))))
 	 (cond ((some-bfloatp l)
-		(cons bigfloatzero bigfloatzero))	; contagious
+		(cons *bigfloatzero* *bigfloatzero*))	; contagious
 	       ((some-floatp l)
 		(cons 0.0 0.0))
 	       (t (cons 0 0))))
@@ -775,10 +756,35 @@
 	    (if absflag 0 (genatan (cdr ris) (car ris)))
 	    (cond ((equal (car ris) 0) (absarg-mabs (cdr ris)))
 		  ((equal (cdr ris) 0) (absarg-mabs (car ris)))
-		  (t (powers ($expand (add (powers (car ris) 2)
-					   (powers (cdr ris) 2))
-				      1 0)
-			     (half)))))))))
+		  (t (hypotenuse (car ris) (cdr ris)))))))))
+
+(defun hypotenuse-numerical (re im)
+ "Dispatch the CL abs function to return |re + %i im|. The inputs re and im should be floating point numbers.
+  We trust the compiler to work correctly for all double floats, including denormalized floats, and not needlessly
+  over or underflow."
+  (cond ((zerop im) (abs im))
+        ((zerop re) (abs re))
+        (t (abs (complex re im)))))
+
+(defun hypotenuse (re im)
+ (flet ((hypotenuse-default (re im) ;ok to use when no worries about floating point over/underflow
+          ;; For mixed binary64 and symbolic cases, computing re^2 or im^2 can cause a 
+          ;; floating point overflow. When an error happens, we'll punt to an abs nounform.
+
+          ;; I'd prefer to eliminate the following calls to expand, but doing so causes
+          ;; some testsuite failures.
+          (setq re ($expand re 1 0)
+                im ($expand im 1 0))
+          (or (ignore-errors (ftake 'mexpt (add (mul re re) (mul im im)) 1//2))
+              (ftake 'mabs (add re (mul '$%i im))))))
+
+    (cond ((or ($bfloatp re) ($bfloatp im)) ; at least one bigfloat
+            (hypotenuse-default ($bfloat re) ($bfloat im)))
+
+          ((or (and (floatp re) (mnump im)) (and (mnump re) (floatp im))) ;at least one float part
+             (hypotenuse-numerical ($float re) ($float im)))
+
+          (t (hypotenuse-default re im))))) ;fall back
 
 (defun genatan (num den)
   (let ((arg (take '(%atan2) num den)))

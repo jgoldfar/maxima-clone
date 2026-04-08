@@ -1762,7 +1762,7 @@ first kind:
     ;;
     ;; E(z|m) = E(z - %pi*round(Re(z)/%pi)|m) + 2*round(Re(z)/%pi)*E(m)
     (let ((period (round (realpart phi) pi)))
-      (+ (base (- phi (* pi period)) m)
+      (+ (base (- phi (* (float pi 1d0) period)) m)
 	 (* 2 period (elliptic-ec m))))))
 
 ;; Complete version
@@ -2537,7 +2537,7 @@ first kind:
 	     ;; ratsimp(%),algebraic;
 	     ;;   = log(sqrt(2)+1)
 	     (ftake '%log (add 1 (power 2 1//2))))
-	    ((and (alike1 x '$%i)
+	    ((and (eq x '$%i)
 		  (alike1 y (add 1 '$%i)))
 	     ;; rc(%i, %i+1) = 1/2*integrate(1/sqrt(t+%i)/(t+%i+1), t, 0, inf)
 	     ;;   = %pi/2-atan((-1)^(1/4))
@@ -2552,7 +2552,7 @@ first kind:
 		       1//2
 		       (ftake '%log (sub (power 2 1//2) 1)))))
 	    ((and (zerop1 x)
-		  (alike1 y '$%i))
+		  (eq y '$%i))
 	     ;; rc(0,%i) = 1/2*integrate(1/(sqrt(t)*(t+%i)), t, 0, inf)
 	     ;;   = -((sqrt(2)*%i-sqrt(2))*%pi)/4
 	     ;;   = ((1-%i)*%pi)/2^(3/2)
@@ -2709,7 +2709,7 @@ first kind:
 	    ((some #'(lambda (args)
 		       (destructuring-bind (x y z)
 			   args
-			 (and (alike1 x '$%i)
+			 (and (eq x '$%i)
 			      (alike1 y (mul -1 '$%i))
 			      (eql z 0))))
 		   (list (list x y z)
@@ -2748,7 +2748,7 @@ first kind:
 	    ((some #'(lambda (args)
 		       (destructuring-bind (x y z)
 			   args
-			 (and (alike1 x '$%i)
+			 (and (eq x '$%i)
 			      (alike1 y (mul -1 '$%i))
 			      (eql z 0))))
 		   (list (list x y z)

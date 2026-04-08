@@ -10,11 +10,11 @@
 # If no further patches are needed, you should get a
 # updated setup-file automatically.
 
-set(TCLVERSION "9.0.1")
-set(TKVERSION  "9.0.1")
+set(TCLVERSION "9.0.3")
+set(TKVERSION  "9.0.3")
 
-set(TCL_MD5 "6bc27eaf8e152c9f0c7b489b73b89dda")
-set(TK_MD5  "66bff2d2a28f14949f4d605ac5dd2ae5")
+set(TCL_MD5 "820aeed1e4e1a89038d0302d2f839e84")
+set(TK_MD5  "72f9c4005eaaf3b9c994bda74324c28e")
 
 set(TCL_URL "https://prdownloads.sourceforge.net/tcl/tcl${TCLVERSION}-src.tar.gz")
 set(TK_URL  "https://prdownloads.sourceforge.net/tcl/tk${TKVERSION}-src.tar.gz")
@@ -25,7 +25,7 @@ externalproject_add(tcl
   URL "${TCL_URL}"
   DOWNLOAD_DIR ${CMAKE_SOURCE_DIR}/downloads
   URL_MD5 ${TCL_MD5}
-  CONFIGURE_COMMAND ${CMAKE_BINARY_DIR}/tcltk/tcl-prefix/src/tcl/win/configure --build=${BUILDHOST} --host=${HOST} --disable-shared --disable-zipfs --prefix=${WINDOWS_DRIVELETTER}:/maxima-${MAXIMAVERSION}
+  CONFIGURE_COMMAND ${CMAKE_BINARY_DIR}/tcltk/tcl-prefix/src/tcl/win/configure --build=${BUILDHOST} --host=${HOST} --disable-shared --prefix=${WINDOWS_DRIVELETTER}:/maxima-${MAXIMAVERSION}
   BUILD_COMMAND $(MAKE)
         COMMAND $(MAKE) install
 )
@@ -36,7 +36,7 @@ externalproject_add(tk
   DOWNLOAD_DIR ${CMAKE_SOURCE_DIR}/downloads
   URL_MD5 ${TK_MD5}
   DEPENDS tcl
-  CONFIGURE_COMMAND ${CMAKE_BINARY_DIR}/tcltk/tk-prefix/src/tk/win/configure --build=${BUILDHOST} --host=${HOST} --disable-shared --disable-zipfs --with-tcl=${CMAKE_BINARY_DIR}/tcltk/tcl-prefix/src/tcl-build/${WINDOWS_DRIVELETTER}:/maxima-${MAXIMAVERSION}/lib --prefix=${WINDOWS_DRIVELETTER}:/maxima-${MAXIMAVERSION}
+  CONFIGURE_COMMAND ${CMAKE_BINARY_DIR}/tcltk/tk-prefix/src/tk/win/configure --build=${BUILDHOST} --host=${HOST} --disable-shared --with-tcl=${CMAKE_BINARY_DIR}/tcltk/tcl-prefix/src/tcl-build/${WINDOWS_DRIVELETTER}:/maxima-${MAXIMAVERSION}/lib --prefix=${WINDOWS_DRIVELETTER}:/maxima-${MAXIMAVERSION}
   BUILD_COMMAND $(MAKE)
         COMMAND $(MAKE) install
 )

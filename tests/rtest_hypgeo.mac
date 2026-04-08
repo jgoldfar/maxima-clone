@@ -640,7 +640,7 @@ ratsimp(specint(%e^(-s*t)*(unit_step(t)-unit_step(t-k)),t));
 ******************************************************************************/
 
 ratsimp(specint(%e^(-s*t)*sum(unit_step(t-n*k),n,0,inf),t)),simpsum;
-%e^(k*s)/(s*%e^(k*s)-s);
+%e^(k*s)/((%e^(k*s)-1)*s);
 
 /*****************************************************************************
    Problem 84: A&S: 29.3.66 (OK NEW)
@@ -672,7 +672,7 @@ factor(ratsimp(specint(%e^(-s*t)*(unit_step(t)+2*sum((-1)^n*unit_step(t-2*n*k),n
 ******************************************************************************/
 
 ratsimp(specint(%e^(-s*t)*sum((-1)^n*unit_step(t-n*k),n,0,inf),t)),simpsum;
-%e^(k*s)/(s*%e^(k*s)+s);
+%e^(k*s)/((%e^(k*s)+1)*s);
 
 /*****************************************************************************
    Problem 87: A&S: 29.3.69 OK New
@@ -1050,7 +1050,7 @@ specint(%e^(-s*t)*erf(t/(2*k)),t);
 ******************************************************************************/
 
 radcan(specint(%e^(-s*t)*sqrt(k)/(%pi*sqrt(t)*(t+k)),t));
-%e^(k*s)*(1-erf(sqrt(k*s)));
+%e^(k*s)-%e^(k*s)*erf(sqrt(k)*sqrt(s));
 
 /*****************************************************************************
    Problem 133: A&S: 29.3.115 OK New
@@ -1084,7 +1084,7 @@ radcan(specint(%e^(-s*t)*sin(2*k*sqrt(t))/(%pi*t),t));
 ******************************************************************************/
 
 ratsimp(specint(%e^(-s*t)*1/sqrt(%pi*t)*%e^(-2*k*sqrt(t)),t));
--((erf(k/sqrt(s))-1)*%e^(k^2/s)/sqrt(s));
+-((%e^(k^2/s)*erf(k/sqrt(s))-%e^(k^2/s))/sqrt(s));
 
 /*****************************************************************************
    Problem 137: A&S: 29.3.119 (OK noun form New)
@@ -1256,7 +1256,7 @@ gamma_incomplete(1/2,a*s)*%e^(a*s)/sqrt(s);
 */
 
 radcan(specint(%e^(-s*t)*sqrt(t)/(t+a),t));
-(sqrt(a)*(%pi*erf(sqrt(a)*sqrt(s))-%pi)*sqrt(s)*%e^(a*s)+sqrt(%pi))/sqrt(s);
+(sqrt(a)*(%e^(a*s)*%pi*erf(sqrt(a)*sqrt(s))-%e^(a*s)*%pi)*sqrt(s)+sqrt(%pi))/sqrt(s);
 
 /* Problem 157: No. OK New
    With gamma_incomplete(-1/2,z)=2*e^-z/sqrt(z)-2*sqrt(%pi)*erfc(sqrt(z))
@@ -1272,14 +1272,14 @@ gamma_incomplete(-1/2,a*s)*sqrt(s)*%e^(a*s);
 */
 
 radcan(specint(%e^(-s*t)*t^(1/2)*(t+a)^(-1),t));
-(sqrt(a)*(%pi*erf(sqrt(a)*sqrt(s))-%pi)*sqrt(s)*%e^(a*s)+sqrt(%pi))/sqrt(s);
+(sqrt(a)*(%e^(a*s)*%pi*erf(sqrt(a)*sqrt(s))-%e^(a*s)*%pi)*sqrt(s)+sqrt(%pi))/sqrt(s);
 
 /* Problem 159: No. 11 OK New
    Tabulated result: %pi*a^(1/2)*e^(a*s)*erfc(sqrt(a*s));
 */
 
 radcan(specint(%e^(-s*t)*t^(-1/2)*(t+a)^(-1),t));
--((%pi*erf(sqrt(a)*sqrt(s))-%pi)*%e^(a*s)/sqrt(a));
+-((%e^(a*s)*%pi*erf(sqrt(a)*sqrt(s))-%e^(a*s)*%pi)/sqrt(a));
 
 /* Problem 160: No. 12 OK */
 
@@ -1302,7 +1302,9 @@ gamma_incomplete(nu+1,a*s)*s^(-nu-1)*%e^(a*s);
 */
 
 radcan(specint(%e^(-s*t)*t^nu*(t+a)^(-1),t));
-(a^nu*gamma(-nu)*gamma(nu+1)-a^nu*nu*gamma_incomplete_lower(-nu,a*s)*gamma(nu))*%e^(a*s);
+%e^(a*s)*a^nu*gamma(-nu)*gamma(nu+1)-%e^(a*s)*a^nu
+                                             *gamma_incomplete_lower(-nu,a*s)
+                                             *nu*gamma(nu);
 
 /*******************************************************************************
 
@@ -1382,7 +1384,7 @@ factor(specint(%e^(-s*t)*t^(n-1)*%e^(-a/t),t));
 */
 
 radcan(specint(%e^(-s*t)*%e^(-2*sqrt(a*t)),t));
-(sqrt(%pi)*sqrt(a)*(erf(sqrt(a)/sqrt(s))-1)*%e^(a/s)+sqrt(s))/s^(3/2);
+(sqrt(s)+sqrt(%pi)*sqrt(a)*(%e^(a/s)*erf(sqrt(a)/sqrt(s))-%e^(a/s)))/s^(3/2);
 
 /* Problem 176: No. 14 OK
    Result of EqWorld is (%pi/s)^(1/2)*%e^(a/s)*erfc(sqrt(a/s));
@@ -1390,7 +1392,7 @@ radcan(specint(%e^(-s*t)*%e^(-2*sqrt(a*t)),t));
 */
 
 radcan(specint(%e^(-s*t)/sqrt(t)*%e^(-2*sqrt(a*t)),t));
--((sqrt(%pi)*(erf(sqrt(a)/sqrt(s))-1)*%e^(a/s))/sqrt(s));
+-((sqrt(%pi)*(%e^(a/s)*erf(sqrt(a)/sqrt(s))-%e^(a/s)))/sqrt(s));
 
 /*******************************************************************************
 
@@ -1647,7 +1649,7 @@ radcan(specint(%e^(-s*t)*cosh(2*sqrt(a*t)),t));
 */
 
 radcan(specint(%e^(-s*t)*sqrt(t)*cosh(2*sqrt(a*t)),t));
-sqrt(%pi)*(s+2*a)*%e^(a/s)/(2*s^(5/2));
+(sqrt(%pi)*(%e^(a/s)*s+2*%e^(a/s)*a))/(2*s^(5/2));
 
 /* Problem 212: No. 14 OK New
    Maxima gives the result:

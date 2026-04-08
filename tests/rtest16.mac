@@ -636,7 +636,7 @@ ode2('diff(y,x)-%i*y-sin(x),y,x);
 y = (%c-%i*(x-%i*%e^-(2*%i*x)/2)/2)*%e^(%i*x);
 
 /*
- * Bug ID: 826623 "simplifer returns %i*%i"
+ * Bug ID: 826623 "simplifier returns %i*%i"
  * 
  * Some examples to show simplification of expressions of the form
  * (a*b*...)^q*(a*b*...)^r, where q+r=1
@@ -1997,9 +1997,8 @@ map(lambda([x], featurep(x, 'irrational)),[42,%pi,%phi,%e]);
 
 /* #2501 %pi/8 is definitely not an integer
   A better answer is %pi*log(2))/8, but this is correct.*/
-integrate(log(cot(x)-1),x,0,%pi/4);
--((%i*li[2]((1-%i)/2))/2)+(%i*li[2](-((-%i-1)/2)))/2 +((4*%pi*log(2)+%i*%pi^2+16*%catalan)/4
-    +(4*%pi*log(2)-%i*%pi^2+16*%catalan)/4-2*%pi*log(2))/8$
+block([ans : integrate(log(cot(x)-1),x,0,%pi/4)], [ans, expand(float(ans))]);
+[-((%i*li[2]((1-%i)/2))/2)+(%i*li[2](-((-%i-1)/2)))/2+%catalan, 0.27219826128795016]$
 
 /* A better answer is -%pi*log(4)/4, but this is correct.*/
 integrate(log(cos(x)),x,0,%pi/2);
@@ -2987,7 +2986,7 @@ map(orderlessp,
 map(orderlessp,
 	[ a^b,      (a^b)^0.5, (a^b)^1.5, (a^b)^2.5,  (-1)^a,      ((-1)^a)^0.5, ((-1)^a)^1.5, ((-1)^a)^2.5],
 	[(a^b)^0.5,  a^b,      (a^b)^2.5, (a^b)^1.5, ((-1)^a)^0.5,  (-1)^a,      ((-1)^a)^2.5, ((-1)^a)^1.5]);
-	[ false,     true,     true,      false,      false,        true,        true,         false];
+[true, false, true, false, true, false, true, false]$
 
 /* Bug #4458: orderlessp(A, B) with unsimplified A can modify A in place by marking it as simplified, when it's not */
 block([simp : false, a], a : %e^(z/1), orderlessp(a, (simp : true, -log(z+1))), a^2);
@@ -3075,3 +3074,189 @@ block(
 	totalorderp(orderlessp, L)
 );
 [];
+
+block(
+	[expr, exponentialize : false, L : []],
+	push(expr : sin(x) ^ 2 + cos(x) ^ 2, L),
+	exponentialize : true,
+	push(expr, L),
+	push(ratsimp(resimplify(expr)), L),
+	reverse(L)
+);
+[sin(x)^2+cos(x)^2,sin(x)^2+cos(x)^2,1];
+
+/* Bug #4548: float(10^400) returns false on GCL */
+errcatch(float(10^400));
+[];
+
+/* Bug #3839 */
+limit(asin(3+%i*x),x,0,plus);
+%pi-asin(3);
+limit(asin(3+%i*x),x,0,minus);
+asin(3);
+limit(rectform(asin(3+%i*x)),x,0,plus);
+%pi/2-(%i*log(17-3*2^(5/2)))/2;
+
+/* Bug #3889 */
+limit((cos(x)-1)/(sin(x)+sqrt(2-2*cos(x))),x,0,plus);
+0;
+
+/* Bug #3923 */
+limit(r*cos(r)/sqrt(1-cos(r)^2),r,0);
+ind;
+
+/* Bug #4041 */
+listp(splitfield(x^4+x^2+1,x));
+true;
+
+/* Bug #3667 */
+csign(csc(x+%i*y));
+complex;
+
+/* Bug #3585 */
+imagpart(li[4](-0.75));
+0;
+
+/* Bug #3545 */
+ratsimp(integrate(%e^-(2*%i*%pi*t)*(%e^(2*%i*%pi*t)+1),t,-1/6,1/6));
+(2*%pi+3^(3/2))/(6*%pi);
+
+/* Bug #3508 */
+max(zeroa,zerob);
+'max(zeroa,zerob);
+
+/* Bug #3160 */
+ratsimp(diff(integrate(log(4-5*x^3)^5,x),x)-log(4-5*x^3)^5);
+0;
+
+/* Bug #3135 */
+gruntz(atan2(x^2-2,x^3-3*x),x,sqrt(2),minus);
+-%pi;
+
+/* Bug #3141 */
+gruntz((x^(1/x)-1)*sqrt(x),x,0,plus),domain:complex;
+0;
+
+/* Bug #3137 */
+gruntz(abs(sin(x))/sqrt(1-cos(x)),x,0,plus);
+sqrt(2);
+
+/* Bug #3080 */
+integrate(cos(x/atan(x)),x);
+'integrate(cos(x/atan(x)),x);
+
+/* Bug #2940 */
+errcatch(integrate(cot(x),x,0,inf));
+[];
+
+/* Bug #2899 */
+limit((1+sqrt(n+1))^(-n-1)/(1+sqrt(n))^(-n),n,inf);
+0;
+
+/* Bug #2706 */
+limit((%e^(-sqrt(-z))*(w*sqrt(-z)*%e^(2*sqrt(-z))-w*sqrt(-z)))/(2*z),z,0);
+-w;
+
+/* Bug #2583 */
+integrate(x^(8*%i-1),x);
+-((%i*x^(8*%i))/8);
+
+/* Bug #2487 */
+integrate(x^(1/3)/(x^(2/3)+1),x,0,8);
+6-(3*log(5))/2;
+limit(-log(1+x^(2/3)),x,0,plus),algebraic:true;
+0;
+
+/* Bug #2357 */
+is("string">0);
+false;
+
+/* Bug #1768 */
+csign(sqrt(x));
+complex;
+
+/* #4560 integrals of the form integrate((a*z+a*b)^p*%e^(c*z+d),z) */
+integrate((a*z+a*b)^p*%e^(c*z+d),z);
+-((%e^(d-b*c)*expintegral_e(-p,-((c*(a*z+a*b))/a))*(a*z+a*b)^(p+1))/a)$
+
+/* Bug #4451 */
+ratsimp(%e^(%i*sqrt(%pi+1)/2)/%pi), algebraic;
+%e^((%i*sqrt(%pi+1))/2)/%pi;
+
+(kill(values),kill(facts), 0);
+0$
+
+/* Simple tests for kbateman */
+assume(x>0);
+[x > 0];
+
+kbateman[0](x);
+exp(-x);
+
+kbateman[2](x);
+2*exp(-x)*x;
+
+makelist(kbateman[n](0), n, 0, 5);
+[0,2/%pi,0,-2/(3*%pi), 0, 2/(5*%pi)];
+
+/* \#4642 sign(1.0e-310*%i) gives error because 1e-310*x/1e-310 fails*/
+errcatch(sign(1.0e-310*%i));
+[]$
+
+csign(1.0e-310*%i);
+imaginary$
+
+csign(1.0e-301);
+pos$
+
+csign(-1.0e-301);
+neg$
+
+csign(1.0e-301 + %i * 1.0e-301);
+complex$
+
+errcatch(sign(1.0b-310*%i));
+[]$
+
+csign(1.0b-310*%i);
+imaginary$
+
+csign(1.0b-301);
+pos$
+
+csign(-1.b-301);
+neg$
+
+csign(1.0b-301 + %i * 1.0e-301);
+complex$
+
+/* \#4638 cabs/carg/polarform overflow and underflow*/
+
+cabs(1e-170 + %i*1e-170);
+1.4142135623730951e-170$
+
+cabs(1e170 + %i*1e+170);
+1.4142135623730952e170$
+
+carg(1e170 + %i*1e+170);
+0.7853981633974483$
+
+carg(1e-310 + %i*1e-310);
+0.7853981633974483$
+
+/* Note: 1.4142135623730952e170*%e^(0.7853981633974483*%i) is not simplified! */
+(%emode : false,0);
+0$
+
+block([ans : polarform(1e170 + %i*1e+170)], [inpart(ans,0),inpart(ans,1),inpart(ans,2)]);
+["*",1.4142135623730952e170,%e^(0.7853981633974483*%i)]$
+
+(reset(%emode),0);
+0$
+
+kill(x);
+done$
+
+contexts;
+[initial, global]$
+

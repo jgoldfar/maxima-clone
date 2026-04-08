@@ -17,7 +17,20 @@
 ;; See also function DISPLAY2D-UNICODE-ENABLED in src/init-cl.lisp.
 
 #+(or unicode sb-unicode openmcl-unicode-strings abcl (and allegro ics))
-(push :lisp-unicode-capable *features*)
+(pushnew :lisp-unicode-capable *features*)
+
+;; Determine which of the CL floating point types are distinct types in this
+;; Lisp implementation, and create features accordingly. These features can be
+;; used with #+ and #- to enable/disable code parts that specifically handle
+;; certain floating point types.
+(when (eq 'short-float (type-of 1s0))
+  (pushnew :has-distinct-short-float *features*))
+(when (eq 'single-float (type-of 1f0))
+  (pushnew :has-distinct-single-float *features*))
+(when (eq 'double-float (type-of 1d0))
+  (pushnew :has-distinct-double-float *features*))
+(when (eq 'long-float (type-of 1l0))
+  (pushnew :has-distinct-long-float *features*))
 
 (defvar *variable-initial-values* (make-hash-table)
   "Hash table containing all Maxima defmvar variables and their
@@ -56,6 +69,12 @@
         - A list of values that can be assigned to the variable.  An
           error is signaled if an attempt to assign a different value
           is done.
+    :SETTER-METHOD
+        - A function (symbol or lambda) of two arguments specifying the
+          variable and the value that the variable is to be set to.
+          This function is responsible for assigning the variable the
+          correct value.  It MUST also return the value that is
+          actually assigned to the variable.
     :DEPRECATED-P
         - The variable is marked as deprecated.  The option is a
           string to be printed when this deprecated variable is used.
@@ -92,8 +111,10 @@
         maybe-set-props
 	maybe-predicate
         maybe-boolean-predicate
+        maybe-setter-method
 	setting-predicate-p
 	setting-list-p
+        setter-method-p
 	assign-property-p
 	deprecated-p)
 
@@ -208,6 +229,11 @@
 		   `((putprop ',var ,assign-func 'assign)))))
 	 ;; Skip over the values.
 	 (setf opts (rest opts)))
+        (:setter-method
+         (setf setter-method-p t)
+         (setf maybe-setter-method
+               `((putprop ',var ,(second opts) 'setter-method)))
+         (setf opts (rest opts)))
         ((see-also modified-commands)
          ;; Not yet supported, but we need to skip over the following
          ;; item too which is the parameter for this option.
@@ -251,13 +277,17 @@
           ;; Check that boolean predicate isn't used with any other
           ;; predicate.  The other predicates supersede boolean.
           (setf maybe-predicate maybe-boolean-predicate)))
-      
+    (when (> (count t (list setting-predicate-p setting-list-p setter-method-p))
+             1)
+      (error "Only one of :SETTING-PREDICATE, :SETTING-LIST, or :SETTING-METHOD maybe be specified.)"))
+    
     `(progn
        ,@maybe-reset
        ,@maybe-declare-type
        ,(if doc `(defvar ,var ,val ,doc) `(defvar ,var ,val))
        ,@maybe-set-props
-       ,@maybe-predicate)))
+       ,@maybe-predicate
+       ,@maybe-setter-method)))
 
 ;; For the symbol SYM, add to the plist the property INDIC with a
 ;; value of VAL.
@@ -482,7 +512,10 @@
 
 (defmvar $factlim 100000 ; set to a big integer which will work (not -1)
   "specifies the highest factorial which is automatically expanded.  If
-  it is -1 then all integers are expanded.") 
+  it is -1 then all integers are expanded."
+  :setting-predicate #'(lambda (x)
+                         (values (integerp x)
+                                 "Must be an explicit integer")))
 (defvar makef nil)
 
 (defmvar $cauchysum nil
@@ -763,31 +796,27 @@
   rounding purposes."
   :properties ((assign 'fpprec1)))
 
-(defmvar bigfloatzero '((bigfloat simp 56.) 0 0)
-  "Bigfloat representation of 0"
+(defmvar *bigfloatzero*
+    '((bigfloat simp 56.) 0 0)
+  "Bigfloat representation of 0  Automatically updated whenever fpprec
+  is set."
   in-core)
 
-(defmvar bigfloatone  '((bigfloat simp 56.) #.(expt 2 55.) 1)
-  "Bigfloat representation of 1"
+(defmvar *bigfloatone*
+    '((bigfloat simp 56.) #.(expt 2 55.) 1)
+  "Bigfloat representation of 1.  Automatically updated whenever fpprec
+  is set."
   in-core)
 
-(defmvar bfhalf	      '((bigfloat simp 56.) #.(expt 2 55.) 0)
-  "Bigfloat representation of 1/2")
+(defmvar *bfhalf*
+    '((bigfloat simp 56.) #.(expt 2 55.) 0)
+  "Bigfloat representation of 1/2.  Automatically updated whenever fpprec
+  is set.")
 
-(defmvar bfmhalf      '((bigfloat simp 56.) #.(- (expt 2 55.)) 0)
-  "Bigfloat representation of -1/2")
-
-(defmvar bigfloat%e   '((bigfloat simp 56.) 48968212118944587. 2)
-  "Bigfloat representation of %E")
-
-(defmvar bigfloat%pi  '((bigfloat simp 56.) 56593902016227522. 2)
-  "Bigfloat representation of %pi")
-
-(defmvar bigfloat%gamma '((bigfloat simp 56.) 41592772053807304. 0)
-  "Bigfloat representation of %gamma")
-
-(defmvar bigfloat_log2 '((bigfloat simp 56.) 49946518145322874. 0)
-  "Bigfloat representation of log(2)")
+(defmvar *bfmhalf*
+    '((bigfloat simp 56.) #.(- (expt 2 55.)) 0)
+  "Bigfloat representation of -1/2.  Automatically updated whenever
+  fpprec is set.")
 
 ;; Number of bits of precision in the mantissa of newly created bigfloats.
 ;; FPPREC = ($FPPREC+1)*(Log base 2 of 10)
@@ -1527,16 +1556,36 @@
   ...,<s_n>)', '%%' is the value of the previous statement."
   no-reset)
 
-(defmvar $inchar '$%i
-  "The alphabetic prefix of the names of expressions typed by the user.")
+(flet ((assign-prompts (var val)
+	 "Handles setting inchar/outchar.  The VALUE must be a string or
+	 symbol. Symbols are assigned as is, but strings are converted
+	 to symbols and then assigned."
+	 (setf (symbol-value var)
+               (typecase val
+		 (string
+		  ;; Always add a $ as prefix.  Then intern the string
+		  (intern-invert-case (concatenate 'string "$" val)))
+		 (symbol
+		  val)
+		 (otherwise
+		  (mseterr var val (intl:gettext "Must be a string or symbol")))))))
 
-(defmvar $outchar '$%o
-  "The alphabetic prefix of the names of expressions returned by the
-  system.")
+  (defmvar $inchar '$%i
+    "The alphabetic prefix of the names of expressions typed by the user."
+    :setter-method #'assign-prompts
+    :properties ((reset-on-kill t)))
 
-(defmvar $linechar '$%t
-  "The alphabetic prefix of the names of intermediate displayed
-  expressions.")
+  (defmvar $outchar '$%o
+    "The alphabetic prefix of the names of expressions returned by the
+  system."
+    :setter-method #'assign-prompts
+    :properties ((reset-on-kill t)))
+
+  (defmvar $linechar '$%t
+    "The alphabetic prefix of the names of intermediate displayed
+  expressions."
+    :setter-method #'assign-prompts
+    :properties ((reset-on-kill t))))
 
 (defmvar $linenum 1
   "The line number of the last expression."
@@ -1639,6 +1688,34 @@
 (defvar $file_search_tests nil
   "Directories to search for maxima test suite")
 
+(defvar *maxima-lispname*
+  #+clisp "clisp"
+  #+cmu "cmucl"
+  #+sbcl "sbcl"
+  #+gcl "gcl"
+  #+allegro "acl"
+  #+openmcl "openmcl"
+  #+abcl "abcl"
+  #+lispworks "lispworks"
+  #+ecl "ecl"
+  #-(or clisp cmu sbcl gcl allegro openmcl abcl lispworks ecl) "unknownlisp")
+
+;;; Locations of various types of files. These variables are discussed
+;;; in more detail in the file doc/implementation/dir_vars.txt. Since
+;;; these are already in the maxima package, the maxima- prefix is
+;;; redundant. It is kept for consistency with the same variables in
+;;; shell scripts, batch scripts and environment variables.
+;;; jfa 02/07/04
+
+(defvar *maxima-topdir*)        ;; top-level installation or build directory
+(defvar *maxima-imagesdir*)
+(defvar *maxima-sharedir*)
+(defvar *maxima-srcdir*)
+(defvar *maxima-docdir*)
+(defvar *maxima-layout-autotools*)
+(defvar *maxima-demodir*)
+(defvar *maxima-objdir*)		;; Where to store object (fasl) files.
+
 (defvar *maxima-prefix*)
 (defvar *maxima-infodir*)
 (defvar *maxima-htmldir*)
@@ -1653,12 +1730,27 @@
   "When non-NIL, the init files are not loaded.")
 (defvar *maxima-tempdir*)
 (defvar *maxima-lang-subdir* nil)
+
+(defun sanitize-string-for-path (s)
+  (map
+    'string
+    (lambda (x) (if (alphanumericp x) x #\_))
+    (subseq s 0 (min 142 (length s)))))
+
+(defun lisp-implementation-version1 ()
+  (sanitize-string-for-path (lisp-implementation-version)))
+
+(defun maxima-version1 ()
+  (sanitize-string-for-path *autoconf-version*))
+
 (defvar $maxima_frontend nil
   "The frontend maxima is used with.")
 (defvar $maxima_frontend_version nil
   "The version of the maxima frontend.")
 (defvar $maxima_frontend_bugreportinfo nil
   "The bug report info the maxima frontend comes with.")
+(defvar *suppress-input-echo* nil
+  "Do not print input expressions when processing noninteractively.")
 (defvar *quit-on-error* nil
   "If non-NIL, Maxima will quit on the first error.")
 
@@ -1667,10 +1759,9 @@
 
 ;;------------------------------------------------------------------------
 ;; From macdes.lisp
-(defmvar $browser "firefox '~a'"
-  "Browser to use for displaying the documentation.  This may be
-  initialized on startup to an OS-specific value.  It must contain
-  exactly one ~a which will be replaced by the url.")
+(defmvar $browser "firefox"
+  "Preferred browser to use for displaying the documentation.  This may be
+  initialized on startup to an OS-specific value.")
 
 (defmvar $url_base "localhost:8080"
   "Base URL where the HTML doc may be found.  This can be a file path
@@ -1907,11 +1998,6 @@
   "Let <x> be a rational number less than one of the form 'p/q'.  If 'q'
   is greater than 'maxpsifracdenom', then 'psi[<n>](<x>)' will not try
   to return a simplified value.")
-
-;;------------------------------------------------------------------------
-;; From hypgeo.lisp
-(defvar *par* nil
-  "Parameter of Laplace transform.")
 
 (defvar *checkcoefsignlist*)
 ;;------------------------------------------------------------------------

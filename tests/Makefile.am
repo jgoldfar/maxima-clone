@@ -24,15 +24,6 @@ cmucl-test.sh: test.sh Makefile
 	chmod +x "$@"
 endif
 
-if SCL
-TESTS += scl-test.sh
-CLEANFILES += scl-test.sh scl.log scl_share.log
-scl-test.sh: test.sh Makefile
-	echo "#!/bin/sh" > $@
-	echo "./test.sh scl" >> $@
-	chmod +x "$@"
-endif
-
 if SBCL
 TESTS += sbcl-test.sh
 CLEANFILES += sbcl-test.sh sbcl.log sbcl_share.log

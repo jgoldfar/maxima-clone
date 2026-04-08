@@ -88,8 +88,6 @@
   "Type of monomial."
   `(simple-array exponent (,dim)))
 
-(declaim (optimize (speed 3) (safety 1)))
-
 (declaim (ftype (function (monom) fixnum) monom-dimension monom-sugar)
 	 (ftype (function (monom &optional fixnum fixnum) fixnum) monom-total-degree)
 	 (ftype (function (monom monom) monom) monom-div monom-mul monom-lcm monom-gcd)
@@ -100,10 +98,6 @@
 	 ;;(ftype (function (t monom &optional monom) monom) monom-map)
 	 ;;(ftype (function (monom monom) monom) monom-append)
 	 )
-
-(declaim (inline monom-mul monom-div
-		 monom-total-degree monom-divides-p
-		 monom-divisible-by-p monom-rel-prime monom-lcm))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -852,14 +846,12 @@ at the beginning of each monomial."
   (make-poly-from-termlist (termlist-contract (poly-termlist p) k)
 	     (poly-sugar p)))
 
-(declaim (ftype (function (poly &optional sequence)) poly-extend))
+(declaim (ftype (function (poly &optional sequence) poly) poly-extend))
 
 (defun poly-extend (p &optional (m (make-monom 1 :initial-element 0)))
   (make-poly-from-termlist
    (termlist-extend (poly-termlist p) m)
    (+ (poly-sugar p) (monom-sugar m))))
-
-(declaim (ftype (function (poly fixnum)) poly-add-variables))
 
 (defun poly-add-variables (p k)
   (setf (poly-termlist p) (termlist-add-variables (poly-termlist p) k))
@@ -956,28 +948,6 @@ at the beginning of each monomial."
 	  (t (poly-expt ring (p-eval (cadr expr)) (caddr expr)))))
 	(otherwise
 	 (coerce-coeff ring expr vars)))))))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Global optimization/debugging options
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;;All inline functions of this module
-;; inlining is disabled on sbcl - sbcl 1.2.7 fails to load if enabled
-#-sbcl
-(declaim (inline free-of-vars make-pair-queue pair-queue-insert
-		 pair-queue-remove pair-queue-empty-p
-		 pair-queue-remove pair-queue-size criterion-1
-		 criterion-2 grobner reduced-grobner sugar-pair-key
-		 sugar-order normal-form normal-form-step grobner-op spoly
-		 equal-test-p
-		 ))
-
-;;Optimization options
-(declaim (optimize (speed 3) (safety 1)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

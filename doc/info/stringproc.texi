@@ -4,6 +4,7 @@
 * Characters::
 * String Processing::
 * Octets and Utilities for Cryptography::
+* Regular Expressions::
 @end menu
 
 @c -----------------------------------------------------------------------------
@@ -2292,6 +2293,11 @@ See @ref{octets_to_string} for examples and some more information.
 @node Regular Expressions,  , Octets and Utilities for Cryptography
 @section Regular Expressions
 
+@menu
+* Introduction to Regular Expressions::
+* Functions and Variables::
+@end menu
+
 @node Introduction to Regular Expressions, Functions and Variables, Regular Expressions, Regular Expressions
 @subsection Introduction to Regular Expressions
 
@@ -2328,9 +2334,11 @@ will speed up matching.
 @end deffn
 
 @anchor{regex_match_pos}
-@deffn {Function} regex_match_pos (@var{regex}, @var{str})
-@deffnx {Function} regex_match_pos (@var{regex}, @var{str}, @var{start})
-@deffnx {Function} regex_match_pos (@var{regex}, @var{str}, @var{start}, @var{end})
+@deffn {Function} regex_match_pos @
+@fname{regex_match_pos} (@var{regex}, @var{str}) @
+@fname{regex_match_pos} (@var{regex}, @var{str}, @var{start}) @
+@fname{regex_match_pos} (@var{regex}, @var{str}, @var{start}, @var{end})
+
 Return a list consisting of a list of the start and end positions of
 @var{str} where the first match of @var{regex} occurred.  If no match
 is found, returns @code{false}.
@@ -2396,9 +2404,11 @@ parenthesis in the given regular expression.
 @end deffn
 
 @anchor{regex_match}
-@deffn {Function} regex_match (@var{regex}, @var{str})
-@deffnx {Function} regex_match (@var{regex}, @var{str}, @var{start})
-@deffnx {Function} regex_match (@var{regex}, @var{str}, @var{start}, @var{end})
+@deffn {Function} regex_match @
+@fname{regex_match} (@var{regex}, @var{str}) @
+@fname{regex_match} (@var{regex}, @var{str}, @var{start}) @
+@fname{regex_match} (@var{regex}, @var{str}, @var{start}, @var{end})
+
 @code{regex_match} is very similar to @code{regex_match_pos} except
 that it returns the matching substrings instead of the indices of the
 match.  If no match is found, returns @code{false}.
@@ -2489,7 +2499,7 @@ subpattern matches the day, if present.
 @end group
 @end example
 
-You can also do case-insensitve matches by using a @emph{cloister}
+You can also do case-insensitive matches by using a @emph{cloister}
 (see
 @url{https://ds26gte.github.io/pregexp/index.html#TAG:__tex2page_toc_TAG:__tex2page_sec_3.4.3,
 pregexp cloisters})
@@ -2568,7 +2578,7 @@ Returns a string where the first occurrence of @var{pattern} in
 @end example
 
 This example shows how to use back references.  The replacement
-specifies that the first submatch is used as the replacment text.
+specifies that the first submatch is used as the replacement text.
 @c ===beg===
 @c regex_match("_(.+?)_", "the _nina_, the _pinta_, and the _santa maria_");
 @c regex_subst_first("*\\1*", "_(.+?)_", "the _nina_, the _pinta_, and the _santa maria_");

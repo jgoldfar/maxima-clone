@@ -12,7 +12,7 @@
 )
 
 #-cmucl
-(eval-when (compile load eval)
+(eval-when (:compile-toplevel :load-toplevel :execute)
 ;;;; Borrowed from cmucl src/code/extensions.lisp.  Used in parsing
 ;;;; lambda lists.
 
@@ -358,6 +358,19 @@
 	  (parse-body body nil t)
 	(setf doc-string (if doc-string (list doc-string)))
 	`(progn
+       ,(cond
+	      (keywords-present-p
+	       `(define-compiler-macro ,name (&rest ,rest-name)
+		  ,(format nil "Compiler-macro to convert calls to ~S to ~S" name impl-name)
+		  (let ((args (append (subseq ,rest-name 0 ,required-len)
+				      (defmfun-keywords ',pretty-fname
+					  (nthcdr ,required-len ,rest-name)
+					',maxima-keywords))))
+		    `(,',impl-name ,@args))))
+	      (t
+	       `(define-compiler-macro ,name (&rest ,rest-name)
+		  ,(format nil "Compiler-macro to convert calls to ~S to ~S" name impl-name)
+		  `(,',impl-name ,@,rest-name))))
            ,@(when inline-impl
                `((declaim (inline ,impl-name))))
 	   (defun ,impl-name ,lambda-list
@@ -366,7 +379,25 @@
 	     (block ,name
 	       (let ((%%pretty-fname ',pretty-fname))
 		 (declare (ignorable %%pretty-fname))
-		 ,@forms)))
+           ;; For simple functions with only required arguments, locally define
+           ;; an inlined proxy function $FOO that forwards to FOO-IMPL.
+           ;; Within the proxy function, prevent FOO-IMPL from being inlined,
+           ;; as that would cause infinite recursive inlining.
+           ;; This mechanism catches direct and indirect (e.g. MAPCAR) recursion
+           ;; and avoids going through $FOO with argument checking each time.
+           ,@(if (and required-args
+                      (null optional-args)
+                      (not restp)
+                      (not keywords-present-p)
+                      (not allow-other-keys-p))
+               `((flet ((,name ,required-args
+                          (declare (notinline ,impl-name))
+                          ,(format nil "Proxy function to forward ~S calls to ~S" name impl-name)
+                          (,impl-name ,@required-args)))
+                   ;; GCL doesn't like the IGNORABLE declaration.
+                   (declare #-gcl (ignorable #',name) (inline ,name))
+		           ,@forms))
+               forms))))
 
 	   (let ,(when deprecated-p `((,warning-done-var nil)))
 	     (defun ,name (&rest ,args)
@@ -425,20 +456,7 @@
 				  (nthcdr ,required-len ,args)
 				',maxima-keywords))))
 		    (t
-		     `(apply #',impl-name ,args))))))
-	   ,(cond
-	      (keywords-present-p
-	       `(define-compiler-macro ,name (&rest ,rest-name)
-		  ,(format nil "Compiler-macro to convert calls to ~S to ~S" name impl-name)
-		  (let ((args (append (subseq ,rest-name 0 ,required-len)
-				      (defmfun-keywords ',pretty-fname
-					  (nthcdr ,required-len ,rest-name)
-					',maxima-keywords))))
-		    `(,',impl-name ,@args))))
-	      (t
-	       `(define-compiler-macro ,name (&rest ,rest-name)
-		  ,(format nil "Compiler-macro to convert calls to ~S to ~S" name impl-name)
-		  `(,',impl-name ,@,rest-name)))))))))
+		     `(apply #',impl-name ,args)))))))))))
 
 ;; Define a Lisp function that should check the number of arguments to
 ;; a function and print out a nice Maxima error message instead of
@@ -587,19 +605,51 @@
 ;; This supports simplifying regular functions and also subscripted
 ;; functions.
 ;;
-;; The base name can also be a lambda-list of the form (name &key
-;; (simpcheck :default) (subfun-arglist arg-list)).  The NAME is the
-;; BASE-NAME of the simpiflier.  The keyword arg :SIMPCHECK supports
-;; two values: :DEFAULT and :CUSTOM, with :DEFAULT as the default.
-;; :CUSTOM means the generated code does not call SIMPCHECK on the
-;; args, as shown above.  It is up to the body to do the necessary
-;; work.  The keyword arg :SUBFUN-ARG-LIST indicates that this is a
-;; simplifier for subscripted functions like li[s](x).  The argument
-;; must be a list of the names of the subscripts of the function.  For
-;; li[s](x), we only have one arg, S, so use ":SUBFUN-ARG-LIST (S)."
+;; (def-simplifier (base-name-and-options
+;;                 lambda-list
+;;                 &body body)
+;;
+;; BASE-NAME-AND-OPTIONS can be a symbol denoting the name of the
+;; simplifier.  This can also be a list of the form:
+;;
+;;   (base-name &key
+;;              (simpcheck :default)
+;;              subfun-arglist
+;;              arg-list
+;;              skip-properties)
+;;
+;; The arguments are:
+;;
+;;   BASE-NAME
+;;     the name of the simplifier, a symbol.
+;;
+;;   :SIMPCHECK
+;;     :SIMPCHECK supports two values: :DEFAULT and :CUSTOM, with
+;;     :DEFAULT as the default.  :CUSTOM means the generated code does
+;;     not call SIMPCHECK on the args.  It is up to the body to do the
+;;     necessary work.
+;;
+;;   :SUBFUN-ARG-LIST indicates that this is a
+;;     :SUBFUN-ARG-LIST indicates that this is a simplifier for
+;;     subscripted functions like li[s](x).  The argument must be a
+;;     list of the names of the subscripts of the function.  For
+;;     li[s](x), we only have one arg, S, so use ":SUBFUN-ARG-LIST
+;;     (S)."
+;;
+;;   :CUSTOM-DEFMFUN
+;;     :CUSTOM-DEFMFUN indicates that this simplifier should not
+;;     define a default DEFMFUN function for the BASE-NAME.
+;;
+;;   :SKIP-PROPERTIES
+;;     :SKIP-PROPERTIES is a list of properties that should not be set
+;;     for this simplifier.  Currently, this is needed for REALPART
+;;     and IMAGPART simplifiers which don't work (why?) when the ALIAS
+;;     and REVERSEALIAS properties are set.  If they are set,the
+;;     simplifiers cause failures in the test suite.  (This needs
+;;     further investigation.)
 ;;
 ;; Note also that the args for the simplifier only supports a fixed
-;; set of required arguments.  Not optional or rest arguments are
+;; set of required arguments.  No optional or rest arguments are
 ;; supported.  No checks are made for this.  If you need this, you'll
 ;; have to write your own simplifier.  Use the above macro expansion
 ;; to see how to define the appropriate properties for the simplifer.
@@ -689,7 +739,9 @@
 (defmacro def-simplifier (base-name-and-options lambda-list &body body)
   (destructuring-bind (base-name &key
                                    (simpcheck :default)
-                                   (subfun-arglist nil))
+                                   (subfun-arglist nil)
+                                   (custom-defmfun nil)
+                                   (skip-properties nil))
       (if (symbolp base-name-and-options)
 	  (list base-name-and-options)
 	  base-name-and-options)
@@ -747,9 +799,18 @@
         (t
          ;; 
          `(progn
-	    ;; Define the noun function.
-	    (defmfun ,verb-name (,@lambda-list)
-	      (ftake ',noun-name ,@lambda-list))
+	    ;; Define the verb function if CUSTOM-DEFMFUN is not set.
+            ,@(unless custom-defmfun
+	        `((defmfun ,verb-name (,@lambda-list)
+	            (ftake ',noun-name ,@lambda-list))))
+            ,@(unless (member 'alias skip-properties)
+                `((defprop ,verb-name ,noun-name alias)))
+            ,@(unless (member 'reversealias skip-properties)
+	        ;; The reversealias property is needed by grind to print out
+	        ;; the right thing.  Without it, grind(jacobi_sn(x,m)) prints
+	        ;; '?%jacobi_sn(x,m)".  Also needed for labels in plots which
+	        ;; would show up as %jacobi_sn instead of jacobi_sn.
+	        `((defprop ,noun-name ,verb-name reversealias)))
 
 	    ;; Set up properties
 	    (defprop ,noun-name ,simp-name operators)
@@ -763,36 +824,34 @@
 	    ;; The verb and alias properties are needed to make things like
 	    ;; quad_qags(jacobi_sn(x,.5)...) work.
 	    (defprop ,verb-name ,noun-name verb)
-	    (defprop ,verb-name ,noun-name alias)
-	    ;; The reversealias property is needed by grind to print out
-	    ;; the right thing.  Without it, grind(jacobi_sn(x,m)) prints
-	    ;; '?%jacobi_sn(x,m)".  Also needed for labels in plots which
-	    ;; would show up as %jacobi_sn instead of jacobi_sn.
-	    (defprop ,noun-name ,verb-name reversealias)
 
 	    ;; Define the simplifier
 	    (defun ,simp-name (,form-arg ,unused-arg ,z-arg)
 	      (declare (ignore ,unused-arg)
 		       (ignorable ,z-arg))
-	      (arg-count-check ,(length lambda-list)
-			       ,form-arg)
+              (let ((pretty-name `((,',noun-name) ,@(rest (dollarify ',lambda-list)))))
+                ;;(format t "pretty-name = ~A~%" pretty-name)
+	        (arg-count-check ,(length lambda-list)
+			         ,form-arg
+                                 pretty-name))
 	      (let ,arg-forms
 	        ;; Allow args to give-up if the default args won't work.
 	        ;; Useful for the (rare?) case like genfact where we want
 	        ;; to give up but want different values for args.
-	        (flet ((give-up (&optional ,@(mapcar #'(lambda (a)
-						         (list a a))
-						     lambda-list))
+	        (flet ((give-up (&key (noun-name ',noun-name)
+                                      (args (list ,@(mapcar #'(lambda (a)
+						                a)
+						            lambda-list))))
 		         ;; Should this also return from the function?
 		         ;; That would fit in better with giving up.
-		         (eqtest (list '(,noun-name) ,@lambda-list) ,form-arg)))
+		         (eqtest (list* (list noun-name) args) ,form-arg)))
 	          ,@body)))))))))
 
 
 ;; Helper function to check the number of subscripts and arguments to a
 ;; subscripted function.
 ;;
-(defun sub-arg-count-check(required-sub-count required-arg-count expr pretty-name)
+(defun sub-arg-count-check (required-sub-count required-arg-count expr pretty-name)
   (let* ((subs (subfunsubs expr))
          (args (subfunargs expr))
          (sub-count (length subs))
@@ -815,3 +874,44 @@
         (merror (intl:gettext "~M: expected exactly ~M arguments but got ~M: ~M")
          pretty-name
          required-arg-count arg-count `((mlist) ,@args))))))
+
+;;; ----------------------------------------------------------------------------
+;;; Utilities for argument error checking
+;;; ----------------------------------------------------------------------------
+
+;; WNA-ERR: Wrong Number of Arguments error
+;;
+;; If REQUIRED-ARG-COUNT is non-NIL, then we check that EXPR has the
+;; correct number of arguments. A informative error message is shown
+;; if the number of arguments is not given.
+;;
+;; Otherwise, EXPR must be a symbol and a generic message is printed.
+;; (This is for backward compatibility for existing uses of WNA-ERR.)
+(defun wna-err (exprs &optional required-arg-count (pretty-name (caar exprs)))
+  (if required-arg-count
+      (let ((op pretty-name)
+	    (actual-count (length (rest exprs))))
+	(merror (intl:gettext "~M: expected exactly ~M arguments but got ~M: ~M")
+		op required-arg-count actual-count (list* '(mlist) (rest exprs))))
+      (merror (intl:gettext "~:@M: wrong number of arguments.")
+	      exprs)))
+
+(defun improper-arg-err (exp fn)
+  (merror (intl:gettext "~:M: improper argument: ~M") fn exp))
+
+;; These check for the correct number of operands within Macsyma expressions,
+;; not arguments in a procedure call as the name may imply.
+
+(declaim (inline arg-count-check))
+(defun arg-count-check (required-arg-count expr &optional (pretty-name (caar expr)))
+  (unless (= required-arg-count (length (rest expr)))
+    (wna-err expr required-arg-count pretty-name)))
+
+(declaim (inline oneargcheck))
+(defun oneargcheck (expr)
+  (arg-count-check 1 expr))
+
+(declaim (inline twoargcheck))
+(defun twoargcheck (expr)
+  (arg-count-check 2 expr))
+

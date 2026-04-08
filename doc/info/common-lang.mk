@@ -3,7 +3,7 @@ info_TEXINFOS = maxima.texi
 all-local: maxima-index.lisp maxima-index-html.lisp index.html
 
 maxima-index.lisp: maxima.info $(srcdir)/../build_index.pl
-	/usr/bin/env perl $(srcdir)/../build_index.pl maxima.info ':crlf' > maxima-index.lisp
+	/usr/bin/env perl $(srcdir)/../build_index.pl maxima.info > maxima-index.lisp
 
 # Really depends on all the individual html files, but let's assume
 # that if index.html is done, we have all the remaining html

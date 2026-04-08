@@ -38,7 +38,7 @@
     ;; Some lisps if the front-end dies by default don't quit but output an
     ;; error message to the front-end that (as the front-end doesn't exist
     ;; any more) causes an error message that...
-    #+ecl (ext:set-signal-handler EXT:+SIGPIPE+ 'ext:quit)
+    #+(and ecl (not windows)) (ext:set-signal-handler EXT:+SIGPIPE+ 'ext:quit)
     
     (setq *socket-connection* sock)
     (setq $old_stderr *error-output*

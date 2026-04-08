@@ -1,0 +1,2 @@
+plot2d ([discrete, makelist([p[1],p[3]], p, rk([4-x^2-4*y^2,y^2-x^2+1],[x,y],[-1.25,0.75],[t,0,4,0.02]))], [xlabel, "t"], [ylabel, "y"], [png_file, "./plotrk2.png"]);
+plot2d ([discrete, makelist([p[1],p[3]], p, rk([4-x^2-4*y^2,y^2-x^2+1],[x,y],[-1.25,0.75],[t,0,4,0.02]))], [xlabel, "t"], [ylabel, "y"], [pdf_file, "./plotrk2.pdf"]);

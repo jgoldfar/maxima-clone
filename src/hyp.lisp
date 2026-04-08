@@ -26,6 +26,10 @@
 ;; When NIL do not automatically expand polynomials as a result
 (defmvar $expand_polynomials t)
 
+;; Used only in freepar and that's not needed anymore.
+#+nil
+(defvar *hyp-par* '$p)
+
 (eval-when
     (:execute :compile-toplevel)
     (defmacro simp (x) `(simplifya ,x ()))
@@ -117,7 +121,6 @@
   ;; verify find all of the code that does or does not need this and
   ;; until we can verify all of the test cases are correct.
   (let (;;($radexpand '$all)
-	(*par* arg)
 	(*checkcoefsignlist* nil))
     (hgfsimp-exec (cdr arg-l1) (cdr arg-l2) arg)))
 
@@ -435,7 +438,7 @@
 ;     (cond ((not (alike1 (car arg-l1) n))
 ;	    (setq arg-l1 (reverse arg-l1))))
 
-     (cond ((mnump *par*)
+     (cond ((mnump arg)
             ;; The argument of the hypergeometric function is a number.
             ;; Avoid the following check which does not work for this case.
             (setq v (div (add (cadr arg-l1) n) 2)))
@@ -474,7 +477,7 @@
 			                      (mul -1 n))))))
 		     (gegenpol (mul -1 n)
 			       v
-			       (sub 1 (mul 2 *par*))))))
+			       (sub 1 (mul 2 arg))))))
            (t
             ;; A&S 15.4.6 says
             ;; F(-n, n + a + 1 + b; a + 1; x)
@@ -484,7 +487,7 @@
                          (jacobpol (mul -1 n)
 			           (add (car arg-l2) -1)
 			           (sub (mul 2 v) (car arg-l2))
-                                   (sub 1 (mul 2 *par*)))))))))
+                                   (sub 1 (mul 2 arg)))))))))
 
 ;; Jacobi polynomial
 (defun jacobpol (n a b x)
@@ -517,8 +520,7 @@
 ;; are made to ensure the hypergeometric function reduces to a
 ;; polynomial.
 (defmfun $hgfpoly (arg-l1 arg-l2 arg)
-  (let ((*par* arg)
-	(n (hyp-negp-in-l (cdr arg-l1))))
+  (let ((n (hyp-negp-in-l (cdr arg-l1))))
     (create-any-poly (cdr arg-l1) (cdr arg-l2) (- n) arg)))
 
 (defun create-any-poly (arg-l1 arg-l2 n arg)
@@ -1500,7 +1502,7 @@
              (mformat t "   : c = ~A~%" c))
            (let ((psey (gensym)))
              (maxima-substitute
-               *par* psey
+               arg psey
                (mul (power (sub 1 psey) '((rat simp) 3 2))
                     (add a b '((rat simp) 1 2))
                     (inv (add b '((rat simp) 1 2)))
@@ -2368,23 +2370,31 @@
 
 ||#
 
+#+nil
+(progn
+;; FREEVARPAR is not used anywhere
 (defun freevarpar (exp)
   (cond ((freevar exp) (freepar exp))
 	(t nil)))
 
+;; Only called by vfvp to see if EXP is free of ARG or the *hyp-par*.
+;; See freepar comments below.  So all calls to freevarpar2 can be
+;; replaced by just calls to freevar2.  (See vfvp.)
 (defun freevarpar2 (exp arg)
   (cond ((freevar2 exp arg)
          (freepar exp))
 	(t nil)))
 
-;; Why is this needed?
-(setq *par* '$p)
-
+;; This is not useful because *hyp-par* is always '$p and the EXP
+;; never contains '$p from the places where this is called.  Called
+;; from vfvp, which is checking if some combination of the hgfred
+;; parameters are free of z, the arg.
 (defun freepar (exp)
   (cond ((atom exp)
-	 (not (eq exp *par*)))
+	 (not (eq exp *hyp-par*)))
 	(t (and (freepar (car exp))
 		(freepar (cdr exp))))))
+)
 
 ;; Confluent hypergeometric function.
 ;;
@@ -2925,7 +2935,11 @@
 (setq *par* '$p)                           
 
 (defun vfvp (exp arg)
-  (m2 exp `(v freevarpar2 ,arg)))
+  ;; Check to see if EXP is free of ARG. (Used to call freevarpar2,
+  ;; but the par test can never fail.  I think VFVP stands for
+  ;; "Variable Free of Variable or Parameter".  So now it's misnamed.
+  ;; It should probably be renamed.
+  (m2 exp `(v freevar2 ,arg)))
 
 
 (defun fpqform (arg-l1 arg-l2 arg)

@@ -19,17 +19,27 @@ Bernoulli numbers equal to zero are suppressed if @code{zerobern} is
 
 See also @mrefdot{burn}
 
-@example
+@c ===beg===
+@c zerobern: true$
+@c map (bern, [0, 1, 2, 3, 4, 5, 6, 7, 8]);
+@c zerobern: false$
+@c map (bern, [0, 1, 2, 3, 4, 5, 6, 7, 8]);
+@c ===end===
+@example maxima
 (%i1) zerobern: true$
+@group
 (%i2) map (bern, [0, 1, 2, 3, 4, 5, 6, 7, 8]);
-                      1  1       1      1        1
-(%o2)           [1, - -, -, 0, - --, 0, --, 0, - --]
-                      2  6       30     42       30
+                    1  1       1      1        1
+(%o2)         [1, - -, -, 0, - --, 0, --, 0, - --]
+                    2  6       30     42       30
+@end group
 (%i3) zerobern: false$
+@group
 (%i4) map (bern, [0, 1, 2, 3, 4, 5, 6, 7, 8]);
-                      1  1    1   1     1   5     691   7
-(%o4)           [1, - -, -, - --, --, - --, --, - ----, -]
-                      2  6    30  42    30  66    2730  6
+                 1  1    1   1     1   5     691   7
+(%o4)      [1, - -, -, - --, --, - --, --, - ----, -]
+                 2  6    30  42    30  66    2730  6
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -133,21 +143,44 @@ Solves the system of congruences @code{x = r_1 mod m_1}, @dots{}, @code{x = r_n 
 The remainders @var{r_n} may be arbitrary integers while the moduli @var{m_n} have to be 
 positive and pairwise coprime integers.
 
-@example
+@c ===beg===
+@c mods : [1000, 1001, 1003, 1007];
+@c lreduce('gcd, mods);
+@c x : random(apply("*", mods));
+@c rems : map(lambda([z], mod(x, z)), mods);
+@c solve_congruences(rems, mods);
+@c solve_congruences([1, 2], [3, n]);
+@c %, n = 4;
+@c ===end===
+@example maxima
+@group
 (%i1) mods : [1000, 1001, 1003, 1007];
-(%o1)                   [1000, 1001, 1003, 1007]
+(%o1)               [1000, 1001, 1003, 1007]
+@end group
+@group
 (%i2) lreduce('gcd, mods);
-(%o2)                               1
+(%o2)                           1
+@end group
+@group
 (%i3) x : random(apply("*", mods));
-(%o3)                         685124877004
+(%o3)                     685124877004
+@end group
+@group
 (%i4) rems : map(lambda([z], mod(x, z)), mods);
-(%o4)                       [4, 568, 54, 624]
+(%o4)                   [4, 568, 54, 624]
+@end group
+@group
 (%i5) solve_congruences(rems, mods);
-(%o5)                         685124877004
+(%o5)                     685124877004
+@end group
+@group
 (%i6) solve_congruences([1, 2], [3, n]);
-(%o6)               solve_congruences([1, 2], [3, n])
+(%o6)           solve_congruences([1, 2], [3, n])
+@end group
+@group
 (%i7) %, n = 4;
-(%o7)                              10
+(%o7)                          10
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -194,6 +227,7 @@ Examples:
 @var{expr} is an expression comprising continued fractions and square roots of
 integers.
 
+@c The second example below no longer works.
 @example
 (%i1) cf ([5, 3, 1]*[11, 9, 7] + [3, 7]/[4, 3, 2]);
 (%o1)               [59, 17, 2, 1, 1, 1, 27]
@@ -205,38 +239,67 @@ integers.
 @code{cflength} controls how many periods of the continued fraction
 are computed for algebraic, irrational numbers.
 
-@example
+@c ===beg===
+@c cflength: 1$
+@c cf ((1 + sqrt(5))/2);
+@c cflength: 2$
+@c cf ((1 + sqrt(5))/2);
+@c cflength: 3$
+@c cf ((1 + sqrt(5))/2);
+@c ===end===
+@example maxima
 (%i1) cflength: 1$
+@group
 (%i2) cf ((1 + sqrt(5))/2);
 (%o2)                    [1, 1, 1, 1, 2]
+@end group
 (%i3) cflength: 2$
+@group
 (%i4) cf ((1 + sqrt(5))/2);
 (%o4)               [1, 1, 1, 1, 1, 1, 1, 2]
+@end group
 (%i5) cflength: 3$
+@group
 (%i6) cf ((1 + sqrt(5))/2);
 (%o6)           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2]
+@end group
 @end example
 
 @item
 A continued fraction can be evaluated by evaluating the arithmetic
 representation returned by @mrefdot{cfdisrep}
 
-@example
+@c ===beg===
+@c cflength: 3$
+@c cfdisrep (cf (sqrt (3)))$
+@c ev (%, numer);
+@c ===end===
+@example maxima
 (%i1) cflength: 3$
 (%i2) cfdisrep (cf (sqrt (3)))$
+@group
 (%i3) ev (%, numer);
-(%o3)                   1.731707317073171
+(%o3)                  1.7317073170731707
+@end group
 @end example
 
 @item
 Maxima does not know about operations on continued fractions outside of
 @code{cf}.
 
-@example
+@c ===beg===
+@c cf ([1,1,1,1,1,2] * 3);
+@c cf ([1,1,1,1,1,2]) * 3;
+@c ===end===
+@example maxima
+@group
 (%i1) cf ([1,1,1,1,1,2] * 3);
 (%o1)                     [4, 1, 5, 2]
+@end group
+@group
 (%i2) cf ([1,1,1,1,1,2]) * 3;
 (%o2)                  [3, 3, 3, 3, 3, 6]
+@end group
 @end example
 
 @end itemize
@@ -257,9 +320,16 @@ Constructs and returns an ordinary arithmetic expression
 of the form @code{a + 1/(b + 1/(c + ...))}
 from the list representation of a continued fraction @code{[a, b, c, ...]}.
 
-@example
+@c ===beg===
+@c cf ([1, 2, -3] + [1, -2, 1]);
+@c cfdisrep (%);
+@c ===end===
+@example maxima
+@group
 (%i1) cf ([1, 2, -3] + [1, -2, 1]);
 (%o1)                     [1, 1, 1, 2]
+@end group
+@group
 (%i2) cfdisrep (%);
                                   1
 (%o2)                     1 + ---------
@@ -268,6 +338,7 @@ from the list representation of a continued fraction @code{[a, b, c, ...]}.
                                       1
                                   1 + -
                                       2
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -282,17 +353,27 @@ from the list representation of a continued fraction @code{[a, b, c, ...]}.
 Returns a matrix of the numerators and denominators of the last (column 1) and
 next-to-last (column 2) convergents of the continued fraction @var{x}.
 
-@example
+@c ===beg===
+@c cf (rat (ev (%pi, numer)));
+@c cfexpand (%); 
+@c %[1,1]/%[2,1], numer;
+@c ===end===
+@example maxima
+@group
 (%i1) cf (rat (ev (%pi, numer)));
-
-`rat' replaced 3.141592653589793 by 103993/33102 =3.141592653011902
-(%o1)                  [3, 7, 15, 1, 292]
-(%i2) cfexpand (%); 
-                         [ 103993  355 ]
-(%o2)                    [             ]
-                         [ 33102   113 ]
+rat: replaced 3.141592653589793 by 80143857/25510582 = 3.1415926535897927
+(%o1)      [3, 7, 15, 1, 292, 1, 1, 1, 2, 1, 3, 1, 14]
+@end group
+@group
+(%i2) cfexpand (%);
+                      [ 80143857  5419351 ]
+(%o2)                 [                   ]
+                      [ 25510582  1725033 ]
+@end group
+@group
 (%i3) %[1,1]/%[2,1], numer;
-(%o3)                   3.141592653011902
+(%o3)                  3.1415926535897927
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -309,16 +390,30 @@ Default value: 1
 function @code{cf} will give, as the value @code{cflength} times the period.
 Thus the default is to give one period.
 
-@example
+@c ===beg===
+@c cflength: 1$
+@c cf ((1 + sqrt(5))/2);
+@c cflength: 2$
+@c cf ((1 + sqrt(5))/2);
+@c cflength: 3$
+@c cf ((1 + sqrt(5))/2);
+@c ===end===
+@example maxima
 (%i1) cflength: 1$
+@group
 (%i2) cf ((1 + sqrt(5))/2);
 (%o2)                    [1, 1, 1, 1, 2]
+@end group
 (%i3) cflength: 2$
+@group
 (%i4) cf ((1 + sqrt(5))/2);
 (%o4)               [1, 1, 1, 1, 1, 1, 1, 2]
+@end group
 (%i5) cflength: 3$
+@group
 (%i6) cf ((1 + sqrt(5))/2);
 (%o6)           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -337,15 +432,29 @@ raised to the @var{k}'th power.
 
 @code{divsum (@var{n})} returns the sum of the divisors of @var{n}.
 
-@example
+@c ===beg===
+@c divsum (12);
+@c 1 + 2 + 3 + 4 + 6 + 12;
+@c divsum (12, 2);
+@c 1^2 + 2^2 + 3^2 + 4^2 + 6^2 + 12^2;
+@c ===end===
+@example maxima
+@group
 (%i1) divsum (12);
 (%o1)                          28
+@end group
+@group
 (%i2) 1 + 2 + 3 + 4 + 6 + 12;
 (%o2)                          28
+@end group
+@group
 (%i3) divsum (12, 2);
 (%o3)                          210
+@end group
+@group
 (%i4) 1^2 + 2^2 + 3^2 + 4^2 + 6^2 + 12^2;
 (%o4)                          210
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -363,13 +472,23 @@ Euler numbers equal to zero are suppressed if @code{zerobern} is
 
 For the Euler-Mascheroni constant, see @code{%gamma}.
 
-@example
+@c ===beg===
+@c zerobern: true$
+@c map (euler, [0, 1, 2, 3, 4, 5, 6]);
+@c zerobern: false$
+@c map (euler, [0, 1, 2, 3, 4, 5, 6]);
+@c ===end===
+@example maxima
 (%i1) zerobern: true$
+@group
 (%i2) map (euler, [0, 1, 2, 3, 4, 5, 6]);
-(%o2)               [1, 0, - 1, 0, 5, 0, - 61]
+(%o2)              [1, 0, - 1, 0, 5, 0, - 61]
+@end group
 (%i3) zerobern: false$
+@group
 (%i4) map (euler, [0, 1, 2, 3, 4, 5, 6]);
-(%o4)               [1, - 1, 5, - 61, 1385, - 50521, 2702765]
+(%o4)       [1, - 1, 5, - 61, 1385, - 50521, 2702765]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -402,9 +521,14 @@ Returns the @var{n}'th Fibonacci number.
 @code{fib(0)} is equal to 0 and @code{fib(1)} equal to 1, and 
 @code{fib (-@var{n})} equal to @code{(-1)^(@var{n} + 1) * fib(@var{n})}.
 
-@example
+@c ===beg===
+@c map (fib, [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8]);
+@c ===end===
+@example maxima
+@group
 (%i1) map (fib, [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8]);
-(%o1)           [- 3, 2, - 1, 1, 0, 1, 1, 2, 3, 5, 8, 13, 21]
+(%o1)     [- 3, 2, - 1, 1, 0, 1, 1, 2, 3, 5, 8, 13, 21]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -427,14 +551,19 @@ Examples:
 @c fibtophi (%);
 @c ratsimp (%);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) fibtophi (fib (n));
                            n             n
                        %phi  - (1 - %phi)
 (%o1)                  -------------------
                            2 %phi - 1
+@end group
+@group
 (%i2) fib (n-1) + fib (n) - fib (n+1);
 (%o2)          - fib(n + 1) + fib(n) + fib(n - 1)
+@end group
+@group
 (%i3) fibtophi (%);
             n + 1             n + 1       n             n
         %phi      - (1 - %phi)        %phi  - (1 - %phi)
@@ -444,8 +573,11 @@ Examples:
                                       %phi      - (1 - %phi)
                                     + ---------------------------
                                               2 %phi - 1
+@end group
+@group
 (%i4) ratsimp (%);
 (%o4)                           0
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -474,13 +606,24 @@ the multiplicities of the computed prime factors. If @code{factors_only}
 is set to @code{true}, @code{ifactors} simply returns the list of 
 prime factors.
 
-@example
+@c ===beg===
+@c ifactors(51575319651600);
+@c apply("*", map(lambda([u], u[1]^u[2]), %));
+@c ifactors(51575319651600), factors_only : true;
+@c ===end===
+@example maxima
+@group
 (%i1) ifactors(51575319651600);
-(%o1)     [[2, 4], [3, 2], [5, 2], [1583, 1], [9050207, 1]]
+(%o1)   [[2, 4], [3, 2], [5, 2], [1583, 1], [9050207, 1]]
+@end group
+@group
 (%i2) apply("*", map(lambda([u], u[1]^u[2]), %));
-(%o2)                        51575319651600
+(%o2)                    51575319651600
+@end group
+@group
 (%i3) ifactors(51575319651600), factors_only : true;
-(%o3)                   [2, 3, 5, 1583, 9050207]
+(%o3)               [2, 3, 5, 1583, 9050207]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -503,15 +646,26 @@ The command @code{load("gcdex")} loads the function.
 
 Examples:
 
-@example
+@c ===beg===
+@c load("gcdex")$
+@c igcdex(30,18);
+@c igcdex(1526757668, 7835626735736);
+@c igcdex(fib(20), fib(21));
+@c ===end===
+@example maxima
 (%i1) load("gcdex")$
-
+@group
 (%i2) igcdex(30,18);
 (%o2)                      [- 1, 2, 6]
+@end group
+@group
 (%i3) igcdex(1526757668, 7835626735736);
 (%o3)            [845922341123, - 164826435, 4]
+@end group
+@group
 (%i4) igcdex(fib(20), fib(21));
 (%o4)                   [4181, - 2584, 1]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -525,10 +679,16 @@ Examples:
 
 Returns the integer @var{n}'th root of the absolute value of @var{x}.
 
-@example
+@c ===beg===
+@c l: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]$
+@c map (lambda ([a], inrt (10^a, 3)), l);
+@c ===end===
+@example maxima
 (%i1) l: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]$
+@group
 (%i2) map (lambda ([a], inrt (10^a, 3)), l);
 (%o2) [2, 4, 10, 21, 46, 100, 215, 464, 1000, 2154, 4641, 10000]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -544,13 +704,24 @@ Computes the inverse of @var{n} modulo @var{m}.
 @code{inv_mod (n,m)} returns @code{false}, 
 if @var{n} is a zero divisor modulo @var{m}.
 
-@example
+@c ===beg===
+@c inv_mod(3, 41);
+@c ratsimp(3^-1), modulus = 41;
+@c inv_mod(3, 42);
+@c ===end===
+@example maxima
+@group
 (%i1) inv_mod(3, 41);
-(%o1)                           14
+(%o1)                          14
+@end group
+@group
 (%i2) ratsimp(3^-1), modulus = 41;
-(%o2)                           14
+(%o2)                          14
+@end group
+@group
 (%i3) inv_mod(3, 42);
-(%o3)                          false
+(%o3)                         false
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -576,10 +747,16 @@ integer.
 
 Returns the Jacobi symbol of @var{p} and @var{q}.
 
-@example
+@c ===beg===
+@c l: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]$
+@c map (lambda ([a], jacobi (a, 9)), l);
+@c ===end===
+@example maxima
 (%i1) l: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]$
+@group
 (%i2) map (lambda ([a], jacobi (a, 9)), l);
 (%o2)         [1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -610,9 +787,14 @@ Returns the @var{n}'th Lucas number.
 in general, @code{lucas(@var{n}) = lucas(@var{n}-1) + lucas(@var{n}-2)}.  Also 
 @code{lucas(-@var{n})} is equal to @code{(-1)^(-@var{n}) * lucas(@var{n})}.
 
-@example
+@c ===beg===
+@c map (lucas, [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8]);
+@c ===end===
+@example maxima
+@group
 (%i1) map (lucas, [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8]);
 (%o1)    [7, - 4, 3, - 1, 2, 1, 3, 4, 7, 11, 18, 29, 47]
+@end group
 @end example
 
 
@@ -651,13 +833,19 @@ simplification rules:
 @c mod (a*x, a*y);
 @c mod (0, x);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) mod (x, 0);
 (%o1)                           x
+@end group
+@group
 (%i2) mod (a*x, a*y);
 (%o2)                      a mod(x, y)
+@end group
+@group
 (%i3) mod (0, x);
 (%o3)                           0
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -671,9 +859,14 @@ simplification rules:
 
 Returns the smallest prime bigger than @var{n}.
 
-@example
+@c ===beg===
+@c next_prime(27);
+@c ===end===
+@example maxima
+@group
 (%i1) next_prime(27);
-(%o1)                       29
+(%o1)                          29
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -696,22 +889,33 @@ the expansion falls out.
 @code{partfrac} ignores the value @code{true} of the option variable
 @code{keepfloat}.
 
-@example
+@c ===beg===
+@c 1/(1+x)^2 - 2/(1+x) + 2/(2+x);
+@c ratsimp (%);
+@c partfrac (%, x);
+@c ===end===
+@example maxima
+@group
 (%i1) 1/(1+x)^2 - 2/(1+x) + 2/(2+x);
                       2       2        1
 (%o1)               ----- - ----- + --------
                     x + 2   x + 1          2
                                     (x + 1)
+@end group
+@group
 (%i2) ratsimp (%);
                                  x
 (%o2)                 - -------------------
                          3      2
                         x  + 4 x  + 5 x + 2
+@end group
+@group
 (%i3) partfrac (%, x);
                       2       2        1
 (%o3)               ----- - ----- + --------
                     x + 2   x + 1          2
                                     (x + 1)
+@end group
 @end example
 @end deffn
 
@@ -723,15 +927,29 @@ Uses a modular algorithm to compute @code{a^n mod m}
 where @var{a} and @var{n} are integers and @var{m} is a positive integer.
 If @var{n} is negative, @code{inv_mod} is used to find the modular inverse.
 
-@example
+@c ===beg===
+@c power_mod(3, 15, 5);
+@c mod(3^15,5);
+@c power_mod(2, -1, 5);
+@c inv_mod(2,5);
+@c ===end===
+@example maxima
+@group
 (%i1) power_mod(3, 15, 5);
-(%o1)                          2
+(%o1)                           2
+@end group
+@group
 (%i2) mod(3^15,5);
-(%o2)                          2
+(%o2)                           2
+@end group
+@group
 (%i3) power_mod(2, -1, 5);
-(%o3)                          3
+(%o3)                           3
+@end group
+@group
 (%i4) inv_mod(2,5);
-(%o4)                          3
+(%o4)                           3
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -782,9 +1000,14 @@ Number of Miller-Rabin's tests used in @code{primep}.
 
 Returns the list of all primes from @var{start} to @var{end}.
 
-@example
+@c ===beg===
+@c primes(3, 7);
+@c ===end===
+@example maxima
+@group
 (%i1) primes(3, 7);
-(%o1)                     [3, 5, 7]
+(%o1)                       [3, 5, 7]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -798,9 +1021,14 @@ Returns the list of all primes from @var{start} to @var{end}.
 
 Returns the greatest prime smaller than @var{n}.
 
-@example
+@c ===beg===
+@c prev_prime(27);
+@c ===end===
+@example maxima
+@group
 (%i1) prev_prime(27);
-(%o1)                       23
+(%o1)                          23
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -817,11 +1045,19 @@ Returns the principal unit of the real quadratic number field
 i.e., the element whose norm is unity.
 This amounts to solving Pell's equation @code{a^2 - @var{n} b^2 = 1}.
 
-@example
+@c ===beg===
+@c qunit (17);
+@c expand (% * (sqrt(17) - 4));
+@c ===end===
+@example maxima
+@group
 (%i1) qunit (17);
 (%o1)                     sqrt(17) + 4
+@end group
+@group
 (%i2) expand (% * (sqrt(17) - 4));
 (%o2)                           1
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -881,17 +1117,23 @@ Examples:
 @c limit(zeta(x),x,1,plus);
 @c limit(zeta(x),x,1,minus);
 @c ===end===
-@example
-(%i1) zeta([-2, -1, 0, 0.5, 2, 3, 1+%i]);
-                                             2
-            1     1                       %pi
-(%o1) [0, - --, - -, - 1.460354508809586, ----, zeta(3), 
-            12    2                        6
+@example maxima
+@group
+(%i1) zeta([-2, -1, 0, 0.5, 2, 3,1+%i]);
+                                              2
+            1     1                        %pi
+(%o1) [0, - --, - -, - 1.4603545088095862, ----, zeta(3), 
+            12    2                         6
                                                     zeta(%i + 1)]
+@end group
+@group
 (%i2) limit(zeta(x),x,1,plus);
 (%o2)                          inf
+@end group
+@group
 (%i3) limit(zeta(x),x,1,minus);
 (%o3)                         minf
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -916,16 +1158,20 @@ Examples:
 @c zeta%pi: false$
 @c zeta (4);
 @c ===end===
-@example
+@example maxima
 (%i1) zeta%pi: true$
+@group
 (%i2) zeta (4);
                                  4
                               %pi
 (%o2)                         ----
                                90
+@end group
 (%i3) zeta%pi: false$
+@group
 (%i4) zeta (4);
 (%o4)                        zeta(4)
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -975,29 +1221,57 @@ Examples:
 The multiplication group modulo @code{14} is cyclic and its @code{6} elements 
 can be generated by a primitive root.
 
-@example
+@c ===beg===
+@c [zn_characteristic_factors(14), phi: totient(14)];
+@c [zn_factor_generators(14), g: zn_primroot(14)];
+@c M14: makelist(power_mod(g,i,14), i,0,phi-1);
+@c ===end===
+@example maxima
+@group
 (%i1) [zn_characteristic_factors(14), phi: totient(14)];
-(%o1)                              [[6], 6]
+(%o1)                       [[6], 6]
+@end group
+@group
 (%i2) [zn_factor_generators(14), g: zn_primroot(14)];
-(%o2)                              [[3], 3]
+(%o2)                       [[3], 3]
+@end group
+@group
 (%i3) M14: makelist(power_mod(g,i,14), i,0,phi-1);
-(%o3)                         [1, 3, 9, 13, 11, 5]
+(%o3)                 [1, 3, 9, 13, 11, 5]
+@end group
 @end example
 
 The multiplication group modulo @code{15} is not cyclic and its @code{8} elements 
 can be generated by two factor generators.
 
-@example
+@c ===beg===
+@c [[f1,f2]: zn_characteristic_factors(15), totient(15)];
+@c [[g1,g2]: zn_factor_generators(15), zn_primroot(15)];
+@c UG1: makelist(power_mod(g1,i,15), i,0,f1-1);
+@c UG2: makelist(power_mod(g2,i,15), i,0,f2-1);
+@c M15: create_list(mod(i*j,15), i,UG1, j,UG2);
+@c ===end===
+@example maxima
+@group
 (%i1) [[f1,f2]: zn_characteristic_factors(15), totient(15)];
-(%o1)                             [[2, 4], 8]
+(%o1)                      [[2, 4], 8]
+@end group
+@group
 (%i2) [[g1,g2]: zn_factor_generators(15), zn_primroot(15)];
-(%o2)                           [[11, 7], false]
+(%o2)                   [[11, 7], false]
+@end group
+@group
 (%i3) UG1: makelist(power_mod(g1,i,15), i,0,f1-1);
-(%o3)                               [1, 11]
+(%o3)                        [1, 11]
+@end group
+@group
 (%i4) UG2: makelist(power_mod(g2,i,15), i,0,f2-1);
-(%o4)                            [1, 7, 4, 13]
+(%o4)                     [1, 7, 4, 13]
+@end group
+@group
 (%i5) M15: create_list(mod(i*j,15), i,UG1, j,UG2);
-(%o5)                      [1, 7, 4, 13, 11, 2, 14, 8]
+(%o5)              [1, 7, 4, 13, 11, 2, 14, 8]
+@end group
 @end example
 
 For the last characteristic factor @code{4} it holds that @code{a^4 = 1 (mod 15)} 
@@ -1006,25 +1280,33 @@ for all @code{a} in @code{M15}.
 @code{M15} has two characteristic factors and therefore @code{8/2^2} quadratic residues, 
 and each of these has @code{2^2} square roots.
 
-@example
-(%i6) zn_power_table(15);
-                               [ 1   1  1   1 ]
-                               [              ]
-                               [ 2   4  8   1 ]
-                               [              ]
-                               [ 4   1  4   1 ]
-                               [              ]
-                               [ 7   4  13  1 ]
-(%o6)                          [              ]
-                               [ 8   4  2   1 ]
-                               [              ]
-                               [ 11  1  11  1 ]
-                               [              ]
-                               [ 13  4  7   1 ]
-                               [              ]
-                               [ 14  1  14  1 ]
-(%i7) map(lambda([i], zn_nth_root(i,2,15)), [1,4]);
-(%o7)                   [[1, 4, 11, 14], [2, 7, 8, 13]]
+@c ===beg===
+@c zn_power_table(15);
+@c map(lambda([i], zn_nth_root(i,2,15)), [1,4]);
+@c ===end===
+@example maxima
+@group
+(%i1) zn_power_table(15);
+                        [ 1   1  1   1 ]
+                        [              ]
+                        [ 2   4  8   1 ]
+                        [              ]
+                        [ 4   1  4   1 ]
+                        [              ]
+                        [ 7   4  13  1 ]
+(%o1)                   [              ]
+                        [ 8   4  2   1 ]
+                        [              ]
+                        [ 11  1  11  1 ]
+                        [              ]
+                        [ 13  4  7   1 ]
+                        [              ]
+                        [ 14  1  14  1 ]
+@end group
+@group
+(%i2) map(lambda([i], zn_nth_root(i,2,15)), [1,4]);
+(%o2)            [[1, 4, 11, 14], [2, 7, 8, 13]]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1061,21 +1343,35 @@ See also @mrefdot{zn_invert_by_lu}
 
 Examples:
 
-@example
+@c ===beg===
+@c m : matrix([1,3],[2,4]);
+@c zn_determinant(m, 5);
+@c m : matrix([2,4,1],[3,1,4],[4,3,2]);
+@c zn_determinant(m, 5);
+@c ===end===
+@example maxima
+@group
 (%i1) m : matrix([1,3],[2,4]);
-                                [ 1  3 ]
-(%o1)                           [      ]
-                                [ 2  4 ]
+                            [ 1  3 ]
+(%o1)                       [      ]
+                            [ 2  4 ]
+@end group
+@group
 (%i2) zn_determinant(m, 5);
-(%o2)                               3
+(%o2)                           3
+@end group
+@group
 (%i3) m : matrix([2,4,1],[3,1,4],[4,3,2]);
-                               [ 2  4  1 ]
-                               [         ]
-(%o3)                          [ 3  1  4 ]
-                               [         ]
-                               [ 4  3  2 ]
+                           [ 2  4  1 ]
+                           [         ]
+(%o3)                      [ 3  1  4 ]
+                           [         ]
+                           [ 4  3  2 ]
+@end group
+@group
 (%i4) zn_determinant(m, 5);
-(%o4)                               0
+(%o4)                           0
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1110,21 +1406,35 @@ See also @mrefdot{zn_determinant}
 
 Example:
 
-@example
+@c ===beg===
+@c m : matrix([1,3],[2,4]);
+@c zn_determinant(m, 5);
+@c mi : zn_invert_by_lu(m, 5);
+@c matrixmap(lambda([a], mod(a, 5)), m . mi);
+@c ===end===
+@example maxima
+@group
 (%i1) m : matrix([1,3],[2,4]);
-                                [ 1  3 ]
-(%o1)                           [      ]
-                                [ 2  4 ]
+                            [ 1  3 ]
+(%o1)                       [      ]
+                            [ 2  4 ]
+@end group
+@group
 (%i2) zn_determinant(m, 5);
-(%o2)                               3
+(%o2)                           3
+@end group
+@group
 (%i3) mi : zn_invert_by_lu(m, 5);
-                                [ 3  4 ]
-(%o3)                           [      ]
-                                [ 1  2 ]
+                            [ 3  4 ]
+(%o3)                       [      ]
+                            [ 1  2 ]
+@end group
+@group
 (%i4) matrixmap(lambda([a], mod(a, 5)), m . mi);
-                                [ 1  0 ]
-(%o4)                           [      ]
-                                [ 0  1 ]
+                            [ 1  0 ]
+(%o4)                       [      ]
+                            [ 0  1 ]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1163,48 +1473,100 @@ Examples:
 
 @code{zn_log (a, g, n)} solves the congruence @code{g^x = a mod n}.
 
-@example
+@c ===beg===
+@c n : 22$
+@c g : zn_primroot(n);
+@c ord_7 : zn_order(7, n);
+@c powers_7 : makelist(power_mod(g, x, n), x, 0, ord_7 - 1);
+@c zn_log(9, g, n);
+@c map(lambda([x], zn_log(x, g, n)), powers_7);
+@c ord_5 : zn_order(5, n);
+@c powers_5 : makelist(power_mod(5,x,n), x, 0, ord_5 - 1);
+@c zn_log(9, 5, n);
+@c ===end===
+@example maxima
 (%i1) n : 22$
+@group
 (%i2) g : zn_primroot(n);
-(%o2)                               7
+(%o2)                           7
+@end group
+@group
 (%i3) ord_7 : zn_order(7, n);
-(%o3)                              10
+(%o3)                          10
+@end group
+@group
 (%i4) powers_7 : makelist(power_mod(g, x, n), x, 0, ord_7 - 1);
-(%o4)              [1, 7, 5, 13, 3, 21, 15, 17, 9, 19]
+(%o4)          [1, 7, 5, 13, 3, 21, 15, 17, 9, 19]
+@end group
+@group
 (%i5) zn_log(9, g, n);
-(%o5)                               8
+(%o5)                           8
+@end group
+@group
 (%i6) map(lambda([x], zn_log(x, g, n)), powers_7);
-(%o6)                [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+(%o6)            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+@end group
+@group
 (%i7) ord_5 : zn_order(5, n);
-(%o7)                               5
+(%o7)                           5
+@end group
+@group
 (%i8) powers_5 : makelist(power_mod(5,x,n), x, 0, ord_5 - 1);
-(%o8)                       [1, 5, 3, 15, 9]
+(%o8)                   [1, 5, 3, 15, 9]
+@end group
+@group
 (%i9) zn_log(9, 5, n);
-(%o9)                               4
+(%o9)                           4
+@end group
 @end example
 
 The optional fourth argument must be of the same form as the list returned by 
 @code{ifactors(zn_order(g))}.
 The running time primarily depends on the bitlength of the totient's greatest prime factor.
 
-@example
+@c ===beg===
+@c (p : 2^127-1, primep(p));
+@c ifs : ifactors(p - 1)$
+@c g : zn_primroot(p, ifs);
+@c a : power_mod(g, 4711, p)$
+@c zn_log(a, g, p, ifs);
+@c f_max : last(ifs);  
+@c ord_5 : zn_order(5,p,ifs)$
+@c (p - 1)/ord_5;
+@c ifs_5 : ifactors(ord_5)$
+@c a : power_mod(5, 4711, p)$
+@c zn_log(a, 5, p, ifs_5);
+@c ===end===
+@example maxima
+@group
 (%i1) (p : 2^127-1, primep(p));
-(%o1)                             true
+(%o1)                         true
+@end group
 (%i2) ifs : ifactors(p - 1)$
+@group
 (%i3) g : zn_primroot(p, ifs);
-(%o3)                              43
+(%o3)                          43
+@end group
 (%i4) a : power_mod(g, 4711, p)$
+@group
 (%i5) zn_log(a, g, p, ifs);
-(%o5)                             4711
-(%i6) f_max : last(ifs);  
-(%o6)                       [77158673929, 1]
+(%o5)                         4711
+@end group
+@group
+(%i6) f_max : last(ifs);
+(%o6)                   [77158673929, 1]
+@end group
 (%i7) ord_5 : zn_order(5,p,ifs)$
+@group
 (%i8) (p - 1)/ord_5;
-(%o8)                              73
+(%o8)                          73
+@end group
 (%i9) ifs_5 : ifactors(ord_5)$
 (%i10) a : power_mod(5, 4711, p)$
+@group
 (%i11) zn_log(a, 5, p, ifs_5);
-(%o11)                            4711
+(%o11)                        4711
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1246,29 +1608,37 @@ each row and column contains every element, the tables are symmetric, etc..
 If @var{gcd} is set to @code{all}, the table is printed for all non-zero 
 elements in (Z/@var{n}Z).
 
-@example
+@c ===beg===
+@c zn_mult_table(8);
+@c zn_mult_table(8, all);
+@c ===end===
+@example maxima
+@group
 (%i1) zn_mult_table(8);
-                                [ 1  3  5  7 ]
-                                [            ]
-                                [ 3  1  7  5 ]
-(%o1)                           [            ]
-                                [ 5  7  1  3 ]
-                                [            ]
-                                [ 7  5  3  1 ]
+                         [ 1  3  5  7 ]
+                         [            ]
+                         [ 3  1  7  5 ]
+(%o1)                    [            ]
+                         [ 5  7  1  3 ]
+                         [            ]
+                         [ 7  5  3  1 ]
+@end group
+@group
 (%i2) zn_mult_table(8, all);
-                            [ 1  2  3  4  5  6  7 ]
-                            [                     ]
-                            [ 2  4  6  0  2  4  6 ]
-                            [                     ]
-                            [ 3  6  1  4  7  2  5 ]
-                            [                     ]
-(%o2)                       [ 4  0  4  0  4  0  4 ]
-                            [                     ]
-                            [ 5  2  7  4  1  6  3 ]
-                            [                     ]
-                            [ 6  4  2  0  6  4  2 ]
-                            [                     ]
-                            [ 7  6  5  4  3  2  1 ]
+                     [ 1  2  3  4  5  6  7 ]
+                     [                     ]
+                     [ 2  4  6  0  2  4  6 ]
+                     [                     ]
+                     [ 3  6  1  4  7  2  5 ]
+                     [                     ]
+(%o2)                [ 4  0  4  0  4  0  4 ]
+                     [                     ]
+                     [ 5  2  7  4  1  6  3 ]
+                     [                     ]
+                     [ 6  4  2  0  6  4  2 ]
+                     [                     ]
+                     [ 7  6  5  4  3  2  1 ]
+@end group
 @end example
 
 If @var{gcd} is an integer, row and column headings are added for better readability. 
@@ -1280,45 +1650,56 @@ identity builds a table which is easy to read. The mapping is accomplished via C
 In the second version of @code{T36_4} the identity, here @code{28}, is placed in 
 the top left corner, just like in table @code{T9}. 
 
-@example
+@c ===beg===
+@c T36_4: zn_mult_table(36,4);
+@c T9: zn_mult_table(36/4);
+@c T36_4: matrixmap(lambda([x], solve_congruences([0,x],[4,9])), T9);
+@c ===end===
+@example maxima
+@group
 (%i1) T36_4: zn_mult_table(36,4);
-                        [ *   4   8   16  20  28  32 ]
-                        [                            ]
-                        [ 4   16  32  28  8   4   20 ]
-                        [                            ]
-                        [ 8   32  28  20  16  8   4  ]
-                        [                            ]
-(%o1)                   [ 16  28  20  4   32  16  8  ]
-                        [                            ]
-                        [ 20  8   16  32  4   20  28 ]
-                        [                            ]
-                        [ 28  4   8   16  20  28  32 ]
-                        [                            ]
-                        [ 32  20  4   8   28  32  16 ]
+                 [ *   4   8   16  20  28  32 ]
+                 [                            ]
+                 [ 4   16  32  28  8   4   20 ]
+                 [                            ]
+                 [ 8   32  28  20  16  8   4  ]
+                 [                            ]
+(%o1)            [ 16  28  20  4   32  16  8  ]
+                 [                            ]
+                 [ 20  8   16  32  4   20  28 ]
+                 [                            ]
+                 [ 28  4   8   16  20  28  32 ]
+                 [                            ]
+                 [ 32  20  4   8   28  32  16 ]
+@end group
+@group
 (%i2) T9: zn_mult_table(36/4);
-                             [ 1  2  4  5  7  8 ]
-                             [                  ]
-                             [ 2  4  8  1  5  7 ]
-                             [                  ]
-                             [ 4  8  7  2  1  5 ]
-(%o2)                        [                  ]
-                             [ 5  1  2  7  8  4 ]
-                             [                  ]
-                             [ 7  5  1  8  4  2 ]
-                             [                  ]
-                             [ 8  7  5  4  2  1 ]
+                      [ 1  2  4  5  7  8 ]
+                      [                  ]
+                      [ 2  4  8  1  5  7 ]
+                      [                  ]
+                      [ 4  8  7  2  1  5 ]
+(%o2)                 [                  ]
+                      [ 5  1  2  7  8  4 ]
+                      [                  ]
+                      [ 7  5  1  8  4  2 ]
+                      [                  ]
+                      [ 8  7  5  4  2  1 ]
+@end group
+@group
 (%i3) T36_4: matrixmap(lambda([x], solve_congruences([0,x],[4,9])), T9);
-                          [ 28  20  4   32  16  8  ]
-                          [                        ]
-                          [ 20  4   8   28  32  16 ]
-                          [                        ]
-                          [ 4   8   16  20  28  32 ]
-(%o3)                     [                        ]
-                          [ 32  28  20  16  8   4  ]
-                          [                        ]
-                          [ 16  32  28  8   4   20 ]
-                          [                        ]
-                          [ 8   16  32  4   20  28 ]
+                   [ 28  20  4   32  16  8  ]
+                   [                        ]
+                   [ 20  4   8   28  32  16 ]
+                   [                        ]
+                   [ 4   8   16  20  28  32 ]
+(%o3)              [                        ]
+                   [ 32  28  20  16  8   4  ]
+                   [                        ]
+                   [ 16  32  28  8   4   20 ]
+                   [                        ]
+                   [ 8   16  32  4   20  28 ]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1356,21 +1737,30 @@ A power table of the multiplication group modulo @code{14}
 followed by a list of lists containing all @var{n}-th roots of @code{1} 
 with @var{n} from @code{1} to @code{6}.
 
-@example
+@c ===beg===
+@c zn_power_table(14);
+@c makelist(zn_nth_root(1,n,14), n,1,6);
+@c ===end===
+@example maxima
+@group
 (%i1) zn_power_table(14);
-                         [ 1   1   1   1   1   1 ]
-                         [                       ]
-                         [ 3   9   13  11  5   1 ]
-                         [                       ]
-                         [ 5   11  13  9   3   1 ]
-(%o1)                    [                       ]
-                         [ 9   11  1   9   11  1 ]
-                         [                       ]
-                         [ 11  9   1   11  9   1 ]
-                         [                       ]
-                         [ 13  1   13  1   13  1 ]
+                    [ 1   1   1   1   1   1 ]
+                    [                       ]
+                    [ 3   9   13  11  5   1 ]
+                    [                       ]
+                    [ 5   11  13  9   3   1 ]
+(%o1)               [                       ]
+                    [ 9   11  1   9   11  1 ]
+                    [                       ]
+                    [ 11  9   1   11  9   1 ]
+                    [                       ]
+                    [ 13  1   13  1   13  1 ]
+@end group
+@group
 (%i2) makelist(zn_nth_root(1,n,14), n,1,6);
-(%o2)  [[1], [1, 13], [1, 9, 11], [1, 13], [1], [1, 3, 5, 9, 11, 13]]
+(%o2) [[1], [1, 13], [1, 9, 11], [1, 13], [1], 
+                                            [1, 3, 5, 9, 11, 13]]
+@end group
 @end example
 
 In the following example @var{x} is not coprime to @var{m}, 
@@ -1384,25 +1774,36 @@ Here @code{zn_power_table} shows all residues @code{x} in (Z/63Z)
 with @code{gcd(x,63) = 9}. This subgroup is isomorphic to (Z/7Z)*  
 and its identity @code{36} is computed via CRT.
 
-@example
+@c ===beg===
+@c m: 7*9$
+@c zn_power_table(m,9);
+@c zn_nth_root(27,3,m);
+@c id7:1$  id63_9: solve_congruences([id7,0],[7,9]);
+@c ===end===
+@example maxima
 (%i1) m: 7*9$
-
+@group
 (%i2) zn_power_table(m,9);
-                         [ 9   18  36  9   18  36 ]
-                         [                        ]
-                         [ 18  9   36  18  9   36 ]
-                         [                        ]
-                         [ 27  36  27  36  27  36 ]
-(%o2)                    [                        ]
-                         [ 36  36  36  36  36  36 ]
-                         [                        ]
-                         [ 45  9   27  18  54  36 ]
-                         [                        ]
-                         [ 54  18  27  9   45  36 ]
+                   [ 9   18  36  9   18  36 ]
+                   [                        ]
+                   [ 18  9   36  18  9   36 ]
+                   [                        ]
+                   [ 27  36  27  36  27  36 ]
+(%o2)              [                        ]
+                   [ 36  36  36  36  36  36 ]
+                   [                        ]
+                   [ 45  9   27  18  54  36 ]
+                   [                        ]
+                   [ 54  18  27  9   45  36 ]
+@end group
+@group
 (%i3) zn_nth_root(27,3,m);
-(%o3)                           [27, 45, 54]
+(%o3)                     [27, 45, 54]
+@end group
+@group
 (%i4) id7:1$  id63_9: solve_congruences([id7,0],[7,9]);
-(%o5)                                36
+(%o5)                          36
+@end group
 @end example
 
 In the following RSA-like example, where the modulus @code{N} is squarefree, 
@@ -1415,33 +1816,46 @@ The process of decryption needs the @code{e}-th root.
 In this case @code{zn_nth_root} effectively performs CRT-RSA. 
 (Please note that @code{flatten} removes braces but no solutions.)
 
-@example
+@c ===beg===
+@c [p,q,e]: [5,7,17]$  N: p*q$
+@c xs: makelist(x,x,0,N-1)$
+@c ys: map(lambda([x],power_mod(x,e,N)),xs)$
+@c zs: flatten(map(lambda([y], zn_nth_root(y,e,N)), ys))$
+@c is(zs = xs);
+@c ===end===
+@example maxima
 (%i1) [p,q,e]: [5,7,17]$  N: p*q$
-
 (%i3) xs: makelist(x,x,0,N-1)$
-
 (%i4) ys: map(lambda([x],power_mod(x,e,N)),xs)$
-
 (%i5) zs: flatten(map(lambda([y], zn_nth_root(y,e,N)), ys))$
-
+@group
 (%i6) is(zs = xs);
-(%o6)                             true
+(%o6)                         true
+@end group
 @end example
 
 In the following example the factorization of the modulus is known 
 and passed as the fourth argument.
 
-@example
+@c ===beg===
+@c p: 2^107-1$  q: 2^127-1$  N: p*q$
+@c ibase: obase: 16$
+@c msg: 11223344556677889900aabbccddeeff$
+@c enc: power_mod(msg, 10001, N);
+@c zn_nth_root(enc, 10001, N, [[p,1],[q,1]]);
+@c ===end===
+@example maxima
 (%i1) p: 2^107-1$  q: 2^127-1$  N: p*q$
-
 (%i4) ibase: obase: 16$
-
 (%i5) msg: 11223344556677889900aabbccddeeff$
-
+@group
 (%i6) enc: power_mod(msg, 10001, N);
-(%o6)    1a8db7892ae588bdc2be25dd5107a425001fe9c82161abc673241c8b383
+(%o6) 1A8DB7892AE588BDC2BE25DD5107A425001FE9C82161ABC673241C8B383
+@end group
+@group
 (%i7) zn_nth_root(enc, 10001, N, [[p,1],[q,1]]);
-(%o7)               [11223344556677889900aabbccddeeff]
+(%o7)          [11223344556677889900AABBCCDDEEFF]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1470,37 +1884,76 @@ Examples:
 
 @code{zn_order} computes the order of the unit @var{x} in (Z/@var{n}Z)*.
 
-@example
+@c ===beg===
+@c n: 22$
+@c g: zn_primroot(n);
+@c units_22: sublist(makelist(i,i,1,21), lambda([x], gcd(x,n)=1));
+@c (ord_7: zn_order(7, n)) = totient(n);
+@c powers_7: makelist(power_mod(g,i,n), i,0,ord_7 - 1);
+@c map(lambda([x], zn_order(x, n)), powers_7);
+@c map(lambda([x], ord_7/gcd(x,ord_7)), makelist(i,i,0,ord_7-1));
+@c totient(totient(n));
+@c ===end===
+@example maxima
 (%i1) n: 22$
+@group
 (%i2) g: zn_primroot(n);
-(%o2)                            7
+(%o2)                           7
+@end group
+@group
 (%i3) units_22: sublist(makelist(i,i,1,21), lambda([x], gcd(x,n)=1));
 (%o3)          [1, 3, 5, 7, 9, 13, 15, 17, 19, 21]
+@end group
+@group
 (%i4) (ord_7: zn_order(7, n)) = totient(n);
 (%o4)                        10 = 10
+@end group
+@group
 (%i5) powers_7: makelist(power_mod(g,i,n), i,0,ord_7 - 1);
 (%o5)          [1, 7, 5, 13, 3, 21, 15, 17, 9, 19]
+@end group
+@group
 (%i6) map(lambda([x], zn_order(x, n)), powers_7);
 (%o6)          [1, 10, 5, 10, 5, 2, 5, 10, 5, 10]
+@end group
+@group
 (%i7) map(lambda([x], ord_7/gcd(x,ord_7)), makelist(i,i,0,ord_7-1));
-(%o7)         [1, 10, 5, 10, 5, 2, 5, 10, 5, 10]
+(%o7)          [1, 10, 5, 10, 5, 2, 5, 10, 5, 10]
+@end group
+@group
 (%i8) totient(totient(n));
-(%o8)                          4
+(%o8)                           4
+@end group
 @end example
 
 The optional third argument must be of the same form as the list returned by 
 @code{ifactors(totient(n))}.
 
-@example
+@c ===beg===
+@c (p : 2^142 + 217, primep(p));
+@c ifs: ifactors( totient(p) )$
+@c g: zn_primroot(p, ifs);
+@c is( (ord_3 : zn_order(g, p, ifs)) = totient(p) );
+@c map(lambda([x], ord_3/zn_order(x,p,ifs)), makelist(i,i,2,15));
+@c ===end===
+@example maxima
+@group
 (%i1) (p : 2^142 + 217, primep(p));
 (%o1)                         true
+@end group
 (%i2) ifs: ifactors( totient(p) )$
+@group
 (%i3) g: zn_primroot(p, ifs);
 (%o3)                           3
+@end group
+@group
 (%i4) is( (ord_3 : zn_order(g, p, ifs)) = totient(p) );
 (%o4)                         true
+@end group
+@group
 (%i5) map(lambda([x], ord_3/zn_order(x,p,ifs)), makelist(i,i,2,15));
 (%o5)    [22, 1, 44, 10, 5, 2, 22, 2, 8, 2, 1, 1, 20, 1]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1546,33 +1999,56 @@ isomorphic to @code{G5}. @code{1} is the identity in @code{G5}.
 So are @code{1} resp. @code{6} the identities in @code{G10} resp. @code{G10_2}. 
 There are corresponding mappings for primitive roots, n-th roots, etc..
 
-@example
+@c ===beg===
+@c zn_power_table(10);
+@c zn_power_table(10,2);
+@c zn_power_table(10,5);
+@c zn_power_table(10,10);
+@c G5: [1,2,3,4];
+@c G10_2: map(lambda([x], solve_congruences([0,x],[2,5])), G5);
+@c G10: map(lambda([x], power_mod(3, zn_log(x,2,5), 10)), G5);
+@c ===end===
+@example maxima
+@group
 (%i1) zn_power_table(10);
-                              [ 1  1  1  1 ]
-                              [            ]
-                              [ 3  9  7  1 ]
-(%o1)                         [            ]
-                              [ 7  9  3  1 ]
-                              [            ]
-                              [ 9  1  9  1 ]
+                         [ 1  1  1  1 ]
+                         [            ]
+                         [ 3  9  7  1 ]
+(%o1)                    [            ]
+                         [ 7  9  3  1 ]
+                         [            ]
+                         [ 9  1  9  1 ]
+@end group
+@group
 (%i2) zn_power_table(10,2);
-                              [ 2  4  8  6 ]
-                              [            ]
-                              [ 4  6  4  6 ]
-(%o2)                         [            ]
-                              [ 6  6  6  6 ]
-                              [            ]
-                              [ 8  4  2  6 ]
+                         [ 2  4  8  6 ]
+                         [            ]
+                         [ 4  6  4  6 ]
+(%o2)                    [            ]
+                         [ 6  6  6  6 ]
+                         [            ]
+                         [ 8  4  2  6 ]
+@end group
+@group
 (%i3) zn_power_table(10,5);
-(%o3)                         [ 5  5  5  5 ]
+(%o3)                    [ 5  5  5  5 ]
+@end group
+@group
 (%i4) zn_power_table(10,10);
-(%o4)                         [ 0  0  0  0 ]
+(%o4)                    [ 0  0  0  0 ]
+@end group
+@group
 (%i5) G5: [1,2,3,4];
-(%o6)                          [1, 2, 3, 4]
+(%o5)                     [1, 2, 3, 4]
+@end group
+@group
 (%i6) G10_2: map(lambda([x], solve_congruences([0,x],[2,5])), G5);
-(%o6)                          [6, 2, 8, 4]
+(%o6)                     [6, 2, 8, 4]
+@end group
+@group
 (%i7) G10: map(lambda([x], power_mod(3, zn_log(x,2,5), 10)), G5);
-(%o7)                          [1, 3, 7, 9]
+(%o7)                     [1, 3, 7, 9]
+@end group
 @end example
 
 If @var{gcd} is set to @code{all}, the table contains powers of all elements 
@@ -1581,29 +2057,34 @@ in (Z/@var{n}Z).
 The third argument @var{max_exp} allows to set the highest exponent. 
 The following table shows a very small example of RSA.
 
-@example
-(%i1) N:2*5$ phi:totient(N)$ e:7$ d:inv_mod(e,phi)$
-
-(%i5) zn_power_table(N, all, e*d);
-      [ 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 ]
-      [                                                               ]
-      [ 1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1 ]
-      [                                                               ]
-      [ 2  4  8  6  2  4  8  6  2  4  8  6  2  4  8  6  2  4  8  6  2 ]
-      [                                                               ]
-      [ 3  9  7  1  3  9  7  1  3  9  7  1  3  9  7  1  3  9  7  1  3 ]
-      [                                                               ]
-      [ 4  6  4  6  4  6  4  6  4  6  4  6  4  6  4  6  4  6  4  6  4 ]
-(%o5) [                                                               ]
-      [ 5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5 ]
-      [                                                               ]
-      [ 6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6 ]
-      [                                                               ]
-      [ 7  9  3  1  7  9  3  1  7  9  3  1  7  9  3  1  7  9  3  1  7 ]
-      [                                                               ]
-      [ 8  4  2  6  8  4  2  6  8  4  2  6  8  4  2  6  8  4  2  6  8 ]
-      [                                                               ]
-      [ 9  1  9  1  9  1  9  1  9  1  9  1  9  1  9  1  9  1  9  1  9 ]
+@c ===beg===
+@c linel:100$ N:2*5$ phi:totient(N)$ e:7$ d:inv_mod(e,phi)$
+@c zn_power_table(N, all, e*d);
+@c ===end===
+@example maxima
+(%i1) linel:100$ N:2*5$ phi:totient(N)$ e:7$ d:inv_mod(e,phi)$
+@group
+(%i6) zn_power_table(N, all, e*d);
+                 [ 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 ]
+                 [                                                               ]
+                 [ 1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1 ]
+                 [                                                               ]
+                 [ 2  4  8  6  2  4  8  6  2  4  8  6  2  4  8  6  2  4  8  6  2 ]
+                 [                                                               ]
+                 [ 3  9  7  1  3  9  7  1  3  9  7  1  3  9  7  1  3  9  7  1  3 ]
+                 [                                                               ]
+                 [ 4  6  4  6  4  6  4  6  4  6  4  6  4  6  4  6  4  6  4  6  4 ]
+(%o6)            [                                                               ]
+                 [ 5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5 ]
+                 [                                                               ]
+                 [ 6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6 ]
+                 [                                                               ]
+                 [ 7  9  3  1  7  9  3  1  7  9  3  1  7  9  3  1  7  9  3  1  7 ]
+                 [                                                               ]
+                 [ 8  4  2  6  8  4  2  6  8  4  2  6  8  4  2  6  8  4  2  6  8 ]
+                 [                                                               ]
+                 [ 9  1  9  1  9  1  9  1  9  1  9  1  9  1  9  1  9  1  9  1  9 ]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1641,36 +2122,71 @@ Examples:
 @code{zn_primroot} computes the smallest primitive root modulo @var{n} or returns 
 @code{false}.
 
-@example
+@c ===beg===
+@c n : 14$
+@c g : zn_primroot(n);
+@c zn_order(g, n) = totient(n);
+@c n : 15$
+@c zn_primroot(n);
+@c ===end===
+@example maxima
 (%i1) n : 14$
+@group
 (%i2) g : zn_primroot(n);
-(%o2)                               3
+(%o2)                           3
+@end group
+@group
 (%i3) zn_order(g, n) = totient(n);
-(%o3)                             6 = 6
+(%o3)                         6 = 6
+@end group
 (%i4) n : 15$
+@group
 (%i5) zn_primroot(n);
-(%o5)                             false
+(%o5)                         false
+@end group
 @end example
 
 The optional second argument must be of the same form as the list returned by 
 @code{ifactors(totient(n))}.
 
-@example
+@c NOTE:  This is a bit slow.  I think the main cause is running
+@c ifactors.
+@c
+@c ===beg===
+@c (p : 2^142 + 217, primep(p));
+@c ifs : ifactors( totient(p) )$
+@c g : zn_primroot(p, ifs);
+@c [time(%o2), time(%o3)];
+@c is(zn_order(g, p, ifs) = p - 1);
+@c n : 2^142 + 216$
+@c ifs : ifactors(totient(n))$
+@c zn_primroot(n, ifs), zn_primroot_limit : 200, zn_primroot_verbose : true;
+@c ===end===
+@example maxima
+@group
 (%i1) (p : 2^142 + 217, primep(p));
-(%o1)                             true
+(%o1)                         true
+@end group
 (%i2) ifs : ifactors( totient(p) )$
+@group
 (%i3) g : zn_primroot(p, ifs);
-(%o3)                               3
+(%o3)                           3
+@end group
+@group
 (%i4) [time(%o2), time(%o3)];
-(%o4)                    [[15.556972], [0.004]]
+(%o4)                    [[3.2], [0.0]]
+@end group
+@group
 (%i5) is(zn_order(g, p, ifs) = p - 1);
-(%o5)                             true
+(%o5)                         true
+@end group
 (%i6) n : 2^142 + 216$
 (%i7) ifs : ifactors(totient(n))$
-(%i8) zn_primroot(n, ifs), 
-      zn_primroot_limit : 200, zn_primroot_verbose : true;
+@group
+(%i8) zn_primroot(n, ifs), zn_primroot_limit : 200, zn_primroot_verbose : true;
 `zn_primroot' stopped at zn_primroot_limit = 200
-(%o8)                             false
+(%o8)                         false
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1713,29 +2229,56 @@ Examples:
 
 @code{zn_primroot_p} as a predicate function.
 
-@example
+@c ===beg===
+@c n : 14$
+@c units_14 : sublist(makelist(i,i,1,13), lambda([i], gcd(i, n) = 1));
+@c zn_primroot_p(13, n);
+@c sublist(units_14, lambda([x], zn_primroot_p(x, n)));
+@c map(lambda([x], zn_order(x, n)), units_14);
+@c ===end===
+@example maxima
 (%i1) n : 14$
+@group
 (%i2) units_14 : sublist(makelist(i,i,1,13), lambda([i], gcd(i, n) = 1));
-(%o2)                     [1, 3, 5, 9, 11, 13]
+(%o2)                 [1, 3, 5, 9, 11, 13]
+@end group
+@group
 (%i3) zn_primroot_p(13, n);
-(%o3)                            false
+(%o3)                         false
+@end group
+@group
 (%i4) sublist(units_14, lambda([x], zn_primroot_p(x, n)));
-(%o4)                            [3, 5]
+(%o4)                        [3, 5]
+@end group
+@group
 (%i5) map(lambda([x], zn_order(x, n)), units_14);
-(%o5)                      [1, 6, 6, 3, 3, 2]
+(%o5)                  [1, 6, 6, 3, 3, 2]
+@end group
 @end example
 
 The optional third argument must be of the same form as the list returned by 
 @code{ifactors(totient(n))}.
 
-@example
+@c ===beg===
+@c (p: 2^142 + 217, primep(p));
+@c ifs: ifactors( totient(p) )$
+@c sublist(makelist(i,i,1,50), lambda([x], zn_primroot_p(x,p,ifs)));
+@c [time(%o2), time(%o3)];
+@c ===end===
+@example maxima
+@group
 (%i1) (p: 2^142 + 217, primep(p));
 (%o1)                         true
+@end group
 (%i2) ifs: ifactors( totient(p) )$
+@group
 (%i3) sublist(makelist(i,i,1,50), lambda([x], zn_primroot_p(x,p,ifs)));
 (%o3)  [3, 12, 13, 15, 21, 24, 26, 27, 29, 33, 38, 42, 48]
+@end group
+@group
 (%i4) [time(%o2), time(%o3)];
-(%o4)                  [[7.748484], [0.036002]]
+(%o4)                   [[3.01], [0.03]]
+@end group
 @end example
 
 @opencatbox{Categories:}

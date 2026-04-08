@@ -1,3 +1,5 @@
+(in-package :maxima)
+
 (defun $nelder_mead (expr vars init)
   (let* ((fun (coerce-float-fun expr vars))
 	 (fun1 (lambda (arr)

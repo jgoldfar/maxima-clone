@@ -76,7 +76,7 @@ parabolic_cylinder_d (v,z)     Parabolic cylinder D function
 The Bessel function of the first kind of order @math{v} and argument @math{z}.
 See @urlaands{eqn 9.1.10, 360} and @urldlmf{10.2.E2}.
 
-@code{bessel_j} is defined as
+@mref{bessel_j} is defined as
 
 m4_displaymath(
 <<<J_v(z) = \sum_{k=0}^{\infty }{{{\left(-1\right)^{k}\,\left(z\over 2\right)^{v+2\,k}
@@ -94,7 +94,7 @@ m4_displaymath(
 
 although the infinite series is not used for computations.
 
-When @code{besselexpand} is @code{true}, @code{bessel_j} is expanded in terms
+When @mref{besselexpand} is @mref{true}, @mref{bessel_j} is expanded in terms
 of elementary functions when the order @math{v} is half of an odd integer. 
 See @mrefdot{besselexpand}
 
@@ -111,7 +111,7 @@ See @mrefdot{besselexpand}
 The Bessel function of the second kind of order @math{v} and argument @math{z}.
 See @urlaands{eqn 9.1.2, 358} and @urldlmf{10.2.E3}.
 
-@code{bessel_y} is defined as
+@mref{bessel_y} is defined as
 m4_displaymath(
 <<<Y_v(z) = {{\cos(\pi v)\, J_v(z) - J_{-v}(z)}\over{\sin{\pi v}}}>>>,
 <<<@example
@@ -124,7 +124,7 @@ m4_displaymath(
 when @math{v} is not an integer.  When @math{v} is an integer @math{n},
 the limit as @math{v} approaches @math{n} is taken.
 
-When @code{besselexpand} is @code{true}, @code{bessel_y} is expanded in terms
+When @mref{besselexpand} is @mref{true}, @mref{bessel_y} is expanded in terms
 of elementary functions when the order @math{v} is half of an odd integer. 
 See @mrefdot{besselexpand}
 
@@ -141,7 +141,7 @@ See @mrefdot{besselexpand}
 The modified Bessel function of the first kind of order @math{v} and argument
 @math{z}. See @urlaands{eqn 9.6.10, 375} and @urldlmf{10.25.E2}.
 
-@code{bessel_i} is defined as
+@mref{bessel_i} is defined as
 m4_displaymath(
 <<<I_v(z) = \sum_{k=0}^{\infty } {{1\over{k!\,\Gamma
  \left(v+k+1\right)}} {\left(z\over 2\right)^{v+2\,k}}}>>>,
@@ -158,7 +158,7 @@ m4_displaymath(
 
 although the infinite series is not used for computations.
 
-When @code{besselexpand} is @code{true}, @code{bessel_i} is expanded in terms
+When @mref{besselexpand} is @mref{true}, @mref{bessel_i} is expanded in terms
 of elementary functions when the order @math{v} is half of an odd integer. 
 See @mrefdot{besselexpand}
 
@@ -176,7 +176,7 @@ See @mrefdot{besselexpand}
 The modified Bessel function of the second kind of order @math{v} and argument
 @math{z}. See @urlaands{eqn 9.6.2, 375} and @urldlmf{10.27.E4}.
 
-@code{bessel_k} is defined as
+@mref{bessel_k} is defined as
 m4_displaymath(
 <<<K_v(z) = {1\over 2} \pi\, {I_{-v}(z)-I_{v}(z) \over \sin v\pi}>>>,
 <<<@example
@@ -189,7 +189,7 @@ m4_displaymath(
 when @math{v} is not an integer.  If @math{v} is an integer @math{n},
 then the limit as @math{v} approaches @math{n} is taken.
 
-When @code{besselexpand} is @code{true}, @code{bessel_k} is expanded in terms
+When @mref{besselexpand} is @mref{true}, @mref{bessel_k} is expanded in terms
 of elementary functions when the order @math{v} is half of an odd integer. 
 See @mrefdot{besselexpand}
 
@@ -207,7 +207,7 @@ See @mrefdot{besselexpand}
 The Hankel function of the first kind of order @math{v} and argument @math{z}.
 See @urlaands{eqn 9.1.3, 358} and @urldlmf{10.4.E3}.
 
-@code{hankel_1} is defined as
+@mref{hankel_1} is defined as
 
 m4_displaymath(
 <<<H^{(1)}_v(z) = J_v(z) + i Y_v(z)>>>,
@@ -216,15 +216,15 @@ m4_displaymath(
 @end example>>>
 )
 
-Maxima evaluates @code{hankel_1} numerically for a complex order @math{v} and 
+Maxima evaluates @mref{hankel_1} numerically for a complex order @math{v} and 
 complex argument @math{z} in float precision. The numerical evaluation in 
 bigfloat precision is not supported.
 
-When @code{besselexpand} is @code{true}, @code{hankel_1} is expanded in terms
+When @mref{besselexpand} is @mref{true}, @mref{hankel_1} is expanded in terms
 of elementary functions when the order @math{v} is half of an odd integer. 
 See @mrefdot{besselexpand}
 
-Maxima knows the derivative of @code{hankel_1} wrt the argument @math{z}.
+Maxima knows the derivative of @mref{hankel_1} wrt the argument @math{z}.
 
 Examples:
 
@@ -234,23 +234,23 @@ Numerical evaluation:
 @c hankel_1(1,0.5);
 @c hankel_1(1,0.5+%i);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) hankel_1(1,0.5);
-(%o1)        0.24226845767487 - 1.471472392670243 %i
+(%o1)      0.24226845767487384 - 1.4714723926702433 %i
 @end group
 @group
 (%i2) hankel_1(1,0.5+%i);
-(%o2)       - 0.25582879948621 %i - 0.23957560188301
+(%o2)     - 0.2558287994862166 %i - 0.23957560188301597
 @end group
 @end example
 
-Expansion of @code{hankel_1} when @code{besselexpand} is @code{true}:
+Expansion of @mref{hankel_1} when @mref{besselexpand} is @mref{true}:
 
 @c ===beg===
 @c hankel_1(1/2,z),besselexpand:true;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) hankel_1(1/2,z),besselexpand:true;
                sqrt(2) sin(z) - sqrt(2) %i cos(z)
@@ -259,14 +259,14 @@ Expansion of @code{hankel_1} when @code{besselexpand} is @code{true}:
 @end group
 @end example
 
-Derivative of @code{hankel_1} wrt the argument @math{z}. The derivative wrt the 
+Derivative of @mref{hankel_1} wrt the argument @math{z}. The derivative wrt the 
 order @math{v} is not supported. Maxima returns a noun form:
 
 @c ===beg===
 @c diff(hankel_1(v,z),z);
 @c diff(hankel_1(v,z),v);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) diff(hankel_1(v,z),z);
              hankel_1(v - 1, z) - hankel_1(v + 1, z)
@@ -294,7 +294,7 @@ order @math{v} is not supported. Maxima returns a noun form:
 The Hankel function of the second kind of order @math{v} and argument @math{z}.
 See @urlaands{eqn 9.1.4, 358} and @urldlmf{10.4.E3}.
 
-@code{hankel_2} is defined as
+@mref{hankel_2} is defined as
 
 m4_displaymath(
 <<<H^{(2)}_v(z) = J_v(z) - i Y_v(z)>>>,
@@ -304,17 +304,17 @@ m4_displaymath(
 @end example
 >>>)
 
-Maxima evaluates @code{hankel_2} numerically for a complex order @math{v} and 
+Maxima evaluates @mref{hankel_2} numerically for a complex order @math{v} and 
 complex argument @math{z} in float precision. The numerical evaluation in 
 bigfloat precision is not supported.
 
-When @code{besselexpand} is @code{true}, @code{hankel_2} is expanded in terms
+When @mref{besselexpand} is @mref{true}, @mref{hankel_2} is expanded in terms
 of elementary functions when the order @math{v} is half of an odd integer. 
 See @mrefdot{besselexpand}
 
-Maxima knows the derivative of @code{hankel_2} wrt the argument @math{z}.
+Maxima knows the derivative of @mref{hankel_2} wrt the argument @math{z}.
 
-For examples see @code{hankel_1}.
+For examples see @mref{hankel_1}.
 
 @opencatbox{Categories:}
 @category{Bessel functions}
@@ -325,50 +325,68 @@ For examples see @code{hankel_1}.
 @c -----------------------------------------------------------------------------
 @anchor{besselexpand}
 @defvr {Option variable} besselexpand
-Default value: @code{false}
+Default value: @mref{false}
 
 @c REPHRASE
 Controls expansion of the Bessel, Hankel and Struve functions
 when the order is half of
 an odd integer.  In this case, the functions can be expanded
-in terms of other elementary functions.  When @code{besselexpand} is @code{true},
+in terms of other elementary functions.  When @mref{besselexpand} is @mref{true},
 the Bessel function is expanded.
 
-@example
+@c ===beg===
+@c besselexpand: false$
+@c bessel_j (3/2, z);
+@c besselexpand: true$
+@c bessel_j (3/2, z);
+@c bessel_y(3/2,z);
+@c bessel_i(3/2,z);
+@c bessel_k(3/2,z);
+@c ===end===
+@example maxima
 (%i1) besselexpand: false$
+@group
 (%i2) bessel_j (3/2, z);
-                                    3
-(%o2)                      bessel_j(-, z)
-                                    2
+                                  3
+(%o2)                    bessel_j(-, z)
+                                  2
+@end group
 (%i3) besselexpand: true$
+@group
 (%i4) bessel_j (3/2, z);
-                                        sin(z)   cos(z)
-                       sqrt(2) sqrt(z) (------ - ------)
-                                           2       z
-                                          z
-(%o4)                  ---------------------------------
-                                   sqrt(%pi)
+                                 sin(z)   cos(z)
+                sqrt(2) sqrt(z) (------ - ------)
+                                    2       z
+                                   z
+(%o4)           ---------------------------------
+                            sqrt(%pi)
+@end group
+@group
 (%i5) bessel_y(3/2,z);
-                                        sin(z)    cos(z)
-                    sqrt(2) sqrt(z) ((- ------) - ------)
-                                          z          2
-                                                    z
-(%o5)               -------------------------------------
-                                  sqrt(%pi)
+                                  sin(z)   cos(z)
+               sqrt(2) sqrt(z) (- ------ - ------)
+                                    z         2
+                                             z
+(%o5)          -----------------------------------
+                            sqrt(%pi)
+@end group
+@group
 (%i6) bessel_i(3/2,z);
-                                      cosh(z)   sinh(z)
-                     sqrt(2) sqrt(z) (------- - -------)
-                                         z         2
-                                                  z
-(%o6)                -----------------------------------
-                                  sqrt(%pi)
+                                cosh(z)   sinh(z)
+               sqrt(2) sqrt(z) (------- - -------)
+                                   z         2
+                                            z
+(%o6)          -----------------------------------
+                            sqrt(%pi)
+@end group
+@group
 (%i7) bessel_k(3/2,z);
-                                      1        - z
-                           sqrt(%pi) (- + 1) %e
-                                      z
-(%o7)                      -----------------------
-                               sqrt(2) sqrt(z)
-
+                                1        - z
+                     sqrt(%pi) (- + 1) %e
+                                z
+(%o7)                -----------------------
+                         sqrt(2) sqrt(z)
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -405,7 +423,7 @@ symbolic work, it is probably preferable to work with the expression
 @anchor{scaled_bessel_i0}
 @deffn {Function} scaled_bessel_i0 (@var{z}) 
 
-Identical to @code{scaled_bessel_i(0,z)}.
+Identical to @mxref{scaled_bessel_i, scaled_bessel_i(0@comma{}z)}.
 
 @opencatbox{Categories:}
 @category{Bessel functions}
@@ -417,7 +435,7 @@ Identical to @code{scaled_bessel_i(0,z)}.
 @anchor{scaled_bessel_i1}
 @deffn {Function} scaled_bessel_i1 (@var{z})
 
-Identical to @code{scaled_bessel_i(1,z)}.
+Identical to @mxref{scaled_bessel_i, scaled_bessel_i(1@comma{}z)}.
 @opencatbox{Categories:}
 @category{Bessel functions}
 @category{Special functions}
@@ -616,7 +634,8 @@ See @mrefcomma{airy_ai} and @mrefdot{airy_bi}
 @section Gamma and Factorial Functions
 @c -----------------------------------------------------------------------------
 
-The gamma function and the related beta, psi and incomplete gamma 
+The @mref{gamma} function and the related @mref{beta},
+@mxref{polygamma, psi} and @mxref{gamma_incomplete,incomplete gamma}
 functions are defined in Abramowitz and Stegun,
 @i{Handbook of Mathematical Functions}, Chapter 6.
 
@@ -638,13 +657,24 @@ Bigfloat version of the factorial (shifted gamma)
 function.  The second argument is how many digits to retain and return,
 it's a good idea to request a couple of extra.
 
-@example
+@c ===beg===
+@c bffac(1/2,16);
+@c (1/2)!,numer;
+@c bffac(1/2,32);
+@c ===end===
+@example maxima
+@group
 (%i1) bffac(1/2,16);
-(%o1)                        8.862269254527584b-1
+(%o1)                 8.862269254527584b-1
+@end group
+@group
 (%i2) (1/2)!,numer;
-(%o2)                          0.886226925452758
+(%o2)                   0.886226925452758
+@end group
+@group
 (%i3) bffac(1/2,32);
-(%o3)                 8.862269254527580136490837416707b-1
+(%o3)          8.862269254527580136490837416707b-1
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -655,14 +685,15 @@ it's a good idea to request a couple of extra.
 
 @c -----------------------------------------------------------------------------
 @anchor{bfpsi}
+@anchor{bfpsi0}
 @deffn  {Function} bfpsi (@var{n}, @var{z}, @var{fpprec})
 @deffnx {Function} bfpsi0 (@var{z}, @var{fpprec})
 
-@code{bfpsi} is the polygamma function of real argument @var{z} and
+@mref{bfpsi} is the polygamma function of real argument @var{z} and
 integer order @var{n}.  See @ref{polygamma, psi} for further
-information.  @code{bfpsi0} is the digamma function.
-@code{bfpsi0(@var{z}, @var{fpprec})} is equivalent to @code{bfpsi(0,
-@var{z}, @var{fpprec})}.
+information.  @mref{bfpsi0} is the digamma function.
+@mxref{bfpsi0, bfpsi0(@var{z}@comma{} @var{fpprec})} is equivalent to
+@mxref{bfpsi, bfpsi(0@comma{} @var{z}@comma{} @var{fpprec})}.
 
 These functions return bigfloat values.
 @var{fpprec} is the bigfloat precision of the return value.
@@ -671,19 +702,36 @@ These functions return bigfloat values.
 @c DISCUSSION OF THE PROPERTIES OF THIS FUNCTION, THIS STATEMENT SEEMS OUT OF PLACE.
 @c Note @code{-bfpsi0 (1, fpprec)} provides @code{%gamma} (Euler's constant) as a bigfloat.
 
-@example
+@c ===beg===
+@c bfpsi0(1/3, 15);
+@c bfpsi0(1/3, 32);
+@c bfpsi(0,1/3,32);
+@c psi[0](1/3);
+@c float(%);
+@c ===end===
+@example maxima
+@group
 (%i1) bfpsi0(1/3, 15);
-(%o1)                        - 3.13203378002081b0
+(%o1)                 - 3.13203378002081b0
+@end group
+@group
 (%i2) bfpsi0(1/3, 32);
-(%o2)                - 3.1320337800208063229964190742873b0
+(%o2)         - 3.1320337800208063229964190742873b0
+@end group
+@group
 (%i3) bfpsi(0,1/3,32);
-(%o3)                - 3.1320337800208063229964190742873b0
+(%o3)         - 3.1320337800208063229964190742873b0
+@end group
+@group
 (%i4) psi[0](1/3);
-                          3 log(3)       %pi
-(%o4)                  (- --------) - --------- - %gamma
-                             2        2 sqrt(3)
+                   3 log(3)      %pi
+(%o4)            - -------- - --------- - %gamma
+                      2       2 sqrt(3)
+@end group
+@group
 (%i5) float(%);
-(%o5)                         - 3.132033780020806
+(%o5)                  - 3.132033780020806
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -699,11 +747,19 @@ Complex bigfloat factorial.
 
 @code{load ("bffac")} loads this function.
 
-@example
+@c ===beg===
+@c cbffac(1+%i,16);
+@c (1+%i)!,numer;
+@c ===end===
+@example maxima
+@group
 (%i1) cbffac(1+%i,16);
-(%o1)           3.430658398165453b-1 %i + 6.529654964201666b-1
+(%o1)    3.430658398165453b-1 %i + 6.529654964201666b-1
+@end group
+@group
 (%i2) (1+%i)!,numer;
-(%o2)             0.3430658398165453 %i + 0.6529654964201667
+(%o2)      0.3430658398165453 %i + 0.6529654964201667
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -731,88 +787,123 @@ m4_displaymath(
                          0
 @end example>>>)
 
-Maxima simplifies @code{gamma} for positive integer and positive and negative 
+Maxima simplifies @mref{gamma} for positive integer and positive and negative 
 rational numbers. For half integral values the result is a rational number
 times 
 m4_mathdot(<<<\sqrt{\pi}>>>,<<<sqrt(%pi)>>>)
 The simplification for integer values is controlled by 
-@code{factlim}. For integers greater than @code{factlim} the numerical result of 
-the factorial function, which is used to calculate @code{gamma}, will overflow. 
-The simplification for rational numbers is controlled by @code{gammalim} to 
-avoid internal overflow. See @code{factlim} and @code{gammalim}.
+@mref{factlim}. For integers greater than @mref{factlim} the numerical result of 
+the factorial function, which is used to calculate @mref{gamma}, will overflow. 
+The simplification for rational numbers is controlled by @mref{gammalim} to 
+avoid internal overflow. See @mref{factlim} and @mref{gammalim}.
 
-For negative integers @code{gamma} is not defined.
+For negative integers @mref{gamma} is not defined.
 
-Maxima can evaluate @code{gamma} numerically for real and complex values in float
+Maxima can evaluate @mref{gamma} numerically for real and complex values in float
 and bigfloat precision.
 
-@code{gamma} has mirror symmetry.
+@mref{gamma} has mirror symmetry.
 
-When @mref{gamma_expand} is @code{true}, Maxima expands @code{gamma} for 
+When @mref{gamma_expand} is @mref{true}, Maxima expands @mref{gamma} for 
 arguments @code{z+n} and @code{z-n} where @code{n} is an integer.
 
-Maxima knows the derivative of @code{gamma}.
+Maxima knows the derivative of @mref{gamma}.
 
 Examples:
 
 Simplification for integer, half integral, and rational numbers:
 
-@example
+@c ===beg===
+@c map('gamma,[1,2,3,4,5,6,7,8,9]);
+@c map('gamma,[1/2,3/2,5/2,7/2]);
+@c map('gamma,[2/3,5/3,7/3]);
+@c ===end===
+@example maxima
+@group
 (%i1) map('gamma,[1,2,3,4,5,6,7,8,9]);
 (%o1)        [1, 1, 2, 6, 24, 120, 720, 5040, 40320]
+@end group
+@group
 (%i2) map('gamma,[1/2,3/2,5/2,7/2]);
                     sqrt(%pi)  3 sqrt(%pi)  15 sqrt(%pi)
 (%o2)   [sqrt(%pi), ---------, -----------, ------------]
                         2           4            8
+@end group
+@group
 (%i3) map('gamma,[2/3,5/3,7/3]);
                                   2           1
                           2 gamma(-)  4 gamma(-)
                       2           3           3
 (%o3)          [gamma(-), ----------, ----------]
                       3       3           9
+@end group
 @end example
 
 Numerical evaluation for real and complex values:
 
-@example
-(%i4) map('gamma,[2.5,2.5b0]);
-(%o4)     [1.329340388179137, 1.3293403881791370205b0]
-(%i5) map('gamma,[1.0+%i,1.0b0+%i]);
-(%o5) [0.498015668118356 - .1549498283018107 %i, 
-          4.9801566811835604272b-1 - 1.5494982830181068513b-1 %i]
+@c ===beg===
+@c map('gamma,[2.5,2.5b0]);
+@c map('gamma,[1.0+%i,1.0b0+%i]);
+@c ===end===
+@example maxima
+@group
+(%i1) map('gamma,[2.5,2.5b0]);
+(%o1)       [1.329340388179137, 1.329340388179137b0]
+@end group
+@group
+(%i2) map('gamma,[1.0+%i,1.0b0+%i]);
+(%o2) [0.49801566811835596 - 0.15494982830181073 %i, 
+                  4.980156681183561b-1 - 1.549498283018107b-1 %i]
+@end group
 @end example
 
-@code{gamma} has mirror symmetry:
+@mref{gamma} has mirror symmetry:
 
-@example
-(%i6) declare(z,complex)$
-(%i7) conjugate(gamma(z));
-(%o7)                  gamma(conjugate(z))
+@c ===beg===
+@c declare(z,complex)$
+@c conjugate(gamma(z));
+@c ===end===
+@example maxima
+(%i1) declare(z,complex)$
+@group
+(%i2) conjugate(gamma(z));
+(%o2)                  gamma(conjugate(z))
+@end group
 @end example
 
-Maxima expands @code{gamma(z+n)} and @code{gamma(z-n)}, when @mref{gamma_expand} 
-is @code{true}:
+Maxima expands @mxref{gamma, gamma(z+n)} and @mxref{gamma,gamma(z-n)}, when @mref{gamma_expand} 
+is @mref{true}:
 
-@example
-(%i8) gamma_expand:true$
-
-(%i9) [gamma(z+1),gamma(z-1),gamma(z+2)/gamma(z+1)];
+@c ===beg===
+@c gamma_expand:true$
+@c [gamma(z+1),gamma(z-1),gamma(z+2)/gamma(z+1)];
+@c ===end===
+@example maxima
+(%i1) gamma_expand:true$
+@group
+(%i2) [gamma(z+1),gamma(z-1),gamma(z+2)/gamma(z+1)];
                                gamma(z)
-(%o9)             [z gamma(z), --------, z + 1]
+(%o2)             [z gamma(z), --------, z + 1]
                                 z - 1
+@end group
 @end example
 
-The derivative of @code{gamma}:
+The derivative of @mref{gamma}:
 
-@example
-(%i10) diff(gamma(z),z);
-(%o10)                  psi (z) gamma(z)
+@c ===beg===
+@c diff(gamma(z),z);
+@c ===end===
+@example maxima
+@group
+(%i1) diff(gamma(z),z);
+(%o1)                   psi (z) gamma(z)
                            0
+@end group
 @end example
 
 See also @mrefdot{makegamma}
 
-The Euler-Mascheroni constant is @code{%gamma}.
+The Euler-Mascheroni constant is @mref{%gamma}.
 
 @opencatbox{Categories:}
 @category{Gamma and factorial functions}
@@ -821,17 +912,29 @@ The Euler-Mascheroni constant is @code{%gamma}.
 @end deffn
 
 @c -----------------------------------------------------------------------------
+@anchor{log_gamma}
 @deffn {Function} log_gamma (@var{z})
 
 The natural logarithm of the gamma function.
 
-@example
+@c ===beg===
+@c gamma(6);
+@c log_gamma(6);
+@c log_gamma(0.5);
+@c ===end===
+@example maxima
+@group
 (%i1) gamma(6);
-(%o1)                                 120
+(%o1)                          120
+@end group
+@group
 (%i2) log_gamma(6);
-(%o2)                              log(120)
+(%o2)                       log(120)
+@end group
+@group
 (%i3) log_gamma(0.5);
-(%o3)                         0.5723649429247004
+(%o3)                  0.5723649429247004
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -887,8 +990,8 @@ m4_displaymath(
 )
 
 See also @mref{gamma_expand} for controlling how
-@code{gamma_incomplete} is expressed in terms of elementary functions
-and @code{erfc}.
+@mref{gamma_incomplete} is expressed in terms of elementary functions
+and @mref{erfc}.
 
 Also see the related functions @mref{gamma_incomplete_regularized} and
 @mref{gamma_incomplete_generalized}.
@@ -959,44 +1062,62 @@ Also see @mref{gamma_incomplete} and @mref{gamma_incomplete_regularized}.
 @c -----------------------------------------------------------------------------
 @anchor{gamma_expand}
 @defvr {Option variable} gamma_expand
-Default value: @code{false}
+Default value: @mref{false}
 
-@code{gamma_expand} controls expansion of @mref{gamma_incomplete}.
-When @code{gamma_expand} is @code{true}, @code{gamma_incomplete(v,z)}
+@mref{gamma_expand} controls expansion of @mref{gamma_incomplete}.
+When @mref{gamma_expand} is @mref{true}, @mxref{gamma_incomplete, gamma_incomplete(v@comma{}z)}
 is expanded in terms of
-@code{z}, @code{exp(z)}, and @mref{gamma_incomplete} or @mref{erfc} when possible.
+@code{z}, @mxref{exp, exp(z)}, and @mref{gamma_incomplete} or @mref{erfc} when possible.
 
-@example
+@c ===beg===
+@c gamma_incomplete(2,z);
+@c gamma_expand:true;
+@c gamma_incomplete(2,z);
+@c gamma_incomplete(3/2,z);
+@c gamma_incomplete(4/3,z);
+@c gamma_incomplete(a+2,z);
+@c gamma_incomplete(a-2, z);
+@c ===end===
+@example maxima
+@group
 (%i1) gamma_incomplete(2,z);
-(%o1)                       gamma_incomplete(2, z)
+(%o1)                gamma_incomplete(2, z)
+@end group
+@group
 (%i2) gamma_expand:true;
-(%o2)                                true
+(%o2)                         true
+@end group
+@group
 (%i3) gamma_incomplete(2,z);
-                                           - z
-(%o3)                            (z + 1) %e
+                                    - z
+(%o3)                     (z + 1) %e
+@end group
 @group
 (%i4) gamma_incomplete(3/2,z);
-                              - z   sqrt(%pi) erfc(sqrt(z))
-(%o4)               sqrt(z) %e    + -----------------------
-                                               2
+                       - z   sqrt(%pi) erfc(sqrt(z))
+(%o4)        sqrt(z) %e    + -----------------------
+                                        2
 @end group
 @group
 (%i5) gamma_incomplete(4/3,z);
-                                                    1
-                                   gamma_incomplete(-, z)
-                       1/3   - z                    3
-(%o5)                 z    %e    + ----------------------
-                                             3
+                                             1
+                            gamma_incomplete(-, z)
+                1/3   - z                    3
+(%o5)          z    %e    + ----------------------
+                                      3
 @end group
 @group
 (%i6) gamma_incomplete(a+2,z);
-             a               - z
-(%o6)       z  (z + a + 1) %e    + a (a + 1) gamma_incomplete(a, z)
+       a               - z
+(%o6) z  (z + a + 1) %e    + a (a + 1) gamma_incomplete(a, z)
+@end group
+@group
 (%i7) gamma_incomplete(a-2, z);
-        gamma_incomplete(a, z)    a - 2         z            1      - z
-(%o7)   ---------------------- - z      (--------------- + -----) %e
-           (1 - a) (2 - a)               (a - 2) (a - 1)   a - 2
-
+      gamma_incomplete(a, z)    a - 2         z            1
+(%o7) ---------------------- - z      (--------------- + -----)
+         (1 - a) (2 - a)               (a - 2) (a - 1)   a - 2
+                                                              - z
+                                                            %e
 @end group
 @end example
 
@@ -1012,11 +1133,11 @@ is expanded in terms of
 Default value: 10000
 
 @c REPHRASE
-@code{gammalim} controls simplification of the gamma
+@mref{gammalim} controls simplification of the gamma
 function for integral and rational number arguments.  If the absolute
-value of the argument is not greater than @code{gammalim}, then
-simplification will occur.  Note that the @code{factlim} switch controls
-simplification of the result of @code{gamma} of an integer argument as well.
+value of the argument is not greater than @mref{gammalim}, then
+simplification will occur.  Note that the @mref{factlim} switch controls
+simplification of the result of @mref{gamma} of an integer argument as well.
 
 @opencatbox{Categories:}
 @category{Gamma and factorial functions}
@@ -1036,17 +1157,28 @@ functions in @var{expr} into gamma functions.
 
 See also @mrefdot{makefact}
 
-@example
+@c ===beg===
+@c makegamma(binomial(n,k));
+@c makegamma(x!);
+@c makegamma(beta(a,b));
+@c ===end===
+@example maxima
+@group
 (%i1) makegamma(binomial(n,k));
-                                 gamma(n + 1)
-(%o1)                    -----------------------------
-                         gamma(k + 1) gamma(n - k + 1)
+                          gamma(n + 1)
+(%o1)             -----------------------------
+                  gamma(k + 1) gamma(n - k + 1)
+@end group
+@group
 (%i2) makegamma(x!);
-(%o2)                            gamma(x + 1)
+(%o2)                     gamma(x + 1)
+@end group
+@group
 (%i3) makegamma(beta(a,b));
-                               gamma(a) gamma(b)
-(%o3)                          -----------------
-                                 gamma(b + a)
+                        gamma(a) gamma(b)
+(%o3)                   -----------------
+                          gamma(b + a)
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1064,8 +1196,8 @@ m4_displaymath(
 (@urldlmf{5.12.E1} and @urlaands{eqn 6.2.1, 258}).
 
 Maxima simplifies the beta function for positive integers and rational 
-numbers, which sum to an integer. When @code{beta_args_sum_to_integer} is 
-@code{true}, Maxima simplifies also general expressions which sum to an integer. 
+numbers, which sum to an integer. When @mref{beta_args_sum_to_integer} is 
+@mref{true}, Maxima simplifies also general expressions which sum to an integer. 
 
 For @var{a} or @var{b} equal to zero the beta function is not defined.
 
@@ -1074,12 +1206,13 @@ argument. The exception is for @var{a=-n}, @var{n} a positive integer
 and @var{b} a positive integer with @code{b<=n}, it is possible to define an
 analytic continuation. Maxima gives for this case a result.
 
-When @mref{beta_expand} is @code{true}, expressions like @code{beta(a+n,b)} and 
-@code{beta(a-n,b)} or @code{beta(a,b+n)} and @code{beta(a,b-n)} with @code{n} 
+When @mref{beta_expand} is @mref{true}, expressions like @mxref{beta, beta(a+n@comma{}b)} and 
+@mxref{beta, beta(a-n@comma{}b)} or @mxref{beta, beta(a@comma{}b+n)}
+and @mxref{beta, beta(a@comma{}b-n)} with @code{n} 
 an integer are simplified.
 
 Maxima can evaluate the beta function for real and complex values in float and 
-bigfloat precision. For numerical evaluation Maxima uses @code{log_gamma}:
+bigfloat precision. For numerical evaluation Maxima uses @mref{log_gamma}:
 
 @example
            - log_gamma(b + a) + log_gamma(b) + log_gamma(a)
@@ -1091,101 +1224,155 @@ Maxima knows that the beta function is symmetric and has mirror symmetry.
 Maxima knows the derivatives of the beta function with respect to @var{a} or 
 @var{b}.
 
-To express the beta function as a ratio of gamma functions see @code{makegamma}. 
+To express the beta function as a ratio of gamma functions see @mref{makegamma}. 
 
 Examples:
 
 Simplification, when one of the arguments is an integer:
 
-@example
+@c ===beg===
+@c [beta(2,3),beta(2,1/3),beta(2,a)];
+@c ===end===
+@example maxima
+@group
 (%i1) [beta(2,3),beta(2,1/3),beta(2,a)];
-                               1   9      1
-(%o1)                         [--, -, ---------]
-                               12  4  a (a + 1)
+                        1   9      1
+(%o1)                  [--, -, ---------]
+                        12  4  a (a + 1)
+@end group
 @end example
 
 Simplification for two rational numbers as arguments which sum to an integer:
 
-@example
-(%i2) [beta(1/2,5/2),beta(1/3,2/3),beta(1/4,3/4)];
-                          3 %pi   2 %pi
-(%o2)                    [-----, -------, sqrt(2) %pi]
-                            8    sqrt(3)
+@c ===beg===
+@c [beta(1/2,5/2),beta(1/3,2/3),beta(1/4,3/4)];
+@c ===end===
+@example maxima
+@group
+(%i1) [beta(1/2,5/2),beta(1/3,2/3),beta(1/4,3/4)];
+                   3 %pi   2 %pi
+(%o1)             [-----, -------, sqrt(2) %pi]
+                     8    sqrt(3)
+@end group
 @end example
 
-When setting @code{beta_args_sum_to_integer} to @code{true} more general 
+When setting @mref{beta_args_sum_to_integer} to @mref{true} more general 
 expression are simplified, when the sum of the arguments is an integer:
 
-@example
-(%i3) beta_args_sum_to_integer:true$
-(%i4) beta(a+1,-a+2);
-                                %pi (a - 1) a
-(%o4)                         ------------------
-                              2 sin(%pi (2 - a))
+@c ===beg===
+@c beta_args_sum_to_integer:true$
+@c beta(a+1,-a+2);
+@c ===end===
+@example maxima
+(%i1) beta_args_sum_to_integer:true$
+@group
+(%i2) beta(a+1,-a+2);
+                         %pi (a - 1) a
+(%o2)                  ------------------
+                       2 sin(%pi (2 - a))
+@end group
 @end example
 
 The possible results, when one of the arguments is a negative integer: 
 
-@example
-(%i5) [beta(-3,1),beta(-3,2),beta(-3,3)];
-                                    1  1    1
-(%o5)                            [- -, -, - -]
-                                    3  6    3
+@c ===beg===
+@c [beta(-3,1),beta(-3,2),beta(-3,3)];
+@c ===end===
+@example maxima
+@group
+(%i1) [beta(-3,1),beta(-3,2),beta(-3,3)];
+                             1  1    1
+(%o1)                     [- -, -, - -]
+                             3  6    3
+@end group
 @end example
 
-@code{beta(a+n,b)} or @code{beta(a-n,b)} with @code{n} an integer simplifies when 
-@mref{beta_expand} is @code{true}:
+@mxref{beta, beta(a+n@comma{}b)} or @mxref{beta, beta(a-n@comma{}b)} with @code{n} an integer simplifies when 
+@mref{beta_expand} is @mref{true}:
 
-@example
-(%i6) beta_expand:true$
-(%i7) [beta(a+1,b),beta(a-1,b),beta(a+1,b)/beta(a,b+1)];
-                    a beta(a, b)  beta(a, b) (b + a - 1)  a
-(%o7)              [------------, ----------------------, -]
-                       b + a              a - 1           b
-
+@c ===beg===
+@c beta_expand:true$
+@c [beta(a+1,b),beta(a-1,b),beta(a+1,b)/beta(a,b+1)];
+@c ===end===
+@example maxima
+(%i1) beta_expand:true$
+@group
+(%i2) [beta(a+1,b),beta(a-1,b),beta(a+1,b)/beta(a,b+1)];
+             a beta(a, b)  beta(a, b) (b + a - 1)  a
+(%o2)       [------------, ----------------------, -]
+                b + a              a - 1           b
+@end group
 @end example
 
 Beta is not defined, when one of the arguments is zero:
 
-@example
-(%i7) beta(0,b);
+@c ===beg===
+@c beta(0,b);
+@c ===end===
 beta: expected nonzero arguments; found 0, b
- -- an error.  To debug this try debugmode(true);
+ -- an error. To debug this try: debugmode(true);
+@example maxima
+(%i1) beta(0,b);
 @end example
 
 Numerical evaluation for real and complex arguments in float or bigfloat
 precision:
 
-@example
-(%i8) beta(2.5,2.3);
-(%o8) .08694748611299981
-
-(%i9) beta(2.5,1.4+%i);
-(%o9) 0.0640144950796695 - .1502078053286415 %i
-
-(%i10) beta(2.5b0,2.3b0);
-(%o10) 8.694748611299969b-2
-
-(%i11) beta(2.5b0,1.4b0+%i);
-(%o11) 6.401449507966944b-2 - 1.502078053286415b-1 %i
+@c ===beg===
+@c beta(2.5,2.3);
+@c beta(2.5,1.4+%i);
+@c beta(2.5b0,2.3b0);
+@c beta(2.5b0,1.4b0+%i);
+@c ===end===
+@example maxima
+@group
+(%i1) beta(2.5,2.3);
+(%o1)                  0.08694748611299981
+@end group
+@group
+(%i2) beta(2.5,1.4+%i);
+(%o2)     0.06401449507966957 - 0.15020780532864159 %i
+@end group
+@group
+(%i3) beta(2.5b0,2.3b0);
+(%o3)                 8.694748611299965b-2
+@end group
+@group
+(%i4) beta(2.5b0,1.4b0+%i);
+(%o4)    6.401449507966939b-2 - 1.502078053286414b-1 %i
+@end group
 @end example
 
 Beta is symmetric and has mirror symmetry:
 
-@example
-(%i14) beta(a,b)-beta(b,a);
-(%o14)                                 0
-(%i15) declare(a,complex,b,complex)$
-(%i16) conjugate(beta(a,b));
-(%o16)                 beta(conjugate(a), conjugate(b))
+@c ===beg===
+@c beta(a,b)-beta(b,a);
+@c declare(a,complex,b,complex)$
+@c conjugate(beta(a,b));
+@c ===end===
+@example maxima
+@group
+(%i1) beta(a,b)-beta(b,a);
+(%o1)                           0
+@end group
+(%i2) declare(a,complex,b,complex)$
+@group
+(%i3) conjugate(beta(a,b));
+(%o3)           beta(conjugate(a), conjugate(b))
+@end group
 @end example
 
 The derivative of the beta function wrt @code{a}:
 
-@example
-(%i17) diff(beta(a,b),a);
-(%o17)               - beta(a, b) (psi (b + a) - psi (a))
-                                      0             0
+@c ===beg===
+@c diff(beta(a,b),a);
+@c ===end===
+@example maxima
+@group
+(%i1) diff(beta(a,b),a);
+(%o1)         - beta(a, b) (psi (b + a) - psi (a))
+                               0             0
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1194,6 +1381,7 @@ The derivative of the beta function wrt @code{a}:
 @end deffn
 
 @c -----------------------------------------------------------------------------
+@anchor{beta_incomplete}
 @deffn {Function} beta_incomplete (@var{a}, @var{b}, @var{z})
 
 The basic definition of the incomplete beta function
@@ -1268,29 +1456,29 @@ m4_displaymath(
 @c                             k = 0
 @c @end example
 
-Maxima uses this definition to simplify @code{beta_incomplete} for @var{a} a 
+Maxima uses this definition to simplify @mref{beta_incomplete} for @var{a} a 
 negative integer.
 
-For @var{a} a positive integer, @code{beta_incomplete} simplifies for any 
+For @var{a} a positive integer, @mref{beta_incomplete} simplifies for any 
 argument @var{b} and @var{z} and for @var{b} a positive integer for any 
 argument @var{a} and @var{z}, with the exception of @var{a} a negative integer.
 
 For @math{z=0} and 
 m4_mathcomma(<<<{\rm Re}(a) > 0>>>, <<<realpart(a)>0>>>)
-@code{beta_incomplete} has the 
+@mref{beta_incomplete} has the 
 specific value zero. For @math{z=1} and 
 m4_mathcomma(<<<{\rm Re}(b) > 0>>>, <<<realpart(b)>0>>>)
-@code{beta_incomplete} simplifies to the beta function @code{beta(a,b)}.
+@mref{beta_incomplete} simplifies to the beta function @mxref{beta, beta(a@comma{}b)}.
 
-Maxima evaluates @code{beta_incomplete} numerically for real and complex values 
+Maxima evaluates @mref{beta_incomplete} numerically for real and complex values 
 in float or bigfloat precision. For the numerical evaluation an expansion of the 
 incomplete beta function in continued fractions is used.
 
-When the option variable @mref{beta_expand} is @code{true}, Maxima expands
-expressions like @code{beta_incomplete(a+n,b,z)} and
-@code{beta_incomplete(a-n,b,z)} where n is a positive integer.
+When the option variable @mref{beta_expand} is @mref{true}, Maxima expands
+expressions like @mxref{beta_incomplete, beta_incomplete(a+n@comma{}b@comma{}z)} and
+@mxref{beta_incomplete, beta_incomplete(a-n@comma{}b@comma{}z)} where @math{n} is a positive integer.
 
-Maxima knows the derivatives of @code{beta_incomplete} with respect to the 
+Maxima knows the derivatives of @mref{beta_incomplete} with respect to the 
 variables @var{a}, @var{b} and @var{z} and the integral with respect to the 
 variable @var{z}.
 
@@ -1298,117 +1486,175 @@ Examples:
 
 Simplification for @var{a} a positive integer:
 
-@example
+@c ===beg===
+@c beta_incomplete(2,b,z);
+@c ===end===
+@example maxima
+@group
 (%i1) beta_incomplete(2,b,z);
-                                       b
-                            1 - (1 - z)  (b z + 1)
-(%o1)                       ----------------------
-                                  b (b + 1)
+                                b
+                     1 - (1 - z)  (b z + 1)
+(%o1)                ----------------------
+                           b (b + 1)
+@end group
 @end example
 
 Simplification for @var{b} a positive integer:
 
-@example
-(%i2) beta_incomplete(a,2,z);
-                                               a
-                              (a (1 - z) + 1) z
-(%o2)                         ------------------
-                                  a (a + 1)
+@c ===beg===
+@c beta_incomplete(a,2,z);
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete(a,2,z);
+                                        a
+                       (a (1 - z) + 1) z
+(%o1)                  ------------------
+                           a (a + 1)
+@end group
 @end example
 
 Simplification for @var{a} and @var{b} a positive integer:
 
-@example
-(%i3) beta_incomplete(3,2,z);
+@c ===beg===
+@c beta_incomplete(3,2,z);
+@c ===end===
+@example maxima
 @group
-                                               3
-                              (3 (1 - z) + 1) z
-(%o3)                         ------------------
-                                      12
+(%i1) beta_incomplete(3,2,z);
+                                        3
+                       (3 (1 - z) + 1) z
+(%o1)                  ------------------
+                               12
 @end group
 @end example
 
-@var{a} is a negative integer and @math{b<=(-a)}, Maxima simplifies:
+@var{a} is a negative integer and @math{b\le -a}, Maxima simplifies:
 
-@example
-(%i4) beta_incomplete(-3,1,z);
-                                       1
-(%o4)                              - ----
-                                        3
-                                     3 z
+@c ===beg===
+@c beta_incomplete(-3,1,z);
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete(-3,1,z);
+                                1
+(%o1)                        - ----
+                                  3
+                               3 z
+@end group
 @end example
 
 For the specific values @math{z=0} and @math{z=1}, Maxima simplifies:
 
-@example
-(%i5) assume(a>0,b>0)$
-(%i6) beta_incomplete(a,b,0);
-(%o6)                                 0
-(%i7) beta_incomplete(a,b,1);
-(%o7)                            beta(a, b)
+@c ===beg===
+@c assume(a>0,b>0)$
+@c beta_incomplete(a,b,0);
+@c beta_incomplete(a,b,1);
+@c ===end===
+@example maxima
+(%i1) assume(a>0,b>0)$
+@group
+(%i2) beta_incomplete(a,b,0);
+(%o2)                           0
+@end group
+@group
+(%i3) beta_incomplete(a,b,1);
+(%o3)                      beta(a, b)
+@end group
 @end example
 
 Numerical evaluation in float or bigfloat precision:
 
-@example
-(%i8) beta_incomplete(0.25,0.50,0.9);
-(%o8)                          4.594959440269333
-(%i9)  fpprec:25$
-(%i10) beta_incomplete(0.25,0.50,0.9b0);
-(%o10)                    4.594959440269324086971203b0
+@c ===beg===
+@c beta_incomplete(0.25,0.50,0.9);
+@c fpprec:25$
+@c beta_incomplete(0.25,0.50,0.9b0);
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete(0.25,0.50,0.9);
+(%o1)                   4.594959440269333
+@end group
+(%i2) fpprec:25$
+@group
+(%i3) beta_incomplete(0.25,0.50,0.9b0);
+(%o3)             4.594959440269324086971216b0
+@end group
 @end example
 
-For @math{abs(z)>1} @code{beta_incomplete} returns a complex result:
+For @math{abs(z)>1} @mref{beta_incomplete} returns a complex result:
 
-@example
-(%i11) beta_incomplete(0.25,0.50,1.7);
-(%o11)              5.244115108584249 - 1.45518047787844 %i
+@c ===beg===
+@c beta_incomplete(0.25,0.50,1.7);
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete(0.25,0.50,1.7);
+(%o1)       5.244115108584249 - 1.4551804778784403 %i
+@end group
 @end example
 
 Results for more general complex arguments:
 
-@example
-(%i14) beta_incomplete(0.25+%i,1.0+%i,1.7+%i);
-(%o14)             2.726960675662536 - .3831175704269199 %i
-(%i15) beta_incomplete(1/2,5/4*%i,2.8+%i);
-(%o15)             13.04649635168716 %i - 5.802067956270001
-(%i16) 
+@c ===beg===
+@c beta_incomplete(0.25+%i,1.0+%i,1.7+%i);
+@c beta_incomplete(1/2,5/4*%i,2.8+%i);
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete(0.25+%i,1.0+%i,1.7+%i);
+(%o1)      2.7269606756625384 - 0.38311757042691896 %i
+@end group
+@group
+(%i2) beta_incomplete(1/2,5/4*%i,2.8+%i);
+(%o2)      13.046496351687155 %i - 5.8020679562699975
+@end group
 @end example
 
-Expansion, when @mref{beta_expand} is @code{true}:
+Expansion, when @mref{beta_expand} is @mref{true}:
 
-@example
-(%i23) beta_incomplete(a+1,b,z),beta_expand:true;
-                                                       b  a
-                   a beta_incomplete(a, b, z)   (1 - z)  z
-(%o23)             -------------------------- - -----------
-                             b + a                 b + a
-
-(%i24) beta_incomplete(a-1,b,z),beta_expand:true;
-                                                       b  a - 1
-       beta_incomplete(a, b, z) (- b - a + 1)   (1 - z)  z
-(%o24) -------------------------------------- - ---------------
-                       1 - a                         1 - a
+@c ===beg===
+@c beta_incomplete(a+1,b,z),beta_expand:true;
+@c beta_incomplete(a-1,b,z),beta_expand:true;
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete(a+1,b,z),beta_expand:true;
+                                                b  a
+            a beta_incomplete(a, b, z)   (1 - z)  z
+(%o1)       -------------------------- - -----------
+                      b + a                 b + a
+@end group
+@group
+(%i2) beta_incomplete(a-1,b,z),beta_expand:true;
+                                                      b  a - 1
+      beta_incomplete(a, b, z) (- b - a + 1)   (1 - z)  z
+(%o2) -------------------------------------- - ---------------
+                      1 - a                         1 - a
+@end group
 @end example
  
-Derivative and integral for @code{beta_incomplete}:
+Derivative and integral for @mref{beta_incomplete}:
 
-@example
-(%i34) diff(beta_incomplete(a, b, z), z);
+@c ===beg===
+@c diff(beta_incomplete(a, b, z), z);
+@c integrate(beta_incomplete(a, b, z), z);
+@c factor(diff(%, z));
+@c ===end===
+@example maxima
 @group
+(%i1) diff(beta_incomplete(a, b, z), z);
                               b - 1  a - 1
-(%o34)                 (1 - z)      z
+(%o1)                  (1 - z)      z
 @end group
-(%i35) integrate(beta_incomplete(a, b, z), z);
-              b  a
-       (1 - z)  z
-(%o35) ----------- + beta_incomplete(a, b, z) z
-          b + a
-                                       a beta_incomplete(a, b, z)
-                                     - --------------------------
-                                                 b + a
-(%i36) factor(diff(%, z));
-(%o36)              beta_incomplete(a, b, z)
+@group
+(%i2) integrate(beta_incomplete(a, b, z), z);
+(%o2) beta_incomplete(a, b, z) z - beta_incomplete(a + 1, b, z)
+@end group
+@group
+(%i3) factor(diff(%, z));
+(%o3)               beta_incomplete(a, b, z)
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1439,28 +1685,28 @@ beta_incomplete_regularized(a, b, z) =
 @c                                              beta(a, b)
 @c @end example
 
-As for @code{beta_incomplete} this definition is not complete. See 
+As for @mref{beta_incomplete} this definition is not complete. See 
 @url{https://functions.wolfram.com/GammaBetaErf/BetaRegularized/} for a complete definition of
-@code{beta_incomplete_regularized}.
+@mref{beta_incomplete_regularized}.
 
-@code{beta_incomplete_regularized} simplifies @var{a} or @var{b} a positive 
+@mref{beta_incomplete_regularized} simplifies @var{a} or @var{b} a positive 
 integer.
 
 For @math{z=0} and 
 m4_mathcomma(<<<{\rm Re}(a)>0>>>, <<<realpart(a) > 0>>>)
-@code{beta_incomplete_regularized} has 
+@mref{beta_incomplete_regularized} has 
 the specific value 0. For @math{z=1} and 
 m4_mathcomma(<<<{\rm Re}(b) > 0>>>, <<<realpart(b)>0>>>) 
-@code{beta_incomplete_regularized} simplifies to 1.
+@mref{beta_incomplete_regularized} simplifies to 1.
 
-Maxima can evaluate @code{beta_incomplete_regularized} for real and complex 
+Maxima can evaluate @mref{beta_incomplete_regularized} for real and complex 
 arguments in float and bigfloat precision.
 
-When @mref{beta_expand} is @code{true}, Maxima expands 
-@code{beta_incomplete_regularized} for arguments @math{a+n} or @math{a-n}, 
+When @mref{beta_expand} is @mref{true}, Maxima expands 
+@mref{beta_incomplete_regularized} for arguments @math{a+n} or @math{a-n}, 
 where n is an integer.
 
-Maxima knows the derivatives of @code{beta_incomplete_regularized} with respect 
+Maxima knows the derivatives of @mref{beta_incomplete_regularized} with respect 
 to the variables @var{a}, @var{b}, and @var{z} and the integral with respect to 
 the variable @var{z}.
 
@@ -1468,78 +1714,118 @@ Examples:
 
 Simplification for @var{a} or @var{b} a positive integer:
 
-@example
+@c ===beg===
+@c beta_incomplete_regularized(2,b,z);
+@c beta_incomplete_regularized(a,2,z);
+@c beta_incomplete_regularized(3,2,z);
+@c ===end===
+@example maxima
+@group
 (%i1) beta_incomplete_regularized(2,b,z);
-                                       b
-(%o1)                       1 - (1 - z)  (b z + 1)
-
+                                b
+(%o1)                1 - (1 - z)  (b z + 1)
+@end group
+@group
 (%i2) beta_incomplete_regularized(a,2,z);
-                                               a
-(%o2)                         (a (1 - z) + 1) z
-
+                                        a
+(%o2)                  (a (1 - z) + 1) z
+@end group
+@group
 (%i3) beta_incomplete_regularized(3,2,z);
-                                               3
-(%o3)                         (3 (1 - z) + 1) z
+                                        3
+(%o3)                  (3 (1 - z) + 1) z
+@end group
 @end example
 
 For the specific values @math{z=0} and @math{z=1}, Maxima simplifies:
 
-@example
-(%i4) assume(a>0,b>0)$
-(%i5) beta_incomplete_regularized(a,b,0);
-(%o5)                                 0
-(%i6) beta_incomplete_regularized(a,b,1);
-(%o6)                                 1
+@c ===beg===
+@c assume(a>0,b>0)$
+@c beta_incomplete_regularized(a,b,0);
+@c beta_incomplete_regularized(a,b,1);
+@c ===end===
+@example maxima
+(%i1) assume(a>0,b>0)$
+@group
+(%i2) beta_incomplete_regularized(a,b,0);
+(%o2)                           0
+@end group
+@group
+(%i3) beta_incomplete_regularized(a,b,1);
+(%o3)                           1
+@end group
 @end example
 
 Numerical evaluation for real and complex arguments in float and bigfloat 
 precision:
 
-@example
-(%i7) beta_incomplete_regularized(0.12,0.43,0.9);
-(%o7)                         .9114011367359802
-(%i8) fpprec:32$
-(%i9) beta_incomplete_regularized(0.12,0.43,0.9b0);
-(%o9)               9.1140113673598075519946998779975b-1
-(%i10) beta_incomplete_regularized(1+%i,3/3,1.5*%i);
-(%o10)             .2865367499935403 %i - 0.122995963334684
-(%i11) fpprec:20$
-(%i12) beta_incomplete_regularized(1+%i,3/3,1.5b0*%i);
-(%o12)      2.8653674999354036142b-1 %i - 1.2299596333468400163b-1
+@c ===beg===
+@c beta_incomplete_regularized(0.12,0.43,0.9);
+@c fpprec:32$
+@c beta_incomplete_regularized(0.12,0.43,0.9b0);
+@c beta_incomplete_regularized(1+%i,3/3,1.5*%i);
+@c fpprec:20$
+@c beta_incomplete_regularized(1+%i,3/3,1.5b0*%i);
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete_regularized(0.12,0.43,0.9);
+(%o1)                  0.9114011367359802
+@end group
+(%i2) fpprec:32$
+@group
+(%i3) beta_incomplete_regularized(0.12,0.43,0.9b0);
+(%o3)         9.1140113673598029169207248506439b-1
+@end group
+@group
+(%i4) beta_incomplete_regularized(1+%i,3/3,1.5*%i);
+(%o4)      0.2865367499935405 %i - 0.12299596333468409
+@end group
+(%i5) fpprec:20$
+@group
+(%i6) beta_incomplete_regularized(1+%i,3/3,1.5b0*%i);
+(%o6) 2.8653674999354031589b-1 %i - 1.2299596333468401976b-1
+@end group
 @end example
 
-Expansion, when @mref{beta_expand} is @code{true}:
+Expansion, when @mref{beta_expand} is @mref{true}:
 
-@example
-(%i13) beta_incomplete_regularized(a+1,b,z);
-                                                     b  a
-                                              (1 - z)  z
-(%o13) beta_incomplete_regularized(a, b, z) - ------------
-                                              a beta(a, b)
-(%i14) beta_incomplete_regularized(a-1,b,z);
-(%o14) beta_incomplete_regularized(a, b, z)
-                                                     b  a - 1
-                                              (1 - z)  z
-                                         - ----------------------
-                                           beta(a, b) (b + a - 1)
+@c ===beg===
+@c beta_incomplete_regularized(a+1,b,z);
+@c beta_incomplete_regularized(a-1,b,z);
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete_regularized(a+1,b,z);
+(%o1)       beta_incomplete_regularized(a + 1, b, z)
+@end group
+@group
+(%i2) beta_incomplete_regularized(a-1,b,z);
+(%o2)       beta_incomplete_regularized(a - 1, b, z)
+@end group
 @end example
 
 The derivative and the integral wrt @var{z}:
 
-@example
-(%i15) diff(beta_incomplete_regularized(a,b,z),z);
+@c ===beg===
+@c diff(beta_incomplete_regularized(a,b,z),z);
+@c integrate(beta_incomplete_regularized(a,b,z),z);
+@c ===end===
+@example maxima
+@group
+(%i1) diff(beta_incomplete_regularized(a,b,z),z);
                               b - 1  a - 1
                        (1 - z)      z
-(%o15)                 -------------------
+(%o1)                  -------------------
                            beta(a, b)
-(%i16) integrate(beta_incomplete_regularized(a,b,z),z);
-(%o16) beta_incomplete_regularized(a, b, z) z
-                                                           b  a
-                                                    (1 - z)  z
-          a (beta_incomplete_regularized(a, b, z) - ------------)
-                                                    a beta(a, b)
-        - -------------------------------------------------------
-                                   b + a
+@end group
+@group
+(%i2) integrate(beta_incomplete_regularized(a,b,z),z);
+(%o2) beta_incomplete_regularized(a, b, z) z
+                       a beta_incomplete_regularized(a + 1, b, z)
+                     - ------------------------------------------
+                                         b + a
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1548,6 +1834,7 @@ The derivative and the integral wrt @var{z}:
 @end deffn
 
 @c -----------------------------------------------------------------------------
+@anchor{beta_incomplete_generalized}
 @deffn {Function} beta_incomplete_generalized (@var{a}, @var{b}, @var{z1}, @var{z2})
 
 The basic definition of the generalized incomplete beta function is
@@ -1578,7 +1865,7 @@ m4_displaymath(
 @c @end group
 @c @end example
 
-Maxima simplifies @code{beta_incomplete_regularized} for @var{a} and @var{b} 
+Maxima simplifies @mref{beta_incomplete_regularized} for @var{a} and @var{b} 
 a positive integer.
 
 For 
@@ -1588,7 +1875,7 @@ m4_math(z_1 = 0, z1=0)
 or 
 m4_mathcomma(z_2 = 0, z2=0)
 Maxima simplifies
-@code{beta_incomplete_generalized} to @code{beta_incomplete}.
+@mref{beta_incomplete_generalized} to @mref{beta_incomplete}.
 For 
 m4_math({\rm Re}(b) > 0, realpart(b)>0) 
 and 
@@ -1596,121 +1883,176 @@ m4_math(z_1 = 1, z1=1)
 or 
 m4_mathcomma(z_2 = 1, z2=1) 
 Maxima simplifies to an 
-expression with @code{beta} and @code{beta_incomplete}.
+expression with @mref{beta} and @mref{beta_incomplete}.
 
-Maxima evaluates @code{beta_incomplete_regularized} for real and complex values 
+Maxima evaluates @mref{beta_incomplete_regularized} for real and complex values 
 in float and bigfloat precision.
 
-When @mref{beta_expand} is @code{true}, Maxima expands 
-@code{beta_incomplete_generalized} for @math{a+n} and @math{a-n}, @var{n} a 
+When @mref{beta_expand} is @mref{true}, Maxima expands 
+@mref{beta_incomplete_generalized} for @math{a+n} and @math{a-n}, @var{n} a 
 positive integer.
 
-Maxima knows the derivative of @code{beta_incomplete_generalized} with respect 
+Maxima knows the derivative of @mref{beta_incomplete_generalized} with respect 
 to the variables @var{a}, @var{b}, @var{z1}, and @var{z2} and the integrals with
 respect to the variables @var{z1} and @var{z2}.
 
 Examples:
 
-Maxima simplifies @code{beta_incomplete_generalized} for @var{a} and @var{b} a 
+Maxima simplifies @mref{beta_incomplete_generalized} for @var{a} and @var{b} a 
 positive integer:
 
-@example
+@c ===beg===
+@c beta_incomplete_generalized(2,b,z1,z2);
+@c beta_incomplete_generalized(a,2,z1,z2);
+@c beta_incomplete_generalized(3,2,z1,z2);
+@c ===end===
+@example maxima
+@group
 (%i1) beta_incomplete_generalized(2,b,z1,z2);
                    b                      b
            (1 - z1)  (b z1 + 1) - (1 - z2)  (b z2 + 1)
 (%o1)      -------------------------------------------
                             b (b + 1)
-(%i2) beta_incomplete_generalized(a,2,z1,z2);
+@end group
 @group
+(%i2) beta_incomplete_generalized(a,2,z1,z2);
                               a                      a
            (a (1 - z2) + 1) z2  - (a (1 - z1) + 1) z1
 (%o2)      -------------------------------------------
                             a (a + 1)
 @end group
+@group
 (%i3) beta_incomplete_generalized(3,2,z1,z2);
               2      2                       2      2
       (1 - z1)  (3 z1  + 2 z1 + 1) - (1 - z2)  (3 z2  + 2 z2 + 1)
 (%o3) -----------------------------------------------------------
                                   12
+@end group
 @end example
 
 Simplification for specific values @math{z1=0}, @math{z2=0}, @math{z1=1}, or 
 @math{z2=1}:
 
-@example
-(%i4) assume(a > 0, b > 0)$
-(%i5) beta_incomplete_generalized(a,b,z1,0);
-(%o5)                    - beta_incomplete(a, b, z1)
-
-(%i6) beta_incomplete_generalized(a,b,0,z2);
-(%o6)                    - beta_incomplete(a, b, z2)
-
-(%i7) beta_incomplete_generalized(a,b,z1,1);
-(%o7)              beta(a, b) - beta_incomplete(a, b, z1)
-
-(%i8) beta_incomplete_generalized(a,b,1,z2);
-(%o8)              beta_incomplete(a, b, z2) - beta(a, b)
+@c ===beg===
+@c assume(a > 0, b > 0)$
+@c beta_incomplete_generalized(a,b,z1,0);
+@c beta_incomplete_generalized(a,b,0,z2);
+@c beta_incomplete_generalized(a,b,z1,1);
+@c beta_incomplete_generalized(a,b,1,z2);
+@c ===end===
+@example maxima
+(%i1) assume(a > 0, b > 0)$
+@group
+(%i2) beta_incomplete_generalized(a,b,z1,0);
+(%o2)              - beta_incomplete(a, b, z1)
+@end group
+@group
+(%i3) beta_incomplete_generalized(a,b,0,z2);
+(%o3)              - beta_incomplete(a, b, z2)
+@end group
+@group
+(%i4) beta_incomplete_generalized(a,b,z1,1);
+(%o4)        beta(a, b) - beta_incomplete(a, b, z1)
+@end group
+@group
+(%i5) beta_incomplete_generalized(a,b,1,z2);
+(%o5)        beta_incomplete(a, b, z2) - beta(a, b)
+@end group
 @end example
 
 Numerical evaluation for real arguments in float or bigfloat precision:
 
-@example
-(%i9) beta_incomplete_generalized(1/2,3/2,0.25,0.31);
-(%o9)                        .09638178086368676
-
-(%i10) fpprec:32$
-(%i10) beta_incomplete_generalized(1/2,3/2,0.25,0.31b0);
-(%o10)               9.6381780863686935309170054689964b-2
+@c ===beg===
+@c beta_incomplete_generalized(1/2,3/2,0.25,0.31);
+@c fpprec:32$
+@c beta_incomplete_generalized(1/2,3/2,0.25,0.31b0);
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete_generalized(1/2,3/2,0.25,0.31);
+(%o1)                  0.09638178086368676
+@end group
+(%i2) fpprec:32$
+@group
+(%i3) beta_incomplete_generalized(1/2,3/2,0.25,0.31b0);
+(%o3)         9.6381780863686935309170054689964b-2
+@end group
 @end example
 
 Numerical evaluation for complex arguments in float or bigfloat precision:
 
-@example
-(%i11) beta_incomplete_generalized(1/2+%i,3/2+%i,0.25,0.31);
-(%o11)           - .09625463003205376 %i - .003323847735353769
-(%i12) fpprec:20$
-(%i13) beta_incomplete_generalized(1/2+%i,3/2+%i,0.25,0.31b0);
-(%o13)     - 9.6254630032054178691b-2 %i - 3.3238477353543591914b-3
+@c ===beg===
+@c beta_incomplete_generalized(1/2+%i,3/2+%i,0.25,0.31);
+@c fpprec:20$
+@c beta_incomplete_generalized(1/2+%i,3/2+%i,0.25,0.31b0);
+@c ===end===
+@example maxima
+@group
+(%i1) beta_incomplete_generalized(1/2+%i,3/2+%i,0.25,0.31);
+(%o1)   - 0.09625463003205387 %i - 0.0033238477353540463
+@end group
+(%i2) fpprec:20$
+@group
+(%i3) beta_incomplete_generalized(1/2+%i,3/2+%i,0.25,0.31b0);
+(%o3) - 9.6254630032054178691b-2 %i - 3.3238477353543591914b-3
+@end group
 @end example
 
 Expansion for @math{a+n} or @math{a-n}, @var{n} a positive integer, when 
-@mref{beta_expand} is @code{true}: 
+@mref{beta_expand} is @mref{true}: 
 
-@example
-(%i14) beta_expand:true$
-
-(%i15) beta_incomplete_generalized(a+1,b,z1,z2);
-
-               b   a           b   a
-       (1 - z1)  z1  - (1 - z2)  z2
-(%o15) -----------------------------
-                   b + a
+@c ===beg===
+@c beta_expand:true$
+@c beta_incomplete_generalized(a+1,b,z1,z2);
+@c beta_incomplete_generalized(a-1,b,z1,z2);
+@c ===end===
+@example maxima
+(%i1) beta_expand:true$
+@group
+(%i2) beta_incomplete_generalized(a+1,b,z1,z2);
+              b   a           b   a
+      (1 - z1)  z1  - (1 - z2)  z2
+(%o2) -----------------------------
+                  b + a
                       a beta_incomplete_generalized(a, b, z1, z2)
                     + -------------------------------------------
                                          b + a
-(%i16) beta_incomplete_generalized(a-1,b,z1,z2);
-
-       beta_incomplete_generalized(a, b, z1, z2) (- b - a + 1)
-(%o16) -------------------------------------------------------
-                                1 - a
+@end group
+@group
+(%i3) beta_incomplete_generalized(a-1,b,z1,z2);
+      beta_incomplete_generalized(a, b, z1, z2) (- b - a + 1)
+(%o3) -------------------------------------------------------
+                               1 - a
                                     b   a - 1           b   a - 1
                             (1 - z2)  z2      - (1 - z1)  z1
                           - -------------------------------------
                                             1 - a
+@end group
 @end example
 
 Derivative wrt the variable @var{z1} and integrals wrt @var{z1} and @var{z2}:
 
-@example
-(%i17) diff(beta_incomplete_generalized(a,b,z1,z2),z1);
+@c ===beg===
+@c diff(beta_incomplete_generalized(a,b,z1,z2),z1);
+@c integrate(beta_incomplete_generalized(a,b,z1,z2),z1);
+@c integrate(beta_incomplete_generalized(a,b,z1,z2),z2);
+@c ===end===
+@example maxima
+@group
+(%i1) diff(beta_incomplete_generalized(a,b,z1,z2),z1);
                                b - 1   a - 1
-(%o17)               - (1 - z1)      z1
-(%i18) integrate(beta_incomplete_generalized(a,b,z1,z2),z1);
-(%o18) beta_incomplete_generalized(a, b, z1, z2) z1
+(%o1)                - (1 - z1)      z1
+@end group
+@group
+(%i2) integrate(beta_incomplete_generalized(a,b,z1,z2),z1);
+(%o2) beta_incomplete_generalized(a, b, z1, z2) z1
                                   + beta_incomplete(a + 1, b, z1)
-(%i19) integrate(beta_incomplete_generalized(a,b,z1,z2),z2);
-(%o19) beta_incomplete_generalized(a, b, z1, z2) z2
+@end group
+@group
+(%i3) integrate(beta_incomplete_generalized(a,b,z1,z2),z2);
+(%o3) beta_incomplete_generalized(a, b, z1, z2) z2
                                   - beta_incomplete(a + 1, b, z2)
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1722,7 +2064,7 @@ Derivative wrt the variable @var{z1} and integrals wrt @var{z1} and @var{z2}:
 @defvr {Option variable} beta_expand
 Default value: false
 
-When @code{beta_expand} is @code{true}, @code{beta(a,b)} and related 
+When @mref{beta_expand} is @mref{true}, @mxref{beta, beta(a@comma{}b)} and related 
 functions are expanded for arguments like @math{a+n} or @math{a-n}, 
 where @math{n} is an integer.
 
@@ -1734,11 +2076,12 @@ where @math{n} is an integer.
 @closecatbox
 @end defvr
 
+@anchor{beta_args_sum_to_integer}
 @defvr {Option variable} beta_args_sum_to_integer
 Default value: false
 
-When @code{beta_args_sum_to_integer} is @code{true}, Maxima simplifies 
-@code{beta(a,b)}, when the arguments @var{a} and @var{b} sum to an integer.
+When @mref{beta_args_sum_to_integer} is @mref{true}, Maxima simplifies 
+@mxref{beta, beta(a@comma{}b)}, when the arguments @var{a} and @var{b} sum to an integer.
 
 @xref{beta} for examples.
 
@@ -1757,13 +2100,13 @@ When @code{beta_args_sum_to_integer} is @code{true}, Maxima simplifies
 @deffn {Function} psi [@var{n}](@var{x})
 
 @c The derivative of @code{log (gamma (@var{x}))} of order @code{@var{n}+1}.
-@code{psi[n](x)} is the polygamma function (@urldlmf{5.2E2},
+@mxref{psi, psi[n](x)} is the polygamma function (@urldlmf{5.2E2},
 @urldlmf{5.15}, @urlaands{eqn 6.3.1, 258} and @urlaands{eqn 6.4.1, 260}) defined by
 m4_displaymath(
 <<<\psi^{(n)}(x) = {d^{n+1}\over{dx^{n+1}}} \log\Gamma(x)>>>,
 <<<@math{diff(log(gamma(x)), x, n+1)}>>>)
-Thus, @code{psi[0](@var{x})} is the first derivative,
-@code{psi[1](@var{x})} is the second derivative, etc.
+Thus, @mxref{psi, psi[0](@var{x})} is the first derivative,
+@mxref{psi, psi[1](@var{x})} is the second derivative, etc.
 
 Maxima can compute some exact values for rational args as well for
 float and bfloat args.  Several variables control what range of
@@ -1773,34 +2116,54 @@ will return an
 exact value, if possible.  See @mref{maxpsiposint},
 @mref{maxpsinegint}, @mref{maxpsifracnum}, and
 @mrefdot{maxpsifracdenom} That is, @math{x} must lie between
-@code{maxpsinegint} and @code{maxpsiposint}.  If the absolute value of
+@mref{maxpsinegint} and @mref{maxpsiposint}.  If the absolute value of
 the fractional part of @math{x} is rational and has a numerator less
-than @code{maxpsifracnum} and has a denominator less than
-@code{maxpsifracdenom}, 
+than @mref{maxpsifracnum} and has a denominator less than
+@mref{maxpsifracdenom}, 
 m4_math(<<<\psi^{(0)}(x)>>>,<<<psi[0](x)>>>) 
 will
 return an exact value.
 
-The function @mref{bfpsi} in the @code{bffac} package can compute
+The function @mref{bfpsi} in the @mref{bffac} package can compute
 numerical values.
 
-@example
+@c ===beg===
+@c psi[0](.25);
+@c psi[0](1/4);
+@c float(%);
+@c psi[2](0.75);
+@c psi[2](3/4);
+@c float(%);
+@c ===end===
+@example maxima
+@group
 (%i1) psi[0](.25);
-(%o1)                        - 4.227453533376265
+(%o1)                  - 4.227453533376265
+@end group
+@group
 (%i2) psi[0](1/4);
-                                        %pi
-(%o2)                    (- 3 log(2)) - --- - %gamma
-                                         2
+                                 %pi
+(%o2)               - 3 log(2) - --- - %gamma
+                                  2
+@end group
+@group
 (%i3) float(%);
-(%o3)                        - 4.227453533376265
+(%o3)                  - 4.227453533376265
+@end group
+@group
 (%i4) psi[2](0.75);
-(%o4)                        - 5.30263321633764
+(%o4)                 - 5.3026332163376395
+@end group
+@group
 (%i5) psi[2](3/4);
-                                   1         3
-(%o5)                         psi (-) + 4 %pi
-                                 2 4
+                             1         3
+(%o5)                   psi (-) + 4 %pi
+                           2 4
+@end group
+@group
 (%i6) float(%);
-(%o6)                        - 5.30263321633764
+(%o6)                 - 5.3026332163376395
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1812,28 +2175,41 @@ numerical values.
 @defvr {Option variable} maxpsiposint
 Default value: 20
 
-@code{maxpsiposint} is the largest positive integer value for
+@mref{maxpsiposint} is the largest positive integer value for
 which 
 m4_math(<<<\psi^{(n)}(m)>>>,<<<psi[n](x)>>>)
 gives an exact value for
 rational @math{x}.
 
-@example
+@c ===beg===
+@c psi[0](20);
+@c psi[0](21);
+@c psi[2](20);
+@c psi[2](21);
+@c ===end===
+@example maxima
+@group
 (%i1) psi[0](20);
-                             275295799
-(%o1)                        --------- - %gamma
-                             77597520
+                       275295799
+(%o1)                  --------- - %gamma
+                       77597520
+@end group
+@group
 (%i2) psi[0](21);
-(%o2)                             psi (21)
-                                     0
+(%o2)                       psi (21)
+                               0
+@end group
+@group
 (%i3) psi[2](20);
-                      1683118856778495358491487
-(%o3)              2 (------------------------- - zeta(3))
-                      1401731326612193601024000
+                1683118856778495358491487
+(%o3)        2 (------------------------- - zeta(3))
+                1401731326612193601024000
+@end group
+@group
 (%i4) psi[2](21);
-(%o4)                            psi (21)
-                                      2
-
+(%o4)                       psi (21)
+                               2
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1846,37 +2222,50 @@ rational @math{x}.
 @defvr {Option variable} maxpsinegint
 Default value: -10
 
-@code{maxpsinegint} is the most negative value for
+@mref{maxpsinegint} is the most negative value for
 which 
 m4_math(<<<\psi^{(0)}(x)>>>,<<<psi[0](x)>>>) 
 will try to compute an exact
 value for rational @math{x}.  That is if @math{x} is less than
-@code{maxpsinegint}, 
+@mref{maxpsinegint}, 
 m4_math(<<<\psi^{(n)}(x)>>>,<<<psi[n](x)>>>) 
 will not
 return simplified answer, even if it could.
 
-@example
+@c ===beg===
+@c psi[0](-100/9);
+@c psi[0](-100/11);
+@c psi[2](-100/9);
+@c psi[2](-100/11);
+@c ===end===
+@example maxima
+@group
 (%i1) psi[0](-100/9);
-                                        100
-(%o1)                            psi (- ---)
-                                    0    9
+                                  100
+(%o1)                      psi (- ---)
+                              0    9
+@end group
+@group
 (%i2) psi[0](-100/11);
-                         100 %pi         1     5231385863539
-(%o2)            %pi cot(-------) + psi (--) + -------------
-                           11          0 11    381905105400
-
+                   100 %pi         1     5231385863539
+(%o2)      %pi cot(-------) + psi (--) + -------------
+                     11          0 11    381905105400
+@end group
+@group
 (%i3) psi[2](-100/9);
-                                        100
-(%o3)                            psi (- ---)
-                                    2    9
+                                  100
+(%o3)                      psi (- ---)
+                              2    9
+@end group
+@group
 (%i4) psi[2](-100/11);
            3     100 %pi     2 100 %pi         1
 (%o4) 2 %pi  cot(-------) csc (-------) + psi (--)
                    11            11          2 11
-                                         74191313259470963498957651385614962459
-                                       + --------------------------------------
-                                          27850718060013605318710152732000000
+                           74191313259470963498957651385614962459
+                         + --------------------------------------
+                            27850718060013605318710152732000000
+@end group
 @end example
 @opencatbox{Categories:}
 @category{Gamma and factorial functions}
@@ -1889,31 +2278,48 @@ return simplified answer, even if it could.
 Default value: 6
 
 Let @math{x} be a rational number of the form @math{p/q}.
-If @math{p} is greater than @code{maxpsifracnum},
+If @math{p} is greater than @mref{maxpsifracnum},
 then 
-m4_math(<<<\psi^{(0)}(x)>>>,<<<@code{psi[0](x)}>>>) 
+m4_math(<<<\psi^{(0)}(x)>>>,<<<psi[0](x)>>>) 
 will not try to
 return a simplified value.
 
-@example
+@c ===beg===
+@c psi[0](3/4);
+@c psi[2](3/4);
+@c maxpsifracnum:2;
+@c psi[0](3/4);
+@c psi[2](3/4);
+@c ===end===
+@example maxima
+@group
 (%i1) psi[0](3/4);
-                                        %pi
-(%o1)                    (- 3 log(2)) + --- - %gamma
-                                         2
+                                 %pi
+(%o1)               - 3 log(2) + --- - %gamma
+                                  2
+@end group
+@group
 (%i2) psi[2](3/4);
-                                   1         3
-(%o2)                         psi (-) + 4 %pi
-                                 2 4
+                             1         3
+(%o2)                   psi (-) + 4 %pi
+                           2 4
+@end group
+@group
 (%i3) maxpsifracnum:2;
-(%o3)                                 2
+(%o3)                           2
+@end group
+@group
 (%i4) psi[0](3/4);
-                                        3
-(%o4)                              psi (-)
-                                      0 4
+                                  3
+(%o4)                        psi (-)
+                                0 4
+@end group
+@group
 (%i5) psi[2](3/4);
-                                   1         3
-(%o5)                         psi (-) + 4 %pi
-                                 2 4
+                             1         3
+(%o5)                   psi (-) + 4 %pi
+                           2 4
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1927,31 +2333,48 @@ return a simplified value.
 Default value: 6
 
 Let @math{x} be a rational number of the form @math{p/q}.
-If @math{q} is greater than @code{maxpsifracdenom},
+If @math{q} is greater than @ref{maxpsifracdenom},
 then 
-m4_math(<<<\psi^{(0)}(x)>>>,<<<@code{psi[@var{0}](@var{x})}>>>) 
+m4_math(<<<\psi^{(0)}(x)>>>,<<<psi[@var{0}](@var{x})>>>) 
 will
 not try to return a simplified value.
 
-@example
+@c ===beg===
+@c psi[0](3/4);
+@c psi[2](3/4);
+@c maxpsifracdenom:2;
+@c psi[0](3/4);
+@c psi[2](3/4);
+@c ===end===
+@example maxima
+@group
 (%i1) psi[0](3/4);
-                                        %pi
-(%o1)                    (- 3 log(2)) + --- - %gamma
-                                         2
+                                 %pi
+(%o1)               - 3 log(2) + --- - %gamma
+                                  2
+@end group
+@group
 (%i2) psi[2](3/4);
-                                   1         3
-(%o2)                         psi (-) + 4 %pi
-                                 2 4
+                             1         3
+(%o2)                   psi (-) + 4 %pi
+                           2 4
+@end group
+@group
 (%i3) maxpsifracdenom:2;
-(%o3)                                 2
+(%o3)                           2
+@end group
+@group
 (%i4) psi[0](3/4);
-                                        3
-(%o4)                              psi (-)
-                                      0 4
+                                  3
+(%o4)                        psi (-)
+                                0 4
+@end group
+@group
 (%i5) psi[2](3/4);
-                                   1         3
-(%o5)                         psi (-) + 4 %pi
-                                 2 4
+                             1         3
+(%o5)                   psi (-) + 4 %pi
+                           2 4
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1969,17 +2392,28 @@ functions in @var{expr} into factorials.
 
 See also @mrefdot{makegamma}
 
-@example
+@c ===beg===
+@c makefact(binomial(n,k));
+@c makefact(gamma(x));
+@c makefact(beta(a,b));
+@c ===end===
+@example maxima
+@group
 (%i1) makefact(binomial(n,k));
-                                      n!
-(%o1)                             -----------
-                                  k! (n - k)!
+                               n!
+(%o1)                      -----------
+                           k! (n - k)!
+@end group
+@group
 (%i2) makefact(gamma(x));
-(%o2)                              (x - 1)!
+(%o2)                       (x - 1)!
+@end group
+@group
 (%i3) makefact(beta(a,b));
-                               (a - 1)! (b - 1)!
-(%o3)                          -----------------
-                                 (b + a - 1)!
+                        (a - 1)! (b - 1)!
+(%o3)                   -----------------
+                          (b + a - 1)!
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1996,15 +2430,23 @@ Returns the numerical factor multiplying the expression
 @c WHY IS content MENTIONED IN THIS CONTEXT ??
 @mref{content} returns the greatest common divisor (gcd) of all terms in a sum.
 
-@example
+@c ===beg===
+@c gamma (7/2);
+@c numfactor (%);
+@c ===end===
+@example maxima
+@group
 (%i1) gamma (7/2);
                           15 sqrt(%pi)
 (%o1)                     ------------
                                8
+@end group
+@group
 (%i2) numfactor (%);
                                15
 (%o2)                          --
                                8
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -2039,6 +2481,7 @@ This can be written in terms of other functions.  @xref{expintrep} for examples.
 @closecatbox
 @end deffn
 
+@anchor{expintegral_ei}
 @deffn {Function} expintegral_ei (@var{x})
 The Exponential Integral Ei(x) defined as
 
@@ -2058,6 +2501,7 @@ This can be written in terms of other functions.  @xref{expintrep} for examples.
 @closecatbox
 @end deffn
 
+@anchor{expintegral_li}
 @deffn {Function} expintegral_li (@var{x})
 The Exponential Integral li(x) defined as
 
@@ -2172,209 +2616,413 @@ This can be written in terms of other functions.  @xref{expintrep} for examples.
 
 @anchor{expintrep}
 @defvr {Option variable} expintrep
-Default value: false
+Default value: @mref{false}
 
 Change the representation of one of the exponential integrals,
-@code{expintegral_e(m, z)}, @code{expintegral_e1}, or
-@code{expintegral_ei} to an equivalent form if possible.
+@mxref{expintegral_e, expintegral_e(m@comma{}z)},
+@mxref{expintegral_e1, expintegral_e1(z)}, or
+@mxref{expintegral_ei, expintegral_ei(x)} to an equivalent form if possible.
 
-Possible values for @code{expintrep} are @code{false},
-@code{gamma_incomplete}, @code{expintegral_e1}, @code{expintegral_ei},
-@code{expintegral_li}, @code{expintegral_trig}, or
-@code{expintegral_hyp}.
+@c This might be better if it were arranged as a description list
+@c listing each possible value and what it means.
+@c Possible values for @mref{expintrep} are @mref{false},
+@c @mref{gamma_incomplete}, @mref{expintegral_e1}, @mref{expintegral_ei},
+@c @mref{expintegral_li}, @mref{expintegral_trig}, or
+@c @mref{expintegral_hyp}.
 
-@code{false} means that the representation is not changed.  Other
-values indicate the representation is to be changed to use the
-function specified where @code{expintegral_trig} means
-@mref{expintegral_si}, @mref{expintegral_ci}; and @code{expintegral_hyp}
-means @mref{expintegral_shi} or @mref{expintegral_chi}.
+@c @mref{false} means that the representation is not changed.  Other
+@c values indicate the representation is to be changed to use the
+@c function specified where
+@c @anchor{expintegral_trig}
+@c @mref{expintegral_trig} means
+@c @mref{expintegral_si}, @mref{expintegral_ci}; and
+@c @anchor{expintegral_hyp}
+@c @mref{expintegral_hyp}
+@c means @mref{expintegral_shi} or @mref{expintegral_chi}.
+@c
+@c The anchors here must use a different name than the actual variable
+@c name because some of the names refer to functions and we don't want
+@c to link to the functions.  We want links to come back here.
+The possible values for @mref{expintrep} are:
+@table @code
+@item false
+The representation is not changed.
+@anchor{expintrep-gamma-incomplete}
+@item gamma_incomplete
+The representation uses @mref{gamma_incomplete}.
+@anchor{expintrep-expintegral-e1}
+@item expintegral_e1
+The representation uses @mref{expintegral_e1}.
+@anchor{expintrep-expintegral-ei}
+@item expintegral_ei
+The representation uses @mref{expintegral_ei}.
+@anchor{expintrep-expintegral-li}
+@item expintegral_li
+The representation uses @mref{expintegral_li}.
+@anchor{expintrep-expintegral-trig}
+@item expintegral_trig
+The representation uses @mref{expintegral_si} or @mref{expintegral_ci}.
+@anchor{expintrep-expintegral-hyp}
+@item expintegral_hyp
+The representation uses @mref{expintegral_shi} or @mref{expintegral_chi}.
+@end table
 
-Here are some examples for @code{expintrep} set to @code{gamma_incomplete}:
-@example
+Here are some examples for @mref{expintrep} set to
+@mxref{expintrep-gamma-incomplete, gamma_incomplete}:
+@c ===beg===
+@c expintrep:'gamma_incomplete;
+@c expintegral_e1(z);
+@c expintegral_ei(z);
+@c expintegral_li(z);
+@c expintegral_e(n,z);
+@c expintegral_si(z);
+@c expintegral_ci(z);
+@c expintegral_shi(z);
+@c expintegral_chi(z);
+@c ===end===
+@example maxima
+@group
 (%i1) expintrep:'gamma_incomplete;
-(%o1)                          gamma_incomplete
+(%o1)                   gamma_incomplete
+@end group
+@group
 (%i2) expintegral_e1(z);
-(%o2)                       gamma_incomplete(0, z)
+(%o2)                gamma_incomplete(0, z)
+@end group
+@group
 (%i3) expintegral_ei(z);
-(%o3)            log(z) - log(- z) - gamma_incomplete(0, - z)
+(%o3)     log(z) - log(- z) - gamma_incomplete(0, - z)
+@end group
+@group
 (%i4) expintegral_li(z);
-(%o4)     log(log(z)) - log(- log(z)) - gamma_incomplete(0, - log(z))
+(%o4) log(log(z)) - log(- log(z)) - gamma_incomplete(0, - log(z))
+@end group
+@group
 (%i5) expintegral_e(n,z);
-                                                   n - 1
-(%o5)                  gamma_incomplete(1 - n, z) z
+                                            n - 1
+(%o5)           gamma_incomplete(1 - n, z) z
+@end group
+@group
 (%i6) expintegral_si(z);
-(%o6) (%i ((- log(%i z)) + log(- %i z) - gamma_incomplete(0, %i z)
-                                              + gamma_incomplete(0, - %i z)))/2
+(%o6) (%i (- log(%i z) + log(- %i z) - gamma_incomplete(0, %i z)
+                                + gamma_incomplete(0, - %i z)))/2
+@end group
+@group
 (%i7) expintegral_ci(z);
-(%o7) log(z) - (log(%i z) + log(- %i z) + gamma_incomplete(0, %i z)
-                                               + gamma_incomplete(0, - %i z))/2
+(%o7) log(z) - (log(%i z) + log(- %i z)
+     + gamma_incomplete(0, %i z) + gamma_incomplete(0, - %i z))/2
+@end group
+@group
 (%i8) expintegral_shi(z);
-      log(z) - log(- z) + gamma_incomplete(0, z) - gamma_incomplete(0, - z)
-(%o8) ---------------------------------------------------------------------
-                                        2
+(%o8) (log(z) - log(- z) + gamma_incomplete(0, z)
+                                    - gamma_incomplete(0, - z))/2
+@end group
+@group
 (%i9) expintegral_chi(z);
-(%o9) 
-      (- log(z)) + log(- z) + gamma_incomplete(0, z) + gamma_incomplete(0, - z)
-    - -------------------------------------------------------------------------
-                                          2
+(%o9) - (- log(z) + log(- z) + gamma_incomplete(0, z)
+                                    + gamma_incomplete(0, - z))/2
+@end group
 @end example
 
-For @code{expintrep} set to @code{expintegral_e1}:
+For @mref{expintrep} set to @mxref{expintrep-expintegral-e1, expintegral_e1}:
 
-@example
+@c ===beg===
+@c expintrep:'expintegral_e1;
+@c expintegral_ei(z);
+@c expintegral_li(z);
+@c expintegral_e(n,z);
+@c expintegral_si(z);
+@c expintegral_ci(z);
+@c expintegral_shi(z);
+@c expintegral_chi(z);
+@c ===end===
+@example maxima
+@group
 (%i1) expintrep:'expintegral_e1;
-(%o1)                           expintegral_e1
+(%o1)                    expintegral_e1
+@end group
+@group
 (%i2) expintegral_ei(z);
-(%o2)               log(z) - log(- z) - expintegral_e1(- z)
+(%o2)        log(z) - log(- z) - expintegral_e1(- z)
+@end group
+@group
 (%i3) expintegral_li(z);
-(%o3)       log(log(z)) - log(- log(z)) - expintegral_e1(- log(z))
+(%o3) log(log(z)) - log(- log(z)) - expintegral_e1(- log(z))
+@end group
+@group
 (%i4) expintegral_e(n,z);
-(%o4)                         expintegral_e(n, z)
+(%o4)                  expintegral_e(n, z)
+@end group
+@group
 (%i5) expintegral_si(z);
-(%o5) (%i ((- log(%i z)) - expintegral_e1(%i z) + log(- %i z)
-                                                   + expintegral_e1(- %i z)))/2
+(%o5) (%i (- log(%i z) - expintegral_e1(%i z) + log(- %i z)
+                                     + expintegral_e1(- %i z)))/2
+@end group
+@group
 (%i6) expintegral_ci(z);
-(%o6) log(z)
-          log(- %i z) (expintegral_e1(%i z) + expintegral_e1(- %i z)) log(%i z)
-        - ---------------------------------------------------------------------
-                                            2
+(%o6) log(z) - (log(- %i z) (expintegral_e1(%i z)
+                           + expintegral_e1(- %i z)) log(%i z))/2
+@end group
+@group
 (%i7) expintegral_shi(z);
-          log(z) + expintegral_e1(z) - log(- z) - expintegral_e1(- z)
-(%o7)     -----------------------------------------------------------
-                                       2
+      log(z) + expintegral_e1(z) - log(- z) - expintegral_e1(- z)
+(%o7) -----------------------------------------------------------
+                                   2
+@end group
+@group
 (%i8) expintegral_chi(z);
-         (- log(z)) + expintegral_e1(z) + log(- z) + expintegral_e1(- z)
-(%o8)  - ---------------------------------------------------------------
-                                        2
-@end example
-
-For @code{expintrep} set to @code{expintegral_ei}:
-
-@example
-(%i1) expintrep:'expintegral_ei;
-(%o1)                           expintegral_ei
-(%i2) expintegral_e1(z);
-                                          1
-                         log(- z) - log(- -)
-                                          z
-(%o2)       (- log(z)) + ------------------- - expintegral_ei(- z)
+(%o8) 
+    - log(z) + expintegral_e1(z) + log(- z) + expintegral_e1(- z)
+  - -------------------------------------------------------------
                                   2
-(%i3) expintegral_ei(z);
-(%o3)                          expintegral_ei(z)
-(%i4) expintegral_li(z);
-(%o4)                       expintegral_ei(log(z))
-(%i5) expintegral_e(n,z);
-(%o5)                         expintegral_e(n, z)
-(%i6) expintegral_si(z);
-(%o6) (%i (log(%i z) + 2 (expintegral_ei(- %i z) - expintegral_ei(%i z))
-                                                            %i          %i
-                                        - log(- %i z) + log(--) - log(- --)))/4
-                                                            z           z
-(%i7) expintegral_ci(z);
-(%o7) ((- log(%i z)) + 2 (expintegral_ei(%i z) + expintegral_ei(- %i z))
-                                                    %i          %i
-                                - log(- %i z) + log(--) + log(- --))/4 + log(z)
-                                                    z           z
-(%i8) expintegral_shi(z);
-(%o8) ((- 2 log(z)) + 2 (expintegral_ei(z) - expintegral_ei(- z)) + log(- z)
-                                                                          1
-                                                                  - log(- -))/4
-                                                                          z
-(%i9) expintegral_chi(z);
-(%o9) 
-                                                                             1
-   2 log(z) + 2 (expintegral_ei(z) + expintegral_ei(- z)) - log(- z) + log(- -)
-                                                                             z
-   ----------------------------------------------------------------------------
-                                        4
+@end group
 @end example
 
-For @code{expintrep} set to @code{expintegral_li}:
+For @mref{expintrep} set to @mxref{expintrep-expintegral-ei,expintegral_ei}:
 
-@example
+@c ===beg===
+@c expintrep:'expintegral_ei;
+@c expintegral_e1(z);
+@c expintegral_ei(z);
+@c expintegral_li(z);
+@c expintegral_e(n,z);
+@c expintegral_si(z);
+@c expintegral_ci(z);
+@c expintegral_shi(z);
+@c expintegral_chi(z);
+@c ===end===
+@example maxima
+@group
+(%i1) expintrep:'expintegral_ei;
+(%o1)                    expintegral_ei
+@end group
+@group
+(%i2) expintegral_e1(z);
+                                  1
+                 log(- z) - log(- -)
+                                  z
+(%o2) - log(z) + ------------------- - expintegral_ei(- z)
+                          2
+@end group
+@group
+(%i3) expintegral_ei(z);
+(%o3)                   expintegral_ei(z)
+@end group
+@group
+(%i4) expintegral_li(z);
+(%o4)                expintegral_ei(log(z))
+@end group
+@group
+(%i5) expintegral_e(n,z);
+(%o5)                  expintegral_e(n, z)
+@end group
+@group
+(%i6) expintegral_si(z);
+(%o6) (%i (log(%i z) + 2 (expintegral_ei(- %i z)
+                                              %i          %i
+  - expintegral_ei(%i z)) - log(- %i z) + log(--) - log(- --)))/4
+                                              z           z
+@end group
+@group
+(%i7) expintegral_ci(z);
+(%o7) (- log(%i z) + 2 (expintegral_ei(%i z)
+                                               %i          %i
+ + expintegral_ei(- %i z)) - log(- %i z) + log(--) + log(- --))/4
+                                               z           z
+ + log(z)
+@end group
+@group
+(%i8) expintegral_shi(z);
+(%o8) (- 2 log(z) + 2 (expintegral_ei(z) - expintegral_ei(- z))
+                                                            1
+                                         + log(- z) - log(- -))/4
+                                                            z
+@end group
+@group
+(%i9) expintegral_chi(z);
+(%o9) (2 log(z) + 2 (expintegral_ei(z) + expintegral_ei(- z))
+                                                            1
+                                         - log(- z) + log(- -))/4
+                                                            z
+@end group
+@end example
+
+For @mref{expintrep} set to @mxref{expintrep-expintegral-li,expintegral_li}:
+
+@c ===beg===
+@c expintrep:'expintegral_li;
+@c expintegral_e1(z);
+@c expintegral_ei(z);
+@c expintegral_li(z);
+@c expintegral_e(n,z);
+@c expintegral_si(z);
+@c expintegral_ci(z);
+@c expintegral_shi(z);
+@c expintegral_chi(z);
+@c ===end===
+@example maxima
+@group
 (%i1) expintrep:'expintegral_li;
-(%o1)                           expintegral_li
+(%o1)                    expintegral_li
+@end group
+@group
 (%i2) expintegral_e1(z);
-                                                                 1
-                                                log(- z) - log(- -)
-                               - z                               z
-(%o2)      (- expintegral_li(%e   )) - log(z) + -------------------
-                                                         2
+                                                          1
+                                         log(- z) - log(- -)
+                         - z                              z
+(%o2) - expintegral_li(%e   ) - log(z) + -------------------
+                                                  2
+@end group
+@group
 (%i3) expintegral_ei(z);
-                                               z
-(%o3)                         expintegral_li(%e )
+                                        z
+(%o3)                  expintegral_li(%e )
+@end group
+@group
 (%i4) expintegral_li(z);
-(%o4)                          expintegral_li(z)
+(%o4)                   expintegral_li(z)
+@end group
+@group
 (%i5) expintegral_e(n,z);
-(%o5)                         expintegral_e(n, z)
+(%o5)                  expintegral_e(n, z)
+@end group
+@group
 (%i6) expintegral_si(z);
-                             %i z                     - %e z    %pi signum(z)
-        %i (expintegral_li(%e    ) - expintegral_li(%e      ) - -------------)
-                                                                      2
-(%o6) - ----------------------------------------------------------------------
-                                          2
+                              %i z                     - %e z
+(%o6) - (%i (expintegral_li(%e    ) - expintegral_li(%e      )
+                                                %pi signum(z)
+                                              - -------------))/2
+                                                      2
+@end group
+@group
 (%i7) expintegral_ci(z);
-                        %i z                     - %i z
-       expintegral_li(%e    ) + expintegral_li(%e      )
-(%o7)  ------------------------------------------------- - signum(z) + 1
-                               2
+                       %i z                     - %i z
+      expintegral_li(%e    ) + expintegral_li(%e      )
+(%o7) -------------------------------------------------
+                              2
+                                                  - signum(z) + 1
+@end group
+@group
 (%i8) expintegral_shi(z);
-                                   z                     - z
-                  expintegral_li(%e ) - expintegral_li(%e   )
-(%o8)             -------------------------------------------
-                                       2
+                            z                     - z
+           expintegral_li(%e ) - expintegral_li(%e   )
+(%o8)      -------------------------------------------
+                                2
+@end group
+@group
 (%i9) expintegral_chi(z);
-                                   z                     - z
-                  expintegral_li(%e ) + expintegral_li(%e   )
-(%o9)             -------------------------------------------
-                                       2
+                            z                     - z
+           expintegral_li(%e ) + expintegral_li(%e   )
+(%o9)      -------------------------------------------
+                                2
+@end group
 @end example
 
-For @code{expintrep} set to @code{expintegral_trig}:
+For @mref{expintrep} set to @mxref{expintrep-expintegral-trig,expintegral_trig}:
 
-@example
+@c ===beg===
+@c expintrep:'expintegral_trig;
+@c expintegral_e1(z);
+@c expintegral_ei(z);
+@c expintegral_li(z);
+@c expintegral_e(n,z);
+@c expintegral_si(z);
+@c expintegral_ci(z);
+@c expintegral_shi(z);
+@c expintegral_chi(z);
+@c ===end===
+@example maxima
+@group
 (%i1) expintrep:'expintegral_trig;
-(%o1)                          expintegral_trig
+(%o1)                   expintegral_trig
+@end group
+@group
 (%i2) expintegral_e1(z);
-(%o2) log(%i z) - %i expintegral_si(%i z) - expintegral_ci(%i z) - log(z)
+(%o2) log(%i z) - %i expintegral_si(%i z) - expintegral_ci(%i z)
+                                                         - log(z)
+@end group
+@group
 (%i3) expintegral_ei(z);
-(%o3) (- log(%i z)) - %i expintegral_si(%i z) + expintegral_ci(%i z) + log(z)
+(%o3) - log(%i z) - %i expintegral_si(%i z)
+                                  + expintegral_ci(%i z) + log(z)
+@end group
+@group
 (%i4) expintegral_li(z);
-(%o4) (- log(%i log(z))) - %i expintegral_si(%i log(z))
-                                      + expintegral_ci(%i log(z)) + log(log(z))
+(%o4) - log(%i log(z)) - %i expintegral_si(%i log(z))
+                        + expintegral_ci(%i log(z)) + log(log(z))
+@end group
+@group
 (%i5) expintegral_e(n,z);
-(%o5)                         expintegral_e(n, z)
+(%o5)                  expintegral_e(n, z)
+@end group
+@group
 (%i6) expintegral_si(z);
-(%o6)                          expintegral_si(z)
+(%o6)                   expintegral_si(z)
+@end group
+@group
 (%i7) expintegral_ci(z);
-(%o7)                          expintegral_ci(z)
+(%o7)                   expintegral_ci(z)
+@end group
+@group
 (%i8) expintegral_shi(z);
-(%o8)                      - %i expintegral_si(%i z)
+(%o8)               - %i expintegral_si(%i z)
+@end group
+@group
 (%i9) expintegral_chi(z);
-(%o9)            (- log(%i z)) + expintegral_ci(%i z) + log(z)
+(%o9)      - log(%i z) + expintegral_ci(%i z) + log(z)
+@end group
 @end example
 
-For @code{expintrep} set to @code{expintegral_hyp}:
+For @mref{expintrep} set to @mxref{expintrep-expintegral-hyp,expintegral_hyp}:
 
-@example
+@c ===beg===
+@c expintrep:'expintegral_hyp;
+@c expintegral_e1(z);
+@c expintegral_ei(z);
+@c expintegral_li(z);
+@c expintegral_e(n,z);
+@c expintegral_si(z);
+@c expintegral_ci(z);
+@c expintegral_shi(z);
+@c expintegral_chi(z);
+@c ===end===
+@example maxima
+@group
 (%i1) expintrep:'expintegral_hyp;
-(%o1)                           expintegral_hyp
+(%o1)                    expintegral_hyp
+@end group
+@group
 (%i2) expintegral_e1(z);
-(%o2)               expintegral_shi(z) - expintegral_chi(z)
+(%o2)        expintegral_shi(z) - expintegral_chi(z)
+@end group
+@group
 (%i3) expintegral_ei(z);
-(%o3)               expintegral_shi(z) + expintegral_chi(z)
+(%o3)        expintegral_shi(z) + expintegral_chi(z)
+@end group
+@group
 (%i4) expintegral_li(z);
-(%o4)          expintegral_shi(log(z)) + expintegral_chi(log(z))
+(%o4)   expintegral_shi(log(z)) + expintegral_chi(log(z))
+@end group
+@group
 (%i5) expintegral_e(n,z);
-(%o5)                         expintegral_e(n, z)
+(%o5)                  expintegral_e(n, z)
+@end group
+@group
 (%i6) expintegral_si(z);
-(%o6)                     - %i expintegral_shi(%i z)
+(%o6)              - %i expintegral_shi(%i z)
+@end group
+@group
 (%i7) expintegral_ci(z);
-(%o7)           (- log(%i z)) + expintegral_chi(%i z) + log(z)
+(%o7)     - log(%i z) + expintegral_chi(%i z) + log(z)
+@end group
+@group
 (%i8) expintegral_shi(z);
-(%o8)                         expintegral_shi(z)
+(%o8)                  expintegral_shi(z)
+@end group
+@group
 (%i9) expintegral_chi(z);
-(%o9)                         expintegral_chi(z)
+(%o9)                  expintegral_chi(z)
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -2386,29 +3034,46 @@ For @code{expintrep} set to @code{expintegral_hyp}:
 @defvr {Option variable} expintexpand 
 Default value: false
 
-Expand @code{expintegral_e(n,z)} for half
-integral values in terms of @code{erfc} or @code{erf} and
-for positive integers in terms of @code{expintegral_ei}.
+Expand @mxref{expintegral_e, expintegral_e(n@comma{}z)} for half
+integral values in terms of @mref{erfc} or @mref{erf} and
+for positive integers in terms of @mref{expintegral_ei}.
 
-@example
+@c ===beg===
+@c expintegral_e(1/2,z);
+@c expintegral_e(1,z);
+@c expintexpand:true;
+@c expintegral_e(1/2,z);
+@c expintegral_e(1,z);
+@c ===end===
+@example maxima
+@group
 (%i1) expintegral_e(1/2,z);
-                                            1
-(%o1)                         expintegral_e(-, z)
-                                            2
+                                     1
+(%o1)                  expintegral_e(-, z)
+                                     2
+@end group
+@group
 (%i2) expintegral_e(1,z);
-(%o2)                         expintegral_e(1, z)
+(%o2)                  expintegral_e(1, z)
+@end group
+@group
 (%i3) expintexpand:true;
-(%o3)                                true
+(%o3)                         true
+@end group
+@group
 (%i4) expintegral_e(1/2,z);
-                            sqrt(%pi) erfc(sqrt(z))
-(%o4)                       -----------------------
-                                    sqrt(z)
+                     sqrt(%pi) erfc(sqrt(z))
+(%o4)                -----------------------
+                             sqrt(z)
+@end group
+@group
 (%i5) expintegral_e(1,z);
-                               1
-                         log(- -) - log(- z)
-                               z
-(%o5)       (- log(z)) - ------------------- - expintegral_ei(- z)
-                                  2
+                       1
+                 log(- -) - log(- z)
+                       z
+(%o5) - log(z) - ------------------- - expintegral_ei(- z)
+                          2
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -2538,93 +3203,157 @@ See flags @mref{erf_representation} and @mref{hypergeometric_representation}.
 @defvr {Option variable} erf_representation
 Default value: false
 
-@code{erf_representation} controls how the error functions are
-represented.  It must be set to one of @code{false}, @code{erf},
-@code{erfc}, or @code{erfi}.  When set to @code{false}, the error functions are not
-modified.  When set to @code{erf}, all error functions (@mref{erfc},
+@mref{erf_representation} controls how the error functions are
+represented.  It must be set to one of @mref{false}, @mref{erf},
+@mref{erfc}, or @mref{erfi}.  When set to @mref{false}, the error functions are not
+modified.  When set to @mref{erf}, all error functions (@mref{erfc},
 @mref{erfi}, @mref{erf_generalized}, @mref{fresnel_s} and
-@mref{fresnel_c}) are converted to @mref{erf} functions.  Similary,
-@code{erfc} converts error functions to @mref{erfc}.  Finally
-@code{erfi} converts the functions to @mref{erfi}.
+@mref{fresnel_c}) are converted to @mref{erf} functions.  Similarly,
+@mref{erfc} converts error functions to @mref{erfc}.  Finally
+@mref{erfi} converts the functions to @mref{erfi}.
 
 Converting to @mref{erf}:
-@example
+@c ===beg===
+@c erf_representation:erf;
+@c erfc(z);
+@c erfi(z);
+@c erf_generalized(z1,z2);
+@c fresnel_c(z);
+@c fresnel_s(z);
+@c ===end===
+@example maxima
+@group
 (%i1) erf_representation:erf;
-(%o1)                                true
+(%o1)                          erf
+@end group
+@group
 (%i2) erfc(z);
-(%o2)                               erfc(z)
+(%o2)                      1 - erf(z)
+@end group
+@group
 (%i3) erfi(z);
-(%o3)                               erfi(z)
+(%o3)                    - %i erf(%i z)
+@end group
+@group
 (%i4) erf_generalized(z1,z2);
-(%o4)                          erf(z2) - erf(z1)
+(%o4)                   erf(z2) - erf(z1)
+@end group
+@group
 (%i5) fresnel_c(z);
-                    sqrt(%pi) (%i + 1) z           sqrt(%pi) (1 - %i) z
-      (1 - %i) (erf(--------------------) + %i erf(--------------------))
-                             2                              2
-(%o5) -------------------------------------------------------------------
-                                       4
+                     sqrt(%pi) (%i + 1) z
+(%o5) ((1 - %i) (erf(--------------------)
+                              2
+                                        sqrt(%pi) (1 - %i) z
+                               + %i erf(--------------------)))/4
+                                                 2
+@end group
+@group
 (%i6) fresnel_s(z);
-                    sqrt(%pi) (%i + 1) z           sqrt(%pi) (1 - %i) z
-      (%i + 1) (erf(--------------------) - %i erf(--------------------))
-                             2                              2
-(%o6) -------------------------------------------------------------------
-                                       4
-
+                     sqrt(%pi) (%i + 1) z
+(%o6) ((%i + 1) (erf(--------------------)
+                              2
+                                        sqrt(%pi) (1 - %i) z
+                               - %i erf(--------------------)))/4
+                                                 2
+@end group
 @end example
 
 Converting to @mref{erfc}:
-@example
+@c ===beg===
+@c erf_representation:erfc;
+@c erf(z);
+@c erfc(z);
+@c erf_generalized(z1,z2);
+@c fresnel_s(c);
+@c fresnel_c(c);
+@c ===end===
+@example maxima
+@group
 (%i1) erf_representation:erfc;
-(%o1)                                erfc
+(%o1)                         erfc
+@end group
+@group
 (%i2) erf(z);
-(%o2)                             1 - erfc(z)
+(%o2)                      1 - erfc(z)
+@end group
+@group
 (%i3) erfc(z);
-(%o3)                               erfc(z)
+(%o3)                        erfc(z)
+@end group
+@group
 (%i4) erf_generalized(z1,z2);
-(%o4)                         erfc(z1) - erfc(z2)
+(%o4)                  erfc(z1) - erfc(z2)
+@end group
+@group
 (%i5) fresnel_s(c);
-                         sqrt(%pi) (%i + 1) c
-(%o5) ((%i + 1) ((- erfc(--------------------))
-                                  2
-                                                 sqrt(%pi) (1 - %i) c
-                                  - %i (1 - erfc(--------------------)) + 1))/4
-                                                          2
+                        sqrt(%pi) (%i + 1) c
+(%o5) ((%i + 1) (- erfc(--------------------)
+                                 2
+                                   sqrt(%pi) (1 - %i) c
+                    - %i (1 - erfc(--------------------)) + 1))/4
+                                            2
+@end group
+@group
 (%i6) fresnel_c(c);
-                         sqrt(%pi) (%i + 1) c
-(%o6) ((1 - %i) ((- erfc(--------------------))
-                                  2
-                                                 sqrt(%pi) (1 - %i) c
-                                  + %i (1 - erfc(--------------------)) + 1))/4
-                                                          2
+                        sqrt(%pi) (%i + 1) c
+(%o6) ((1 - %i) (- erfc(--------------------)
+                                 2
+                                   sqrt(%pi) (1 - %i) c
+                    + %i (1 - erfc(--------------------)) + 1))/4
+                                            2
+@end group
 @end example
 
 Converting to @mref{erfc}:
 
-@example
+@c ===beg===
+@c erf_representation:erfi;
+@c erf(z);
+@c erfc(z);
+@c erfi(z);
+@c erf_generalized(z1,z2);
+@c fresnel_s(z);
+@c fresnel_c(z);
+@c ===end===
+@example maxima
+@group
 (%i1) erf_representation:erfi;
-(%o1)                                erfi
+(%o1)                         erfi
+@end group
+@group
 (%i2) erf(z);
-(%o2)                           - %i erfi(%i z)
+(%o2)                    - %i erfi(%i z)
+@end group
+@group
 (%i3) erfc(z);
-(%o3)                          %i erfi(%i z) + 1
+(%o3)                   %i erfi(%i z) + 1
+@end group
+@group
 (%i4) erfi(z);
-(%o4)                               erfi(z)
+(%o4)                        erfi(z)
+@end group
+@group
 (%i5) erf_generalized(z1,z2);
-(%o5)                   %i erfi(%i z1) - %i erfi(%i z2)
+(%o5)            %i erfi(%i z1) - %i erfi(%i z2)
+@end group
+@group
 (%i6) fresnel_s(z);
-                            sqrt(%pi) %i (%i + 1) z
-(%o6) ((%i + 1) ((- %i erfi(-----------------------))
-                                       2
-                                                   sqrt(%pi) (1 - %i) %i z
-                                            - erfi(-----------------------)))/4
-                                                              2
+                           sqrt(%pi) %i (%i + 1) z
+(%o6) ((%i + 1) (- %i erfi(-----------------------)
+                                      2
+                                     sqrt(%pi) (1 - %i) %i z
+                              - erfi(-----------------------)))/4
+                                                2
+@end group
+@group
 (%i7) fresnel_c(z);
-(%o7) 
-                   sqrt(%pi) (1 - %i) %i z            sqrt(%pi) %i (%i + 1) z
-    (1 - %i) (erfi(-----------------------) - %i erfi(-----------------------))
-                              2                                  2
-    ---------------------------------------------------------------------------
-                                         4
+                      sqrt(%pi) (1 - %i) %i z
+(%o7) ((1 - %i) (erfi(-----------------------)
+                                 2
+                                     sqrt(%pi) %i (%i + 1) z
+                           - %i erfi(-----------------------)))/4
+                                                2
+@end group
 @end example
 @end defvr
 
@@ -2636,50 +3365,77 @@ Enables transformation to a Hypergeometric
 representation for @mref{fresnel_s} and @mref{fresnel_c} and other
 error functions.
 
-@example
+@c ===beg===
+@c hypergeometric_representation:true;
+@c fresnel_s(z);
+@c fresnel_c(z);
+@c erf(z);
+@c erfi(z);
+@c erfc(z);
+@c erf_generalized(z1,z2);
+@c ===end===
+@example maxima
+@group
 (%i1) hypergeometric_representation:true;
-(%o1)                                true
+(%o1)                         true
+@end group
+@group
 (%i2) fresnel_s(z);
-                                                      2  4
-                                     3    3  7     %pi  z    3
-                 %pi hypergeometric([-], [-, -], - -------) z
-                                     4    2  4       16
-(%o2)            ---------------------------------------------
-                                       6
+                                               2  4
+                              3    3  7     %pi  z    3
+          %pi hypergeometric([-], [-, -], - -------) z
+                              4    2  4       16
+(%o2)     ---------------------------------------------
+                                6
+@end group
+@group
 (%i3) fresnel_c(z);
-                                                    2  4
-                                   1    1  5     %pi  z
-(%o3)              hypergeometric([-], [-, -], - -------) z
-                                   4    2  4       16
+                                             2  4
+                            1    1  5     %pi  z
+(%o3)       hypergeometric([-], [-, -], - -------) z
+                            4    2  4       16
+@end group
+@group
 (%i4) erf(z);
-                                        1    3      2
-                      2 hypergeometric([-], [-], - z ) z
-                                        2    2
-(%o4)                 ----------------------------------
-                                  sqrt(%pi)
+                                                   2
+                                    3    2      - z
+             2 hypergeometric([1], [-], z ) z %e
+                                    2
+(%o4)        ---------------------------------------
+                            sqrt(%pi)
+@end group
+@group
 (%i5) erfi(z);
-                                         1    3    2
-                       2 hypergeometric([-], [-], z ) z
-                                         2    2
-(%o5)                  --------------------------------
-                                  sqrt(%pi)
+                                  1    3    2
+                2 hypergeometric([-], [-], z ) z
+                                  2    2
+(%o5)           --------------------------------
+                           sqrt(%pi)
+@end group
+@group
 (%i6) erfc(z);
-                                          1    3      2
-                        2 hypergeometric([-], [-], - z ) z
-                                          2    2
-(%o6)               1 - ----------------------------------
-                                    sqrt(%pi)
+                                                     2
+                                      3    2      - z
+               2 hypergeometric([1], [-], z ) z %e
+                                      2
+(%o6)      1 - ---------------------------------------
+                              sqrt(%pi)
+@end group
+@group
 (%i7) erf_generalized(z1,z2);
-                        1    3       2
-      2 hypergeometric([-], [-], - z2 ) z2
-                        2    2
-(%o7) ------------------------------------
-                   sqrt(%pi)
-                                                             1    3       2
-                                           2 hypergeometric([-], [-], - z1 ) z1
-                                                             2    2
-                                         - ------------------------------------
-                                                        sqrt(%pi)
+                                               2
+                             3     2       - z2
+      2 hypergeometric([1], [-], z2 ) z2 %e
+                             2
+(%o7) ------------------------------------------
+                      sqrt(%pi)
+                                                                2
+                                              3     2       - z1
+                       2 hypergeometric([1], [-], z1 ) z1 %e
+                                              2
+                     - ------------------------------------------
+                                       sqrt(%pi)
+@end group
 @end example
 
 @end defvr
@@ -2717,7 +3473,7 @@ m4_displaymath(
 
 (@urlaands{eqn 12.1.3, 496}) and (@urldlmf{11.2.E1}).
 
-When @code{besselexpand} is @code{true}, @code{struve_h} is expanded in terms
+When @mref{besselexpand} is @mref{true}, @mref{struve_h} is expanded in terms
 of elementary functions when the order @math{v} is half of an odd integer. 
 See @mrefdot{besselexpand}
 
@@ -2738,7 +3494,7 @@ m4_displaymath(
 
 (@urlaands{eqn 12.2.1, 498}) and (@urldlmf{11.2.E2}).
 
-When @code{besselexpand} is @code{true}, @code{struve_l} is expanded in terms
+When @mref{besselexpand} is @mref{true}, @mref{struve_l} is expanded in terms
 of elementary functions when the order @math{v} is half of an odd integer. 
 See @mrefdot{besselexpand}
 
@@ -2755,8 +3511,9 @@ The Hypergeometric Functions are defined in Abramowitz and Stegun,
 @urlaands{15, 555}.
 
 Maxima has very limited knowledge of these functions.  They
-can be returned from function @code{hgfred}.
+can be returned from function @mref{hgfred}.
 
+@anchor{%m}
 @deffn {Function} %m [@var{k},@var{u}] (@var{z}) 
 Whittaker M function (@urlaands{eqn 13.1.32, 505}):
 
@@ -2777,6 +3534,15 @@ m4_displaymath(
 @closecatbox
 @end deffn
 
+@anchor{expand_hypergeometric}
+@defvr {Option variable} expand_hypergeometric
+Default value: @mref{false}
+
+When @mref{true}, @mref{hypergeometric} will return a polynomial if
+the hypergeometric function represents a polynomial.
+@end defvr
+
+@anchor{%w}
 @deffn {Function} %w [@var{k},@var{u}] (@var{z}) 
 Whittaker W function (@urlaands{eqn 13.1.33, 505}):
 m4_displaymath(
@@ -2791,6 +3557,7 @@ where @math{U(a,b,z)} is Kummer's second solution of the confluent hypergeometri
 @end deffn
 
 
+@anchor{%f}
 @deffn {Function} %f [@var{p},@var{q}] (@var{[a],[b],z}) 
 The 
 m4_math(<<<_{p}F_{q}(a_1,a_2,...,a_p;b_1,b_2,...,b_q;z)>>>,<<<pFq(a_1,a_2,...,a_p;b_1,b_2,...,b_q;z)>>>) 
@@ -2803,60 +3570,89 @@ where @var{a} a list of length @var{p} and
 @closecatbox
 @end deffn
 
+@anchor{hypergeometric}
 @deffn {Function} hypergeometric ([@var{a1}, ..., @var{ap}],[@var{b1}, ... ,@var{bq}], x)
-The hypergeometric function. Unlike Maxima's @code{%f} hypergeometric
-function, the function @code{hypergeometric} is a simplifying
-function; also, @code{hypergeometric} supports complex double and
+The hypergeometric function. Unlike Maxima's @mref{%f} hypergeometric
+function, the function @mref{hypergeometric} is a simplifying
+function; also, @mref{hypergeometric} supports complex double and
 big floating point evaluation. For the Gauss hypergeometric function,
 that is @math{p = 2} and @math{q = 1}, floating point evaluation
 outside the unit circle is supported, but in general, it is not
 supported.
 
-When the option variable @code{expand_hypergeometric} is true (default
-is false) and one of the arguments @code{a1} through @code{ap} is a
-negative integer (a polynomial case), @code{hypergeometric} returns an
+When the option variable @mref{expand_hypergeometric} is @mref{true} (default
+is @mref{false}) and one of the arguments @code{a1} through @code{ap} is a
+negative integer (a polynomial case), @mref{hypergeometric} returns an
 expanded polynomial. 
 
 Examples:
 
-@example
+@c ===beg===
+@c  hypergeometric([],[],x);
+@c ===end===
+@example maxima
+@group
 (%i1)  hypergeometric([],[],x);
-(%o1) %e^x
+                                 x
+(%o1)                          %e
+@end group
 @end example
 
-Polynomial cases automatically expand when @code{expand_hypergeometric} is true:
+Polynomial cases automatically expand when @mref{expand_hypergeometric} is true:
 
-@example
-(%i2) hypergeometric([-3],[7],x);
-(%o2) hypergeometric([-3],[7],x)
-
-(%i3) hypergeometric([-3],[7],x), expand_hypergeometric : true;
-(%o3) -x^3/504+3*x^2/56-3*x/7+1
+@c ===beg===
+@c hypergeometric([-3],[7],x);
+@c hypergeometric([-3],[7],x), expand_hypergeometric : true;
+@c ===end===
+@example maxima
+@group
+(%i1) hypergeometric([-3],[7],x);
+(%o1)             hypergeometric([- 3], [7], x)
+@end group
+@group
+(%i2) hypergeometric([-3],[7],x), expand_hypergeometric : true;
+                        3       2
+                       x     3 x    3 x
+(%o2)                - --- + ---- - --- + 1
+                       504    56     7
+@end group
 @end example
 
 Both double float and big float evaluation is supported:
 
-@example
-(%i4) hypergeometric([5.1],[7.1 + %i],0.42);
-(%o4)       1.346250786375334 - 0.0559061414208204 %i
-(%i5) hypergeometric([5,6],[8], 5.7 - %i);
-(%o5)     .007375824009774946 - .001049813688578674 %i
-(%i6) hypergeometric([5,6],[8], 5.7b0 - %i), fpprec : 30;
-(%o6) 7.37582400977494674506442010824b-3
+@c ===beg===
+@c hypergeometric([5.1],[7.1 + %i],0.42);
+@c hypergeometric([5,6],[8], 5.7 - %i);
+@c hypergeometric([5,6],[8], 5.7b0 - %i), fpprec : 30;
+@c ===end===
+@example maxima
+@group
+(%i1) hypergeometric([5.1],[7.1 + %i],0.42);
+(%o1)      1.3462507863753337 - 0.0559061414208204 %i
+@end group
+@group
+(%i2) hypergeometric([5,6],[8], 5.7 - %i);
+(%o2)    0.007375824009774945 - 0.0010498136885786736 %i
+@end group
+@group
+(%i3) hypergeometric([5,6],[8], 5.7b0 - %i), fpprec : 30;
+(%o3) 7.37582400977494674506442010824b-3
                           - 1.04981368857867315858055393376b-3 %i
+@end group
 @end example
 @end deffn
 
+@anchor{hypergeometric_simp}
 @deffn {Function} hypergeometric_simp (@var{e})
 
-@code{hypergeometric_simp} simplifies hypergeometric functions
-by applying @code{hgfred}
+@mref{hypergeometric_simp} simplifies hypergeometric functions
+by applying @mref{hgfred}
 to the arguments of any hypergeometric functions in the expression @var{e}.
 
-Only instances of @code{hypergeometric} are affected;
-any @code{%f}, @code{%w}, and @code{%m} in the expression @var{e} are not affected.
+Only instances of @mref{hypergeometric} are affected;
+any @mref{%f}, @mref{%w}, and @mref{%m} in the expression @var{e} are not affected.
 Any unsimplified hypergeometric functions are returned unchanged
-(instead of changing to @code{%f} as @code{hgfred} would).
+(instead of changing to @mref{%f} as @mref{hgfred} would).
 
 @code{load("hypergeometric");} loads this function.
 
@@ -2871,21 +3667,29 @@ Examples:
 @c bar : hypergeometric([n], [m], z + 1);
 @c hypergeometric_simp (bar);
 @c ===end===
-@example
+@example maxima
 (%i1) load ("hypergeometric") $
+@group
 (%i2) foo : [hypergeometric([1,1], [2], z), hypergeometric([1/2], [1], z)];
 (%o2) [hypergeometric([1, 1], [2], z), 
                                                      1
                                      hypergeometric([-], [1], z)]
                                                      2
+@end group
+@group
 (%i3) hypergeometric_simp (foo);
-                 log(1 - z)              z    z/2
-(%o3)         [- ----------, bessel_i(0, -) %e   ]
-                     z                   2
+                 log(1 - z)    z/2             z
+(%o3)         [- ----------, %e    bessel_i(0, -)]
+                     z                         2
+@end group
+@group
 (%i4) bar : hypergeometric([n], [m], z + 1);
 (%o4)            hypergeometric([n], [m], z + 1)
+@end group
+@group
 (%i5) hypergeometric_simp (bar);
 (%o5)            hypergeometric([n], [m], z + 1)
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -2902,59 +3706,72 @@ Simplify the generalized hypergeometric function in terms of other,
 simpler, forms.  @var{a} is a list of numerator parameters and @var{b}
 is a list of the denominator parameters. 
 
-If @code{hgfred} cannot simplify the hypergeometric function, it returns
-an expression of the form @code{%f[p,q]([a], [b], x)} where @var{p} is
+If @mref{hgfred} cannot simplify the hypergeometric function, it returns
+an expression of the form @mxref{%f, %f[p@comma{}q]([a]@comma{} [b]@comma{} x)} where @var{p} is
 the number of elements in @var{a}, and @var{q} is the number of elements
 in @var{b}.  This is the usual 
 m4_math(<<<_pF_q>>>,<<<@code{pFq}>>>) 
 generalized hypergeometric
 function. 
 
-@example
+@c ===beg===
+@c assume(not(equal(z,0)));
+@c hgfred([v+1/2],[2*v+1],2*%i*z);
+@c hgfred([1,1],[2],z);
+@c hgfred([a,a+1/2],[3/2],z^2);
+@c ===end===
+@example maxima
+@group
 (%i1) assume(not(equal(z,0)));
-(%o1)                          [notequal(z, 0)]
+(%o1)                   [notequal(z, 0)]
+@end group
+@group
 (%i2) hgfred([v+1/2],[2*v+1],2*%i*z);
-
-                     v/2                               %i z
-                    4    bessel_j(v, z) gamma(v + 1) %e
-(%o2)               ---------------------------------------
-                                       v
-                                      z
+              v/2                               %i z
+             4    bessel_j(v, z) gamma(v + 1) %e
+(%o2)        ---------------------------------------
+                                v
+                               z
+@end group
+@group
 (%i3) hgfred([1,1],[2],z);
-
-                                   log(1 - z)
-(%o3)                            - ----------
-                                       z
+                            log(1 - z)
+(%o3)                     - ----------
+                                z
+@end group
+@group
 (%i4) hgfred([a,a+1/2],[3/2],z^2);
-
-                               1 - 2 a          1 - 2 a
-                        (z + 1)        - (1 - z)
-(%o4)                   -------------------------------
-                                 2 (1 - 2 a) z
-
+                        1 - 2 a          1 - 2 a
+                 (z + 1)        - (1 - z)
+(%o4)            -------------------------------
+                          2 (1 - 2 a) z
+@end group
 @end example
 
 It can be beneficial to load orthopoly too as the following example
 shows.  Note that @var{L} is the generalized Laguerre polynomial.
 
-@example
-(%i5) load("orthopoly")$
-(%i6) hgfred([-2],[a],z);
+@c ===beg===
+@c load("orthopoly")$
+@c hgfred([-2],[a],z);
+@c ev(%);
+@c ===end===
+@example maxima
+(%i1) load("orthopoly")$
 @group
-
-                                    (a - 1)
-                                 2 L       (z)
-                                    2
-(%o6)                            -------------
-                                   a (a + 1)
+(%i2) hgfred([-2],[a],z);
+                           2
+                          z        2 z
+(%o2)                  --------- - --- + 1
+                       a (a + 1)    a
 @end group
-(%i7) ev(%);
-
-                                  2
-                                 z        2 z
-(%o7)                         --------- - --- + 1
-                              a (a + 1)    a
-
+@group
+(%i3) ev(%);
+                           2
+                          z        2 z
+(%o3)                  --------- - --- + 1
+                       a (a + 1)    a
+@end group
 @end example
 @end deffn
 
@@ -2969,7 +3786,7 @@ can be returned from function @mref{specint}.
 
 @anchor{parabolic_cylinder_d}
 @deffn {Function} parabolic_cylinder_d (@var{v}, @var{z}) 
-The parabolic cylinder function @code{parabolic_cylinder_d(v,z)}. (@urlaands{eqn 19.3.1, 687}).
+The parabolic cylinder function @mxref{parabolic_cylinder_d, parabolic_cylinder_d(v@comma{}z)}. (@urlaands{eqn 19.3.1, 687}).
 
 @c See https://mathworld.wolfram.com/ParabolicCylinderFunction.html for more info.
 The solution of the Weber differential equation
@@ -2981,8 +3798,8 @@ m4_mathcomma(<<<D_{\nu}(z)>>>, <<<@code{parabolic_cylinder_d(v,z)}>>>)
 the parabolic cylinder d function.
 
 Function @mref{specint} can return expressions containing
-@code{parabolic_cylinder_d(v,z)} if the option variable
-@mref{prefer_d} is @code{true}.
+@mxref{parabolic_cylinder_d, parabolic_cylinder_d(v@comma{}z)} if the option variable
+@mref{prefer_d} is @mref{true}.
 
 @opencatbox{Categories:}
 @category{Special functions}
@@ -2996,6 +3813,7 @@ Function @mref{specint} can return expressions containing
 @section Functions and Variables for Special Functions
 
 
+@anchor{lambert_w}
 @deffn {Function} lambert_w (@var{z})
 The principal branch of Lambert's W function W(z) (@urldlmf{4.13}), the solution of 
 m4_displaymath(
@@ -3006,6 +3824,7 @@ m4_displaymath(
 @closecatbox
 @end deffn
 
+@anchor{generalized_lambert_w}
 @deffn {Function} generalized_lambert_w (@var{k}, @var{z})
 The @var{k}-th branch of Lambert's W function W(z) (@urldlmf{4.13}), the solution
 of 
@@ -3013,11 +3832,12 @@ m4_mathdot(<<<z=W(z)e^{W(z)}>>>,z = W(z) * exp(W(z)))
 
 The principal branch, denoted 
 m4_math(W_p(z),Wp(z)) 
-in DLMF, is @code{lambert_w(z) = generalized_lambert_w(0,z)}.
+in DLMF, is @mxref{lambert_w,lambert_w(z)} @code{=}
+@mxref{generalized_lambert_w, generalized_lambert_w(0@comma{}z)}.
 
 The other branch with real values, denoted 
 m4_math(W_m(z), Wm(z)) 
-in DLMF, is @code{generalized_lambert_w(-1,z)}.
+in DLMF, is @mxref{generalized_lambert_w, generalized_lambert_w(-1@comma{}z)}.
 @opencatbox{Categories:}
 @category{Special functions}
 @closecatbox
@@ -3030,12 +3850,119 @@ The Bateman k function
 
 m4_displaymath(
 <<<k_v(x)
- = \frac{2}{\pi} \int_0^{\frac{\pi}{2}} \cos(x \tan\theta-v\theta)d\theta>>>,
+ = \frac{2}{\pi} \int_0^{\pi/2} \cos(x \tan\theta-v\theta)d\theta>>>,
 <<<@math{kbateman[v](x) = (2/%pi) integrate(cos(x*tan(t)-v*t),t,0,%pi/2)}>>>)
 
-It is a special case of the confluent hypergeometric function. Maxima can
-calculate the Laplace transform of @code{kbateman} using @mref{laplace}
-or @mrefcomma{specint} but has no other knowledge of this function.
+It is one solution of a differential equation which appears in the
+theory of turbulence:
+
+m4_displaymath(
+<<<x {d^2u\over dx^2} = (x-\nu)u>>>,
+<<<
+@example
+                     2
+                    d u
+                    ─── x = u (x - v)
+                      2
+                    dx
+@end example
+>>>)
+
+It is a special case of the confluent hypergeometric function for
+@math{x > 0}:
+
+m4_displaymath(
+<<<k_v(x)
+ = {e^{-x}\over{\Gamma\left(1+{1\over 2}\nu\right)}} U\left(-{1\over 2}
+ \nu, 0, 2x\right)>>>,
+<<<
+@example
+                    - x     v
+                  %e    U(- ─, 0, 2 x)
+                            2
+                  ────────────────────
+                            v
+                      gamma(─ + 1)
+                            2
+@end example
+>>>)
+where @math{U} is the confluent hypergeometric function.  Also, we
+have
+m4_displaymath(
+<<<k_{2\nu}(z) = {1\over\Gamma(\nu+1)} W_{\nu,1/2}(2z)>>>,
+<<<
+@example
+                      %w      (2 z)
+                        v, 1/2
+            k   (z) = ─────────────
+             2 v      gamma(v + 1)
+@end example
+>>>)
+where
+m4_math(
+<<<W>>>,<<<%w>>>)
+is the @mxref{%w, Whittaker W function}.
+
+Some examples:
+@c ===beg===
+@c assume(x > 0)$
+@c makelist(kbateman[n](0),n,0,5);
+@c kbateman[0](x);
+@c kbateman[2](x);
+@c kbateman[4](x);
+@c kbateman[3](x);
+@c ===end===
+@example
+(%i1) assume(x > 0)$
+@group
+(%i2) makelist(kbateman[n](0),n,0,5);
+                      2          2         2
+(%o2)            [0, ---, 0, - -----, 0, -----]
+                     %pi       3 %pi     5 %pi
+@end group
+@group
+(%i3) kbateman[0](x);
+                                - x
+(%o3)                         %e
+@end group
+@group
+(%i4) kbateman[2](x);
+                                - x
+(%o4)                       2 %e    x
+@end group
+@group
+(%i5) kbateman[4](x);
+                            - x
+(%o5)                   2 %e    (x - 1) x
+@end group
+@group
+(%i6) kbateman[3](x);
+(%o6)                     kbateman (x)
+                                  3
+@end group
+@end example
+
+Maxima can
+calculate the Laplace transform of @mref{kbateman} using @mref{laplace}
+or @mrefcomma{specint} as shown below:
+
+@c ===beg===
+@c assume(s>0)$
+@c specint(kbateman[v](z)*exp(-s*z),z);
+@c ===end===
+@example
+(%i1) assume(s>0)$
+@group
+(%i2) specint(kbateman[v](z)*exp(-s*z),z);
+                               v        v   s - 1
+              2 %f    ([2, 1 - -], [2 - -], -----)
+                  2, 1         2        2   s + 1
+(%o2)         ------------------------------------
+                      2           v        v
+               (s + 1)  gamma(2 - -) gamma(- + 1)
+                                  2        2
+@end group
+@end example
 
 @opencatbox{Categories:}
 @category{Special functions}
@@ -3069,3 +3996,87 @@ Returns @code{imagpart(nzeta(z))}.
 @closecatbox
 @end deffn
 
+@anchor{sinc}
+@deffn {Function} sinc (@var{x})
+
+The function @code{sinc} is defined by 
+m4_displaymath(
+<<<{\rm sinc}(x) = 
+\left@{
+\matrix{
+\displaystyle{\frac{\sin x}{x}} & {\rm if}\> x \neq 0\cr
+ & \cr % For extra vertical space
+1                & {\rm if}\> x = 0
+}
+\right.
+>>>,
+<<<
+@example
+            ┌                
+            │ sin(x)         
+            │ ──────  x! = 0 
+sinc(x) =   │   x            
+            │                
+            │   1     x = 0  
+            └                
+@end example
+>>>)
+making @mref{sinc} continuous at zero. The definition used here is the @emph{unnormalized} version of the @mref{sinc}
+function.
+
+When @mref{%piargs} is true (the default),
+m4_math(<<<{\rm sinc}(x)>>>,<<<@math{sinc(x)}>>>)
+evaluates to an exact value when @math{x} is an 
+explicit integer multiple of
+m4_mathcomma(<<<\pi>>>, <<<%pi>>>)
+m4_mathcomma(<<<\pi/4>>>, <<<%pi/4>>>)
+or
+m4_mathdot(<<<\pi/6>>>, <<<%pi/6>>>)
+For other nonzero symbolic arguments, 
+@mref{sinc} does not simplify to
+m4_mathdot(<<<\sin(x)/x>>>,<<<@math{sin(x)/x}>>>)
+
+For real or complex floating-point arguments (double or big floats), @mref{sinc} returns a floating-point 
+value in rectangular form. When @mref{numer} is true, @mref{sinc} returns a floating-point value in rectangular 
+form for all numeric arguments, including rational numbers and big float numbers.
+
+@c ===beg===
+@c sinc(%pi);
+@c %piargs : false$
+@c sinc(pi);
+@c sinc(1.0 + 5.0*%i);
+@c sinc(1 + 5*%i);
+@c sinc(1 + 5*%i), numer;
+@c sinc(1.2b0 + 5.6b0*%i), numer;
+@c ===end===
+@example maxima
+@group
+(%i1) sinc(%pi);
+(%o1)                           0
+@end group
+(%i2) %piargs : false$
+@group
+(%i3) sinc(pi);
+(%o3)                       sinc(pi)
+@end group
+@group
+(%i4) sinc(1.0 + 5.0*%i);
+(%o4)      10.111782590680328 - 10.466747175403242 %i
+@end group
+@group
+(%i5) sinc(1 + 5*%i);
+(%o5)                    sinc(5 %i + 1)
+@end group
+@group
+(%i6) sinc(1 + 5*%i), numer;
+(%o6)      10.111782590680328 - 10.466747175403242 %i
+@end group
+@group
+(%i7) sinc(1.2b0 + 5.6b0*%i), numer;
+(%o7)      12.975676863468047 - 19.724089614291696 %i
+@end group
+@end example
+@opencatbox{Categories:}
+@category{Special functions}
+@closecatbox
+@end deffn

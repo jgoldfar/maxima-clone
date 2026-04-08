@@ -780,6 +780,21 @@
 	(sub (tex (caddr x) nil nil 'mparen 'mparen)))
     (append l '("\\left.") s1  '("\\right|_{") sub '("}") r)))
 
+(defprop %at_difference tex-at-difference tex)
+
+;; e.g. 'at_difference(f(x), x, a, b)
+
+(defun tex-at-difference (e l r)
+  (let*
+    ((f (first (rest e)))
+     (x (second (rest e)))
+     (a (third (rest e)))
+     (b (fourth (rest e)))
+     (tex-f (tex f nil nil lop rop))
+     (tex-sub (tex (list '(mequal) x a) nil nil 'mparen 'mparen))
+     (tex-sup (tex (list '(mequal) x b) nil nil 'mparen 'mparen)))
+    (append l '("\\left.") tex-f '("\\right|_{") tex-sub '("}^{") tex-sup '("}") r)))
+
 (defprop mbox tex-mbox tex)
 
 ;; \boxed is defined in amsmath.sty,

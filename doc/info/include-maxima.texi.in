@@ -119,6 +119,8 @@ and develop DOE Macsyma, now called Maxima.
 @b{Maxima infrastructure}
 
 * Introduction to Maxima::      Sample Maxima sessions.
+* Command-line options::        Which command-line options does Maxima support?
+* Runtime Environment::         Customization of the Maxima environment.
 * Bug Detection and Reporting:: Finding and reporting bugs in Maxima.
 * Help::                        Asking for help from within a Maxima session.
 * Command Line::                Maxima command line syntax, Input, and Output.
@@ -145,17 +147,11 @@ and develop DOE Macsyma, now called Maxima.
 * Numerical::                   Numerical integration, Fourier
                                 transforms, Equations, ODE's, etc.
 * Matrices and Linear Algebra:: Matrix operations.
-* Package affine::              Working with groups of polynomials.
-* Package itensor::             Indicial Tensor Manipulation.
-* Package ctensor::             Component Tensor Manipulation.
-* Package atensor::             Algebraic Tensor Manipulation.
 * Sums Products and Series::    Sums, Products, Taylor and power series.
 * Number Theory::               Number theory.
-* Package sym::                 Working with symmetric groups of polynomials.
 * Groups::                      Abstract algebra.
 
 @b{Advanced facilities and programming}
-* Runtime Environment::         Customization of the Maxima environment.
 * Miscellaneous Options::       Options with a global effect on Maxima.
 * Rules and Patterns::          User defined pattern matching and
                                 simplification rules.
@@ -164,9 +160,14 @@ and develop DOE Macsyma, now called Maxima.
 * Program Flow::                Defining Maxima programs.
 * Debugging::                   Debugging Maxima programs.
 
-@b{packages}
+@b{Understanding maxima's output}
+* Error and warning messages::  Error and warning messages
+
+@b{Packages}
+* Package affine::              Working with groups of polynomials.
 * Package alt-display::            Alternative display.
 * Package asympa::                 Asymptotic analysis.
+* Package atensor::             Algebraic Tensor Manipulation.
 * Package augmented_lagrangian::   Augmented Lagrangian.
 * Package bernstein::              Bernstein polynomials.
 * Package bitwise::                Manipulate bits of integers.
@@ -178,6 +179,7 @@ and develop DOE Macsyma, now called Maxima.
 * Package colnew::                 Numerical solution of boundary value problems for ODEs
 * Package combinatorics::          Functions to work with permutations.
 * Package contrib_ode::            Additional routines for ODEs
+* Package ctensor::             Component Tensor Manipulation.
 * Package descriptive::            Descriptive statistics.
 * Package diag::                   Jordan matrices.
 * Package distrib::                Probability distributions.
@@ -197,14 +199,15 @@ and develop DOE Macsyma, now called Maxima.
 * Package hompack::                HOMPACK solver for systems of polynomial equations.
 * Package impdiff::                Implicit derivatives.
 * Package interpol::               Interpolation.
+* Package itensor::             Indicial Tensor Manipulation.
 * Package lapack::                 LAPACK functions for linear algebra.
 * Package lbfgs::                  L-BFGS unconstrained minimization.
 * Package levin::                  Levin transforms to accelerate convergence of series
 * Package lindstedt::              Lindstedt.
 * Package linearalgebra::          Functions for linear algebra.
 * Package lsquares::               Least squares.
-* Package makeOrders::             Polynomial utility.
 * Package minpack::                MINPACK functions for minimization and roots
+* Package makeOrders::             Polynomial utility.
 * Package mnewton::                Newton's method to solve equations.
 * Package numericalio::            Reading and writing files.
 * Package odepack::                Numerical ODE solver
@@ -215,6 +218,7 @@ and develop DOE Macsyma, now called Maxima.
 * Package pytranslate::            Maxima to Python Translation
 * Package quantum_computing::      Quantum computing circuits simulator.
 * Package ratpow::                 Determine the coefficients of polynoms.
+* Package rk_adaptive::            Solves ODEs numerically with adaptive step size
 * Package romberg::                Romberg method for numerical integration.
 * Package simplex::                Linear programming.
 * Package simplification::         Simplification rules and functions.
@@ -222,17 +226,13 @@ and develop DOE Macsyma, now called Maxima.
 * Package stats::                  Statistical inference.
 * Package stirling::               Stirling formula.
 * Package stringproc::             String processing.
+* Package sym::                    Working with symmetric groups of polynomials.
 * Package to_poly_solve::          An improved  version of solve.
 * Package trigtools::              Manipulation of trigonometric expressions.
 * Package unit::                   Units and dimensions.
 * Package wrstcse::                Worst-case calculations for engineering.
 * Package zeilberger::             Functions for hypergeometric summation.
 
-@b{Understanding maxima's output}
-* Error and warning messages::  Error and warning messages
-
-@b{Maxima's command-line options}
-* Command-line options::  Which command-line options does Maxima support?
 
 @b{Index}
 * Function and Variable Index:: Index.
@@ -240,11 +240,21 @@ and develop DOE Macsyma, now called Maxima.
 * Documentation Categories::        Documentation categories
 @end ifhtml
 
-@comment @detailmenu
+@detailmenu
 @b{ --- The Detailed Node Listing --- }
 
 Introduction
 * Introduction to Maxima::
+
+Command Line
+* Introduction to Command Line::
+* Functions and Variables for Command Line::
+* Functions and Variables for Display::
+
+Runtime Environment
+* Introduction for Runtime Environment::  
+* Interrupts::                  
+* Functions and Variables for Runtime Environment::  
 
 Bugs
 * Bug Detection and Reporting::
@@ -252,11 +262,6 @@ Bugs
 Help
 * Documentation::
 * Functions and Variables for Help::
-
-Command Line
-* Introduction to Command Line::
-* Functions and Variables for Command Line::
-* Functions and Variables for Display::
 
 Data Types and Structures
 * Numbers::
@@ -371,22 +376,6 @@ Matrices and Linear Algebra
 * eigen::
 * Functions and Variables for Matrices and Linear Algebra::  
 
-Package affine
-* Introduction to Affine::
-* Functions and Variables for Affine::      
-
-Package itensor
-* Introduction to itensor::      
-* Functions and Variables for itensor::      
-
-Package ctensor
-* Introduction to ctensor::     
-* Functions and Variables for ctensor::     
-
-Package atensor
-* Introduction to atensor::     
-* Functions and Variables for atensor::     
-
 Sums, Products, and Series
 * Functions and Variables for Sums and Products::
 * Introduction to Series::
@@ -403,11 +392,6 @@ Package sym
 
 Groups
 * Functions and Variables for Groups::      
-
-Runtime Environment
-* Introduction for Runtime Environment::  
-* Interrupts::                  
-* Functions and Variables for Runtime Environment::  
 
 Miscellaneous Options
 * Introduction to Miscellaneous Options::  
@@ -436,6 +420,10 @@ Program Flow
 
 Debugging
 * Functions and Variables for Debugging::   
+
+Package affine
+* Introduction to Affine::
+* Functions and Variables for Affine::
 
 Package alt-display
 * Introduction to alt-display::
@@ -484,6 +472,10 @@ Package contrib_ode
 * Possible improvements to contrib_ode::
 * Test cases for contrib_ode::
 * References for contrib_ode::
+
+Package ctensor
+* Introduction to ctensor::
+* Functions and Variables for ctensor::
 
 Package descriptive
 * Introduction to descriptive::
@@ -565,6 +557,10 @@ Package impdiff
 Package interpol
 * Introduction to interpol::
 * Functions and Variables for interpol::
+
+Package itensor
+* Introduction to itensor::
+* Functions and Variables for itensor::
 
 Package lapack
 * Introduction to lapack::
@@ -693,7 +689,7 @@ Package zeilberger
 
 Understanding maxima's output
 * Error and warning messages::
-@comment @end detailmenu
+@end detailmenu
 @end menu
 
 @c  Put the @node lines here, rather than in the @included files,
@@ -701,11 +697,19 @@ Understanding maxima's output
 @c  nota bene: C-c C-u C-a and texinfo-multiple-files-update will delete
 @c  the detailed node listing!
 
-@node Introduction to Maxima, Bug Detection and Reporting, Top, Top
+@node Introduction to Maxima, Command-line options, Top, Top
 @chapter Introduction to Maxima
 @include Introduction.texi
 
-@node Bug Detection and Reporting, Help, Introduction to Maxima, Top
+@node Command-line options, Runtime Environment, Introduction to Maxima, Top
+@chapter Command-line options
+@include commandline-options.texi
+
+@node Runtime Environment, Bug Detection and Reporting, Command-line options, Top
+@chapter Runtime Environment
+@include Runtime.texi
+
+@node Bug Detection and Reporting, Help, Runtime Environment, Top
 @chapter Bug Detection and Reporting
 @include Bugs.texi
 
@@ -795,47 +799,23 @@ Understanding maxima's output
 @chapter Numerical
 @include Numerical.texi
 
-@node Matrices and Linear Algebra, Package affine, Numerical, Top
+@node Matrices and Linear Algebra, Sums Products and Series, Numerical, Top
 @chapter Matrices and Linear Algebra
 @include Matrices.texi
 
-@node Package affine, Package itensor, Matrices and Linear Algebra, Top
-@chapter Package affine
-@include Affine.texi
-
-@node Package itensor, Package ctensor, Package affine, Top
-@chapter Package itensor
-@include Itensor.texi
-
-@node Package ctensor, Package atensor, Package itensor, Top
-@chapter Package ctensor
-@include Ctensor.texi
-
-@node Package atensor, Sums Products and Series, Package ctensor, Top
-@chapter Package atensor
-@include Atensor.texi
-
-@node Sums Products and Series, Number Theory, Package atensor, Top
+@node Sums Products and Series, Number Theory, Matrices and Linear Algebra, Top
 @chapter Sums, Products, and Series
 @include Series.texi
 
-@node Number Theory, Package sym, Sums Products and Series, Top
+@node Number Theory, Groups, Sums Products and Series, Top
 @chapter Number Theory
 @include Number.texi
 
-@node Package sym, Groups, Number Theory, Top
-@chapter Package sym
-@include Symmetries.texi
-
-@node Groups, Runtime Environment, Package sym, Top
+@node Groups, Miscellaneous Options, Number Theory, Top
 @chapter Groups
 @include Groups.texi
 
-@node Runtime Environment, Miscellaneous Options, Groups, Top
-@chapter Runtime Environment
-@include Runtime.texi
-
-@node Miscellaneous Options, Rules and Patterns, Runtime Environment, Top
+@node Miscellaneous Options, Rules and Patterns, Groups, Top
 @chapter Miscellaneous Options
 @include Miscellaneous.texi
 
@@ -855,19 +835,31 @@ Understanding maxima's output
 @chapter Program Flow
 @include Program.texi
 
-@node Debugging, Package alt-display, Program Flow, Top
+@node Debugging, Error and warning messages, Program Flow, Top
 @chapter Debugging
 @include Debugging.texi
 
-@node Package alt-display, Package asympa, Debugging, Top
+@node Error and warning messages,  , Debugging, Top
+@chapter Error and warning messages
+@include errormessages.texi
+
+@node Package affine, Package alt-display, Error and warning messages, Top
+@chapter Package affine
+@include Affine.texi
+
+@node Package alt-display, Package asympa, Package affine, Top
 @chapter Package alt-display
 @include alt-display.texi
 
-@node Package asympa, Package augmented_lagrangian, Package alt-display, Top
+@node Package asympa, Package atensor, Package alt-display, Top
 @chapter Package asympa
 @include asympa.texi
 
-@node Package augmented_lagrangian, Package bernstein, Package asympa, Top
+@node Package atensor, Package augmented_lagrangian, Package asympa, Top
+@chapter Package atensor
+@include Atensor.texi
+
+@node Package augmented_lagrangian, Package bernstein, Package atensor, Top
 @chapter Package augmented_lagrangian
 @include augmented_lagrangian.texi
 
@@ -887,7 +879,7 @@ Understanding maxima's output
 @chapter Package cartan
 @include cartan.texi
 
-@node Package celine, Package clebsch_gordan, Package bode, Top
+@node Package celine, Package clebsch_gordan, Package cartan, Top
 @chapter Package celine
 @include celine.texi
 
@@ -907,11 +899,15 @@ Understanding maxima's output
 @chapter Package combinatorics
 @include combinatorics.texi
 
-@node Package contrib_ode, Package descriptive, Package combinatorics, Top
+@node Package contrib_ode, Package ctensor, Package combinatorics, Top
 @chapter Package contrib_ode
 @include contrib_ode.texi
 
-@node Package descriptive, Package diag, Package contrib_ode, Top
+@node Package ctensor, Package descriptive, Package contrib_ode, Top
+@chapter Package ctensor
+@include Ctensor.texi
+
+@node Package descriptive, Package diag, Package ctensor, Top
 @chapter Package descriptive
 @include descriptive.texi
 
@@ -983,11 +979,15 @@ Understanding maxima's output
 @chapter Package impdiff
 @include impdiff.texi
 
-@node Package interpol, Package lapack, Package impdiff, Top
+@node Package interpol, Package itensor, Package impdiff, Top
 @chapter Package interpol
 @include interpol.texi
 
-@node Package lapack, Package lbfgs, Package interpol, Top
+@node Package itensor, Package lapack, Package interpol, Top
+@chapter Package itensor
+@include Itensor.texi
+
+@node Package lapack, Package lbfgs, Package itensor, Top
 @chapter Package lapack
 @include lapack.texi
 
@@ -1055,11 +1055,15 @@ Understanding maxima's output
 @chapter Package quantum_computing
 @include quantum_computing.texi
 
-@node Package ratpow, Package romberg, Package quantum_computing, Top
+@node Package ratpow, Package rk_adaptive, Package quantum_computing, Top
 @chapter Package ratpow
 @include ratpow.texi
 
-@node Package romberg, Package simplex, Package ratpow, Top
+@node Package rk_adaptive, Package romberg, Package ratpow, Top
+@chapter Package rk_adaptive
+@include rk_adaptive.texi
+
+@node Package romberg, Package simplex, Package rk_adaptive, Top
 @chapter Package romberg
 @include romberg.texi
 
@@ -1083,11 +1087,15 @@ Understanding maxima's output
 @chapter Package stirling
 @include stirling.texi
 
-@node Package stringproc, Package to_poly_solve, Package stirling, Top
+@node Package stringproc, Package sym, Package stirling, Top
 @chapter Package stringproc
 @include stringproc.texi
 
-@node Package to_poly_solve, Package trigtools, Package stringproc, Top
+@node Package sym, Package to_poly_solve, Package stringproc, Top
+@chapter Package sym
+@include Symmetries.texi
+
+@node Package to_poly_solve, Package trigtools, Package sym, Top
 @chapter Package to_poly_solve
 @include to_poly_solve.texi
 
@@ -1103,25 +1111,17 @@ Understanding maxima's output
 @chapter Package wrstcse
 @include wrstcse.texi
 
-@node Package zeilberger, Error and warning messages, Package wrstcse, Top
+@node Package zeilberger, Function and Variable Index, Package wrstcse, Top
 @chapter Package zeilberger
 @include zeilberger.texi
-
-@node Error and warning messages, Command-line options, Package zeilberger, Top
-@chapter Error and warning messages
-@include errormessages.texi
-
-@node Command-line options, Function and Variable Index, Error and warning messages, Top
-@chapter Command-line options
-@include commandline-options.texi
 
 @c end includes
 
 @ifnothtml
-@node Function and Variable Index,  , Command-line options, Top
+@node Function and Variable Index,  , Package zeilberger, Top
 @end ifnothtml
 @ifhtml
-@node Function and Variable Index,  Documentation Categories, Command-line options, Top
+@node Function and Variable Index,  , Package zeilberger, Top
 @end ifhtml
 @appendix Function and Variable Index
 

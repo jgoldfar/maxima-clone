@@ -36,6 +36,7 @@ that solve the least squares problem
 m4_displaymath(
 <<<\sum_i^m f_i(x_1, x_2,...,x_n)^2>>>,
 <<<
+@example
                m
               ____
               ╲      2
@@ -43,6 +44,7 @@ m4_displaymath(
               ╱      i
               ‾‾‾‾
               i = 1
+@end example
 >>>)
 
 
@@ -95,12 +97,16 @@ is possible.
 @end enumerate
 
 Here is an example using Powell's singular function.
+@c To prevent extraneous Lisp compiler messages being included in the
+@c generated output, it's useful to do load("minpack") before running
+@c update_examples.  This caches the fasls so the package doesn't need
+@c to be compiled again.
 @c ===beg===
 @c load("minpack")$
 @c powell(x1,x2,x3,x4) := [x1+10*x2, sqrt(5)*(x3-x4), (x2-2*x3)^2, sqrt(10)*(x1-x4)^2]$
 @c minpack_lsquares(powell(x1,x2,x3,x4), [x1,x2,x3,x4], [3,-1,0,1]);
 @c ===end===
-@example
+@example maxima
 (%i1) load("minpack")$
 (%i2) powell(x1,x2,x3,x4) := [x1+10*x2, sqrt(5)*(x3-x4), (x2-2*x3)^2, sqrt(10)*(x1-x4)^2]$
 @group
@@ -117,7 +123,7 @@ Same problem but use numerical approximation to Jacobian.
 @c powell(x1,x2,x3,x4) := [x1+10*x2, sqrt(5)*(x3-x4), (x2-2*x3)^2, sqrt(10)*(x1-x4)^2]$
 @c minpack_lsquares(powell(x1,x2,x3,x4), [x1,x2,x3,x4], [3,-1,0,1], jacobian = false);
 @c ===end===
-@example
+@example maxima
 (%i1) load("minpack")$
 (%i2) powell(x1,x2,x3,x4) := [x1+10*x2, sqrt(5)*(x3-x4), (x2-2*x3)^2, sqrt(10)*(x1-x4)^2]$
 @group
@@ -149,7 +155,11 @@ in @math{n} variables:
 
 m4_displaymath(
 <<<f_i(x_1, x_2, ..., x_n) = 0>>>,
-<<<f_i(x_1, x_2, ..., x_n) = 0>>>)
+<<<
+@example
+f_i(x_1, x_2, ..., x_n) = 0
+@end example
+>>>)
 
 The optional keyword arguments, @var{tolerance} and @var{jacobian}
 provide some control over the algorithm.
@@ -195,7 +205,7 @@ Iteration is not making good progress.
 @c powell(x1,x2,x3,x4) := [x1+10*x2, sqrt(5)*(x3-x4), (x2-2*x3)^2, sqrt(10)*(x1-x4)^2]$
 @c minpack_lsquares(powell(x1,x2,x3,x4), [x1,x2,x3,x4], [3,-1,0,1]);
 @c ===end===
-@example
+@example maxima
 (%i1) load("minpack")$
 (%i2) powell(x1,x2,x3,x4) := [x1+10*x2, sqrt(5)*(x3-x4), (x2-2*x3)^2, sqrt(10)*(x1-x4)^2]$
 @group
@@ -210,7 +220,7 @@ In this particular case, we can solve this analytically:
 @c powell(x1,x2,x3,x4) := [x1+10*x2, sqrt(5)*(x3-x4), (x2-2*x3)^2, sqrt(10)*(x1-x4)^2]$
 @c solve(powell(x1,x2,x3,x4),[x1,x2,x3,x4]);
 @c ===end===
-@example
+@example maxima
 (%i1) powell(x1,x2,x3,x4) := [x1+10*x2, sqrt(5)*(x3-x4), (x2-2*x3)^2, sqrt(10)*(x1-x4)^2]$
 @group
 (%i2) solve(powell(x1,x2,x3,x4),[x1,x2,x3,x4]);

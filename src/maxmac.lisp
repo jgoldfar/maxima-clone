@@ -91,7 +91,7 @@
   `(member ,x *real-infinities* :test #'eq))
 
 (defun infinityp (x)
-  (member x *infinities* :test #'eq))
+  (if (member x *infinities* :test #'eq) t))
 
 (defmacro real-epsilonp (x)
   `(member ,x *infinitesimals* :test #'eq))

@@ -402,7 +402,7 @@
 
 ;; Return NIL for all non-symbols.
 (defun kindp (x y)
-  (when (symbolp x)
+  (when (and (symbolp x) (get x 'data))
     (clear)
     (beg x 1)
     (do ((p (dq+) (dq+)))

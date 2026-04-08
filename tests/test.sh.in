@@ -23,7 +23,7 @@ set -e
 # interactive tests from the input file, the regression test
 # rtest_ask1.mac is run as a regular regression test.
 echo "Running the testsuite..."
-$LOCAL_MAXIMA --lisp=$LISP --batch-string='build_info();run_testsuite(share_tests=true);' 2>&1 | tee "$OUTPUT_LOG"
+$LOCAL_MAXIMA --no-init --lisp=$LISP --batch-string='build_info();run_testsuite(share_tests=true);' 2>&1 | tee "$OUTPUT_LOG"
 
 grep -q 'No unexpected errors' <"$OUTPUT_LOG"
 if test $? -ne 0 ; then

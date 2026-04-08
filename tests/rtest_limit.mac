@@ -378,7 +378,10 @@ limit(log(-1+x*%i), x, 0, plus);
 limit(log(-1+x*%i), x, 0, minus);
 -%i*%pi;
 
-limit((log(y+h)-log(y))/h,h,0,plus);
+block([ans], assume(y>0), 
+             ans : limit((log(y+h)-log(y))/h,h,0,plus),
+             forget(y>0),
+             ans);
 1/y;
 
 /* Bug 3587 */
@@ -448,6 +451,10 @@ limit( ((1/%pi)*(atan(n/%pi) + %pi/2))^n, n, inf);
 /* limit(x*expintegral_ei(x),x,0) --> Error - ID: 2801821 */
 limit(x*expintegral_ei(x), x, 0);
 0;
+
+/* #4276 expintegral_ei incorrect behavior at infinity */
+limit(((expintegral_ei(x)/%e^x)*x-1)*x,x,inf);
+1;
 
 /* #3865 crash from taking limit of factorial(x) + 1 */
 limit(factorial(x) + 1, x, 0);
@@ -567,20 +574,20 @@ limit(1/inf-1/minf);
 0;
 
 /* 1-arg limit: limit(a*inf-inf) => minf - ID: 1385306 
-This is a long-standing bug--the kill(a) is needed. */
+These are long-standing bugs. For L1 & L2, the assumption 0 < a shouldn't be needed, but without it, 
+Maxima does an asksign. */
 block([L1,L2,L3,L4,L5,L6], 
-   kill(a),
-   L1 :limit(a*inf-inf),
+   map('forget, facts(a)),
+   assume(0 < a, a < 1), 
+   L1 : limit(a*inf-inf),
    L2 : limit((a-1)*inf),
-   assume(a<1), 
+   forget(0 < a, a < 1),
+   assume(a > 1),
    L3 : limit(a*inf-inf),
    L4 : limit((a-1)*inf),
-   forget(a < 1),
-   assume(a > 1),
-   L5 : limit(a*inf-inf),
-   L6 : limit((a-1)*inf),
-   [L1,L2,L3,L4,L5,L6]);
-[und, und, minf, minf,inf,inf]$
+   forget(a > 1),
+   [L1,L2,L3,L4]);
+  [minf, minf, inf,inf]$
 
 /* limit(1 - (-1/2)^inf) --> inf - ID: 2853506 */
 limit(1 - (-1/2)^inf);
@@ -758,10 +765,10 @@ limit((a*exp(a*x)*sin(b*x))/(b^2+a^2)-(b*exp(a*x)*cos(b*x))/(b^2+a^2), x, 0, plu
 /* Bug #2898: limit of continuous --> und */
 
 limit(log(x)^2+2*log(x)+q/2+1,x,1);
-q/2+1$
+(q+2)/2$
 
 limit(log(x)^2+2*%gamma*log(x)-%pi^2/6+%gamma^2,x,1);
-%gamma^2-%pi^2/6$
+-((%pi^2-6*%gamma^2)/6)$
 
 /* #2972 Wrong limits involving logs */
 limit( 27^(log(n)/log(3))/n^3, n, inf);
@@ -1002,6 +1009,10 @@ limit(integrate (bessel_j(0, x) * unit_step(x), x), x, 1);
 limit (integrate (baz(0, x) * foo(x), x), x, 1);
  'limit (integrate (baz(0, x) * foo(x), x), x, 1);
 
+/* #4587 limit of integral expression incorrect, should be 1/e^2, not 0 */
+limit( ( integrate((1-1/t)^t*%e^(%e*t), t, %e, x) / %e^(%e*x) ) , x, inf);
+%e^-2;
+
  /* #4275 ldefint returns zero */
 
  /* not wrong and not optimal*/
@@ -1014,5 +1025,51 @@ limit (integrate (baz(0, x) * foo(x), x), x, 1);
  contexts;
  [initial,global]$
 
+/* SF bug #3927: "tlimit(exp(x)/x^5,x,inf) = 0" */
+
+block([lhospitallim : 1], tlimit(exp(x)/x^5,x,inf));
+inf$
+
+block([lhospitallim : 1], tlimit(exp(x)/x^46,x,inf));
+inf$
+
+block([lhospitallim : 1], tlimit(exp(x)/x^107,x,inf));
+inf$
+
 (kill(facts),0);
 0$
+
+/* SF bug #4627: "box(inf) causes infinite recursion in limit and integrate" */
+
+/* preliminaries -- verify that box works as expected in test cases */
+
+box(1);
+box(1);
+
+box(2, "FOO");
+box(2, "FOO");
+
+box(2, "FOO");
+''(box(2, "FOO"));
+
+/* now back to bug report */
+
+limit(x,x,box(3));
+box(3);
+
+integrate(x,x,0,box(3));
+box(3)^2/2;
+
+limit(x,x,box(3),minus);
+box(3);
+
+limit(x,x,box(3),plus);
+box(3);
+
+/* provokes "third argument must be a finite value or one of: inf, minf, infinity" */
+errcatch (limit(x,x,box(inf)));
+[];
+
+/* provokes "integral is divergent" */
+errcatch (integrate(x,x,0,box(inf)));
+[];

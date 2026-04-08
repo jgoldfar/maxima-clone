@@ -1,5 +1,4 @@
-;; 8/8 | 5/5 
-;; Copyright (C) 2000, 2001, 2003, 2008, 2009 Barton Willis
+;; Copyright (C) 2000, 2001, 2003, 2008, 2009, 2026 Barton Willis
 
 #|
   This is free software; you can redistribute it and/or
@@ -47,9 +46,9 @@ Maxima code for evaluating orthogonal polynomials listed in Chapter 22 of Abramo
 ;; When orthopoly_returns_intervals is true, floating point evaluation 
 ;; returns an interval using the form (($interval) c r), where c is the 
 ;; center of the interval and r is its radius.  We don't provide the user
-;; with any tools for working with intervals; if a user wants
+;; with any tools for working with intervals.
 
-(defmvar $orthopoly_returns_intervals t)
+(defmvar $orthopoly_returns_intervals nil)
 
 (defun orthopoly-return-handler (d f e)
   (cond ((or (floatp f) (complexp f))
@@ -399,9 +398,9 @@ Maxima code for evaluating orthogonal polynomials listed in Chapter 22 of Abramo
 
 (putprop '$jacobi_p
 	 '((n a b x)
-	   ((unk) "$first" "$jacobi_p")
-	   ((unk) "$second" "$jacobi_p")
-	   ((unk) "$third" "$jacobi_p")
+	   ((unk) first jacobi_p)
+	   ((unk)  second jacobi_p)
+	   ((unk)  third jacobi_p)
 
 	   ((mtimes)
 	    ((mexpt) ((mplus ) a b ((mtimes ) 2 n)) -1)
@@ -446,8 +445,8 @@ Maxima code for evaluating orthogonal polynomials listed in Chapter 22 of Abramo
 
 (putprop '$ultraspherical 
 	 '((n a x)
-	   ((unk) "$first" "$ultraspherical")
-	   ((unk) "$second" "$ultrapsherical")
+	   ((unk) first ultraspherical)
+	   ((unk)  second ultrapsherical)
 	   ((mtimes)
 	    ((mplus)
 	     ((mtimes)
@@ -480,7 +479,7 @@ Maxima code for evaluating orthogonal polynomials listed in Chapter 22 of Abramo
 
 (putprop '$chebyshev_t 
 	 '((n x)
-	   ((unk) "$first" "$chebyshev_t")
+	   ((unk) first chebyshev_t)
 	   ((mtimes)
 	    ((mplus)
 	     ((mtimes) n (($chebyshev_t) ((mplus ) -1 n) x))
@@ -514,7 +513,7 @@ Maxima code for evaluating orthogonal polynomials listed in Chapter 22 of Abramo
 
 (putprop '$chebyshev_u
 	 '((n x)
-	   ((unk) "$first" "$chebyshev_u")
+	   ((unk) first chebyshev_u)
 	   ((mtimes)
 	    ((mplus)
 	     ((mtimes)
@@ -548,7 +547,7 @@ Maxima code for evaluating orthogonal polynomials listed in Chapter 22 of Abramo
 
 (putprop '$legendre_p 
 	 '((n x) 
-	   ((unk) "$first" "$legendre_p")
+	   ((unk) first legendre_p)
 	   ((mtimes)
 	     ((mplus)
 	      ((mtimes) n (($legendre_p) ((mplus) -1 n) x))
@@ -575,7 +574,7 @@ Maxima code for evaluating orthogonal polynomials listed in Chapter 22 of Abramo
 
 (putprop '$legendre_q 
 	 '((n x) 
-	   ((unk) "$first" "$legendre_p")
+	   ((unk) first legendre_p)
 	   ((mplus)
 	    ((mtimes) -1 ((%kron_delta) 0 n)
 	     ((mexpt) ((mplus) -1 ((mexpt) x 2)) -1)) 
@@ -691,8 +690,8 @@ Maxima code for evaluating orthogonal polynomials listed in Chapter 22 of Abramo
 
 (putprop '$assoc_legendre_q
 	 '((n m x)
-	   ((unk) "$first" "$assoc_legendre_q")
-	   ((unk) "$second" "$assoc_legendre_q")
+	   ((unk) first assoc_legendre_q)
+	   ((unk) second assoc_legendre_q)
 	   
 	   ((mplus)
 	    ((mtimes)
@@ -758,8 +757,8 @@ Maxima code for evaluating orthogonal polynomials listed in Chapter 22 of Abramo
 
 (putprop `$assoc_legendre_p
 	 '((n m x)
-	   ((unk) "$first" "$assoc_legendre_p")
-	   ((unk) "$second" "$assoc_legendre_p")
+	   ((unk) first assoc_legendre_p)
+	   ((unk) second assoc_legendre_p)
 	   ((mtimes simp)
 	    ((mplus simp)
 	     ((mtimes simp) -1 ((mplus simp) m n) (($unit_step) n)
@@ -802,7 +801,7 @@ Maxima code for evaluating orthogonal polynomials listed in Chapter 22 of Abramo
 
 (putprop '$hermite
 	 '((n x)
-	   ((unk) "$first" "$hermite")
+	   ((unk) first hermite)
 	   ((mtimes) 2 n (($hermite) ((mplus) -1 n) x)))
 	 'grad)
 
@@ -842,8 +841,8 @@ Maxima code for evaluating orthogonal polynomials listed in Chapter 22 of Abramo
 
 (putprop '$gen_laguerre
 	 '((n a x)
-	   ((unk) "$first" "$gen_laguerre")
-	   ((unk) "$second" "$gen_laguerre")
+	   ((unk) first gen_laguerre)
+	   ((unk) second gen_laguerre)
 	   ((mtimes)
 	    ((mplus)
 	     ((mtimes) -1 ((mplus) a n)
@@ -876,7 +875,7 @@ Maxima code for evaluating orthogonal polynomials listed in Chapter 22 of Abramo
 
 (putprop '$laguerre
 	 '((n x)
-	   ((unk) "$first" "$laguerre")
+	   ((unk) first laguerre)
 	   ((mtimes)
 	    ((mplus)
 	     ((mtimes) -1 n (($laguerre) ((mplus) -1 n) x))
@@ -916,7 +915,7 @@ Maxima code for evaluating orthogonal polynomials listed in Chapter 22 of Abramo
 
 (putprop '$spherical_hankel1
 	 '((n x)
-	   ((unk) "$first" "$spherical_hankel1")
+	   ((unk) first spherical_hankel1)
 	   ((mplus simp) (($spherical_hankel1) ((mplus) -1 n) x)
 	    ((mtimes simp) -1 ((mplus) 1 n)
 	     (($spherical_hankel1) n x) ((mexpt) x -1))))
@@ -946,7 +945,7 @@ Maxima code for evaluating orthogonal polynomials listed in Chapter 22 of Abramo
 
 (putprop '$spherical_hankel2
 	 '((n x)
-	   ((unk) "$first" "$spherical_hankel2")
+	   ((unk) first spherical_hankel2)
 	   ((mplus simp) (($spherical_hankel2) ((mplus) -1 n) x)
 	    ((mtimes simp) -1 ((mplus) 1 n)
 	     (($spherical_hankel2) n x) ((mexpt) x -1))))
@@ -1039,7 +1038,7 @@ Maxima code for evaluating orthogonal polynomials listed in Chapter 22 of Abramo
 	 
 (putprop '$spherical_bessel_j
 	 '((n x)
-	   ((unk) "$first" "$spherical_bessel_j")
+	   ((unk) first spherical_bessel_j)
 	   ((mtimes) ((mexpt) ((mplus) 1 ((mtimes) 2 n)) -1)
 	    ((mplus)
 	     ((mtimes) n (($spherical_bessel_j) ((mplus) -1 n) x))
@@ -1089,7 +1088,7 @@ Maxima code for evaluating orthogonal polynomials listed in Chapter 22 of Abramo
 
 (putprop '$spherical_bessel_y
 	 '((n x)
-	   ((unk) "$first" "$spherical_bessel_y")
+	   ((unk) first spherical_bessel_y)
 	   ((mtimes) ((mexpt) ((mplus) 1 ((mtimes) 2 n)) -1)
 	    ((mplus)
 	     ((mtimes) n (($spherical_bessel_y) ((mplus) -1 n) x))
@@ -1153,8 +1152,8 @@ Maxima code for evaluating orthogonal polynomials listed in Chapter 22 of Abramo
 
 (putprop '$spherical_harmonic
 	 '((n m theta phi)
-	   ((unk) "$first" "$spherical_harmonic")
-	   ((unk) "$second" "$spherical_harmonic")
+	   ((unk) first spherical_harmonic)
+	   ((unk) second spherical_harmonic)
 	   ((mplus)
 	    ((mtimes) ((rat ) -1 2)
 	     ((mexpt)

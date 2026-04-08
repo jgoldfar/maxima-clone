@@ -365,7 +365,7 @@ ff(a,b,c,x,n) := block([f, f0 : 1, f1 : 1- 2 * b / c,s : 1,k : 1, cf : a / (1-2/
     (setq d (delete-if #'(lambda(s) (null (second s))) d))
     ;; Sort d from least to greatest magnitude.
     ;;(print `(d = ,d))
-    (setq d (sort d #'(lambda (a b) (< (second a) (second b)))))
+    (setq d (stable-sort d #'(lambda (a b) (< (second a) (second b)))))
     (setq region (first (first d)))
     ;;(print `(region = ,region))
     ;;(print `(d = ,(second (first d))))

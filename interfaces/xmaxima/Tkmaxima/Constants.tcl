@@ -4,99 +4,154 @@
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
 #     Modified by Jaime E. Villate                         #
-#     Time-stamp: "2024-04-01 14:13:26 villate"            #
 ############################################################
 
 proc cMAXINITBeforeIni {} {
-    global maxima_default maxima_priv embed_args tk_version
+    global embed_args tk_version
 
     # default settings. Might be changed by local configuration file
-    set maxima_default(plotwindow) multiple
-    set maxima_default(iShowBalloons) 0
-    set maxima_default(fontAdjust) 0
-    set maxima_default(iConsoleWidth) 80
-    set maxima_default(iConsoleHeight) 32
-    set maxima_default(browser) 1
+    set ::xmaxima_default(plotwindow) multiple
+    set ::xmaxima_default(iShowBalloons) 0
+    set ::xmaxima_default(fontAdjust) 0
+    set ::xmaxima_default(iConsoleWidth) 80
+    set ::xmaxima_default(iConsoleHeight) 32
+    set ::xmaxima_default(browser) 1
     
     # Set up Maxima console font
     set cfont [font actual TkFixedFont -family]
     set cfontsize [font actual TkFixedFont -size]
     catch {font delete ConsoleFont}
     font create ConsoleFont -family $cfont -size $cfontsize 
-    set maxima_default(ConsoleFont) [list $cfont $cfontsize]
-    set maxima_default(iLocalPort) 4008
-    set maxima_default(bDebugParse) 0
+    set ::xmaxima_default(ConsoleFont) [list $cfont $cfontsize]
+    set ::xmaxima_default(iLocalPort) 4008
+    set ::xmaxima_default(bDebugParse) 0
+
+    # Set the path to the home directory
     if {[string index $tk_version 0] == 9} {
-        set maxima_priv(home) [file home]
+        set ::xmaxima_priv(home) [file home]
+    } elseif {[info exists ::env(HOME)]} {
+        set ::xmaxima_priv(home) $::env(HOME)
     } else {
-        set maxima_priv(home) "~"
+        set ::xmaxima_priv(home) "~"
     }
 
+    # Set the paths to the configuration directory.
+    # 1- Windows: the configuration directory should be ~\AppData\Local\Maxima
+    #    but if ~\AppData\Local does not exist, use the home directory.
+    # 2- Other systems: the configuration directory should be ~/.config/maxima
+    #    but if ~/.config does not exist, use the home directory.
+    # The user can set the environment variable $XDG_CONFIG_HOME
+    # (%LOCALAPPDATA% in Windows) to use a different configuration directory.
+    #
+    if {$::tcl_platform(platform) == "windows"} {
+        if {[info exists ::env(LOCALAPPDATA)]} {
+            set ::xmaxima_priv(confdir) $::env(LOCALAPPDATA)/Maxima
+        } elseif {[file isdirectory $::xmaxima_priv(home)/AppData/Local]} {
+            set ::xmaxima_priv(confdir) \
+                $::xmaxima_priv(home)/AppData/Local/Maxima
+        } else {
+            set ::xmaxima_priv(confdir) $::xmaxima_priv(home)
+        }
+    } else {
+        if {[info exists ::env(XDG_CONFIG_HOME)]} {
+            set ::xmaxima_priv(confdir) $::env(XDG_CONFIG_HOME)/maxima
+        } elseif {[file isdirectory $::xmaxima_priv(home)/.config]} {
+            set ::xmaxima_priv(confdir) $::xmaxima_priv(home)/.config/maxima
+        } else {
+            set ::xmaxima_priv(confdir) $::xmaxima_priv(home)
+        }
+    }
+
+    # Set the path for the configuration and history files.
+    # If the configuration directory is the same as home, those files will
+    # be named .xmaximarc and .xmaxima_history, as in old versions of Xmaxima.
+    # Otherwise, they will be named xmaxima_default and xmaxima_history.
+    #
+    if {$::xmaxima_priv(confdir) == $::xmaxima_priv(home)} {
+        set ::xmaxima_priv(conffile) $::xmaxima_priv(home)/.xmaximarc
+        set ::xmaxima_priv(history) $::xmaxima_priv(home)/.xmaxima_history
+    } else {
+        set ::xmaxima_priv(conffile) $::xmaxima_priv(confdir)/xmaxima_default
+        set ::xmaxima_priv(history) $::xmaxima_priv(confdir)/xmaxima_history
+        if {![file isdirectory $::xmaxima_priv(confdir)]} {
+            file mkdir $::xmaxima_priv(confdir)
+        }
+    }
+        
     # from FileDlg.tcl
-    set maxima_default(OpenDir) "$maxima_priv(home)/"
+    set ::xmaxima_default(OpenDir) "$::xmaxima_priv(home)/"
     # The last files opened and saved. Any default value serves
     # but a good starting value is Xmaxima's initialization file.
-    # TO DO: change ~ for a home directory customized for each system.
-    set maxima_default(OpenFile) "$maxima_priv(home)/.xmaximarc"
-    set maxima_default(SaveFile) "$maxima_priv(home)/.xmaximarc"
+    set ::xmaxima_default(OpenFile) $::xmaxima_priv(conffile)
+    set ::xmaxima_default(SaveFile) $::xmaxima_priv(conffile)
 
     if { "[info var embed_args]" != "" } {
 	# the following will be defined only in the plugin
-	set maxima_default(defaultservers) nmtp://some.server.example.org/
+	set ::xmaxima_default(defaultservers) nmtp://some.server.example.org/
     }
-    set maxima_priv(imgregexp) {[.](gif|png|jpe?g)[^/]*$}
+    set ::xmaxima_priv(imgregexp) {[.](gif|png|jpe?g)[^/]*$}
 
     # from Getdata1.tcl
-    set maxima_priv(cachedir) "$maxima_priv(home)/.xmaxima/cache"
+    set ::xmaxima_priv(cachedir) "$::xmaxima_priv(home)/.xmaxima/cache"
 }
 
+# Reads the xmaxima configuration file and if a line contains
+# a key valid key and a value, separated by space, the value
+# associated to that key in ::xmaxima_default will be set to
+# that value.
 proc cMAXINITReadIni {} {
-    global maxima_priv
-    if {[file isfile "$maxima_priv(home)/.xmaximarc"]} {
-	if {[catch {uplevel "#0" [list source "$maxima_priv(home)/.xmaximarc"]}\
-                 err]} {
-	    tk_messageBox -title Error -icon error -message \
-                [mc "Error sourcing %s\n%s" [file native ~/.xmaximarc] $err]
-	}
+    if {[file isfile $::xmaxima_priv(conffile)]} {
+        set fileId [open $::xmaxima_priv(conffile) r]
+        foreach line [split [read $fileId] \n] {
+            if {![catch {llength $line}]} {
+                if {[llength $line] == 2} {
+                    set key [lindex $line 0]
+                    if {[info exists ::xmaxima_default($key)]} {
+                        set val [string map "\~ $::xmaxima_priv(home)" \
+                                     [lindex $line 1]]
+                        set ::xmaxima_default($key) $val
+                    }
+                }
+            }
+        }
+        close $fileId
     }
 }
 
 proc cMAXINITAfterIni {} {
-    global maxima_default maxima_priv
     lMaxInitSetOpts
 
     # from plot3d.tcl
-    set maxima_priv(speed) [expr {(9700.0 / (1 + [lindex [time {set i 0 ; while { [incr i] < 1000} {}} 1] 0]))}]
+    set ::xmaxima_priv(speed) [expr {(9700.0 / (1 + [lindex [time {set i 0 ; while { [incr i] < 1000} {}} 1] 0]))}]
 
     # from Wmenu.tcl
     global show_balloons
-    set show_balloons $maxima_default(iShowBalloons)
+    set show_balloons $::xmaxima_default(iShowBalloons)
 
     # From Browser.tcl
     global debugParse
-    set debugParse $maxima_default(bDebugParse)
+    set debugParse $::xmaxima_default(bDebugParse)
 
-    if {[info exists maxima_default(lProxyHttp)] && \
-	    [llength $maxima_default(lProxyHttp)] == "2"} {
+    if {[info exists ::xmaxima_default(lProxyHttp)] && \
+	    [llength $::xmaxima_default(lProxyHttp)] == "2"} {
 	#mike FIXME: make this a _default
-	set maxima_priv(proxy,http) $maxima_default(lProxyHttp)
+	set ::xmaxima_priv(proxy,http) $::xmaxima_default(lProxyHttp)
     }
 
 }
 
 # Constants
-global maxima_priv
-set maxima_priv(date) 21/03/2024
+set ::xmaxima_priv(date) 21/03/2024
 
-if { ![info exists maxima_priv(date)] } {
-    set maxima_priv(date) [clock  format [clock seconds] -format {%m/%d/%Y} ]
+if { ![info exists ::xmaxima_priv(date)] } {
+    set ::xmaxima_priv(date) [clock  format [clock seconds] -format {%m/%d/%Y} ]
 }
 
 # from Preamble.tcl
-set maxima_priv(clicks_per_second) 1000000
+set ::xmaxima_priv(clicks_per_second) 1000000
 
 # from Plot2d.tcl
-array set maxima_priv { bitmap,disc4 {#define disc4_width 4
+array set ::xmaxima_priv { bitmap,disc4 {#define disc4_width 4
 #define disc4_height 4
 static unsigned char disc4_bits[] = {
     0x06, 0x0f, 0x0f, 0x06};}
@@ -107,25 +162,25 @@ static unsigned char disc_bits[] = {
 }
 
 # from xmaxima.tcl
-set maxima_priv(options,maxima) {{doinsert 0 "Do an insertion" boolean}}
+set ::xmaxima_priv(options,maxima) {{doinsert 0 "Do an insertion" boolean}}
 
 # from EHref.tcl
-set maxima_priv(options,href) {
+set ::xmaxima_priv(options,href) {
     {src "" [mc "A URL (universal resource locator) such as http://maxima.sourceforge.net/index.html"]}
     {search "" [mc "A string to search for, to get an initial position"]}
     {searchregexp "" [mc "A regexp to search for, to get an initial position"]}
 }
 
 # from Preamble.tcl
-set maxima_priv(counter) 0
+set ::xmaxima_priv(counter) 0
 	
 # the linelength initially will have Maxima's default value.
-set maxima_priv(linelength) 79
+set ::xmaxima_priv(linelength) 79
 
 # From Browser.tcl
-set maxima_priv(sticky) "^Teval$|^program:"
-set maxima_priv(richTextCommands) {Tins TinsSlashEnd}
-set maxima_priv(urlHandlers) {
+set ::xmaxima_priv(sticky) "^Teval$|^program:"
+set ::xmaxima_priv(richTextCommands) {Tins TinsSlashEnd}
+set ::xmaxima_priv(urlHandlers) {
     text/html  netmath
     text/plain netmath
     image/gif  netmath
@@ -136,13 +191,13 @@ set maxima_priv(urlHandlers) {
     application/pdf "acroread %s"
     application/x-dvi "xdvi %s"
 }
-set maxima_priv(imagecounter) 0
+set ::xmaxima_priv(imagecounter) 0
 
 global evalPrograms
 set evalPrograms {  gp gap gb }
-#set maxima_priv(options,maxima) {{doinsert 1 "Do an insertion" boolean}}
-#set maxima_priv(options,gp) {{doinsert 1 "Do an insertion" boolean}}
-#set maxima_priv(options,openplot) {{doinsert 0 "Do an insertion" boolean}}
+#set ::xmaxima_priv(options,maxima) {{doinsert 1 "Do an insertion" boolean}}
+#set ::xmaxima_priv(options,gp) {{doinsert 1 "Do an insertion" boolean}}
+#set ::xmaxima_priv(options,openplot) {{doinsert 0 "Do an insertion" boolean}}
 
 # Icons from the Tango Desktop Project (http://tango.freedesktop.org)
 # "The Tango base icon theme is released to the Public Domain.

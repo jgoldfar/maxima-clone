@@ -125,7 +125,7 @@
     (
      (:module packages :pathname ""
       :components
-      ((:file "f2cl-package")
+      ((:file "f2cl-lib-package")
        (:file "slatec")))
      (:module f2cl-lib :pathname ""
       :depends-on (packages)
@@ -573,6 +573,8 @@
 		 (:file "conjugate")
                  (:file "expintegral")
                  (:file "gamma")
+		 (:file "hstep")
+		 (:file "sinc")
 		 (:file "mstuff")))
    (:module polynomial :pathname ""
     :depends-on (defmfun)
@@ -596,7 +598,8 @@
      (:file "plot")))
    (:module graphics-drivers :pathname ""
     :depends-on (compatibility-macros)
-    :components ((:file "gnuplot_def")
+    :components ((:file "plotcolors")
+                 (:file "gnuplot_def")
 		 (:file "xmaxima_def")
                  (:file "geomview_def")))
 

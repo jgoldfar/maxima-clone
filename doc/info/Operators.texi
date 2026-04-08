@@ -53,19 +53,31 @@ function call @code{"dd" (a)} is equivalent to @code{dd a}, likewise
 @c a <- dd b;
 @c "<-" (a, "dd" (b));
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) prefix ("dd");
 (%o1)                          dd
+@end group
+@group
 (%i2) dd a;
 (%o2)                         dd a
+@end group
+@group
 (%i3) "dd" (a);
 (%o3)                         dd a
+@end group
+@group
 (%i4) infix ("<-");
 (%o4)                          <-
+@end group
+@group
 (%i5) a <- dd b;
-(%o5)                      a <- dd b
+(%o5)                       a <- dd b
+@end group
+@group
 (%i6) "<-" (a, "dd" (b));
-(%o6)                      a <- dd b
+(%o6)                       a <- dd b
+@end group
 @end example
 
 The Maxima functions which define new operators are summarized in this table,
@@ -145,34 +157,52 @@ quotation marks.
 @c 5 ## 3;
 @c "##" (5, 3);
 @c ===end===
-@example
+incorrect syntax: # is not a prefix operator
+5 ##
+  ^
+incorrect syntax: # is not a prefix operator
+5 ##
+  ^
+@example maxima
+@group
 (%i1) infix ("##");
 (%o1)                          ##
+@end group
+@group
 (%i2) "##" (a, b) := a^b;
-                                     b
-(%o2)                     a ## b := a
+                                      b
+(%o2)                    (a ## b) := a
+@end group
+@group
 (%i3) 5 ## 3;
 (%o3)                          125
+@end group
+@group
 (%i4) remove ("##", op);
 (%o4)                         done
+@end group
 (%i5) 5 ## 3;
-Incorrect syntax: # is not a prefix operator
-5 ##
-  ^
+@group
 (%i5) "##" (5, 3);
 (%o5)                          125
+@end group
+@group
 (%i6) infix ("##");
 (%o6)                          ##
+@end group
+@group
 (%i7) 5 ## 3;
 (%o7)                          125
+@end group
+@group
 (%i8) kill ("##");
 (%o8)                         done
+@end group
 (%i9) 5 ## 3;
-Incorrect syntax: # is not a prefix operator
-5 ##
-  ^
+@group
 (%i9) "##" (5, 3);
 (%o9)                       ##(5, 3)
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -265,20 +295,32 @@ The names of these operators are @code{"+"} and @code{"*"}.
 @c apply ("+", [a, 8, x, 2, 9, x, x, a]);
 @c apply ("*", [a, 8, x, 2, 9, x, x, a]);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) c + g + d + a + b + e + f;
 (%o1)               g + f + e + d + c + b + a
+@end group
+@group
 (%i2) [op (%), args (%)];
 (%o2)              [+, [g, f, e, d, c, b, a]]
+@end group
+@group
 (%i3) c * g * d * a * b * e * f;
 (%o3)                     a b c d e f g
+@end group
+@group
 (%i4) [op (%), args (%)];
 (%o4)              [*, [a, b, c, d, e, f, g]]
+@end group
+@group
 (%i5) apply ("+", [a, 8, x, 2, 9, x, x, a]);
 (%o5)                    3 x + 2 a + 19
+@end group
+@group
 (%i6) apply ("*", [a, 8, x, 2, 9, x, x, a]);
                                  2  3
 (%o6)                       144 a  x
+@end group
 @end example
 
 Division and exponentiation are binary, noncommutative operators.
@@ -289,17 +331,23 @@ The names of these operators are @code{"/"} and @code{"^"}.
 @c [map (op, %), map (args, %)];
 @c [apply ("/", [a, b]), apply ("^", [a, b])];
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) [a / b, a ^ b];
                               a   b
 (%o1)                        [-, a ]
                               b
+@end group
+@group
 (%i2) [map (op, %), map (args, %)];
 (%o2)              [[/, ^], [[a, b], [a, b]]]
+@end group
+@group
 (%i3) [apply ("/", [a, b]), apply ("^", [a, b])];
                               a   b
 (%o3)                        [-, a ]
                               b
+@end group
 @end example
 
 Subtraction and division are represented internally
@@ -309,13 +357,17 @@ in terms of addition and multiplication, respectively.
 @c [inpart (a - b, 0), inpart (a - b, 1), inpart (a - b, 2)];
 @c [inpart (a / b, 0), inpart (a / b, 1), inpart (a / b, 2)];
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) [inpart (a - b, 0), inpart (a - b, 1), inpart (a - b, 2)];
 (%o1)                      [+, a, - b]
+@end group
+@group
 (%i2) [inpart (a / b, 0), inpart (a / b, 1), inpart (a / b, 2)];
                                    1
 (%o2)                       [*, a, -]
                                    b
+@end group
 @end example
 
 Computations are carried out on literal numbers.
@@ -325,13 +377,17 @@ Floating-point contagion applies.
 @c 17 + b - (1/2)*29 + 11^(2/4);
 @c [17 + 29, 17 + 29.0, 17 + 29b0];
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) 17 + b - (1/2)*29 + 11^(2/4);
                                        5
 (%o1)                   b + sqrt(11) + -
                                        2
+@end group
+@group
 (%i2) [17 + 29, 17 + 29.0, 17 + 29b0];
 (%o2)                   [46, 46.0, 4.6b1]
+@end group
 @end example
 
 Arithmetic computations are a simplification, not an evaluation.
@@ -342,19 +398,27 @@ Arithmetic computations are a simplification, not an evaluation.
 @c simp : true;
 @c '(17 + 29*11/7 - 5^3);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) simp : false;
 (%o1)                         false
+@end group
+@group
 (%i2) '(17 + 29*11/7 - 5^3);
                               29 11    3
 (%o2)                    17 + ----- - 5
                                 7
+@end group
+@group
 (%i3) simp : true;
 (%o3)                         true
+@end group
+@group
 (%i4) '(17 + 29*11/7 - 5^3);
                                 437
 (%o4)                         - ---
                                  7
+@end group
 @end example
 
 Arithmetic is carried out element-by-element for lists (depending on
@@ -370,35 +434,49 @@ Arithmetic is carried out element-by-element for lists (depending on
 @c [a, c, m, t] / [1, 7, 2, 9];
 @c [a, c, m, t] ^ x;
 @c ===end===
-@example
-(%i1) matrix ([a, x], [h, u]) - matrix ([1, 2], [3, 4]);
+@example maxima
 @group
+(%i1) matrix ([a, x], [h, u]) - matrix ([1, 2], [3, 4]);
                         [ a - 1  x - 2 ]
 (%o1)                   [              ]
                         [ h - 3  u - 4 ]
 @end group
+@group
 (%i2) 5 * matrix ([a, x], [h, u]);
                           [ 5 a  5 x ]
 (%o2)                     [          ]
                           [ 5 h  5 u ]
+@end group
+@group
 (%i3) listarith : false;
 (%o3)                         false
+@end group
+@group
 (%i4) [a, c, m, t] / [1, 7, 2, 9];
                           [a, c, m, t]
 (%o4)                     ------------
                           [1, 7, 2, 9]
+@end group
+@group
 (%i5) [a, c, m, t] ^ x;
                                       x
 (%o5)                     [a, c, m, t]
+@end group
+@group
 (%i6) listarith : true;
 (%o6)                         true
+@end group
+@group
 (%i7) [a, c, m, t] / [1, 7, 2, 9];
                               c  m  t
 (%o7)                     [a, -, -, -]
                               7  2  9
+@end group
+@group
 (%i8) [a, c, m, t] ^ x;
                           x   x   x   x
 (%o8)                   [a , c , m , t ]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -426,17 +504,25 @@ Examples:
 @c string (x**y + x^z);
 @c fortran (x**y + x^z);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) is (a**b = a^b);
 (%o1)                         true
+@end group
+@group
 (%i2) x**y + x^z;
                               z    y
 (%o2)                        x  + x
+@end group
+@group
 (%i3) string (x**y + x^z);
 (%o3)                        x^z+x^y
+@end group
+@group
 (%i4) fortran (x**y + x^z);
       x**z+x**y
 (%o4)                         done
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -464,12 +550,16 @@ Examples:
 @c a . a . b . b . b + a * a * a * b * b;
 @c string (a . a . b . b . b + a * a * a * b * b);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) a . a . b . b . b + a * a * a * b * b;
                         3  2    <2>    <3>
 (%o1)                  a  b  + a    . b
+@end group
+@group
 (%i2) string (a . a . b . b . b + a * a * a * b * b);
 (%o2)                  a^3*b^2+a^^2 . b^^3
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -567,18 +657,28 @@ programming constructs.
 @c block ([S], S : 0, for i:1 while i <= 100 do S : S + i, 
 @c        return (S));
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) [x, y, z] : [123, 456, 789];
 (%o1)                    [123, 456, 789]
+@end group
+@group
 (%i2) is (x < y);
 (%o2)                         true
+@end group
+@group
 (%i3) maybe (y > z);
 (%o3)                         false
+@end group
+@group
 (%i4) if x >= z then 1 else 0;
 (%o4)                           0
-(%i5) block ([S], S : 0, for i:1 while i <= 100 do S : S + i, 
-             return (S));
+@end group
+@group
+(%i5) block ([S], S : 0, for i:1 while i <= 100 do S : S + i,
+       return (S));
 (%o5)                         5050
+@end group
 @end example
 
 Relational expressions are not otherwise evaluated or simplified to Boolean
@@ -589,12 +689,19 @@ values, although the arguments of relational expressions are evaluated.
 @c [x < y, y <= z, z >= y, y > z];
 @c map (is, %);
 @c ===end===
-@example
+@example maxima
+@group
+(%i1) [x, y, z] : [123, 456, 789];
 (%o1)                    [123, 456, 789]
+@end group
+@group
 (%i2) [x < y, y <= z, z >= y, y > z];
 (%o2)    [123 < 456, 456 <= 789, 789 >= 456, 456 > 789]
+@end group
+@group
 (%i3) map (is, %);
 (%o3)               [true, true, true, false]
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -721,19 +828,31 @@ Examples:
 @c is (a # b);
 @c is (not a = b);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) a = b;
 (%o1)                         a = b
+@end group
+@group
 (%i2) is (a = b);
 (%o2)                         false
+@end group
+@group
 (%i3) a # b;
 (%o3)                         a # b
+@end group
+@group
 (%i4) not a = b;
 (%o4)                         true
+@end group
+@group
 (%i5) is (a # b);
 (%o5)                         true
+@end group
+@group
 (%i6) is (not a = b);
 (%o6)                         true
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -795,17 +914,23 @@ an unevaluated equation, which might or might not hold.
 @c subst (%, [eq_1, eq_2]);
 @c ratsimp (%);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) eq_1 : a * x - 5 * y = 17;
 (%o1)                    a x - 5 y = 17
+@end group
+@group
 (%i2) eq_2 : b * x + 3 * y = 29;
 (%o2)                    3 y + b x = 29
+@end group
+@group
 (%i3) solve ([eq_1, eq_2], [x, y]);
                         196         29 a - 17 b
 (%o3)          [[x = ---------, y = -----------]]
                      5 b + 3 a       5 b + 3 a
-(%i4) subst (%, [eq_1, eq_2]);
+@end group
 @group
+(%i4) subst (%, [eq_1, eq_2]);
          196 a     5 (29 a - 17 b)
 (%o4) [--------- - --------------- = 17, 
        5 b + 3 a      5 b + 3 a
@@ -813,8 +938,10 @@ an unevaluated equation, which might or might not hold.
                                 --------- + --------------- = 29]
                                 5 b + 3 a      5 b + 3 a
 @end group
+@group
 (%i5) ratsimp (%);
 (%o5)                  [17 = 17, 29 = 29]
+@end group
 @end example
 
 @code{is(@var{a} = @var{b})} evaluates @code{@var{a} = @var{b}} to @code{true}
@@ -827,16 +954,24 @@ Expressions can be equivalent and not syntactically equal.
 @c [is (a = b), is (a # b)];
 @c [is (equal (a, b)), is (notequal (a, b))];
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) a : (x + 1) * (x - 1);
 (%o1)                    (x - 1) (x + 1)
+@end group
+@group
 (%i2) b : x^2 - 1;
                               2
 (%o2)                        x  - 1
+@end group
+@group
 (%i3) [is (a = b), is (a # b)];
 (%o3)                     [false, true]
+@end group
+@group
 (%i4) [is (equal (a, b)), is (notequal (a, b))];
 (%o4)                     [true, false]
+@end group
 @end example
 
 Some operators evaluate @code{=} and @code{#} to @code{true} or @code{false}.
@@ -848,17 +983,25 @@ Some operators evaluate @code{=} and @code{#} to @code{true} or @code{false}.
 @c eq_4 : exp (2) = %e^2;
 @c [eq_3 and eq_4, eq_3 or eq_4, not eq_3];
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) if expand ((x + y)^2) = x^2 + 2 * x * y + y^2 then FOO else
       BAR;
 (%o1)                          FOO
+@end group
+@group
 (%i2) eq_3 : 2 * x = 3 * x;
 (%o2)                       2 x = 3 x
+@end group
+@group
 (%i3) eq_4 : exp (2) = %e^2;
                               2     2
 (%o3)                       %e  = %e
+@end group
+@group
 (%i4) [eq_3 and eq_4, eq_3 or eq_4, not eq_3];
 (%o4)                  [false, true, true]
+@end group
 @end example
 
 Because @code{not @var{expr}} causes evaluation of @var{expr},
@@ -868,11 +1011,15 @@ Because @code{not @var{expr}} causes evaluation of @var{expr},
 @c [2 * x # 3 * x, not (2 * x = 3 * x)];
 @c is (2 * x # 3 * x);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) [2 * x # 3 * x, not (2 * x = 3 * x)];
 (%o1)                   [2 x # 3 x, true]
+@end group
+@group
 (%i2) is (2 * x # 3 * x);
 (%o2)                         true
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -920,13 +1067,19 @@ Assignment to a simple variable.
 @c a : 123;
 @c a;
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) a;
 (%o1)                           a
+@end group
+@group
 (%i2) a : 123;
 (%o2)                          123
+@end group
+@group
 (%i3) a;
 (%o3)                          123
+@end group
 @end example
 
 Assignment to an element of a list.
@@ -936,13 +1089,19 @@ Assignment to an element of a list.
 @c b[3] : 456;
 @c b;
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) b : [1, 2, 3];
 (%o1)                       [1, 2, 3]
+@end group
+@group
 (%i2) b[3] : 456;
 (%o2)                          456
+@end group
+@group
 (%i3) b;
 (%o3)                      [1, 2, 456]
+@end group
 @end example
 
 Assignment to a variable that neither is the name of a list nor of an array
@@ -955,17 +1114,27 @@ creates a @mrefdot{hashed array}
 @c arrayinfo (c);
 @c listarray (c);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) c[99] : 789;
 (%o1)                          789
+@end group
+@group
 (%i2) c[99];
 (%o2)                          789
+@end group
+@group
 (%i3) c;
 (%o3)                           c
+@end group
+@group
 (%i4) arrayinfo (c);
 (%o4)                   [hashed, 1, [99]]
+@end group
+@group
 (%i5) listarray (c);
 (%o5)                         [789]
+@end group
 @end example
 
 Multiple assignment.
@@ -976,15 +1145,23 @@ Multiple assignment.
 @c b;
 @c c;
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) [a, b, c] : [45, 67, 89];
 (%o1)                     [45, 67, 89]
+@end group
+@group
 (%i2) a;
 (%o2)                          45
+@end group
+@group
 (%i3) b;
 (%o3)                          67
+@end group
+@group
 (%i4) c;
 (%o4)                          89
+@end group
 @end example
 
 Multiple assignment is carried out in parallel.
@@ -996,15 +1173,23 @@ The values of @code{a} and @code{b} are exchanged in this example.
 @c a;
 @c b;
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) [a, b] : [33, 55];
 (%o1)                       [33, 55]
+@end group
+@group
 (%i2) [a, b] : [b, a];
 (%o2)                       [55, 33]
+@end group
+@group
 (%i3) a;
 (%o3)                          55
+@end group
+@group
 (%i4) b;
 (%o4)                          33
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1036,23 +1221,39 @@ Examples:
 @c b;
 @c c;
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) x : 'foo;
 (%o1)                          foo
+@end group
+@group
 (%i2) x :: 123;
 (%o2)                          123
+@end group
+@group
 (%i3) foo;
 (%o3)                          123
+@end group
+@group
 (%i4) x : '[a, b, c];
 (%o4)                       [a, b, c]
+@end group
+@group
 (%i5) x :: [11, 22, 33];
 (%o5)                     [11, 22, 33]
+@end group
+@group
 (%i6) a;
 (%o6)                          11
+@end group
+@group
 (%i7) b;
 (%o7)                          22
+@end group
+@group
 (%i8) c;
 (%o8)                          33
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1101,16 +1302,20 @@ the macro was called, printing message (2).
 @c                                 '(print ("(2) x is equal to", x)))$
 @c printq1 (y - z);
 @c ===end===
-@example
+@example maxima
 (%i1) x: %pi$
 (%i2) y: 1234$
 (%i3) z: 1729 * w$
+@group
 (%i4) printq1 (x) ::= block (print ("(1) x is equal to", x),
-      '(print ("(2) x is equal to", x)))$
+                                '(print ("(2) x is equal to", x)))$
+@end group
+@group
 (%i5) printq1 (y - z);
-(1) x is equal to y - z
-(2) x is equal to %pi
-(%o5)                                 %pi
+(1) x is equal to y - z 
+(2) x is equal to %pi 
+(%o5)                          %pi
+@end group
 @end example
 
 An ordinary function evaluates its arguments, so message (1) shows the value of
@@ -1126,18 +1331,24 @@ until the explicit evaluation @code{''%}.
 @c printe1 (y - z);
 @c ''%;
 @c ===end===
-@example
+@example maxima
 (%i1) x: %pi$
 (%i2) y: 1234$
 (%i3) z: 1729 * w$
+@group
 (%i4) printe1 (x) := block (print ("(1) x is equal to", x),
       '(print ("(2) x is equal to", x)))$
+@end group
+@group
 (%i5) printe1 (y - z);
-(1) x is equal to 1234 - 1729 w
-(%o5)                     print((2) x is equal to, x)
+(1) x is equal to 1234 - 1729 w 
+(%o5)              print((2) x is equal to, x)
+@end group
+@group
 (%i6) ''%;
-(2) x is equal to %pi
-(%o6)                                 %pi
+(2) x is equal to %pi 
+(%o6)                          %pi
+@end group
 @end example
 
 @code{macroexpand} returns a macro expansion.
@@ -1153,19 +1364,25 @@ until the explicit evaluation @code{''%}.
 @c ''%;
 @c g (y - z);
 @c ===end===
-@example
+@example maxima
 (%i1) x: %pi$
 (%i2) y: 1234$
 (%i3) z: 1729 * w$
 (%i4) g (x) ::= buildq ([x], print ("x is equal to", x))$
+@group
 (%i5) macroexpand (g (y - z));
-(%o5)                     print(x is equal to, y - z)
+(%o5)              print(x is equal to, y - z)
+@end group
+@group
 (%i6) ''%;
-x is equal to 1234 - 1729 w
-(%o6)                            1234 - 1729 w
+x is equal to 1234 - 1729 w 
+(%o6)                     1234 - 1729 w
+@end group
+@group
 (%i7) g (y - z);
-x is equal to 1234 - 1729 w
-(%o7)                            1234 - 1729 w
+x is equal to 1234 - 1729 w 
+(%o7)                     1234 - 1729 w
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1231,17 +1448,27 @@ quote-quote).
 @c F2 (x, y) := ''expr;
 @c F2 (a, b);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) expr : cos(y) - sin(x);
 (%o1)                    cos(y) - sin(x)
+@end group
+@group
 (%i2) F1 (x, y) := expr;
 (%o2)                   F1(x, y) := expr
+@end group
+@group
 (%i3) F1 (a, b);
 (%o3)                    cos(y) - sin(x)
+@end group
+@group
 (%i4) F2 (x, y) := ''expr;
 (%o4)              F2(x, y) := cos(y) - sin(x)
+@end group
+@group
 (%i5) F2 (a, b);
 (%o5)                    cos(b) - sin(a)
+@end group
 @end example
 
 @code{f(@var{x_1}, ..., @var{x_n}) := ...} defines an ordinary function.
@@ -1252,17 +1479,23 @@ quote-quote).
 @c G1([1, a], [2, b]);
 @c G1([1, a], [2, b]);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) G1(x, y) := (print ("Evaluating G1 for x=", x, "and y=", y),
  x.y - y.x);
 (%o1) G1(x, y) := (print("Evaluating G1 for x=", x, "and y=", 
                                                y), x . y - y . x)
+@end group
+@group
 (%i2) G1([1, a], [2, b]);
 Evaluating G1 for x= [1, a] and y= [2, b] 
 (%o2)                           0
+@end group
+@group
 (%i3) G1([1, a], [2, b]);
 Evaluating G1 for x= [1, a] and y= [2, b] 
 (%o3)                           0
+@end group
 @end example
 
 @code{f[@var{x_1}, ..., @var{x_n}] := ...} defines a @mrefdot{memoizing function}
@@ -1275,23 +1508,35 @@ Evaluating G1 for x= [1, a] and y= [2, b]
 @c arrayinfo (G2);
 @c listarray (G2);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) G2[a] := (print ("Evaluating G2 for a=", a), a^2);
                                                      2
 (%o1)     G2  := (print("Evaluating G2 for a=", a), a )
             a
+@end group
+@group
 (%i2) G2[1234];
 Evaluating G2 for a= 1234 
 (%o2)                        1522756
+@end group
+@group
 (%i3) G2[1234];
 (%o3)                        1522756
+@end group
+@group
 (%i4) G2[2345];
 Evaluating G2 for a= 2345 
 (%o4)                        5499025
+@end group
+@group
 (%i5) arrayinfo (G2);
 (%o5)              [hashed, 1, [1234], [2345]]
+@end group
+@group
 (%i6) listarray (G2);
 (%o6)                  [1522756, 5499025]
+@end group
 @end example
 
 @code{@var{f}[@var{x_1}, ..., @var{x_n}](@var{y_1}, ..., @var{y_m}) := @var{expr}}
@@ -1306,28 +1551,40 @@ is a special case of a @mrefdot{memoizing function}
 @c arrayinfo (G3);
 @c listarray (G3);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) G3[n](x) := (print ("Evaluating G3 for n=", n), diff (sin(x)^2,
  x, n));
 (%o1) G3 (x) := (print("Evaluating G3 for n=", n), 
         n
                                                      2
                                              diff(sin (x), x, n))
+@end group
+@group
 (%i2) G3[2];
 Evaluating G3 for n= 2 
                                 2           2
 (%o2)          lambda([x], 2 cos (x) - 2 sin (x))
+@end group
+@group
 (%i3) G3[2];
                                 2           2
 (%o3)          lambda([x], 2 cos (x) - 2 sin (x))
+@end group
+@group
 (%i4) G3[2](1);
                            2           2
 (%o4)                 2 cos (1) - 2 sin (1)
+@end group
+@group
 (%i5) arrayinfo (G3);
 (%o5)                   [hashed, 1, [2]]
+@end group
+@group
 (%i6) listarray (G3);
                                 2           2
 (%o6)         [lambda([x], 2 cos (x) - 2 sin (x))]
+@end group
 @end example
 
 When the last or only function argument @var{x_n} is a list of one element,
@@ -1337,11 +1594,15 @@ the function defined by @code{:=} accepts a variable number of arguments.
 @c H ([L]) := apply ("+", L);
 @c H (a, b, c);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) H ([L]) := apply ("+", L);
 (%o1)                H([L]) := apply("+", L)
+@end group
+@group
 (%i2) H (a, b, c);
 (%o2)                       c + b + a
+@end group
 @end example
 
 @code{local} makes a local function definition.
@@ -1352,15 +1613,23 @@ the function defined by @code{:=} accepts a variable number of arguments.
 @c block (local (foo), foo (x) := 2 * x, foo (100));
 @c foo (100);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) foo (x) := 1 - x;
 (%o1)                    foo(x) := 1 - x
+@end group
+@group
 (%i2) foo (100);
 (%o2)                         - 99
+@end group
+@group
 (%i3) block (local (foo), foo (x) := 2 * x, foo (100));
 (%o3)                          200
+@end group
+@group
 (%i4) foo (100);
 (%o4)                         - 99
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1437,21 +1706,35 @@ then @var{op} takes precedence over the other operator.
 @c infix ("##", 99, 99);
 @c 1 + a ## b + 2;
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) :lisp (get '$+ 'lbp)
 100
+@end group
+@group
 (%i1) :lisp (get '$+ 'rbp)
-100
+134
+@end group
+@group
 (%i1) infix ("##", 101, 101);
 (%o1)                          ##
+@end group
+@group
 (%i2) "##"(a, b) := sconcat("(", a, ",", b, ")");
 (%o2)       (a ## b) := sconcat("(", a, ",", b, ")")
+@end group
+@group
 (%i3) 1 + a ## b + 2;
 (%o3)                       (a,b) + 3
+@end group
+@group
 (%i4) infix ("##", 99, 99);
 (%o4)                          ##
+@end group
+@group
 (%i5) 1 + a ## b + 2;
 (%o5)                       (a+1,b+2)
+@end group
 @end example
 
 Greater @var{lbp} makes @var{op} right-associative,
@@ -1464,16 +1747,24 @@ while greater @var{rbp} makes @var{op} left-associative.
 @c infix ("##", 100, 101);
 @c foo ## bar ## baz;
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) infix ("##", 100, 99);
 (%o1)                          ##
+@end group
 (%i2) "##"(a, b) := sconcat("(", a, ",", b, ")")$
+@group
 (%i3) foo ## bar ## baz;
 (%o3)                    (foo,(bar,baz))
+@end group
+@group
 (%i4) infix ("##", 100, 101);
 (%o4)                          ##
+@end group
+@group
 (%i5) foo ## bar ## baz;
 (%o5)                    ((foo,bar),baz)
+@end group
 @end example
 
 Maxima can detect some syntax errors by comparing the
@@ -1485,18 +1776,23 @@ declared part of speech to an actual expression.
 @c infix ("##", 100, 99, expr, expr, clause);
 @c if x ## y then 1 else 0;
 @c ===end===
-@example
-(%i1) infix ("##", 100, 99, expr, expr, expr);
-(%o1)                          ##
-(%i2) if x ## y then 1 else 0;
-Incorrect syntax: Found algebraic expression where logical
-expression expected
+incorrect syntax: Found ALGEBRAIC expression where LOGICAL expression expected
 if x ## y then 
              ^
+@example maxima
+@group
+(%i1) infix ("##", 100, 99, expr, expr, expr);
+(%o1)                          ##
+@end group
+(%i2) if x ## y then 1 else 0;
+@group
 (%i2) infix ("##", 100, 99, expr, expr, clause);
 (%o2)                          ##
+@end group
+@group
 (%i3) if x ## y then 1 else 0;
 (%o3)                if x ## y then 1 else 0
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -1585,23 +1881,37 @@ Delimiters may be almost any strings.
 @c foo a, b, c oof;
 @c >> w + foo x, y oof + z << / @@ p, q ~;
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) matchfix ("@@@@", "~");
 (%o1)                          @@@@
+@end group
+@group
 (%i2) @@@@ a, b, c ~;
 (%o2)                      @@@@a, b, c~
+@end group
+@group
 (%i3) matchfix (">>", "<<");
 (%o3)                          >>
+@end group
+@group
 (%i4) >> a, b, c <<;
 (%o4)                      >>a, b, c<<
+@end group
+@group
 (%i5) matchfix ("foo", "oof");
 (%o5)                          foo
+@end group
+@group
 (%i6) foo a, b, c oof;
 (%o6)                     fooa, b, coof
+@end group
+@group
 (%i7) >> w + foo x, y oof + z << / @@@@ p, q ~;
                      >>z + foox, yoof + w<<
 (%o7)                ----------------------
                             @@@@p, q~
+@end group
 @end example
 
 Matchfix operators are ordinary user-defined functions.

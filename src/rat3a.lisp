@@ -185,23 +185,6 @@
         (setq base (rem (* base base) modulus))
         (when (oddp pow) (setq s (rem (* s base) modulus))))))
 
-;; CMOD
-;;
-;; When MODULUS is null, this is the identity. Otherwise, it normalises N, which
-;; should be a number, to lie in the range (-modulus/2, modulus/2].
-(defun cmod (n)
-  (declare (type number n))
-  (if (not modulus)
-      n
-      (let ((rem (mod n modulus)))
-        (if (<= (* 2 rem) modulus)
-            rem
-            (- rem modulus)))))
-
-(defun cplus       (a b) (cmod (+ a b)))
-(defun ctimes      (a b) (cmod (* a b)))
-(defun cdifference (a b) (cmod (- a b)))
-
 ;; SET-MODULUS
 ;;
 ;; Set the base in which the rational function package works. This does
@@ -399,18 +382,18 @@
 
 ;; PCSUBST
 ;;
-;; Substitute VAL for VAR in a polynomial. Like PCSUB, but with only a single
+;; Substitute VAL for VAR2 in a polynomial. Like PCSUB, but with only a single
 ;; var to be substituted.
 ;;
 ;; (The logic of this function is exactly the same as PCSUB, but is marginally
 ;;  simpler because there are no more vars afterwards. Presumably, it was
 ;;  thought worth separating this case out from PCSUB to avoid spurious
 ;;  consing. I'm not convinced. RJS)
-(defun pcsubst (p val var)
+(defun pcsubst (p val var2)
   (cond ((pcoefp p) p)
-	((eq (p-var p) var) (ptcsub (cdr p) val nil nil))
-	((pointergp var (p-var p)) p)
-	(t (psimp (car p) (ptcsub-args (cdr p) (list val) (list var))))))
+	((eq (p-var p) var2) (ptcsub (cdr p) val nil nil))
+	((pointergp var2 (p-var p)) p)
+	(t (psimp (car p) (ptcsub-args (cdr p) (list val) (list var2))))))
 
 ;; PTCSUB
 ;;
@@ -777,38 +760,39 @@
           (list* (pt-le u) (pt-lc u)
                  (ptpt-subtract-powered-product (pt-red u) v q k))))))))
 
-(defun algord (var)
-  (and $algebraic (get var 'algord)))
+(declaim (inline algord))
+(defun algord (var2)
+  (and $algebraic (get var2 'algord)))
 
 ;; PSIMP
 ;;
-;; Return a "simplified" polynomial whose main variable is VAR and whose terms
+;; Return a "simplified" polynomial whose main variable is VAR2 and whose terms
 ;; are given by X.
 ;;
 ;; If the polynomial is free of X, the result is the zero'th order coefficient:
 ;; either a polynomial in later variables or a number. PSIMP also deals with
 ;; reordering variables when $ALGEBRAIC is true, behaviour which is triggered by
 ;; the ALGORD property on the main variable.
-(defun psimp (var x)
+(defun psimp (var2 x)
   (cond ((ptzerop x) 0)
 	((atom x) x)
 	((zerop (pt-le x)) (pt-lc x))
-	((algord var)
+	((algord var2)
          ;; Fix wrong alg ordering: We deal with the case that the main variable
-         ;; of a coefficient should precede VAR.
+         ;; of a coefficient should precede VAR2.
          (do ((p x (cddr p)) (sum 0))
              ((null p)
               (if (pzerop sum)
-                  (cons var x)
-                  (pplus sum (p-delete-zeros var x))))
+                  (cons var2 x)
+                  (pplus sum (p-delete-zeros var2 x))))
            ;; We only need to worry about the wrong ordering if a coefficient is
            ;; a polynomial in another variable, and that variable should precede
-           ;; VAR.
+           ;; VAR2.
            (unless (or (pcoefp (pt-lc p))
-                       (pointergp var (p-var (pt-lc p))))
+                       (pointergp var2 (p-var (pt-lc p))))
              (setq sum (pplus sum
                               (if (zerop (pt-le p)) (pt-lc p)
-                                  (ptimes (make-poly var (pt-le p) 1)
+                                  (ptimes (make-poly var2 (pt-le p) 1)
                                           (pt-lc p)))))
              ;; When we finish, we'll call PPLUS to add SUM and the remainder of
              ;; X, and this line zeroes out this term in X (through P) to avoid
@@ -817,12 +801,12 @@
              (setf (pt-lc p) 0))))
 
         (t
-         (cons var x))))
+         (cons var2 x))))
 
 ;; P-DELETE-ZEROS
 ;;
 ;; Destructively operate on X, deleting any terms that have a zero coefficient.
-(defun p-delete-zeros (var x)
+(defun p-delete-zeros (var2 x)
   ;; The idea is that P always points one before the term in which we're
   ;; interested. When that term has zero coefficient, it is trimmed from P by
   ;; replacing the cdr. Consing NIL to the front of X allows us to throw away
@@ -831,8 +815,8 @@
       ((null (cdr p))
        ;; Switch off $algebraic so that we can recurse to PSIMP without any fear
        ;; of an infinite recursion - PSIMP only calls this function when (ALGORD
-       ;; VAR) is true, and that only happens when $algebraic is true.
-       (let (($algebraic)) (psimp var (cdr x))))
+       ;; VAR2) is true, and that only happens when $algebraic is true.
+       (let (($algebraic)) (psimp var2 (cdr x))))
     (if (pzerop (pt-lc (cdr p)))
         (setf (cdr p) (pt-red (cdr p)))
         (setq p (cddr p)))))
@@ -916,8 +900,8 @@
   (cond ((pcoefp q) (crecip q))
 	(t (paquo (list (car q) 0 1) q ))))
 
-(defun palgsimp (var p tell)		;TELL=(N X) -> X^(1/N)
-  (psimp var (cond ((or (null tell) (null p)
+(defun palgsimp (var2 p tell)		;TELL=(N X) -> X^(1/N)
+  (psimp var2 (cond ((or (null tell) (null p)
 			(< (car p) (car tell))) p)
 		   ((null (cddr tell)) (pasimp1 p (car tell) (cadr tell)))
 		   (t (pgcd1 p tell)) )))
@@ -984,10 +968,10 @@
 
 (defun paquo (x y) (patimes x (rainv y)))
 
-(defun mpget (var)
-  (cond ((null (setq var (alg var))) nil)
-	((cddr var) var)
-	(t (list (car var) 1 0 (pminus (cadr var))))))
+(defun mpget (var2)
+  (cond ((null (setq var2 (alg var2))) nil)
+	((cddr var2) var2)
+	(t (list (car var2) 1 0 (pminus (cadr var2))))))
 
 
 (defun rainv (q)

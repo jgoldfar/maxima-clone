@@ -5,7 +5,7 @@ On a Ubuntu/Debian System enable the 32bit support and install some tools for cr
 
 dpkg --add-architecture i386
 
-apt-get install g++-mingw-w64-x86-64 cmake nsis wine wine64 automake texlive texlive-plain-generic texlive-xetex rsync p7zip-full g++ gettext python3 tcl pandoc po4a wine32 libgcc-s1:i386 libstdc++6:i386 bsdutils
+apt-get install g++-mingw-w64-x86-64 cmake nsis wine wine64 automake texlive texlive-plain-generic texlive-xetex rsync p7zip-full g++ gettext python3 tcl pandoc po4a wine32 libgcc-s1:i386 libstdc++6:i386 bsdutils mingw-w64-tools
 
 If you want to include CCL64 support, a recent wine installation (from winehq.org)
 is necessary.
@@ -59,6 +59,10 @@ in the installer.
 One can also include CCL64 (Clozure Common Lisp) with the option:
 -DWITH_CCL64=YES
 
+By default CLISP and SBCL will be included, if you want, you can exclude
+them with -DWITH_SBCL=NO or -DWITH_CLISP=NO. Of course you need to select
+at least one Lisp.
+
 If you want to change the default Lisp, which will be used, you can
 use the option "-DWITH_DEFAULT_LISP=clisp" (or abcl/ccl64) in the cmake call
 (otherwise SBCL would be the default).
@@ -93,8 +97,8 @@ Example with Github actions
 
 If you want to see every required step and how it works:
 On Github there is a repository, where I set up everything which is
-needed to crosscompile Maxima using Github Workflows (currently
-using an Ubuntu 22.04).
+needed to crosscompile Maxima using Github workflows (currently
+using Ubuntu 24.04).
 https://github.com/daute/maxima-crosscompilation/
 
 

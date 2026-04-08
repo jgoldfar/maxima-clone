@@ -1,6 +1,5 @@
 ;; gnuplot_def.lisp: routines for Maxima's interface to gnuplot
 ;; Copyright (C) 2007-2021 J. Villate
-;; Time-stamp: "2024-03-25 09:10:05 villate"
 ;; 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License
@@ -19,29 +18,7 @@
 
 (in-package :maxima)
 
-;; Checks that color is a six-digit hexadecimal number with the prefix #,
-;; or a symbol for one of the 12 pre-defined colors, in which case the
-;; hexadecimal code for that color will be returned. Unknown colors are
-;; converted into black.
-(defun rgb-color (color)
-  (if (plotcolorp color)
-      (case color
-	($red "#ff0000")
-        ($green "#00ff00")
-        ($blue "#0000ff")
-	($magenta "#ff00ff")
-        ($cyan "#00ffff")
-        ($yellow "#ffff00")
-        ($orange "#ffa500")
-        ($violet "#ee82ee")
-        ($brown "#a52a2a")
-        ($gray "#bebebe")
-        ($black "#000000")
-        ($white "#ffffff")
-        (t color))
-      "#000000"))
-
-;; Given a list of valid colors (see rgb-color function) and an object c
+;; Given a list of valid colors (see plotcolors.lisp) and an object c
 ;; that can be a real number or a string, produces a gnuplot color
 ;; specification for c; when c is real, its nearest integer is assigned
 ;; to one of the numbers in the list, using modulo length of the list.
@@ -54,9 +31,9 @@
 
 (defun gnuplot-pointtype (type)
   (case type
-    ($bullet 7) ($circle 6) ($plus 1) ($times 2) ($asterisk 3) ($box 5)
-    ($square 4) ($triangle 9) ($delta 8) ($wedge 11) ($nabla 10)
-    ($diamond 13) ($lozenge 12) (t 7)))
+        ($bullet 7) ($circle 6) ($plus 1) ($times 2) ($asterisk 3) (mbox 5)
+        ($square 4) ($triangle 9) ($delta 8) ($wedge 11) ($nabla 10)
+        ($diamond 13) ($lozenge 12) (t 7)))
 
 (defun gnuplot-pointtypes (types n)
   (unless (integerp n) (setq n (round n)))
@@ -85,250 +62,198 @@
   (with-output-to-string
     (st)
     (case (first style)
-      ($dots
-       (format st "with dots")
-       (if (second style)
-         (format st " lt ~d" (gnuplot-color colors (second style)))
-         (format st " lt ~d" (gnuplot-color colors i))))
-      ($impulses
-       (format st "with impulses")
-       (if (integerp (second style))
-         (format st " lt ~d" (gnuplot-color colors (second style)))
-         (format st " lt ~d" (gnuplot-color colors i))))
-      ($lines
-       (format st "with lines")
-       (if (realp (second style))
-         (format st " lw ~f" (second style)))
-       (if (third style)
-         (format st " lt ~d" (gnuplot-color colors (third style)))
-         (format st " lt ~d" (gnuplot-color colors i))))
-      ($points
-       (format st "with points")
-       (if (realp (second style))
-         (format st " ps ~f" (/ (second style) 2))
-         (format st " ps 1.5"))
-       (if (third style)
-         (format st " lt ~d" (gnuplot-color colors (third style)))
-         (format st " lt ~d" (gnuplot-color colors i)))
-       (if (integerp (fourth style))
-         (format st " pt ~d" (gnuplot-pointtypes types (fourth style)))
-         (format st " pt ~d" (gnuplot-pointtypes types i))))
-      ($linespoints
-       (format st "with linespoints")
-       (if (realp (second style))
-         (format st " lw ~f" (second style)))
-       (if (realp (third style))
-         (format st " ps ~f" (/ (third style) 2))
-         (format st " ps 1.5"))
-       (if (fourth style)
-         (format st " lt ~d" (gnuplot-color colors (fourth style)))
-         (format st " lt ~d" (gnuplot-color colors i)))
-       (if (integerp (fifth style))
-         (format st " pt ~d" (gnuplot-pointtypes types (fifth style)))
-         (format st " pt ~d" (gnuplot-pointtypes types i)))
-       (if (integerp (sixth style))
-         (format st " pointinterval ~d" (sixth style)))
-         )
-      (t (format st "with lines lt ~d" (gnuplot-color colors i))))))
-
+          ($dots
+           (format st "with dots")
+           (if (second style)
+               (format st " lt ~d" (gnuplot-color colors (second style)))
+             (format st " lt ~d" (gnuplot-color colors i))))
+          ($impulses
+           (format st "with impulses")
+           (if (integerp (second style))
+               (format st " lt ~d" (gnuplot-color colors (second style)))
+             (format st " lt ~d" (gnuplot-color colors i))))
+          ($lines
+           (format st "with lines")
+           (if (realp (second style))
+               (format st " lw ~f" (second style)))
+           (if (third style)
+               (format st " lt ~d" (gnuplot-color colors (third style)))
+             (format st " lt ~d" (gnuplot-color colors i))))
+          ($points
+           (format st "with points")
+           (if (realp (second style))
+               (format st " ps ~f" (/ (second style) 2))
+             (format st " ps 1.5"))
+           (if (third style)
+               (format st " lt ~d" (gnuplot-color colors (third style)))
+             (format st " lt ~d" (gnuplot-color colors i)))
+           (if (integerp (fourth style))
+               (format st " pt ~d" (gnuplot-pointtypes types (fourth style)))
+             (format st " pt ~d" (gnuplot-pointtypes types i))))
+          ($linespoints
+           (format st "with linespoints")
+           (if (realp (second style))
+               (format st " lw ~f" (second style)))
+           (if (realp (third style))
+               (format st " ps ~f" (/ (third style) 2))
+             (format st " ps 1.5"))
+           (if (fourth style)
+               (format st " lt ~d" (gnuplot-color colors (fourth style)))
+             (format st " lt ~d" (gnuplot-color colors i)))
+           (if (integerp (fifth style))
+               (format st " pt ~d" (gnuplot-pointtypes types (fifth style)))
+             (format st " pt ~d" (gnuplot-pointtypes types i)))
+           (if (integerp (sixth style))
+               (format st " pointinterval ~d" (sixth style)))
+           )
+          (t (format st "with lines lt ~d" (gnuplot-color colors i))))))
 
 (defun gnuplot-palette (palette)
-;; palette should be a list starting with one of the symbols: hue,
-;; saturation, value, gray or gradient.
-;;
-;; If the symbol is gray, it should be followed by two floating point
-;; numbers that indicate the initial gray level and the interval of 
-;; gray values.
-;;
-;; If the symbol is one of hue, saturation or value, it must be followed
-;; by three numbers that specify the hue, saturation and value for the
-;; initial color, and a fourth number that gives the range of values for
-;; the increment of hue, saturation or value.
-;; The values for the initial hue, saturation, value and grayness should
-;; be within 0 and 1, while the range can be higher or even negative.
-;;
-;; If the symbol is gradient, it must be followed by either a list of valid
-;; colors or by a list of lists with two elements, a number and a valid color.
-
-  (unless (listp palette) (setq palette (list palette)))
-  (let (hue sat val gray range fun)
-    (case (first palette)
-      ($gray
-       (case (length (rest palette))
-         (2 (setq gray (second palette)) (setq range (third palette)))
-         (t (merror
-             (intl:gettext
-              "palette: gray must be followed by two numbers."))))
-       (when (or (< gray 0) (> gray 1))
-         (setq gray (- gray (floor gray)))))
-      (($hue $saturation $value)
-       (case (length (rest palette))
-         (4 (setq hue (second palette))
-            (setq sat (third palette))
-            (setq val (fourth palette))
-            (setq range (fifth palette)))
-         (t (merror
-             (intl:gettext
-              "palette: ~M must be followed by four numbers.")
-              (first palette))))
-       (when (or (< hue 0) (> hue 1)) (setq hue (- hue (floor hue))))
-       (when (or (< sat 0) (> sat 1)) (setq sat (- sat (floor sat))))
-       (when (or (< val 0) (> val 1)) (setq val (- val (floor val))))))
-    (with-output-to-string (st)
-      (case (first palette)
-        ($hue
-         (if (or (< (+ hue range) 0) (> (+ hue range) 1))
-             (setq fun (format nil "~,3f+~,3f*gray-floor(~,3f+~,3f*gray)"
-                               hue range hue range))
+"Given a valid palette, it returns its definition for Gnuplot."
+(let (type colors fun hue sat val range)
+  (if (atom palette)
+    (if (getf *plot-palettes* palette)
+      (setf colors (cdr (getf *plot-palettes* palette)))
+      (setf colors (list palette palette)))
+    (progn
+      (setq type (car palette))
+      (case type
+            ($gradient (setf colors (cdr palette)))
+            (($hue $saturation $value)
+             (multiple-value-setq (hue sat val range)
+                                  (apply #'values (cdr palette))))
+            (otherwise (setf colors palette)))))
+  (with-output-to-string
+    (st)
+    (case type
+          ($hue
+           (if (or (< (+ hue range) 0) (> (+ hue range) 1))
+               (setq fun (format nil "~,3f+~,3f*gray-floor(~,3f+~,3f*gray)"
+                                 hue range hue range))
              (setq fun (format nil "~,3f+~,3f*gray" hue range)))
-         (format st "model HSV functions ~a, ~,3f, ~,3f" fun sat val))
-        ($saturation
-         (if (or (< (+ sat range) 0) (> (+ sat range) 1))
-             (setq fun (format nil "~,3f+~,3f*gray-floor(~,3f+~,3f*gray)"
-                               sat range sat range))
+           (format st "model HSV functions ~a, ~,3f, ~,3f" fun sat val))
+          ($saturation
+           (if (or (< (+ sat range) 0) (> (+ sat range) 1))
+               (setq fun (format nil "~,3f+~,3f*gray-floor(~,3f+~,3f*gray)"
+                                 sat range sat range))
              (setq fun (format nil "~,3f+~,3f*gray" sat range)))
-         (format st "model HSV functions ~,3f, ~a, ~,3f" hue fun val))
-        ($value
-         (if (or (< (+ val range) 0) (> (+ val range) 1))
-             (setq fun (format nil "~,3f+~,3f*gray" val range))
+           (format st "model HSV functions ~,3f, ~a, ~,3f" hue fun val))
+          ($value
+           (if (or (< (+ val range) 0) (> (+ val range) 1))
+               (setq fun (format nil "~,3f+~,3f*gray" val range))
              (setq fun (format nil "~,3f+~,3f*gray-floor(~,3f+~,3f*gray)"
                                val range val range)))
-         (format st "model HSV functions ~,3f, ~,3f, ~a" hue sat fun))
-        ($gray
-         (if (or (< (+ gray range) 0) (> (+ gray range) 1))
-             (setq fun (format nil "~,3f+~,3f*gray" gray range))
-             (setq fun (format nil "~,3f+~,3f*gray-floor(~,3f+~,3f*gray)"
-                               gray range gray range)))
-         (format st "model RGB functions ~a, ~a, ~a" fun fun fun))
+           (format st "model HSV functions ~,3f, ~,3f, ~a" hue sat fun))
+          (otherwise
+           (let ((n (length colors)) map)
+             (dotimes (i n)
+               (setq map (cons (or (rgb-color (nth i colors)) "#ffffff")
+                               (cons (/ i (1- n)) map))))
+             ;; prints map with the format:  nj, "cj", ...,n1, "c1"  
+             (setq fun (format nil "~{~f ~s~^, ~}" (reverse map)))
+             ;; outputs the string: defined (nj, "cj", ...,n1, "c1")
+             (format st "defined (~a)" fun)))))))
 
-        ($gradient
-         (let* ((colors (rest palette)) (n (length colors)) (map nil))
-           ;; map is constructed as (n1 c1 n2 c2 ... nj cj) where ni is a
-           ;; decreasing sequence of numbers (n1=1, nj=0) and ci are colors
-           (cond
-             ;; Maxima list of numbers and colors (((mlist) ni ci) ...)
-             ((listp (first colors))
-              (setq colors (sort colors #'< :key #'cadr))
-              (dotimes (i n)
-                (setq map (cons (rgb-color (third (nth i colors))) ;; color
-                                (cons
-                                 (/ (- (second (nth i colors))   ;; ni minus
-                                       (second (first colors)))  ;; smallest ni
-                                    (- (second (nth (- n 1) colors));; biggest
-                                       (second (first colors)))) ;; - smallest
-                                 map)))))
-             ;; list of only colors
-             (t (dotimes (i n)
-                  (setq map (cons (rgb-color (nth i colors))  ;; color i
-                                  (cons (/ i (1- n)) map))))))    ;; number i
-
-           ;; prints map with the format:  nj, "cj", ...,n1, "c1"  
-           (setq fun (format nil "~{~f ~s~^, ~}" (reverse map)))
-           ;; outputs the string: defined (nj, "cj", ...,n1, "c1")
-           (format st "defined (~a)" fun)))
-        (t
-         (merror
-          (intl:gettext
-           "palette: wrong keyword ~M. Must be hue, saturation, value, gray or gradient.")
-          (first palette)))))))
-
-(defun gnuplot-plot3d-command (file palette gstyles colors titles n) 
-(let (title (style "with pm3d"))
-  (with-output-to-string (out)
-    (format out "splot ")
-  (do ((i 1 (+ i 1))) ((> i n) (format out "~%"))
-    (unless palette
-      (if gstyles
-	  (setq style (ensure-string (nth (mod i (length gstyles)) gstyles)))
-	  (setq style
-                (format nil "with lines lt ~a" (gnuplot-color colors i)))))
-    (when (> i 1) (format out ", "))
-    (if titles
-        (setq title (nth (mod i (length titles)) titles))
-        (setq title ""))
-    (format out "~s title ~s ~a" file title style)))))
+(defun gnuplot-plot3d-command (file palette gstyles meshcolor titles n)
+  (let (title (style "with pm3d"))
+    (with-output-to-string
+      (out)
+      (format out "splot ")
+      (do ((i 1 (+ i 1))) ((> i n) (format out "~%"))
+          (unless palette
+            (if gstyles
+	        (setq style (ensure-string (nth (mod i (length gstyles)) gstyles)))
+	      (setq style
+                    (format nil "with lines lc rgb ~s" (rgb-color meshcolor)))))
+          (when (> i 1) (format out ", "))
+          (if titles
+              (setq title (nth (mod i (length titles)) titles))
+            (setq title ""))
+          (format out "~s title ~s ~a" file title style)))))
 
 (defun gnuplot-terminal-and-file (plot-options)
   (let ((gstrings
          (if (getf plot-options '$gnuplot_strings) "enhanced" "noenhanced"))
         (gnuplot-svg-background (getf plot-options '$gnuplot_svg_background))
         terminal-command out-file (preserve-file t))
-  (cond
-    ((getf plot-options '$svg_file)
-     (if (getf plot-options '$gnuplot_svg_term_command)
-         (setq terminal-command
-               (getf plot-options '$gnuplot_svg_term_command))
-         (setq terminal-command
-               (format nil "set term svg font \",14\" ~a~@[ background '~a'~]" gstrings gnuplot-svg-background)))
-     (setq out-file (getf plot-options '$svg_file)))
-    ((getf plot-options '$png_file)
-     (if (getf plot-options '$gnuplot_png_term_command)
-         (setq terminal-command
-               (getf plot-options '$gnuplot_png_term_command))
-         (setq terminal-command
-               (format nil "set term pngcairo font \",12\" ~a" gstrings)))
-     (setq out-file (getf plot-options '$png_file)))
-    ((getf plot-options '$pdf_file)
-     (if (getf plot-options '$gnuplot_pdf_term_command)
-         (setq terminal-command
-               (getf plot-options '$gnuplot_pdf_term_command))
-         (setq terminal-command
-               (format nil "set term pdfcairo color solid lw 3 size 17.2 cm, 12.9 cm font \",18\" ~a" gstrings)))
-     (setq out-file (getf plot-options '$pdf_file)))
-    ((getf plot-options '$ps_file)
-     (if (getf plot-options '$gnuplot_ps_term_command)
-         (setq terminal-command
-               (getf plot-options '$gnuplot_ps_term_command))
-         (setq terminal-command
-               (format nil "set term postscript eps color solid lw 2 size 16.4 cm, 12.3 cm font \",24\" ~a" gstrings)))
-     (setq out-file (getf plot-options '$ps_file)))
-    ((eq (getf plot-options '$gnuplot_term) '$ps)
-     (if (getf plot-options '$gnuplot_ps_term_command)
-         (setq terminal-command
-               (getf plot-options '$gnuplot_ps_term_command))
-         (setq terminal-command
-               (format nil "set term postscript eps color solid lw 2 size 16.4 cm, 12.3 cm font \",24\" ~a" gstrings)))
-     (if (getf plot-options '$gnuplot_out_file)
-         (setq out-file (getf plot-options '$gnuplot_out_file))
-         (setq out-file (format nil "~a.ps" (random-name 16)))))
-    ((eq (getf plot-options '$gnuplot_term) '$dumb)
-     (if (getf plot-options '$gnuplot_dumb_term_command)
-         (setq terminal-command
-               (getf plot-options '$gnuplot_ps_term_command))
-         (setq terminal-command "set term dumb 79 22"))
-     (if (getf plot-options '$gnuplot_out_file)
-         (setq out-file (getf plot-options '$gnuplot_out_file))
-         (setq out-file (format nil "~a.txt" (random-name 16)))))
-    ((eq (getf plot-options '$gnuplot_term) '$default)
-     (if (getf plot-options '$gnuplot_default_term_command)
-         (setq terminal-command
-               (getf plot-options '$gnuplot_default_term_command))
-         (setq terminal-command
-               (if (getf plot-options '$window)
-                   (format nil "set term GNUTERM ~d ~a~%"
-                           (getf plot-options '$window) gstrings)
-                   (format nil "set term GNUTERM ~a~%" gstrings)))))
-    ((getf plot-options '$gnuplot_term)
-     (setq
-      terminal-command
-          (format nil "set term ~(~a~)"
-           (ensure-string (getf plot-options '$gnuplot_term))))
-     (if (getf plot-options '$gnuplot_out_file)
-         (setq out-file (getf plot-options '$gnuplot_out_file))
-         (setq preserve-file nil
-          out-file
-          (format nil "maxplot.~(~a~)"
-                  (get-gnuplot-term (getf plot-options '$gnuplot_term)))))))
-
-  (unless (null out-file) (setq out-file (plot-file-path out-file preserve-file plot-options)))
-  (list terminal-command out-file)))
+    (cond
+     ((getf plot-options '$svg_file)
+      (if (getf plot-options '$gnuplot_svg_term_command)
+          (setq terminal-command
+                (getf plot-options '$gnuplot_svg_term_command))
+        (setq terminal-command
+              (format nil "set term svg font \",14\" ~a" gstrings)))
+      (setq out-file (getf plot-options '$svg_file)))
+     ((getf plot-options '$png_file)
+      (if (getf plot-options '$gnuplot_png_term_command)
+          (setq terminal-command
+                (getf plot-options '$gnuplot_png_term_command))
+        (setq terminal-command
+              (format nil "set term pngcairo font \",12\" ~a" gstrings)))
+      (setq out-file (getf plot-options '$png_file)))
+     ((getf plot-options '$pdf_file)
+      (if (getf plot-options '$gnuplot_pdf_term_command)
+          (setq terminal-command
+                (getf plot-options '$gnuplot_pdf_term_command))
+        (setq terminal-command
+              (format nil "set term pdfcairo color solid lw 3 size 17.2 cm, 12.9 cm font \",18\" ~a" gstrings)))
+      (setq out-file (getf plot-options '$pdf_file)))
+     ((getf plot-options '$ps_file)
+      (if (getf plot-options '$gnuplot_ps_term_command)
+          (setq terminal-command
+                (getf plot-options '$gnuplot_ps_term_command))
+        (setq terminal-command
+              (format nil "set term postscript eps color solid lw 2 size 16.4 cm, 12.3 cm font \",24\" ~a" gstrings)))
+      (setq out-file (getf plot-options '$ps_file)))
+     ((eq (getf plot-options '$gnuplot_term) '$ps)
+      (if (getf plot-options '$gnuplot_ps_term_command)
+          (setq terminal-command
+                (getf plot-options '$gnuplot_ps_term_command))
+        (setq terminal-command
+              (format nil "set term postscript eps color solid lw 2 size 16.4 cm, 12.3 cm font \",24\" ~a" gstrings)))
+      (if (getf plot-options '$gnuplot_out_file)
+          (setq out-file (getf plot-options '$gnuplot_out_file))
+        (setq out-file (format nil "~a.ps" (random-name 16)))))
+     ((eq (getf plot-options '$gnuplot_term) '$dumb)
+      (if (getf plot-options '$gnuplot_dumb_term_command)
+          (setq terminal-command
+                (getf plot-options '$gnuplot_dumb_term_command))
+        (setq terminal-command "set term dumb 79 22"))
+      (if (getf plot-options '$gnuplot_out_file)
+          (setq out-file (getf plot-options '$gnuplot_out_file))
+        (setq out-file (format nil "~a.txt" (random-name 16)))))
+     ((eq (getf plot-options '$gnuplot_term) '$default)
+      (if (getf plot-options '$gnuplot_default_term_command)
+          (setq terminal-command
+                (getf plot-options '$gnuplot_default_term_command))
+        (setq terminal-command
+              (if (getf plot-options '$window)
+                  (format nil "set term GNUTERM ~d ~a~%"
+                          (getf plot-options '$window) gstrings)
+                (format nil "set term GNUTERM ~a~%" gstrings)))))
+     ((getf plot-options '$gnuplot_term)
+      (setq
+       terminal-command
+       (format nil "set term ~(~a~)"
+               (ensure-string (getf plot-options '$gnuplot_term))))
+      (if (getf plot-options '$gnuplot_out_file)
+          (setq out-file (getf plot-options '$gnuplot_out_file))
+        (setq preserve-file nil
+              out-file
+              (format nil "maxplot.~(~a~)"
+                      (get-gnuplot-term (getf plot-options '$gnuplot_term)))))))
+    (when out-file
+      (setq out-file (plot-file-path out-file preserve-file plot-options))
+      ;; plots that create a file work better in gnuplot than gnuplot_pipes
+      (if (eq (getf plot-options '$plot_format) '$gnuplot_pipes)
+          (setf (getf plot-options '$plot_format) '$gnuplot)))
+    (list terminal-command out-file)))
 
 (defmethod plot-preamble ((plot gnuplot-plot) plot-options)
   (let ((palette (getf plot-options '$palette))
-                      (meshcolor (if (member '$mesh_lines_color plot-options)
-                                     (getf plot-options '$mesh_lines_color)
-                                     '$black)) terminal-file)
-    (when (find 'mlist palette :key #'car) (setq palette (list palette)))
+        (meshcolor (if (member '$mesh_lines_color plot-options)
+                       (getf plot-options '$mesh_lines_color) '$black))
+        (lighting (getf plot-options '$lighting)) terminal-file)
     ;; sets-up terminal command and output file name
     (setq terminal-file (gnuplot-terminal-and-file plot-options))
     (setf
@@ -336,7 +261,11 @@
      (concatenate
       'string
       (slot-value plot 'data)
-      (with-output-to-string (dest)
+      (with-output-to-string
+        (dest)
+        ;; record Maxima version and date-time
+        (format dest "# Created by Maxima ~a~%" *autoconf-version*)
+        (format dest "# ~a~%" ($timedate))
         ;; reset initial state
         (format dest "reset~%unset output~%unset multiplot~%set clip two~%")
         ;; user's preamble
@@ -350,29 +279,39 @@
           (format dest "~a~%" (first terminal-file)))
         (when (second terminal-file)
           (format dest "set output ~s~%" (second terminal-file)))
+        ;; background color
+        (format dest "set obj 1 rectangle behind from screen 0.0,0.0 to screen 1.0,1.0~%")
         ;; options specific to plot3d
+        (format dest "set obj 1 fc rgb ~s fs solid 1.0 noborder~%"
+                (rgb-color (getf plot-options '$background_color)))
         (when (string= (getf plot-options '$type) "plot3d")
           (format dest "set xyplane relative 0~%")
           (if palette
               (progn
                 (if meshcolor
-                    (progn
-                      (format dest
-                              "if (GPVAL_VERSION < 5.0) set style line 100 lt rgb ~s lw 1; set pm3d hidden3d 100~%"
-                              (rgb-color meshcolor))
-                      (format dest
-                              "if ((GPVAL_VERSION >= 5.0) && (GPVAL_VERSION < 6.0)) set pm3d hidden3d 100 border lw 0.5 lt rgb ~s~%"
-                              (rgb-color meshcolor))
-                      (format dest
-                              "if (GPVAL_VERSION >= 6.0) set pm3d hidden3d border lw 0.5 lt rgb ~s~%"
-                              (rgb-color meshcolor))
-                      (unless (getf plot-options '$gnuplot_4_0)
-                        (format dest "set pm3d depthorder~%")))
-                    (format dest "set pm3d~%"))
+                  (progn
+                    (format dest
+                            "if (GPVAL_VERSION < 5.0) set style line 100 lt rgb ~s lw 1; set pm3d hidden3d 100~%"
+                            (rgb-color meshcolor))
+                    (format dest
+                            "if ((GPVAL_VERSION >= 5.0) && (GPVAL_VERSION < 6.0)) set pm3d hidden3d 100 border lw 0.5 lt rgb ~s~%"
+                            (rgb-color meshcolor))
+                    (format dest
+                            "if (GPVAL_VERSION >= 6.0) set pm3d hidden3d border lw 0.5 lt rgb ~s~%"
+                            (rgb-color meshcolor))
+                    (unless (getf plot-options '$gnuplot_4_0)
+                      (format dest "set pm3d depthorder")
+                      (if lighting
+                        (format dest " lighting~%")
+                        (format dest "~%"))))
+                  (progn
+                    (format dest "set pm3d depthorder")
+                    (if lighting
+                      (format dest " lighting~%")
+                      (format dest "~%"))))
                 (format dest "unset hidden3d~%")
-                (format dest "set palette ~a~%"
-                        (gnuplot-palette (rest (first palette)))))
-              (format dest "set hidden3d~%"))
+                (format dest "set palette ~a~%" (gnuplot-palette palette)))
+              (format dest "unset pm3d~%"))
           (let ((elev (getf plot-options '$elevation))
                 (azim (getf plot-options '$azimuth)))
             (when (or elev azim)
@@ -412,12 +351,14 @@
                    (null (getf plot-options '$legend)))
           (format dest "unset key~%"))
         ;; plotting box
-        (when (and (member '$box plot-options) (not (getf plot-options '$box)))
-          (format dest "unset border~%")
-          (if (and (getf plot-options '$axes)
-                   (string= (getf plot-options '$type) "plot2d"))
-              (format dest "set xtics axis~%set ytics axis~%set ztics axis~%")
-              (format dest "unset xtics~%unset ytics~%unset ztics~%")))
+        (if (and (member 'mbox plot-options) (not (getf plot-options 'mbox)))
+          (progn
+           (format dest "unset border~%")
+           (if (and (getf plot-options '$axes)
+                    (string= (getf plot-options '$type) "plot2d"))
+               (format dest "set xtics axis~%set ytics axis~%set ztics axis~%")
+             (format dest "unset xtics~%unset ytics~%unset ztics~%")))
+          (format dest "set border 4095~%"))          
         ;; 2d grid (specific to plot2d)
         (when (string= (getf plot-options '$type) "plot2d")
           (format dest "set grid front~%")
@@ -682,10 +623,11 @@
           (format $pstream "~a~%" (getf options '$gnuplot_postamble)))
         ;; gnuplot command to produce the 3d plot
         (format $pstream "~a"
-                (gnuplot-plot3d-command "-" (getf options '$palette)
-                                        (getf options '$gnuplot_curve_styles)
-                                        (getf options '$color)
-                                        titles n))
+                (gnuplot-plot3d-command
+                 "-" (getf options '$palette)
+                 (getf options '$gnuplot_curve_styles)
+                 (or (getf options '$mesh_lines_color) "#000000")
+                 titles n))
         ;; generate the mesh points for each surface in the functions stack
         (dolist (f functions)
           (setq i (+ 1 i))
@@ -720,17 +662,16 @@
                   (mtell
                    (intl:gettext
                     "plot3d: keep going and hope for the best.~%")))))
-          (let* ((pl
+          (let* ((points
                   (draw3d
                    fun (third xrange) (fourth xrange) (third yrange)
                    (fourth yrange) (first (getf options '$grid))
-                   (second (getf options '$grid))))
-                 (ar (polygon-pts pl)))
-            (declare (type (cl:array t) ar))
-            (when trans (mfuncall trans ar))
+                   (second (getf options '$grid)))))
+            (declare (type (cl:array t) points))
+            (when trans (mfuncall trans points))
             (when (getf options '$transform_xy)
-              (mfuncall (getf options '$transform_xy) ar))
-            (output-points pl (first (getf options '$grid)))
+              (mfuncall (getf options '$transform_xy) points))
+            (output-points points (first (getf options '$grid)))
             (format $pstream "e~%"))))))))
 
 (defmethod plot-shipout ((plot gnuplot-plot) options &optional output-file)
@@ -749,3 +690,146 @@
       (when output-file
         (send-gnuplot-command "unset output")
         (cons '(mlist) output-file)))))
+
+(defun gnuplot-process (plot-options &optional file out-file)
+  (let ((gnuplot-term (getf plot-options '$gnuplot_term))
+        (run-viewer (getf plot-options '$run_viewer))
+        #-(or (and sbcl win32) (and sbcl win64) (and ccl windows))
+		(gnuplot-preamble
+         (string-downcase (getf plot-options '$gnuplot_preamble))))
+
+    ;; creates the output file, when there is one to be created
+    (when (and out-file (not (eq gnuplot-term '$default)))
+      ($system $gnuplot_command (format nil $gnuplot_file_args file)))
+
+    ;; displays contents of the output file, when gnuplot-term is dumb,
+    ;; or runs gnuplot when gnuplot-term is default
+    (when run-viewer
+      (case gnuplot-term
+        ($default
+         ;; the options given to gnuplot will be different when the user
+         ;; redirects the output by using "set output" in the preamble
+         (if (search "set out" gnuplot-preamble)
+             ($system $gnuplot_command (format nil $gnuplot_file_args file))
+             ($system $gnuplot_command (format nil $gnuplot_view_args file))))
+        ($dumb
+         (if out-file
+             ($printfile (car out-file))
+           (merror (intl:gettext "plotting: option 'gnuplot_out_file' not defined."))))))))
+
+;; gnuplot_pipes functions. They allow the use of Gnuplot through a
+;; pipe in order to keep it active (this makes it possible for instance,
+;; to rotate a 3d surface with the mouse)
+
+(defvar *gnuplot-stream* nil)
+(defvar *gnuplot-command* "")
+
+(defmvar $gnuplot_command "gnuplot"
+  "The command (a string) that runs gnuplot"
+  :setting-predicate #'string-predicate)
+
+(defun start-gnuplot-process (path)
+  ;; TODO: Forward gnuplot's stderr stream to maxima's stderr output
+  #+clisp (setq *gnuplot-stream* (ext:make-pipe-output-stream path))
+  ;; TODO: Forward gnuplot's stderr stream to maxima's stderr output
+  #+lispworks (setq *gnuplot-stream* (system:open-pipe path))
+  #+cmu (setq *gnuplot-stream*
+              (ext:process-input (ext:run-program path nil :input :stream
+                                                  :output *error-output* :wait nil)))
+  #+scl (setq *gnuplot-stream*
+              (ext:process-input (ext:run-program path nil :input :stream
+                                                  :output *error-output* :wait nil)))
+  #+sbcl (setq *gnuplot-stream*
+               (sb-ext:process-input (sb-ext:run-program path nil
+                                                         :input :stream
+                                                         :output *error-output* :wait nil
+                                                         :search t)))
+  #+gcl (setq *gnuplot-stream*
+              (open (concatenate 'string "| " path) :direction :output))
+  #+ecl (progn
+          (setq *gnuplot-stream* (ext:run-program path nil :input :stream :output *error-output* :error :output :wait nil)))
+  #+ccl (setf *gnuplot-stream*
+              (ccl:external-process-input-stream
+               (ccl:run-program path nil
+                                :wait nil :output *error-output*
+                                :input :stream)))
+  #+allegro (setf *gnuplot-stream* (excl:run-shell-command
+                    path :input :stream :output *error-output* :wait nil))
+  #+abcl (setq *gnuplot-stream* (system::process-input (system::run-program path nil :wait nil)))
+  #-(or clisp cmu sbcl gcl scl lispworks ecl ccl allegro abcl)
+  (merror (intl:gettext "plotting: I don't know how to tell this Lisp to run Gnuplot."))
+  
+  (if (null *gnuplot-stream*)
+    (merror (intl:gettext "plotting: I tried to execute ~s but *GNUPLOT-STREAM* is still null.~%") path))
+
+  ;; set mouse must be the first command send to gnuplot
+  (send-gnuplot-command "set mouse"))
+
+(defun check-gnuplot-process ()
+  (if (null *gnuplot-stream*)
+      (start-gnuplot-process $gnuplot_command)))
+
+(defmfun $gnuplot_close ()
+  (stop-gnuplot-process)
+  "")
+
+(defmfun $gnuplot_start ()
+  (check-gnuplot-process)
+  "")
+
+(defmfun $gnuplot_restart ()
+  ($gnuplot_close)
+  ($gnuplot_start))
+
+(defmfun $gnuplot_send (command)
+  (send-gnuplot-command command))
+
+(defun stop-gnuplot-process ()
+  (unless (null *gnuplot-stream*)
+      (progn
+        (close *gnuplot-stream*)
+        (setq *gnuplot-stream* nil))))
+
+(defun send-gnuplot-command (command &optional recursive)
+  (if (null *gnuplot-stream*)
+      (start-gnuplot-process $gnuplot_command))
+  (handler-case (unless (null command)
+		  (format *gnuplot-stream* "~a ~%" command)
+		  (finish-output *gnuplot-stream*))
+    (error (e)
+      ;; allow gnuplot to restart if stream-error, or just an error is signaled
+      ;; only try to restart once, to prevent an infinite loop 
+      (cond (recursive
+	     (error e))
+	    (t
+	     (warn "~a~%Trying new stream.~%" e)
+	     (setq *gnuplot-stream* nil)
+	     (send-gnuplot-command command t))))))
+
+(defmfun $gnuplot_reset ()
+  (send-gnuplot-command "unset output")
+  (send-gnuplot-command "reset"))
+
+(defmfun $gnuplot_replot (&optional s)
+  (if (null *gnuplot-stream*)
+      (merror (intl:gettext "gnuplot_replot: Gnuplot is not running.")))
+  (cond ((null s)
+         (send-gnuplot-command "replot"))
+        ((stringp s)
+         (send-gnuplot-command s)
+         (send-gnuplot-command "replot"))
+        (t
+         (merror (intl:gettext "gnuplot_replot: argument, if present, must be a string; found: ~M") s)))
+  "")
+
+(defun plot-set-gnuplot-script-file-name (options)
+"Returns a file name where the Gnuplot commands will be saved."
+  (let ((gnuplot-term (getf options '$gnuplot_term))
+	(gnuplot-out-file (getf options '$gnuplot_out_file)))
+    (if (and (find (getf options '$plot_format) '($gnuplot_pipes $gnuplot))
+             (eq gnuplot-term '$default) gnuplot-out-file)
+	(plot-file-path gnuplot-out-file t options)
+      (plot-file-path (format nil "~a.~a" (random-name 16)
+                              (ensure-string (getf options '$plot_format)))
+                      nil options))))
+

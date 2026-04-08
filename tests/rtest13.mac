@@ -52,3 +52,67 @@ atvalue('diff(g(x),x),x = 0,a);
 a$
 atvalue(f(x),x = 0,1);
 1$
+
+/* SF bug #4490: "error message when adding non-conformable matrices" */
+
+(kill (a, b, c, d, u, v, x, y, z),
+ S: make_string_output_stream (),
+ with_stdout (S, block ([maperror: true], errcatch (matrix ([a, b], [c, d]) + [x, y, z]))));
+[];
+
+is (regex_match ("non-conformable list or matrix arguments", get_output_stream_string (S)) # false);
+true;
+
+(close (S),
+ S: make_string_output_stream (),
+ with_stdout (S, block ([maperror: true], errcatch (matrix ([a, b], [c, d]) + matrix ([x, y, z], [z, y, x])))));
+[];
+
+is (regex_match ("non-conformable list or matrix arguments", get_output_stream_string (S)) # false);
+true;
+
+(close (S),
+ S: make_string_output_stream (),
+ with_stdout (S, block ([maperror: true], errcatch ([a, b, c, d] + [x, y, z]))));
+[];
+
+is (regex_match ("non-conformable list or matrix arguments", get_output_stream_string (S)) # false);
+true;
+
+(close (S),
+ S: make_string_output_stream (),
+ with_stdout (S, block ([maperror: false, mapprint: true], matrix ([a, b], [c, d]) + [x, y, z])));
+matrix ([a + x, b + x], [c + y, d + y]);
+
+is (regex_match ("truncating one or more arguments", get_output_stream_string (S)) # false);
+true;
+
+(close (S),
+ S: make_string_output_stream (),
+  with_stdout (S, block ([maperror: false, mapprint: true], matrix ([a, b], [c, d]) + matrix ([x, y, z], [z, y, x]))));
+matrix ([a + x, b + y], [c + z, d + y]);
+
+is (regex_match ("truncating one or more arguments", get_output_stream_string (S)) # false);
+true;
+
+(close (S),
+ S: make_string_output_stream (),
+   with_stdout (S, block ([maperror: false, mapprint: true], [a, b, c, d] + [x, y, z])));
+[a + x, b + y, c + z];
+
+is (regex_match ("truncating one or more arguments", get_output_stream_string (S)) # false);
+true;
+
+(close (S), 0);
+0;
+
+/* verify that conformable lists/matrices didn't get messed up */
+
+block ([listarith: true], [a, b, c] + [x, y, z]);
+[a + x, b + y, c + z];
+
+matrix ([a, b, c], [x, y, z]) + [u, v];
+matrix ([a + u, b + u, c + u], [x + v, y + v, z + v]);
+
+matrix ([a, b], [b, c], [c, d]) + matrix ([x, y], [y, z], [z, x]);
+matrix ([a + x, b + y], [b + y, c + z], [c + z, d + x]);

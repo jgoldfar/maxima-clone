@@ -552,9 +552,7 @@ contiene un polinomio de Legendre:
 (%o1)
 @end example
 
-@ifnotinfo
-@image{@value{figuresfolder}/orthopoly1,8cm}
-@end ifnotinfo
+@altfigure{orthopoly1, Gráfico del polinomio de Legrende de quinto grado}
 
 La expresión @code{legendre_p (5, x)} se comenta @i{completamente}, que no es 
 lo mismo que comentar el nombre de la función, como en

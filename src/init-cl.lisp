@@ -16,22 +16,6 @@
 
 (in-package :maxima)
 
-;;; Locations of various types of files. These variables are discussed
-;;; in more detail in the file doc/implementation/dir_vars.txt. Since
-;;; these are already in the maxima package, the maxima- prefix is
-;;; redundant. It is kept for consistency with the same variables in
-;;; shell scripts, batch scripts and environment variables.
-;;; jfa 02/07/04
-
-(defvar *maxima-topdir*)        ;; top-level installation or build directory
-(defvar *maxima-imagesdir*)
-(defvar *maxima-sharedir*)
-(defvar *maxima-srcdir*)
-(defvar *maxima-docdir*)
-(defvar *maxima-layout-autotools*)
-(defvar *maxima-demodir*)
-(defvar *maxima-objdir*)		;; Where to store object (fasl) files.
-
 (defvar *verify-html-index* nil
   "If non-NIL, verify the contents of the html index versus the text
   index.  Set via the command-line option --verify-html-index.")
@@ -69,7 +53,6 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
                  *maxima-docdir*
                  *maxima-infodir*
                  *maxima-htmldir*
-                 *maxima-plotdir*
                  *maxima-layout-autotools*
                  *maxima-userdir*
                  *maxima-tempdir*
@@ -80,19 +63,6 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
     (format t "~a:~25t~a~%"
             (string-trim "*" (string-downcase var))
             (symbol-value var))))
-
-(defvar *maxima-lispname*
-        #+clisp "clisp"
-	#+cmu "cmucl"
-	#+scl "scl"
-	#+sbcl "sbcl"
-	#+gcl "gcl"
-	#+allegro "acl"
-	#+openmcl "openmcl"
-	#+abcl "abcl"
-	#+lispworks "lispworks"
-	#+ecl "ecl"
-	#-(or clisp cmu scl sbcl gcl allegro openmcl abcl lispworks ecl) "unknownlisp")
 
 (defun maxima-parse-dirstring (str)
   (let ((sep "/"))
@@ -112,18 +82,16 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
 
 (defun set-pathnames-with-autoconf (maxima-prefix-env maxima-docprefix-env)
   (declare (ignore maxima-docprefix-env))
-  (let (libdir libexecdir datadir infodir
+  (let (libdir datadir infodir
 	(package-version (combine-path *autoconf-package* *autoconf-version*))
 	(binary-subdirectory (concatenate 'string "binary-" *maxima-lispname*)))
     (if maxima-prefix-env
 	(progn
 	  (setq libdir     (combine-path maxima-prefix-env "lib"))
-	  (setq libexecdir (combine-path maxima-prefix-env "libexec"))
 	  (setq datadir    (combine-path maxima-prefix-env "share"))
 	  (setq infodir    (combine-path maxima-prefix-env #+(or cygwin windows win32 win64) "share" "info")))
 	(progn
 	  (setq libdir     (maxima-parse-dirstring *autoconf-libdir*))
-	  (setq libexecdir (maxima-parse-dirstring *autoconf-libexecdir*))
 	  (setq datadir    (maxima-parse-dirstring *autoconf-datadir*))
 	  (setq infodir    (maxima-parse-dirstring *autoconf-infodir*))))
     (setq *maxima-topdir*    (combine-path datadir package-version))
@@ -134,8 +102,7 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
     (setq *maxima-testsdir*  (combine-path datadir package-version "tests"))
     (setq *maxima-docdir*    (combine-path datadir package-version "doc"))
     (setq *maxima-infodir*   infodir)
-    (setq *maxima-htmldir*   (combine-path datadir package-version "doc" "html"))
-    (setq *maxima-plotdir*   (combine-path libexecdir package-version))))
+    (setq *maxima-htmldir*   (combine-path datadir package-version "doc" "html"))))
 
 (defun set-pathnames-without-autoconf (maxima-prefix-env maxima-docprefix-env)
   (let* ((maxima-prefix (if maxima-prefix-env
@@ -154,11 +121,10 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
 			        maxima-prefix)))
       (setq *maxima-docdir*    (combine-path maxima-doc-prefix "doc"))
       (setq *maxima-infodir*   (combine-path maxima-doc-prefix "doc" "info"))
-      (setq *maxima-htmldir*   (combine-path maxima-doc-prefix "doc" "html")))
-    (setq *maxima-plotdir*   (combine-path maxima-prefix "plotting"))))
+      (setq *maxima-htmldir*   (combine-path maxima-doc-prefix "doc" "html")))))
 
 (defun default-userdir ()
-  (let ((home-env (maxima-getenv "HOME"))
+  (let ((home-env (or (maxima-getenv "HOME") (maxima-getenv "USERPROFILE")))
 	(base-dir "")
 	(maxima-dir (if (string= *autoconf-windows* "true")
 			"maxima"
@@ -232,14 +198,6 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
                  (setq *maxima-lang-subdir* language))
                 (t  (setq *maxima-lang-subdir* nil))))))))
 
-(flet ((sanitize-string (s)
-	 (map 'string (lambda(x) (if (alphanumericp x) x #\_))
-	      (subseq s 0 (min 142 (length s))))))
-  (defun lisp-implementation-version1 ()
-    (sanitize-string (lisp-implementation-version)))
-  (defun maxima-version1 ()
-    (sanitize-string *autoconf-version*)))
-
 (defun setup-search-lists ()
   "Set up the default values for $file_search_lisp, $file_search_maxima,
   $file_search_demo, $file_search_usage, and $file_search_test."
@@ -247,7 +205,7 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
 	 (lisp-patterns (list ext "lisp"))
 	 (maxima-patterns '("mac" "wxm"))
 	 (lisp+maxima-patterns (append lisp-patterns maxima-patterns))
-	 (demo-patterns '("dem"))
+	 (demo-patterns '("dem" "demo"))
 	 (usage-patterns '("usg")))
 
     (flet ((build-search-list (path-info)
@@ -362,52 +320,49 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
 	     (not (probe-file (combine-path *maxima-infodir* *maxima-lang-subdir* "maxima-index.lisp"))))
     (setq *maxima-lang-subdir* nil)))
 
-(defun get-dirs (path &aux (ns (namestring path)))
-  (directory (concatenate 'string
-                          ns
-                          (if (eql #\/ (char ns (1- (length ns)))) "" "/")
-                          "*"
-                          #+(or :clisp :sbcl :ecl :openmcl :gcl) "/")
-             #+openmcl :directories #+openmcl t))
-
-(defun unix-like-basename (path)
-  (let* ((pathstring (namestring path))
-	 (len (length pathstring)))
-    (when (equal (subseq pathstring (- len 1) len) "/")
-      (decf len)
-      (setf pathstring (subseq pathstring 0 len)))
-    (subseq pathstring (1+ (or (position #\/ pathstring :from-end t)
-			       (position #\\ pathstring :from-end t))) len)))
-
-(defun unix-like-dirname (path)
-  (let* ((pathstring (namestring path))
-	 (len (length pathstring)))
-    (when (equal (subseq pathstring (- len 1) len) "/")
-      (decf len)
-      (setf pathstring (subseq pathstring 0 len)))
-    (subseq pathstring 0 (or (position #\/ pathstring :from-end t)
-			     (position #\\ pathstring :from-end t)))))
-
 (defun list-avail-action ()
-  (let* ((maxima-verpkglibdir (if (maxima-getenv "MAXIMA-VERPKGLIBDIR")
-				  (maxima-getenv "MAXIMA-VERPKGLIBDIR")
-				  (if (maxima-getenv "MAXIMA_PREFIX")
-				      (combine-path (maxima-getenv "MAXIMA_PREFIX") "lib"
-						    *autoconf-package* *autoconf-version*)
-				      (combine-path (maxima-parse-dirstring *autoconf-libdir*)
-						    *autoconf-package* *autoconf-version*))))
-	 (len (length maxima-verpkglibdir))
-	 (lisp-string nil))
-    (format t "Available versions:~%")
-    (unless (equal (subseq maxima-verpkglibdir (- len 1) len) "/")
-      (setf maxima-verpkglibdir (concatenate 'string maxima-verpkglibdir "/")))
-    (dolist (version (get-dirs (unix-like-dirname maxima-verpkglibdir)))
-      (dolist (lisp (get-dirs version))
-	(setf lisp-string (unix-like-basename lisp))
-	(when (search "binary-" lisp-string)
-	  (setf lisp-string (subseq lisp-string (length "binary-") (length lisp-string)))
-	  (format t "version ~a, lisp ~a~%" (unix-like-basename version) lisp-string))))
-    (bye)))
+  (cond
+    ((maxima-getenv "MAXIMA_LOCAL")
+     ;; We're running maxima-local in the src tree.
+     (let ((maxima-dir (maxima-getenv "MAXIMA_PREFIX"))
+           ;; I (rtoy) am lazy.  Just use regexp to match
+           ;; "src/binary-foo" which is the directory containing the
+           ;; build using lisp "foo".  Since it's a directory, the
+           ;; pattern should not include the slash.
+           (pattern (pregexp:pregexp "src/binary-([^/]+)")))
+       ;; maxima-local MUST define MAXIMA_PREFIX envvar so we know where we are.
+       (unless maxima-dir
+         (format t "Environment variable MAXIMA_PREFIX not defined by maxima-local.~%~
+                    Cannot list available versions.  Exiting.~%")
+         (bye))
+       (setf maxima-dir (combine-path maxima-dir "src"))
+       (format t "Available versions:~%")
+       (dolist (p (get-dirs (concatenate 'string maxima-dir "/*")))
+         (destructuring-bind (&optional whole-match lisp-name)
+             (pregexp:pregexp-match pattern (namestring p))
+           (declare (ignore whole-match))
+           (when lisp-name
+             (format t "version ~a, lisp ~a~%" *autoconf-version* lisp-name))))))
+    (t
+     (let* ((maxima-verpkglibdir (if (maxima-getenv "MAXIMA-VERPKGLIBDIR")
+				     (maxima-getenv "MAXIMA-VERPKGLIBDIR")
+				     (if (maxima-getenv "MAXIMA_PREFIX")
+				         (combine-path (maxima-getenv "MAXIMA_PREFIX") "lib"
+						       *autoconf-package* *autoconf-version*)
+				         (combine-path (maxima-parse-dirstring *autoconf-libdir*)
+						       *autoconf-package* *autoconf-version*))))
+	    (len (length maxima-verpkglibdir))
+	    (lisp-string nil))
+       (format t "Available versions:~%")
+       (unless (equal (subseq maxima-verpkglibdir (- len 1) len) "/")
+         (setf maxima-verpkglibdir (concatenate 'string maxima-verpkglibdir "/")))
+       (dolist (version (get-dirs (unix-like-dirname maxima-verpkglibdir)))
+         (dolist (lisp (get-dirs version))
+	   (setf lisp-string (unix-like-basename lisp))
+	   (when (search "binary-" lisp-string)
+	     (setf lisp-string (subseq lisp-string (length "binary-") (length lisp-string)))
+	     (format t "version ~a, lisp ~a~%" (unix-like-basename version) lisp-string)))))))
+  (bye))
 
 (defvar *maxima-commandline-options* nil
   "All of the recognized command line options for maxima")
@@ -552,7 +507,9 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
 				     ;; $loadprint T so we can see the file being loaded;
 				     ;; unless *maxima-quiet* is T.
 				     (let (($loadprint (not *maxima-quiet*)))
-				       ($load file)))
+                                       ;; If there's an error, catch
+                                       (catch 'macsyma-quit
+				         ($load file))))
 			 :help-string
                          "Preload <file>, which may be any file time accepted by
         Maxima's LOAD function.  The <file> is loaded before any other
@@ -589,6 +546,12 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
 						    port-string))
                                      (setf input-stream *standard-input*))
 			 :help-string "Connect Maxima to server on <port>.")
+	 (make-cl-option :names '("--suppress-input-echo")
+			 :action #'(lambda ()
+				     (declare (special *suppress-input-echo*))
+				     (setq *suppress-input-echo* t))
+			 :help-string
+			 "Do not print input expressions when processing noninteractively.")
 	 (make-cl-option :names '("-u" "--use-version")
 			 :argument "<version>"
 			 :action nil
@@ -746,19 +709,19 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
                                      "/share/locale/"
                                      "/locale/")))
           intl::*locale-directories*))
-  ;; Set up $browser for displaying help in browser.
+  ;; Set up $browser for displaying help in browser in Linux.
   (cond ((and (boundp '*autoconf-windows*)
 	      (string-equal *autoconf-windows* "true"))
-	 ;; Starts the default browser on Windows.
-	 (setf $browser "start ~A"))
+	 ;; "start" will open the default browser in Windows.
+	 (setf $browser "start"))
 	((boundp '*autoconf-host*)
-	 ;; Determine what kind of OS we're using from the host and
-	 ;; set up the default browser appropriately.
 	 (cond ((pregexp:pregexp-match-positions "(?:darwin)" *autoconf-host*)
-		(setf $browser "open '~A'"))
+	        ;; "open"  will open the default browser in MacOS.
+		(setf $browser "open"))
 	       ((pregexp:pregexp-match-positions "(?i:linux)" *autoconf-host*)
-		(setf $browser "xdg-open '~A'")))))
-  #+nil
+	        ;; "xdg-open"  will open the default browser in Linux.
+		(setf $browser "xdg-open")))))
+
   (setf %e-val (mget '$%e '$numer))
 
   ;; Initialize *bigprimes* here instead of globals.lisp because we
@@ -777,6 +740,7 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
   (setf $pointbound *alpha)
   (setf (gethash '$pointbound *variable-initial-values*)
 	*alpha)
+  (initialize-atan2-hashtable)
   (values))
 
 (defun adjust-character-encoding ()

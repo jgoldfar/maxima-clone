@@ -68,33 +68,41 @@ calling @code{desolve} by using @mref{atvalue}.
 @c desolve([%o1,%o2],[f(x),g(x)]);
 @c [%o1,%o2],%o5,diff;
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) 'diff(f(x),x)='diff(g(x),x)+sin(x);
                  d           d
 (%o1)            -- (f(x)) = -- (g(x)) + sin(x)
                  dx          dx
-(%i2) 'diff(g(x),x,2)='diff(f(x),x)-cos(x);
+@end group
 @group
+(%i2) 'diff(g(x),x,2)='diff(f(x),x)-cos(x);
                   2
                  d            d
 (%o2)            --- (g(x)) = -- (f(x)) - cos(x)
                    2          dx
                  dx
 @end group
+@group
 (%i3) atvalue('diff(g(x),x),x=0,a);
 (%o3)                           a
+@end group
+@group
 (%i4) atvalue(f(x),x=0,1);
 (%o4)                           1
+@end group
+@group
 (%i5) desolve([%o1,%o2],[f(x),g(x)]);
-                  x
-(%o5) [f(x) = a %e  - a + 1, g(x) = 
-
-                                                x
-                                   cos(x) + a %e  - a + g(0) - 1]
+                x
+(%o5) [f(x) = %e  a - a + 1, g(x) = 
+                                              x
+                                   cos(x) + %e  a - a + g(0) - 1]
+@end group
+@group
 (%i6) [%o1,%o2],%o5,diff;
-             x       x      x                x
-(%o6)   [a %e  = a %e , a %e  - cos(x) = a %e  - cos(x)]
-
+           x       x      x                x
+(%o6)   [%e  a = %e  a, %e  a - cos(x) = %e  a - cos(x)]
+@end group
 @end example
 
 If @code{desolve} cannot obtain a solution, it returns @code{false}.
@@ -191,43 +199,56 @@ Example:
 @c ratsimp (ic2(soln2,x=0,y=0,'diff(y,x)=2));
 @c bc2 (soln2,x=0,y=1,x=1,y=3);
 @c ===end===
-@example
-(%i1) x^2*'diff(y,x)+3*x*y = sin(x)/x;
-                                     2 dy   sin(x)
-(%o1)                       3 x y + x  -- = ------
-                                       dx     x
-(%i2) soln1:ode2(%,y,x);
-                                    %c - cos(x)
-(%o2)                           y = -----------
-                                         3
-                                        x
-(%i3) ic1(soln1,x = %pi,y = 0);
-                                     1 + cos(x)
-(%o3)                          y = - ----------
-                                          3
-                                         x
-(%i4) 'diff(y,x,2)+y*('diff(y,x))^3 = 0;
-                                          2
-                                  dy 3   d y
-(%o4)                          y (--)  + --- = 0
-                                  dx       2
-                                         dx
-(%i5) soln2:ode2(%,y,x);
-                                       3
-                            6 %k1 y + y
-(%o5)                       ------------ = %k2 + x
-                                 6
-(%i6) ratsimp(ic2(soln2,x = 0,y = 0,'diff(y,x) = 2));
-                                        3
-                                 3 y + y
-(%o6)                            -------- = x
-                                    6
-(%i7) bc2(soln2,x = 0,y = 1,x = 1,y = 3);
-
-                                       3
-                             - 10 y + y      3
-(%o7)                        ----------- = - - + x
-                                  6          2
+@example maxima
+@group
+(%i1) x^2*'diff(y,x) + 3*y*x = sin(x)/x;
+                      2 dy           sin(x)
+(%o1)                x  -- + 3 x y = ------
+                        dx             x
+@end group
+@group
+(%i2) soln1: ode2(%,y,x);
+                             %c - cos(x)
+(%o2)                    y = -----------
+                                  3
+                                 x
+@end group
+@group
+(%i3) ic1 (soln1,x=%pi,y=0);
+                              cos(x) + 1
+(%o3)                   y = - ----------
+                                   3
+                                  x
+@end group
+@group
+(%i4) 'diff(y,x,2) + y*'diff(y,x)^3 = 0;
+                         2
+                        d y      dy 3
+(%o4)                   --- + y (--)  = 0
+                          2      dx
+                        dx
+@end group
+@group
+(%i5) soln2: ode2(%,y,x);
+                      3
+                     y  + 6 %k1 y
+(%o5)                ------------ = x + %k2
+                          6
+@end group
+@group
+(%i6) ratsimp (ic2(soln2,x=0,y=0,'diff(y,x)=2));
+                           3
+                          y  + 3 y
+(%o6)                     -------- = x
+                             6
+@end group
+@group
+(%i7) bc2 (soln2,x=0,y=1,x=1,y=3);
+                         3
+                        y  - 10 y       3
+(%o7)                   --------- = x - -
+                            6           2
+@end group
 @end example
 
 @opencatbox{Categories:}

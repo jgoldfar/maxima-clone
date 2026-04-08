@@ -1,13 +1,8 @@
-# -*-mode: tcl; fill-column: 75; tab-width: 8; coding: iso-latin-1-unix -*-
-#
-#       $Id: Base64.tcl,v 1.3 2002-09-14 17:25:34 mikeclarkson Exp $
-#
 ###### Base64.tcl ######
 ############################################################
 # Netmath       Copyright (C) 1998 William F. Schelter     #
 # For distribution under GNU public License.  See COPYING. #
 ############################################################
-# aaaaaabb bbbbcccc ccdddddd
 
 proc tobase64 { binary } {
     set ll [string length $binary ]

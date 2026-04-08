@@ -37,6 +37,11 @@ the user would need to select one (or all) without knowing how they
 differ.  But using `@fname`, there's only one function and the help is
 imediately displayed.
 
+Adding figures to the manual
+----------------------------
+
+Please read the README file in the subdirectory figures.
+
 How to test the documentation?
 ==============================
 
@@ -58,10 +63,13 @@ have proven helpful:
   make pdf PDFTEX=xetex
   to select xetex for building it.
 
-
 - Do all of the documentation types look like they should?
 
 - Is the documentation accessible to the ? and ?? commands of maxima?
+
+- Can the HTML version of the manual be browsed with a Web browser?
+  (it should be found in the subdirectory share/maxima/<version_number>/doc/html
+  in the installation directory.
 
 Documentation internals
 =======================
@@ -105,14 +113,6 @@ function or veriable they document.
 - Is there a way to get around this? And if there is a way to do so:
 - Is there a way to avoid conflicts if two packages in share/ use the same
   function names?
-
-
-PDF Hyperlinks
---------------
-
-Is there any way to avoid needing a separate input file for PDF generation?
-There has to be a way to make the "\input mmref" conditional without breaking
-things.
 
 Documented TODOs
 ----------------

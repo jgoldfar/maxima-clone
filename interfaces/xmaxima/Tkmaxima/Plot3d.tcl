@@ -4,12 +4,9 @@
 # For distribution under GNU public License. See COPYING.tcl
 #
 #     Modified by Jaime E. Villate 
-#     Time-stamp: "2024-03-20 14:40:38 villate
-#
 ###################################################################
 
-global plot3dOptions
-set plot3dOptions {
+set ::plot3dOptions {
     {xradius 1 "Width in x direction of the x values" }
     {yradius 1 "Height in y direction of the y values"}
 
@@ -36,15 +33,16 @@ set plot3dOptions {
     {nsteps "10 10" "steps in x and y direction"}
     {rotationcenter "" "Origin about which rotation will be done"}
     {windowname ".plot3d" "window name"}
+    {background white "background color"}
     {psfile "" "A filename where the graph will be saved in PostScript."}
     {nobox 0 "if not zero, do not draw the box around the plot."}
     {hue 0.25 "Default hue value."}
     {saturation 0.7 "Default saturation value."}
     {value 0.8 "Default brightness value."}
     {colorrange 0.5 "Range of colors used."}
-    {gradlist {{0 "#00ff00"} {1 "#ff00ff"}} "Color gradient: List of values and colors."}
+    {gradlist {"#00ff00" "#ff00ff"} "Color gradient: List of values and colors."}
     {ncolors 180 "Number of colors used."}
-    {colorscheme "hue" "Coloring Scheme (hue, saturation, value, gray, gradient or 0)."}
+    {colorscheme "gradient" "Coloring Scheme (hue, saturation, value, gray, gradient or 0)."}
     {mesh_lines "black" "Color for the meshes outline, or 0 for no outline."}
 }
 
@@ -206,27 +204,52 @@ proc addBbox { win } {
     makeLocal $win xmin xmax ymin ymax zmin zmax cmap
     linkLocal $win points lmesh
     set ll [llength $points]
-    append points " $xmin $ymin $zmin \
-	    $xmax $ymin $zmin \
-            $xmin $ymax $zmin \
-            $xmax $ymax $zmin \
-            $xmin $ymin $zmax \
-	    $xmax $ymin $zmax \
-            $xmin $ymax $zmax \
-            $xmax $ymax $zmax "
-    foreach  { a b } { 0 1 0 2 2 3 3 1
-	4 5 4 6 6 7 7 5
-	0 4 1 5 2 6 3 7  }  {
+    lappend points $xmin $ymin $zmin $xmax $ymin $zmin $xmin $ymax $zmin
+    lappend points $xmax $ymax $zmin $xmin $ymin $zmax $xmax $ymin $zmax
+    lappend points $xmin $ymax $zmax $xmax $ymax $zmax
+    foreach  { a b } { 0 1 0 2 2 3 3 1 4 5 4 6 6 7 7 5 0 4 1 5 2 6 3 7 } {
 	set k [expr {$a*3 + $ll}]
 	set l [expr {$b*3 + $ll}]
 	# set plot3dMeshes${win}($k) [list $k $l]
 	lappend lmesh [list $k $l]
     }
-    lappend lmesh [list $ll]
-    oset $win $cmap,[list $ll [expr {$ll + 3}]] red
-    oset $win $cmap,[list $ll [expr {$ll + 6}]] blue
-    oset $win $cmap,[list $ll [expr {$ll + 12}]] green
+    # Adds the three letters of the 3 axes
+    set xm [expr {0.5*($xmin+$xmax)}]
+    set ym [expr {0.5*($ymin+$ymax)}]
+    set zm [expr {0.5*($zmin+$zmax)}]
+    set dx [expr {0.03*($xmax-$xmin)}]
+    set dy [expr {0.03*($ymax-$ymin)}]
+    set dz [expr {0.04*($zmax-$zmin)}]
+    # the letter x
+    lappend points [expr {$xm-$dx}] $ymin [expr {$zmin-$dz}]
+    lappend points [expr {$xm+$dx}] $ymin [expr {$zmin-3*$dz}]
+    lappend points [expr {$xm+$dx}] $ymin [expr {$zmin-$dz}]
+    lappend points [expr {$xm-$dx}] $ymin [expr {$zmin-3*$dz}]
+    lappend lmesh [list [expr {$ll+24}] [expr {$ll+27}]] 
+    lappend lmesh [list [expr {$ll+30}] [expr {$ll+33}]]
+    # the letter y
+    lappend points $xmin [expr {$ym-$dy}] [expr {$zmin-$dz}]
+    lappend points $xmin $ym [expr {$zmin-2*$dz}]
+    lappend points $xmin [expr {$ym+$dy}] [expr {$zmin-$dz}]
+    lappend points $xmin $ym [expr {$zmin-3*$dz}]
+    lappend lmesh [list [expr {$ll+36}] [expr {$ll+39}]]
+    lappend lmesh [list [expr {$ll+39}] [expr {$ll+42}]]
+    lappend lmesh [list [expr {$ll+39}] [expr {$ll+45}]]
+    # the letter z
+    lappend points [expr {$xmin-3*$dx}] $ymin [expr {$zm+$dz}]
+    lappend points [expr {$xmin-$dx}] $ymin [expr {$zm+$dz}]
+    lappend points [expr {$xmin-3*$dx}] $ymin [expr {$zm-$dz}]
+    lappend points [expr {$xmin-$dx}] $ymin [expr {$zm-$dz}]
+    lappend lmesh [list [expr {$ll+48}] [expr {$ll+51}]] 
+    lappend lmesh [list [expr {$ll+51}] [expr {$ll+54}]]
+    lappend lmesh [list [expr {$ll+54}] [expr {$ll+57}]]
 
+    # adds to lmesh the boundary where the mesh points end in list points
+    lappend lmesh [list $ll]
+    # uses red color for the three axes
+    oset $win $cmap,$ll[expr {$ll+3}] red
+    oset $win $cmap,$ll[expr {$ll+6}] red
+    oset $win $cmap,$ll[expr {$ll+12}] red
     oset $win special($ll) "drawOval [oget $win c] 3 -fill red -tags axis"
 }
 
@@ -245,22 +268,26 @@ proc plot3dcolorFun {win z } {
     if { ($value > 1) || ($value < 0) } {
         set value [expr { $value - floor($value) }]}
     set tem [expr {(double($colorrange)/$ncolors)*round(($z - $zmin)*$ncolors/($zmax - $zmin+.001))}]
+    set frac [expr {($z-$zmin)/($zmax-$zmin)}]
     switch -exact $colorscheme {
 	"hue" { return [hsv2rgb [expr { 360*$tem+$h }] $saturation $value] }
 	"saturation" { return [hsv2rgb $h [expr { $tem+$saturation }] $value] }
 	"value" { return [hsv2rgb $h $saturation [expr {$tem+$value}]] }
-	"gray"  { set g [expr { round( ($tem+$value)*255 ) } ]
+	"gray"  { set g [expr { round( ($frac)*255 ) } ]
 	    return  [format "\#%02x%02x%02x" $g $g $g] }
         "gradient" {
+            set colors {}
+            # in older versions, elements of gradlists were 2-element lists
             for {set i 0} {$i < [llength $gradlist]} {incr i} {
-                if {$tem < [lindex $gradlist $i 0]} break}
-            if {$i == 0} {
-                return [lindex $gradlist 0 1]
+                if {[llength [lindex $gradlist $i]]==2} {
+                    lappend colors [lindex $gradlist $i 1]
+                } else {
+                    lappend colors [lindex $gradlist $i]}
             }
-            set down [lindex $gradlist [expr $i-1] 0]
-            set up [lindex $gradlist $i 0]
-            return [interpolatecolor [lindex $gradlist [expr $i-1] 1] [lindex $gradlist $i 1] [expr {($tem-$down)/($up-$down)}]]}
-	"0" { return "#ffffff" }}}
+            set args [linsert $colors 0 $frac]
+            return [interpolatecolor {*}$args] }
+	"0" { return "#ffffff" }
+        default {return $colorscheme}}}
 
 proc setupPlot3dColors { win first_mesh} {
     upvar #0 [oarray $win] wvar
@@ -269,14 +296,14 @@ proc setupPlot3dColors { win first_mesh} {
     makeLocal $win colorfun points lmesh
     foreach tem [lrange $lmesh $first_mesh end] {
         set k [llength $tem]
-	if { $k == 4 } {
-	    set z [expr { ([lindex $points [expr { [lindex $tem 0] + 2 } ]] +
-			   [lindex $points [expr { [lindex $tem 1] + 2 } ]] +
-			   [lindex $points [expr { [lindex $tem 2] + 2 } ]] +
-			   [lindex $points [expr { [lindex $tem 3] + 2 } ]])/
-			  4.0 } ]
-	    catch { set wvar(c1,[lindex $tem 0]) [$colorfun $win $z] }
-	}
+	if { $k > 2 } {
+            set z 0.0
+            for { set i 0 } { $i < $k } { incr i } {
+                set z [expr {$z+[lindex $points [expr {[lindex $tem $i]+2}]]}]
+            }
+            set z [expr {$z/$k}]
+            catch {set wvar(c1,[lindex $tem 0][lindex $tem 1]) [$colorfun $win $z]}
+        }
     }
 }
 
@@ -378,10 +405,9 @@ proc set_xy_region_3d { win fac } {
     oset $win ymax [expr {1.5*$ymax/($yradius)}]}
 
 proc plot3d { args } {
-    global  plot3dOptions
     set win [assoc -windowname $args]
     if { "$win" == "" } {
-	set win [getOptionDefault windowname $plot3dOptions] }
+	set win [getOptionDefault windowname $::plot3dOptions] }
     clearLocal $win
     mkPlot3d  $win {*}$args
     #    bind $win <Configure> {}	
@@ -426,7 +452,6 @@ proc replot3d { win } {
 		oset $win [string range $v 1 end] $k
 	    }
         }
-	
 	addOnePlot3d $win $data
     }
 
@@ -437,16 +462,15 @@ proc replot3d { win } {
     set_xy_region_3d $win 0.5
     set_xy_transforms $win
     # grab the bbox just as itself
-    global maxima_priv
     linkLocal $win lmesh
-    if { [llength $lmesh] > 100 * $maxima_priv(speed)  } {
+    if { [llength $lmesh] > 100 * $::xmaxima_priv(speed)  } {
 	# if we judge that rotation would be too slow, we make a secondary list
 	# of meshes (random) including the bbox, and display those.
 	linkLocal $win  points lmeshBbox pointsBbox
 	set n [llength $lmesh]
 	set lmeshBbox [lrange $lmesh [expr {$n -13}] end]
 	set i 0 ;
-	while { [incr i ] < ( 35*$maxima_priv(speed)) } {
+	while { [incr i ] < ( 35*$::xmaxima_priv(speed)) } {
 	    set j [expr {round(floor(rand()*($n-13))) }]
 	    if { ![info exists temm($j)] } {
 		lappend lmeshBbox [lindex $lmesh $j ]
@@ -457,6 +481,7 @@ proc replot3d { win } {
     }
     oset $win lastAnglesPlotted ""
     setView $win ignore
+    $c configure -background [oget $win background]
 
     # Create a PostScript file, if requested
     if { $psfile != "" } {
@@ -557,13 +582,11 @@ proc drawMeshes {win canv} {
     proc _xf { x} [info body rtosx$win]
     proc _yf { y} [info body rtosy$win]
     foreach { x y z} $rotated { lappend rotatedxy [_xf $x] [_yf $y] 0 }
-
     foreach k [oget $win meshes] {
-	#puts "drawOneMesh $win $canv $k"
 	#puts "drawOneMesh $win $canv $k"
 	set mesh [lindex $lmesh $k]
 	set col black
-	catch { set col $ar($cmap,[lindex $mesh 0]) }
+	catch { set col $ar($cmap,[lindex $mesh 0][lindex $mesh 1]) }
 	drawOneMesh $win $canv $k $mesh $col
     }
     $canv delete oldpoly
@@ -584,10 +607,10 @@ proc drawMeshes {win canv} {
 #----------------------------------------------------------------
 #
 
-proc drawOneMesh { win  canv k mesh color } {
+proc drawOneMesh { win canv k mesh color } {
     #k=i*(ny+1)+j
     # k,k+1,k+1+nyp,k+nyp
-    makeLocal $win mesh_lines
+    makeLocal $win mesh_lines colorscheme
     upvar 1 rotatedxy ptsxy
     set n [llength $mesh]
 
@@ -611,20 +634,33 @@ proc drawOneMesh { win  canv k mesh color } {
 	    }
 	}
     } elseif { [string length $color] < 8 && $color != "none"} {
+	# puts "drawing $k,n=$n $coords, points $mesh "
 	if { $mesh_lines != 0 } {
 	    set outline "-outline $mesh_lines"
 	} else {
 	    set outline ""
 	}
-	eval $canv create polygon $coords -tags [list [list poly mesh.$k]] \
-	    -fill $color $outline
+	# eval $canv create polygon $coords -tags [list [list poly mesh.$k]] \
+        #     -fill $color $outline
+	if { $colorscheme == 0 } {
+            if { $mesh_lines != 0 } {
+                set fill "-fill $mesh_lines"
+            } else {
+                set fill "-fill #000000"
+            }
+            lappend coords [lindex $coords 0] [lindex $coords 1]
+            eval $canv create line $coords -tags [list [list poly mesh.$k]] \
+                -width 2 $fill
+        } else {
+            eval $canv create polygon $coords -tags [list [list poly mesh.$k]] \
+                -fill $color $outline
+        }            
     }
 }
 
 
 proc makeFrame3d { win } {
-    global plot3dPoints
-    set w [makeFrame $win 3d]
+    set w [makeFrame $win 3d [oget $win background]]
     set top $w
     catch { set top [winfo parent $w]}
     catch {
@@ -635,8 +671,8 @@ proc makeFrame3d { win } {
 }
 
 proc mkPlot3d { win  args } {
-    global plot3dOptions  printOption [oarray $win] axisGray
-    getOptions $plot3dOptions $args -usearray [oarray $win]
+    global printOption [oarray $win] axisGray
+    getOptions $::plot3dOptions $args -usearray [oarray $win]
     setPrintOptions $args
     set printOption(maintitle) ""
     set wb $win.menubar
@@ -644,7 +680,7 @@ proc mkPlot3d { win  args } {
     # catch { destroy $win }
     makeFrame3d $win
     oset $win sliderCommand sliderCommandPlot3d
-    oset $win noaxisticks 1
+    oset $win noaxisticks 0
 
     makeLocal $win buttonFont c
     [winfo parent $c].position config -text {}

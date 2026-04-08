@@ -393,6 +393,11 @@
 	   ((equal e '(0 . 1))
 	    (setq c 0)
 	    (go loop)))
+     ;; to protect from the case where $pi disappears from the expression
+     ;; (fix by Michel Talon)
+     (let ((genpairs (mapcar #'(lambda (x y) (cons y x)) varlist genvar)))
+       (unless (eq (assolike (caar e) genpairs) '$%pi)
+         (return nil)))
      (setq c (ptterm (cdar e) 1))
      loop (cond ((atom c)
 		 (cond ((equal c 0) (return nil))

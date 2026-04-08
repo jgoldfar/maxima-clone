@@ -2,8 +2,8 @@
 
 (eval-when (:execute)
   (compile 'maxima::make-unspecial
-	   '(lambda (s)
-	     (when (symbolp s)
+	   '(lambda (s) #+windows s
+	     #-windows (when (symbolp s)
 	       (format t "~%;;; Declaring ~A as NOT SPECIAL" s)
 	       (ffi::c-inline (s) (:object) :object
 		     "(#0)->symbol.stype &= ~stp_special;"
@@ -11,8 +11,8 @@
 	       s))))
 
 (eval-when (:load-toplevel)
-  (defun maxima::make-unspecial (s)
-    (when (symbolp s)
+  (defun maxima::make-unspecial (s) #+windows s
+    #-windows (when (symbolp s)
       (format t "~%;;; Declaring ~A as NOT SPECIAL" s)
       (ffi::c-inline (s) (:object) :object
 		     "(#0)->symbol.stype &= ~stp_special;"

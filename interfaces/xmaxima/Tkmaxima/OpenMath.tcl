@@ -4,7 +4,6 @@
 # For distribution under GNU public License.  See COPYING.tcl
 #
 #     Modified by Jaime E. Villate                         #
-#     Time-stamp: "2024-03-25 21:06:23 villate"            #
 ########################################################################
 
 proc genSample { x n } {
@@ -21,16 +20,14 @@ proc genSample { x n } {
     }
 }
 
-
 # font measuring is very slow so we cache the result of measuring a line
 # of x's.
 proc fontMeasure { font size } {
-    global  maxima_priv
-    set ll $maxima_priv(linelength)
-    if { ![catch {set answer [set $maxima_priv($font,$size,$ll)]} ] } { return $answer}
+    set ll $::xmaxima_priv(linelength)
+    if { ![catch {set answer [set $::xmaxima_priv($font,$size,$ll)]} ] } { return $answer}
     set sample [genSample x $ll]
-    set  maxima_priv($font,$size,$ll)  [font measure [list $font $size] $sample]
-    return $maxima_priv($font,$size,$ll)
+    set  ::xmaxima_priv($font,$size,$ll)  [font measure [list $font $size] $sample]
+    return $::xmaxima_priv($font,$size,$ll)
 }
 
 proc getDefaultFontSize { width } {
@@ -47,7 +44,6 @@ proc getDefaultFontSize { width } {
 	set answer   [list $guess [fontMeasure $fixedFont $guess]]
     }
     return $answer
-
 }
 
 proc getMaxDimensions { } {
@@ -71,7 +67,7 @@ proc getPercentDim { dim direction win } {
 
 proc computeTextWinDimensions { win width height } {
     # leave room for scroll bar
-    global fixedFont maxima_priv
+    global fixedFont
     # desetq "fsize wid" [getDefaultFontSize [expr {$width -15}]]
     set wid $width
     # set fixedFont [xHMmapFont font:fixed:normal:r:3]
@@ -82,29 +78,24 @@ proc computeTextWinDimensions { win width height } {
     oset $win fixedFont $fixedFont
     oset $win fontSize $fsize
     oset $win width $width
-    oset $win width_chars $maxima_priv(linelength)
+    oset $win width_chars $::xmaxima_priv(linelength)
     set hei [expr {round($height/$lh)}]
     oset $win height_chars $hei
     oset $win height [expr {$hei * $lh}]
     oset $win lineheight $lh
 }
 
-
-
 proc setFontOptions { fsize }     {
-    global maxima_priv
-
     global _fixed_default _prop_default fontSize
     set helvetica $_prop_default
     set courier $_fixed_default
-
     global buttonfont entryfont labelfont fixedtextfont
     set  buttonfont [font create -family $helvetica -size $fsize]
     set  labelfont [font create -family $helvetica -size $fsize]
     set  fixedtextfont [font create -family $courier -size $fsize]
     set  entryfont [font create -family $courier -size $fsize]
 
-return
+    return
 
     if { $fsize > 10 } { set fsize 12 }
     if { $fsize == 8 } { set entrysize 10 } else {set entrysize $fsize }
@@ -120,22 +111,17 @@ return
 	# option add *Button.font $buttonfont
 	# option add *Label.font $labelfont
 	# option add *Entry.font $entryfont
-
 	option add  *Dialog.msg.wrapLength 500
-
     }
-
 }
 # omPanel
 # Creates the browser window
 #
 proc omPanel { w args } {
-    global buttonfont entryfont labelfont maxima_priv
-
+    global buttonfont entryfont labelfont
     set top [winfo toplevel $w]
     linkLocal $top omPanel
     if { [info exists omPanel] } {return $omPanel }
-
     set top [winfo parent $w]
     #
     if { "$top" == "." } { set top ""}	
@@ -174,7 +160,6 @@ proc omPanel { w args } {
 		set url [oget $v location]
 		$m add command -label $url \
 		    -command [list OpenMathOpenUrl $url -commandpanel  $win]
-		
 	    }
 	}
     } else {
@@ -198,7 +183,7 @@ proc omPanel { w args } {
     oset $win history ""
     pack $win -side top -expand 1 -fill x
 
-    oset $win status $maxima_priv(cStatusWindow)
+    oset $win status $::xmaxima_priv(cStatusWindow)
     return $win
 }
 
@@ -222,22 +207,15 @@ proc forgetCurrent { win } {
 }
 
 proc omDoStop { win } {
-    global maxima_priv
-    set st $maxima_priv(cStatusWindow)
+    set st $::xmaxima_priv(cStatusWindow)
     set var [$st.scale cget -variable]
     if { [regexp {sock[0-9]+} $var sock] } {
 	oset $sock done -1
 	if { ![catch { close $sock} ] } {
-	
-	    append maxima_priv(load_rate) "--aborted"
+	    append ::xmaxima_priv(load_rate) "--aborted"
 	}
     }
 }
-
-
-
-
-
 #
 #-----------------------------------------------------------------
 #
@@ -250,16 +228,14 @@ proc omDoStop { win } {
 #----------------------------------------------------------------
 #
 proc setTypeForEval { menu program } {
-    global maxima_priv
     #puts "$menu program"
     set slaves [pack slaves $menu.program ]
     set men $menu.program.$program
     if { [llength $slaves] > 0 } {eval pack forget $slaves}
-    if { ![catch { set options $maxima_priv(options,$program) } ] } {
+    if { ![catch { set options $::xmaxima_priv(options,$program) } ] } {
 	if { ![winfo exists $menu.program.$program] } {
 	    #puts "options=$options"
 	    # puts "there"
-
 	    ### set up to add menu items to a new frame
 	    set key $menu.program
 
@@ -270,30 +246,23 @@ proc setTypeForEval { menu program } {
 	    oset $men items ""
 	    oset $key parent $menu
 	    proc $men {option args } $body
-	
 	    ##### end
-	
 
 	    foreach v $options {
 		desetq "key dflt help" $v
-		
-		if { [catch { set maxima_priv(options,$program,$key)} ] } {
-		    set maxima_priv(options,$program,$key) $dflt
+		if { [catch { set ::xmaxima_priv(options,$program,$key)} ] } {
+		    set ::xmaxima_priv(options,$program,$key) $dflt
 		}
 		switch [lindex $v 3] {
 		    boolean {
-			$men add check -label $key -variable maxima_priv(options,$program,$key) -help [concat $program option -$key: $help] -onvalue 1 -offvalue 0
+			$men add check -label $key -variable ::xmaxima_priv(options,$program,$key) -help [concat $program option -$key: $help] -onvalue 1 -offvalue 0
 		    }
 		    default {
-            		$men add entry -label "$key:" -entryvariable maxima_priv(options,$program,$key) -help [concat $program option -$key: $help]
-
+            		$men add entry -label "$key:" -entryvariable ::xmaxima_priv(options,$program,$key) -help [concat $program option -$key: $help]
 		    }
-
 		}
-
-		
 		#		label $new.label -text $key:
-		#		entry $new.entry  -textvariable maxima_priv(options,$program,$key)
+		#		entry $new.entry  -textvariable ::xmaxima_priv(options,$program,$key)
 		#		pack $new.label $new.entry -side top -anchor w -fill x
 		#		pack $new -fill x
 		#		setHelp $new [concat $program option -$v: $help]
@@ -303,10 +272,7 @@ proc setTypeForEval { menu program } {
 	
     }
     catch { pack $men}
-
 }
-
-
 #
 #-----------------------------------------------------------------
 #
@@ -320,13 +286,12 @@ proc setTypeForEval { menu program } {
 #----------------------------------------------------------------
 #
 proc getGlobalOptions { program } {
-    global maxima_priv
     set ans ""
-    if { ![catch { set options $maxima_priv(options,$program) } ] } {
+    if { ![catch { set options $::xmaxima_priv(options,$program) } ] } {
 	foreach v $options {
 	    set key [lindex $v 0]
 	    set dflt [lindex $v 1]
-	    if { ![catch { set val $maxima_priv(options,$program,$key) }] } {
+	    if { ![catch { set val $::xmaxima_priv(options,$program,$key) }] } {
 		if { "$val" != "$dflt" } {
 		    lappend ans -$key $val
 		}
@@ -335,29 +300,26 @@ proc getGlobalOptions { program } {
     }
     return $ans
 }
-
-
 #
 #-----------------------------------------------------------------
 #
 # setGlobalOptions --  set the current global values of the options for PROGRAM
 # according to the values specified in OPTIONLIST.   If a value is not specified
-# use the value supplied in the defaults: $maxima_priv(options,$program)
+# use the value supplied in the defaults: $::xmaxima_priv(options,$program)
 #
 #  Results:  none
 #
-#  Side Effects: the entries maxima_priv(options,$program,$key) are changed
+#  Side Effects: the entries ::xmaxima_priv(options,$program,$key) are changed
 #  for each $key which is an option for program.
 #
 #----------------------------------------------------------------
 #
 proc setGlobalOptions { program list } {
-    global maxima_priv
-    if { [catch { set options $maxima_priv(options,$program) } ] } {
+    if { [catch { set options $::xmaxima_priv(options,$program) } ] } {
 	foreach  v $options {
 	    set key [lindex $v 0]
 	    set dflt [lindex $v 1]
-	    set $maxima_priv(options,$program,$key) \
+	    set $::xmaxima_priv(options,$program,$key) \
 		[assoc -$key $list $dflt]
 	}
     }
@@ -373,7 +335,6 @@ proc toggleEditBar  {win} {
 	oset $win showEditBar "hide edit bar"
     }
 }
-
 
 proc getPrefixed { prefix  tags } {
     set i [lsearch $tags ${prefix}*]
@@ -415,10 +376,7 @@ if { [catch { package require Safesock } ] } {
 
 }
 
-
 proc mkOpenMath { win  } {
-    global    maxima_priv
-
     set w $win
     if {[winfo exists $w]} {catch {destroy $w}}
     if { [catch { package require Safesock } ] } {
@@ -427,29 +385,23 @@ proc mkOpenMath { win  } {
     }
     desetq "width height" [getMaxDimensions]
     computeTextWinDimensions $win $width $height
-
     makeLocal $win fontSize width_chars height_chars fixedFont
     set font $fixedFont
-
     # puts "fontSize=$fontSize"
     frame $w
     set commandPanel [omPanel $w ]
     oset $w commandPanel $commandPanel
     set prevwindow ""
-
     catch { set prevwindow [oget $commandPanel textwin] }
-
     oset $commandPanel textwin $w.text
-
     # pack $commandPanel -in $w -side top -fill x -pady 2m
     # raise  $commandPanel
-
     text $w.text -yscrollcommand "$w.scroll set" \
 	-selectbackground "#808080" \
 	-width $width_chars  -height $height_chars -font $font -wrap word
     bind $w.text <Configure> "resizeSubPlotWindows $w.text %w %h"
-    set maxima_priv(currentwin) $w.text
-    set maxima_priv(point) end
+    set ::xmaxima_priv(currentwin) $w.text
+    set ::xmaxima_priv(point) end
 
     $w.text tag bind "currenteval" <Leave> "$w.text tag remove currenteval 0.0 end ; addTagSameRange %W Teval currenteval @%x,%y;"
     $w.text tag config "currenteval" -foreground red
@@ -458,33 +410,23 @@ proc mkOpenMath { win  } {
     $w.text tag bind Teval <Leave> {deleteHelp %W}
     $w.text tag config hrule -font {Courier 1} -background black
     $w.text mark set insert 0.0
-
     # try "#d0d0d0" or "#ffffd0" or yellow
-
     $w.text tag configure Teval -foreground blue -font $font  -border 1 -lmargin1 20
-
-
-
     $w.text tag configure bold -font [xHMmapFont font:propor:bold:r:3] -lmargin1 15
     $w.text tag configure plain -font [xHMmapFont font:propor:bold:r:3] -lmargin1 10
     $w.text tag configure Tresult -font [xHMmapFont font:fixed:bold:r:3] -lmargin1 10
     $w.text tag configure Tmodified -font [xHMmapFont font:fixed:normal:r:3] -background pink -relief sunken -border 1
     $w.text tag configure Thref -font [xHMmapFont font:fixed:normal:r:3]  -foreground blue  -relief flat
-
     set lh [oget $win lineheight]
     $w.text tag configure sub -offset [expr {-round($lh*.6) }]
     $w.text tag configure sup -offset [expr {round($lh*.6) }]
-
-
     oset $w.text counter 0
     # allow some openmath text bindings to take precedence
     bindtags $w.text "OpenMathText [bindtags $w.text]"
     scrollbar $w.scroll -command "$w.text yview"
-
     pack $w.scroll -side right -fill y
     pack $w.text -expand 1  -fill both
     pack $w -expand 1 -fill both
-
     if {[winfo exists $prevwindow] } { pack forget [winfo parent $prevwindow] }
     return  $w.text
 
@@ -534,8 +476,6 @@ global evalPrograms
 foreach v [info proc insertResult_*] {
     lappend evalPrograms [string range $v 13 end]
 }
-
-
 #
 #-----------------------------------------------------------------
 #
@@ -549,9 +489,7 @@ foreach v [info proc insertResult_*] {
 #----------------------------------------------------------------
 #
 proc defaultInsertMode { program } {
-    global maxima_priv
-    if { [catch {  set dflt [getOptionDefault doinsert $maxima_priv(options,$program)]} ] } { return 1}
-
+    if { [catch {  set dflt [getOptionDefault doinsert $::xmaxima_priv(options,$program)]} ] } { return 1}
     if { "$dflt" == "" } {set dflt  1}
     return $dflt
 }
@@ -561,8 +499,6 @@ proc doInsertp { tags } {
     # puts "program=$program," ; flush stdout
     return [getEvalArg -doinsert $tags [defaultInsertMode [programName $program]]]
 }
-
-
 #
 #-----------------------------------------------------------------
 #
@@ -579,9 +515,7 @@ proc doInsertp { tags } {
 proc doInvoke { w index } {
     global evalPrograms
     set tags [$w tag names $index]
-
     $w tag delete sel
-
     set program [programFromTags $tags]
     if { "$program" == "" } {
 	return
@@ -589,14 +523,11 @@ proc doInvoke { w index } {
     # puts "base=[oget $w baseprogram],w=$w"
     set res [resolveURL $program [oget $w baseprogram]]
     # puts "program=$program,baseprogram[oget $w baseprogram],res=$res"
-
     set this [thisRange $w  program:$program $index]
     # puts "this=$this"
-
     set nextResult ""
     set doinsert [doInsertp $tags]
     # puts "doinsert=$doinsert"
-
     if { $doinsert} {
 	set name [getPrefixed name: $tags]
 	if { "$name" != "" } {
@@ -629,11 +560,10 @@ proc doInvoke { w index } {
     } else {
 	global err
 	if { [catch { sendOneInsertTextWin $program [eval $w get $this] $w $this $nextResult} err ] && [regexp "Can't connect" $err ]} {
-	    global maxima_default
 	    set now [encodeURL [oget $w baseprogram] ]
-	    set tem [ldelete $now $maxima_default(defaultservers)]
+	    set tem [ldelete $now $::xmaxima_default(defaultservers)]
 	    if { [tk_dialog .jil 0 "$err: connect to one of $tem?" "" 0 change "keep $now"] == 0 } {
-		set maxima_default(defaultservers)  $tem
+		set ::xmaxima_default(defaultservers)  $tem
 		oset $w baseprogram [decodeURL [getBaseprogram]]
 		doInvoke $w $index
 		return
@@ -643,8 +573,6 @@ proc doInvoke { w index } {
 
 	}
     }
-
-
 }
 
 proc getEvalArg { key names {dflt ""} } {
@@ -656,8 +584,6 @@ proc getEvalArg { key names {dflt ""} } {
     }
     return $dflt
 }
-
-
 #
 #-----------------------------------------------------------------
 #
@@ -677,8 +603,6 @@ proc setModifiedFlag { win index } {
 	}
     }
 }
-
-
 #
 #-----------------------------------------------------------------
 #
@@ -701,10 +625,6 @@ proc insertResult { w resultRange value } {
     if { "$value" == "" } { set value " "}
     $w insert [lindex $resultRange 0] $value  [ldelete Tmodified $tags]
 }
-
-
-
-
 #
 #-----------------------------------------------------------------
 #
@@ -729,13 +649,10 @@ proc addPreloads {command program win this } {
 		append url $command
 		set command $url
 	    }
-
 	}
     }
     return $command
 }
-
-
 #
 #-----------------------------------------------------------------
 #
@@ -785,7 +702,6 @@ proc sendOneInsertTextWin1 { win program location } {
     #	puts "somebody removed result place for $location"
     #	return ""
     #    }
-
     if {[info command insertResult_[programName $program]] != "" } {
 	insertResult_[programName $program] \
 	    $win $this $resultRange \
@@ -795,7 +711,6 @@ proc sendOneInsertTextWin1 { win program location } {
     }
     uplevel "#0" unset $location
 }
-
 
 proc xHMuntabify { s } {
     set lis [split $s \n]
@@ -817,8 +732,6 @@ proc xHMuntabifyLine { s } {
     }
     return $ans
 }
-
-
 #
 #-----------------------------------------------------------------
 #
@@ -833,7 +746,6 @@ proc xHMuntabifyLine { s } {
 #----------------------------------------------------------------
 #
 proc textBbox { win ind1 ind2 } {
-
     foreach i { 1 2 } {
 	set ind [eval $win index [set ind$i]]
 	set ind$i $ind
@@ -847,7 +759,6 @@ proc textBbox { win ind1 ind2 } {
     } else {
 	set xrange "$x1 $x2+$xdim2"
 	set yrange "$y1 $y2+$ydim2"
-	
 	for { set j $line1 } { $j < $line2 } { incr j } {
 	    desetq "x y xdim ydim" [$win dlineinfo $j.0]
 	    set xrange [minMax $xrange $x [expr {$x + $xdim}]]
@@ -858,7 +769,6 @@ proc textBbox { win ind1 ind2 } {
 	set yrange [minMax $yrange [expr {$y + $ydim}]]
 	desetq "x1 x2 y1 y2" "$xrange $yrange"
 	return "$x1 $y1 [expr {$x2 - $x1}] [expr {$y2 - $y1}]"
-
     }
 }
 
@@ -884,10 +794,8 @@ proc textShowHelp { win tag index msg } {
 	return ""
     }
     set top [winfo toplevel $win]
-
     set x [expr {$x + [winfo rootx $win] - [winfo rootx $top]}]
     set y [expr {$y + [winfo rooty $win] - [winfo rooty $top]}]
-
     #puts "showHelp $win $x $y $wid $hei"
     #mike FIXME: $arg1 is a list not a window
     showHelp "$win $x $y $wid $hei" $msg
@@ -953,4 +861,3 @@ proc markForProgram { w args } {
 	    $w tag add Tmodified {*}$nextResult}}}
 
 ## endsource preamble.tcl
-

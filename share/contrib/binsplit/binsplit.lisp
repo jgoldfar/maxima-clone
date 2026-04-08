@@ -87,7 +87,7 @@
       (let ((e 0) phi) 
         ;; bs-carg11 needs im-z < 1/2  (i.e. phi < pi/6)
         ;; when im-z >= 1/2 bisect phi by taking the complex sqrt
-        (when (not (fplessp im-z (cdr bfhalf)))
+        (when (not (fplessp im-z (cdr *bfhalf*)))
           (multiple-value-setq (re-z im-z) (complex-sqrt (bcons re-z) (bcons im-z)))
           (setq e 1) )
         (setq phi (bs-carg11 (list re-z im-z) prec))

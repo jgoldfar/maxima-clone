@@ -1,6 +1,5 @@
 ;; xmaxima.lisp: routines for Maxima's interface to xmaxima
 ;; Copyright (C) 2007-2021 J. Villate
-;; Time-stamp: "2024-03-25 08:58:31 villate"
 ;; 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License
@@ -87,157 +86,96 @@
                (xmaxima-color colors i))))))
 
 (defun xmaxima-palette (palette)
-;; palette should be a list starting with one of the symbols: hue,
-;; saturation, value, gray or gradient.
-;;
-;; If the symbol is gray, it should be followed by two floating point
-;; numbers that indicate the initial gray level and the interval of 
-;; gray values.
-;;
-;; If the symbol is one of hue, saturation or value, it must be followed
-;; by three numbers that specify the hue, saturation and value for the
-;; initial color, and a fourth number that gives the range of values for
-;; the increment of hue, saturation or value.
-;; The values for the initial hue, saturation, value and grayness should
-;; be within 0 and 1, while the range can be higher or even negative.
-;;
-;; If the symbol is gradient, it must be followed by either a list of valid
-;; colors or by a list of lists with two elements, a number and a valid color.
+"Given a valid palette, it returns its definition for Xmaxima."
+(let (type colors fun (fun-format " {hue ~,,,,,,'eg} {saturation ~,,,,,,'eg} {value ~,,,,,,'eg} {colorrange ~,,,,,,'eg}"))
+  (if (atom palette)
+    (if (getf *plot-palettes* palette)
+      (progn
+        (setq type palette)
+        (setf colors (cdr (getf *plot-palettes* palette))))
+      (progn
+        (setq type '$monochromatic)
+        (unless (setf colors (rgb-color palette))
+          (setf colors "#ffffff"))))
+    (progn
+      (setq type (car palette))
+      (case type
+            ($gradient (setf colors (cdr palette)))
+            (($hue $saturation $value)
+             (setq fun (format nil fun-format (second palette) (third palette)
+                               (fourth palette) (fifth palette))))
+            (otherwise (setf colors palette)))))
+  (with-output-to-string
+    (st)
+    (case type
+          ($monochromatic (format st "~&{colorscheme ~a}" colors))
+          ($hue (format st "~&~a {colorscheme hue}" fun))
+          ($saturation (format st "~&~a {colorscheme saturation}" fun))
+          ($value (format st "~&~a {colorscheme value}" fun))
+          (($gray $grey) (format st "~&{colorscheme gray}"))
+          (otherwise
+           (setf colors (mapcar #'rgb-color colors))
+           (format st "~&{colorscheme gradient} {gradlist {~{~s~^ ~}}}"
+                   colors))))))
 
-  (unless (listp palette) (setq palette (list palette)))
-  (let (hue sat val gray range fun)
-    (case (first palette)
-      ($gray
-       (case (length (rest palette))
-         (2 (setq gray (second palette)) (setq range (third palette)))
-         (t (merror
-             (intl:gettext
-              "palette: gray must be followed by two numbers."))))
-       (when (or (< gray 0) (> gray 1))
-         (setq gray (- gray (floor gray))))
-       (setq fun (format nil "{value ~,,,,,,'eg} {colorrange ~,,,,,,'eg}"
-                         gray range)))
-      (($hue $saturation $value)
-       (case (length (rest palette))
-         (4 (setq hue (second palette))
-            (setq sat (third palette))
-            (setq val (fourth palette))
-            (setq range (fifth palette)))
-         (t (merror
-             (intl:gettext
-              "palette: ~M must be followed by four numbers.")
-              (first palette))))
-       (when (or (< hue 0) (> hue 1)) (setq hue (- hue (floor hue))))
-       (when (or (< sat 0) (> sat 1)) (setq sat (- sat (floor sat))))
-       (when (or (< val 0) (> val 1)) (setq val (- val (floor val))))
-       (setq fun
-             (format nil " {hue ~,,,,,,'eg} {saturation ~,,,,,,'eg} {value ~,,,,,,'eg} {colorrange ~,,,,,,'eg}"
-                     hue sat val range))))
-    (with-output-to-string (st)
-      (case (first palette)
-        ($hue (format st "~&~a {colorscheme hue}" fun))
-        ($saturation (format st "~&~a {colorscheme saturation}" fun))
-        ($value (format st "~&~a {colorscheme value}" fun))
-        ($gray (format st "~&~a {colorscheme gray}" fun))
-        ($gradient
-         (let* ((colors (rest palette)) (n (length colors)) (map nil))
-           ;; map is constructed as (n1 c1 n2 c2 ... nj cj) where ni is a
-           ;; decreasing sequence of numbers (n1=1, nj=0) and ci are colors
-           (cond
-             ;; Maxima list of numbers and colors (((mlist) ni ci) ...)
-             ((listp (first colors))
-              (setq colors (sort colors #'< :key #'cadr))
-              (dotimes (i n)
-                (setq map (cons (rgb-color (third (nth i colors))) ;; color
-                                (cons
-                                 (/ (- (second (nth i colors))   ;; ni minus
-                                       (second (first colors)))  ;; smallest ni
-                                    (- (second (nth (- n 1) colors));; biggest
-                                       (second (first colors)))) ;; - smallest
-                                 map)))))
-             ;; list of only colors
-             (t (dotimes (i n)
-                  (setq map (cons (rgb-color (nth i colors))  ;; color i
-                                  (cons (/ i (1- n)) map))))))    ;; number i
-
-           ;; prints map with the format:  nj, "cj", ...,n1, "c1"  
-           (setq fun (format nil "~{{ ~,,,,,,'eg ~s}~^ ~}" (reverse map)))
-           (format st "~&{colorscheme gradient} ")
-           ;; writes: {gradlist {{nj "cj"} ...{n1 "c1"}}}
-           (format st "{gradlist {~a}}" fun)))
-        (t
-         (merror
-          (intl:gettext
-           "palette: wrong keyword ~M. Must be hue, saturation, value, gray or gradient.")
-          (first palette)))))))
-
-(defun xmaxima-palettes (palette n)
-  (unless (integerp n) (setq n (round n)))
-  (if (find 'mlist palette :key #'car) (setq palette (list palette)))
-  (xmaxima-palette (rest (nth (mod (- n 1) (length palette)) palette))))
-			 
-(defmethod plot-preamble ((plot xmaxima-plot) plot-options)
+(defmethod plot-preamble ((plot xmaxima-plot) options)
   (let (outfile zmin zmax)
     (setf
      (slot-value plot 'data)
      (concatenate
       'string
       (slot-value plot 'data)
-      (with-output-to-string (dest)            
+      (with-output-to-string (st)            
         (cond ($show_openplot
-               (format dest "~a -data {~%" (getf plot-options '$type)))
-              (t (format dest "{~a " (getf plot-options '$type))))
-        (when (string= (getf plot-options '$type) "plot3d")
-          (let ((palette (getf plot-options '$palette))
-                (meshcolor (if (member '$mesh_lines_color plot-options)
-                               (getf plot-options '$mesh_lines_color)
-                               '$black))
-                (elev (getf plot-options '$elevation))
-                (azim (getf plot-options '$azimuth)))
-            (if (find 'mlist palette :key #'car) (setq palette (list palette)))
-            (if palette
-                (progn
-                  (if meshcolor
-                      (format dest " {mesh_lines ~a}" (rgb-color meshcolor))
-                      (format dest " {mesh_lines 0}")))
-                (format dest " {colorscheme 0}~%"))
-            (when elev (format dest " {el ~d}" elev))
-            (when azim (format dest " {az ~d}" azim))
-            (format dest "~%")))
-        (when (getf plot-options '$ps_file)
-          (setq outfile (plot-file-path (getf plot-options '$ps_file) t))
-          (format dest " {psfile ~s}" outfile))
-        (when (member '$legend plot-options)
-          (unless (getf plot-options '$legend)
-            (format dest " {nolegend 1}")))
-        (when (member '$box plot-options)
-          (unless (getf plot-options '$box)
-            (format dest " {nobox 1}")))
-        (if (getf plot-options '$axes)
-            (case (getf plot-options '$axes)
-              ($x (format dest " {axes {x} }"))
-              ($y (format dest " {axes {y} }"))
-              (t (format dest " {axes {xy} }")))
-            (format dest " {axes 0}"))
-        (when (getf plot-options '$x)
-          (format dest " {xrange ~{~,,,,,,'eg~^ ~}}" (getf plot-options '$x)))
-        (when (getf plot-options '$y)
-          (format dest " {yrange ~{~,,,,,,'eg~^ ~}}" (getf plot-options '$y)))
-        (when (getf plot-options '$z)
-          (setq zmin (first (getf plot-options '$z)))
-          (setq zmax (second (getf plot-options '$z)))
-          (format dest " {zcenter ~,,,,,,'eg }" (/ (+ zmax zmin) 2.0))
-          (format dest " {zradius ~,,,,,,'eg }" (/ (- zmax zmin) 2.0)))
-        (when (getf plot-options '$xlabel)
-          (format dest " {xaxislabel ~s}" (getf plot-options '$xlabel)))
-        (when (getf plot-options '$ylabel)
-          (format dest " {yaxislabel ~s}" (getf plot-options '$ylabel)))
-        (when (getf plot-options '$z)
-          (format $pstream " {zcenter ~,,,,,,'eg }"
-                  (/ (apply #'+ (getf plot-options '$z)) 2))
-          (format $pstream " {zradius ~,,,,,,'eg }~%"
-                  (/ (apply #'- (getf plot-options '$z)) -2)))
-        (format dest "~%"))))
+               (format st "~a " (getf options '$type))
+               (format st "-background ~a -data {~%"
+                       (rgb-color (getf options '$background_color)))
+               ;; record Maxima version and date-time
+               (format st "# Created by Maxima ~a~%" *autoconf-version*)
+               (format st "# ~a~%" ($timedate)))
+              (t (format st "{~a {background ~a} "
+                         (getf options '$type)
+                         (rgb-color (getf options '$background_color)))))
+        (when (string= (getf options '$type) "plot3d")
+          (let ((elev (getf options '$elevation))
+                (azim (getf options '$azimuth)))
+            (when elev (format st " {el ~d}" elev))
+            (when azim (format st " {az ~d}" azim))
+            (format st "~%")))
+        (when (getf options '$ps_file)
+          (setq outfile (plot-file-path (getf options '$ps_file) t))
+          (format st " {psfile ~s}" outfile))
+        (when (member '$legend options)
+          (unless (getf options '$legend)
+            (format st " {nolegend 1}")))
+        (when (member 'mbox options)
+          (unless (getf options 'mbox)
+            (format st " {nobox 1}")))
+        (if (getf options '$axes)
+            (case (getf options '$axes)
+              ($x (format st " {axes {x} }"))
+              ($y (format st " {axes {y} }"))
+              (t (format st " {axes {xy} }")))
+            (format st " {axes 0}"))
+        (when (getf options '$x)
+          (format st " {xrange ~{~,,,,,,'eg~^ ~}}" (getf options '$x)))
+        (when (getf options '$y)
+          (format st " {yrange ~{~,,,,,,'eg~^ ~}}" (getf options '$y)))
+        (when (getf options '$z)
+          (setq zmin (first (getf options '$z)))
+          (setq zmax (second (getf options '$z)))
+          (format st " {zcenter ~,,,,,,'eg }" (/ (+ zmax zmin) 2.0))
+          (format st " {zradius ~,,,,,,'eg }" (/ (- zmax zmin) 2.0)))
+        (when (getf options '$xlabel)
+          (format st " {xaxislabel ~s}" (getf options '$xlabel)))
+        (when (getf options '$ylabel)
+          (format st " {yaxislabel ~s}" (getf options '$ylabel)))
+        (when (getf options '$z)
+          (format st " {zcenter ~,,,,,,'eg }"
+                  (/ (apply #'+ (getf options '$z)) 2))
+          (format st " {zradius ~,,,,,,'eg }~%"
+                  (/ (apply #'- (getf options '$z)) -2)))
+        (format st "~%"))))
     ;;returns a list with the name of the file to be created, or nil
     (if (null outfile) nil (list outfile))))
 
@@ -384,7 +322,7 @@
      (concatenate
       'string
       (slot-value plot 'data)
-      (with-output-to-string ($pstream)
+      (with-output-to-string (st)
         ;; generate the mesh points for each surface in the functions stack
         (dolist (f functions)
           (setq i (+ 1 i))
@@ -419,23 +357,28 @@
                   (mtell
                    (intl:gettext
                     "plot3d: keep going and hope for the best.~%")))))
-          (let* ((pl
+          (let* ((points
                   (draw3d
                    fun (third xrange) (fourth xrange) (third yrange)
                    (fourth yrange) (first (getf options '$grid))
                    (second (getf options '$grid))))
-                 (ar (polygon-pts pl))
                  (colors (getf options '$color))
-                 (palettes (getf options '$palette)))
-            (declare (type (cl:array t) ar))
-            (when trans (mfuncall trans ar))
+                 (palette (getf options '$palette))
+                 (meshcolor (if (member '$mesh_lines_color options)
+                              (getf options '$mesh_lines_color)
+                              '$black)))
+            (declare (type (cl:array t) points))
+            (when trans (mfuncall trans points))
             (when (getf options '$transform_xy)
-                (mfuncall (getf options '$transform_xy) ar))
-            (if palettes
-                   (format $pstream " ~a~%" (xmaxima-palettes palettes i))
-                   (format $pstream " {mesh_lines ~a}" (xmaxima-color colors i)))
-              (output-points-tcl $pstream pl (first (getf options '$grid)))))
-        (format $pstream "}~%"))))))
+                (mfuncall (getf options '$transform_xy) points))
+            (if meshcolor
+              (format st " {mesh_lines ~a}" (rgb-color meshcolor))
+              (format st " {mesh_lines 0}"))
+            (if palette
+              (format st " ~a" (xmaxima-palette palette))
+              (format st " {colorscheme 0}"))
+            (output-points-tcl st points (first (getf options '$grid)))))
+        (format st "}~%"))))))
 
 (defmethod plot-shipout ((plot xmaxima-plot) options &optional output-file)
   (declare (ignore options))
@@ -445,14 +388,68 @@
                             #+sbcl (sb-ext:native-namestring file)
                             #-sbcl file
                             :direction :output :if-exists :supersede)
-             (princ (slot-value plot 'data) fl))
-           ($system (concatenate 'string *maxima-prefix* 
-                                 (if (string= *autoconf-windows* "true")
-                                     "\\bin\\" "/bin/") 
-                                 $xmaxima_plot_command)
-                    #-(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-                    (format nil " ~s &" file)
-                    #+(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-                    file))
+                           (princ (slot-value plot 'data) fl))
+           ($system $xmaxima_plot_command (format nil $gnuplot_file_args file)))
           (t (princ (slot-value plot 'data)) ""))
     (cons '(mlist) (cons file output-file))))
+
+(defmfun $tcl_output (lis i &optional (skip 2))
+  (when (not (typep i 'fixnum))
+    (merror
+      (intl:gettext "tcl_ouput: second argument must be an integer; found ~M")
+                    i))
+  (when (not ($listp lis))
+    (merror
+      (intl:gettext "tcl_output: first argument must be a list; found ~M") lis))
+  (format *standard-output* "~% {")
+  (cond (($listp (second lis))
+         (loop for v in lis
+                do
+                (format *standard-output* "~,,,,,,'eg " (nth i v))))
+        (t
+         (setq lis (nthcdr i lis))
+         (loop  with v = lis  while v
+                 do
+                 (format *standard-output* "~,,,,,,'eg " (car v))
+                 (setq v (nthcdr skip v)))))
+  (format *standard-output* "~% }"))
+
+(defun tcl-output-list ( st lis )
+  (cond ((null lis) )
+        ((atom (car lis))
+         (princ " {  " st)
+         (loop for v in lis
+                count t into n
+                when (eql 0 (mod n 5))
+                do (terpri st)
+                do
+                (format st "~,,,,,,'eg " v))
+         (format st  " }~%"))
+        (t (tcl-output-list st (car lis))
+           (tcl-output-list st (cdr lis)))))
+
+(defun output-points-tcl (st ar m)
+"Outputs the 3 coordinates of a grid of points.
+If the grid option is [grid,m,n], the points form a matrix with n+1 rows
+(x dirention) and m+1 columns (ydirection), stored in the array 'points'
+inside de structure st, one row after another.
+The points coordinates are written into 3 Tcl lists, each one with n+1
+sublists with the coordinates of the m+1 points on each row. The first list
+has the x coordinates, the second one the y coordinates and the third one
+has the z coordinates."
+  (format st "~%{matrix_mesh")
+  ;; x y z are done separately:
+  (loop for off from 0 to 2
+     with  i of-type fixnum = 0
+     do (setq i off)
+       (format st "~%{")
+       (loop while (< i (length ar))
+	     do (format st "~%{")
+	     (loop for j to m
+	           do (if (floatp (aref ar i))
+                        (format st "~,,,,,,'eg " (aref ar i))
+                        (format st "~a " *missing-data-indicator*))
+		   (setq i (+ i 3)))
+	     (format st "}"))
+       (format st "~%}"))
+  (format st "~%}"))

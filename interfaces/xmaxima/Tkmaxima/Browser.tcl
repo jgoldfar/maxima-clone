@@ -4,19 +4,16 @@
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
 #     Modified by Jaime E. Villate                         #
-#     Time-stamp: "2024-03-26 12:57:21 villate"            #
 ############################################################
 
 proc peekLastCommand {win} {
-    global maxima_priv
-    if { [info exists maxima_priv(lastcom,$win)] } {
-	return $maxima_priv(lastcom,$win)
+    if { [info exists ::xmaxima_priv(lastcom,$win)] } {
+	return $::xmaxima_priv(lastcom,$win)
     }
 }
 
 proc pushCommand { win command arglist } {
-    global maxima_priv
-    set maxima_priv(lastcom,$win) [list $command $arglist]
+    set ::xmaxima_priv(lastcom,$win) [list $command $arglist]
 }
 #
 #-----------------------------------------------------------------
@@ -33,7 +30,6 @@ proc pushCommand { win command arglist } {
 #----------------------------------------------------------------
 #
 proc tkTextInsert { w s } {
-    global maxima_priv
     set after [$w tag names insert]
     set before [$w tag names "insert-1char"]
     set both [intersect $after $before]
@@ -41,13 +37,13 @@ proc tkTextInsert { w s } {
     # puts "before=$before"
 
     foreach v [concat $after $before] {
-	if { [regexp -- $maxima_priv(sticky) $v] } {
+	if { [regexp -- $::xmaxima_priv(sticky) $v] } {
 	    lappend both $v
 	}
     }
 
-    if { [info exists maxima_priv($w,inputTag) ] } {
-	lappend both $maxima_priv($w,inputTag)
+    if { [info exists ::xmaxima_priv($w,inputTag) ] } {
+	lappend both $::xmaxima_priv($w,inputTag)
     }
 
     if {($s == "") || ([$w cget -state] == "disabled")} {
@@ -165,18 +161,17 @@ proc thisRange { win tag index } {
 #----------------------------------------------------------------
 #
 proc insertRichText {win index list } {
-    global maxima_priv
-    set maxima_priv(currentwin) $win
-    set maxima_priv(point) $index
-    foreach v $maxima_priv(richTextCommands) {
-	set maxima_priv($v,richTextCommand) [llength [info args $v]]
+    set ::xmaxima_priv(currentwin) $win
+    set ::xmaxima_priv(point) $index
+    foreach v $::xmaxima_priv(richTextCommands) {
+	set ::xmaxima_priv($v,richTextCommand) [llength [info args $v]]
     }
     set i 0
     set ll [llength $list]
     while { $i < $ll } {
 	set com [lindex $list $i]
 	incr i
-	if { [catch { set n $maxima_priv($com,richTextCommand)} ] } {
+	if { [catch { set n $::xmaxima_priv($com,richTextCommand)} ] } {
 	    return -code error -errorinfo [concat [mc "illegal command in rich text:"] "$com"]
 	}
 	set form [concat $com [lrange $list $i [expr {$i +$n -1}]]]
@@ -187,15 +182,13 @@ proc insertRichText {win index list } {
     }
 }
 proc Tins { tags text } {
-    global maxima_priv
     # foreach v $args { append text $v }
-    $maxima_priv(currentwin) insert $maxima_priv(point) $text  $tags
+    $::xmaxima_priv(currentwin) insert $::xmaxima_priv(point) $text  $tags
 }
 
 proc TinsSlashEnd { tags text } {
-    global maxima_priv
     # foreach v $args { append text $v }
-    $maxima_priv(currentwin) insert $maxima_priv(point) "$text\\"  $tags
+    $::xmaxima_priv(currentwin) insert $::xmaxima_priv(point) "$text\\"  $tags
 }
 
 proc underTop {top win} {
@@ -278,7 +271,10 @@ proc toLocalFilename { url } {
 	    return [file join / [assoc dirname $url] [assoc filename $url] ]
 
 	}
-	default "unknown type: $type"
+        xmaxima {
+            return [assoc filename $url]
+        }
+	default {error "unknown type: $type"}
     }
 }
 
@@ -391,7 +387,11 @@ proc encodeURL { lis } {
 	    #	   appendSeparate ans "" [assoc filename $lis ""] ""
 	    appendSeparate ans "#" [assoc anchor $lis ""] ""
 	}
-	default "error unsupported url type: $type"
+        xmaxima {
+            appendSeparate ans "" $type :/
+            append ans  [dirnamePlusFilename $lis]
+        }
+	default {error "unsupported url type: $type"}
     }
     return $ans
 }
@@ -449,8 +449,6 @@ proc resolveURL { name current {post ""} } {
 }
 
 proc getURLrequest { path server port types {post ""} {meth ""} } {
-    global maxima_priv
-
     if { "$meth" != "" } {
 	set method $meth 
     } else {
@@ -458,7 +456,7 @@ proc getURLrequest { path server port types {post ""} {meth ""} } {
 	if { "$post" != "" } {set method POST}
     }
     #puts "getURLrequest $path $server $port [list $types]"
-    foreach {v handler}  $maxima_priv(urlHandlers) {
+    foreach {v handler}  $::xmaxima_priv(urlHandlers) {
 	lappend types $v,
     }
     set ans "$method $path HTTP/1.0\nConnection: Keep-Alive\nUser-agent: netmath\nHost: $server:$port\nAccept: $types\n"
@@ -475,7 +473,6 @@ proc canonicalizeContentType { type } {
 }
 
 proc getURL { resolved type {mimeheader ""} {post ""} } {
-    global maxima_priv
     set res $resolved
     set ans ""
     set method ""
@@ -489,9 +486,9 @@ proc getURL { resolved type {mimeheader ""} {post ""} } {
 	    #mike FIXME: replace with http get
 	    # puts $res
 	    # puts "socket [assoc server $res] [assoc port $res 80]"
-	    if { [info exists maxima_priv(proxy,http) ] } {
-		set sock [eval socket $maxima_priv(proxy,http)]
-		#		puts "opening proxy request socket $maxima_priv(proxy,http)"
+	    if { [info exists ::xmaxima_priv(proxy,http) ] } {
+		set sock [eval socket $::xmaxima_priv(proxy,http)]
+		#		puts "opening proxy request socket $::xmaxima_priv(proxy,http)"
 	    } else {
 		set server [assoc server $res]
 		set port [assoc port $res 80]
@@ -518,19 +515,19 @@ proc getURL { resolved type {mimeheader ""} {post ""} } {
 		oset $sock cachename ""
 	    }
 	    flush $sock
-	    if { [readAllData $sock -tovar maxima_priv(url_result) \
-		      -translation binary -mimeheader maxima_priv(mimeheader)  \
+	    if { [readAllData $sock -tovar ::xmaxima_priv(url_result) \
+		      -translation binary -mimeheader ::xmaxima_priv(mimeheader)  \
 		      -timeout 120000 -chunksize 2024] > 0 } {
 		
-		#puts "length=[string length $maxima_priv(url_result)]"
+		#puts "length=[string length $::xmaxima_priv(url_result)]"
 		#	flush stdout
-		set contentType [canonicalizeContentType [assoc content-type $maxima_priv(mimeheader) text/plain]]
+		set contentType [canonicalizeContentType [assoc content-type $::xmaxima_priv(mimeheader) text/plain]]
 		uplevel 1 set $type [list $contentType]
 		if { "$mimeheader" != "" } {
-		    uplevel 1 set $mimeheader \[ uplevel "#0" set maxima_priv(mimeheader) \]
+		    uplevel 1 set $mimeheader \[ uplevel "#0" set ::xmaxima_priv(mimeheader) \]
 		}
-		set ans $maxima_priv(url_result)
-		unset maxima_priv(url_result)
+		set ans $::xmaxima_priv(url_result)
+		unset ::xmaxima_priv(url_result)
 		return $ans
 	    } else {
 		return "had error"
@@ -538,7 +535,14 @@ proc getURL { resolved type {mimeheader ""} {post ""} } {
 	}
 	file {
 	    set name [toLocalFilename $res]
-	    set fi [open $name r]
+            if {[file isfile $name]} {
+                set fi [open $name r]
+            } else {
+                set answer "<h1>Error</h1>\n<p>File: $name not found.</p>"
+                set contentType text/html
+                uplevel 1 set $type $contentType
+                return $answer
+            }
 	    set answer [read $fi]
 	    if { [regexp -nocase {[.]html?$} $name ] || [regexp -nocase "^(\[ \n\t\r\])*<html>" $answer] } {
 		set contentType text/html
@@ -556,6 +560,12 @@ proc getURL { resolved type {mimeheader ""} {post ""} } {
 	    close $fi
 	    return $answer
 	}
+        xmaxima {
+            set answer $::xmaxima_priv(error)
+            set contentType text/html
+            uplevel 1 set $type $contentType
+            return $answer
+        }
 	default {
 	    #mike dirpath?
 	    error [concat [mc "not supported"] "[lindex $res 0]"]
@@ -564,25 +574,23 @@ proc getURL { resolved type {mimeheader ""} {post ""} } {
 }
 
 proc getImage { resolved width height} {
-    global maxima_priv
     set res $resolved
     #puts [list getImage [list $resolved] $width $height]
     set ans ""
     catch {
-	if { "" != "[image type $maxima_priv(image,$res,$width,$height)]" } {
-	    set ans $maxima_priv(image,$res,$width,$height)
+	if { "" != "[image type $::xmaxima_priv(image,$res,$width,$height)]" } {
+	    set ans $::xmaxima_priv(image,$res,$width,$height)
 	}
     }
     if { "$ans" != "" } { return $ans }
 
     set image [image create photo -width $width -height $height]
     after 10 backgroundGetImage $image [list $resolved] $width $height
-    set maxima_priv(image,$res,$width,$height) $image
+    set ::xmaxima_priv(image,$res,$width,$height) $image
     return $image
 }
 
 proc backgroundGetImage  { image res width height }   {
-    global maxima_priv
     #puts [list backgroundGetImage  $image $res $width $height ]
     if { [catch { backgroundGetImage1 $image $res $width $height } err ] } {
         set im ::img::brokenimage
@@ -593,15 +601,14 @@ proc backgroundGetImage  { image res width height }   {
 
 proc backgroundGetImage1  { image res width height }   {
     #puts  "resolved=$res"
-    global maxima_priv
     #puts [list backgroundGetImage $image $res $width $height]
     switch [assoc type $res] {
 	http {
 	    set server [assoc server $res]
 	    set port [assoc port $res 80]
-	    if { [info exists maxima_priv(proxy,http) ] } {
-		set s [eval socket $maxima_priv(proxy,http)]
-		#		puts "opening proxy request socket $maxima_priv(proxy,http)"
+	    if { [info exists ::xmaxima_priv(proxy,http) ] } {
+		set s [eval socket $::xmaxima_priv(proxy,http)]
+		#		puts "opening proxy request socket $::xmaxima_priv(proxy,http)"
 	    } else {
 		set s [socket [assoc server $res] [assoc port $res 80]]
 	    }
@@ -612,24 +619,24 @@ proc backgroundGetImage1  { image res width height }   {
 	    flush $s
 
 
-	    if { [regexp -nocase $maxima_priv(imgregexp) [assoc filename $res] mm extension] } {
+	    if { [regexp -nocase $::xmaxima_priv(imgregexp) [assoc filename $res] mm extension] } {
 		fconfigure $s -translation binary
-		set tmp xxtmp[incr maxima_priv(imagecounter)].$extension
+		set tmp xxtmp[incr ::xmaxima_priv(imagecounter)].$extension
 
-		if { [info exists maxima_priv(inbrowser)] ||  [catch {set out [open $tmp w] } ] } {
+		if { [info exists ::xmaxima_priv(inbrowser)] ||  [catch {set out [open $tmp w] } ] } {
 		    # if have binary..
 		    if { "[info command binary]" != "binary" } {
 			error [mc "need version of tk with 'binary' command for images"]}
 		    #puts "hi binary" ; flush stdout
 		    if {  [readAllData $s -tovar \
-			       maxima_priv($s,url_result) -mimeheader \
-			       maxima_priv($s,mimeheader)
-			  ] > 0  && [string match *$extension [assoc content-type $maxima_priv($s,mimeheader)]] } {
+			       ::xmaxima_priv($s,url_result) -mimeheader \
+			       ::xmaxima_priv($s,mimeheader)
+			  ] > 0  && [string match *$extension [assoc content-type $::xmaxima_priv($s,mimeheader)]] } {
 			set ans $image
-			$image configure -data [tobase64 $maxima_priv($s,url_result)]
+			$image configure -data [tobase64 $::xmaxima_priv($s,url_result)]
 
-			unset maxima_priv($s,mimeheader)
-			unset maxima_priv($s,url_result)
+			unset ::xmaxima_priv($s,mimeheader)
+			unset ::xmaxima_priv($s,url_result)
 			
 		    } else  {
 			error [mc "could not get image"]
@@ -639,11 +646,11 @@ proc backgroundGetImage1  { image res width height }   {
 		    if { [readAllData $s -tochannel $out \
 			      -translation binary \
 			      -mimeheader \
-			      maxima_priv($s,mimeheader) -timeout 15000 -chunksize 2024 ] > 0 } {
+			      ::xmaxima_priv($s,mimeheader) -timeout 15000 -chunksize 2024 ] > 0 } {
 			set ans $image
 			$image config  -file \
 			    $tmp
-			unset maxima_priv($s,mimeheader)
+			unset ::xmaxima_priv($s,mimeheader)
 		    }
 		    # all the below just to try to remove the file..
 		    #  depending on versions and in environments..
@@ -674,46 +681,43 @@ proc backgroundGetImage1  { image res width height }   {
 #
 #-----------------------------------------------------------------
 #
-# readData --  read data from S, storing the result
-# in maxima_priv($s,url_result).   It times out after TIMEOUT without any data coming.
-# it can be aborted by setting set maxima_priv($s,done)  -1
+# readData --  read data from S, storing the result in
+# ::xmaxima_priv($s,url_result).   It times out after TIMEOUT without any
+# data coming.
+# It can be aborted by setting set ::xmaxima_priv($s,done)  -1
 #
 #
 #  Results: -1 on failure and 1 on success.
 #
-#  Side Effects: it initially  empties maxima_priv($s,url_result) and then
-#  adds data to it as read.   maxima_priv($s,done) is initialized to 0
+#  Side Effects: it initially  empties ::xmaxima_priv($s,url_result) and then
+#  adds data to it as read.   ::xmaxima_priv($s,done) is initialized to 0
 #
 #----------------------------------------------------------------
 #
 proc readData { s { timeout 10000 }} {
-    global maxima_priv
-
-    after $timeout "set maxima_priv($s,done) -1"
+    after $timeout "set ::xmaxima_priv($s,done) -1"
     fconfigure $s  -blocking 0
-    set maxima_priv($s,done) 0
-    set maxima_priv($s,url_result) ""
+    set ::xmaxima_priv($s,done) 0
+    set ::xmaxima_priv($s,url_result) ""
 
     #mike FIXME: this is a wrong use of after cancel
     fileevent $s readable \
-	"after cancel {set maxima_priv($s,done) -1} ; after $timeout {set maxima_priv($s,done) -1} ; set da \[read $s 8000] ; append maxima_priv($s,url_result) \$da; if { \[string length \$da] < 8000  && \[eof $s] } {after cancel {set maxima_priv($s,done) -1} ; set maxima_priv($s,done) 1; fileevent $s readable {} ;  }"
-    myVwait maxima_priv($s,done)
+	"after cancel {set ::xmaxima_priv($s,done) -1} ; after $timeout {set ::xmaxima_priv($s,done) -1} ; set da \[read $s 8000] ; append ::xmaxima_priv($s,url_result) \$da; if { \[string length \$da] < 8000  && \[eof $s] } {after cancel {set ::xmaxima_priv($s,done) -1} ; set ::xmaxima_priv($s,done) 1; fileevent $s readable {} ;  }"
+    myVwait ::xmaxima_priv($s,done)
     catch { close $s }
     #mike FIXME: this is a wrong use of after cancel
-    after cancel "set maxima_priv($s,done) -1"
-    return $maxima_priv($s,done)
+    after cancel "set ::xmaxima_priv($s,done) -1"
+    return $::xmaxima_priv($s,done)
 }
 
 proc doRead { sock } {
-    global maxima_priv
-
     #puts reading; flush stdout;
     set tem [read $sock]
-    append maxima_priv(url_result)  $tem
+    append ::xmaxima_priv(url_result)  $tem
     # puts read:<$tem>
     # flush stdout
     if { [eof $sock] } {
-	set maxima_priv(done) 1
+	set ::xmaxima_priv(done) 1
 	close $sock
     }
 }
@@ -741,7 +745,6 @@ proc ws_outputToTemp { string file ext encoding } {
 }
 
 proc OpenMathOpenUrl { name args} {
-    global maxima_priv
     if {![winfo exists .browser]} {createBrowser .browser}
     
     # Removes any white spaces at the end of the Url given
@@ -813,7 +816,7 @@ proc OpenMathOpenUrl { name args} {
 	set name $tem
     }
     #puts "contentType defined:[info exists contentType]"
-    set handler [assoc $contentType $maxima_priv(urlHandlers)]
+    set handler [assoc $contentType $::xmaxima_priv(urlHandlers)]
     if { "$handler" != "netmath" && "$handler" != "" } {
 	set tmp [ws_outputToTemp result netmath ps "[assoc content-encoding $mimeheader]"]
 	# to do fix this for windows #####
@@ -830,10 +833,10 @@ proc OpenMathOpenUrl { name args} {
     # puts "using  $baseprogram"
     if { $reload } {   forgetCurrent $commandPanel }
 
-    #puts "maxima_priv(counter)=$maxima_priv(counter)"
-    set win [mkOpenMath [set w $toplevel.t[incr maxima_priv(counter)]] ]
+    #puts "::xmaxima_priv(counter)=$::xmaxima_priv(counter)"
+    set win [mkOpenMath [set w $toplevel.t[incr ::xmaxima_priv(counter)]] ]
 
-    #puts "maxima_priv(counter)=$maxima_priv(counter)"
+    #puts "::xmaxima_priv(counter)=$::xmaxima_priv(counter)"
     makeLocal $w commandPanel
     #puts "resolveURL $name $currentUrl"
     if { [set anchor [assoc anchor $new]] != "" } {
@@ -953,8 +956,7 @@ proc addTagSameRange { win oldtag newtag index } {
 }
 
 proc getBaseprogram { } {
-    global maxima_default
-    return [lindex  $maxima_default(defaultservers) 0]
+    return [lindex  $::xmaxima_default(defaultservers) 0]
 }
 
 #mike FIXME: This is an abomination
@@ -975,8 +977,6 @@ proc fileBaseprogram { textwin parent x y } {
 }
 
 proc fontDialog { top } {
-    global maxima_default
-
     set font [xHMmapFont font:propor:normal:r:3]
     if {[winfo exists $top]} {catch { destroy $top }}
 
@@ -997,10 +997,10 @@ proc fontDialog { top } {
 	if { "$fam" == "fixed" } { set fixed 1 } else {
 	    set fixed 0
 	}
-	mkLabelListBoxChooser $win.size$fam "list $lis" maxima_default($fam,adjust)
-	mkLabelListBoxChooser $win.family$fam "getFontFamilies $fixed " maxima_default($fam)
+	mkLabelListBoxChooser $win.size$fam "list $lis" ::xmaxima_default($fam,adjust)
+	mkLabelListBoxChooser $win.family$fam "getFontFamilies $fixed " ::xmaxima_default($fam)
 	set fo [xHMmapFont "font:$fam:normal:r:3"]
-	catch { set maxima_default($fam) [assoc -family [font actual $fo]]}
+	catch { set ::xmaxima_default($fam) [assoc -family [font actual $fo]]}
     }
     $win insert insert [mc "Font Settings\nThe proportional font is "]
     $win window create insert -window $win.familypropor
@@ -1013,18 +1013,17 @@ proc fontDialog { top } {
     $win insert insert "\n"
     $win insert insert [mc "Default nmtp servers  "]
     global _servers
-    set _servers $maxima_default(defaultservers)
+    set _servers $::xmaxima_default(defaultservers)
     entry $win.entry -textvariable _servers -width 40
     $win window create insert -window $win.entry
     $win insert insert "\n\n"
-    global maxima_priv
     $win insert insert [mc "http Proxy host and port:"]
     entry $win.entryproxy  -width 40
-    catch { $win.entryproxy insert 0 $maxima_priv(proxy,http) }
+    catch { $win.entryproxy insert 0 $::xmaxima_priv(proxy,http) }
     $win window create insert -window $win.entryproxy
     $win insert insert [mc "\nIf you are behind a firewall enter the name of your http proxy host and port,\n eg: `some.server.example.org 3128', otherwise leave this blank"]
 
-    set men [tk_optionMenu $win.plottype maxima_default(plotwindow) embedded separate multiple ]
+    set men [tk_optionMenu $win.plottype ::xmaxima_default(plotwindow) embedded separate multiple ]
     $win insert insert [mc "\nShould plot windows be "]
     $win window create insert -window $win.plottype
     $win insert insert "?"
@@ -1035,11 +1034,11 @@ proc fontDialog { top } {
     $win insert insert "      "
     $win insert insert [mc " Cancel "] "cancel raised"
     proc _FontDialogApply { win } {
-	global maxima_default _servers maxima_priv
-	set maxima_default(defaultservers) $_servers
+	global _servers ::xmaxima_priv
+	set ::xmaxima_default(defaultservers) $_servers
 	catch {xHMresetFonts .}
 	if { [llength [$win.entryproxy get]] == 2 } {
-	    set maxima_priv(proxy,http) [$win.entryproxy get]
+	    set ::xmaxima_priv(proxy,http) [$win.entryproxy get]
 	}
     }
     $win tag bind click <1> "_FontDialogApply $win"
@@ -1054,42 +1053,46 @@ proc fontDialog { top } {
 }
 
 proc savePreferences {} {
-    global maxima_default maxima_priv
     makeLocal {.maxima.text} inputs
 
-    # Save current console size in maxima_default
-    set console [lindex [array get maxima_priv cConsoleText] end]
-    set maxima_default(iConsoleWidth) [textWindowWidth $console]
-    set maxima_default(iConsoleHeight) [textWindowHeight $console]
+    # Save current console size in ::xmaxima_default
+    set console [lindex [array get ::xmaxima_priv cConsoleText] end]
+    set ::xmaxima_default(iConsoleWidth) [textWindowWidth $console]
+    set ::xmaxima_default(iConsoleHeight) [textWindowHeight $console]
 
     catch {
+        # Save the state of the browser (1=opened, 0=closed)
         if {[winfo exists .browser]} {
-            set maxima_default(browser) 1
+            set ::xmaxima_default(browser) 1
         } else {
-            set maxima_default(browser) 0}
-        set fi [open  "$maxima_priv(home)/.xmaximarc" w]
-        puts $fi "array set maxima_default {"
-        foreach {k v} [array get maxima_default *] {
+            set ::xmaxima_default(browser) 0}
+
+        # Save the ::xmaxima_default array into $::xmaxima_priv(conffile)
+        # Each line will contain a key and value separated by space
+        # and the keys will be in alphabetical order
+        #
+        set fileId [open $::xmaxima_priv(conffile) w]
+        foreach {k v} [array get ::xmaxima_default *] {
             lappend all [list $k $v]
         }
         set all [lsort $all]
-        foreach v $all { puts $fi $v }
-        puts $fi "}"
+        foreach v $all { puts $fileId $v }
 
         #mike FIXME: make this a _default
-        if { [info exists maxima_priv(proxy,http)] && \
-                 [llength $maxima_priv(proxy,http)] == 2   } {
-            puts $fi [list array set maxima_priv [array get maxima_priv proxy,http]
-		 ]
-        }
-        close $fi
-    }
-    catch {
-        set hf [open "$maxima_priv(home)/.xmaxima_history" w]
-        puts $hf "oset {.maxima.text} inputs {"
-        foreach v [lrange $inputs end-99 end] { puts $hf "{$v}" }
-        puts $hf "}"
-        close $hf
+        # if { [info exists ::xmaxima_priv(proxy,http)] && \
+        #          [llength $::xmaxima_priv(proxy,http)] == 2   } {
+        #     puts $fileId [list array set ::xmaxima_priv [array get ::xmaxima_priv proxy,http]
+	# 	 ]
+        # }   Villate: This block seems wrong to me.
+        
+        close $fileId
+
+        # Save the command history to $::xmaxima_priv(history)
+        # Up to 200 last commands are saved, each one as a Tcl list
+        #
+        set fileId [open "$::xmaxima_priv(history)" w]
+        foreach v [lrange $inputs end-199 end] { puts $fileId [list $v] }
+        close $fileId
     }
 }
 #
@@ -1111,8 +1114,6 @@ proc mkLabelListBoxChooser { win items  textvar} {
 }
 
 proc listBoxChoose { win  items textvar  } {
-    global maxima_default
-
     set whei [winfo height $win]
     set items [eval $items]
     set hei [llength $items]

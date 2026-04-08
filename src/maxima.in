@@ -9,11 +9,11 @@ setup_vars() {
   if [ -z "$MAXIMA_VERSION" ]; then
     MAXIMA_VERSION="@VERSION@"
   fi
-  prefix=`unixize "@prefix@"`
-  exec_prefix=`unixize "@exec_prefix@"`
+  prefix=$(unixize "@prefix@")
+  exec_prefix=$(unixize "@exec_prefix@")
   PACKAGE=@PACKAGE@
-  top_srcdir=`unixize "@expanded_top_srcdir@"`
-  libdir=`unixize "@libdir@"`
+  top_srcdir=$(unixize "@expanded_top_srcdir@")
+  libdir=$(unixize "@libdir@")
   if [ -n "$MAXIMA_LAYOUT_AUTOTOOLS" ]; then
       layout_autotools="$MAXIMA_LAYOUT_AUTOTOOLS"
   else
@@ -28,16 +28,16 @@ setup_vars() {
       MAXIMA_IMAGESDIR="$MAXIMA_DEFAULT_IMAGESDIR"
   else
       if [ "$layout_autotools" = "true" ]; then
-	  MAXIMA_IMAGESDIR=`unixize "$MAXIMA_PREFIX"`/lib/$PACKAGE/$MAXIMA_VERSION
+	  MAXIMA_IMAGESDIR=$(unixize "$MAXIMA_PREFIX")/lib/$PACKAGE/$MAXIMA_VERSION
       else
-	  MAXIMA_IMAGESDIR=`unixize "$MAXIMA_PREFIX"`/src
+	  MAXIMA_IMAGESDIR=$(unixize "$MAXIMA_PREFIX")/src
       fi  
   fi
   MAXIMA_DEFAULT_LISP=@DEFAULTLISP@
   # If the the binary directory for the default lisp is not present,
   # choose the first one we find.
   if [ ! -d "$MAXIMA_IMAGESDIR/binary-$MAXIMA_DEFAULT_LISP" ]; then
-    MAXIMA_DEFAULT_LISP=`ls -1 $MAXIMA_IMAGESDIR 2>/dev/null | head -n 1 | sed 's/binary-//'`
+    MAXIMA_DEFAULT_LISP=$(ls -1 $MAXIMA_IMAGESDIR 2>/dev/null | head -n 1 | sed 's/binary-//')
   fi
   if [ -z "$MAXIMA_LISP" ]; then
     MAXIMA_LISP=$MAXIMA_DEFAULT_LISP
@@ -53,7 +53,7 @@ process_userdir_argument() {
     while [ -n "$1" ]; do
         case $1 in 
         --userdir ) MAXIMA_USERDIR=$2 ; shift;;
-        --userdir=* ) MAXIMA_USERDIR=`echo "$1" | sed 's/--userdir=//'` ;;
+        --userdir=* ) MAXIMA_USERDIR=$(echo "$1" | sed 's/--userdir=//') ;;
         esac
         shift
     done
@@ -63,17 +63,24 @@ fi
 }
 
 # make a special check for --userdir argument, because it influences location
-# of maximarc, which is sourced before  other command-line options are
+# of maximarc, which is parsed before other command-line options are
 # processed
 process_userdir_argument "$@"
 
 if [ -z "$MAXIMA_USERDIR" ]; then
   maximarc_path="$HOME/.maxima/maximarc"
 else
-  maximarc_path="`unixize \"$MAXIMA_USERDIR\"`/maximarc"
+  maximarc_path="$(unixize \"$MAXIMA_USERDIR\")/maximarc"
 fi
+
+# Parses the maximarc file. For any line of the type keyword=<value>,
+# the line will be "exported" (enviroment variable keyword set to <value>).
+# Lines with something different than that are ignored.
 if [ -f "$maximarc_path" ]; then
-  . "$maximarc_path"
+    while IFS= read -r line; do
+        n=$(expr "$line" : '^[a-zA-Z\_]\+=')
+        [ "$n" -ne 0 ] && export "$line"
+    done < "$maximarc_path"
 fi
 
 # For some reason TeXmacs sets MAXIMA_DIRECTORY to the empty string,
@@ -115,11 +122,11 @@ process_commandline_arguments() {
     while [ -n "$1" ]; do
 	case $1 in
 	    -l|--lisp ) MAXIMA_LISP=$2 ; shift;;
-	    --lisp=*) MAXIMA_LISP=`echo "$1" | sed 's/--lisp=//'` ;;
+	    --lisp=*) MAXIMA_LISP=$(echo "$1" | sed 's/--lisp=//') ;;
 	    -u|--use-version ) MAXIMA_VERSION=$2 ; shift;;
-	    --use-version=*) MAXIMA_VERSION=`echo "$1" | sed 's/--use-version=//'` ;;
+	    --use-version=*) MAXIMA_VERSION=$(echo "$1" | sed 's/--use-version=//') ;;
 	    -X|--lisp-options) MAXIMA_LISP_OPTIONS="$2" ; shift ;;
-	    --lisp-options=*) MAXIMA_LISP_OPTIONS=`echo "$1" | sed 's/--lisp-options=//'` ;;
+	    --lisp-options=*) MAXIMA_LISP_OPTIONS=$(echo "$1" | sed 's/--lisp-options=//') ;;
 	    --userdir ) : ; shift;; # noop; handled by process_userdir_argument
 	    --userdir=*) : ;; # noop; handled by process_userdir_argument
 	    -v|--verbose ) verbose=true;;
@@ -142,7 +149,7 @@ setup_vars
 
 if [ ! -d "$MAXIMA_IMAGESDIR" ]; then
 # Have we been moved?
-  MAXIMA_PREFIX=`(cd "\`dirname "$0"\`" 1>/dev/null 2>/dev/null; dirname "\`pwd\`")`
+  MAXIMA_PREFIX=$( (cd "\`dirname "$0"\`" 1>/dev/null 2>/dev/null; dirname "\`pwd\`"))
   export MAXIMA_PREFIX
   unsetup_vars
   setup_vars

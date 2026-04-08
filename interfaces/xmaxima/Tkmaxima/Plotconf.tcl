@@ -4,13 +4,12 @@
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
 #     Modified by Jaime E. Villate                         #
-#     Time-stamp: "2024-03-25 21:11:14 villate"            #
 ############################################################
 
-proc makeFrame { w type } {
+proc makeFrame { w type background} {
     # If the plot was produced by Xmaxima's console, it will be in a frame
     # inserted in the console. Otherwise it will be a toplevel window
-    global doExit fontSize buttonfont maxima_priv
+    global doExit fontSize buttonfont
     set win $w
     if { "$w" == "." } {
         set w ""
@@ -62,7 +61,7 @@ proc makeFrame { w type } {
     set buttonsLeft 1
 
     # c is the canvas where the plot will be drawn
-    tk::canvas $c -cursor arrow -background white \
+    tk::canvas $c -cursor arrow -background $background \
         -width [oget $win width] -height [oget $win height]
     pack $c -side top -expand 1 -fill both
     bind $c <Motion> "showPosition $w %x %y"
@@ -169,7 +168,8 @@ proc writePostscript { win } {
     puts $fi $output
     close $fi}
 
-proc vectorlength {a b} {return [expr {sqrt($a*$a+$b*$b)}]}
+proc vectorlength {a b} {
+    return [expr {sqrt($a*$a+$b*$b)}]}
 
 proc setupCanvas { win } {
     makeLocal $win xcenter xradius ycenter yradius
@@ -614,6 +614,8 @@ proc deleteBalloon { c } {
 # be vectors or numbers
 #
 #----------------------------------------------------------------
+# This function only works if the args are all numbers and sorted from
+# smaller to larger. Use matrixMinMax instead (villate, 2026-03-30)
 proc minMax { args } {
     set max [lindex [lindex $args 0] 0] ; set min $max ;
     foreach vec $args {
@@ -627,10 +629,10 @@ proc matrixMinMax { list } {
     set max -10e300
     foreach mat $list {
 	foreach row $mat {
-	    foreach v [ldelete nam $row] {
+	    foreach v $row {
 		if { $v > $max } {catch  { set max [expr {$v + 0}] }}
 		if { $v < $min} {catch  { set min [expr {$v + 0}] }}}}}
-    list $min $max}
+    return [list $min $max]}
 
 proc omPlotAny { data args } {
     # puts "data=<[lindex $data 0]>"

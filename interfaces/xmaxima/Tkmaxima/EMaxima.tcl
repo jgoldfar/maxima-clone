@@ -1,7 +1,3 @@
-# -*-mode: tcl; fill-column: 75; tab-width: 8; coding: iso-latin-1-unix -*-
-#
-#       $Id: EMaxima.tcl,v 1.4 2011-03-19 23:16:41 villate Exp $
-#
 ###### EMaxima.tcl ######
 ############################################################
 # Netmath       Copyright (C) 1998 William F. Schelter     #

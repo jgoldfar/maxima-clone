@@ -23,11 +23,10 @@
   #+sbcl (sb-ext:save-lisp-and-die "binary-sbcl/maxima.core" :toplevel (symbol-function 'cl-user::run))
   #+gcl (si:save-system "binary-gcl/maxima")
   #+cmu (extensions:save-lisp "binary-cmucl/maxima.core" :init-function 'cl-user::run)
-  #+scl (extensions:save-lisp "binary-scl/maxima.core" :init-function 'cl-user::run)
   #+allegro (excl:dumplisp :name "binary-acl/maxima.dxl")
   #+lispworks (hcl:save-image "binary-lispworks/maxima" :restart-function 'cl-user::run)
   #+(and openmcl (not 64-bit-target)) (ccl:save-application "binary-openmcl/maxima" :toplevel-function 'cl-user::run)
   #+(and openmcl 64-bit-target) (ccl:save-application "binary-ccl64/maxima" :toplevel-function 'cl-user::run)
-  #-(or clisp sbcl gcl cmu scl allegro lispworks ccl)
+  #-(or clisp sbcl gcl cmu allegro lispworks ccl)
   (format t "Sorry, I don't know how to dump an image on this Lisp"))
 

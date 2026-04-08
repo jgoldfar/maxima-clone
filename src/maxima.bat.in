@@ -28,9 +28,7 @@ rem remove trailing "\":
 if "%prefix:~-1%"=="\" set "prefix=%prefix:~0,-1%"
 
 rem Change "\" to "/" in that path. Works too and causes less troubles (e.g. with xmaxima).
-rem Don't know, why the "//" must be written instead of "/" - but it appears to work with "//".
-rem And a double "//" should work anyways, so that does not hurt.
-set "prefix=%prefix:\=//%"
+set "prefix=%prefix:\=/%"
 set "maxima_prefix=%prefix%"
 set "package=@PACKAGE@"
 set verbose=false
@@ -174,7 +172,7 @@ if "%layout_autotools%" == "true" goto clisp_autotools
 goto :EOF
 
 :clisp_autotools
-set "path=%maxima_imagesdir%/binary-%lisp%;%maxima_prefix%/clisp-2.49/base;%path%"
+set "path=%maxima_imagesdir%/binary-%lisp%;%maxima_prefix%/clisp-2.49;%path%"
 rem set codepage to unicode
 chcp 65001 >nul
 @CLISP_NAME@ %lisp_options% -q -M "%maxima_image_base%.mem" "" -- %*

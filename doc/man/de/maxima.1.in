@@ -103,6 +103,9 @@ Optionen, die an das verwendete Lisp weitergereicht werden.
 .TP
 \fB\-\-no\-init\fR, \fB\-\-norc\fR
 Initialisierungsdateien beim Start nicht laden.
+.TP
+\fB\-\-suppress\-input\-echo\fR
+Im nicht-interaktiven Betrieb die Eingaben nicht ausgeben.
 
 .SH EINF\(:UHRENDE ANMERKUNGEN
 Nach dem Start von

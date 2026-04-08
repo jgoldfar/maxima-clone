@@ -121,6 +121,18 @@
 (defun string<$ (str1 str2)
   (string< str1 str2))
 
+(declaim (inline char-invert-case))
+(defun char-invert-case (c)
+  "Returns the character C with inverted case."
+  ;; This implementation is faster than first checking whether C is uppercase
+  ;; or lowercase and then using CHAR-DOWNCASE or CHAR-UPCASE, at least on SBCL.
+  ;; Try downcasing first, because the expected case for symbols is uppercase,
+  ;; as in $X, $Y, ...
+  (let ((downcased (char-downcase c)))
+    (if (eql downcased c)
+      (char-upcase c)
+      downcased)))
+
 ;;numbers<strings<symbols<lists<?
 (defun alphalessp (x y)
   (cond ((numberp x)
@@ -133,19 +145,70 @@
 	((symbolp x)
 	 (cond ((or (numberp y) (stringp y)) nil)
 	       ((symbolp y)
-		(let ((nx (print-invert-case x))
-		      (ny (print-invert-case y)))
-		  (declare (string nx ny))
-		  (cond ((string<$ nx ny)
-			 t)
-			((string= nx ny)
-			 (cond ((eq nx ny) nil)
-			       ((null (symbol-package x)) nil)
-			       ((null (symbol-package y)) nil)
-			       (t (string<
-				   (package-name (symbol-package x))
-				   (package-name (symbol-package y))))))
-			(t nil))))
+             ;; Local helper function that returns T if the case of the string
+             ;; STR (length LEN) must be inverted while comparing, i.e., if its
+             ;; letters are either all uppercase or all lowercase.
+             ;; Must be inverted:     a, A, ab, AB, $a, $b, $ab, $AB
+             ;; Must not be inverted: aB, Ab
+             (flet ((invert-case-p (str len)
+                      ;; Quickly handle the common case of length 2 with $ prefix,
+                      ;; e.g. $a or $A. Always invert these. (If the second
+                      ;; character is non-case, e.g. %, it doesn't matter.)
+                      (if (and (= 2 len) (eql (char str 0) #\$))
+                        t
+                        (let (upper lower)
+                          ;; Loop over the characters C of STR, remembering
+                          ;; whether we have seen any uppercase/lowercase
+                          ;; characters. Minimize the number of calls to
+                          ;; UPPER-CASE-P/LOWER-CASE-P: If we have already
+                          ;; seen an uppercase/lowercase character, there's
+                          ;; no need to test again. Abort when we have seen both.
+                          (loop
+                            for c across str
+                            do (cond ((and (not upper) (upper-case-p c))
+                                       (setq upper t)
+                                       (when lower (return)))
+                                     ((and (not lower) (lower-case-p c))
+                                       (setq lower t)
+                                       (when upper (return)))))
+                          (not (eq upper lower)))))) ; = UPPER XOR LOWER
+               (declare (inline invert-case-p))
+               (let* ((nx (symbol-name x))
+                      (ny (symbol-name y))
+                      (len-nx (length nx))
+                      (len-ny (length ny))
+                      (inv-nx (invert-case-p nx len-nx))  ; Need to invert NX?
+                      (inv-ny (invert-case-p ny len-ny))) ; Need to invert NY?
+                 (loop
+                   ;; Loop over the characters CX, CY of NX, NY in parallel.
+                   for cx across nx
+                   for cy across ny
+                   ;; If CX and CY are the same character and both have or both
+                   ;; don't have to be inverted, we don't need to do anything
+                   ;; in this iteration.
+                   do (unless (and (eql cx cy) (eq inv-nx inv-ny))
+                        (let ((cx* (if inv-nx (char-invert-case cx) cx))
+                              (cy* (if inv-ny (char-invert-case cy) cy)))
+                          ;; If the characters differ, after inverting if needed,
+                          ;; we can return the answer immediately.
+                          (unless (char= cx* cy*)
+                            (return-from alphalessp (char< cx* cy*))))))
+                 ;; If we're still here, the substrings (after inverting if needed)
+                 ;; are identical up to the minimum of both lengths.
+                 ;; Look at the string lengths.
+                 (cond
+                   ((= len-nx len-ny)
+                     ;; Same length means same symbol name. Let the name of the
+                     ;; symbol's package decide. (The symbols could also be EQ,
+                     ;; but that never seems to occur in practice.)
+                     (let ((px (symbol-package x))
+                           (py (symbol-package y)))
+                       (if (and px py)
+                         (string< (package-name px) (package-name py))
+                         nil)))
+                   (t
+                     ;; The symbol with the shorter name is "less".
+                     (< len-nx len-ny))))))
 	       ((consp y) t)))
 	((listp x)
 	 (cond ((or (numberp y) (stringp y)(symbolp y )) nil)

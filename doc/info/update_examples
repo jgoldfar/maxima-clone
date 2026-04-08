@@ -124,7 +124,10 @@ while (<>) {
                         print STDERR "Error: line $line_cnt - can't delete temp file $tempf\n";
                     }
 
-                    print "\@example\n";
+                    # Use "@example maxima" so that examples can have
+                    # syntax highlighting applied, if syntax highlight
+                    # was enabled when generating the HTML document.
+                    print "\@example maxima\n";
 
                     until ($#example_result_buf == -1 or $example_result_buf[0] =~ /^\cB/) {
                         shift @example_result_buf;

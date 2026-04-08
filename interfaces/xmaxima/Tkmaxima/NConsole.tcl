@@ -1,13 +1,8 @@
-# -*-mode: tcl; fill-column: 75; tab-width: 8; coding: iso-latin-1-unix -*-
-#
-#       $Id: NConsole.tcl,v 1.10 2006-12-04 10:45:46 villate Exp $
-#
 ###### NConsole.tcl ######
 ############################################################
 # Netmath       Copyright (C) 1998 William F. Schelter     #
 # For distribution under GNU public License.  See COPYING. #
 ############################################################
-
 
 proc mkConsole { fr program } {
     catch { destroy $fr }
@@ -16,23 +11,17 @@ proc mkConsole { fr program } {
     pack $fr -expand 1 -fill both
     set w $fr.text
     label [set msg $fr.label]  -height 1 -relief sunken \
-	    -textvariable maxima_priv(load_rate)
-
+	    -textvariable ::xmaxima_priv(load_rate)
     oset $w program $program
     oset $w prompt "% "
     text $w
     bind $w <Configure> "resizeSubPlotWindows $w %w %h"
-
     $w tag configure input -foreground blue
     # -relief sunken -borderwidth 1
     bindtags $w [linsert [bindtags $w] 1 CNtext OpenMathText ]
-
-    global maxima_priv
-
-    if { ![regexp -- $maxima_priv(sticky) input] } {
-	append maxima_priv(sticky) {|^input$}
+    if { ![regexp -- $::xmaxima_priv(sticky) input] } {
+	append ::xmaxima_priv(sticky) {|^input$}
     }
-
     CNinsertPrompt $w
     $w mark gravity lastStart left
     pack $w -side top -expand 1 -fill both
@@ -50,7 +39,6 @@ proc CNclearinput { w } {
 	$w delete lastStart insert
     }
 }
-
 
 proc CNinsertPrompt { w } {
     set prompt [oget $w prompt]
@@ -85,7 +73,6 @@ proc CNeval { w } {
     #puts "sendind <$expr>"
     set res [sendOneWait [oget $w program] $expr]
     message "received result"
-
     if { "$res" != "" } {
 	if { ![regexp \n $res] } {
 	    set tag center
@@ -104,7 +91,6 @@ proc CNeval { w } {
 	} else {
 	    $w insert end $res "$tag result"
 	}
-
     }
     CNinsertPrompt $w
     if { [info exists view] } {$w yview $view }
@@ -115,7 +101,6 @@ proc CNpreviousInput { w direction } {
     linkLocal $w  inputIndex matching
     if { [catch {makeLocal $w inputs}] } { return }
     if { [$w compare insert < lastStart ] } { return }
-
     set last [lindex [peekLastCommand $w] 1]
     if {  ("[lindex $last 2]" != "ALT_p" && "[lindex $last 2]" != "ALT_n") || \
 	      ![info exists inputIndex] } {
@@ -155,8 +140,6 @@ proc CNblinkMatchingParen { win ch } {
 	}
     }
 }
-
-
 #
 #-----------------------------------------------------------------
 #

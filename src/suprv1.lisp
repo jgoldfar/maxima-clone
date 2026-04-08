@@ -87,7 +87,8 @@
 (defun makelabel10 (x)
   (let (*print-radix*
 	(*print-base* 10.))
-    ($concat '|| x $linenum)))
+    ;; x should be a symbol (one of $inchar, $outchar, $linechar)
+    ($concat x $linenum)))
 (defun makelabel (x)
   (setq *linelabel* (makelabel10 x))
   (unless $nolabels
@@ -154,7 +155,7 @@
 		   #+lispworks (pathname-type (compile-file-pathname "foo.lisp"))
 		   #-(or gcl cmu clisp allegro openmcl lispworks) ""))
       (if (member type (list bin-ext "lisp" "lsp")  :test 'equalp)
-	  (let ((*read-base* 10.)) #-sbcl (load file) #+sbcl (with-compilation-unit nil (load file)))
+	  (let ((*read-base* 10.) (*print-base* 10.)) #-sbcl (load file) #+sbcl (with-compilation-unit nil (load file)))
 	  ($load file)))))
 
 (defvar autoload 'generic-autoload)
@@ -199,6 +200,7 @@
 	 (*package* (find-package :maxima))
 	 ($load_pathname path)
 	 (*read-base* 10.)
+	 (*print-base* 10.)
 	 (tem (errset #-sbcl (load (pathname file)) #+sbcl (with-compilation-unit nil (load (pathname file))))))
     (or tem (merror (intl:gettext "loadfile: failed to load ~A") (namestring path)))
     (namestring path)))
@@ -247,7 +249,7 @@
       (when (not (get x 'sysconst))
 	(remprop x 'lineinfo)
 	(remprop x 'mprops))
-      (dolist (u '(bindtest nonarray evfun evflag opers special mode))
+      (dolist (u '(bindtest nonarray evfun evflag opers mode))
 	(remprop x u))
       (dolist (u opers)
 	(when (and (remprop x u)
@@ -383,7 +385,7 @@
 		    (setf (symbol-value x)
 			  (gethash x *builtin-symbol-values*)))
 		  t)
-		 ((get x 'special)
+		 ((get x 'reset-on-kill)
 		  (makunbound x)
 		  (when (member x *builtin-symbols-with-values* :test #'equal)
 		    (setf (symbol-value x)
@@ -651,13 +653,12 @@
         ($derivative $diff) ($prod $product)
 	($bothcoeff $bothcoef)))
 
-#+nil
-(defun amperchk (name)
+(defun amperchk (name2)
   (cond
-    ((symbolp name) name)
-    ((stringp name)
-     (getalias (or (getopr0 name) (implode (cons #\$ (coerce name 'list))))))
-    (t name)))
+    ((symbolp name2) name2)
+    ((stringp name2)
+     (getalias (or (getopr0 name2) (implode (cons #\$ (coerce name2 'list))))))
+    (t name2)))
 
 (defmspec $stringout (x)
   (setq x (cdr x))
@@ -896,6 +897,61 @@
 
 (defprop $diff %derivative verb)
 (defprop %derivative $diff noun)
+
+(defmfun $at_difference (e x a b)
+  (m- ($at e `((mequal) ,x ,b)) ($at e `((mequal) ,x ,a))))
+
+;; 2-d pretty printer display for antiderivative-like expressions
+
+(defun dimension-%at_difference (form result)
+
+  (unless (= (length (cdr form)) 4)
+    (return-from dimension-%at_difference (dimension-function form result)))
+
+  (let*
+    ((args (rest form))
+     (expr (first args))
+     (my-var (second args))
+     (lower-val (third args))
+     (upper-val (fourth args))
+     (lower-eqn (list '(mequal) my-var lower-val))
+     (upper-eqn (list '(mequal) my-var upper-val))
+     (vertical-bar-char (if (display2d-unicode-enabled) at-char-unicode (car (coerce $absboxchar 'list))))
+     vertical-bar
+     expr-result lower-result upper-result
+     expr-w expr-h expr-d lower-w lower-h lower-d upper-w upper-h upper-d)
+    (declare (ignorable expr-w expr-h expr-d lower-w lower-h lower-d upper-w upper-h upper-d))
+
+    (setq expr-result (dimension expr nil 'mparen 'mparen nil 0)
+          expr-w width expr-h height expr-d depth)
+
+    (setq lower-result (dimension-infix lower-eqn nil)
+          lower-w width lower-h height lower-d depth)
+
+    (setq upper-result (dimension-infix upper-eqn nil)
+          upper-w width upper-h height upper-d depth)
+
+    (setq vertical-bar (list 'd-vbar (1+ (max expr-h upper-d)) (max (1+ expr-d) lower-h) vertical-bar-char))
+
+    (setq result (append (list (list (- (max lower-w upper-w) upper-w) 0))
+                         (list (append (list (- lower-w) (max expr-h upper-d)) upper-result)
+                               (append (list 0 (- (max (1+ expr-d) lower-h))) lower-result (list (list 0 (if (> lower-w upper-w) (- lower-w upper-w) 0))))
+                               vertical-bar
+                               (append (list 0 0) expr-result))
+                         result))
+
+    (setq height (+ (max expr-h upper-d) upper-h)
+          width (+ 1 expr-w (max lower-w upper-w))
+          depth (+ (max (1+ expr-d) lower-h) lower-d))
+
+    ;; Edrx:
+    (setq width (+ expr-w 1 (max upper-w lower-w)))
+
+    (update-heights height depth)
+
+    result))
+
+(setf (get '%at_difference 'dimension) 'dimension-%at_difference)
 
 (eval-when
     (:compile-toplevel :execute)

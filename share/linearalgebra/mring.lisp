@@ -260,9 +260,9 @@
    :sub #'(lambda (a b) ($rectform (sub a b)))
    :negate #'(lambda (a) (mul -1 a))
    :psqrt #'(lambda (s) (if (mlsp s 0) nil (ftake '%sqrt s)))
-   :add-id #'(lambda () bigfloatzero)
-   :mult-id #'(lambda () bigfloatone)
-   :fzerop #'(lambda (s) (like s bigfloatzero))
+   :add-id #'(lambda () *bigfloatzero*)
+   :mult-id #'(lambda () *bigfloatone*)
+   :fzerop #'(lambda (s) (like s *bigfloatzero*))
    :adjoint #'cl:identity
    :mring-to-maxima #'cl:identity
    :maxima-to-mring #'(lambda (s) 

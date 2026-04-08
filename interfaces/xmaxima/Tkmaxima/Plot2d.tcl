@@ -4,12 +4,9 @@
 # For distribution under GNU public License.  See COPYING.tcl
 #
 #     Modified by Jaime E. Villate
-#     Time-stamp: "2025-02-01 16:34:56 villate"
-#
 ######################################################################
 
-global plot2dOptions
-set plot2dOptions {
+set ::plot2dOptions {
     {xradius 10 "Width in x direction of the x values" }
     {yradius 10 "Height in y direction of the y values"}
     {width 700 "Width of canvas in pixels"}
@@ -25,6 +22,7 @@ set plot2dOptions {
     {nolines 0 "If not 0, plot points and nolines"}
     {bargraph 0 "If not 0 this is the width of the bars on a bar graph" }
     {linewidth "1.5" "Width of plot lines" }
+    {background white "background color"}
     {plotpoints 0 "if not 0 plot the points at pointsize" }
     {pointsize 2 "radius in pixels of points" }
     {linecolors {blue green red brown gray black} "colors to use for lines in data plots"}
@@ -46,15 +44,15 @@ proc argSuppliedp { x } {
 }
 
 proc mkPlot2d { args } {
-    global plot2dOptions printOption axisGray
+    global printOption axisGray
     set win [assoc -windowname $args]
     if { "$win" == "" } {
-	set win [getOptionDefault windowname $plot2dOptions]
+	set win [getOptionDefault windowname $::plot2dOptions]
     }
     global  [oarray $win]
     set data [assoc -data $args ]
     
-    getOptions $plot2dOptions $args -usearray [oarray $win]
+    getOptions $::plot2dOptions $args -usearray [oarray $win]
     # Makes extra vertical space for sliders
     linkLocal $win sliders height
     if {[string length $sliders] > 0} {
@@ -83,7 +81,7 @@ proc mkPlot2d { args } {
 }
 
 proc makeFrame2d  { win } {
-    set w [makeFrame $win 2d]
+    set w [makeFrame $win 2d [oget $win background]]
     set top $w
     catch { set top [winfo parent $w]}
     catch {
@@ -299,10 +297,10 @@ proc plot2d { args } {
 }
 
 proc replot2d { win } {
-    global printOption axisGray plot2dOptions
+    global printOption axisGray
     linkLocal $win xfundata data psfile nobox axes
     foreach v $data {
-	if { "[assq [lindex $v 0] $plot2dOptions notthere]" != "notthere" } {
+	if { "[assq [lindex $v 0] $::plot2dOptions notthere]" != "notthere" } {
 	    oset $win [lindex $v 0] [lindex $v 1]
 	}
     }
@@ -396,6 +394,7 @@ proc replot2d { win } {
 	    -anchor center -text [oget $win xaxislabel] \
 	    -font {TkDefaultFont 16 normal} -tags axislabel
     }
+    $c configure -background [oget $win background]
 
     # Create a PostScript file, if requested
     if { $psfile != "" } {
@@ -742,11 +741,10 @@ proc drawPlot {win listpts args } {
     if { $nolegend == 0 } {plot2dDrawLabel $win $label $fill}}
 
 proc drawPointsForPrint { c } {
-    global maxima_priv
     foreach v [$c find withtag point] {
 	set tags [ldelete point [$c gettags $v]]
 	desetq "x y" [$c coords $v]
-	desetq "pointsize fill" $maxima_priv(pointimage,[$c itemcget $v -image])
+	desetq "pointsize fill" $::xmaxima_priv(pointimage,[$c itemcget $v -image])
 	catch {
 	    $c create oval [expr {$x -$pointsize}] \
 		[expr {$y -$pointsize}] [expr {$x +$pointsize}] \
@@ -755,15 +753,14 @@ proc drawPointsForPrint { c } {
 	    $c delete $v}}}
 
 proc getPoint { size color } {
-    global maxima_priv
     set im {}
-    if { ![catch { set im $maxima_priv(pointimage,$size,$color) }] } {
+    if { ![catch { set im $::xmaxima_priv(pointimage,$size,$color) }] } {
 	return $im
     }
-    catch { set data $maxima_priv(bitmap,disc[expr {$size * 2}])
+    catch { set data $::xmaxima_priv(bitmap,disc[expr {$size * 2}])
 	set im [image create bitmap -data $data -foreground $color]
-	set maxima_priv(pointimage,$size,$color) $im
-	set maxima_priv(pointimage,$im) "$size $color"}
+	set ::xmaxima_priv(pointimage,$size,$color) $im
+	set ::xmaxima_priv(pointimage,$im) "$size $color"}
     return $im}
 
 proc sliderCommandPlot2d { win var val } {

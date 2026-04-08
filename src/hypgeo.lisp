@@ -44,14 +44,17 @@
 (defvar *debug-hypgeo* nil
   "Print debug information if enabled.")
 
-;; The variables *var* and *par* are global to this file only.
-;; They are initialized in the routine defexec. The values are never changed.
-;; These globals are introduced to avoid passing the values of *par* and *var* 
-;; through all functions of this file.
+;; The variables *hypgeo-var* and *hypgeo-par* are global to this file
+;; only.  They are initialized in the routine defexec. The values are
+;; never changed.  These globals are introduced to avoid passing the
+;; values of *hypgeo-par* and *hypgeo-var* through all functions of
+;; this file.
 
-(defvar *var* nil
+(defvar *hypgeo-var* nil
   "Variable of integration of Laplace transform.")
 
+(defvar *hypgeo-par* nil
+  "The parameter of the Laplace transform, typically named s.")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Helper function for this file
@@ -1190,7 +1193,7 @@
 ;; Compute r*exp(-p*t), where t is the variable of integration and 
 ;; p is the parameter of the Laplace transform.
 (defun init (r)
-  (mul r (power '$%e (mul -1 *var* *par*))))
+  (mul r (power '$%e (mul -1 *hypgeo-var* *hypgeo-par*))))
 
 (defun distrexecinit (expr)
   (cond ((and (consp expr)
@@ -1207,7 +1210,7 @@
 ;; It dispatches according to the kind of transform it matches.
 (defun hypgeo-exec (expr)
   (prog (l u a c e f)
-     (cond ((setq l (m2-ltep expr *var* *par*))
+     (cond ((setq l (m2-ltep expr *hypgeo-var* *hypgeo-par*))
             (setq u (cdras 'u l)
                   a (cdras 'a l)
                   c (cdras 'c l)
@@ -1221,9 +1224,9 @@
 ;;; Compute transform of EXP wrt the variable of integration VAR.
 
 (defun defexec (expr var2)
-  (let* ((*par* 'psey)                ; Set parameter of Laplace transform
-         (*var* var2)                  ; Set variable of integration
-         (*hyp-return-noun-flag* nil) ; Reset the flag
+  (let* ((*hypgeo-par* 'psey)     ; Set parameter of Laplace transform
+         (*hypgeo-var* var2)      ; Set variable of integration
+         (*hyp-return-noun-flag* nil)   ; Reset the flag
          (form expr)
 	 (l (m2-defltep expr var2))
 	 (s (cdras 'a l))) ; Get the parameter of the Laplace transform.
@@ -1231,7 +1234,7 @@
     ;; If we have not found a parameter, we try to factor the integrand.
 
     (when (and (numberp s) (equal s 0))
-       (setq l (m2-defltep ($factor form) *var*))
+       (setq l (m2-defltep ($factor form) *hypgeo-var*))
        (setq s (cdras 'a l)))
 
     (cond (l
@@ -1242,12 +1245,12 @@
 	     ;; called routines set the global flag. If the global flag
 	     ;; is not set, the noun form has been already constructed.
 	     (if (and *hyp-return-noun-form-p* *hyp-return-noun-flag*)
-	       (list '(%specint simp) expr *var*)
+	       (list '(%specint simp) expr *hypgeo-var*)
 	       result)))
 	  (t
 	   ;; If necessary we construct the noun form.
 	   (if *hyp-return-noun-form-p*
-	     (list '(%specint simp) expr *var*)
+	     (list '(%specint simp) expr *hypgeo-var*)
   	     'other-defint-to-follow-defexec)))))
 
 ;; L is the integrand of the transform, after pattern matching.  S is
@@ -1275,17 +1278,17 @@
 	    ;; for the paratemter a and we have checked the sign.
 	    ;; So it is the best to add a rule for the sign of psey.
 
-	    (mfuncall '$assume `((mgreaterp) ,*par* 0))
+	    (mfuncall '$assume `((mgreaterp) ,*hypgeo-par* 0))
 
 	    (return
 	      (prog1
 		(maxima-substitute
 		  (mul -1 s)
-		  *par*
+		  *hypgeo-par*
 		  (ltscale u c 0 e f))
 
 		;; We forget the rule after finishing the calculation.
-		(mfuncall '$forget `((mgreaterp) ,*par* 0))))))
+		(mfuncall '$forget `((mgreaterp) ,*hypgeo-par* 0))))))
 
      (return
        (setq *hyp-return-noun-flag* 'other-defint-to-follow-negtest))))
@@ -1295,7 +1298,7 @@
 ;;  U * %E^(-VAR * (*PAR* - PAR0) + E*F + C)
 (defun ltscale (u c par0 e f)
   (mul (power '$%e c)
-       (substl (sub *par* par0) *par* (lt-exec u e f))))
+       (substl (sub *hypgeo-par* par0) *hypgeo-par* (lt-exec u e f))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1303,7 +1306,7 @@
 
 (defun lt-exec (u e f)
   (let (l a)
-    (cond ((setq l (m2-sum u *var*))
+    (cond ((setq l (m2-sum u *hypgeo-var*))
 	   ;; We have found a summation.
            (mul (cdras 'c l)
                 (take '(%sum)
@@ -1312,20 +1315,20 @@
                       (cdras 'l l)
                       (cdras 'h l))))
           
-	  ((setq l (m2-unit_step u *var*))
+	  ((setq l (m2-unit_step u *hypgeo-var*))
 	   ;; We have found the Unit Step function.
 	   (setq u (cdras 'u l)
 		 a (cdras 'a l))
-           (mul (power '$%e (mul a *par*))
-                (sendexec (cond (($freeof *var* u) u) 
-                                (t (maxima-substitute (sub *var* a) *var* u)))
+           (mul (power '$%e (mul a *hypgeo-par*))
+                (sendexec (cond (($freeof *hypgeo-var* u) u) 
+                                (t (maxima-substitute (sub *hypgeo-var* a) *hypgeo-var* u)))
                           1)))
           
 	  ((equal e 0)
 	   ;; The simple case of u*%e^(-p*t)
 	   (lt-sf-log u))
 	  ((and (not (equal e 0))
-		(setq l (m2-c*t^v u *var*)))
+		(setq l (m2-c*t^v u *hypgeo-var*)))
 	   ;; We have u*%e^(-p*t+e*f).  Try to see if U is of the form
 	   ;; c*t^v.  If so, we can handle it here.
 	   (lt-exp l e f))
@@ -1373,21 +1376,21 @@
 (defun lt-exp (l e f)
   (let ((c (cdras 'c l))
 	(v (cdras 'v l)))
-    (cond ((m2-t^2 f *var*)
+    (cond ((m2-t^2 f *hypgeo-var*)
 	   (setq e (inv (mul -8 e)) v (add v 1))
 	   (f24p146test c v e))
-	  ((m2-sqroott f *var*)
+	  ((m2-sqroott f *hypgeo-var*)
 	   ;; We don't do the transformation at this place. Because we take the
 	   ;; square of e we lost the sign and get wrong results.
 	   ;(setq e (mul* e e (inv 4)) v (add v 1))
 	   (f35p147test c v e))
-	  ((m2-t^-1 f *var*)
+	  ((m2-t^-1 f *hypgeo-var*)
 	   (setq e (mul -4 e) v (add v 1))
 	   (f29p146test c v e))         ; We have to call with the constant c.
 	  ((and (equal v 0)             ; We have to test for v=0 and to call
-	        (m2-e^-t f *var*))
+	        (m2-e^-t f *hypgeo-var*))
 	   (f36p147 c e))               ; with the constant c.
-	  ((and (equal v 0) (m2-e^t f *var*))
+	  ((and (equal v 0) (m2-e^t f *hypgeo-var*))
 	   (f37p147 c (mul -1 e)))
 	  (t 
            (setq *hyp-return-noun-flag* 'other-lt-exponential-to-follow)))))
@@ -1443,8 +1446,8 @@
        (take '(%gamma) v)
        (power 2 v)
        (power a (div v 2))
-       (power '$%e (mul a *par* *par*))
-       (dtford (mul 2 *par* (power a '((rat simp) 1 2)))
+       (power '$%e (mul a *hypgeo-par* *hypgeo-par*))
+       (dtford (mul 2 *hypgeo-par* (power a '((rat simp) 1 2)))
                (mul -1 v))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1478,11 +1481,11 @@
     (mul c
          (take '(%gamma) (add v v))
          (power 2 (sub 1 v))               ; Is this supposed to be here?
-         (power *par* (mul -1 v))
-         (power '$%e (mul a a '((rat simp) 1 8) (inv *par*)))
+         (power *hypgeo-par* (mul -1 v))
+         (power '$%e (mul a a '((rat simp) 1 8) (inv *hypgeo-par*)))
          ;; We need an additional factor -1 to get the expected results.
          ;; What is the mathematically reason?
-         (dtford (mul -1 a (inv (power (mul 2 *par*) '((rat simp) 1 2)))) 
+         (dtford (mul -1 a (inv (power (mul 2 *hypgeo-par*) '((rat simp) 1 2)))) 
                  (mul -2 v)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1580,7 +1583,7 @@
 
 (defun f29p146 (c v a)
   (mul 2 c
-       (power (mul a '((rat simp) 1 4) (inv *par*))
+       (power (mul a '((rat simp) 1 4) (inv *hypgeo-par*))
               (div v 2))
        (ktfork a v)))
 
@@ -1592,7 +1595,7 @@
 ;; Choose bessel_k if the order v is an integer.  (Why?)
 
 (defun ktfork (a v)
-  (let ((z (power (mul a *par*) '((rat simp) 1 2))))
+  (let ((z (power (mul a *hypgeo-par*) '((rat simp) 1 2))))
     (cond ((maxima-integerp v)
            (take '(%bessel_k) v z))
           (t
@@ -1637,8 +1640,8 @@
 (defun f36p147 (c a)
   (let ((-a (mul -1 a)))
     (mul c
-         (power -a (mul -1 *par*))
-         `((%gamma_incomplete_lower simp) ,*par* ,-a))))
+         (power -a (mul -1 *hypgeo-par*))
+         `((%gamma_incomplete_lower simp) ,*hypgeo-par* ,-a))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -1654,8 +1657,8 @@
 
 (defun f37p147 (c a)
   (mul c
-       (power a *par*)
-       (take '(%gamma_incomplete) (mul -1 *par*) a)))
+       (power a *hypgeo-par*)
+       (take '(%gamma_incomplete) (mul -1 *hypgeo-par*) a)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -1687,19 +1690,19 @@
   (prog (l index1 index11 index2 index21 arg1 arg2 rest)
      
      ;; Laplace transform of asin(w)
-     (cond ((setq l (m2-asin u *var*))
+     (cond ((setq l (m2-asin u *hypgeo-var*))
             (setq arg1 (cdras 'w l)
                   rest (cdras 'u l))
             (return (lt-ltp 'asin rest arg1 nil))))
      
      ;; Laplace transform of atan(w)
-     (cond ((setq l (m2-atan u *var*))
+     (cond ((setq l (m2-atan u *hypgeo-var*))
             (setq arg1 (cdras 'w l)
                   rest (cdras 'u l))
             (return (lt-ltp 'atan rest arg1 nil))))
      
      ;; Laplace transform of two Bessel J functions
-     (cond ((setq l (m2-twoj u *var*))
+     (cond ((setq l (m2-twoj u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index2 (cdras 'v2 l)
 		  arg1 (cdras 'w1 l)
@@ -1708,7 +1711,7 @@
 	    (return (lt2j rest arg1 arg2 index1 index2))))
      
      ;; Laplace transform of two hankel_1 functions
-     (cond ((setq l (m2-two-hankel_1 u *var*))
+     (cond ((setq l (m2-two-hankel_1 u *hypgeo-var*))
             (setq index1 (cdras 'v1 l)
                   index2 (cdras 'v2 l)
                   arg1 (cdras 'w1 l)
@@ -1718,7 +1721,7 @@
             (return (fractest rest arg1 arg2 index1 1 index2 1 '2htjory))))
      
      ;; Laplace transform of two hankel_2 functions
-     (cond ((setq l (m2-two-hankel_2 u *var*))
+     (cond ((setq l (m2-two-hankel_2 u *hypgeo-var*))
             (setq index1 (cdras 'v1 l)
                   index2 (cdras 'v2 l)
                   arg1 (cdras 'w1 l)
@@ -1728,7 +1731,7 @@
             (return (fractest rest arg1 arg2 index1 2 index2 2 '2htjory))))
      
      ;; Laplace transform of hankel_1 * hankel_2
-     (cond ((setq l (m2-hankel_1*hankel_2 u *var*))
+     (cond ((setq l (m2-hankel_1*hankel_2 u *hypgeo-var*))
             (setq index1 (cdras 'v1 l)
                   index2 (cdras 'v2 l)
                   arg1 (cdras 'w1 l)
@@ -1738,7 +1741,7 @@
             (return (fractest rest arg1 arg2 index1 1 index2 2 '2htjory))))
      
      ;; Laplace transform of two Bessel Y functions
-     (cond ((setq l (m2-twoy u *var*))
+     (cond ((setq l (m2-twoy u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index2 (cdras 'v2 l)
 		  arg1 (cdras 'w1 l)
@@ -1747,7 +1750,7 @@
 	    (return (fractest rest arg1 arg2 index1 nil index2 nil '2ytj))))
      
      ;; Laplace transform of two Bessel K functions
-     (cond ((setq l (m2-twok u *var*))
+     (cond ((setq l (m2-twok u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index2 (cdras 'v2 l)
 		  arg1 (cdras 'w1 l)
@@ -1756,7 +1759,7 @@
 	    (return (fractest rest arg1 arg2 index1 nil index2 nil '2kti))))
      
      ;; Laplace transform of Bessel K and Bessel Y functions
-     (cond ((setq l (m2-onekoney u *var*))
+     (cond ((setq l (m2-onekoney u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index2 (cdras 'v2 l)
 		  arg1 (cdras 'w1 l)
@@ -1765,7 +1768,7 @@
 	    (return (fractest rest arg1 arg2 index1 nil index2 nil 'ktiytj))))
      
      ;; Laplace transform of Bessel I and Bessel J functions
-     (cond ((setq l (m2-oneionej u *var*))
+     (cond ((setq l (m2-oneionej u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index2 (cdras 'v2 l)
 		  index21 (cdras 'v21 l)
@@ -1775,7 +1778,7 @@
 	    (return (lt2j rest arg1 arg2 index1 index2))))
      
      ;; Laplace transform of Bessel I and Hankel 1 functions
-     (cond ((setq l (m2-bessel_i*hankel_1 u *var*))
+     (cond ((setq l (m2-bessel_i*hankel_1 u *hypgeo-var*))
             (setq index1 (cdras 'v1 l)
                   index2 (cdras 'v2 l)
                   arg1 (mul '$%i (cdras 'w1 l))
@@ -1784,7 +1787,7 @@
             (return (fractest1 rest arg1 arg2 index1 index2 1 'besshtjory))))
         
      ;; Laplace transform of Bessel I and Hankel 2 functions
-     (cond ((setq l (m2-bessel_i*hankel_2 u *var*))
+     (cond ((setq l (m2-bessel_i*hankel_2 u *hypgeo-var*))
             (setq index1 (cdras 'v1 l)
                   index2 (cdras 'v2 l)
                   arg1 (mul '$%i (cdras 'w1 l))
@@ -1793,7 +1796,7 @@
             (return (fractest1 rest arg1 arg2 index1 index2 2 'besshtjory))))
      
      ;; Laplace transform of Bessel Y and Bessel J functions
-     (cond ((setq l (m2-oneyonej u *var*))
+     (cond ((setq l (m2-oneyonej u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index2 (cdras 'v2 l)
 		  arg1 (cdras 'w1 l)
@@ -1802,7 +1805,7 @@
 	    (return (fractest1 rest arg2 arg1 index2 index1 nil 'bessytj))))
      
      ;; Laplace transform of Bessel K and Bessel J functions
-     (cond ((setq l (m2-onekonej u *var*))
+     (cond ((setq l (m2-onekonej u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index2 (cdras 'v2 l)
 		  arg1 (cdras 'w1 l)
@@ -1811,7 +1814,7 @@
 	    (return (fractest1 rest arg2 arg1 index2 index1 nil 'besskti))))
      
      ;; Laplace transform of Hankel 1 and Bessel J functions
-     (cond ((setq l (m2-hankel_1*bessel_j u *var*))
+     (cond ((setq l (m2-hankel_1*bessel_j u *hypgeo-var*))
             (setq index1 (cdras 'v1 l)
                   index2 (cdras 'v2 l)
                   arg1 (cdras 'w1 l)
@@ -1820,7 +1823,7 @@
             (return (fractest1 rest arg2 arg1 index2 index1 1 'besshtjory))))
      
      ;; Laplace transform of Hankel 2 and Bessel J functions
-     (cond ((setq l (m2-hankel_2*bessel_j u *var*))
+     (cond ((setq l (m2-hankel_2*bessel_j u *hypgeo-var*))
             (setq index1 (cdras 'v1 l)
                   index2 (cdras 'v2 l)
                   arg1 (cdras 'w1 l)
@@ -1829,7 +1832,7 @@
             (return (fractest1 rest arg2 arg1 index2 index1 2 'besshtjory))))
      
      ;; Laplace transform of Bessel Y and Hankel 1 functions
-     (cond ((setq l (m2-bessel_y*hankel_1 u *var*))
+     (cond ((setq l (m2-bessel_y*hankel_1 u *hypgeo-var*))
             (setq index1 (cdras 'v1 l)
                   index2 (cdras 'v2 l)
                   arg1 (cdras 'w1 l)
@@ -1838,7 +1841,7 @@
             (return (fractest1 rest arg2 arg1 index2 index1 1 'htjoryytj))))
      
      ;; Laplace transform of Bessel Y and Hankel 2 functions
-     (cond ((setq l (m2-bessel_y*hankel_2 u *var*))
+     (cond ((setq l (m2-bessel_y*hankel_2 u *hypgeo-var*))
             (setq index1 (cdras 'v1 l)
                   index2 (cdras 'v2 l)
                   arg1 (cdras 'w1 l)
@@ -1847,7 +1850,7 @@
             (return (fractest1 rest arg2 arg1 index2 index1 2 'htjoryytj))))
      
      ;; Laplace transform of Bessel K and Hankel 1 functions
-     (cond ((setq l (m2-bessel_k*hankel_1 u *var*))
+     (cond ((setq l (m2-bessel_k*hankel_1 u *hypgeo-var*))
             (setq index1 (cdras 'v1 l)
                   index2 (cdras 'v2 l)
                   arg1 (cdras 'w1 l)
@@ -1856,7 +1859,7 @@
             (return (fractest1 rest arg2 arg1 index2 index1 1 'htjorykti))))
      
      ;; Laplace transform of Bessel K and Hankel 2 functions
-     (cond ((setq l (m2-bessel_k*hankel_2 u *var*))
+     (cond ((setq l (m2-bessel_k*hankel_2 u *hypgeo-var*))
             (setq index1 (cdras 'v1 l)
                   index2 (cdras 'v2 l)
                   arg1 (cdras 'w1 l)
@@ -1865,7 +1868,7 @@
             (return (fractest1 rest arg2 arg1 index2 index1 2 'htjorykti))))
      
      ;; Laplace transform of Bessel I and Bessel Y functions
-     (cond ((setq l (m2-oneioney u *var*))
+     (cond ((setq l (m2-oneioney u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index2 (cdras 'v2 l)
 		  arg1 (mul '$%i (cdras 'w1 l))
@@ -1874,7 +1877,7 @@
 	    (return (fractest1 rest arg1 arg2 index1 index2 nil 'bessytj))))
      
      ;; Laplace transform of Bessel I and Bessel K functions
-     (cond ((setq l (m2-oneionek u *var*))
+     (cond ((setq l (m2-oneionek u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index2 (cdras 'v2 l)
 		  arg1 (mul '$%i (cdras 'w1 l))
@@ -1883,21 +1886,21 @@
 	    (return (fractest1 rest arg1 arg2 index1 index2 nil 'besskti))))
      
      ;; Laplace transform of Struve H function
-     (cond ((setq l (m2-struve_h u *var*))
+     (cond ((setq l (m2-struve_h u *hypgeo-var*))
             (setq index1 (cdras 'v l)
                   arg1 (cdras 'w l)
                   rest (cdras 'u l))
             (return (lt1hstruve rest arg1 index1))))
      
      ;; Laplace transform of Struve L function
-     (cond ((setq l (m2-struve_l u *var*))
+     (cond ((setq l (m2-struve_l u *hypgeo-var*))
             (setq index1 (cdras 'v l)
                   arg1 (cdras 'w l)
                   rest (cdras 'u l))
             (return (lt1lstruve rest arg1 index1))))
      
      ;; Laplace transform of little Lommel s function
-     (cond ((setq l (m2-ones u *var*))
+     (cond ((setq l (m2-ones u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index2 (cdras 'v2 l)
 		  arg1 (cdras 'w l)
@@ -1905,7 +1908,7 @@
 	    (return (lt1s rest arg1 index1 index2))))
      
      ;; Laplace transform of Lommel S function
-     (cond ((setq l (m2-oneslommel u *var*))
+     (cond ((setq l (m2-oneslommel u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index2 (cdras 'v2 l)
 		  arg1 (cdras 'w l)
@@ -1913,14 +1916,14 @@
 	    (return (fractest2 rest arg1 index1 index2 'slommel))))
      
      ;; Laplace transform of Bessel Y function
-     (cond ((setq l (m2-oney u *var*))
+     (cond ((setq l (m2-oney u *hypgeo-var*))
 	    (setq index1 (cdras 'v l)
 		  arg1 (cdras 'w l)
 		  rest (cdras 'u l))
 	    (return (lt1yref rest arg1 index1))))
      
      ;; Laplace transform of Bessel K function
-     (cond ((setq l (m2-onek u *var*))
+     (cond ((setq l (m2-onek u *hypgeo-var*))
 	    (setq index1 (cdras 'v l)
 		  arg1 (cdras 'w l)
 		  rest (cdras 'u l))
@@ -1931,56 +1934,56 @@
                    (return (fractest2 rest arg1 index1 nil 'kti))))))
      
      ;; Laplace transform of Parabolic Cylinder function
-     (cond ((setq l (m2-parabolic_cylinder_d u *var*))
+     (cond ((setq l (m2-parabolic_cylinder_d u *hypgeo-var*))
             (setq index1 (cdras 'v l)
                   arg1 (cdras 'w l)
                   rest (cdras 'u l))
             (return (fractest2 rest arg1 index1 nil 'd))))
      
      ;; Laplace transform of Incomplete Gamma function
-     (cond ((setq l (m2-onegammaincomplete u *var*))
+     (cond ((setq l (m2-onegammaincomplete u *hypgeo-var*))
 	    (setq arg1 (cdras 'w1 l)
 		  arg2 (cdras 'w2 l)
 		  rest (cdras 'u l))
 	    (return (fractest2 rest arg1 arg2 nil 'gamma_incomplete))))
      
      ;; Laplace transform of Batemann function
-     (cond ((setq l (m2-onekbateman u *var*))
+     (cond ((setq l (m2-onekbateman u *hypgeo-var*))
 	    (setq index1 (cdras 'v l)
 		  arg1 (cdras 'w l)
 		  rest (cdras 'u l))
 	    (return (fractest2 rest arg1 index1 nil 'kbateman))))
      
      ;; Laplace transform of Bessel J function
-     (cond ((setq l (m2-onej u *var*))
+     (cond ((setq l (m2-onej u *hypgeo-var*))
 	    (setq index1 (cdras 'v l)
 		  arg1 (cdras 'w l)
 		  rest (cdras 'u l))
 	    (return (lt1j rest arg1 index1))))
      
      ;; Laplace transform of lower incomplete Gamma function
-     (cond ((setq l (m2-onegamma-incomplete-lower u *var*))
+     (cond ((setq l (m2-onegamma-incomplete-lower u *hypgeo-var*))
 	    (setq arg1 (cdras 'w1 l)
 		  arg2 (cdras 'w2 l)
 		  rest (cdras 'u l))
 	    (return (lt1gamma-incomplete-lower rest arg1 arg2))))
         
      ;; Laplace transform of Hankel 1 function
-     (cond ((setq l (m2-hankel_1 u *var*))
+     (cond ((setq l (m2-hankel_1 u *hypgeo-var*))
             (setq index1 (cdras 'v l)
                   arg1 (cdras 'w l)
                   rest (cdras 'u l))
             (return (fractest2 rest arg1 index1 1 'htjory))))
      
      ;; Laplace transform of Hankel 2 function
-     (cond ((setq l (m2-hankel_2 u *var*))
+     (cond ((setq l (m2-hankel_2 u *hypgeo-var*))
             (setq index1 (cdras 'v l)
                   arg1 (cdras 'w l)
                   rest (cdras 'u l))
             (return (fractest2 rest arg1 index1 2 'htjory))))
      
      ;; Laplace transform of Whittaker M function
-     (cond ((setq l (m2-onem u *var*))
+     (cond ((setq l (m2-onem u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index11 (cdras 'v2 l)
 		  arg1 (cdras 'w l)
@@ -1988,7 +1991,7 @@
 	    (return (lt1m rest arg1 index1 index11))))
      
      ;; Laplace transform of Whittaker M function
-     (cond ((setq l (m2-whittaker_m u *var*))
+     (cond ((setq l (m2-whittaker_m u *hypgeo-var*))
             (setq index1 (cdras 'v1 l)
                   index2 (cdras 'v2 l)
                   arg1 (cdras 'w l)
@@ -1996,7 +1999,7 @@
             (return (lt1m rest arg1 index1 index2))))
 
      ;; Laplace transform of the Generalized Laguerre function, %l[v1,v2](w)
-     (cond ((setq l (m2-onel u *var*))
+     (cond ((setq l (m2-onel u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index11 (cdras 'v2 l)
 		  arg1 (cdras 'w l)
@@ -2005,7 +2008,7 @@
 
      ;; Laplace transform for the Generalized Laguerre function
      ;; We call the routine for %l[v1,v2](w).
-     (cond ((setq l (m2-one-gen-laguerre u *var*))
+     (cond ((setq l (m2-one-gen-laguerre u *hypgeo-var*))
             (setq index1  (cdras 'v1 l)
                   index2  (cdras 'v2 l)
                   arg1    (cdras 'w l)
@@ -2014,14 +2017,14 @@
         
      ;; Laplace transform for the Laguerre function
      ;; We call the routine for %l[v1,0](w).
-     (cond ((setq l (m2-one-laguerre u *var*))
+     (cond ((setq l (m2-one-laguerre u *hypgeo-var*))
             (setq index1  (cdras 'v1 l)
                   arg1    (cdras 'w l)
                   rest    (cdras 'u l))
             (return (integertest rest arg1 index1 0 'l))))
      
      ;; Laplace transform of Gegenbauer function
-     (cond ((setq l (m2-onec u *var*))
+     (cond ((setq l (m2-onec u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index11 (cdras 'v2 l)
 		  arg1 (cdras 'w l)
@@ -2029,21 +2032,21 @@
 	    (return (integertest rest arg1 index1 index11 'c))))
      
      ;; Laplace transform of Chebyshev function of the first kind
-     (cond ((setq l (m2-onet u *var*))
+     (cond ((setq l (m2-onet u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  arg1 (cdras 'w l)
 		  rest (cdras 'u l))
 	    (return (integertest rest arg1 index1 nil 't))))
      
      ;; Laplace transform of Chebyshev function of the second kind
-     (cond ((setq l (m2-oneu u *var*))
+     (cond ((setq l (m2-oneu u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  arg1 (cdras 'w l)
 		  rest (cdras 'u l))
 	    (return (integertest rest arg1 index1 nil 'u))))
      
      ;; Laplace transform for the Hermite function, hermite(index1,arg1)
-     (cond ((setq l (m2-one-hermite u *var*))
+     (cond ((setq l (m2-one-hermite u *hypgeo-var*))
             (setq index1 (cdras 'v1 l)
                   arg1 (cdras 'w l)
                   rest (cdras 'u l))
@@ -2060,7 +2063,7 @@
                      (integertest rest arg1 index1 nil 'he))))))
      
      ;; Laplace transform of %p[v1,v2](w), Associated Legendre P function
-     (cond ((setq l (m2-hyp-onep u *var*))
+     (cond ((setq l (m2-hyp-onep u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index11 (cdras 'v2 l)
 		  arg1 (cdras 'w l)
@@ -2068,7 +2071,7 @@
 	    (return (lt1p rest arg1 index1 index11))))
      
      ;; Laplace transform of Associated Legendre P function
-     (cond ((setq l (m2-assoc_legendre_p u *var*))
+     (cond ((setq l (m2-assoc_legendre_p u *hypgeo-var*))
             (setq index1 (cdras 'v1 l)
                   index2 (cdras 'v2 l)
                   arg1 (cdras 'w l)
@@ -2076,7 +2079,7 @@
             (return (lt1p rest arg1 index1 index2))))
      
      ;; Laplace transform of %p[v1,v2,v3](w), Jacobi function
-     (cond ((setq l (m2-onepjac u *var*))
+     (cond ((setq l (m2-onepjac u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index2 (cdras 'v2 l)
 		  index21 (cdras 'v3 l)
@@ -2085,7 +2088,7 @@
 	    (return (pjactest rest arg1 index1 index2 index21))))
      
      ;; Laplace transform of Jacobi P function
-     (cond ((setq l (m2-jacobi_p u *var*))
+     (cond ((setq l (m2-jacobi_p u *hypgeo-var*))
             (setq index1 (cdras 'v1 l)
                   index2 (cdras 'v2 l)
                   index21 (cdras 'v3 l)
@@ -2094,7 +2097,7 @@
             (return (pjactest rest arg1 index1 index2 index21))))
      
      ;; Laplace transform of Associated Legendre function of the second kind
-     (cond ((setq l (m2-oneq u *var*))
+     (cond ((setq l (m2-oneq u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index11 (cdras 'v2 l)
 		  arg1 (cdras 'w l)
@@ -2102,7 +2105,7 @@
 	    (return (lt1q rest arg1 index1 index11))))
      
      ;; Laplace transform of Associated Legendre function of the second kind
-     (cond ((setq l (m2-assoc_legendre_q u *var*))
+     (cond ((setq l (m2-assoc_legendre_q u *hypgeo-var*))
             (setq index1 (cdras 'v1 l)
                   index2 (cdras 'v2 l)
                   arg1 (cdras 'w l)
@@ -2110,7 +2113,7 @@
             (return (lt1q rest arg1 index1 index2))))
      
      ;; Laplace transform of %p[v1](w), Legendre P function
-     (cond ((setq l (m2-onep0 u *var*))
+     (cond ((setq l (m2-onep0 u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index11 0
 		  arg1 (cdras 'w l)
@@ -2118,14 +2121,14 @@
 	    (return (lt1p rest arg1 index1 index11))))
      
      ;; Laplace transform of Legendre P function
-     (cond ((setq l (m2-legendre_p u *var*))
+     (cond ((setq l (m2-legendre_p u *hypgeo-var*))
             (setq index1 (cdras 'v1 l)
                   arg1 (cdras 'w l)
                   rest (cdras 'u l))
             (return (lt1p rest arg1 index1 0))))
      
      ;; Laplace transform of Whittaker W function
-     (cond ((setq l (m2-onew u *var*))
+     (cond ((setq l (m2-onew u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index11 (cdras 'v2 l)
 		  arg1 (cdras 'w l)
@@ -2133,7 +2136,7 @@
 	    (return (whittest rest arg1 index1 index11))))
      
      ;; Laplace transform of Whittaker W function
-     (cond ((setq l (m2-whittaker_w u *var*))
+     (cond ((setq l (m2-whittaker_w u *hypgeo-var*))
             (setq index1 (cdras 'v1 l)
                   index2 (cdras 'v2 l)
                   arg1 (cdras 'w l)
@@ -2141,42 +2144,42 @@
             (return (whittest rest arg1 index1 index2))))
      
      ;; Laplace transform of square of Bessel J function
-     (cond ((setq l (m2-onej^2 u *var*))
+     (cond ((setq l (m2-onej^2 u *hypgeo-var*))
 	    (setq index1 (cdras 'v l)
 		  arg1 (cdras 'w l)
 		  rest (cdras 'u l))
 	    (return (lt1j^2 rest arg1 index1))))
      
      ;; Laplace transform of square of Hankel 1 function
-     (cond ((setq l (m2-hankel_1^2 u *var*))
+     (cond ((setq l (m2-hankel_1^2 u *hypgeo-var*))
             (setq index1 (cdras 'v l)
                   arg1 (cdras 'w l)
                   rest (cdras 'u l))
             (return (fractest rest arg1 arg1 index1 1 index1 1 '2htjory))))
      
      ;; Laplace transform of square of Hankel 2 function
-     (cond ((setq l (m2-hankel_2^2 u *var*))
+     (cond ((setq l (m2-hankel_2^2 u *hypgeo-var*))
             (setq index1 (cdras 'v l)
                   arg1 (cdras 'w l)
                   rest (cdras 'u l))
             (return (fractest rest arg1 arg1 index1 2 index1 2 '2htjory))))
      
      ;; Laplace transform of square of Bessel Y function
-     (cond ((setq l (m2-oney^2 u *var*))
+     (cond ((setq l (m2-oney^2 u *hypgeo-var*))
 	    (setq index1 (cdras 'v l)
 		  arg1 (cdras 'w l)
 		  rest (cdras 'u l))
 	    (return (fractest rest arg1 arg1 index1 nil index1 nil '2ytj))))
      
      ;; Laplace transform of square of Bessel K function
-     (cond ((setq l (m2-onek^2 u *var*))
+     (cond ((setq l (m2-onek^2 u *hypgeo-var*))
 	    (setq index1 (cdras 'v l)
 		  arg1 (cdras 'w l)
 		  rest (cdras 'u l))
 	    (return (fractest rest arg1 arg1 index1 nil index1 nil '2kti))))
      
      ;; Laplace transform of two Bessel I functions
-     (cond ((setq l (m2-twoi u *var*))
+     (cond ((setq l (m2-twoi u *hypgeo-var*))
 	    (setq index1 (cdras 'v1 l)
 		  index2 (cdras 'v2 l)
 		  arg1 (mul '$%i (cdras 'w1 l))
@@ -2187,14 +2190,14 @@
 	    (return (lt2j rest arg1 arg2 index1 index2))))
 
      ;; Laplace transform of Bessel I. We use I[v](w)=%i^n*J[n](%i*w).
-     (cond ((setq l (m2-onei u *var*))
+     (cond ((setq l (m2-onei u *hypgeo-var*))
 	    (setq index1 (cdras 'v l)
 		  arg1   (mul '$%i (cdras 'w l))
 		  rest   (mul (power '$%i (neg index1)) (cdras 'u l)))
 	    (return (lt1j rest arg1 index1))))
      
      ;; Laplace transform of square of Bessel I function
-     (cond ((setq l (m2-onei^2 u *var*))
+     (cond ((setq l (m2-onei^2 u *hypgeo-var*))
             (setq index1 (cdras 'v l)
                   arg1 (mul '$%i (cdras 'w l))
                   rest (mul (power '$%i (neg index1))
@@ -2203,7 +2206,7 @@
             (return (lt1j^2 rest arg1 index1))))
      
      ;; Laplace transform of Erf function
-     (cond ((setq l (m2-onerf u *var*))
+     (cond ((setq l (m2-onerf u *hypgeo-var*))
 	    (setq arg1 (cdras 'w l)
 		  rest (cdras 'u l))
 	    (return (lt1erf rest arg1))))
@@ -2211,13 +2214,13 @@
      ;; Laplace transform of the logarithmic function.
      ;; We add an algorithm for the Laplace transform and call the routine
      ;; lt-log. The old code is still present, but isn't called.
-     (cond ((setq l (m2-onelog u *var*))
+     (cond ((setq l (m2-onelog u *hypgeo-var*))
 	    (setq arg1 (cdras 'w l)
 		  rest (cdras 'u l))
 	    (return (lt-log rest arg1))))
      
      ;; Laplace transform of Erfc function
-     (cond ((setq l (m2-onerfc u *var*))
+     (cond ((setq l (m2-onerfc u *hypgeo-var*))
 	    (setq arg1 (cdras 'w l)
 		  rest (cdras 'u l))
 	    (return (fractest2 rest arg1 nil nil 'erfc))))
@@ -2227,7 +2230,7 @@
      ;; function and simplifies the log functions of the transformation. We do 
      ;; not use the dispatch mechanism of fractest2, but call sendexec directly 
      ;; with the transformed function.
-     (cond ((setq l (m2-oneexpintegral_ei u *var*))
+     (cond ((setq l (m2-oneexpintegral_ei u *hypgeo-var*))
             (setq arg1 (cdras 'w l)
                   rest (cdras 'u l))
             (let (($expintrep '%gamma_incomplete)
@@ -2235,7 +2238,7 @@
               (return (sratsimp (sendexec rest (ftake '%expintegral_ei arg1)))))))
      
      ;; Laplace transform of expintegral_e1
-     (cond ((setq l (m2-oneexpintegral_e1 u *var*))
+     (cond ((setq l (m2-oneexpintegral_e1 u *hypgeo-var*))
             (setq arg1 (cdras 'w l)
                   rest (cdras 'u l))
             (let (($expintrep '%gamma_incomplete)
@@ -2243,7 +2246,7 @@
               (return (sratsimp (sendexec rest (ftake '%expintegral_e1 arg1)))))))
      
      ;; Laplace transform of expintegral_e
-     (cond ((setq l (m2-oneexpintegral_e u *var*))
+     (cond ((setq l (m2-oneexpintegral_e u *hypgeo-var*))
             (setq arg1 (cdras 'v l)
                   arg2 (cdras 'w l)
                   rest (cdras 'u l))
@@ -2252,7 +2255,7 @@
               (return (sratsimp (sendexec rest (ftake '%expintegral_e arg1 arg2)))))))
      
      ;; Laplace transform of expintegral_si
-     (cond ((setq l (m2-oneexpintegral_si u *var*))
+     (cond ((setq l (m2-oneexpintegral_si u *hypgeo-var*))
             (setq arg1 (cdras 'w l)
                   rest (cdras 'u l))
             ;; We transform to the hypergeometric representation.
@@ -2260,7 +2263,7 @@
               (sendexec rest (expintegral_si-to-hypergeometric arg1)))))
      
      ;; Laplace transform of expintegral_shi
-     (cond ((setq l (m2-oneexpintegral_shi u *var*))
+     (cond ((setq l (m2-oneexpintegral_shi u *hypgeo-var*))
             (setq arg1 (cdras 'w l)
                   rest (cdras 'u l))
             ;; We transform to the hypergeometric representation.
@@ -2268,7 +2271,7 @@
               (sendexec rest (expintegral_shi-to-hypergeometric arg1)))))
      
      ;; Laplace transform of expintegral_ci
-     (cond ((setq l (m2-oneexpintegral_ci u *var*))
+     (cond ((setq l (m2-oneexpintegral_ci u *hypgeo-var*))
             (setq arg1 (cdras 'w l)
                   rest (cdras 'u l))
             ;; We transform to the hypergeometric representation.
@@ -2280,7 +2283,7 @@
                 (sendexec rest (expintegral_ci-to-hypergeometric arg1)))))))
      
      ;; Laplace transform of expintegral_chi
-     (cond ((setq l (m2-oneexpintegral_chi u *var*))
+     (cond ((setq l (m2-oneexpintegral_chi u *hypgeo-var*))
             (setq arg1 (cdras 'w l)
                   rest (cdras 'u l))
             ;; We transform to the hypergeometric representation.
@@ -2292,25 +2295,25 @@
                 (sendexec rest (expintegral_chi-to-hypergeometric arg1)))))))
      
      ;; Laplace transform of Complete elliptic integral of the first kind
-     (cond ((setq l (m2-onekelliptic u *var*))
+     (cond ((setq l (m2-onekelliptic u *hypgeo-var*))
 	    (setq arg1 (cdras 'w l)
 		  rest (cdras 'u l))
 	    (return (lt1kelliptic rest arg1))))
      
      ;; Laplace transform of Complete elliptic integral of the first kind
-     (cond ((setq l (m2-elliptic_kc u *var*))
+     (cond ((setq l (m2-elliptic_kc u *hypgeo-var*))
             (setq arg1 (cdras 'w l)
                   rest (cdras 'u l))
             (return (lt1kelliptic rest arg1))))
      
      ;; Laplace transform of Complete elliptic integral of the second kind
-     (cond ((setq l (m2-onee u *var*))
+     (cond ((setq l (m2-onee u *hypgeo-var*))
 	    (setq arg1 (cdras 'w l)
 		  rest (cdras 'u l))
 	    (return (lt1e rest arg1))))
      
      ;; Laplace transform of Complete elliptic integral of the second kind
-     (cond ((setq l (m2-elliptic_ec u *var*))
+     (cond ((setq l (m2-elliptic_ec u *hypgeo-var*))
             (setq arg1 (cdras 'w l)
                   rest (cdras 'u l))
             (return (lt1e rest arg1))))
@@ -2319,14 +2322,14 @@
      ;; We support the Laplace transform of the build in symbol %f. We do
      ;; not use the mechanism of defining an "Expert on Laplace transform",
      ;; the expert function does a call to lt-ltp. We do this call directly.
-     (cond ((setq l (m2-onef u *var*))
+     (cond ((setq l (m2-onef u *hypgeo-var*))
             (setq rest   (cdras 'u l)
                   arg1   (cdras 'w3 l)
                   index1 (list (cdras 'w1 l) (cdras 'w2 l)))
             (return (lt-ltp 'f rest arg1 index1))))
      
      ;; Laplace transform of Hypergeometric function
-     (cond ((setq l (m2-hypergeometric u *var*))
+     (cond ((setq l (m2-hypergeometric u *hypgeo-var*))
             (setq rest   (cdras 'u l)
                   arg1   (cdras 'w3 l)
                   index1 (list (cdras 'w1 l) (cdras 'w2 l)))
@@ -2334,7 +2337,7 @@
      
      ;; Laplace transform of c * t^v * (a+t)^w
      ;; It is possible to combine arbpow2 and arbpow.
-     (cond ((setq l (m2-arbpow2 u *var*))
+     (cond ((setq l (m2-arbpow2 u *hypgeo-var*))
             (setq rest   (cdras 'c l)
                   arg1   (cdras 'a l)
                   arg2   (cdras 'b l)
@@ -2343,7 +2346,7 @@
             (return (lt-arbpow2 rest arg1 arg2 index1 index2))))
      
      ;; Laplace transform of c * t^v
-     (cond ((setq l (m2-arbpow1 u *var*))
+     (cond ((setq l (m2-arbpow1 u *hypgeo-var*))
 	    (setq arg1 (cdras 'u l)
 		  arg2 (cdras 'c l)
 		  index1 (cdras 'v l))
@@ -2368,7 +2371,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun lt-arbpow (expr pow)
-  (cond ((or (eq expr *var*) (equal pow 0))
+  (cond ((or (eq expr *hypgeo-var*) (equal pow 0))
 	 (f1p137test pow))
 	(t
 	 (setq *hyp-return-noun-flag* 'lt-arbow-failed))))
@@ -2382,7 +2385,7 @@
 
 (defun f1p137 (pow)
   (mul (take '(%gamma) (add pow 1))
-       (power *par* (sub (mul -1 pow) 1))))
+       (power *hypgeo-par* (sub (mul -1 pow) 1))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -2398,9 +2401,9 @@
        (mul c
             (power a (add pow2 1))
             (inv b)
-            (power (mul *par* a (inv b)) (mul -1 (add pow2 1)))
-            (power '$%e (mul *par* a (inv b)))
-            (take '(%gamma_incomplete) (add pow2 1) (mul *par* a (inv b)))))
+            (power (mul *hypgeo-par* a (inv b)) (mul -1 (add pow2 1)))
+            (power '$%e (mul *hypgeo-par* a (inv b)))
+            (take '(%gamma_incomplete) (add pow2 1) (mul *hypgeo-par* a (inv b)))))
       ((not (maxima-integerp (add pow1 pow2 2)))
        ;; The general result is a Hypergeometric U function U(a,b,z) which can
        ;; be represented by two Hypergeometic 1F1 functions for the special
@@ -2409,10 +2412,10 @@
                  (power a (add pow1 pow2 1))
                  (inv (power b (add pow1 1)))
                  (take '(%gamma) (add pow1 pow2 1))
-                 (power (mul *par* a (inv b)) (mul -1 (add pow1 pow2 1)))
+                 (power (mul *hypgeo-par* a (inv b)) (mul -1 (add pow1 pow2 1)))
                  (hgfsimp-exec (list (mul -1 pow2))
                                (list (mul -1 (add pow1 pow2)))
-                               (mul *par* a (inv b))))
+                               (mul *hypgeo-par* a (inv b))))
             (mul c
                  (power a (add pow1 pow2 1))
                  (inv (power b (add pow1 1)))
@@ -2421,7 +2424,7 @@
                  (inv (take '(%gamma) (mul -1 pow2)))
                  (hgfsimp-exec (list (add pow1 1))
                                (list (add pow1 pow2 2))
-                               (mul *par* a (inv b))))))
+                               (mul *hypgeo-par* a (inv b))))))
       (t
        ;; The most general case is a result with the Hypergeometric U function.
        (mul c 
@@ -2431,7 +2434,7 @@
             (take '($hypergeometric_u)
                   (add pow1 1)
                   (add pow1 pow2 2)
-                  (mul *par* a (inv b))))))
+                  (mul *hypgeo-par* a (inv b))))))
     (setq *hyp-return-noun-flag* 'lt-arbpow2-failed)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -2448,19 +2451,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun lt-log (rest arg)
-  (let* ((l (m2-c*t^v rest *var*))
+  (let* ((l (m2-c*t^v rest *hypgeo-var*))
 	 (c (cdras 'c l))
 	 (v (add (cdras 'v l) 1))) ; because v -> v-1
     (cond
       ((and l (eq ($asksign v) '$pos))
-       (let* ((l1 (m2-a*t arg *var*))
+       (let* ((l1 (m2-a*t arg *hypgeo-var*))
               (a  (cdras 'a l1)))
          (cond (l1
                 (mul c
                      (take '(%gamma) v)
-                     (inv (power *par* v))
+                     (inv (power *hypgeo-par* v))
                      (sub (take '(mqapply) (list '($psi array) 0) v)
-                          (take '(%log) (div *par* a)))))
+                          (take '(%log) (div *hypgeo-par* a)))))
                (t
                 (setq *hyp-return-noun-flag* 'lt-log-failed)))))
       (t
@@ -2511,7 +2514,7 @@
 
 (defun f16p217test (r a i1 i2)
   ;; We have r*%w[i1,i2](a)
-  (let ((l (m2-c*t^v r *var*)))
+  (let ((l (m2-c*t^v r *hypgeo-var*)))
     ;; Make sure r is of the form c*t^v
     (when l
       (let* ((v (add (cdras 'v l) 1))
@@ -2522,7 +2525,7 @@
           ;; Ok, we satisfy the conditions.  Now extract the arg.
           ;; The transformation is only valid for an argument a*t. We have
           ;; to special the pattern to make sure that we satisfy the condition.
-          (let ((l (m2-a*t a *var*)))
+          (let ((l (m2-a*t a *hypgeo-var*)))
             (when l
               (let ((a (cdras 'a l)))
                 ;; We're ready now to compute the transform.
@@ -2531,13 +2534,13 @@
                      (take '(%gamma) (add (add v i2) '((rat simp) 1 2)))
                      (take '(%gamma) (add (sub v i2) '((rat simp) 1 2)))
                      (inv (mul (take '(%gamma) (add (sub v i1) 1))
-                               (power (add *par* (div a 2))
+                               (power (add *hypgeo-par* (div a 2))
                                       (add (add i2 v) '((rat simp) 1 2)))))
                      (hgfsimp-exec (list (add (add i2 v '((rat simp) 1 2)))
                                          (add (sub i2 i1) '((rat simp) 1 2)))
                                    (list (add (sub v i1) 1))
-                                   (div (sub *par* (div a 2))
-                                        (add *par* (div a 2)))))))))))))
+                                   (div (sub *hypgeo-par* (div a 2))
+                                        (add *hypgeo-par* (div a 2)))))))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Algorithm 2.5: Laplace transform of bessel_k(0,a*t)
@@ -2550,15 +2553,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun lt-bessel_k0 (rest arg)
-  (let* ((l (m2-c*t^v rest *var*))
+  (let* ((l (m2-c*t^v rest *hypgeo-var*))
          (c (cdras 'c l))
          (v (cdras 'v l))
-         (l (m2-a*t arg *var*))
+         (l (m2-a*t arg *hypgeo-var*))
          (a (cdras 'a l)))
     (cond ((and l (zerop1 v))
            (mul c
-                (take '(%acosh) (div *par* a))
-                (inv (power (sub (mul *par* *par*) (mul a a))
+                (take '(%acosh) (div *hypgeo-par* a))
+                (inv (power (sub (mul *hypgeo-par* *hypgeo-par*) (mul a a))
                             '((rat simp) 1 2)))))
           (t
            (setq *hyp-return-noun-flag* 'lt-bessel_k-failed)))))
@@ -3231,7 +3234,7 @@
                  (m2-d*x^m*%e^a*x
                    ($factor (mul rest 
                                  (car (setq l1 (ref flg index arg)))))
-                   *var* *par*))
+                   *hypgeo-var* *hypgeo-par*))
            ;; Convert the special function to a hypgergeometric
            ;; function.  L1 is the special function converted to the
            ;; hypergeometric function.  d*x^m*%e^a*x looks for that
@@ -3592,8 +3595,8 @@
      (cond ((equal q 1)(setq a 0)(go loop)))
      (setq a (cdras 'a l))
      loop
-     (return (substl (sub *par* a)
-                     *par*
+     (return (substl (sub *hypgeo-par* a)
+                     *hypgeo-par*
                      (execf19 l (cadr l1))))))
 
 (defun execf19 (l1 l2)
@@ -3613,9 +3616,9 @@
 
 (defun execargmatch (arg)
   (prog(l1)
-     (cond ((setq l1 (m2-a*x^m+c ($factor arg) *var*))
+     (cond ((setq l1 (m2-a*x^m+c ($factor arg) *hypgeo-var*))
             (return (list 'dionimo l1))))
-     (cond ((setq l1 (m2-a*x^m+c ($expand arg) *var*))
+     (cond ((setq l1 (m2-a*x^m+c ($expand arg) *hypgeo-var*))
             (return (list 'dionimo l1))))
      ;; The return value has to be a list.
      (return (list 'other-case-args-to-follow))))
@@ -3675,12 +3678,12 @@
 
 (defun f19p220-simp (s l1 l2 cf k)
   (mul (take '(%gamma) s)
-       (inv (power *par* s))
+       (inv (power *hypgeo-par* s))
        (hgfsimp-exec (append l1 (addarglist s k))
                      l2
                      (mul cf
                            (power k k)
-                           (power (inv *par*) k)))))
+                           (power (inv *hypgeo-par*) k)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -3735,7 +3738,7 @@
 
 (defun lty (rest arg index)
   (prog(l)
-     (cond ((setq l (m2-d*x^m*%e^a*x rest *var* *par*))
+     (cond ((setq l (m2-d*x^m*%e^a*x rest *hypgeo-var* *hypgeo-par*))
             (return (execfy l arg index))))
      (return (setq *hyp-return-noun-flag* 'fail-in-lty))))
 
@@ -3808,7 +3811,7 @@
   (mul -2
        (power '$%pi -1)
        (take '(%gamma) (add m v))
-       (power (add (mul a a) (mul *par* *par*))
+       (power (add (mul a a) (mul *hypgeo-par* *hypgeo-par*))
               (mul -1 '((rat simp) 1 2) m))
        ;; Call Associated Legendre Q function, which simplifies accordingly.
        ;; We have to do a Maxima function call, because $assoc_legendre_q is
@@ -3816,8 +3819,8 @@
        (mfuncall '$assoc_legendre_q
                  (sub m 1)
                  (mul -1 v)
-                 (mul *par*
-                      (power (add (mul a a) (mul *par* *par*))
+                 (mul *hypgeo-par*
+                      (power (add (mul a a) (mul *hypgeo-par* *hypgeo-par*))
                              '((rat simp) -1 2))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -3851,13 +3854,13 @@
 (defun f50p188-simp (d u v a)
   (mul d
        (power a '((rat simp) -1 2))
-       (power *par* (mul -1 u))
-       (power '$%e (div a (mul -2 *par*)))
+       (power *hypgeo-par* (mul -1 u))
+       (power '$%e (div a (mul -2 *hypgeo-par*)))
        (sub (mul (take '(%tan) (mul '$%pi (sub u v)))
                  (take '(%gamma) (add u v '((rat simp) 1 2)))
                  (inv (take '(%gamma) (add v v 1)))
-                 (mwhit (div a *par*) u v))
+                 (mwhit (div a *hypgeo-par*) u v))
             (mul (take '(%sec) (mul '$%pi (sub u v)))
-                 (wwhit (div a *par*) u v)))))
+                 (wwhit (div a *hypgeo-par*) u v)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

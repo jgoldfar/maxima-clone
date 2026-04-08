@@ -89,7 +89,8 @@
 			 (p (file-position *parse-stream*)     (file-position *parse-stream*))
 			 (n 1                                  (1+ n)))
 			((or (null p) (>= p fp))
-			 (cons n (- fp o)))))
+			 (cons n (- fp o)))
+            (declare (ignorable l))))
 		   (t '())))
 	   (column ()
 	     (let ((n (get '*parse-window* 'length))
@@ -1129,6 +1130,8 @@
 		(mopstrip op)))
 
 ;;;; Operator Specific Data
+
+(def-mheader $box (mbox))
 
 (def-nud-equiv |$]| delim-err)
 (def-led-equiv |$]| erb-err)

@@ -1,8 +1,8 @@
 Notes on Lisp implementations for Maxima:
 =========================================
 
-Clisp, CMUCL, Scieneer Common Lisp (SCL), GCL (ANSI-enabled only),
-ECL, ABCL and SBCL can compile and execute Maxima.
+Clisp, CMUCL, GCL (ANSI-enabled only), ECL, ABCL and SBCL
+can compile and execute Maxima.
 Allegro Common Lisp (ACL) and CCL might also work, but have not
 been fully tested.
 
@@ -75,19 +75,6 @@ CMUCL versions: 18e and 19a and later are known to work.
 
 There are CMUCL implementations only for Unix-like systems
 (not MS Windows).
-
-
-Scieneer Common Lisp (SCL) <https://web.archive.org/web/20171014210404/http://www.scieneer.com/scl/>
-----------------------------------------------------------------------------------------------------
-
-Scieneer Common Lisp (SCL) is a fast option for Maxima for a
-range of Linux and Unix platforms.  The SCL 1.2.8 release and later
-are supported.  SCL offers a lower case, case sensitive, version which
-avoids the Maxima case inversion issues with symbol names.  Tested
-front end options are: Maxima emacs mode available in the
-interfaces/emacs/ directory, the Emacs imaxima mode available from
-<https://sites.google.com/site/imaximaimath/>, and TeXmacs available from
-<https://www.texmacs.org>
 
 
 GCL <https://www.gnu.org/software/gcl/>

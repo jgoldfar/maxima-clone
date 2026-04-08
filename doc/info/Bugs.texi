@@ -32,10 +32,23 @@ and Lisp version information into the bug report.
 
 Returns a summary of the parameters of the Maxima build,
 as a Maxima structure (defined by @code{defstruct}).
-The fields of the structure are:
-@code{version}, @code{timestamp}, @code{host}, @code{lisp_name}, and @code{lisp_version}.
 When the pretty-printer is enabled (via @mref{display2d}),
 the structure is displayed as a short table.
+
+The fields of the structure are:
+
+@itemize
+@item version Maxima version
+@item timestamp Time at which Maxima was compiled
+@item host Type of system Maxima is running on
+@item lisp_name Name of the Lisp implementation
+@item lisp_version Version of the Lisp implementation
+@item maxima_userdir User directory (value of @code{maxima_userdir})
+@item maxima_tempdir Directory for temporary files (value of @code{maxima_tempdir})
+@item maxima_objdir Directory for compiled files of share packages (value of @code{maxima_objdir})
+@item maxima_frontend Name of user interface, if any (value of @code{maxima_frontend})
+@item maxima_frontend_version User interface version when @code{maxima_frontend} is present (value of @code{maxima_frontend_version})
+@end itemize
 
 See also @mrefdot{bug_report}
 
@@ -55,45 +68,53 @@ Examples:
 @group
 (%i1) build_info ();
 (%o1) 
-Maxima version: "5.36.1"
-Maxima build date: "2015-06-02 11:26:48"
-Host type: "x86_64-unknown-linux-gnu"
-Lisp implementation type: "GNU Common Lisp (GCL)"
-Lisp implementation version: "GCL 2.6.12"
+Maxima-version: "5.48.1"
+Maxima build date: "2025-08-23 10:39:15"
+Host type: "x86_64-pc-linux-gnu"
+Lisp implementation type: "CLISP"
+Lisp implementation version: "2.49.93+ (2024-07-04) (built 3935171094) (memory 3964959574)"
+User dir: "/home/dodier/.maxima"
+Temp dir: "/tmp"
+Object dir: "/home/dodier/.maxima/binary/5_48_1/clisp/2_49_93___2024_07_04___built_3935171094___memory_3964959574_"
+Frontend: false
 @end group
-(%i2) x : build_info ()$
 @group
+(%i2) x : build_info ()$
 (%i3) x@@version;
-(%o3)                               5.36.1
+(%o3)                               5.48.1
 @end group
 @group
 (%i4) x@@timestamp;
-(%o4)                         2015-06-02 11:26:48
+(%o4)                         2025-08-23 10:39:15
 @end group
 @group
 (%i5) x@@host;
-(%o5)                      x86_64-unknown-linux-gnu
+(%o5)                         x86_64-pc-linux-gnu
 @end group
 @group
 (%i6) x@@lisp_name;
-(%o6)                        GNU Common Lisp (GCL)
+(%o6)                                CLISP
 @end group
 @group
 (%i7) x@@lisp_version;
-(%o7)                             GCL 2.6.12
+(%o7)        2.49.93+ (2024-07-04) (built 3935171094) (memory 3964959574)
 @end group
 @group
 (%i8) x;
 (%o8) 
-Maxima version: "5.36.1"
-Maxima build date: "2015-06-02 11:26:48"
-Host type: "x86_64-unknown-linux-gnu"
-Lisp implementation type: "GNU Common Lisp (GCL)"
-Lisp implementation version: "GCL 2.6.12"
+Maxima-version: "5.48.1"
+Maxima build date: "2025-08-23 10:39:15"
+Host type: "x86_64-pc-linux-gnu"
+Lisp implementation type: "CLISP"
+Lisp implementation version: "2.49.93+ (2024-07-04) (built 3935171094) (memory 3964959574)"
+User dir: "/home/dodier/.maxima"
+Temp dir: "/tmp"
+Object dir: "/home/dodier/.maxima/binary/5_48_1/clisp/2_49_93___2024_07_04___built_3935171094___memory_3964959574_"
+Frontend: false
 @end group
 @end example
 
-The Maxima version string (here 5.36.1) can look very different:
+The Maxima version string (here 5.48.1) can look very different:
 
 @example
 (%i1) build_info();
@@ -109,12 +130,12 @@ Lisp implementation version: "2.49 (2010-07-07) (built 3605577779) (memory 36606
 @c 331 commits after the latest tag, that is reachable from that commit
 @c don't know how to describe it better...
 In that case, Maxima was not build from a released sourcecode, 
-but directly from the GIT-checkout of the sourcecode.
-In the example, the checkout is 331 commits after the latest GIT tag
-(usually a Maxima (major) release (5.37 in our example)) and the 
+but directly from the Git checkout of the source code.
+In the example, the checkout is 331 commits after the latest Git tag
+(usually a Maxima release, 5.37 in our example) and the 
 abbreviated commit hash of the last commit was "8322940".
 
-Front-ends for maxima can add information about currently being used
+User interfaces for maxima can add information about currently being used
 by setting the variables @code{maxima_frontend} and
 @code{maxima_frontend_version} accordingly.
 
@@ -156,9 +177,9 @@ these additional tests are run as a part of the testsuite.  If
 Of course, the actual set of test that are run can be controlled by
 the @code{tests} option. The default is @code{false}.
 @item answers_from_file
-Read answers to interactive questions from the source file
-@mrefdot{batch_answers_from_file} May only be @code{false} or
-@code{true} (default).
+Read answers to interactive questions from the source file. May only be
+@code{false} or @code{true} (default). See also
+@mrefdot{batch_answers_from_file}
 @end table
 
 For example @code{run_testsuite(display_known_bugs = true, tests=[rtest5])}

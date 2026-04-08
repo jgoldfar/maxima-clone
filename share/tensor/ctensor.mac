@@ -758,7 +758,7 @@ ct_coordsys(coordinate_system, [extra_args]):=
     dim:3,
     ct_coords:[x,y,z],
     if cframe_flag then error("No frames implementation")
-    else lg:lg:matrix([x^2,y,0],[y,y^2,0],[0,0,z])
+    else lg:matrix([x^2,y,0],[y,y^2,0],[0,0,z])
   )
   else if coordinate_system='alternateflat4d then
   (

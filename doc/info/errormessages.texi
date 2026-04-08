@@ -288,7 +288,7 @@ if the following maxima command is entered:
 @end group
 @end example
 
-Note: The @code{scene()} command requrires VTK with TCL/TK bindings.
+Note: The @code{scene()} command requires VTK with TCL/TK bindings.
 
 @opencatbox{Categories:}
 @category{Error messages}

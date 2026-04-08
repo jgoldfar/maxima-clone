@@ -142,7 +142,7 @@ $(CLISP_MAXIMA):
 clisp-depends.mk: maxima.system Makefile *.lisp
 	echo $(call MAKE_DEPENDS,"$(CLISP_MAXIMA)",clisp-depends.mk.tmp) > clisp-command2.lisp
 	$(EXECUTECLISP) clisp-command2.lisp
-	cat clisp-depends.mk.tmp | sed -e "s#\\\\#/#g" > clisp-depends.mk
+	sed -e "s#\\\\#/#g" < clisp-depends.mk.tmp > clisp-depends.mk
 
 -include clisp-depends.mk
 endif CLISP
@@ -188,7 +188,7 @@ $(CMU_MAXIMA):
 
 cmucl-depends.mk: maxima.system Makefile *.lisp
 	echo $(call MAKE_DEPENDS,"$(CMU_MAXIMA)",cmucl-depends.mk.tmp) | $(EXECUTECMUCL)
-	cat cmucl-depends.mk.tmp | sed -e "s#\\\\#/#g" > cmucl-depends.mk
+	sed -e "s#\\\\#/#g" < cmucl-depends.mk.tmp > cmucl-depends.mk
 
 -include cmucl-depends.mk
 endif
@@ -196,45 +196,6 @@ endif
 clean-cmucl:
 	rm -rf binary-cmucl
 CLEAN_TARGETS += clean-cmucl
-
-## SCL #########################################################################
-if SCL
-
-scllibdir = $(verpkglibdir)/binary-scl
-
-EXECUTESCL = $(SCL_NAME) -noinit -batch
-BUILT_FILES += binary-scl/maxima.core
-scllib_DATA = binary-scl/maxima.core
-
-scl: binary-scl/maxima.core
-
-binary-scl/maxima.core:
-	$(MAKE) bd
-	(echo '$(QUIET) $(LOADDEFSYSTEM) $(DEFSYSTEMCOMPILE)' | $(EXECUTESCL)) && \
-	(echo '$(LOADDEFSYSTEM) $(DEFSYSTEMLOAD) (ext:save-lisp "binary-scl/maxima.core")' | $(EXECUTESCL))
-
-## Just like with clisp, we install an extra copy of SCL. No, I don't
-## understand either. Also, I just read the SCL license agreement. Is
-## the user even allowed to do this?!
-WEIRD_INSTALL_TARGETS += install-scl-copy
-WEIRD_UNINSTALL_TARGETS += uninstall-scl-copy
-install-scl-copy:
-	$(mkinstalldirs) $(DESTDIR)$(scllibdir)
-	$(INSTALL_PROGRAM) @SCL_RUNTIME_PATH@ "$(DESTDIR)$(scllibdir)/@SCL_RUNTIME@"
-uninstall-scl-copy:
-	rm -f "$(DESTDIR)$(scllibdir)/@SCL_RUNTIME@"
-
-scl-depends.mk: maxima.system Makefile *.lisp
-	echo $(call MAKE_DEPENDS,"binary-scl/maxima.core",scl-depends.mk.tmp) | $(EXECUTESCL)
-	cat scl-depends.mk.tmp | sed -e "s#\\\\#/#g" > scl-depends.mk
-
--include scl-depends.mk
-
-endif
-
-clean-scl:
-	rm -rf binary-scl
-CLEAN_TARGETS += clean-scl
 
 ## ACL #########################################################################
 if ACL
@@ -255,7 +216,7 @@ binary-acl/maxima.dxl:
 
 acl-depends.mk: maxima.system Makefile *.lisp
 	echo $(call MAKE_DEPENDS,"binary-acl/maxima.dxl",acl-depends.mk.tmp) | $(EXECUTEACL)
-	cat acl-depends.mk.tmp | sed -e "s#\\\\#/#g" > acl-depends.mk
+	sed -e "s#\\\\#/#g" < acl-depends.mk.tmp > acl-depends.mk
 
 -include acl-depends.mk
 endif
@@ -296,7 +257,7 @@ $(SBCL_MAXIMA):
 
 sbcl-depends.mk: maxima.system Makefile *.lisp
 	echo $(call MAKE_DEPENDS,"$(SBCL_MAXIMA)",sbcl-depends.mk.tmp,(sb-ext:quit)) | $(EXECUTESBCL)
-	cat sbcl-depends.mk.tmp | sed -e "s#\\\\#/#g" > sbcl-depends.mk
+	sed -e "s#\\\\#/#g" < sbcl-depends.mk.tmp > sbcl-depends.mk
 
 -include sbcl-depends.mk
 
@@ -359,7 +320,7 @@ endif
 
 gcl-depends.mk: maxima.system Makefile *.lisp
 	echo $(call MAKE_DEPENDS,$(gcl_depends_targets),gcl-depends.mk.tmp) '(system::quit)' | $(EXECUTEGCL)
-	cat gcl-depends.mk.tmp | sed -e "s#\\\\#/#g" > gcl-depends.mk
+	sed -e "s#\\\\#/#g" < gcl-depends.mk.tmp > gcl-depends.mk
 -include gcl-depends.mk
 
 endif
@@ -401,7 +362,7 @@ $(OPENMCL_MAXIMA):
 
 openmcl-depends.mk: maxima.system Makefile *.lisp
 	echo $(call MAKE_DEPENDS,"$(OPENMCL_MAXIMA)",openmcl-depends.mk.tmp,(ccl:quit)) | $(EXECUTEOPENMCL)
-	cat openmcl-depends.mk.tmp | sed -e "s#\\\\#/#g" > openmcl-depends.mk
+	sed -e "s#\\\\#/#g" < openmcl-depends.mk.tmp > openmcl-depends.mk
 
 -include openmcl-depends.mk
 
@@ -473,7 +434,7 @@ binary-ecl/maxima:
 
 ecl-depends.mk: maxima.system Makefile *.lisp
 	echo $(call MAKE_DEPENDS,"binary-ecl/maxima",ecl-depends.mk.tmp,(quit)) | $(EXECUTEECL)
-	cat ecl-depends.mk.tmp | sed -e "s#\\\\#/#g" > ecl-depends.mk
+	sed -e "s#\\\\#/#g" < ecl-depends.mk.tmp > ecl-depends.mk
 
 -include ecl-depends.mk
 endif
@@ -517,7 +478,7 @@ if QUIET_BUILD
 else
 	$(EXECUTEABCL) --eval '(load "$(top_srcdir)/lisp-utils/defsystem.lisp")' --eval '(mk:add-registry-location "$(top_srcdir)/src/")' --eval '($(DS_OOS) :compile :verbose t)' --eval '(quit)'
 endif
-	cat $(srcdir)/maxima.system | sed -e 's#"binary-abcl"#(ext:getenv "MAXIMA_IMAGESDIR_BIN")#g' > binary-abcl/maxima.system
+	sed -e 's#"binary-abcl"#(ext:getenv "MAXIMA_IMAGESDIR_BIN")#g' < $(srcdir)/maxima.system > binary-abcl/maxima.system
 	cp $(srcdir)/maxima-package.lisp binary-abcl
 	cp $(srcdir)/autol.lisp binary-abcl
 	cp $(srcdir)/init-cl.lisp binary-abcl
@@ -531,7 +492,7 @@ endif
 
 abcl-depends.mk: maxima.system Makefile *.lisp
 	echo $(call MAKE_DEPENDS,"binary-abcl/maxima",abcl-depends.mk.tmp,(quit)) | $(EXECUTEABCL)
-	cat abcl-depends.mk.tmp | sed -e "s#\\\\#/#g" > abcl-depends.mk
+	sed -e "s#\\\\#/#g" < abcl-depends.mk.tmp > abcl-depends.mk
 
 -include abcl-depends.mk
 endif

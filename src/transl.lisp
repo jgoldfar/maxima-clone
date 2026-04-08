@@ -321,9 +321,6 @@ APPLY means like APPLY.")
 (defun macsyma-special-op-p (f)
   (getl f '(fsubr fexpr mfexpr* mfexpr*s *fexpr)))
 
-(defun possible-predicate-op-p (f)
-  (member f '(mnotequal mequal $equal mgreaterp mgeqp mlessp mleqp) :test #'eq))
-
 ;;;***************************************************************;;;
 
 ;;; This function is the way to call the TRANSLATOR on an expression with
@@ -651,7 +648,7 @@ APPLY means like APPLY.")
 	     ;; to check for mobylossage.
 	     ((> kount $tr_optimize_max_loop)
 	      (tr-format (intl:gettext "warning: I've looped ~A times in macro expansion; just give up and return ~:@M~%")
-	       $tr_optimize_max_loop (caar form))
+	       $tr_optimize_max_loop form)
 	      form)
 	   (setq new-form (toplevel-optimize-1 form))
 	   (cond ((atom new-form)
@@ -1152,7 +1149,8 @@ APPLY means like APPLY.")
     (cond ((atom fn) 
 	   ;; I'm guessing (ATOM FN) is a parser error or other Lisp error,
 	   ;; so don't bother to translate the following error message.
-	   (tr-format "translator: MQAPPLY operator must be a cons; found: ~:M" form)
+	   (tr-format "translator: MQAPPLY operator must be a cons; found: ~:M~%" form)
+	   (tr-abort)
 	   nil)
 	  ((eq (caar fn) 'mquote) 
 	   `($any list ',(cons (cadr fn) aryp) ,@(tr-args args)))

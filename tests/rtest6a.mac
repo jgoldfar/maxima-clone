@@ -63,7 +63,7 @@ g(x+1);
 is(inpart(%,0) = nounify(limit));
 true;
 dpart(x+y/z^2,1,2,1);
-y/?mbox(z)^2+x;
+y/box(z)^2+x;
 exp:expand((b+a)^4);
 b^4+4*a*b^3+6*a^2*b^2+4*a^3*b+a^4;
 (b+a)^2*(y+x)^2;
@@ -75,7 +75,7 @@ exp:exp/%;
 factor(%);
 (b+a)^2/(y+x)^2;
 dpart(exp,2,4);
-(b^4+4*a*b^3+6*a^2*b^2+4*a^3*b+a^4)/(b^2*y^2+2*a*b*y^2+a^2*y^2+?mbox(2*b^2*x*y)+4*a*b*x*y+2*a^2*x*y+b^2*x^2+2*a*b*x^2+a^2*x^2);
+(b^4+4*a*b^3+6*a^2*b^2+4*a^3*b+a^4)/(b^2*y^2+2*a*b*y^2+a^2*y^2+box(2*b^2*x*y)+4*a*b*x*y+2*a^2*x*y+b^2*x^2+2*a*b*x^2+a^2*x^2);
 part(exp,2,4);
 2*b^2*x*y;
 
@@ -261,7 +261,7 @@ fl,
 /* SF bug #2012: "Lisp stack overflow with dpart." */
 
 dpart(cos(a+b),1);
-cos(?mbox(a+b));
+cos(box(b+a));
 
 /* SF bug #3390: "?great mishandles box" */
 
@@ -283,3 +283,13 @@ ratsubst (1, 1, -1/2);
 
 kill(all);
 done;
+
+/* verify that box(...) expressions are displayed as expected in 1-d output
+ * (2-d output is tested elsewhere)
+ */
+
+string (box (a + b + c));
+"box(c+b+a)";
+
+string (box (a + b + c, FOO));
+"box(c+b+a,FOO)";

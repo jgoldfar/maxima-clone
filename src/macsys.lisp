@@ -80,7 +80,7 @@ DESTINATION is an actual stream (rather than nil for a string)."
 ;;  I guess we're still failing miserably, but unfortunately MFORMAT/AFORMAT
 ;;  don't deal correctly with ~M plus a string output stream.
 (defun main-prompt ()
-  (if *display-labels-p*
+  (if (and *display-labels-p* (not *suppress-input-echo*))
       (format-prompt nil "(~A~A) "
                      (print-invert-case (stripdollar $inchar))
                      $linenum)
@@ -229,7 +229,7 @@ DESTINATION is an actual stream (rather than nil for a string)."
 	(if (eq r eof) (return '$done))
 	(setq $__ (caddr r))
 	(unless $nolabels (setf (symbol-value c-tag) $__))
-	(cond (batch-or-demo-flag
+	(cond ((and batch-or-demo-flag (not *suppress-input-echo*))
 	  (let (($display2d nil))
 	    (displa `((mlabel) ,c-tag , $__)))))
 	(setq time-before (get-internal-run-time)
@@ -496,7 +496,7 @@ DESTINATION is an actual stream (rather than nil for a string)."
 			    (coerce (mstring (mfuncall '$@ form item)) 'string))))
 	     (forcebreak (reverse (coerce s 'list)) 0))))
     (let ((bkptht 1)
-	  (bkptdp 1)
+	  (bkptdp 0)
 	  (lines 0)
 	  (break 0))
       (forcebreak result 0)
@@ -691,7 +691,9 @@ DESTINATION is an actual stream (rather than nil for a string)."
   ;; If XMaxima is running, direct output from command into *SOCKET-CONNECTION*.
   (let ((s (and (boundp '*socket-connection*) *socket-connection*))
 	shell shell-opt)
-
+    #-(or ecl cmu scl sbcl openmcl)
+    (declare (ignore shell shell-opt))
+    #+(or ecl cmu scl sbcl openmcl)
     (cond ((string= *autoconf-windows* "true")
 	   (setf shell "cmd") (setf shell-opt "/c"))
 	  (t (setf shell "/bin/sh") (setf shell-opt "-c")))

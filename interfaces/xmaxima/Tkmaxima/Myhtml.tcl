@@ -1,7 +1,3 @@
-# -*-mode: tcl; fill-column: 75; tab-width: 8; coding: iso-latin-1-unix -*-
-#
-#       $Id: Myhtml.tcl,v 1.15 2006-10-01 23:58:29 villate Exp $
-#
 ###### Myhtml.tcl ######
 ############################################################
 # Netmath       Copyright (C) 1998 William F. Schelter     #
@@ -206,7 +202,7 @@ proc xHMsetFont { win fonttag  } {
 # on font type.
  proc xHMmapFont {  fonttag } {
     # font:family:weight:style:size
-    global maxima_default xHMfonts
+    global xHMfonts
     if { [info exists xHMfonts($fonttag) ] } {
 	return $xHMfonts($fonttag)
     } else {
@@ -219,8 +215,7 @@ proc xHMsetFont { win fonttag  } {
 
  proc xHMconfigFont {  fonttag } {
     # font:family:weight:style:size
-    global maxima_default xHMfonts
-
+    global xHMfonts
     set font $xHMfonts($fonttag)
     set s [split $fonttag :]
     if {[llength $s] < "2"} {
@@ -231,14 +226,14 @@ proc xHMsetFont { win fonttag  } {
     if { "$fam" == "" } {
 	set fam propor
     }
-    set si [expr {$maxima_default($fam,adjust) + [lindex $s 4]}]
+    set si [expr {$::xmaxima_default($fam,adjust) + [lindex $s 4]}]
     #set si [lindex $s 4]
     set si [expr {($si < 1 ? 1 : ($si > 8 ? 8 : $si))}]
     set elt [lindex $s 1]
-    if {![info exists maxima_default($fam)]} {
+    if {![info exists ::xmaxima_default($fam)]} {
 	error [concat [mc "Internal font error:"] "'$fam'"]
     }
-    set family $maxima_default($fam)
+    set family $::xmaxima_default($fam)
     set weight [lindex $s 2]
     set slant [lindex $s 3]
     if { "$slant" == "i" } { 
@@ -246,14 +241,13 @@ proc xHMsetFont { win fonttag  } {
     } else {
 	set slant roman
     }
-    #puts "font config $font -family $family -size $maxima_default($fam,$si) -slant $slant -weight $weight"
-    global tcl_platform
-    if { "$tcl_platform(platform)" == "unix" } {
+    #puts "font config $font -family $family -size $::xmaxima_default($fam,$si) -slant $slant -weight $weight"
+    if { "$::tcl_platform(platform)" == "unix" } {
 	set usePixel "-"
     } else {
 	set usePixel ""
     }
-    font config $font -family $family -size $usePixel$maxima_default($fam,$si) -slant $slant -weight $weight
+    font config $font -family $family -size $usePixel$::xmaxima_default($fam,$si) -slant $slant -weight $weight
     return
  }
 
@@ -563,7 +557,6 @@ defTag option -body { set text [string trimright $text]
 
 global xHMpriv
 set xHMpriv(counter) 0
-
 
 #
  #-----------------------------------------------------------------
@@ -981,8 +974,8 @@ proc xHMdo_img {} {
 	    incr wvar(measure) [image width $image]
 	}
 	label $w -image $im -background $bg
-	bind $w <Enter> [list set maxima_priv(load_rate) "$alt" ]
-	bind $w <Leave> [list set maxima_priv(load_rate) ""  ]
+	bind $w <Enter> [list set ::xmaxima_priv(load_rate) "$alt" ]
+	bind $w <Leave> [list set ::xmaxima_priv(load_rate) ""  ]
 
     }
     catch { $w configure -border $border}
@@ -1052,9 +1045,7 @@ proc xHMassureNewlines { n } {
 }
 
 proc xHMsetDefaultPreferences {} {
-    global maxima_default tcl_platform
-
-    if { "$tcl_platform(platform)" == "unix" } {
+    if { "$::tcl_platform(platform)" == "unix" } {
 	set pairs {  1 8
 	    2 10
 	    3 12
@@ -1077,15 +1068,14 @@ proc xHMsetDefaultPreferences {} {
     }
 
     foreach fam {propor fixed} {
-	foreach {n si} $pairs { set maxima_default($fam,$n) $si}
+	foreach {n si} $pairs { set ::xmaxima_default($fam,$n) $si}
     }
-    set maxima_default(propor,adjust) [expr {$maxima_default(adjust) + 0}]
-    set maxima_default(fixed,adjust) [expr {$maxima_default(adjust)  + 0}]
-    array set maxima_default { propor arial fixed courier  indentwidth .7 }
+    set ::xmaxima_default(propor,adjust) [expr {$::xmaxima_default(adjust) + 0}]
+    set ::xmaxima_default(fixed,adjust) [expr {$::xmaxima_default(adjust)  + 0}]
+    array set ::xmaxima_default { propor arial fixed courier  indentwidth .7 }
 }
 
 xHMsetDefaultPreferences
-catch { source ~/.xmaximarc }
 
 proc dputs {x} {
     puts $x ; flush stdout
@@ -1094,7 +1084,6 @@ proc dputs {x} {
 proc xHMinit_state { win args } {
     upvar #0 xHMvar$win wvar
     upvar #0 xHMtaglist$win taglist
-    global maxima_default
     array set saveme [array get wvar W_*]
     catch { unset wvar}
         catch { unset taglist}
@@ -1188,13 +1177,12 @@ proc toPixelWidth { dim win } {
 
 proc xHMinit_win { win } {
     upvar #0 xHMvar$win wvar
-    global maxima_default
     # global xHMvar$win
    # catch { unset xHMvar$win }
     xHMinit_state $win
     $win config -font [xHMmapFont font:fixed:normal:r:3]
     catch { eval destroy [winfo children $win] }
-    set iwidth [toPixelWidth  [set maxima_default(indentwidth)]c $win]
+    set iwidth [toPixelWidth  [set ::xmaxima_default(indentwidth)]c $win]
     # puts iwidth=$iwidth
     for { set i 0 } { $i < 12 } { incr i } {
 	set half [expr {$iwidth/2.0 }]

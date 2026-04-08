@@ -54,9 +54,7 @@ Pública GNU e em 2000 iniciou-se o projeto Maxima no sítio SourceForge,
 para manter e desenvolver o Macsyma DOE, agora chamado Maxima.
 
 @sp 2
-Esta tradução para português de Portugal foi feita com base na tradução
-de Jorge Barros de Abreu para português brasileiro e é mantida por Jaime
-Villate (@code{villate arroba fe.up.pt}).
+Tradutores: Jorge Barros de Abreu e Jaime E. Villate.
 
 @end titlepage
 
@@ -64,6 +62,21 @@ Villate (@code{villate arroba fe.up.pt}).
 @contents
 
 @include category-macros.texi
+
+@c figure macros redefinition
+@ifhtml
+@set figuresfolder ../figures
+@macro figure {file}
+@image{@value{figuresfolder}/\file\,,,, .png}
+@end macro
+@macro altfigure {file, text}
+@image{@value{figuresfolder}/\file\,,,\text\,.png}
+@end macro
+@macro smallfigure {file, text}
+@image{@value{figuresfolder}/\file\,,,\text\,.png}
+@end macro
+@end ifhtml
+@c end of figure macros redefinition
 
 @c to update the menus do:
 @c (texinfo-multiple-files-update "maxima.texi" t t)
@@ -86,9 +99,7 @@ Energia para publicar o código fonte do Macsyma DOE sob a Licença
 Pública GNU e em 2000 iniciou-se o projeto Maxima no sítio SourceForge,
 para manter e desenvolver o Macsyma DOE, agora chamado Maxima.
 
-Esta tradução para português de Portugal foi feita com base na tradução
-de Jorge Barros de Abreu para português brasileiro e é mantida por Jaime
-Villate (@code{villate arroba fe.up.pt}).
+Tradutores: Jorge Barros de Abreu e Jaime E. Villate.
 @end ifnottex
 @c includes
 

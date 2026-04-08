@@ -51,7 +51,7 @@
 	(mequal "=") (mgreaterp ">") (mlessp "<") (mleqp "<=") (mgeqp ">=")
 	(mnotequal "#") (mand "and") (mor "or") (mnot "not") (msetq ":")
 	(mdefine ":=") (mdefmacro "::=") (mquote "'") (mlist "[")
-	(mset "::") (mfactorial "!") (marrow "-->") (mprogn "(")
+	(mset "::") (mfactorial "!") (%genfact "!!") (marrow "-->") (mprogn "(")
 	(mcond "if") (mdo "do") (mdoin "do_in")))
 
 (mapc #'(lambda (x) (putprop (car x) (cadr x) 'op))
@@ -60,6 +60,22 @@
 (defmvar $vect_cross nil
   "If TRUE allows DIFF(X~Y,T) to work where ~ is defined in
 	  SHARE;VECT where VECT_CROSS is set to TRUE.")
+
+(defmfun $listp (x)
+  (and (not (atom x))
+       (not (atom (car x)))
+       (eq (caar x) 'mlist)))
+
+(defun atomchk (e fun 2ndp)
+  (if (or (atom e) (eq (caar e) 'bigfloat))
+      (merror (intl:gettext "~:M: ~Margument must be a non-atomic expression; found ~M") fun (if 2ndp "2nd " "") e)))
+
+(defmfun $member (x e)
+  (atomchk e '$member t)
+  (setq x (specrepcheck x))
+  (dolist (i (margs e))
+    (when (alike1 x (specrepcheck i))
+      (return t))))
 
 (defmfun $substitute (new old &optional (expr nil three-arg?))
   (cond (three-arg? (maxima-substitute new old expr))
@@ -540,7 +556,7 @@
                result))
 
 	  ;; extension for pdiff.
-	  ((and (get '$pderivop 'operators) (funcall 'sdiffgrad-pdiff e x)))
+	  ((and (get '$pderivop 'operators) (mfuncall 'sdiffgrad-pdiff e x)))
 
 	  ;; two line extension for hypergeometric.
 	  ((and (equal fun '%hypergeometric) (get '%hypergeometric 'operators))
@@ -849,6 +865,11 @@
   (let ((substp t))
     (mpart arglist substflag dispflag inflag fn)))
 
+(defun make-mbox-for-mpart (e label)
+  (if (eq label t)
+      (list '(mbox) e)
+      (make-mbox e (car label))))
+
 (defun mpart (arglist substflag dispflag inflag fn)
   (prog (substitem arg arg1 exp exp1 exp* sevlist count prevcount n specp
 	 lastelem lastcount)
@@ -859,7 +880,7 @@
      (when (null (setq arglist (cdr arglist)))
        (setq $piece exp)
        (return (cond (substflag (meval substitem))
-		     (dispflag (box exp dispflag))
+		     (dispflag (make-mbox-for-mpart exp dispflag))
 		     (t exp))))
      (cond ((not inflag)
 	    (cond ((or (and ($listp exp) (null (cdr arglist)))
@@ -909,7 +930,7 @@
 							  '(array))))
 				    (resimplify exp*))
 				   (dispflag
-				    (rplacd exp (cdr (box (copy-tree exp) dispflag)))
+				    (rplacd exp (cdr (make-mbox-for-mpart (copy-tree exp) dispflag)))
 				    (rplaca exp (if (eq dispflag t)
 						    '(mbox)
 						    '(mlabox)))
@@ -929,7 +950,7 @@
 					  (rplaca exp (meval substitem))
 					  (resimplify exp*))
 			       (dispflag (setq $piece (resimplify (car exp)))
-					 (rplaca exp (box (car exp) dispflag))
+					 (rplaca exp (make-mbox-for-mpart (car exp) dispflag))
 					 (resimplify exp*))
 			       (inflag (setq $piece (car exp)))
 			       (t (setq $piece (simplify (car exp))))))))
@@ -986,23 +1007,18 @@
 		 (return (cond (substflag (rplaca (nthcdr (1- lastcount) exp1)
 						  (meval substitem))
 					  (resimplify exp*))
-			       (dispflag (rplaca exp (box (car exp) dispflag))
+			       (dispflag (rplaca exp (make-mbox-for-mpart (car exp) dispflag))
 					 (resimplify exp*))
 			       (t $piece))))
 		(substflag (if (null (cdr exp)) (go err))
 			   (rplaca exp (cadr exp)) (rplacd exp (cddr exp)))
-		(dispflag (rplaca exp (box (car exp) dispflag))
+		(dispflag (rplaca exp (make-mbox-for-mpart (car exp) dispflag))
 			  (setq exp (cdr exp)))
 		(t (setq exp exp1)))
      (go sevloop)))
 
 (defun getop (x)
   (or (and (symbolp x) (get x 'op)) x))
-
-(defmfun $listp (x)
-  (and (not (atom x))
-       (not (atom (car x)))
-       (eq (caar x) 'mlist)))
 
 (defmfun $cons (x e)
   (atomchk (setq e (format1 e)) '$cons t)
@@ -1039,14 +1055,6 @@
   (if (eq (caar e) 'mqapply)
       (list* (delsimp (car e)) (cadr e) args)
       (cons (delsimp (car e)) args)))
-
-(defmfun $member (x e)
-  (atomchk (setq e ($totaldisrep e)) '$member t)
-  (if (memalike ($totaldisrep x) (margs e)) t))
-
-(defun atomchk (e fun 2ndp)
-  (if (or (atom e) (eq (caar e) 'bigfloat))
-      (merror (intl:gettext "~:M: ~Margument must be a non-atomic expression; found ~M") fun (if 2ndp "2nd " "") e)))
 
 (defun format1 (e)
   (cond (($listp e) e)
@@ -1214,7 +1222,7 @@
 	    
 (defmfun $float (e)
   (cond ((numberp e)
-	 (let ((e1 (float e))) (if (float-inf-p e1) (signal 'floating-point-overflow) e1)))
+	 (let ((e1 (float e))) (if (float-inf-p e1) (error 'floating-point-overflow) e1)))
 	((eq e '$%i)
 	 ;; Handle %i specially.
 	 (mul 1.0 '$%i))
@@ -1260,8 +1268,7 @@
 			      ($float `((%log) ,(third n)))))))
 		 ((complex-number-p n 'integerp)
 		  ;; float(log(n+m*%i)).
-		  (let ((re ($realpart n))
-			(im ($imagpart n)))
+		  (destructuring-bind (re . im) (trisplit n)
 		    (to (or (try-float-computation #'(lambda ()
 						       (log (complex (float re)
 								     (float im)))))
@@ -1277,11 +1284,12 @@
 		  ;;
 		  ;; where s = lcm(d1, d2), n and m are integers
 		  ;;
-		  (let* ((s (lcm ($denom ($realpart n))
-				 ($denom ($imagpart n))))
-			 (p ($expand (mul s n))))
+          (destructuring-bind (re . im) (trisplit n)
+		   (let* ((s (lcm ($denom re)
+			 	  ($denom im)))
+			      (p ($expand (mul s n))))
 		    (add ($float `((%log) ,s))
-			 ($float `((%log) ,p))))))))
+			 ($float `((%log) ,p)))))))))
 	((and (eq (caar e) '%erf)
 	      (eq (second e) '$%i))
 	 ;; Handle like erf(%i).  float(%i) (via recur-apply below)

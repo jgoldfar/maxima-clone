@@ -8,7 +8,7 @@
   ;; so longer signatures are tested first.
   ;; This really only makes a difference for UTF-16le vs UTF-32le,
   ;; but it is harmless in other cases.
-  (sort
+  (stable-sort
     '(((#xEF #xBB #xBF) . #+clisp charset:utf-8 #-clisp :utf-8)
 
       ((#xFE #xFF) . #+clisp charset:unicode-16-big-endian #+ecl :UCS-2BE #+cmucl :utf-16-be #-(or clisp ecl cmucl) :utf-16be)

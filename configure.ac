@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-dnl If git is available, the version number here is not used.  
+dnl If git is available, the version number here is not used.
 dnl Instead, git is used to derive the version based on the closest
 dnl annotated branch tag.
 dnl
@@ -8,7 +8,7 @@ dnl Note: during Lisp-based builds (see INSTALL.lisp) the version
 dnl number is read from the following AC_INIT line.  It's sensitive to
 dnl whitespace so when updating the version number only make changes
 dnl within the second pair of square brackets.
-AC_INIT([maxima], [5.47post])
+AC_INIT([maxima], [5.49post])
 AC_CONFIG_SRCDIR([src/macsys.lisp])
 AM_INIT_AUTOMAKE([-Wno-portability tar-ustar])
 
@@ -68,7 +68,8 @@ lisps_enabled=""
 
 dnl Compiling with abcl requires a jre and the path to abcl.jar
 AC_ARG_ENABLE(abcl,
-	[  --enable-abcl                Use abcl, requires --with-abcl-jar],
+	[AS_HELP_STRING([--enable-abcl],
+        [Use abcl, requires --with-abcl-jar])],
      	[case "${enableval}" in
        		yes) abcl=true 
 		     lisps_enabled="${lisps_enabled} abcl"
@@ -80,14 +81,16 @@ AC_ARG_ENABLE(abcl,
 	[abcl=false])
 ABCL_JAR=`pwd`/"abcl.jar"
 AC_ARG_WITH(abcl-jar,
-	[  --with-abcl-jar=<jarfile>    Use <jarfile> as abcl install (default ./abcl.jar)],
+	[AS_HELP_STRING([--with-abcl-jar=<jarfile>],
+        [Use <jarfile> as abcl install (default ./abcl.jar)])],
 	[abcl=true
 	lisps_enabled="${lisps_enabled} abcl"
 	explicit_lisp=true
 	ABCL_JAR="${withval}"])
 	
 AC_ARG_WITH(jre,
- 	[  --with-jre=<jre>             When compiling with abcl: use <jre> as Java interpreter],
+ 	[AS_HELP_STRING([--with-jre=<jre>],
+        [When compiling with abcl: use <jre> as Java interpreter])],
  	[JRE="${withval}"],
  	[JRE="java"])
 
@@ -102,7 +105,8 @@ fi
 dnl n.b. clisp_default_name is hardcoded in "with" message
 clisp_default_name=clisp
 AC_ARG_ENABLE(clisp,
-	[  --enable-clisp               Use clisp],
+	[AS_HELP_STRING([--enable-clisp],
+        [Use clisp])],
      	[case "${enableval}" in
        		yes) clisp=true 
 		     lisps_enabled="${lisps_enabled} clisp"
@@ -113,7 +117,8 @@ AC_ARG_ENABLE(clisp,
 	explicit_lisp=true],
 	[clisp=false])
 AC_ARG_WITH(clisp,
-	[  --with-clisp=<prog>          Use clisp executable <prog> (default clisp)],
+	[AS_HELP_STRING([--with-clisp=<prog>],
+        [Use clisp executable <prog> (default clisp)])],
 	[clisp=true
 	lisps_enabled="${lisps_enabled} clisp"
 	explicit_lisp=true
@@ -125,18 +130,20 @@ AC_ARG_WITH(clisp,
 	[CLISP_NAME=${clisp_default_name}])
 	CLISP_RUNTIME="lisp${CLISPEXT}"
 AC_ARG_WITH(clisp-runtime,
-	[  --with-clisp-runtime=<path>  Use clisp runtime <path> (default
+	[AS_HELP_STRING([--with-clisp-runtime=<path>],
+        [Use clisp runtime <path> (default
 	                          *lib-directory*/base/lisp.run on unix,
-	   		          *lib-directory*\\lisp.exe on windows) ],
+	   		          *lib-directory*\\lisp.exe on windows) ])],
 	[clisp=true
 	lisps_enabled="${lisps_enabled} clisp"
 	CLISP_RUNTIME_PATH="$withval"
 	CLISP_RUNTIME=`basename ${CLISP_RUNTIME_PATH}`],
 	[])
 AC_ARG_ENABLE(clisp-exec,
-	[  --enable-clisp-exec          Create a maxima executable image using CLISP.
+	[AS_HELP_STRING([--enable-clisp-exec],
+        [Create a maxima executable image using CLISP.
                                 No check is made if the version of 
-                                CLISP supports executable images],
+                                CLISP supports executable images])],
 	[case "${enableval}" in
 	    yes) clisp_exec=true 
                  clisp=true 
@@ -189,7 +196,8 @@ dnl n.b. cmucl_default_name is hardcoded in "with" message
 cmucl_default_name=lisp
 CMUCL_RUNTIME=lisp
 AC_ARG_ENABLE(cmucl,
-	[  --enable-cmucl               Use CMUCL],
+	[AS_HELP_STRING([--enable-cmucl],
+        [Use CMUCL])],
      	[case "${enableval}" in
        		yes) cmucl=true 
 		     lisps_enabled="${lisps_enabled} cmucl"
@@ -200,7 +208,8 @@ AC_ARG_ENABLE(cmucl,
 	explicit_lisp=true],
 	[cmucl=false])
 AC_ARG_WITH(cmucl,
-	[  --with-cmucl=<prog>          Use CMUCL executable <prog> (default lisp)],
+	[AS_HELP_STRING([--with-cmucl=<prog>],
+        [Use CMUCL executable <prog> (default lisp)])],
 	[cmucl=true
 	lisps_enabled="${lisps_enabled} cmucl"
 	explicit_lisp=true
@@ -211,17 +220,19 @@ AC_ARG_WITH(cmucl,
 	fi],
 	[CMUCL_NAME=${cmucl_default_name}])
 AC_ARG_WITH(cmucl-runtime,
-	[  --with-cmucl-runtime=<path>  Use CMUCL runtime <path> (default
-	                          *cmucl-lib*/../bin/lisp)],
+	[AS_HELP_STRING([--with-cmucl-runtime=<path>],
+        [Use CMUCL runtime <path> (default
+	                          *cmucl-lib*/../bin/lisp)])],
 	[cmucl=true
 	lisps_enabled="${lisps_enabled} cmucl"
 	CMUCL_RUNTIME_PATH="$withval"
 	CMUCL_RUNTIME=`basename ${CMUCL_RUNTIME_PATH}`],
 	[])
 AC_ARG_ENABLE(cmucl-exec,
-	[  --enable-cmucl-exec          Create a maxima executable image using CMUCL.
+	[AS_HELP_STRING([--enable-cmucl-exec],
+        [Create a maxima executable image using CMUCL.
                                 No check is made if the version of 
-                                CMUCL supports executable images],
+                                CMUCL supports executable images])],
 	[case "${enableval}" in
 	    yes) cmucl_exec=true
                  cmucl=true 
@@ -249,59 +260,11 @@ if test x"${cmucl}" = xtrue ; then
 	fi
 fi
 
-dnl n.b. scl_default_name is hardcoded in "with" message
-scl_default_name=scl
-SCL_RUNTIME=lisp
-AC_ARG_ENABLE(scl,
-	[  --enable-scl                 Use SCL],
-     	[case "${enableval}" in
-       		yes) scl=true 
-		     lisps_enabled="${lisps_enabled} scl"
-                     explicit_lisp=true ;;
-       		no)  scl=false ;;
-		*) AC_MSG_ERROR(bad value ${enableval} for --enable-scl) ;;
-     	esac
-	explicit_lisp=true],
-	[scl=false])
-AC_ARG_WITH(scl,
-	[  --with-scl=<prog>            Use SCL executable <prog> (default scl)],
-	[scl=true
-	lisps_enabled="${lisps_enabled} scl"
-	explicit_lisp=true
-	if test "$withval" = "yes"; then
-		SCL_NAME="${scl_default_name}"
-	else
-		SCL_NAME="$withval"
-	fi],
-	[SCL_NAME=${scl_default_name}])
-AC_ARG_WITH(scl-runtime,
-	[  --with-scl-runtime=<path>    Use SCL runtime <path> (default
-	                          file://library/../bin/lisp)],
-	[scl=true
-	lisps_enabled="${lisps_enabled} scl"
-	SCL_RUNTIME_PATH="$withval"
-	SCL_RUNTIME=`basename ${SCL_RUNTIME_PATH}`],
-	[])
-if test x"${scl}" = xtrue ; then
-	if test `echo "$SCL_NAME" | sed 's/\(.\).*/\1/'` = "/" ; then
-		if test -x "$SCL_NAME" ; then
-			scl_found=true
-		else
-			scl_found=false
-		fi
-	else
-		AC_CHECK_PROG(scl_found,$SCL_NAME,true,false)
-	fi
-	AC_CHECK_PROG(scl_found,$SCL_NAME,true,false)
-	if test x"${scl_found}" = xfalse ; then
-		AC_MSG_WARN(scl executable ${SCL_NAME} not found in PATH)
-	fi
-fi
-
 dnl n.b. sbcl_default_name is hardcoded in "with" message
 sbcl_default_name=sbcl
 AC_ARG_ENABLE(sbcl,
-	[  --enable-sbcl                Use SBCL],
+	[AS_HELP_STRING([--enable-sbcl],
+        [Use SBCL])],
      	[case "${enableval}" in
        		yes) sbcl=true 
 		     lisps_enabled="${lisps_enabled} sbcl"
@@ -312,7 +275,8 @@ AC_ARG_ENABLE(sbcl,
 	explicit_lisp=true],
 	[sbcl=false])
 AC_ARG_WITH(sbcl,
-	[  --with-sbcl=<prog>           Use SBCL executable <prog> (default sbcl)],
+	[AS_HELP_STRING([--with-sbcl=<prog>],
+        [Use SBCL executable <prog> (default sbcl)])],
 	[sbcl=true
 	lisps_enabled="${lisps_enabled} sbcl"
 	explicit_lisp=true
@@ -323,9 +287,10 @@ AC_ARG_WITH(sbcl,
 	fi],
 	[SBCL_NAME="${sbcl_default_name}"])
 AC_ARG_ENABLE(sbcl-exec,
-	[  --enable-sbcl-exec           Create a maxima executable image using SBCL.
+	[AS_HELP_STRING([--enable-sbcl-exec],
+        [Create a maxima executable image using SBCL.
                                 No check is made if the version of 
-                                SBCL supports executable images],
+                                SBCL supports executable images])],
 	[case "${enableval}" in
 	    yes) sbcl_exec=true 
                  sbcl=true 
@@ -356,7 +321,8 @@ fi
 dnl n.b. acl_default_name is hardcoded in "with" message
 acl_default_name=lisp
 AC_ARG_ENABLE(acl,
-	[  --enable-acl                 Use ACL],
+	[AS_HELP_STRING([--enable-acl],
+        [Use ACL])],
      	[case "${enableval}" in
        		yes) acl=true 
 		     lisps_enabled="${lisps_enabled} acl"
@@ -367,7 +333,8 @@ AC_ARG_ENABLE(acl,
 	explicit_lisp=true],
 	[acl=false])
 AC_ARG_WITH(acl,
-	[  --with-acl=<prog>            Use ACL executable <prog> (default lisp)],
+	[AS_HELP_STRING([--with-acl=<prog>],
+        [Use ACL executable <prog> (default lisp)])],
 	[acl=true
 	lisps_enabled="${lisps_enabled} acl"
 	explicit_lisp=true
@@ -396,7 +363,8 @@ fi
 dnl n.b. gcl_default_name is hardcoded in "with" message
 gcl_default_name=gcl
 AC_ARG_ENABLE(gcl,
-	[  --enable-gcl                 Use GCL],
+	[AS_HELP_STRING([--enable-gcl],
+        [Use GCL])],
      	[case "${enableval}" in
        		yes) gcl=true 
 		     lisps_enabled="${lisps_enabled} gcl"
@@ -406,7 +374,8 @@ AC_ARG_ENABLE(gcl,
      	esac],
 	[gcl=false])
 AC_ARG_WITH(gcl,
-	[  --with-gcl=<prog>            Use GCL executable <prog> (default gcl)],
+	[AS_HELP_STRING([--with-gcl=<prog>],
+        [Use GCL executable <prog> (default gcl)])],
 	[gcl=true
 	lisps_enabled="${lisps_enabled} gcl"
 	explicit_lisp=true
@@ -434,7 +403,8 @@ fi
 dnl n.b. openmcl_default_name is hardcoded in "with" message
 openmcl_default_name=openmcl
 AC_ARG_ENABLE(openmcl,
-	[  --enable-openmcl             Use OpenMCL],
+	[AS_HELP_STRING([--enable-openmcl],
+        [Use OpenMCL])],
      	[case "${enableval}" in
        		yes) openmcl=true 
 		     lisps_enabled="${lisps_enabled} openmcl"
@@ -444,7 +414,8 @@ AC_ARG_ENABLE(openmcl,
      	esac],
 	[openmcl=false])
 AC_ARG_WITH(openmcl,
-	[  --with-openmcl=<prog>        Use OpenMCL executable <prog> (default openmcl)],
+	[AS_HELP_STRING([--with-openmcl=<prog>],
+        [Use OpenMCL executable <prog> (default openmcl)])],
 	[openmcl=true
 	lisps_enabled="${lisps_enabled} openmcl"
 	explicit_lisp=true
@@ -455,9 +426,10 @@ AC_ARG_WITH(openmcl,
 	fi],
 	[OPENMCL_NAME=${openmcl_default_name}])
 AC_ARG_ENABLE(openmcl-exec,
-	[  --enable-openmcl-exec        Create a maxima executable image using OPENMCL.
+	[AS_HELP_STRING([--enable-openmcl-exec],
+        [Create a maxima executable image using OPENMCL.
                                 No check is made if the version of 
-                                OPENMCL supports executable images],
+                                OPENMCL supports executable images])],
 	[case "${enableval}" in
 	    yes) openmcl_exec=true
                  openmcl=true 
@@ -472,7 +444,8 @@ AC_ARG_ENABLE(openmcl-exec,
 
 dnl Define ccl as an alias (essentially) for openmcl
 AC_ARG_ENABLE(ccl,
-	[  --enable-ccl                 Use CCL (Clozure Common Lisp)],
+	[AS_HELP_STRING([--enable-ccl],
+        [Use CCL (Clozure Common Lisp)])],
      	[case "${enableval}" in
        		yes) openmcl=true 
 		     lisps_enabled="${lisps_enabled} openmcl"
@@ -482,7 +455,8 @@ AC_ARG_ENABLE(ccl,
      	esac],
 	[openmcl=false])
 AC_ARG_WITH(ccl,
-	[  --with-ccl=<prog>            Use OpenMCL executable <prog> (default ccl)],
+	[AS_HELP_STRING([--with-ccl=<prog>],
+        [Use OpenMCL executable <prog> (default ccl)])],
 	[openmcl=true
 	lisps_enabled="${lisps_enabled} openmcl"
 	explicit_lisp=true
@@ -493,9 +467,10 @@ AC_ARG_WITH(ccl,
 	fi],
 	[OPENMCL_NAME=${openmcl_default_name}])
 AC_ARG_ENABLE(ccl-exec,
-	[  --enable-ccl-exec            Create a maxima executable image using CCL.
+	[AS_HELP_STRING([--enable-ccl-exec],
+        [Create a maxima executable image using CCL.
                                 No check is made if the version of 
-                                CCL supports executable images],
+                                CCL supports executable images])],
 	[case "${enableval}" in
 	    yes) openmcl_exec=true
                  openmcl=true 
@@ -535,7 +510,7 @@ dnl       Are these checks (especially Windows, Linux PPC64) okay?
 dnl Probably at the end we could check if another - CCL64 unsupported - OS was used.
 dnl
 dnl of course the ccl directory needs to be in the path.
-dnl another possibilty would be to default to "ccl64", which is - MAYBE - a platform independent
+dnl another possibility would be to default to "ccl64", which is - MAYBE - a platform independent
 dnl startscript in /usr/local/bin.
 case "${host_os}" in
     *linux-powerpc64*)
@@ -559,7 +534,8 @@ case "${host_os}" in
 esac
 
 AC_ARG_ENABLE(ccl64,
-	[  --enable-ccl64               Use CCL (Clozure Common Lisp), 64-bit],
+	[AS_HELP_STRING([--enable-ccl64],
+        [Use CCL (Clozure Common Lisp), 64-bit])],
      	[case "${enableval}" in
        		yes) ccl64=true 
 		     lisps_enabled="${lisps_enabled} ccl64"
@@ -569,7 +545,8 @@ AC_ARG_ENABLE(ccl64,
      	esac],
 	[ccl64=false])
 AC_ARG_WITH(ccl64,
-	[  --with-ccl64=<prog>          Use ccl64 executable <prog> (default ${ccl64_default_name})],
+	[AS_HELP_STRING([--with-ccl64=<prog>],
+        [Use ccl64 executable <prog> (default ${ccl64_default_name})])],
 	[ccl64=true
 	lisps_enabled="${lisps_enabled} ccl64"
 	explicit_lisp=true
@@ -580,9 +557,10 @@ AC_ARG_WITH(ccl64,
 	fi],
 	[CCL64_NAME=${ccl64_default_name}])
 AC_ARG_ENABLE(ccl64-exec,
-	[  --enable-ccl64-exec          Create a maxima executable image using CCL.
+	[AS_HELP_STRING([--enable-ccl64-exec],
+        [Create a maxima executable image using CCL.
                                 No check is made if the version of 
-                                CCL supports executable images],
+                                CCL supports executable images])],
 	[case "${enableval}" in
 	    yes) ccl64_exec=true
                  ccl64=true 
@@ -598,7 +576,8 @@ AC_ARG_ENABLE(ccl64-exec,
 dnl n.b. ecl_default_name is hardcoded in "with" message
 ecl_default_name=ecl
 AC_ARG_ENABLE(ecl,
-	[  --enable-ecl                 Use ECL],
+	[AS_HELP_STRING([--enable-ecl],
+        [Use ECL])],
      	[case "${enableval}" in
        		yes) ecl=true 
 		     lisps_enabled="${lisps_enabled} ecl"
@@ -608,7 +587,8 @@ AC_ARG_ENABLE(ecl,
      	esac],
 	[ecl=false])
 AC_ARG_WITH(ecl,
-	[  --with-ecl=<prog>            Use ECL executable <prog> (default ecl)],
+	[AS_HELP_STRING([--with-ecl=<prog>],
+        [Use ECL executable <prog> (default ecl)])],
 	[ecl=true
 	lisps_enabled="${lisps_enabled} ecl"
 	explicit_lisp=true
@@ -635,7 +615,8 @@ fi
 
 dnl xgettext
 AC_ARG_ENABLE(gettext,
-	[  --enable-gettext             Locale support],
+	[AS_HELP_STRING([--enable-gettext],
+        [Locale support])],
 	[case "${enableval}" in
 	       yes) enable_gettext=true  ;;
  	       no)  enable_gettext=false ;;
@@ -647,7 +628,8 @@ AC_ARG_ENABLE(gettext,
 AM_CONDITIONAL(ENABLE_GETTEXT, test x$enable_gettext = xtrue)
 
 AC_ARG_ENABLE(build-docs,
-	[  --enable-build-docs        Execute make in doc directories],
+	[AS_HELP_STRING([--enable-build-docs],
+        [Execute make in doc directories])],
 	[case "${enableval}" in
 	       yes) enable_build_docs=true  ;;
  	       no)  enable_build_docs=false ;;
@@ -655,6 +637,34 @@ AC_ARG_ENABLE(build-docs,
 	 esac],
 	 [enable_build_docs=true])
 
+AC_ARG_ENABLE(syntax-highlighting,
+  [AS_HELP_STRING([--enable-syntax-highlighting],
+    [Enable syntax highlighting for the HTML manual (default = no).
+       Set to "highlightjs" to use highlightjs, "pygments" to use pygments or "custom-pygments" to use custom pygments styling.  No value implies highlightjs])],
+  [case "${enableval}" in
+          yes|highlightjs) syntax_highlighting=highlightjs ;;
+          pygments) syntax_highlighting=pygments ;;
+          custom-pygments) syntax_highlighting=custom-pygments ;;
+          no)  syntax_highlighting=false ;;
+          *) AC_MSG_ERROR(bad value ${enableval} for --enable-syntax-highlighting) ;;
+   esac],
+  [syntax_highlighting=false])
+
+AS_IF([test "x$syntax_highlighting" = "xpygments" || test "xsyntax_highlighting" = "xcustom-pygments"],
+  [AC_CHECK_PROG([pygmentize_found], [pygmentize],
+    true,
+    false)
+    AS_IF([test "x$pygmetize_found" = "xfalse"],
+      AC_MSG_FAILURE(
+        [--enable-syntax-highlighting set to "pygments" or "custom-pygments" but pygmentize not found]))])
+
+AS_IF([test "x$syntax_highlighting" = "xpygments"],
+  [AC_CHECK_PROG([pygmentize_found], [pygmentize],
+    true,
+    false)
+    AS_IF([test "x$pygmetize_found" = "xfalse"],
+      AC_MSG_FAILURE(
+        [--enable-syntax-highlighting set to "pygments" but pygmentize not found]))])
 
 AM_CONDITIONAL(ENABLE_BUILD_DOCS, test x$enable_build_docs = xtrue)
 
@@ -668,12 +678,123 @@ if test x"${enable_build_docs}" = xtrue ; then
 [makeinfo not found; Maxima needs makeinfo to build docs.
 If you have makeinfo installed somewhere not in PATH,
 specify where it is by using
-  ./configure MAKEINFO=/path/to/makinfo
+  ./configure MAKEINFO=/path/to/makeinfo
 Or disable building of the docs using
   ./configure --disable-build-docs
 ])
   fi
 fi
+
+dnl This function was created by Gemini because I was too lazy to
+dnl figure this out myself.
+
+# Description: Extracts and separates the components (N, M, P, and 'dev' suffix) 
+#              from version strings and sets them as global shell variables. 
+#              This version uses only basic POSIX shell features, including the 
+#              'test' command for all conditionals, and avoids Bash-specific 
+#              constructs like 'local', arrays, '[[ ... ]]', and the 'grep -o' option.
+#
+# Patterns supported:
+# 1. N.M.P (e.g., 5.2.10)
+# 2. N.M (e.g., 5.2, P defaults to 0)
+# 3. N.Mdev (e.g., 5.2dev, P defaults to 0)
+#
+
+VERSION_N=""
+VERSION_M=""
+VERSION_P=""
+VERSION_SUFFIX=""
+
+extract_version_from() {
+    # NOTE: All variables defined here (input_string, full_version, etc.) 
+    # will be set globally due to the absence of 'local'.
+    
+    input_string="$1"
+    
+    # 1. Clear global version variables for a clean start
+    VERSION_N=""
+    VERSION_M=""
+    VERSION_P=""
+    VERSION_SUFFIX=""
+
+    # Check for empty input using 'test'
+    if test -z "$input_string"; then
+        echo "Error: No input string provided." >&2
+        return 1
+    fi
+
+    # echo "--- Parsing: \"$input_string\" ---"
+
+    full_version=""
+    temp_match=""
+
+    
+    # PRIORITY 1: Try to extract the N.Mdev format (most specific)
+    # Basic RegEx pattern supports multi-digit N and M: [[0-9]][[0-9]]*\.[[0-9]][[0-9]]*dev
+    temp_match=$(echo "$input_string" | grep '[[0-9]][[0-9]]*\.[[0-9]][[0-9]]*dev' | head -n 1)
+
+    # Check if a dev version was found using 'test'
+    if test -n "$temp_match"; then
+        # Case 1: N.Mdev format found
+        
+        # Use sed to isolate the captured pattern: .* (junk before) (\(capture\)) .* (junk after)
+        full_version=$(echo "$temp_match" | sed 's/.*\([[0-9]][[0-9]]*\.[[0-9]][[0-9]]*dev\).*/\1/')
+        
+        # Set global variables
+        VERSION_N=$(echo "$full_version" | cut -d'.' -f1)
+        # Remove 'dev' before cutting the minor version
+        VERSION_M=$(echo "$full_version" | sed 's/dev$//' | cut -d'.' -f2)
+        VERSION_SUFFIX="dev"
+
+        # echo "Found: ${VERSION_N}.${VERSION_M}${VERSION_SUFFIX}. Variables set globally."
+
+    else
+        # PRIORITY 2: Try to extract N.M.P format (three components)
+        # Pattern for multi-digit N.M.P
+        temp_match=$(echo "$input_string" | grep '[[0-9]][[0-9]]*\.[[0-9]][[0-9]]*\.[[0-9]][[0-9]]*' | head -n 1)
+
+        # Check if N.M.P was found using 'test'
+        if test -n "$temp_match"; then
+            # Case 2a: N.M.P found. Isolate it with sed.
+            full_version=$(echo "$temp_match" | sed 's/.*\([[0-9]][[0-9]]*\.[[0-9]][[0-9]]*\.[[0-9]][[0-9]]*\).*/\1/')
+        else
+            # PRIORITY 3: If N.M.P not found, try to extract N.M format (two components)
+            # Pattern for multi-digit N.M
+            temp_match=$(echo "$input_string" | grep '[[0-9]][[0-9]]*\.[[0-9]][[0-9]]*' | head -n 1)
+
+            # Check if N.M was found using 'test'
+            if test -n "$temp_match"; then
+                # Case 2b: N.M found. Isolate it with sed.
+                full_version=$(echo "$temp_match" | sed 's/.*\([[0-9]][[0-9]]*\.[[0-9]][[0-9]]*\).*/\1/')
+            fi
+        fi
+        
+        # Check if any version was successfully isolated
+        if test -z "$full_version"; then
+            echo "Error: No matching version number found in: \"$input_string\"" >&2
+            return 1
+        fi
+
+        # Case 2: N.M.P or N.M format found
+        
+        # Set global variables
+        VERSION_N=$(echo "$full_version" | cut -d'.' -f1)
+        VERSION_M=$(echo "$full_version" | cut -d'.' -f2)
+        P_raw=$(echo "$full_version" | cut -d'.' -f3)
+        VERSION_P=${P_raw:-0} # Default P to 0 if not present
+        VERSION_SUFFIX="" # Ensure suffix is cleared
+
+        display_version="${VERSION_N}.${VERSION_M}"
+        # Use 'test' command for comparison
+        if test "$VERSION_P" != "0"; then
+            display_version="${display_version}.${VERSION_P}"
+        fi
+        
+        # echo "Found: ${display_version}. Variables set globally."
+    fi
+    
+    return 0
+}
 
 if test x"${enable_build_docs}" = xtrue ; then
     if test x"${makeinfo_found}" = xfalse ; then
@@ -684,50 +805,170 @@ if test x"${enable_build_docs}" = xtrue ; then
     dnl 'makeinfo --version' and extract out the version digits.
     makeinfo_old=false
     if test x"${makeinfo_found}" = xtrue; then
-	AC_MSG_CHECKING([if makeinfo version >= 5.1])
-	dnl expr is looking for something like "junk<digits-or-dots>"
-	dnl assuming that the end of the version string contains the
-	dnl version number consisting of digits separated by a period.
-	dnl This allows for version numbers like 6.8.90.
-	makeinfo_version_string=`expr "\`$MAKEINFO --version | head -1\`" : '.* \([[.0-9]][[.0-9]]*\)'`
-	dnl echo Makeinfo version ${makeinfo_version}
+	AC_MSG_CHECKING([if makeinfo version > 5.1])
+        dnl Extract the version number from makeinfo
+        extract_version_from "`$MAKEINFO --version | head -1`"
 
-	dnl From makeinfo_version, extract out the major and minor
-	dnl version numbers.  We only need the major and minor version
-	dnl numbers.
-	makeinfo_major=`expr $makeinfo_version_string : '\([[0-9]][[0-9]]*\)'`
-	makeinfo_minor=`expr $makeinfo_version_string : '[[0-9]][[0-9]]*\.\([[0-9]][[0-9]]*\)'`
+        makeinfo_major="${VERSION_N}"
+        makeinfo_minor="${VERSION_M}"
+        makeinfo_patch="${VERSION_P}"
+        makeinfo_version_string="${VERSION_N}.${VERSION_M}"
+        dnl Treat a suffix of dev as being patch 99.
+        if test -n "${VERSION_SUFFIX}"; then
+            makeinfo_patch=99
+            makeinfo_version_string="${makeinfo_version_string}${VERSION_SUFFIX}"
+        else
+            dnl Don't include the patch version if it's 0.
+            if test "${VERSION_P}" = "0"; then
+              makeinfo_version_string="${makeinfo_version_string}"
+            else
+              makeinfo_version_string="${makeinfo_version_string}.${VERSION_P}"
+            fi
+        fi
+
+        dnl echo string ${makeinfo_version_string}
 	dnl echo major ${makeinfo_major}
 	dnl echo minor ${makeinfo_minor}
+        dnl echo patch ${makeinfo_patch}
 
 	dnl Create a numerical version number by multiplying the major
-	dnl version by 100 and adding the minor version.  This assumes
-	dnl the minor version is always less than or equal to 99.
-	makeinfo_version=`expr ${makeinfo_major} \* 100 \+ ${makeinfo_minor}`
+	dnl version by 1000 and adding the 100 times minor version and
+	dnl adding the patch version.  This assumes the minor and
+	dnl patch version is always less than or equal to 99.
+        makeinfo_version=`expr ${makeinfo_major} \* 10000 \+ ${makeinfo_minor} \* 100 \+ ${makeinfo_patch}`
 	
-	dnl If version is older than 5.1, it's too old for generating
+	dnl If version is older than or equal to 5.1, it's too old for generating
 	dnl maxima docs.
-	if test ${makeinfo_version} -lt 501; then
+	if test ${makeinfo_version} -le 50100; then
 	    AC_MSG_ERROR([Makeinfo version (${makeinfo_version_string}) too old; consider --disable-build-docs])
 	else
             AC_MSG_RESULT([${makeinfo_version_string} (6.8 or later preferred)])
 	fi
 
+        dnl If makeinfo supports the classes for the navigation panel, enable
+        dnl CSS styling for the panel.  This support was added in 7.2.90.
+        if test ${makeinfo_version} -ge 70290; then
+           NAV_PANEL_CSS="$(cat | tr -s '\n' ' ' <<EOF
+<link rel="stylesheet"
+      type="text/css"
+      href="nav-panel.css">
+EOF
+)"
+        fi
+        
         dnl Enable JS highlighting of examples in the HTML docs.
         dnl The API has changed between 6.8 and 7.0, so we need to substitute the
         dnl the appropriate things.
-        if test ${makeinfo_version} -le 608; then
+        if test ${makeinfo_version} -le 60800; then
            TEXI_EXTRA_HEAD='$options->{"EXTRA_HEAD"} = '
            HLJS_CSS_SELECTOR="'pre.example'"
            TEXI_EXTRA_TAIL=''
         else
            TEXI_EXTRA_HEAD='texinfo_set_from_init_file("EXTRA_HEAD", '
-           HLJS_CSS_SELECTOR="'.example-preformatted'"
+           HLJS_CSS_SELECTOR="'.example.user-maxima .example-preformatted'"
            TEXI_EXTRA_TAIL=')'
         fi
+        if test x${syntax_highlighting} = xhighlightjs; then
+           dnl Update HIGHTLIGHT_VER, LIGHTMODE, and DARKMODE
+           dnl variables if we decide to change the version, the light
+           dnl mode style or the dark mode style.
+           CDN="https://cdnjs.cloudflare.com/ajax/libs/highlight.js"
+           HIGHLIGHT_VER="11.11.1"
+           HIGHLIGHTJS_HASH="sha512-EBLzUL8XLl+va/zAsmXwS7Z2B1F9HUHkZwyS/VKwh3S7T/U0nF4BaU29EP/ZSf6zgiIxYAnKLu6bJ8dqpmX5uw=="
+           MAXIMAJS_HASH="sha512-AhvLFkEPexok+HSQKpnwMdX1f0PVRUYera3PJV8u3lotioIqfR9ThqCEydkI7RkSjQNcJm/pQl15AgqWcufw1Q=="
+           LIGHTMODE="github.min.css"
+           LIGHTMODECSS_HASH="sha512-0aPQyyeZrWj9sCA46UlmWgKOP0mUipLQ6OZXu8l4IcAmD2u31EPEy9VcIMvl7SoAaKe8bLXZhYoMaE/in+gcgA=="
+           DARKMODE="github-dark.min.css"
+           DARKMODECSS_HASH="sha512-rO+olRTkcf304DQBxSWxln8JXCzTHlKnIdnMUwYvQa9/Jd4cQaNkItIUj6Z4nvW1dqK0SKXLbn9h4KwZTNtAyw=="
+           dnl Make sure HIGHLIGHT1 and HIGHLIGHT2 are all on one line
+           dnl because these variables are placed in the Makefile and
+           dnl make doesn't support multiple-line variable
+           dnl assignments.  Hence, use tr to remove newlines from the
+           dnl HERE document.  The HERE document makes it easier to read
+           dnl and understand what's being done.
+           HIGHLIGHT1="$(cat | tr -s '\n' ' ' <<EOF
+<link rel="stylesheet"
+      media="(prefers-color-scheme: light)"
+      href="$CDN/$HIGHLIGHT_VER/styles/$LIGHTMODE"
+      integrity="$LIGHTMODECSS_HASH"
+      crossorigin="anonymous">
+<link rel="stylesheet"
+      media="(prefers-color-scheme: dark)"
+      href="$CDN/$HIGHLIGHT_VER/styles/$DARKMODE"
+      integrity="$DARKMODECSS_HASH"
+      crossorigin="anonymous">
+<script src="$CDN/$HIGHLIGHT_VER/highlight.min.js"
+        integrity="$HIGHLIGHTJS_HASH"
+        crossorigin="anonymous">
+</script>
+<script src="$CDN/$HIGHLIGHT_VER/languages/maxima.min.js"
+        integrity="$MAXIMAJS_HASH"
+        crossorigin="anonymous">
+</script>
+EOF
+)"
+           HIGHLIGHT2="$(cat | tr -s '\n' ' ' <<EOF
+<script>
+  hljs.configure({languages: [['Maxima']],
+                  cssSelector: ${HLJS_CSS_SELECTOR}});
+  hljs.highlightAll();
+</script>
+EOF
+)"
+        fi
+        if test x${syntax_highlighting} = xpygments; then
+           if test ${makeinfo_version} -ge 70200; then
+             USE_PYGMENTS=true
+           else
+             AC_MSG_ERROR([Makeinfo version (${makeinfo_version_string}) too old to use pygments for syntax highlighting.  Disable or use highlightjs])
+           fi
+           CUSTOM_PYGMENTS_CSS="$(cat | tr -s '\n' ' ' <<EOF
+<link rel="stylesheet"
+      type="text/css"
+      href="pygments.custom.css">
+EOF
+)"
+        fi
+        if test x${syntax_highlighting} = "xcustom-pygments"; then
+           if test ${makeinfo_version} -lt 70290; then
+             AC_MSG_ERROR([Makeinfo version (${makeinfo_version_string}) too old to use custom-pygments for syntax highlighting.  Disable or use highlightjs or pygments])
+           else  
+             dnl This tells build_html.sh to use a custom call to
+             dnl pgymentize so that we can use the style sheets we want.
+             USE_CUSTOM_HILITE=true
+
+             dnl To create these style sheets, do
+             dnl
+             dnl    pygmentize -O classprefix=pyg- -S default -f html > pygments.light.css
+             dnl    pygmentize -O classprefix=pyg- -S rrt -f html > pygments.dark.css
+             dnl
+             dnl Change "default" and "rrt" to choose different styles
+             dnl for light and dark modes, respectively.
+             CUSTOM_PYGMENTS_CSS="$(cat | tr -s '\n' ' ' <<EOF
+<link rel="stylesheet"
+      type="text/css"
+      href="pygments.light.css"
+      media="(prefers-color-scheme: light)">
+<link rel="stylesheet"
+      type="text/css"
+      href="pygments.dark.css"
+      media="(prefers-color-scheme: dark)">
+<link rel="stylesheet"
+      type="text/css"
+      href="pygments.custom.css">
+EOF
+)"
+           fi
+        fi
         AC_SUBST(TEXI_EXTRA_HEAD)
-        AC_SUBST(HLJS_CSS_SELECTOR)
         AC_SUBST(TEXI_EXTRA_TAIL)
+	AC_SUBST(HIGHLIGHT1)
+	AC_SUBST(HIGHLIGHT2)
+        AC_SUBST(USE_PYGMENTS)
+        AC_SUBST(USE_CUSTOM_HILITE)
+        AC_SUBST(CUSTOM_PYGMENTS)
+        AC_SUBST(CUSTOM_PYGMENTS_CSS)
+        AC_SUBST(NAV_PANEL_CSS)
         TEXI2HTML=texi2html.init
         AC_SUBST(TEXI2HTML)
 
@@ -735,12 +976,12 @@ if test x"${enable_build_docs}" = xtrue ; then
 	dnl need to include MathJax ourselves when building the HTML
 	dnl files.
 	need_mathjax=false
-	if test ${makeinfo_version} -le 608; then
+	if test ${makeinfo_version} -le 60800; then
 	    need_mathjax=true
 	fi
 	if test x"${need_mathjax}" = xtrue; then
             dnl Need to include Mathjax.
-	    NEED_MATHJAX='<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>'
+	    NEED_MATHJAX='<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" integrity="sha384-Wuix6BuhrWbjDBs24bXrjf4ZQ5aFeFWBuKkFekO2t8xFU0iNaLQfp2K6/1Nxveei" crossorigin="anonymous"></script>'
 	    dnl This also means that makeinfo doesn't support
 	    dnl @displaymath, so we need to do something else.
 	    NO_DISPLAYMATH='true'
@@ -752,7 +993,8 @@ fi
 
 dnl languages
 AC_ARG_ENABLE(lang-de,
-	[  --enable-lang-de             German language support],
+	[AS_HELP_STRING([--enable-lang-de],
+        [German language support])],
      	[case "${enableval}" in
        		yes) lang_de=true  ;;
        		no)  lang_de=false ;;
@@ -763,7 +1005,8 @@ AC_ARG_ENABLE(lang-de,
 AM_CONDITIONAL(LANG_DE, test x$lang_de = xtrue)
 
 AC_ARG_ENABLE(lang-ja,
-	[  --enable-lang-ja             Japanese language support],
+	[AS_HELP_STRING([--enable-lang-ja],
+        [Japanese language support])],
      	[case "${enableval}" in
        		yes) lang_ja=true  ;;
        		no)  lang_ja=false ;;
@@ -774,7 +1017,8 @@ AC_ARG_ENABLE(lang-ja,
 AM_CONDITIONAL(LANG_JA, test x$lang_ja = xtrue)
 
 AC_ARG_ENABLE(lang-es,
-	[  --enable-lang-es             Spanish language support],
+	[AS_HELP_STRING([--enable-lang-es],
+        [Spanish language support])],
      	[case "${enableval}" in
        		yes) lang_es=true  ;;
        		no)  lang_es=false ;;
@@ -786,7 +1030,8 @@ AC_SUBST(lang_es)
 AM_CONDITIONAL(LANG_ES, test x$lang_es = xtrue)
 
 AC_ARG_ENABLE(lang-pt,
-	[  --enable-lang-pt             Portuguese language support],
+	[AS_HELP_STRING([--enable-lang-pt],
+        [Portuguese language support])],
      	[case "${enableval}" in
        		yes) lang_pt=true  ;;
        		no)  lang_pt=false ;;
@@ -798,7 +1043,8 @@ AC_SUBST(lang_pt)
 AM_CONDITIONAL(LANG_PT, test x$lang_pt = xtrue)
 
 AC_ARG_ENABLE(lang-pt_BR,
-	[  --enable-lang-pt_BR          Brazilian Portuguese language support],
+	[AS_HELP_STRING([--enable-lang-pt_BR],
+        [Brazilian Portuguese language support])],
      	[case "${enableval}" in
        		yes) lang_pt_br=true  ;;
        		no)  lang_pt_br=false ;;
@@ -810,7 +1056,8 @@ AC_SUBST(lang_pt_br)
 AM_CONDITIONAL(LANG_PT_BR, test x$lang_pt_br = xtrue)
 
 AC_ARG_ENABLE(lang-ru,
-	[  --enable-lang-ru             Russian language support],
+	[AS_HELP_STRING([--enable-lang-ru],
+        [Russian language support])],
      	[case "${enableval}" in
        		yes) lang_ru=true  ;;
        		no)  lang_ru=false ;;
@@ -823,7 +1070,8 @@ AM_CONDITIONAL(LANG_RU, test x$lang_ru = xtrue)
 dnl Optionally build the windows CHM help files
 dnl default to false as requires win32 and Microsoft HTML Help Workshop
 AC_ARG_ENABLE(chm,
-  [  --enable-chm                 Build Windows CHM help files],
+  [AS_HELP_STRING([--enable-chm],
+  [Build Windows CHM help files])],
   [case "${enableval}" in
        		yes) chm=true ;;
        		no)  chm=false ;;
@@ -834,7 +1082,8 @@ AM_CONDITIONAL(CHM, test x$chm = xtrue)
 dnl hhc is the HTML Help Compiler for CHM documentation
 hhc_default_name=hhc$EXEEXT
 AC_ARG_WITH(hhc,
-	[  --with-hhc=<prog>            Use HTML Help Compiler executable <prog> (default hhc)],
+	[AS_HELP_STRING([--with-hhc=<prog>],
+        [Use HTML Help Compiler executable <prog> (default hhc)])],
 	[hhc=true
 	if test "$withval" = "yes"; then
 		HHC="${hhc_default_name}"
@@ -861,7 +1110,8 @@ fi
 
 dnl Make the build quiet
 AC_ARG_ENABLE(quiet_build,
-  [  --enable-quiet-build         Make the build quieter],
+  [AS_HELP_STRING([--enable-quiet-build],
+  [Make the build quieter])],
   [case "${enableval}" in
      yes) quiet_build=true ;;
      no)  quiet_build=false ;;
@@ -873,7 +1123,8 @@ AM_CONDITIONAL(QUIET_BUILD, test x${quiet_build} = xtrue)
 dnl Optionally build xmaxima.exe under windows
 dnl default to false as additional software
 AC_ARG_ENABLE(xmaxima_exe,
-  [  --enable-xmaxima-exe         Build Windows xmaxima.exe for installer],
+  [AS_HELP_STRING([--enable-xmaxima-exe],
+  [Build Windows xmaxima.exe for installer])],
   [case "${enableval}" in
        		yes) xmaxima_exe=true ;;
        		no)  xmaxima_exe=false ;;
@@ -885,7 +1136,8 @@ AM_CONDITIONAL(XMAXIMA_EXE, test x$xmaxima_exe = xtrue)
 dnl Optionally build winkill.exe under windows
 dnl default to false as additional software
 AC_ARG_ENABLE(winkill_exe,
-  [  --enable-winkill             Build Windows winkill.exe and winkill_lib.dll for installer],
+  [AS_HELP_STRING([--enable-winkill],
+  [Build Windows winkill.exe and winkill_lib.dll for installer])],
   [case "${enableval}" in
        		yes) winkill_exe=true ;;
        		no)  winkill_exe=false ;;
@@ -896,7 +1148,8 @@ AM_CONDITIONAL(WINKILL_EXE, test x$winkill_exe = xtrue)
 
 dnl Should we build a win64 installer?
 AC_ARG_ENABLE(win64-installer,
-  [  --enable-win64-installer     Build a 64bit installer on Windows],
+  [AS_HELP_STRING([--enable-win64-installer],
+  [Build a 64bit installer on Windows])],
   [case "${enableval}" in
                 yes) win64_installer=true ;;
                 no) win64_installer=false ;;
@@ -931,7 +1184,6 @@ if test x"${explicit_lisp}" = xfalse ; then
   	AC_CHECK_PROG(clisp_found,${clisp_default_name},true,false)
 	AC_CHECK_PROG(gcl_found,${gcl_default_name},true,false)
 	AC_CHECK_PROG(cmucl_found,$CMUCL_NAME,true,false)
-	AC_CHECK_PROG(scl_found,$SCL_NAME,true,false)
 	AC_CHECK_PROG(sbcl_found,$SBCL_NAME,true,false)
 	AC_CHECK_PROG(acl_found,$ACL_NAME,true,false)
 	AC_CHECK_PROG(openmcl_found,$OPENMCL_NAME,true,false)
@@ -950,10 +1202,6 @@ if test x"${explicit_lisp}" = xfalse ; then
 		cmucl=true
 		lisps_enabled="${lisps_enabled} cmucl"
 	fi
-	if test x"${scl_found}" = xtrue ; then
-		scl=true
-		lisps_enabled="${lisps_enabled} scl"
-	fi
 	if test x"${sbcl_found}" = xtrue ; then
 	   	sbcl=true
 		lisps_enabled="${lisps_enabled} sbcl"
@@ -967,7 +1215,7 @@ if test x"${explicit_lisp}" = xfalse ; then
 		lisps_enabled="${lisps_enabled} ecl"
 	fi
 	if test x"${lisps_enabled}" = x; then
-		AC_MSG_ERROR(No lisp implementation specified and none of the default executables [${clisp_default_name}(clisp),${gcl_default_name}(GCL),${cmucl_default_name}(CMUCL),${scl_default_name}(SCL),${sbcl_default_name}(SBCL),${acl_default_name}(ACL),${openmcl_default_name}(OpenMCL),${ecl_default_name}(ECL)] were found in PATH)
+		AC_MSG_ERROR(No lisp implementation specified and none of the default executables [${clisp_default_name}(clisp),${gcl_default_name}(GCL),${cmucl_default_name}(CMUCL),${sbcl_default_name}(SBCL),${acl_default_name}(ACL),${openmcl_default_name}(OpenMCL),${ecl_default_name}(ECL)] were found in PATH)
 	fi
 fi
 
@@ -977,7 +1225,6 @@ AM_CONDITIONAL(CLISP_EXEC, test x$clisp_exec = xtrue)
 AM_CONDITIONAL(GCL, test x$gcl = xtrue)
 AM_CONDITIONAL(CMUCL, test x$cmucl = xtrue)
 AM_CONDITIONAL(CMUCL_EXEC, test x${cmucl_exec} = xtrue)
-AM_CONDITIONAL(SCL, test x$scl = xtrue)
 AM_CONDITIONAL(SBCL, test x$sbcl = xtrue)
 AM_CONDITIONAL(SBCL_EXEC, test x$sbcl_exec = xtrue)
 AM_CONDITIONAL(ACL, test x$acl = xtrue)
@@ -1041,30 +1288,6 @@ flag.)
    fi
 fi
 
-if test x"${scl}" = xtrue; then
-    if test x"${SCL_RUNTIME_PATH}" = x"" ; then
-        SCL_RUNTIME_PATH=`${SCL_NAME} -noinit -nositeinit -quiet -batch -eval '(progn (enumerate-pathname-translations (pathname "file://library/../bin/lisp") (when (probe-file pathname) (format t "~A~%" (unix-namestring pathname)))) (quit))'`
-    fi
-    if test -x "${SCL_RUNTIME_PATH}" ; then
-        echo "scl runtime is \"${SCL_RUNTIME_PATH}\""
-    else
-dnl last chance: find SCL_NAME in path. Use it if it doesn't appear to
-dnl be a shell script.
-	scl_path=`type -p "${SCL_NAME}"`
-	if test x"`grep -c '#!.*bin.*sh.*' ${scl_path}`" = x"0" ; then
-	   	SCL_RUNTIME_PATH="${scl_path}"
-	else
-		AC_MSG_ERROR([Unable to determine SCL runtime path.
-The best guess for SCL runtime, "${SCL_RUNTIME_PATH}", is not
-an executable. Use the argument
-   --with-scl-runtime=<path>
-to set the actual SCL executable. If the SCL lisp command is a shell
-script the SCL executable is the program exec'd by that shell script.])
-	fi
-    fi
-    SCL_RUNTIME=`basename ${SCL_RUNTIME_PATH}`
-fi
-
 if test x"${gcl}" = xtrue; then
    AC_MSG_CHECKING([if gcl version >= 2.6.14])
    dnl Check gcl version
@@ -1102,7 +1325,8 @@ The gcl ANSI-CL check returned
 fi
 
 AC_ARG_ENABLE(gcl-alt-link,
-	[  --enable-gcl-alt-link        Use GCL's alternate linking mechanism],
+	[AS_HELP_STRING([--enable-gcl-alt-link],
+        [Use GCL's alternate linking mechanism])],
      	[case "${enableval}" in
        		yes) gcl_alt_link=true ;;
        		no)  gcl_alt_link=false ;;
@@ -1113,7 +1337,8 @@ AC_ARG_ENABLE(gcl-alt-link,
 AM_CONDITIONAL(GCL_ALT_LINK, test x$gcl_alt_link = xtrue)
 
 AC_ARG_WITH(default-lisp,
-	[  --with-default-lisp=<lisp>   Set default lisp implementation to <lisp>],
+	[AS_HELP_STRING([--with-default-lisp=<lisp>],
+        [Set default lisp implementation to <lisp>])],
      	[case "${withval}" in
        		clisp)
 			if test x"${clisp}" = xtrue ; then
@@ -1127,13 +1352,6 @@ AC_ARG_WITH(default-lisp,
 				DEFAULTLISP=cmucl
 			else
 				AC_MSG_ERROR(cmucl not enabled)
-			fi
-			;;
-		scl)
-			if test x"${scl}" = xtrue ; then
-				DEFAULTLISP=scl
-			else
-				AC_MSG_ERROR(scl not enabled)
 			fi
 			;;
 		sbcl)
@@ -1193,8 +1411,6 @@ AC_ARG_WITH(default-lisp,
 		DEFAULTLISP=sbcl
 	elif test x"${cmucl}" = xtrue ; then
 		DEFAULTLISP=cmucl
-	elif test x"${scl}" = xtrue ; then
-		DEFAULTLISP=scl
 	elif test x"${clisp}" = xtrue ; then
 	   	DEFAULTLISP=clisp
 	elif test x"${gcl}" = xtrue ; then
@@ -1236,12 +1452,14 @@ AC_SUBST(ABCL_JAR)
 AC_SUBST(JRE)
 
 AC_ARG_WITH(posix-shell,
-	[  --with-posix-shell=<path>    Use <shell> for maxima script (default /bin/sh)],
+	[AS_HELP_STRING([--with-posix-shell=<path>],
+        [Use <shell> for maxima script (default /bin/sh)])],
 	[posix_shell_list="${withval}"],
 	[posix_shell_list="/bin/sh /bin/bash /usr/bin/bash /usr/local/bin/bash"])
 
 AC_ARG_WITH(wish,
-	[  --with-wish=<prog>           Use <prog> for Tk wish shell (default wish)],
+	[AS_HELP_STRING([--with-wish=<prog>],
+        [Use <prog> for Tk wish shell (default wish)])],
 	[WISH="${withval}"],
 	[WISH="wish"])
 AC_SUBST(WISH)
@@ -1308,10 +1526,12 @@ AC_SUBST(default_layout_autotools)
 AC_SUBST(LDFLAGS)
 
 AC_ARG_WITH(emacs-prefix,
-	[  --emacs-prefix=<path>        Where to install the emacs modes to],
+	[AS_HELP_STRING([--emacs-prefix=<path>],
+        [Where to install the emacs modes to])],
 	[EMACSDIR="$withval"],
 	[EMACSDIR="${datarootdir}/emacs/site-lisp"])
 AC_SUBST(EMACSDIR)
+
 
 dnl Tell defsystem that this isn't a lisp-only build
 lisp_only_build="nil"
@@ -1355,6 +1575,7 @@ doc/info/figures/Makefile \
 doc/info/de/Makefile \
 doc/info/de/include-maxima.texi \
 doc/info/es/Makefile \
+doc/info/es/include-maxima.texi \
 doc/info/ja/Makefile \
 doc/info/ja/include-maxima.texi \
 doc/info/pt_BR/include-maxima.texi \
@@ -1365,21 +1586,31 @@ doc/info/ru/Makefile \
 doc/info/ru/include-maxima.texi \
 doc/intromax/Makefile doc/man/Makefile doc/man/maxima.1 doc/man/ru/Makefile doc/man/ru/maxima.1 doc/man/de/Makefile doc/man/de/maxima.1 \
 doc/share/Makefile interfaces/Makefile interfaces/emacs/Makefile \
-interfaces/emacs/emaxima/Makefile interfaces/emacs/imaxima/Makefile \
+interfaces/emacs/emaxima/Makefile \
+interfaces/emacs/imaxima/Makefile \
+interfaces/emacs/imaxima/doc/Makefile \
 interfaces/emacs/misc/Makefile interfaces/xmaxima/Makefile \
 interfaces/xmaxima/autoconf-variables.tcl interfaces/xmaxima/Tkmaxima/Header.tcl \
 interfaces/xmaxima/doc/Makefile interfaces/xmaxima/doc/figures/Makefile \
 interfaces/xmaxima/msgs/Makefile interfaces/xmaxima/win32/Makefile \
-plotting/mgnuplot share/Makefile demo/Makefile plotting/Makefile locale/Makefile \
+share/Makefile demo/Makefile locale/Makefile \
 share/contrib/Makefile
 share/contrib/guess/Makefile \
+share/contrib/guess/doc/Makefile \
 share/contrib/integration/Makefile \
+share/contrib/integration/doc/Makefile \
 share/contrib/lurkmathml/Makefile \
+share/contrib/lurkmathml/doc/Makefile \
 share/contrib/maxima-odesolve/Makefile \
+share/contrib/maxima-odesolve/doc/Makefile \
 share/contrib/symplectic_ode/Makefile \
+share/contrib/symplectic_ode/doc/Makefile \
 share/nelder_mead/Makefile \
+share/nelder_mead/doc/Makefile \
 share/raddenest/Makefile \
-share/draw/Makefile share/logic/Makefile  doc/info/es/include-maxima.texi \
+share/raddenest/doc/Makefile \
+share/draw/Makefile share/logic/Makefile \
+share/draw/doc/Makefile share/logic/doc/Makefile \
 src/lisp])
 AC_OUTPUT
 
@@ -1417,14 +1648,10 @@ if test x"${cmucl}" = xtrue ; then
 		echo Use "--enable-cmucl-exec to build a standalone executable instead."
 	fi
 fi
-if test x"${scl}" = xtrue ; then
-	echo "SCL enabled, using \"${SCL_NAME}\""
-	echo "SCL runtime is \"${SCL_RUNTIME_PATH}\""
-fi
 if test x"${sbcl}" = xtrue ; then
-   	echo "Compiling a maxima image using \"${SBCL_NAME}\""
+	echo "Compiling a maxima image using \"${SBCL_NAME}\""
 	if test x"${sbcl_exec}" = xtrue ; then
-	   	echo "sbcl executable image enabled for maxima."
+		echo "sbcl executable image enabled for maxima."
 	else
 		echo Use "--enable-sbcl-exec to build a standalone executable instead."
 	fi
@@ -1507,3 +1734,13 @@ if test x"${xmaxima_exe}" = xtrue ; then
      AC_MSG_WARN([A prerequisite for xmaxima.exe not found.  The missing components can be defined on the make command line.])
    fi
 fi
+
+if test -n "x$MAKEINFO"; then
+  echo "Using makeinfo ${MAKEINFO} to generate docs"
+fi
+
+if test "x${syntax_highlighting}" = "xfalse"; then
+  echo "HTML syntax highlighting disabled"
+else
+  echo "HTML syntax highlighting enabled using ${syntax_highlighting}"
+fi  

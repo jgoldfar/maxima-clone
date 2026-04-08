@@ -627,7 +627,12 @@
   (cond ((atom exp)
 	 (sp1atrig2 fn exp))
 	((eq fn (zl-get (caar exp) '$inverse))
-	 (sp1 (cadr exp)))
+	 ;; Punt to general simplifier, which has fairly extensive and more careful treatment of trig inverses.
+     ;; Start over with SP1 only if it looks like the simplifier was able to do something.
+     (let*
+       ((fn-exp (list (list fn) exp))
+        (fn-exp-1 (resimplify fn-exp)))
+       (if (alike1 fn-exp-1 fn-exp) fn-exp (sp1 fn-exp-1))))
 	(t (sp1atrig2 fn exp))))
 
 (defun sp1atrig2 (fn exp)

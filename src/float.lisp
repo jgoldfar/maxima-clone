@@ -46,13 +46,6 @@
 
 (defvar *decfp nil)
 
-;; FIXME:  These don't appear to be used anywhere.  Remove these.
-(defvar max-bfloat-%pi bigfloat%pi)
-(defvar max-bfloat-%e  bigfloat%e)
-(defvar max-bfloat-%gamma bigfloat%gamma)
-(defvar max-bfloat-log2 bigfloat_log2)
-
-
 (declare-top (special *cancelled $bfloat))
 
 ;; Representation of a Bigfloat:  ((BIGFLOAT SIMP precision) mantissa exponent)
@@ -73,10 +66,10 @@
   (if (or (not (fixnump q)) (< q 1))
       (merror (intl:gettext "fpprec: value must be a positive integer; found: ~M") q))
   (setq fpprec (+ 2 (integer-length (expt 10. q)))
-	bigfloatone ($bfloat 1)
-	bigfloatzero ($bfloat 0)
-	bfhalf (list (car bigfloatone) (cadr bigfloatone) 0)
-	bfmhalf (list (car bigfloatone) (- (cadr bigfloatone)) 0))
+	*bigfloatone* ($bfloat 1)
+	*bigfloatzero* ($bfloat 0)
+	*bfhalf* (list (car *bigfloatone*) (cadr *bigfloatone*) 0)
+	*bfmhalf* (list (car *bigfloatone*) (- (cadr *bigfloatone*)) 0))
   q)
 
 ;; FPSCAN is called by lexical scan when a
@@ -588,26 +581,17 @@
 		     (rplaca y (* -1 (car y))))
 		    (t (fpration1 x))))
     (when $ratprint
-      (princ "`rat' replaced ")
-      (when sign (princ "-"))
-      (princ (maknam (fpformat (cons (car x) (fpabs (cdr x))))))
-      (princ " by ")
-      (princ (car exp))
-      (write-char #\/)
-      (princ (cdr exp))
-      (princ " = ")
-      (setq x ($bfloat (list '(rat simp) (car exp) (cdr exp))))
-      (when sign (princ "-"))
-      (princ (maknam (fpformat (cons (car x) (fpabs (cdr x))))))
-      (terpri)
-      (finish-output))
+      (let ((sign-str (if sign "-" "")))
+        (mtell (intl:gettext "~&rat: replaced ~A~A by") sign-str (maknam (fpformat (cons (car x) (fpabs (cdr x))))))
+        (setq x ($bfloat (list '(rat simp) (car exp) (cdr exp))))
+        (mtell " ~A/~A = ~A~A~%" (car exp) (cdr exp) sign-str (maknam (fpformat (cons (car x) (fpabs (cdr x))))))))
     exp))
 
 (defun fpration1 (x)
   (let ((fprateps (cdr ($bfloat (if $bftorat
 				    (list '(rat simp) 1 (exptrl 2 (1- fpprec)))
 				    $ratepsilon)))))
-    (or (and (equal x bigfloatzero) (cons 0 1))
+    (or (and (equal x *bigfloatzero*) (cons 0 1))
 	(prog (y a)
 	   (return (do ((xx x (setq y (invertbigfloat
 				       (bcons (fpdifference (cdr xx) (cdr ($bfloat a)))))))
@@ -642,9 +626,16 @@
 (defun extreme-float-values (x)
   ;; BLECHH, I HATE ENUMERATING CASES. IS THERE A BETTER WAY ??
   (typecase x ;gcl returns an atomic list type with type-of
+    ;; The main purpose of the #+ read-time conditionals is to prevent
+    ;; compiler warnings on Lisp implementations that don't have distinct types
+    ;; for all floating point types defined by Common Lisp.
+;;    #+has-distinct-short-float
     (short-float (values most-negative-short-float most-positive-short-float))
+;;    #+has-distinct-single-float
     (single-float (values most-negative-single-float most-positive-single-float))
+;;    #+has-distinct-double-float
     (double-float (values most-negative-double-float most-positive-double-float))
+;;    #+has-distinct-long-float
     (long-float (values most-negative-long-float most-positive-long-float))
     ;; NOT SURE THE FOLLOWING REALLY WORKS
     ;; #+(and cmu double-double)
@@ -714,8 +705,18 @@
 ;; always be a positive power of 2, this number will not always be in lowest
 ;; terms.
 
+(defvar *bfloat-header* nil
+  "Current header ('BIGFLOAT 'SIMP FPPREC) for new bigfloats")
+
+(defvar *bfloat-header-prec* nil
+  "Precision of current bigfloat header")
+
 (defun bcons (s)
-  `((bigfloat simp ,fpprec) . ,s))
+  (unless (eql fpprec *bfloat-header-prec*)
+    ;; Precision was changed, make a new header.
+    (setq *bfloat-header* `(bigfloat simp ,fpprec)
+          *bfloat-header-prec* fpprec))
+  (cons *bfloat-header* s))
 
 (defmfun ($bfloat :properties ((evfun t))) (x)
   (let (y)
@@ -760,7 +761,7 @@
                       ;; that and signal a domain error if so.  There
                       ;; are no other bfloat values where tan(x) or
                       ;; sin(x) is zero.
-                      (when (equal (second x) bigfloatzero)
+                      (when (equal (second x) *bigfloatzero*)
                         (domain-error (second x) (caar x)))
 		      (invertbigfloat
 		       ($bfloat (list (ncons (safe-get (caar x) 'recip)) y))))
@@ -780,7 +781,7 @@
 
 (defun addbigfloat (h)
   (prog (fans tst r nfans)
-     (setq fans (setq tst bigfloatzero) nfans 0)
+     (setq fans (setq tst *bigfloatzero*) nfans 0)
      (do ((l h (cdr l)))
 	 ((null l))
        (cond ((setq r (bigfloatp (car l)))
@@ -1214,7 +1215,7 @@
 ;; value because 1 is always an exact bfloat.
 (defun fpone ()
   (cond (*decfp (intofp 1))
-	((= fpprec (bigfloat-prec bigfloatone)) (cdr bigfloatone))
+	((= fpprec (bigfloat-prec *bigfloatone*)) (cdr *bigfloatone*))
 	(t (intofp 1))))
 
 ;;----------------------------------------------------------------------------;;
@@ -1721,9 +1722,9 @@
 		 (power -1 n))
 	       (exptbigfloat (bcons (fpminus (cdr p))) n)))
 	((and (< (cadr p) 0) (not (integerp n)))
-	 (cond ((or (equal n 0.5) (equal n bfhalf))
+	 (cond ((or (equal n 0.5) (equal n *bfhalf*))
 		(exptbigfloat p '((rat simp) 1 2)))
-	       ((or (equal n -0.5) (equal n bfmhalf))
+	       ((or (equal n -0.5) (equal n *bfmhalf*))
 		(exptbigfloat p '((rat simp) -1 2)))
 	       (($bfloatp (setq n ($bfloat n)))
 		(cond ((equal n ($bfloat (fpentier n)))
@@ -2185,7 +2186,7 @@
     (cond ((minusp (car fp-x))
 	   ;; asin(-x) = -asin(x);
 	   (mul -1 (fpasin (bcons (fpminus fp-x)))))
-	  ((fplessp fp-x (cdr bfhalf))
+	  ((fplessp fp-x (cdr *bfhalf*))
 	   ;; 0 <= x < 1/2
 	   ;; asin(x) = atan(x/sqrt(1-x^2))
 	   (bcons
@@ -2341,17 +2342,17 @@
 	   (multiple-value-bind (u v)
 	       (complex-atanh x (bcons (intofp 0)))
 	     (add u (mul '$%i v))))
-	  ((fpgreaterp fp-x (cdr bfhalf))
+	  ((fpgreaterp fp-x (cdr *bfhalf*))
 	   ;; atanh(x) = 1/2*log1p(2*x/(1-x))
 	   (bcons
-	    (fptimes* (cdr bfhalf)
+	    (fptimes* (cdr *bfhalf*)
 		      (fplog1p (fpquotient (fptimes* (intofp 2) fp-x)
 					   (fpdifference (fpone) fp-x))))))
 	  (t
 	   ;; atanh(x) = 1/2*log1p(2*x + 2*x*x/(1-x))
 	   (let ((2x (fptimes* (intofp 2) fp-x)))
 	     (bcons
-	      (fptimes* (cdr bfhalf)
+	      (fptimes* (cdr *bfhalf*)
 			(fplog1p (fpplus 2x
 					 (fpquotient (fptimes* 2x fp-x)
 						     (fpdifference (fpone) fp-x)))))))))))
@@ -2416,11 +2417,11 @@
                   (fppi-val (fppi)))
 
 	         (if x-lt-minus-1
-			      (fptimes* fppi-val (cdr bfhalf))
+			      (fptimes* fppi-val (cdr *bfhalf*))
 			      (if x-gt-plus-1
-			          (fptimes* fppi-val (cdr bfmhalf))
+			          (fptimes* fppi-val (cdr *bfmhalf*))
 			          '(0 0))))
-	         (fptimes* (cdr bfmhalf)
+	         (fptimes* (cdr *bfmhalf*)
 		           (fpatan2 (fptimes* (intofp 2) y)
 				    (fpdifference (fptimes* 1-x (fpplus fp1 x))
 					          t1^2))))))

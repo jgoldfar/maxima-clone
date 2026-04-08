@@ -1,7 +1,3 @@
-# -*-mode: tcl; fill-column: 75; tab-width: 8; coding: iso-latin-1-unix -*-
-#
-#       $Id: Printops.tcl,v 1.11 2006-08-24 07:03:23 vvzhy Exp $
-#
 ###### Printops.tcl ######
 ############################################################
 # Netmath       Copyright (C) 1998 William F. Schelter     #
@@ -140,8 +136,7 @@ global printOption
 set printOption(setupDone) 0
 
 proc getEnv { name } {
-    global env
-    if { [catch { set tem $env($name) } ] } { return "" }
+    if { [catch { set tem $::env($name) } ] } { return "" }
     return $tem
 }
 proc setPrintOptions { lis } {
@@ -167,7 +162,7 @@ proc mkentryPr { w var text buttonFont }  {
 
 
 proc mkPrintDialog { name args } {
-    global printSet argv env printOptions printOption printSetUpDone paperSizes buttonfont
+    global printSet argv printOptions printOption printSetUpDone paperSizes buttonfont
 
     set canv [assoc -canvas $args ]
     set buttonFont [assoc -buttonfont $args $buttonfont]

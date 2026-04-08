@@ -97,23 +97,36 @@
 ;;; Globals for the Maxima Users
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defvar $expintexpand nil
+(defmvar $expintexpand nil
   "When not nil we expand for a half integral parameter of the Exponential 
    Integral in a series in terms of the Erfc or Erf function and for positive 
-   integer in terms of the Ei function.")
-
-(defvar $expintrep nil
-  "Change the representation of the Exponential Integral. 
-   Values are: gamma_incomplete, expintegral_e1, expintegral_ei, 
-   expintegral_li, expintegral_trig, expintegral_hyp.")
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Global to this file
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   integer in terms of the Ei function."
+  :setting-list (t nil %erf))
 
 (defvar *expintflag* '(%expintegral_e1   %expintegral_ei  %expintegral_li
                        $expintegral_trig $expintegral_hyp %gamma_incomplete)
   "Allowed flags to transform the Exponential Integral.")
+
+(defmvar $expintrep nil
+  "Change the representation of the Exponential Integral. 
+   Values are: gamma_incomplete, expintegral_e1, expintegral_ei, 
+   expintegral_li, expintegral_trig, expintegral_hyp."
+  :setting-predicate
+  #'(lambda (val)
+      (let ((result
+              (or (null val)
+                  (member val *expintflag*))))
+        (values result
+                (let ((*print-case* :downcase))
+                  (format nil "~%  must be false or one of~{~<~%    ~1,80:; ~A~>~^,~}"
+                          (mapcar #'(lambda (v)
+                                      (stripdollar ($verbify v)))
+                                  *expintflag*)))))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Global to this file
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun simp-domain-error (&rest args)
   (if errorsw
@@ -700,7 +713,7 @@
 (defun bfloat-expintegral-e (n z)
   (let ((*expint-eps* (power ($bfloat 10.0) (- $fpprec)))
         (*expint-maxit* 5000) ; arbitrarily chosen, we need a better choice
-        (bigfloattwo (add bigfloatone bigfloatone))
+        (bigfloattwo (add *bigfloatone* *bigfloatone*))
         (bigfloat%e ($bfloat '$%e))
         (bigfloat%gamma ($bfloat '$%gamma))
 	(flz (complex ($float ($realpart z)) ($float ($imagpart z)))))
@@ -718,8 +731,8 @@
        (when *debug-expintegral*
          (format t "~&We expand in continued fractions.~%"))
        (let* ((b  (add z n))
-              (c  (div bigfloatone (mul *expint-eps* *expint-eps*)))
-              (d  (cdiv bigfloatone b))
+              (c  (div *bigfloatone* (mul *expint-eps* *expint-eps*)))
+              (d  (cdiv *bigfloatone* b))
               (n1 (- n 1))
               (h  d)
               (e  0.0))
@@ -730,12 +743,12 @@
                  (intl:gettext "expintegral_e: continued fractions failed.")))
 
            (setq b (add b bigfloattwo))
-           (setq d (cdiv bigfloatone (add (mul a d) b)))
+           (setq d (cdiv *bigfloatone* (add (mul a d) b)))
            (setq c (add b (cdiv a c)))
            (setq e (cmul c d))
            (setq h (cmul h e))
             
-           (when (eq ($sign (sub (cabs (sub e bigfloatone)) *expint-eps*)) 
+           (when (eq ($sign (sub (cabs (sub e *bigfloatone*)) *expint-eps*)) 
                      '$neg)
              (when *debug-expintegral*
                (setq *debug-expint-bfloatmaxit*
@@ -747,9 +760,9 @@
          (format t "~&We expand in a power series.~%"))
        (let* ((n1 (- n 1))
               (meuler (mul -1 bigfloat%gamma))
-              (r (if (= n1 0) (sub meuler ($log z)) (div bigfloatone n1)))
-              (f bigfloatone)
-              (e bigfloatzero))
+              (r (if (= n1 0) (sub meuler ($log z)) (div *bigfloatone* n1)))
+              (f *bigfloatone*)
+              (e *bigfloatzero*))
          (do* ((i 1 (+ i 1)))
               ((> i *expint-maxit*)
                (merror (intl:gettext "expintegral_e: series failed.")))
@@ -758,7 +771,7 @@
              ((= i n1)
               (let ((psi meuler))                
                 (dotimes (ii n1)
-                  (setq psi (add psi (cdiv bigfloatone (+ ii 1)))))
+                  (setq psi (add psi (cdiv *bigfloatone* (+ ii 1)))))
                 (setq e (cmul f (sub psi ($log z))))))
              (t 
               (setq e (cdiv (mul -1 f) (- i n1)))))
@@ -780,7 +793,7 @@
 (defun frac-bfloat-expintegral-e (n z)
   (let ((*expint-eps* (power ($bfloat 10.0) (- $fpprec)))
         (*expint-maxit* 5000) ; arbitrarily chosen, we need a better choice
-        (bigfloattwo (add bigfloatone bigfloatone))
+        (bigfloattwo (add *bigfloatone* *bigfloatone*))
         (bigfloat%e ($bfloat '$%e))
         (bigfloat%gamma ($bfloat '$%gamma)))
 
@@ -792,13 +805,13 @@
     (cond
       ((and (or (eq ($sign ($realpart z)) '$pos)
 		(eq ($sign ($realpart z)) '$zero))
-            (eq ($sign (sub (cabs z) bigfloatone)) '$pos))
+            (eq ($sign (sub (cabs z) *bigfloatone*)) '$pos))
        ;; We expand in continued fractions.
        (when *debug-expintegral*
              (format t "We expand in continued fractions.~%"))
        (let* ((b  (add z n))
-              (c  (div bigfloatone (mul *expint-eps* *expint-eps*)))
-              (d  (cdiv bigfloatone b))
+              (c  (div *bigfloatone* (mul *expint-eps* *expint-eps*)))
+              (d  (cdiv *bigfloatone* b))
               (n1 (sub n 1))
               (h  d)
               (e  0.0))
@@ -809,12 +822,12 @@
                  (intl:gettext "expintegral_e: continued fractions failed.")))
 
            (setq b (add b bigfloattwo))
-           (setq d (cdiv bigfloatone (add (mul a d) b)))
+           (setq d (cdiv *bigfloatone* (add (mul a d) b)))
            (setq c (add b (cdiv a c)))
            (setq e (cmul c d))
            (setq h (cmul h e))
             
-           (when (eq ($sign (sub (cabs (sub e bigfloatone)) *expint-eps*))
+           (when (eq ($sign (sub (cabs (sub e *bigfloatone*)) *expint-eps*))
                   '$neg)
              (when *debug-expintegral*
                (setq *debug-expint-fracbfloatmaxit*
@@ -828,7 +841,7 @@
               (and ($bfloatp n)
                    (eq ($sign n) '$pos)
                    (equal (sub (mul 2 ($fix n)) (mul 2 n))
-                          bigfloatzero)))
+                          *bigfloatzero*)))
        ;; We have a Float or Bigfloat representation of positive integer.
        ;; We call bfloat-expintegral-e.
        (when *debug-expintegral*
@@ -840,16 +853,16 @@
        ;; of an integer) or complex. We expand in a power series.
        (when *debug-expintegral*
              (format t "We expand in a power series.~%"))       
-       (let* ((n1 (sub n bigfloatone))
-              (n2 (sub bigfloatone n))
+       (let* ((n1 (sub n *bigfloatone*))
+              (n2 (sub *bigfloatone* n))
               (gm (take '(%gamma) n2))
-              (r (sub (cmul (cpower z n1) gm) (cdiv bigfloatone n2)))
-              (f bigfloatone)
-              (e bigfloatzero))
+              (r (sub (cmul (cpower z n1) gm) (cdiv *bigfloatone* n2)))
+              (f *bigfloatone*)
+              (e *bigfloatzero*))
          (do ((i 1 (+ i 1)))
              ((> i *expint-maxit*)
               (merror (intl:gettext "expintegral_e: series failed.")))
-           (setq f (cmul (mul -1 bigfloatone) (cmul f (cdiv z i))))
+           (setq f (cmul (mul -1 *bigfloatone*) (cmul f (cdiv z i))))
            (setq e (cdiv (mul -1 f) (sub i n1)))
            (setq r (add r e))
            (when (eq ($sign (sub (cabs e) (cmul (cabs r) *expint-eps*)))
@@ -858,6 +871,18 @@
                (setq *debug-expint-fracbfloatmaxit*
                      (max *debug-expint-fracbfloatmaxit* i)))
              (return r))))))))
+
+
+;; computes first pw terms of asymptotic expansion of expintegral_ei(z)
+;; DLMF 8.20.2, using Ei(x) = E_1(-x)
+(defun ei-asymptotic-expansion (pw z)
+  (m* (m^ '$%e z)
+      (m^ z -1)
+      (m+l (loop for k from 0 to pw collect
+		 (m* `((mfactorial) ,k)
+		     (m^ z (m- k)))))))
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -1165,11 +1190,11 @@
 
 (defun bfloat-expintegral-ei (z)
   (let ((mz (mul -1 z)))
-    (add (cmul (mul -1 bigfloatone) 
+    (add (cmul (mul -1 *bigfloatone*) 
                (bfloat-expintegral-e 1 mz))
-         (sub (cmul (div bigfloatone 2)
+         (sub (cmul (div *bigfloatone* 2)
                     (sub (take '(%log) z)
-                         (take '(%log) (cdiv bigfloatone z))))
+                         (take '(%log) (cdiv *bigfloatone* z))))
               (take '(%log) mz)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1366,11 +1391,15 @@
 
 (defprop %expintegral_si simplim%expintegral_si simplim%function)
 
-(defun simplim%expintegral_si (expr var val)
-  ;; Look for the limit of the argument.
-  (let ((z (limit (cadr expr) var val 'think)))
-    ;; All cases are handled by the simplifier of the function.
-    (take '(%expintegral_si) z)))
+(defun simplim%expintegral_si (e x pt)
+ (let ((lim (limit (cadr e) x pt 'think)))
+	(cond ((eq lim '$infinity) (throw 'limit t))
+		    ((eq lim '$ind) '$ind)
+		    ((eq lim '$zerob) '$zerob)
+		    ((eq lim '$zeroa) '$zeroa)
+	      ((eq lim '$und) (throw 'limit nil))
+        ;;The expintegral_si simplifier handles expintegral_si(minf & inf)
+        (t (ftake '%expintegral_si lim)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1695,18 +1724,22 @@
 
 (defprop %expintegral_ci simplim%expintegral_ci simplim%function)
 
-(defun simplim%expintegral_ci (expr var val)
-  ;; Look for the limit of the argument.
-  (let ((z (limit (cadr expr) var val 'think)))
-  (cond
-    ;; Handle an argument 0 at this place
-    ((or (zerop1 z)
-         (eq z '$zeroa)
-         (eq z '$zerob))
-     '$minf)
-    (t
-     ;; All other cases are handled by the simplifier of the function.
-     (take '(%expintegral_ci) z)))))
+(defun simplim%expintegral_ci (e x pt)
+ (let ((lim (limit (cadr e) x pt 'think)))
+	(cond ((eq lim '$infinity) 
+		     ;; Is the limit +/- %i x inf?
+         (setq lim (limit (div (cadr e) '$%i) x pt 'think))
+		 	   (cond ((eq lim '$inf) '$inf)
+			         ((eq lim '$minf) '$inf)
+				       (t (throw 'limit nil))))
+		    ((eq lim '$ind)
+		  	   (if (eq t (mgrp (cadr e) 0)) '$ind (throw 'limit nil)))
+		    ((eq lim '$zerob) '$minf)
+		    ((eq lim '$zeroa) '$minf)
+		    ((eql lim 0) '$minf)
+	      ((eq lim '$und) (throw 'limit nil))
+        ;; The general simplifier for expintegral_ci handles inputs minf & inf
+		    (t (ftake '%expintegral_ci lim)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

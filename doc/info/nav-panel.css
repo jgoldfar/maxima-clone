@@ -1,0 +1,71 @@
+/*
+ * Style for the texinfo navigation panel (Next/Previous/Up)
+ *
+ * This requires texinfo 7.2.90 or later which added the nessary classes
+ * to be able to do this styling.
+ */
+
+/* 1. Nav Panel Container:  Background Color and Setup */
+.nav-panel {
+    background-color: var(--nav-panel-background-color);
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+
+    /*
+     * Texinfo adds commas between the buttons and labels, and we
+     * don't want those displayed.  Hide these commas via font size
+     *  trick.
+     */
+    font-size: 0
+}
+
+/* 2. Nav Button Visibility and Spacing */
+.nav-panel .nav-button {
+    /* Reset font size so the content is visible */
+    font-size: initial;
+    /* Flexbox setup for hanging indent */
+    display: flex;
+    flex-wrap: nowrap;
+    
+    /* Keep the buttons from wrapping awkwardly when on the main line */
+    min-width: fit-content;
+    
+    /* Allow the whole button to wrap to a new line if the panel is too narrow */
+    flex-basis: auto;
+    /* Add some spacing between buttons */
+    padding-right: 1em;
+}
+
+/* 3. Label Alignment: Keep the label text tight (it won't wrap) */
+.nav-label {
+    /* Prevent the label from shrinking or growing */
+    flex-shrink: 0;
+    flex-grow: 0;
+    
+    /* Ensure the text is vertically aligned if the link wraps a lot */
+    align-self: flex-start;
+    padding-right: 0.5em;
+
+    /* Make the label stand out with bold */
+    font-weight: bold;
+}
+
+/* 4. Link Alignment: Allow the link text to wrap below its starting point */
+.nav-link {
+    /* Allow the link container to take up available space */
+    flex-grow: 1;
+}
+
+/* 5. Link Text Behavior: Hanging Indent */
+.nav-link a {
+    /* Ensures the link behaves like a block for text properties */
+    display: inline-block;
+    width: 100%; /* Important: Make the link use all available width of the .nav-link container */
+    
+    /* Text alignment for neat wrapping */
+    text-align: left;
+    
+    /* Allows long, unbroken words to break */
+    overflow-wrap: break-word; 
+}

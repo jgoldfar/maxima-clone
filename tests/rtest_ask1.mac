@@ -232,3 +232,12 @@ laplace (delta (t - x^2), t, s);z;
 
 laplace (delta (t - x^2), t, s);nz;
 exp(-s*x^2);
+
+/* Test READ and READONLY
+   See SF Bug #4677 */
+
+read("Enter the sum of 1+2.");1+2;
+3;
+
+readonly("Enter the number 2.");2;
+2;

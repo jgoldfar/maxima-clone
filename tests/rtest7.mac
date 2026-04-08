@@ -61,11 +61,11 @@ ev(%);
 (a+b)*(x+a+b)^2*%e^(x^2+a*x+b);
 (b+a)*(x+b+a)^2*%e^(x^2+a*x+b)$
 block([linenum:2],ev(isolate(%,x),exptisolate:true));
-%t3*%t4*(x+%t3)^2*%e^(x^2+a*x)$
+%e^(x^2+a*x)*%t3*%t4*(x+%t4)^2$
 %t3;
-b+a;
-%t4;
 %e^b;
+%t4;
+a+b;
 exp1:integrate(1/(x^3+2),x);
   -log(x^2-2^(1/3)*x+2^(2/3))/(6*2^(2/3))+atan((2*x-2^(1/3))/(2^(1/3)*sqrt(3)))
 					/(2^(2/3)*sqrt(3))

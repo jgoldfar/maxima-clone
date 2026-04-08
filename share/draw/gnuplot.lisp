@@ -1,7 +1,7 @@
 ;;;                 COPYRIGHT NOTICE
 ;;;  
 ;;;  Copyright (C) 2007-2016 Mario Rodriguez Riotorto
-;;;  Time-stamp: "2024-11-28 17:39:24 Leo Butler"
+;;;  Time-stamp: "2026-03-08 20:05:07 villate"
 ;;;  
 ;;;  This program is free software; you can redistribute
 ;;;  it and/or modify it under the terms of the
@@ -2857,7 +2857,7 @@
       (setf plotcmd
          (concatenate 'string
             (unless (or *multiplot-is-active*
-                        (member (get-option '$terminal) '($eps $epslatex $epslatex_standalone)))
+                        (member (get-option '$terminal) '($eps $epslatex $epslatex_standalone $cairolatex_pdf $cairolatex_pdf_standalone)))
                (format nil "set obj 1 fc rgb '~a' fs solid 1.0 noborder ~%"
                        (get-option '$background_color)) )
             (if (equal (get-option '$proportional_axes) '$none)
@@ -3339,6 +3339,16 @@
                            (/ (first (get-option '$dimensions)) 100.0)
                            (/ (second (get-option '$dimensions)) 100.0)
                            (get-option '$file_name)))
+        ($cairolatex_pdf (format cmdstorage "set terminal cairolatex pdf ~a color size ~acm, ~acm~%set out '~a.tex'"
+                           (write-font-type)
+                           (/ (first (get-option '$dimensions)) 100.0)
+                           (/ (second (get-option '$dimensions)) 100.0)
+                           (get-option '$file_name)))
+        ($cairolatex_pdf_standalone (format cmdstorage "set terminal cairolatex pdf standalone ~a color size ~acm, ~acm~%set out '~a.tex'"
+                           (write-font-type)
+                           (/ (first (get-option '$dimensions)) 100.0)
+                           (/ (second (get-option '$dimensions)) 100.0)
+                           (get-option '$file_name)))
         (($pdf $multipage_pdf) (format cmdstorage "set terminal pdf dashed enhanced ~a color size ~acm, ~acm~%set out '~a.pdf'"
                            (write-font-type)
                            (/ (first (get-option '$dimensions)) 100.0)
@@ -3434,7 +3444,7 @@
 
     ; Make gnuplot versions newer than 5.0 understand that linetype means
     ; we try to set the dash type
-    (format cmdstorage "~%if(GPVAL_VERSION >= 5.0){set for [i=1:8] linetype i dashtype i; set format '%h'}")
+    (format cmdstorage "~%if(GPVAL_VERSION >= 5.0){set for [i=1:8] linetype i dashtype i}")
 
     ;; By default gnuplot assumes everything below 1e-8 to be a rounding error
     ;; and rounds it down to 0. This is handy for standalone gnuplot as it allows
@@ -3483,7 +3493,7 @@
                 (format cmdstorage "~%set size ~a, ~a~%" size1 size2)
                 (format cmdstorage "set origin ~a, ~a~%" origin1 origin2)
                 (unless (or *multiplot-is-active*
-                            (member (get-option '$terminal) '($epslatex $epslatex_standalone)))
+                            (member (get-option '$terminal) '($epslatex $epslatex_standalone $cairolatex_pdf $cairolatex_pdf_standalone)))
                   (format cmdstorage "set obj 1 rectangle behind from screen ~a,~a to screen ~a,~a~%" 
                                      origin1 origin2 (+ origin1 size1 ) (+ origin2 size2)))  ))
         (setf is1stobj t
@@ -3569,12 +3579,7 @@
                (format cmdstorage "~%unset output~%quit~%~%")
                (format cmdstorage "~%set term dumb~%~%") )
              (close cmdstorage)
-	     #+(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-             ($system $gnuplot_command gfn)
-	     #-(or (and sbcl win32) (and sbcl win64) (and ccl windows))
-	     ($system (format nil "~a \"~a\"" 
-			      $gnuplot_command
-			      gfn) ))
+             ($system $gnuplot_command (format nil $gnuplot_file_args gfn)))
           (t ; non animated gif
              ; command file maxout.gnuplot is now ready
              (format cmdstorage "~%")
@@ -3619,15 +3624,14 @@
 		     ($system $gnuplot_command gfn))
 		 #-(or (and sbcl win32) (and sbcl win64) (and ccl windows))
 		 ($system (if (member (get-option '$terminal) '($screen $aquaterm $wxt $x11 $qt $windows))
-			      (format nil "~a ~a"
-				      $gnuplot_command
+			      (format nil "~a ~a" $gnuplot_command
 				      (format nil $gnuplot_view_args gfn))
-			      (format nil "~a \"~a\"" 
-				      $gnuplot_command
-				      gfn))) ))))
+			    (format nil "~a ~a" 
+				    $gnuplot_command
+				      (format nil $gnuplot_file_args gfn))))))))
 
     ; the output is a simplified description of the scene(s)
-    (reverse scenes-list)) )
+    (reverse scenes-list)))
 
 
 ;; This function transforms an integer number into
@@ -3681,6 +3685,16 @@
                            (/ (first (get-option '$dimensions)) 100.0)
                            (/ (second (get-option '$dimensions)) 100.0)
                            (get-option '$file_name))))
+      ($cairolatex_pdf (format str "set terminal cairolatex pdf ~a color size ~acm, ~acm~%set out '~a.tex'"
+                           (write-font-type)
+                           (/ (first (get-option '$dimensions)) 100.0)
+                           (/ (second (get-option '$dimensions)) 100.0)
+                           (get-option '$file_name)))
+      ($cairolatex_pdf_standalone (format str "set terminal cairolatex pdf standalone ~a color size ~acm, ~acm~%set out '~a.tex'"
+                           (write-font-type)
+                           (/ (first (get-option '$dimensions)) 100.0)
+                           (/ (second (get-option '$dimensions)) 100.0)
+                           (get-option '$file_name)))
       ($pdf (setf str (format nil "set terminal pdf dashed enhanced ~a color size ~acm, ~acm~%set out '~a.pdf'"
                            (write-font-type)
                            (/ (first (get-option '$dimensions)) 100.0)

@@ -3,7 +3,6 @@
 # Copyright (C) 1998 William F. Schelter                   #
 # For distribution under GNU public License.  See COPYING. #
 #                                                          #
-#     Time-stamp: "2021-04-04 10:23:33 villate"            #
 ############################################################
 #-----------------------------------------------------------------
 #
@@ -37,7 +36,7 @@
 #----------------------------------------------------------------
 #
 proc readAllData { sock args } {
-    global readAllData [oarray $sock] maxima_priv
+    global readAllData [oarray $sock]
 
     array set [oarray $sock] {
 	timeout 5000
@@ -69,7 +68,7 @@ proc readAllData { sock args } {
     fconfigure $sock -blocking 0
 
     catch { 
-	$maxima_priv(cStatusWindow).scale \
+	$::xmaxima_priv(cStatusWindow).scale \
 	    config -variable [oloc $sock percent] 
     }
     lappend [oloc $sock after] [after [oget $sock timeout] "oset $sock done -1"]
@@ -151,7 +150,7 @@ proc readMimeHeader { sock } {
 
 proc readAllData1 { sock } {
     #puts "readAllData1 $sock" ; flush stdout
-    global maxima_priv [oarray $sock]
+    global [oarray $sock]
 
     makeLocal $sock timeout tovar tochannel docommand chunksize after contentlength begin
 
@@ -181,7 +180,7 @@ proc readAllData1 { sock } {
 		    return finished
 		}
 	    }
-	    set maxima_priv(load_rate) "[expr {round ($bytesread * ($maxima_priv(clicks_per_second)*1.0 / ([clock clicks] - $begin)))}] bytes/sec"
+	    set ::xmaxima_priv(load_rate) "[expr {round ($bytesread * ($::xmaxima_priv(clicks_per_second)*1.0 / ([clock clicks] - $begin)))}] bytes/sec"
 
 	    if { $contentlength > 0 } {
 		oset $sock percent \
@@ -205,7 +204,8 @@ proc readAllData1 { sock } {
 	if { "$errmsg" == "finished" } {
 	    return
 	} else {
-	    global errorInfo ; error [concat [mc "error:"] "$errmsg , $errorInfo"]
+	    global errorInfo
+            error [concat [mc "error:"] "$errmsg , $errorInfo"]
 	}
     }
     lappend [oloc $sock after] \
@@ -299,10 +299,10 @@ proc testit { addr usecommand args } {
 #----------------------------------------------------------------
 #
 proc tryGetCache { path alist } {
-    global ws_Cache maxima_priv
+    global ws_Cache
     set tem [ws_Cache($path)]
     if { "$tem" != "" } {
-	set filename [file join $maxima_priv(cachedir) [lindex $tem 1]]
+	set filename [file join $::xmaxima_priv(cachedir) [lindex $tem 1]]
 	set etag [assoc etag $alist]
 	if { "$etag" != "" } {
 	    if {  "[lindex $tem 0]" == "$etag" }  {
@@ -327,8 +327,8 @@ proc tryGetCache { path alist } {
 }
 
 proc saveInCache { path etag  result} {
-    global ws_Cache maxima_priv
-    set cachedir $maxima_priv(cachedir)
+    global ws_Cache
+    set cachedir $::xmaxima_priv(cachedir)
     # todo add a catch
     set type [lindex [split [file tail $path] .] 1]
     set count 0
@@ -357,8 +357,7 @@ proc cleanCache { } {
 }
 
 proc cacheName { name } {
-    global maxima_priv
-    return [ file join $maxima_priv(cachedir) $name]
+    return [ file join $::xmaxima_priv(cachedir) $name]
 }
 #
 #-----------------------------------------------------------------
@@ -374,7 +373,7 @@ proc cacheName { name } {
 #----------------------------------------------------------------
 #
 proc readAndSyncCache { } {
-    global maxima_priv ws_Cache
+    global ws_Cache
     if { [catch {  set fi [open [cacheName index.dat] r] } ] } {
 	return
     }

@@ -166,14 +166,16 @@
   (setq x (nreconc l (nconc x r))) (cons (length x) x))
 
 (defun slash (x)
-  (do ((l (cdr x) (cdr l))) ((null l))
-    ; Following test is the same (except backslash is not included,
-    ; so backslash is preceded by backslash) as in SCAN-TOKEN (src/nparse.lisp).
-    (if (or (ascii-numberp (car l)) (alphabetp (car l)))
-	nil
-	(progn (rplacd l (cons (car l) (cdr l)))
-	       (rplaca l #\\) (setq l (cdr l)))))
-  (if (alphabetp (car x)) x (cons #\\ x)))
+  (cond ((null x) '())
+	(t
+	 (do ((l (cdr x) (cdr l))) ((null l))
+					; Following test is the same (except backslash is not included,
+					; so backslash is preceded by backslash) as in SCAN-TOKEN (src/nparse.lisp).
+	   (if (or (ascii-numberp (car l)) (alphabetp (car l)))
+	       nil
+	       (progn (rplacd l (cons (car l) (cdr l)))
+		      (rplaca l #\\) (setq l (cdr l)))))
+	 (if (alphabetp (car x)) x (cons #\\ x)))))
 
 ;;#-cl
 ;;(DEFUN ALPHANUMP (N) (DECLARE (FIXNUM N))

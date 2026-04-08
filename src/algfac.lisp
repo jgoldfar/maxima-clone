@@ -18,7 +18,7 @@
 
 (load-macsyma-macros ratmac)
 
-(declare-top (special tra* trl* *xn var intbs* plim many* split* alc ind p l))
+(declare-top (special tra* trl* *xn var intbs* plim many* split* alc ind))
 
 (defun ziredup (p)
   (let ((modulus nil) (*alpha* nil) (minpoly* nil) (algfac* nil)

@@ -3,7 +3,6 @@
 #  Copyright William F. Schelter.  All rights reserved.    #
 #                                                          #
 #     Modified by Jaime E. Villate                         #
-#     Time-stamp: "2024-03-16 20:45:39 villate"            #
 ############################################################
 
 proc adamsMoulton {f g t0 x0 y0 h nsteps} {

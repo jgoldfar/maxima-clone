@@ -10,6 +10,8 @@
 type @code{load("atensor")}, followed by a call to the @code{init_atensor}
 function.
 
+For alternative packages for handling tensors @pxref{Package ctensor} and @ref{Package itensor}.
+
 The essence of @code{atensor} is a set of simplification rules for the
 noncommutative (dot) product operator ("@code{.}"). @code{atensor} recognizes
 several algebra types; the corresponding simplification rules are put

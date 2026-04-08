@@ -373,8 +373,16 @@ mean (x, [w]) :=
            [w, sum_w]: if w = [] then [1, n] else [w[1], if listp (w[1]) then lsum (w1, w1, w[1]) else n*w[1]],
            verify_weights ('mean, w, n),
            if listp(x) or matrixp(x)
-               then block ([e: apply ("+", w * args(x)) / sum_w],
-                           ratsimp_nonnumeric (e))
+               then if n > 0
+                        then block ([e: apply ("+", w * args(x)) / sum_w],
+                                    ratsimp_nonnumeric (e))
+                        /* mean is undefined if x is empty (sum is well-defined and length is well-defined, but not sum/length);
+                         * there are various possibilities here, such as triggering an error or returning false,
+                         * just return und for now.
+                         * Also, I suppose that any other functions of lists or matrices should likewise
+                         * try to return something meaningful for empty data.
+                         */
+                        else und
                else error("mean: first argument must be a list or matrix; found", x));
 
 verify_weights (fn, w, n) :=
@@ -1625,21 +1633,3 @@ starplot_description([args]):=
       ['key = ""])    )$
 starplot([desc]) := draw2d(apply(starplot_description, desc)) $
 wxstarplot([desc]) := wxdraw2d(apply(starplot_description, desc)) $
-
-/* find_runs -- find consecutive identical values in an array or list.
- * Returns a structure runs(...) with fields lengths and values.
- */
-
-defstruct (runs (lengths, values));
-
-find_runs (x) :=
-  if x = [] then runs ([], [])
-    else block ([dx : map (lambda ([a, b], is(a # b)), rest(x), rest(x, -1)), ii0, ii, dii],
-                ii0 : sublist_indices (dx, identity),
-                ii : append ([0], ii0, [length (x)]),
-                dii : rest(ii) - rest(ii, -1),
-                runs (dii, makelist (x[i], i, rest (ii))));
-
-find_runs_inverse (r) :=
-  block ([v: r@values, n: r@lengths],
-         apply (append, makelist (makelist (v[i], n[i]), i, 1, length(v))));

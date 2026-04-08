@@ -147,6 +147,17 @@
          (merror
           (intl:gettext "apropos: argument must be a string or symbol; found: ~M") s))))
 
+;;; Function to encode special characters in a URL string
+(defun needs-encoding-p (char) (position char "$*! \"\'?<>&%"))
+(defun encode-char (char) (format nil "%~2,'0X" (char-code char)))
+(defun url-encode (url)
+  (apply #'concatenate 'string
+         (map 'list (lambda (char)
+                      (if (needs-encoding-p char)
+                          (encode-char char)
+                          (string char)))
+              url)))
+
 
 ;;; Display help in browser instead of the terminal
 (defun display-html-help (x)
@@ -160,7 +171,7 @@
     (when found-it
       (destructuring-bind (base-name . id)
 	  found-it
-	(let ((url (concatenate 'string
+	  (let ((url (concatenate 'string
                                 ;; If BASE-NAME is an absolute path,
                                 ;; use "FILE://" as the protocol.
                                 ;; Otherwise use $URL_BASE.
@@ -171,17 +182,22 @@
 				(namestring base-name)
 				"#"
 				id))
-	      command)
-	  (when *debug-display-html-help*
-	    (format *debug-io* "URL: ~S~%" url))
-	  (setf command (ignore-errors (format nil $browser url)))
-	  (cond (command
-		 (when *debug-display-html-help*
-		   (format *debug-io* "Command: ~S~%" command))
-		 ($system command))
-		(t
-		 (merror "Browser command must contain exactly one ~~A:  ~S" $browser))))))
-    topic))
+                ;; $system will concatenate the words in list cmd_list
+                ;; to create the command to be executed
+	        (cmd_list ()))
+            (setq url (url-encode url))
+	    (when *debug-display-html-help*
+	      (format *debug-io* "URL: ~S~%" url))
+            (when (and (boundp '*autoconf-windows*)
+	               (string-equal *autoconf-windows* "true")
+                       (not (string-equal $browser "start")))
+              ;; In Windows if the browser is not the default,
+              ;; its name should be placed after "start".
+              (setf cmd_list (append cmd_list '("start"))))
+	    (setf cmd_list (append cmd_list (list $browser url)))
+	    (when *debug-display-html-help*
+	      (format *debug-io* "Command: ~{~a ~}~%" cmd_list))
+	    (apply '$system cmd_list))))))
 
 (defun display-html-topics (wanted)
   (when maxima::*debug-display-html-help*

@@ -230,3 +230,11 @@ true;
 describe ("frotz");
 true;
 
+/* SF bug #4664: verbify("!!") */
+
+verbify ("!!");
+'?\$genfact;
+
+nounify ("!!");
+'?\%genfact;
+

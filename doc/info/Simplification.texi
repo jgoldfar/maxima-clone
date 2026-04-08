@@ -153,7 +153,7 @@ Example: @code{sin(n*%pi)} is simplified to zero, if @var{n} is an integer.
 @c declare(n, integer);
 @c sin(n*%pi);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) sin(n*%pi);
 (%o1)                      sin(%pi n)
@@ -169,7 +169,7 @@ Example: @code{sin(n*%pi)} is simplified to zero, if @var{n} is an integer.
 @end example
 
 If automated simplification is not sufficient, you can consider a variety of 
-built-in, but explicitly called simplfication functions (@mrefcomma{ratsimp}
+built-in, but explicitly called simplification functions (@mrefcomma{ratsimp}
 @mrefcomma{expand} @mrefcomma{factor} @mref{radcan} and others). There are
 also flags that will push simplification into one or another direction.
 Given @code{demoivre:true} the simplifier rewrites 
@@ -228,7 +228,7 @@ Example:
 @c declare (F3, additive);
 @c F3 (a + b + c);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) F3 (a + b + c);
 (%o1)                     F3(c + b + a)
@@ -271,7 +271,7 @@ Examples:
 @c T (b, a);
 @c T (a, c, e, d, b);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) S (b, a);
 (%o1)                        S(b, a)
@@ -327,7 +327,7 @@ Example:
 @c 1*f/2*b + 2*c/3*a + 3*f/4*b +c/5*b*a;
 @c combine (%);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) 1*f/2*b + 2*c/3*a + 3*f/4*b +c/5*b*a;
                       5 b f   a b c   2 a c
@@ -365,7 +365,7 @@ Example:
 @c S (a, b) + S (b, a);
 @c S (a, c, e, d, b);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) S (b, a);
 (%o1)                        S(b, a)
@@ -445,19 +445,27 @@ Examples:
 @c distrib (1/((a+b) * (c+d)));
 @c expand (1/((a+b) * (c+d)), 1, 0);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) distrib ((a+b) * (c+d));
 (%o1)                 b d + a d + b c + a c
+@end group
+@group
 (%i2) multthru ((a+b) * (c+d));
 (%o2)                 (b + a) d + (b + a) c
+@end group
+@group
 (%i3) distrib (1/((a+b) * (c+d)));
                                 1
 (%o3)                    ---------------
                          (b + a) (d + c)
+@end group
+@group
 (%i4) expand (1/((a+b) * (c+d)), 1, 0);
                                 1
 (%o4)                 ---------------------
                       b d + a d + b c + a c
+@end group
 @end example
 
 @opencatbox{Categories:}
@@ -485,7 +493,7 @@ The @code{sin} function maps over a list:
 @c ===beg===
 @c sin([x,1,1.0]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) sin([x,1,1.0]);
 (%o1)         [sin(x), sin(1), 0.8414709848078965]
@@ -499,7 +507,7 @@ nested lists is possible too:
 @c mod([x,11,2*a],10);
 @c mod([[x,y,z],11,2*a],10);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) mod([x,11,2*a],10);
 (%o1)             [mod(x, 10), 1, 2 mod(a, 5)]
@@ -516,7 +524,7 @@ Mapping of the @code{floor} function over a matrix and an equation:
 @c floor(matrix([a,b],[c,d]));
 @c floor(a=b);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) floor(matrix([a,b],[c,d]));
                      [ floor(a)  floor(b) ]
@@ -535,7 +543,7 @@ arguments:
 @c ===beg===
 @c expintegral_e([1,2],[x,y]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) expintegral_e([1,2],[x,y]);
 (%o1) [[expintegral_e(1, x), expintegral_e(1, y)], 
@@ -548,11 +556,11 @@ Check if a function has the property distribute_over:
 @c ===beg===
 @c properties(abs);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) properties(abs);
-(%o1) [integral, rule, distributes over bags, noun, gradef, 
-                                                 system function]
+(%o1) [limit function, integral, rule, distributes over bags, 
+                                          noun, gradef, transfun]
 @end group
 @end example
 
@@ -565,7 +573,7 @@ to the value @code{false}.
 @c distribute_over : not distribute_over;
 @c sin([x,1,1.0]);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) distribute_over;
 (%o1)                         true
@@ -625,19 +633,31 @@ Examples:
 @c declare (e, evenfun);
 @c e (- x) - e (x);
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) o (- x) + o (x);
 (%o1)                     o(x) + o(- x)
+@end group
+@group
 (%i2) declare (o, oddfun);
 (%o2)                         done
+@end group
+@group
 (%i3) o (- x) + o (x);
 (%o3)                           0
+@end group
+@group
 (%i4) e (- x) - e (x);
 (%o4)                     e(- x) - e(x)
+@end group
+@group
 (%i5) declare (e, evenfun);
 (%o5)                         done
+@end group
+@group
 (%i6) e (- x) - e (x);
 (%o6)                           0
+@end group
 @end example
 @end defvr
 
@@ -677,7 +697,8 @@ less than @code{n}.
 
 @code{expand(expr, 0, 0)} causes a resimplification of @code{expr}.  @code{expr}
 is not reevaluated.  In distinction from @code{ev(expr, noeval)} a special
-representation (e. g. a CRE form) is removed.  See also @mrefdot{ev}
+representation (e. g. a CRE form) is removed.  See also @mref{resimplify} and
+@mrefdot{ev}
 
 The @code{expand} flag used with @code{ev} causes expansion.
 
@@ -704,7 +725,7 @@ Examples:
 @c expand(expr);
 @c expand(expr,2,2);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) expr:(x+1)^2*(y+1)^3;
                                2        3
@@ -755,7 +776,7 @@ Resimplify an expression without expansion:
 @c exponentialize:true;
 @c expand(expr,0,0);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) expr:(1+x)^2*sin(x);
                                 2
@@ -767,8 +788,8 @@ Resimplify an expression without expansion:
 @end group
 @group
 (%i3) expand(expr,0,0);
-                            2    %i x     - %i x
-                  %i (x + 1)  (%e     - %e      )
+                     %i x     - %i x            2
+                  (%e     - %e      ) %i (x + 1)
 (%o3)           - -------------------------------
                                  2
 @end group
@@ -939,7 +960,7 @@ Example:
 @c declare (a, constant);
 @c f(a*x);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) declare (f, linear);
 (%o1)                         done
@@ -968,15 +989,15 @@ Example:
 @c declare (nounify (sum), linear);
 @c 'sum (F(k) + G(k), k, 1, inf);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) 'sum (F(k) + G(k), k, 1, inf);
                        inf
-                       ====
+                       ____
                        \
 (%o1)                   >    (G(k) + F(k))
                        /
-                       ====
+                       ----
                        k = 1
 @end group
 @group
@@ -986,11 +1007,11 @@ Example:
 @group
 (%i3) 'sum (F(k) + G(k), k, 1, inf);
                      inf          inf
-                     ====         ====
+                     ____         ____
                      \            \
 (%o3)                 >    G(k) +  >    F(k)
                      /            /
-                     ====         ====
+                     ----         ----
                      k = 1        k = 1
 @end group
 @end example
@@ -1062,7 +1083,7 @@ Example:
 @c declare (F2, multiplicative);
 @c F2 (a * b * c);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) F2 (a * b * c);
 (%o1)                       F2(a b c)
@@ -1084,14 +1105,14 @@ Example:
 @c declare (nounify (product), multiplicative);
 @c product (a[i] * b[i], i, 1, n);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) product (a[i] * b[i], i, 1, n);
                              n
-                           /===\
-                            ! !
-(%o1)                       ! !  a  b
-                            ! !   i  i
+                           _____
+                           |   |
+(%o1)                      |   | a  b
+                           |   |  i  i
                            i = 1
 @end group
 @group
@@ -1101,10 +1122,10 @@ Example:
 @group
 (%i3) product (a[i] * b[i], i, 1, n);
                           n         n
-                        /===\     /===\
-                         ! !       ! !
-(%o3)                  ( ! !  a )  ! !  b
-                         ! !   i   ! !   i
+                        _____     _____
+                        |   |     |   |
+(%o3)                  (|   | a ) |   | b
+                        |   |  i  |   |  i
                         i = 1     i = 1
 @end group
 @end example
@@ -1147,34 +1168,46 @@ noncommutative) over sums.  Since quotients are represented as products
 @c multthru (a.(b+c.(d+e)+f));
 @c expand (a.(b+c.(d+e)+f));
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) x/(x-y)^2 - 1/(x-y) - f(x)/(x-y)^3;
                       1        x         f(x)
 (%o1)             - ----- + -------- - --------
                     x - y          2          3
                             (x - y)    (x - y)
+@end group
+@group
 (%i2) multthru ((x-y)^3, %);
-                           2
-(%o2)             - (x - y)  + x (x - y) - f(x)
+                                      2
+(%o2)              x (x - y) - (x - y)  - f(x)
+@end group
+@group
 (%i3) ratexpand (%);
                            2
 (%o3)                   - y  + x y - f(x)
+@end group
+@group
 (%i4) ((a+b)^10*s^2 + 2*a*b*s + (a*b)^2)/(a*b*s^2);
                         10  2              2  2
                  (b + a)   s  + 2 a b s + a  b
 (%o4)            ------------------------------
                                   2
                              a b s
+@end group
+@group
 (%i5) multthru (%);  /* note that this does not expand (b+a)^10 */
                                         10
                        2   a b   (b + a)
 (%o5)                  - + --- + ---------
                        s    2       a b
                            s
-(%i6) multthru (a.(b+c.(d+e)+f));
 (%o6)            a . f + a . c . (e + d) + a . b
-(%i7) expand (a.(b+c.(d+e)+f));
+@end group
+@group
+(%i7) multthru (a.(b+c.(d+e)+f));
 (%o7)         a . f + a . c . e + a . c . d + a . b
+@end group
+(%i8) expand (a.(b+c.(d+e)+f));
 @end example
 
 @opencatbox{Categories:}
@@ -1202,13 +1235,19 @@ Example:
 @c declare (H, nary);
 @c H (H (a, b), H (c, H (d, e)));
 @c ===end===
-@example
+@example maxima
+@group
 (%i1) H (H (a, b), H (c, H (d, e)));
 (%o1)               H(H(a, b), H(c, H(d, e)))
+@end group
+@group
 (%i2) declare (H, nary);
 (%o2)                         done
+@end group
+@group
 (%i3) H (H (a, b), H (c, H (d, e)));
 (%o3)                   H(a, b, c, d, e)
+@end group
 @end example
 @end defvr
 
@@ -1234,14 +1273,14 @@ Example:
 @c negdistrib : not negdistrib ;
 @c -(x+y);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) negdistrib;
 (%o1)                         true
 @end group
 @group
 (%i2) -(x+y);
-(%o2)                       (- y) - x
+(%o2)                        - y - x
 @end group
 @group
 (%i3) negdistrib : not negdistrib ;
@@ -1272,7 +1311,7 @@ Example:
 @c ===beg===
 @c opproperties;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) opproperties;
 (%o1) [linear, additive, multiplicative, outative, evenfun, 
@@ -1325,7 +1364,7 @@ Declare that @code{f} and @code{g} have the new property.
 @c f(10 + t);
 @c g(3*u) - f(2*u);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) define_opproperty (identity, simplify_identity);
 (%o1)                         done
@@ -1385,7 +1424,7 @@ Example:
 @c declare (zz, constant);
 @c F1 (zz * y);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) F1 (100 * x);
 (%o1)                       F1(100 x)
@@ -1453,7 +1492,7 @@ Examples:
 @c radcan((log(1+2*a^x+a^(2*x))/log(1+a^x)));
 @c radcan((%e^x-1)/(1+%e^(x/2)));
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) radcan((log(x+x^2)-log(x))^a/log(1+x)^(a/2));
                                     a/2
@@ -1531,6 +1570,56 @@ See also @mrefdot{lassociative}
 @c NEEDS CLARIFICATION, EXAMPLES
 
 @c -----------------------------------------------------------------------------
+@anchor{resimplify}
+@deffn {Function} resimplify (@var{expr})
+
+Resimplifies the expression @var{expr} based on the current environment.  This
+function is useful when the fact database, option variables, or tellsimp rules
+have changed since the expression was last simplified.
+
+Example:
+
+@c ===beg===
+@c expr : sin(x)^2 + cos(x)^2;
+@c exponentialize : true;
+@c expr;
+@c resimplify(%);
+@c ratsimp(%);
+@c ===end===
+@example maxima
+@group
+(%i1) expr : sin(x)^2 + cos(x)^2;
+                           2         2
+(%o1)                   sin (x) + cos (x)
+@end group
+@group
+(%i2) exponentialize : true;
+(%o2)                         true
+@end group
+@group
+(%i3) expr;
+                           2         2
+(%o3)                   sin (x) + cos (x)
+@end group
+@group
+(%i4) resimplify(%);
+              %i x     - %i x 2      %i x     - %i x 2
+           (%e     + %e      )    (%e     - %e      )
+(%o4)      -------------------- - --------------------
+                    4                      4
+@end group
+@group
+(%i5) ratsimp(%);
+(%o5)                           1
+@end group
+@end example
+
+@opencatbox{Categories:}
+@category{Simplification functions}
+@closecatbox
+@end deffn
+
+@c -----------------------------------------------------------------------------
 @anchor{scsimp}
 @deffn {Function} scsimp (@var{expr}, @var{rule_1}, @dots{}, @var{rule_n})
 
@@ -1576,7 +1665,7 @@ simplification on.
 @c sin(1.0);
 @c sin(1.0),simp;
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) simp:false;
 (%o1)                         false
@@ -1601,7 +1690,7 @@ assignment has occurred during the evaluation phase of the expression.
 @c x:sin(1.0),simp:false;
 @c :lisp $x
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) simp:true;
 (%o1)                         true
@@ -1660,7 +1749,7 @@ Examples:
 @c ((x+2)^20 - 2*y)/(x+y)^20 + (x+y)^(-19) - x/(x+y)^20;
 @c xthru (%);
 @c ===end===
-@example
+@example maxima
 @group
 (%i1) ((x+2)^20 - 2*y)/(x+y)^20 + (x+y)^(-19) - x/(x+y)^20;
                                 20
