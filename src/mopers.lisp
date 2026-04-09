@@ -195,6 +195,19 @@
 ;; scheme will work.
 
 (defmacro defgrad (name arguments &body body)
+  "DEFGRAD defines derivatives for the function NAME having arguments ARGUMENTS.
+
+    NAME       - the noun-form (%foo) of the function
+    ARGUMENTS  - A list of the arguments of the function.
+    BODY       - The derivatives of the function.  This should be a list of
+                 derivatives arranged in the same order as the ARGUMENTS.
+
+  The derivatives can be expressed using #$$...$.  In this case the
+  names of the arguments MUST start with \"$\" because #$$ read
+  expressions that way.
+
+  Use of #$$ is not required.  In that case, each derivative must be a
+  quoted list of the maxima internal representation of the derivative. "
   ;; Check that the argument variables show up somewhere in the body.
   ;; Otherwise, the defintion of the derivative is potentially
   ;; incorrect.
