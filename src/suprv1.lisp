@@ -429,12 +429,6 @@
       ((eq loclist (cdr mpdls)))
     (munlocal)))
 
-#+nil
-(defun getalias (x)
-  (cond ((get x 'alias))
-	((eq x '$false) nil)
-	(t x)))
-
 (defun makealias (x)
   (implode (cons #\$ (exploden x))))
 
@@ -652,13 +646,6 @@
       '(($ratcoeff $ratcoef) ($ratnum $ratnumer) ($true t)
         ($derivative $diff) ($prod $product)
 	($bothcoeff $bothcoef)))
-
-(defun amperchk (name2)
-  (cond
-    ((symbolp name2) name2)
-    ((stringp name2)
-     (getalias (or (getopr0 name2) (implode (cons #\$ (coerce name2 'list))))))
-    (t name2)))
 
 (defmspec $stringout (x)
   (setq x (cdr x))
