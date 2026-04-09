@@ -26,9 +26,6 @@
 ;; Airy Ai function 
 
 (defprop %airy_ai simplim%airy_ai simplim%function)
-#+nil
-(defprop %airy_ai ((z) ((%airy_dai) z)) grad)
-
 (defgrad %airy_ai ($z)
   #$$airy_dai(z)$)
 
@@ -115,9 +112,6 @@
 
 ;; Derivative dAi/dz of Airy function Ai(z)
 (defprop %airy_dai simplim%airy_dai simplim%function)
-#+nil
-(defprop %airy_dai ((z) ((mtimes) z ((%airy_ai) z))) grad)
-
 (defgrad %airy_dai ($z)
   #$$z*airy_ai(z)$)
 
@@ -184,8 +178,6 @@
 	(t (give-up))))
 
 (defprop %airy_bi simplim%airy_bi simplim%function)
-#+nil
-(defprop %airy_bi ((z) ((%airy_dbi) z)) grad)
 (defgrad %airy_bi ($z)
   #$$ airy_dbi(z)$)
 
@@ -273,8 +265,6 @@
 
 ;; Derivative dBi/dz of Airy function Bi(z)
 (defprop %airy_dbi simplim%airy_dbi simplim%function)
-#+nil
-(defprop %airy_dbi ((z) ((mtimes) z ((%airy_bi) z))) grad)
 (defgrad %airy_dbi ($z)
   #$$z*airy_bi(z)$)
 (defprop %airy_dbi ((z) ((%airy_bi) z)) integral)

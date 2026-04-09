@@ -162,38 +162,6 @@
                   (take '(%expintegral_e) n z))))))
 
 ;;; Differentiation of Exponential Integral E
-
-#+nil
-(defprop %expintegral_e 
-  ((n z)
-    ;; The derivative wrt the parameter n is expressed in terms of the
-    ;; Regularized Hypergeometric function 2F2 (see functions.wolfram.com)
-    ((mplus)
-       ((mtimes) -1
-          (($hypergeometric_regularized)
-             ((mlist) 
-               ((mplus) 1 ((mtimes) -1 n))
-               ((mplus) 1 ((mtimes) -1 n)))
-             ((mlist) 
-               ((mplus) 2 ((mtimes) -1 n))
-               ((mplus) 2 ((mtimes) -1 n)))
-             ((mtimes) -1 z))
-          ((mexpt) 
-             ((%gamma) ((mplus) 1 ((mtimes) -1 n))) 2))
-       ((mtimes) 
-          ((%gamma) ((mplus) 1 ((mtimes) -1 n)))
-          ((mexpt) z ((mplus) -1 n))
-          ((mplus)
-             ((mtimes) -1
-                ((mqapply) 
-                   (($psi array) 0)
-                   ((mplus) 1 ((mtimes) -1 n))))
-             ((%log) z))))
-
-   ;; The derivative wrt the argument of the function
-   ((mtimes) -1 ((%expintegral_e) ((mplus) -1 n) z)))
-  grad)
-
 (defgrad %expintegral_e ($n $z)
   ;; The derivative wrt the parameter n is expressed in terms of the
   ;; Regularized Hypergeometric function 2F2 (see functions.wolfram.com)
