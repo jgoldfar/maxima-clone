@@ -4344,6 +4344,7 @@ first kind:
 ;; jacobi_dn(u) = 1/x
 ;;
 ;; so u = inverse_jacobi_dn(1/x)
+#+nil
 (defprop %inverse_jacobi_nd
     ((x m)
      ;; Whittaker and Watson, example in 22.122
@@ -4360,6 +4361,16 @@ first kind:
 ;     ((%derivative) ((%inverse_jacobi_nd) x m) m 1)
      nil)
   grad)
+
+(defgrad %inverse_jacobi_nd ($x $m)
+  ;; wrt x
+  ;; Whittaker and Watson, example in 22.122
+  ;; inverse_jacobi_nd(u,m) = integrate(1/sqrt(t^2-1)/sqrt(1-(1-m)*t^2), t, 1, u)
+  ;; -> 1/sqrt(u^2-1)/sqrt(1-(1-m)*t^2)
+  #$$ 1/(sqrt(x^2-1)*sqrt((m-1)*x^2+1))$
+  ;; wrt m
+  nil
+  )
 
 (def-simplifier inverse_jacobi_nd (u m)
   (cond ((or (float-numerical-eval-p u m)
@@ -4399,6 +4410,7 @@ first kind:
 ;;
 ;; u = inverse_sn(x/sqrt(1+x^2))
 ;;
+#+nil
 (defprop %inverse_jacobi_sc
     ((x m)
      ;; Whittaker and Watson, example in 22.122
@@ -4415,6 +4427,17 @@ first kind:
 ;     ((%derivative) ((%inverse_jacobi_sc) x m) m 1)
      nil)
   grad)
+
+(defgrad %inverse_jacobi_sc ($x $m)
+  ;; wrt x
+  ;; Whittaker and Watson, example in 22.122
+  ;; inverse_jacobi_sc(u,m) = integrate(1/sqrt(1+t^2)/sqrt(1+(1-m)*t^2), t, 0, u)
+  ;; -> 1/sqrt(1+x^2)/sqrt(1+(1-m)*x^2)
+  #$$ 1/(sqrt(x^2+1)*sqrt(1-(m-1)*x^2))$
+  ;; wrt m
+  nil
+)
+
 
 (def-simplifier inverse_jacobi_sc (u m)
   (cond ((or (float-numerical-eval-p u m)
@@ -4453,6 +4476,7 @@ first kind:
 ;;
 ;; u = inverse_sn(x/sqrt(1+m*x^2))
 ;;
+#+nil
 (defprop %inverse_jacobi_sd
     ((x m)
      ;; Whittaker and Watson, example in 22.122
@@ -4468,6 +4492,15 @@ first kind:
 ;     ((%derivative) ((%inverse_jacobi_sd) x m) m 1)
      nil)
   grad)
+
+(defgrad %inverse_jacobi_sd ($x $m)
+  ;; wrt x
+  ;; Whittaker and Watson, example in 22.122
+  ;; inverse_jacobi_sd(u,m) = integrate(1/sqrt(1-(1-m)*t^2)/sqrt(1+m*t^2), t, 0, u)
+  ;; -> 1/sqrt(1-(1-m)*x^2)/sqrt(1+m*x^2)
+  #$$ 1/(sqrt((m-1)*x^2+1)*sqrt(m*x^2+1))$
+  ;; wrt m
+  nil)
 
 (def-simplifier inverse_jacobi_sd (u m)
   (cond ((or (float-numerical-eval-p u m)
@@ -4503,6 +4536,7 @@ first kind:
 ;;
 ;; u = inverse_sc(1/x)
 ;;
+#+nil
 (defprop %inverse_jacobi_cs
     ((x m)
      ;; Whittaker and Watson, example in 22.122
@@ -4519,6 +4553,16 @@ first kind:
 ;     ((%derivative) ((%inverse_jacobi_cs) x m) m 1)
      nil)
   grad)
+
+(defgrad %inverse_jacobi_cs ($x $m)
+  ;; wrt x
+  ;; Whittaker and Watson, example in 22.122
+  ;; inverse_jacobi_cs(u,m) = integrate(1/sqrt(t^2+1)/sqrt(t^2+(1-m)), t, u, inf)
+  ;; -> -1/sqrt(x^2+1)/sqrt(x^2+(1-m))
+  #$$ -(1/(sqrt(x^2+1)*sqrt(x^2-m+1)))$
+  ;; wrt m
+  nil
+)
 
 (def-simplifier inverse_jacobi_cs (u m)
   (cond ((or (float-numerical-eval-p u m)
@@ -4548,6 +4592,7 @@ first kind:
 ;;
 ;; u = inverse_sn(sqrt(1-x^2)/sqrt(1-m*x^2))
 ;;
+#+nil
 (defprop %inverse_jacobi_cd
     ((x m)
      ;; Whittaker and Watson, example in 22.122
@@ -4564,6 +4609,16 @@ first kind:
 ;     ((%derivative) ((%inverse_jacobi_cd) x m) m 1)
      nil)
   grad)
+
+(defgrad %inverse_jacobi_cd ($x $m)
+  ;; wrt x
+  ;; Whittaker and Watson, example in 22.122
+  ;; inverse_jacobi_cd(u,m) = integrate(1/sqrt(1-t^2)/sqrt(1-m*t^2), t, u, 1)
+  ;; -> -1/sqrt(1-x^2)/sqrt(1-m*x^2)
+  #$$ -(1/(sqrt(1-x^2)*sqrt(1-m*x^2)))$
+  ;; wrt m
+  nil
+)
 
 (def-simplifier inverse_jacobi_cd (u m)
   (cond ((or (complex-float-numerical-eval-p u m)
@@ -4594,6 +4649,7 @@ first kind:
 ;;
 ;; u = inverse_sd(1/x)
 ;;
+#+nil
 (defprop %inverse_jacobi_ds
     ((x m)
      ;; Whittaker and Watson, example in 22.122
@@ -4611,6 +4667,15 @@ first kind:
      nil)
   grad)
 
+(defgrad %inverse_jacobi_ds ($x $m)
+  ;; wrt x
+  ;; Whittaker and Watson, example in 22.122
+  ;; inverse_jacobi_ds(u,m) = integrate(1/sqrt(t^2-(1-m))/sqrt(t^2+m), t, u, inf)
+  ;; -> -1/sqrt(x^2-(1-m))/sqrt(x^2+m)
+  #$$ -(1/(sqrt(x^2+m-1)*sqrt(x^2+m)))$
+  ;; wrt m
+  nil)
+  
 (def-simplifier inverse_jacobi_ds (u m)
   (cond ((or (float-numerical-eval-p u m)
 	     (complex-float-numerical-eval-p u m)
@@ -4644,6 +4709,7 @@ first kind:
 ;;
 ;; u = inverse_cd(1/x)
 ;;
+#+nil
 (defprop %inverse_jacobi_dc
     ((x m)
      ;; Note: Whittaker and Watson, example in 22.122 says
@@ -4666,6 +4732,20 @@ first kind:
 ;     ((%derivative) ((%inverse_jacobi_dc) x m) m 1)
      nil)
   grad)
+
+(defgrad %inverse_jacobi_dc ($x $m)
+  ;; wrt x
+  ;; Note: Whittaker and Watson, example in 22.122 says
+  ;; inverse_jacobi_dc(u,m) = integrate(1/sqrt(t^2-1)/sqrt(t^2-m),
+  ;; t, u, 1) but that seems wrong.  A&S 17.4.47 says
+  ;; integrate(1/sqrt(t^2-1)/sqrt(t^2-m), t, a, u) =
+  ;; inverse_jacobi_cd(x,m).  Lawden 3.2.8 says the same.
+  ;; functions.wolfram.com says the derivative is
+  ;; 1/sqrt(t^2-1)/sqrt(t^2-m).
+  #$$ 1/(sqrt(x^2-1)*sqrt(x^2-m))$
+  ;; wrt m
+  nil
+)
 
 (def-simplifier inverse_jacobi_dc (u m)
   (cond ((or (complex-float-numerical-eval-p u m)
@@ -4846,12 +4926,19 @@ first kind:
 		       (/ (* m (bigfloat::sn u-r m) (bigfloat::sn u-i m1) (bigfloat::sn u m))
 			  (bigfloat::cn u-i m1))))))))))
 
+#+nil
 (defprop $elliptic_eu
     ((u m)
      ((mexpt) ((%jacobi_dn) u m) 2)
      ;; wrt m
      )
   grad)
+
+(defgrad %elliptic_eu ($u $m)
+  ;; wrt u
+  #$$ jacobi_dn(u,m)^2 $
+  ;; wrt m
+)
 
 (def-simplifier elliptic_eu (u m)
   (cond
@@ -5204,6 +5291,7 @@ first kind:
        (give-up)))))
 
 ;; Derivative of jacobi_am wrt z and m.
+#+nil
 (defprop %jacobi_am
     ((z m)
     ;; WRT z.  From  http://functions.wolfram.com/09.24.20.0001.01
@@ -5224,3 +5312,18 @@ first kind:
         ((%elliptic_e) ((%jacobi_am) $z $m) $m)))))
   nil)
   grad)
+
+(defgrad %jacobi_am ($z $m)
+  ;; WRT z.  From  http://functions.wolfram.com/09.24.20.0001.01
+  ;; jacobi_dn(z,m)
+  #$$ jacobi_dn(z,m)$
+  ;; WRT m.  From http://functions.wolfram.com/09.24.20.0003.01.
+  ;; There are 5 different formulas listed; we chose the first,
+  ;; arbitrarily.
+  ;;
+  ;; (((m-1)*z+elliptic_e(jacobi_am(z,m),m))*jacobi_dn(z,m)
+  ;;   - m*jacobi_cn(z,m)*jacobi_sn(z,m))/(2*m*(m-1))
+  #$$ (jacobi_dn(z,m)*(elliptic_e(jacobi_am(z,m),m)+(m-1)*z)
+ -m*jacobi_cn(z,m)*jacobi_sn(z,m))
+ /(2*(m-1)*m)$
+)
