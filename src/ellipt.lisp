@@ -3118,6 +3118,18 @@ first kind:
 	   m)))))))
   grad)
 
+#+nil
+(defgrad %jacobi_nd ($u $m)
+  ;; wrt u
+  #$$ (m*jacobi_cn(u,m)*jacobi_sn(u,m))/jacobi_dn(u,m)^2$
+  ;; wrt m
+  #$$ -((-((jacobi_cn(u,m)*jacobi_sn(u,m)
+                     *(u-elliptic_e(asin(jacobi_sn(u,m)),m)/(1-m)))
+           /2)
+          -(jacobi_dn(u,m)*jacobi_sn(u,m)^2)/(2*(1-m)))
+        /jacobi_dn(u,m)^2)$)
+  
+
 (def-simplifier jacobi_nd (u m)
   (let (coef args)
     (cond
@@ -3203,6 +3215,7 @@ first kind:
 	   (give-up)))))
 
 ;; jacobi_sc(u,m) = jacobi_sn/jacobi_cn
+#+nil
 (defprop %jacobi_sc
     ((u m)
      ;; wrt u
@@ -3238,6 +3251,21 @@ first kind:
 	   ((%elliptic_e) ((%asin) ((%jacobi_sn) u m))
 	    m))))))))
   grad)
+
+(defgrad %jacobi_sc ($u $m)
+  ;; wrt u
+  #$$ jacobi_dn(u,m)/jacobi_cn(u,m)^2$
+  ;; wrt m
+  #$$ ((jacobi_cn(u,m)*jacobi_dn(u,m)*(u-elliptic_e(asin(jacobi_sn(u,m)),m)/(1-m)))
+       /(2*m)
+       +(jacobi_cn(u,m)^2*jacobi_sn(u,m))/(2*(1-m)))
+  /jacobi_cn(u,m)
+  -(jacobi_sn(u,m)*(-((jacobi_dn(u,m)*jacobi_sn(u,m)
+                                *(u-elliptic_e(asin(jacobi_sn(u,m)),m)
+                                              /(1-m)))
+                      /(2*m))
+                     -(jacobi_cn(u,m)*jacobi_sn(u,m)^2)/(2*(1-m))))
+  /jacobi_cn(u,m)^2$)
 
 (def-simplifier jacobi_sc (u m)
   (let (coef args)
@@ -3335,6 +3363,7 @@ first kind:
        (give-up)))))
 
 ;; jacobi_sd(u,m) = jacobi_sn/jacobi_dn
+#+nil
 (defprop %jacobi_sd
     ((u m)
      ;; wrt u
@@ -3370,6 +3399,21 @@ first kind:
 	   ((%elliptic_e) ((%asin) ((%jacobi_sn) u m))
 	    m))))))))
   grad)
+
+(defgrad %jacobi_sd ($u $m)
+  ;; wrt u
+  #$$ jacobi_cn(u,m)/jacobi_dn(u,m)^2$
+  ;; wrt m
+  #$$ ((jacobi_cn(u,m)*jacobi_dn(u,m)*(u-elliptic_e(asin(jacobi_sn(u,m)),m)/(1-m)))
+       /(2*m)
+       +(jacobi_cn(u,m)^2*jacobi_sn(u,m))/(2*(1-m)))
+  /jacobi_dn(u,m)
+ -(jacobi_sn(u,m)*(-((jacobi_cn(u,m)*jacobi_sn(u,m)
+                               *(u-elliptic_e(asin(jacobi_sn(u,m)),m)
+                                             /(1-m)))
+                     /2)
+                    -(jacobi_dn(u,m)*jacobi_sn(u,m)^2)/(2*(1-m))))
+  /jacobi_dn(u,m)^2$)
 
 (def-simplifier jacobi_sd (u m)
   (let (coef args)
@@ -3485,6 +3529,7 @@ first kind:
        (give-up)))))
 
 ;; jacobi_cs(u,m) = jacobi_cn/jacobi_sn
+#+nil
 (defprop %jacobi_cs
     ((u m)
      ;; wrt u
@@ -3520,6 +3565,22 @@ first kind:
 	   ((%elliptic_e) ((%asin) ((%jacobi_sn) u m))
 	    m))))))))
   grad)
+
+(defgrad %jacobi_cs ($u $m)
+  ;; wrt u
+  #$$ -(jacobi_dn(u,m)/jacobi_sn(u,m)^2)$
+  ;; wrt m
+  #$$ (-((jacobi_dn(u,m)*jacobi_sn(u,m)
+                   *(u-elliptic_e(asin(jacobi_sn(u,m)),m)/(1-m)))
+         /(2*m))
+        -(jacobi_cn(u,m)*jacobi_sn(u,m)^2)/(2*(1-m)))
+  /jacobi_sn(u,m)
+  -(jacobi_cn(u,m)*((jacobi_cn(u,m)*jacobi_dn(u,m)
+                              *(u-elliptic_e(asin(jacobi_sn(u,m)),m)
+                                            /(1-m)))
+                    /(2*m)
+                    +(jacobi_cn(u,m)^2*jacobi_sn(u,m))/(2*(1-m))))
+  /jacobi_sn(u,m)^2$)
 
 (def-simplifier jacobi_cs (u m)
   (let (coef args)
@@ -3618,6 +3679,7 @@ first kind:
        (give-up)))))
 
 ;; jacobi_cd(u,m) = jacobi_cn/jacobi_dn
+#+nil
 (defprop %jacobi_cd
     ((u m)
      ;; wrt u
@@ -3654,6 +3716,23 @@ first kind:
 	   ((%elliptic_e) ((%asin) ((%jacobi_sn) u m))
 	    m))))))))
   grad)
+
+(defgrad %jacobi_cd ($u $m)
+  ;; wrt u
+  #$$ ((m-1)*jacobi_sn(u,m))/jacobi_dn(u,m)^2$
+  ;; wrt m
+  #$$ (-((jacobi_dn(u,m)*jacobi_sn(u,m)
+                  *(u-elliptic_e(asin(jacobi_sn(u,m)),m)/(1-m)))
+ /(2*m))
+ -(jacobi_cn(u,m)*jacobi_sn(u,m)^2)/(2*(1-m)))
+ /jacobi_dn(u,m)
+ -(jacobi_cn(u,m)*(-((jacobi_cn(u,m)*jacobi_sn(u,m)
+                                    *(u-elliptic_e(asin(jacobi_sn(u,m)),m)
+                                        /(1-m)))
+                  /2)
+                  -(jacobi_dn(u,m)*jacobi_sn(u,m)^2)/(2*(1-m))))
+  /jacobi_dn(u,m)^2$
+  )
 
 (def-simplifier jacobi_cd (u m)
   (let (coef args)
@@ -3765,6 +3844,7 @@ first kind:
        (give-up)))))  
 
 ;; jacobi_ds(u,m) = jacobi_dn/jacobi_sn
+#+nil
 (defprop %jacobi_ds
     ((u m)
      ;; wrt u
@@ -3800,6 +3880,22 @@ first kind:
 	   ((%elliptic_e) ((%asin) ((%jacobi_sn) u m))
 	    m))))))))
   grad)
+
+(defgrad %jacobi_ds ($u $m)
+  ;; wrt u
+  #$$ -(jacobi_cn(u,m)/jacobi_sn(u,m)^2)$
+  ;; wrt m
+  #$$ (-((jacobi_cn(u,m)*jacobi_sn(u,m)
+                  *(u-elliptic_e(asin(jacobi_sn(u,m)),m)/(1-m)))
+ /2)
+ -(jacobi_dn(u,m)*jacobi_sn(u,m)^2)/(2*(1-m)))
+ /jacobi_sn(u,m)
+ -(jacobi_dn(u,m)*((jacobi_cn(u,m)*jacobi_dn(u,m)
+                                  *(u-elliptic_e(asin(jacobi_sn(u,m)),m)
+                                      /(1-m)))
+                  /(2*m)
+                  +(jacobi_cn(u,m)^2*jacobi_sn(u,m))/(2*(1-m))))
+  /jacobi_sn(u,m)^2$)
 
 (def-simplifier jacobi_ds (u m)
   (let (coef args)
@@ -3913,6 +4009,7 @@ first kind:
        (give-up)))))
 
 ;; jacobi_dc(u,m) = jacobi_dn/jacobi_cn
+#+nil
 (defprop %jacobi_dc
     ((u m)
      ;; wrt u
@@ -3949,6 +4046,23 @@ first kind:
 	   ((%elliptic_e) ((%asin) ((%jacobi_sn) u m))
 	    m))))))))
   grad)
+
+(defgrad %jacobi_dc ($u $m)
+  ;; wrt u
+  #$$ ((1-m)*jacobi_sn(u,m))/jacobi_cn(u,m)^2$
+  ;; wrt m
+  #$$ (-((jacobi_cn(u,m)*jacobi_sn(u,m)
+                  *(u-elliptic_e(asin(jacobi_sn(u,m)),m)/(1-m)))
+ /2)
+ -(jacobi_dn(u,m)*jacobi_sn(u,m)^2)/(2*(1-m)))
+ /jacobi_cn(u,m)
+ -(jacobi_dn(u,m)*(-((jacobi_dn(u,m)*jacobi_sn(u,m)
+                                    *(u-elliptic_e(asin(jacobi_sn(u,m)),m)
+                                        /(1-m)))
+                  /(2*m))
+                  -(jacobi_cn(u,m)*jacobi_sn(u,m)^2)/(2*(1-m))))
+  /jacobi_cn(u,m)^2$
+  )
 
 (defgrad %jacobi_dc (u m)
   ;; wrt u
@@ -4103,6 +4217,7 @@ first kind:
 ;; jacobi_sn(u) = 1/x
 ;;
 ;; so u = inverse_jacobi_sn(1/x)
+#+nil
 (defprop %inverse_jacobi_ns
     ((x m)
      ;; Whittaker and Watson, example in 22.122
@@ -4117,6 +4232,15 @@ first kind:
 ;     ((%derivative) ((%inverse_jacobi_ns) x m) m 1)
      nil)
   grad)
+
+(defgrad %inverse_jacobi_ns ($x $m)
+  ;; wrt x
+  ;; Whittaker and Watson, example in 22.122
+  ;; inverse_jacobi_ns(u,m) = integrate(1/sqrt(t^2-1)/sqrt(t^2-m), t, u, inf)
+  ;; -> -1/sqrt(x^2-1)/sqrt(x^2-m)
+  #$$ -(1/(sqrt(x^2-1)*sqrt(x^2-m)))$
+  ;; wrt m
+  nil)
 
 (def-simplifier inverse_jacobi_ns (u m)
   (let (args)
@@ -4165,6 +4289,7 @@ first kind:
 ;; jacobi_cn(u) = 1/x
 ;;
 ;; so u = inverse_jacobi_cn(1/x)
+#+nil
 (defprop %inverse_jacobi_nc
     ((x m)
      ;; Whittaker and Watson, example in 22.122
@@ -4180,6 +4305,15 @@ first kind:
 ;     ((%derivative) ((%inverse_jacobi_nc) x m) m 1)
      nil)
   grad)
+
+(defgrad %inverse_jacobi_nc ($x $m)
+  ;; wrt x
+  ;; Whittaker and Watson, example in 22.122
+  ;; inverse_jacobi_nc(u,m) = integrate(1/sqrt(t^2-1)/sqrt((1-m)*t^2+m), t, 1, u)
+  ;; -> 1/sqrt(x^2-1)/sqrt((1-m)*x^2+m)
+  #$$ 1/(sqrt(x^2-1)*sqrt(m-(m-1)*x^2))$
+  ;; wrt m
+  nil)
 
 (def-simplifier inverse_jacobi_nc (u m)
   (cond ((or (float-numerical-eval-p u m)
