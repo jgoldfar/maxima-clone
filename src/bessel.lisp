@@ -363,34 +363,6 @@
 
 (defprop %bessel_y (mlist $matrix mequal) distribute_over)
 
-#+nil
-(defprop %bessel_y
-    ((n x)
-     ;; Derivative wrt order n.  A&S 9.1.65.
-     ;;
-     ;; cot(n*%pi)*[diff(bessel_j(n,x),n)-%pi*bessel_y(n,x)]
-     ;;  - csc(n*%pi)*diff(bessel_j(-n,x),n)-%pi*bessel_j(n,x)
-     ((mplus)
-      ((mtimes) -1 $%pi ((%bessel_j) n x))
-      ((mtimes)
-       -1
-       ((%csc) ((mtimes) $%pi n))
-       ((%derivative) ((%bessel_j) ((mtimes) -1 n) x) n 1))
-      ((mtimes)
-       ((%cot) ((mtimes) $%pi n))
-       ((mplus)
-        ((mtimes) -1 $%pi ((%bessel_y) n x))
-        ((%derivative) ((%bessel_j) n x) n 1))))
-
-     ;; Derivative wrt to arg x.  A&S 9.1.27; changed from A&S 9.1.30
-     ;; to be consistent with bessel_j.
-     ((mtimes) 
-      ((mplus) 
-       ((%bessel_y)((mplus) -1 n) x) 
-       ((mtimes) -1 ((%bessel_y) ((mplus) 1 n) x))) 
-      ((rat) 1 2)))
-  grad)
-
 (defgrad %bessel_y ($n $x)
   ;; Derivative wrt order n.  A&S 9.1.65.
   ;;
@@ -717,33 +689,6 @@
 ;; Bessel I distributes over lists, matrices, and equations
 
 (defprop %bessel_i (mlist $matrix mequal) distribute_over)
-
-#+nil
-(defprop %bessel_i
-    ((n x)
-     ;; Derivative wrt order n.  A&S 9.6.42.
-     ;;
-     ;; I[n](x)*log(x/2) 
-     ;;   - (x/2)^n*sum(psi(n+k+1)/gamma(n+k+1)*(x^2/4)^k/k!,k,0,inf)
-     ((mplus)
-      ((mtimes)
-       ((%bessel_i) n x)
-       ((%log) ((mtimes) ((rat) 1 2) x)))
-      ((mtimes) -1
-       ((mexpt) ((mtimes) x ((rat) 1 2)) n)
-       ((%sum)
-        ((mtimes)
-         ((mexpt) ((mfactorial) $%k) -1)
-         ((mqapply) (($psi array) 0) ((mplus) 1 $%k n))
-         ((mexpt) ((%gamma) ((mplus) 1 $%k n)) -1)
-         ((mexpt) ((mtimes) x x ((rat) 1 4)) $%k))
-        $%k 0 $inf)))
-     ;; Derivative wrt to x.  A&S 9.6.29.
-     ((mtimes)
-      ((mplus) ((%bessel_i) ((mplus) -1 n) x)
-               ((%bessel_i) ((mplus) 1 n) x))
-      ((rat) 1 2)))
-  grad)
 
 (defgrad %bessel_i ($n $x)
   ;; Derivative wrt order n.  A&S 9.6.42.
@@ -1072,33 +1017,6 @@
 ;; Bessel K distributes over lists, matrices, and equations
 
 (defprop %bessel_k (mlist $matrix mequal) distribute_over)
-
-#+nil
-(defprop %bessel_k
-    ((n x)
-     ;; Derivativer wrt order n.  A&S 9.6.43.
-     ;;
-     ;; %pi/2*csc(n*%pi)*['diff(bessel_i(-n,x),n)-'diff(bessel_i(n,x),n)]
-     ;;    - %pi*cot(n*%pi)*bessel_k(n,x)
-     ((mplus)
-      ((mtimes) -1 $%pi
-       ((%bessel_k) n x)
-       ((%cot) ((mtimes) $%pi n)))
-      ((mtimes)
-       ((rat) 1 2)
-       $%pi
-       ((%csc) ((mtimes) $%pi n))
-       ((mplus)
-        ((%derivative) ((%bessel_i) ((mtimes) -1 n) x) n 1)
-        ((mtimes) -1
-         ((%derivative) ((%bessel_i) n x) n 1)))))
-     ;; Derivative wrt to x.  A&S 9.6.29.
-     ((mtimes)
-      -1
-      ((mplus) ((%bessel_k) ((mplus) -1 n) x)
-               ((%bessel_k) ((mplus) 1 n) x))
-      ((rat) 1 2)))
-  grad)
 
 (defgrad %bessel_k ($n $x)
   ;; Derivativer wrt order n.  A&S 9.6.43.
@@ -1702,19 +1620,6 @@
 (defprop %hankel_1 (mlist $matrix mequal) distribute_over)
 
 ; Derivatives of the Hankel 1 function
-#+nil
-(defprop %hankel_1
-    ((n x)
-     nil
-
-     ;; Derivative wrt arg x.  A&S 9.1.27.
-     ((mtimes)
-       ((mplus)
-         ((%hankel_1) ((mplus) -1 n) x)
-         ((mtimes) -1 ((%hankel_1) ((mplus) 1 n) x)))
-       ((rat) 1 2)))
-  grad)
-
 (defgrad %hankel_1 ($n $x)
   ;; wrt n
   nil
@@ -1799,19 +1704,6 @@
 (defprop %hankel_2 (mlist $matrix mequal) distribute_over)
 
 ; Derivatives of the Hankel 2 function
-#+nil
-(defprop %hankel_2
-    ((n x)
-     nil
-
-     ;; Derivative wrt arg x.  A&S 9.1.27.
-     ((mtimes)
-       ((mplus) 
-         ((%hankel_2) ((mplus) -1 n) x)
-         ((mtimes) -1 ((%hankel_2) ((mplus) 1 n) x)))
-       ((rat) 1 2)))
-  grad)
-
 (defgrad %hankel_2 ($n $x)
   ;; wrt n
   nil
@@ -1895,24 +1787,6 @@
 (defprop %struve_h (mlist $matrix mequal) distribute_over)
 
 ; Derivatives of the Struve H function
-#+nil
-(defprop %struve_h
-  ((v z)
-   nil
-
-   ;; Derivative wrt arg z.  A&S 12.1.10.
-   ((mtimes) 
-    ((rat) 1 2)
-    ((mplus) 
-     ((%struve_h) ((mplus) -1 v) z)
-     ((mtimes) -1 ((%struve_h) ((mplus) 1 v) z))
-     ((mtimes) 
-      ((mexpt) $%pi ((rat) -1 2))
-      ((mexpt) 2 ((mtimes) -1 v))
-      ((mexpt) ((%gamma) ((mplus) ((rat) 3 2) v)) -1)
-      ((mexpt) z v)))))
-  grad)
-
 (defgrad %struve_h ($v $z)
   ;; wrt v
   nil
@@ -2141,24 +2015,6 @@
 (defprop %struve_l (mlist $matrix mequal) distribute_over)
 
 ; Derivatives of the Struve L function
-#+nil
-(defprop %struve_l
-  ((v z)
-   nil
-
-   ;; Derivative wrt arg z.  A&S 12.2.5.
-   ((mtimes) 
-    ((rat) 1 2)
-    ((mplus) 
-     ((%struve_l) ((mplus) -1 v) z)
-     ((%struve_l) ((mplus) 1 v) z)
-     ((mtimes) 
-      ((mexpt) $%pi ((rat) -1 2))
-      ((mexpt) 2 ((mtimes) -1 v))
-      ((mexpt) ((%gamma) ((mplus) ((rat) 3 2) v)) -1)
-      ((mexpt) z v)))))
-  grad)
-
 (defgrad %struve_l ($v $z)
   ;; wrt v
   nil
