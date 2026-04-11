@@ -33,8 +33,6 @@
 ;; be nice to simplify products containing more than one hstep, but that is 
 ;; a simplification on products, not on hstep.
 
-#+nil
-(defprop %hstep ((x) (($delta) x)) grad)
 (defgrad %hstep ($x)
   #$$ delta(x)$
   )
