@@ -878,12 +878,17 @@
 
 ;;; Differentiation of Exponential Integral E1
 
+#+nil
 (defprop %expintegral_e1
   ((x)
    ((mtimes) -1
     ((mexpt) x -1)
     ((mexpt) $%e ((mtimes) -1 x))))
   grad)
+
+(defgrad %expintegral_e1 ($x)
+  #$$ -(%e^-x/x)$
+  )
 
 ;;; Integral of Exponential Integral E1
 
@@ -992,10 +997,15 @@
 
 ;;; Differentiation of Exponential Integral Ei
 
+#+nil
 (defprop %expintegral_ei
   ((x)
    ((mtimes) ((mexpt) x -1) ((mexpt) $%e x)))
   grad)
+
+(defgrad %expintegral_ei ($x)
+  #$$ %e^x/x$
+  )
 
 ;;; Integral of Exponential Ei
 
@@ -1191,10 +1201,15 @@
 
 ;;; Differentiation of Exponential Integral Li 
 
+#+nil
 (defprop %expintegral_li
   ((x)
    ((mtimes) ((mexpt) ((%log) x) -1)))
   grad)
+
+(defgrad %expintegral_li ($x)
+  #$$ 1/log(x)$
+  )
 
 ;;; Integral of Exponential Li
 
@@ -1339,10 +1354,15 @@
 
 ;;; Differentiation of Exponential Integral Si
 
+#+nil
 (defprop %expintegral_si
   ((x)
    ((mtimes) ((%sin) x) ((mexpt) x -1)))
   grad)
+
+(defgrad %expintegral_si ($x)
+  #$$ sin(x)/x$
+  )
 
 ;;; Integral of Exponential Si
 
@@ -1501,10 +1521,15 @@
 
 ;;; Differentiation of Exponential Integral Shi
 
+#+nil
 (defprop %expintegral_shi
   ((x)
    ((mtimes) ((%sinh) x) ((mexpt) x -1)))
   grad)
+
+(defgrad %expintegral_shi ($x)
+  #$$ sinh(x)/x$
+  )
 
 ;;; Integral of Exponential Shi
 
@@ -1671,10 +1696,15 @@
 
 ;;; Differentiation of Exponential Integral Ci
 
+#+nil
 (defprop %expintegral_ci
   ((x)
    ((mtimes) ((%cos) x) ((mexpt) x -1)))
   grad)
+
+(defgrad %expintegral_ci ($x)
+  #$$ cos(x)/x$
+  )
 
 ;;; Integral of Exponential Ci
 
@@ -1858,10 +1888,15 @@
 
 ;;; Differentiation of Exponential Integral Chi
 
+#+nil
 (defprop %expintegral_chi
   ((x)
    ((mtimes) ((%cosh) x) ((mexpt) x -1)))
   grad)
+
+(defgrad %expintegral_chi ($x)
+  #$$ cosh(x)/x$
+  )
 
 ;;; Integral of Exponential Chi
 
