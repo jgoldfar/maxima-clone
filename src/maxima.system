@@ -10,13 +10,6 @@
 
 #+ecl (require 'cmp)
 
-#+gcl
-(let ((version-num (+ (* 10000 system::*gcl-major-version*)
-		      (* 100 system::*gcl-minor-version*)
-		      system::*gcl-extra-version*)))
-  (when (> version-num 20603)
-    (pushnew :gcl-working-proclaims *features*)))
-
 #+cmu
 (setf ext:*gc-verbose* nil)
 
@@ -133,9 +126,7 @@
 	     (:file "numerical/f2cl-lib-package")
 	     (:file "numerical/slatec")
 	     (:file "command-line")
-	     (:file "pregexp")
-	     #+gcl-working-proclaims
-	     (:private-file "tools/sys-proclaim")))
+	     (:file "pregexp")))
    (:module package :source-pathname ""
 	    ;; On ECL all runtime alterations to the system (i.e from repl)
 	    ;; at runtime are not part of the final executable if they aren't.
