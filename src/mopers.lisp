@@ -179,6 +179,10 @@
 ;; a quoted list of the maxima internal representation of the
 ;; derivative.
 ;;
+;; In general do NOT use #$...$ because this calls the simplifier and
+;; requires basically all of maxima to be available to simplify the
+;; expression.  It might work, but it's best just to use #$$...$.
+;;
 ;; For example here are two ways to define the derivatives of atan2:
 ;;
 ;;   (defgrad %atan2 ($x $y)
@@ -193,6 +197,10 @@
 ;;
 ;; The first form is clearly easier to read and understand, but either
 ;; scheme will work.
+;;
+;; The derivative forms can also be lambda's.  See gamma_incomplete.
+;; But if the lambda also uses #$$...$, it MUST call meval* itself to
+;; make sure the result is appropriately simplified.
 
 (defmacro defgrad (name arguments &body body)
   "DEFGRAD defines derivatives for the function NAME having arguments ARGUMENTS.
@@ -207,7 +215,10 @@
   expressions that way.
 
   Use of #$$ is not required.  In that case, each derivative must be a
-  quoted list of the maxima internal representation of the derivative. "
+  quoted list of the maxima internal representation of the derivative.
+
+  The derivative may also be a lambda expression that returns the
+  derivative or NIL."
   ;; Check that the argument variables show up somewhere in the body.
   ;; Otherwise, the defintion of the derivative is potentially
   ;; incorrect.
