@@ -33,8 +33,13 @@
 ;; be nice to simplify products containing more than one hstep, but that is 
 ;; a simplification on products, not on hstep.
 
+#+nil
 (defprop %hstep ((x) (($delta) x)) grad)
+(defgrad %hstep ($x)
+  #$$ delta(x)$
+  )
 (defprop $delta ((x) ((%hstep) x)) integral)
+
 
 ;; Unlike `signum`, we do not extend hstep to the complex plane. Maxima defines hstep(0) = 1/2, 
 ;; but the DLMF (http://dlmf.nist.gov/1.16.iv) defines hstep(0) = 0. 
