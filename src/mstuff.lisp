@@ -50,7 +50,7 @@
           `((mlist) ,(meval `(($ev) ,@(list (list '(mquote) form)))))))
        ((= n 2)
         (setq form (first x))
-        (setq b ($float (meval (second x))))
+        (setq b (let (($simp t)) ($float (meval (second x)))))
         (if (numberp b)
             (return
               (do
@@ -66,7 +66,7 @@
         (if ($listp b)
             (setq lv (mapcar #'(lambda (u) (list '(mquote) u)) (cdr b)))
             (progn
-              (setq b ($float (meval b)))
+              (setq b (let (($simp t)) ($float (meval b))))
               (if ($numberp b)
                   (return
                     (do
@@ -82,7 +82,7 @@
         (setq arg (second x))
         (setq a (meval (third x)))
         (setq b (meval (fourth x)))
-        (setq d ($float (meval `((mplus) ,b ((mtimes) ,a -1)))))
+        (setq d (let (($simp t)) ($float (meval `((mplus) ,b ((mtimes) ,a -1))))))
         (if (numberp d)
             (setq lv (interval2 a 1 d))
             (merror (intl:gettext "makelist: the fourth argument minus the third one must evaluate to a number; found: ~M") d)))
@@ -92,9 +92,9 @@
         (setq a (meval (third x)))
         (setq b (meval (fourth x)))
         (setq c (meval (fifth x)))
-        (setq d ($float
+        (setq d (let (($simp t)) ($float
                  (meval 
-                  `((mtimes) ((mplus) ,b ((mtimes) ,a -1)) ((mexpt) ,c -1)))))
+                  `((mtimes) ((mplus) ,b ((mtimes) ,a -1)) ((mexpt) ,c -1))))))
         (if (numberp d)
             (setq lv (interval2 a c d))
             (merror (intl:gettext "makelist: the fourth argument minus the third one, divided by the fifth one must evaluate to a number; found: ~M") d)))
@@ -110,7 +110,7 @@
     t))
 
 (defun interval2 (i s d)
-  (do ((nn i (meval `((mplus) ,s ,nn)))
+  (do ((nn i (let (($simp t)) (meval `((mplus) ,s ,nn))))
        (m 0 (1+ m))
        (ans))
       ((> m d) (nreverse ans))
