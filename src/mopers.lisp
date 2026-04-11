@@ -237,7 +237,7 @@
      (push ',name *defgrad-syms*)
      (setf (get ',name 'grad)
            `(,',arguments
-             ,,@body)))))
+             ,,@body))))
 
 ;; When DEFGRAD uses #$$ to define derivatives, we MUST call MEVAL* on
 ;; them to get them simplified appropriately.  It's ok to call MEVAL*

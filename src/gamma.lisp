@@ -2996,7 +2996,7 @@
 
 ;;; Differentiation of the Fresnel Integral S
 (defgrad %fresnel_s ($z)
-  #$$ sin((%pi*z^2)/2)$)
+  #$$ sin((%pi*z^2)/2)$
   )
 
 ;;; Integration of the Fresnel Integral S
@@ -3184,7 +3184,7 @@
 
 ;;; Differentiation of the Fresnel Integral C
 (defgrad %fresnel_c ($z)
-  #$$ cos((%pi*z^2)/2)$)
+  #$$ cos((%pi*z^2)/2)$
   )
 
 ;;; Integration of the Fresnel Integral C
