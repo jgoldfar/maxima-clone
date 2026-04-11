@@ -361,6 +361,7 @@
 
 ;;; Derivative of the Incomplete Gamma function
 
+#+nil
 (putprop '%gamma_incomplete
   `((a z)
     ,(lambda (a z)
@@ -390,6 +391,35 @@
       ((mexpt) $%e ((mtimes) -1 z))
       ((mexpt) z ((mplus) -1 a))))
   'grad)
+
+(defgrad %gamma_incomplete ($a $z)
+  ;; wrt a
+  #'(lambda ($a $z)
+      ;; Variable names MUST be $A and $Z because we use #$$...$ to
+      ;; define the derivative.
+      ;;
+      ;; Compiler may not see that $z is used, so declare it ignorable
+      ;; to get rid of a warning that it's unused.
+      (declare (ignorable $z))
+      (cond ((member ($sign $a) '($pos $pz))
+             ;; The derivative wrt a in terms of hypergeometric_regularized 2F2
+             ;; function and the Generalized Incomplete Gamma function 
+             ;; (functions.wolfram.com), only for a>0.
+             ;;
+             ;; We need to call meval* ourselves here to make sure the
+             ;; expression is simplified as expected.
+             (meval*
+              #$$ (gamma_incomplete(a,z)-gamma(a))*log(z)+gamma(a)^2
+                                        *hypergeometric_regularized(
+                                         [a,a],[a+1,a+1],-z)*z^a
+                                       +psi[0](a)*gamma(a)$
+             ))
+            (t
+             ;; No derivative. Maxima generates a noun form.
+             nil)))
+  ;; The derivative wrt z
+  #$$ -(%e^-z*z^(a-1))$
+  )
 
 ;;; Integral of the Incomplete Gamma function
 
