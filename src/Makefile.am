@@ -414,11 +414,39 @@ ecllib_SCRIPTS = binary-ecl/maxima
 EXECUTEECL = $(ECL_NAME) -norc
 BUILT_FILES += binary-ecl/maxima
 
+if WIN32
+# When using ECL (Windows or crosscompiling on Linux), (build-maxima-lib) does not seem to work.
+# Do something similar than with ABCL below.
+WEIRD_INSTALL_TARGETS += install-ecl-folder
+WEIRD_UNINSTALL_TARGETS += uninstall-ecl-folder
+
+install-ecl-folder:
+	$(mkinstalldirs) $(DESTDIR)$(ecllibdir)
+	cp -r binary-ecl/* "$(DESTDIR)$(ecllibdir)"
+	chmod +x $(DESTDIR)$(ecllibdir)/maxima
+uninstall-ecl-folder:
+	if test x"$(ecllibdir)" = x"" ; then echo "Error: No known maxima version"; exit -1; else rm -f "$(DESTDIR)$(ecllibdir)/*"; fi
+
 ecl:binary-ecl/maxima
 
 binary-ecl/maxima:
 	$(MAKE) bd
+	echo '$(QUIET) $(LOADDEFSYSTEM) $(DEFSYSTEMCOMPILE) (ext:quit)' | $(EXECUTEECL)
+	sed -e 's#"binary-ecl"#(ext:getenv "MAXIMA_IMAGESDIR_BIN")#g' < $(srcdir)/maxima.system > binary-ecl/maxima.system
+	cp $(srcdir)/maxima-package.lisp binary-ecl
+	cp $(srcdir)/autol.lisp binary-ecl
+	cp $(srcdir)/init-cl.lisp binary-ecl
+	cp $(srcdir)/max_ext.lisp binary-ecl
+	cp autoconf-variables.lisp binary-ecl
+	cp $(srcdir)/../lisp-utils/defsystem.lisp binary-ecl
+	touch binary-ecl/maxima
+	chmod +x binary-ecl/maxima
+else
+# Not Windows. Proceed as usual.
+binary-ecl/maxima:
+	$(MAKE) bd
 	echo '$(QUIET) $(LOADDEFSYSTEM) $(DEFSYSTEMCOMPILE) (build-maxima-lib) (ext:quit)' | $(EXECUTEECL)
+endif
 
 ecl-depends.mk: maxima.system Makefile *.lisp
 	echo $(call MAKE_DEPENDS,"binary-ecl/maxima",ecl-depends.mk.tmp,(quit)) | $(EXECUTEECL)

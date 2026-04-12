@@ -24,9 +24,8 @@ ExternalProject_Add(ecl
   URL_MD5 ${ECL_MD5}
   PATCH_COMMAND  rm -rf "${CMAKE_CURRENT_BINARY_DIR}/ecl-prefix/src/ecl/src/gmp"
         COMMAND  cp -a "${CMAKE_BINARY_DIR}/gmplib/gmplib-prefix/src/gmplib" "${CMAKE_CURRENT_BINARY_DIR}/ecl-prefix/src/ecl/src/gmp"
-#        COMMAND  cp ${CMAKE_SOURCE_DIR}/ecl/strm_os.d ${CMAKE_BINARY_DIR}/ecl/ecl-prefix/src/ecl/src/c/streams/strm_os.d
-        COMMAND  cp ${CMAKE_SOURCE_DIR}/ecl/asdf.lisp ${CMAKE_BINARY_DIR}/ecl/ecl-prefix/src/ecl/contrib/asdf/asdf.lisp
-  CONFIGURE_COMMAND ECL_TO_RUN=${CMAKE_BINARY_DIR}/ecl-native-root/bin/ecl CFLAGS=-m64 ./configure --build=x86_64-pc-linux-gnu --host=x86_64-w64-mingw32 --prefix=${CMAKE_BINARY_DIR}/ecl-cross-root --with-cross-config=${CMAKE_BINARY_DIR}/ecl/ecl-prefix/src/ecl/src/util/x86_64-w64-mingw32.cross_config --enable-gmp=included --with-cmp=yes --with-bytecmp=no #--with-asdf=no
+        COMMAND  cp ${CMAKE_SOURCE_DIR}/ecl/strm_os.d ${CMAKE_BINARY_DIR}/ecl/ecl-prefix/src/ecl/src/c/streams/strm_os.d
+  CONFIGURE_COMMAND ECL_TO_RUN=${CMAKE_BINARY_DIR}/ecl-native-root/bin/ecl ./configure --build=x86_64-pc-linux-gnu --host=x86_64-w64-mingw32 --prefix=${CMAKE_BINARY_DIR}/ecl-cross-root --with-cross-config=${CMAKE_BINARY_DIR}/ecl/ecl-prefix/src/ecl/src/util/x86_64-w64-mingw32.cross_config --enable-gmp=included --with-cmp=yes --with-bytecmp=no --with-asdf=no
   BUILD_COMMAND make
   INSTALL_COMMAND make install
           COMMAND ${CMAKE_COMMAND} -E copy "${MINGW_LIBSTDCPP}" "${CMAKE_BINARY_DIR}/ecl-cross-root"
