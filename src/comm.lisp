@@ -675,31 +675,12 @@
   #$$y/(y^2+x^2)$
   #$$-(x/(y^2+x^2))$)
 
-#+nil
-(defprop $li 
-  ((n x)
-; Do not put a noun form on the property list, but NIL.
-; SDIFFGRAD generates the noun form.
-;   ((%derivative) ((mqapply) (($li array) n) x) n 1)
-   nil
-   ((mtimes) ((mqapply) (($li array) ((mplus) -1 n)) x) ((mexpt) x -1)))
-  grad)
-
 (defgrad $li ($n $x)
   ;; wrt n
   nil
   ;; wrt x
   #$$ li[n-1](x)/x$
   )
-
-#+nil
-(defprop $psi 
-  ((n x)
-; Do not put a noun form on the property list, but NIL.
-; SDIFFGRAD generates the noun form.
-   nil
-   ((mqapply) (($psi array) ((mplus) 1 n)) x))
-  grad)
 
 (defgrad $psi ($n $x)
   ;; wrt n

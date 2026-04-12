@@ -876,15 +876,6 @@
 
 
 ;;; Derivative of lambert_w
-#+nil
-(defprop %generalized_lambert_w
-  ((k x)
-   nil
-   ((mtimes)
-    ((mexpt) $%e ((mtimes ) -1 ((%generalized_lambert_w) k x)))
-    ((mexpt) ((mplus) 1 ((%generalized_lambert_w) k x)) -1)))
-  grad)
-
 (defgrad %generalized_lambert_w ($k $x)
   ;; wrt k
   nil
