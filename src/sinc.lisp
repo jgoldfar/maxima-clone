@@ -86,8 +86,13 @@
 (setf (get '%sinc 'simplim%function) 'simplim%sinc)
 
 ;; Derivative of sinc: x -> (cos(x)-sinc(x))/x
+#+nil
 (putprop '%sinc 
 	 '((x) ((mtimes) ((mexpt) x -1) ((mplus) ((%cos) x) ((mtimes) -1 ((%sinc) x))))) 'grad)
+
+(defgrad %sinc ($x)
+  #$$ (cos(x)-sinc(x))/x$
+  )
 
 ;; Antiderivative of sinc: x -> expintegral_si(x)
 ;; Tradeoff: Maxima integrates sin(x)/x in terms of the incomplete gamma function,

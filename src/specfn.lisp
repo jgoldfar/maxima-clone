@@ -876,6 +876,7 @@
 
 
 ;;; Derivative of lambert_w
+#+nil
 (defprop %generalized_lambert_w
   ((k x)
    nil
@@ -883,6 +884,13 @@
     ((mexpt) $%e ((mtimes ) -1 ((%generalized_lambert_w) k x)))
     ((mexpt) ((mplus) 1 ((%generalized_lambert_w) k x)) -1)))
   grad)
+
+(defgrad %generalized_lambert_w ($k $x)
+  ;; wrt k
+  nil
+  ;; wrt x
+  #$$ %e^-generalized_lambert_w(k,x)/(generalized_lambert_w(k,x)+1)$
+  )
 
 ;;; Integral of lambert_w
 ;;; integrate(W(k,x),x) := x*(W(k,x)^2-W(k,x)+1)/W(k,x)

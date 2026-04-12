@@ -675,6 +675,7 @@
   #$$y/(y^2+x^2)$
   #$$-(x/(y^2+x^2))$)
 
+#+nil
 (defprop $li 
   ((n x)
 ; Do not put a noun form on the property list, but NIL.
@@ -684,6 +685,14 @@
    ((mtimes) ((mqapply) (($li array) ((mplus) -1 n)) x) ((mexpt) x -1)))
   grad)
 
+(defgrad $li ($n $x)
+  ;; wrt n
+  nil
+  ;; wrt x
+  #$$ li[n-1](x)/x$
+  )
+
+#+nil
 (defprop $psi 
   ((n x)
 ; Do not put a noun form on the property list, but NIL.
@@ -691,6 +700,13 @@
    nil
    ((mqapply) (($psi array) ((mplus) 1 n)) x))
   grad)
+
+(defgrad $psi ($n $x)
+  ;; wrt n
+  nil
+  ;; wrt x
+  #$$ psi[n+1](x)$
+  )
 
 (defun atvarschk (argl)
   (do ((largl (length argl) (1- largl))
