@@ -219,7 +219,8 @@
 	    ((:file "defcal")
 	     (:file "maxmac")))
    (:module utility-macros :source-pathname ""
-	    :depends-on ("defmfun")
+	    :depends-on ("defmfun" "compatiblity-macros" "compatiblity-macros1"
+                                   "prerequisites")
 	    :components
 	    ((:file "mopers")
 	     (:file "mforma")))
