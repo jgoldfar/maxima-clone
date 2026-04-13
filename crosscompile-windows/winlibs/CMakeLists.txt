@@ -11,3 +11,4 @@ externalproject_add(winlibs
         COMMAND  ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/mingw/bin/gcc.exe" "${CMAKE_BINARY_DIR}/mingw/bin/cc.exe"
   INSTALL_COMMAND ""
 )
+install(DIRECTORY ${CMAKE_BINARY_DIR}/winlibs/winlibs-prefix/src/winlibs/ DESTINATION winlibs COMPONENT ECL)
