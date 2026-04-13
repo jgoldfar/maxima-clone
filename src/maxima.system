@@ -189,7 +189,7 @@
 	    (#+gcl (:file "gcl-compat")
 		   (:file "commac")))
    (:module prerequisites :source-pathname ""
-	    :depends-on ("defmfun")
+	    :depends-on ("defmfun" "compatibility-macros1")
 	    :components
 	    ((:file "mormac")
 	     (:file "compat")))
