@@ -4043,7 +4043,11 @@ ignoring dummy variables and array indices."
 		      (let* ((logf (logred f))
 			     (c (mrv-leadterm (m// logf logg) var nil)))
 			(cond ((not (equal (cadr c) 0))
-			       (merror "MRV-REWRITE: expected leading term to be constant in ~M" c)))
+					;; The Gruntz method cannot produce a result for this input. Instead of
+                    ;; signaling a fatal error (merror), we perform a non-local exit. This
+                    ;; allows the limit code to continue trying other methods.
+			         ;(mtell "MRV-REWRITE: expected leading term to be constant in ~M" c)
+				     (throw 'taylor-catch nil)))
 			;;(mtell "logg: ~M  logf: ~M~%" logg logf)
 			(m* (m^ w (car c))
 			    (m^ '$%e (m- logf
