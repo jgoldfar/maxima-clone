@@ -213,22 +213,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Differentiation of Double factorial
-
-(defprop %double_factorial
-  ((z)
-   ((mtimes) 
-      ((rat) 1 2)
-      ((%double_factorial) z)
-      ((mplus) 
-         ((%log) 2)
-         ((mqapply) 
-            (($psi array) 0)
-            ((mplus) 1 ((mtimes) ((rat) 1 2) z)))
-         ((mtimes) 
-            ((rat) 1 2) $%pi
-            ((%log) ((mtimes) 2 ((mexpt) $%pi -1)))
-            ((%sin) ((mtimes) $%pi z))))))
-  grad)
+(defgrad %double_factorial ($z)
+  #$$ (double_factorial(z)*((%pi*log(2/%pi)*sin(%pi*z))/2+psi[0](z/2+1)+log(2)))/2$
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -374,6 +361,7 @@
 
 ;;; Derivative of the Incomplete Gamma function
 
+#+nil
 (putprop '%gamma_incomplete
   `((a z)
     ,(lambda (a z)
@@ -403,6 +391,35 @@
       ((mexpt) $%e ((mtimes) -1 z))
       ((mexpt) z ((mplus) -1 a))))
   'grad)
+
+(defgrad %gamma_incomplete ($a $z)
+  ;; wrt a
+  #'(lambda ($a $z)
+      ;; Variable names MUST be $A and $Z because we use #$$...$ to
+      ;; define the derivative.
+      ;;
+      ;; Compiler may not see that $z is used, so declare it ignorable
+      ;; to get rid of a warning that it's unused.
+      (declare (ignorable $z))
+      (cond ((member ($sign $a) '($pos $pz))
+             ;; The derivative wrt a in terms of hypergeometric_regularized 2F2
+             ;; function and the Generalized Incomplete Gamma function 
+             ;; (functions.wolfram.com), only for a>0.
+             ;;
+             ;; We need to call meval* ourselves here to make sure the
+             ;; expression is simplified as expected.
+             (meval*
+              #$$ (gamma_incomplete(a,z)-gamma(a))*log(z)+gamma(a)^2
+                                        *hypergeometric_regularized(
+                                         [a,a],[a+1,a+1],-z)*z^a
+                                       +psi[0](a)*gamma(a)$
+             ))
+            (t
+             ;; No derivative. Maxima generates a noun form.
+             nil)))
+  ;; The derivative wrt z
+  #$$ -(%e^-z*z^(a-1))$
+  )
 
 ;;; Integral of the Incomplete Gamma function
 
@@ -1436,40 +1453,19 @@
 
 ;;; Differentiation of Generalized Incomplete Gamma function
 
-(defprop %gamma_incomplete_generalized
-  ((a z1 z2)
-   ;; The derivative wrt a in terms of hypergeometric_regularized 2F2 function
-   ;; and the Generalized Incomplete Gamma function (functions.wolfram.com)
-   ((mplus)
-      ((mtimes)
-         ((mexpt) ((%gamma) a) 2)
-         ((mexpt) z1 a)
-         (($hypergeometric_regularized)
-            ((mlist) a a)
-            ((mlist) ((mplus) 1 a) ((mplus) 1 a))
-            ((mtimes) -1 z1)))
-      ((mtimes) -1
-         ((mexpt) ((%gamma) a) 2)
-         ((mexpt) z2 a)
-         (($hypergeometric_regularized)
-            ((mlist) a a)
-            ((mlist) ((mplus) 1 a) ((mplus) 1 a))
-            ((mtimes) -1 z2)))
-      ((mtimes) -1
-         ((%gamma_incomplete_generalized) a 0 z1)
-         ((%log) z1))
-      ((mtimes)
-         ((%gamma_incomplete_generalized) a 0 z2)
-         ((%log) z2)))
-   ;; The derivative wrt z1
-   ((mtimes) -1
-      ((mexpt) $%e ((mtimes) -1 z1))
-      ((mexpt) z1 ((mplus) -1 a)))
-   ;; The derivative wrt z2
-   ((mtimes)
-      ((mexpt) $%e ((mtimes) -1 z2))
-      ((mexpt) z2 ((mplus) -1 a))))
-  grad)
+(defgrad %gamma_incomplete_generalized ($a $z1 $z2)
+  ;; The derivative wrt a in terms of hypergeometric_regularized 2F2 function
+  ;; and the Generalized Incomplete Gamma function (functions.wolfram.com)
+  #$$gamma_incomplete_generalized(a,0,z2)*log(z2)
+ -gamma(a)^2*hypergeometric_regularized([a,a],[a+1,a+1],-z2)*z2^a
+ -gamma_incomplete_generalized(a,0,z1)*log(z1)
+ +gamma(a)^2*hypergeometric_regularized([a,a],[a+1,a+1],-z1)*z1^a$
+
+  ;; The derivative wrt z1
+  #$$-(z1^(a-1)*%e^-z1)$
+
+  ;; The derivative wrt z2
+  #$$z2^(a-1)*%e^-z2$)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1637,32 +1633,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Differentiation of Regularized Incomplete Gamma function
-
-(defprop %gamma_incomplete_regularized
-  ((a z)
-   ;; The derivative wrt a in terms of hypergeometric_regularized 2F2 function
-   ;; and the Regularized Generalized Incomplete Gamma function 
-   ;; (functions.wolfram.com)
-   ((mplus)
-      ((mtimes)
-         ((%gamma) a)
-         ((mexpt) z a)
-         (($hypergeometric_regularized)
-            ((mlist) a a)
-            ((mlist) ((mplus) 1 a) ((mplus) 1 a))
-            ((mtimes) -1 z)))
-      ((mtimes)
-         ((%gamma_incomplete_generalized_regularized) a z 0)
-         ((mplus)
-            ((%log) z)
-            ((mtimes) -1 ((mqapply) (($psi array) 0) a)))))
-   ;; The derivative wrt z
-   ((mtimes)
-      -1
-      ((mexpt) $%e ((mtimes) -1 z))
-      ((mexpt) z ((mplus) -1 a))
-      ((mexpt) ((%gamma) a) -1)))
-  grad)
+(defgrad %gamma_incomplete_regularized ($a $z)
+  ;; The derivative wrt a in terms of hypergeometric_regularized 2F2 function
+  ;; and the Regularized Generalized Incomplete Gamma function 
+  ;; (functions.wolfram.com)
+  #$$ 'gamma_incomplete_generalized_regularized(a,z,0)*(log(z)-psi[0](a))
+  +gamma(a)*hypergeometric_regularized([a,a],[a+1,a+1],-z)*z^a$
+  ;; The derivative wrt z
+  #$$ -((%e^-z*z^(a-1))/gamma(a))$
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1879,10 +1858,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defprop %log_gamma
-  ((z)
-   ((mqapply) (($psi array) 0) z))
-  grad)
+(defgrad %log_gamma ($z)
+  #$$ psi[0](z)$
+  )
 
 ;; integrate(log_gamma(x),x) = psi[-2](x)
 (defun log-gamma-integral (x)
@@ -2119,13 +2097,9 @@
 (defprop %erf (mlist $matrix mequal) distribute_over)
 
 ;;; Derivative of the Error function erf
-
-(defprop %erf 
-  ((z)
-   ((mtimes) 2 
-      ((mexpt) $%pi ((rat) -1 2))
-      ((mexpt) $%e ((mtimes) -1 ((mexpt) z 2)))))
-  grad)
+(defgrad %erf ($z)
+  #$$ (2*%e^-z^2)/sqrt(%pi)$
+  )
 
 ;;; Integral of the Error function erf
 
@@ -2372,17 +2346,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defprop %erf_generalized 
-  ((z1 z2)
-   ;; derivative wrt z1
-   ((mtimes) -2 
-      ((mexpt) $%pi ((rat) -1 2))
-      ((mexpt) $%e ((mtimes) -1 ((mexpt) z1 2))))
-   ;; derivative wrt z2
-   ((mtimes) 2 
-      ((mexpt) $%pi ((rat) -1 2))
-      ((mexpt) $%e ((mtimes) -1 ((mexpt) z2 2)))))
-  grad)
+(defgrad %erf_generalized ($z1 $z2)
+  ;; derivative wrt z1
+  #$$ -((2*%e^-z1^2)/sqrt(%pi))$
+  ;; derivative wrt z2
+  #$$ (2*%e^-z2^2)/sqrt(%pi)$
+  )
 
 ;;; ----------------------------------------------------------------------------
 
@@ -2488,12 +2457,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defprop %erfc 
-  ((z)
-   ((mtimes) -2 
-      ((mexpt) $%pi ((rat) -1 2))
-      ((mexpt) $%e ((mtimes) -1 ((mexpt) z 2)))))
-  grad)
+(defgrad %erfc ($z)
+  #$$ -((2*%e^-z^2)/sqrt(%pi))$
+  )
 
 ;;; Integral of the Error function erfc
 
@@ -2595,13 +2561,9 @@
 (defprop %erfi (mlist $matrix mequal) distribute_over)
 
 ;;; Derivative of the Error function erfi
-
-(defprop %erfi
-  ((z)
-   ((mtimes) 2 
-      ((mexpt) $%pi ((rat) -1 2))
-      ((mexpt) $%e ((mexpt) z 2))))
-  grad)
+(defgrad %erfi ($z)
+  #$$ (2*%e^z^2)/sqrt(%pi)$
+  )
 
 ;;; Integral of the Error function erfi
 
@@ -2713,14 +2675,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Differentiation of the Inverse Error function
-
-(defprop %inverse_erf
-  ((z)
-   ((mtimes) 
-      ((rat) 1 2) 
-      ((mexpt) $%pi ((rat) 1 2))
-      ((mexpt) $%e ((mexpt) ((%inverse_erf) z) 2))))
-  grad)
+(defgrad %inverse_erf ($z)
+  #$$ (%e^inverse_erf(z)^2*sqrt(%pi))/2$
+  )
 
 ;;; Integral of the Inverse Error function
 
@@ -2785,14 +2742,9 @@
 
 
 ;;; Differentiation of the Inverse Complementary Error function
-
-(defprop %inverse_erfc
-  ((z)
-   ((mtimes) 
-      ((rat) -1 2) 
-      ((mexpt) $%pi ((rat) 1 2))
-      ((mexpt) $%e ((mexpt) ((%inverse_erfc) z) 2))))
-  grad)
+(defgrad %inverse_erfc ($z)
+  #$$ -((%e^inverse_erfc(z)^2*sqrt(%pi))/2)$
+  )
 
 ;;; Integral of the Inverse Complementary Error function
 
@@ -3043,11 +2995,9 @@
 (defprop %fresnel_s odd-function-reflect reflection-rule)
 
 ;;; Differentiation of the Fresnel Integral S
-
-(defprop %fresnel_s
-  ((z)
-   ((%sin) ((mtimes) ((rat) 1 2) $%pi ((mexpt) z 2))))
-  grad)
+(defgrad %fresnel_s ($z)
+  #$$ sin((%pi*z^2)/2)$
+  )
 
 ;;; Integration of the Fresnel Integral S
 
@@ -3233,11 +3183,9 @@
 (defprop %fresnel_c odd-function-reflect reflection-rule)
 
 ;;; Differentiation of the Fresnel Integral C
-
-(defprop %fresnel_c
-  ((z)
-   ((%cos) ((mtimes) ((rat) 1 2) $%pi ((mexpt) z 2))))
-  grad)
+(defgrad %fresnel_c ($z)
+  #$$ cos((%pi*z^2)/2)$
+  )
 
 ;;; Integration of the Fresnel Integral C
 
@@ -3348,40 +3296,16 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defprop %beta_incomplete
-  ((a b z)
-   ;; Derivative wrt a
-   ((mplus) 
-      ((mtimes) ((%beta_incomplete) a b z) ((%log) z))
-      ((mtimes) -1 
-         ((mexpt) ((%gamma) a) 2)
-         (($hypergeometric_regularized)
-           ((mlist) a a ((mplus) 1 ((mtimes) -1 b)))
-           ((mlist) ((mplus) 1 a) ((mplus) 1 a)) 
-           z)
-         ((mexpt) z a)))
-   ;; Derivative wrt b
-   ((mplus)
-      ((mtimes) 
-         ((%beta) a b)
-         ((mplus) 
-            ((mqapply) (($psi array) 0) b)
-            ((mtimes) -1 ((mqapply) (($psi array) 0) ((mplus) a b)))))
-       ((mtimes) -1
-          ((%beta_incomplete) b a ((mplus) 1 ((mtimes) -1 z)))
-          ((%log) ((mplus) 1 ((mtimes) -1 z))))
-       ((mtimes) 
-          ((mexpt) ((%gamma) b) 2)
-          (($hypergeometric_regularized)
-             ((mlist) b b ((mplus) 1 ((mtimes) -1 a)))
-             ((mlist) ((mplus) 1 b) ((mplus) 1 b))
-             ((mplus) 1 ((mtimes) -1 z)))
-          ((mexpt) ((mplus) 1 ((mtimes) -1 z)) b)))
-   ;; The derivative wrt z
-   ((mtimes)
-      ((mexpt) ((mplus) 1 ((mtimes) -1 z)) ((mplus) -1 b))
-      ((mexpt) z ((mplus) -1 a))))
-  grad)
+(defgrad %beta_incomplete ($a $b $z)
+  ;; Derivative wrt a
+  #$$ beta_incomplete(a,b,z)*log(z)-gamma(a)^2
+  *hypergeometric_regularized([a,a,1-b],[a+1,a+1],z)*z^a$
+  ;; Derivative wrt b
+  #$$ gamma(b)^2*hypergeometric_regularized([b,b,1-a],[b+1,b+1],1-z)*(1-z)^b
+  -beta_incomplete(b,a,1-z)*log(1-z)+beta(a,b)*(psi[0](b)-psi[0](b+a))$
+  ;; The derivative wrt z
+  #$$ (1-z)^(b-1)*z^(a-1)$
+  )
 
 ;;; Integral of the Incomplete Beta function
 
@@ -3731,65 +3655,24 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defprop %beta_incomplete_generalized
-  ((a b z1 z2)
-   ;; Derivative wrt a
-   ((mplus)
-      ((mtimes) -1 
-         ((%beta_incomplete) a b z1)
-         ((%log) z1))
-      ((mtimes) 
-         ((mexpt) ((%gamma) a) 2)
-         ((mplus)
-            ((mtimes)
-               (($hypergeometric_regularized)
-                  ((mlist) a a ((mplus) 1 ((mtimes) -1 b)))
-                  ((mlist) ((mplus) 1 a) ((mplus) 1 a)) 
-                  z1)
-               ((mexpt) z1 a))
-            ((mtimes) -1
-               (($hypergeometric_regularized)
-                  ((mlist) a a ((mplus) 1 ((mtimes) -1 b)))
-                  ((mlist) ((mplus) 1 a) ((mplus) 1 a)) 
-                  z2)
-               ((mexpt) z2 a))))
-      ((mtimes) ((%beta_incomplete) a b z2) ((%log) z2)))
-   ;; Derivative wrt b
-   ((mplus)
-      ((mtimes)
-         ((%beta_incomplete) b a ((mplus) 1 ((mtimes) -1 z1)))
-         ((%log) ((mplus) 1 ((mtimes) -1 z1))))
-      ((mtimes) -1
-         ((%beta_incomplete) b a ((mplus) 1 ((mtimes) -1 z2)))
-         ((%log) ((mplus) 1 ((mtimes) -1 z2))))
-      ((mtimes) -1 
-         ((mexpt) ((%gamma) b) 2)
-         ((mplus)
-            ((mtimes)
-               (($hypergeometric_regularized)
-                  ((mlist) b b ((mplus) 1 ((mtimes) -1 a)))
-                  ((mlist) ((mplus) 1 b) ((mplus) 1 b))
-                  ((mplus) 1 ((mtimes) -1 z1)))
-               ((mexpt) ((mplus) 1 ((mtimes) -1 z1)) b))
-            ((mtimes) -1
-               (($hypergeometric_regularized)
-                  ((mlist) b b ((mplus) 1 ((mtimes) -1 a)))
-                  ((mlist) ((mplus) 1 b) ((mplus) 1 b))
-                  ((mplus) 1 ((mtimes) -1 z2)))
-               ((mexpt) ((mplus) 1 ((mtimes) -1 z2)) b)))))
-   ;; The derivative wrt z1
-   ((mtimes) -1
-      ((mexpt) 
-         ((mplus) 1 ((mtimes) -1 z1))
-         ((mplus) -1 b))
-      ((mexpt) z1 ((mplus) -1 a)))
-   ;; The derivative wrt z2
-   ((mtimes)
-      ((mexpt) 
-         ((mplus) 1 ((mtimes) -1 z2))
-         ((mplus) -1 b))
-      ((mexpt) z2 ((mplus) -1 a))))
-  grad)
+(defgrad %beta_incomplete_generalized ($a $b $z1 $z2)
+  ;; Derivative wrt a
+  #$$ beta_incomplete(a,b,z2)*log(z2)+gamma(a)^2
+  *(hypergeometric_regularized([a,a,1-b],[a+1,a+1],z1)
+                              *z1^a
+                              -hypergeometric_regularized(
+                                                          [a,a,1-b],[a+1,a+1],z2)
+                              *z2^a)-beta_incomplete(a,b,z1)*log(z1)$
+
+  ;; Derivative wrt b
+  #$$ -(gamma(b)^2*(hypergeometric_regularized([b,b,1-a],[b+1,b+1],1-z1)*(1-z1)^b
+                                              -hypergeometric_regularized([b,b,1-a],[b+1,b+1],1-z2)*(1-z2)^b))
+  -beta_incomplete(b,a,1-z2)*log(1-z2)+beta_incomplete(b,a,1-z1)*log(1-z1)$                          
+  ;; The derivative wrt z1
+  #$$ -((1-z1)^(b-1)*z1^(a-1))$
+  ;; The derivative wrt z2
+  #$$ (1-z2)^(b-1)*z2^(a-1)$
+  )
 
 ;;; Integral of the Incomplete Beta function
 
@@ -3993,47 +3876,20 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defprop %beta_incomplete_regularized
-  ((a b z)
-   ;; Derivative wrt a
-   ((mplus)
-      ((mtimes) -1 
-         ((%gamma) a)
-         (($hypergeometric_regularized)
-            ((mlist) a a ((mplus) 1 ((mtimes) -1 b)))
-            ((mlist) ((mplus) 1 a) ((mplus) 1 a)) z)
-         ((mexpt) ((%gamma) b) -1) 
-         ((%gamma) ((mplus) a b))
-         ((mexpt) z a))
-      ((mtimes) 
-         ((%beta_incomplete_regularized) a b z)
-         ((mplus) 
-            ((mtimes) -1 ((mqapply) (($psi array) 0) a))
-            ((mqapply) (($psi array) 0) ((mplus) a b))
-            ((%log) z))))
-   ;; Derivative wrt b
-   ((mplus)
-      ((mtimes)
-         ((%beta_incomplete_regularized) b a ((mplus) 1 ((mtimes) -1 z)))
-         ((mplus) 
-            ((mqapply) (($psi array) 0) b)
-            ((mtimes) -1 ((mqapply) (($psi array) 0) ((mplus) a b)))
-            ((mtimes) -1 ((%log) ((mplus) 1 ((mtimes) -1 z))))))
-      ((mtimes) 
-         ((mexpt) ((%gamma) a) -1) 
-         ((%gamma) b)
-         ((%gamma) ((mplus) a b))
-         (($hypergeometric_regularized)
-            ((mlist) b b ((mplus) 1 ((mtimes) -1 a)))
-            ((mlist) ((mplus) 1 b) ((mplus) 1 b))
-            ((mplus) 1 ((mtimes) -1 z)))
-         ((mexpt) ((mplus) 1 ((mtimes) -1 z)) b)))
-   ;; The derivative wrt z
-   ((mtimes) 
-      ((mexpt) ((%beta) a b) -1)
-      ((mexpt) ((mplus) 1 ((mtimes) -1 z)) ((mplus) -1 b))
-      ((mexpt) z ((mplus) -1 a))))
-  grad)
+(defgrad %beta_incomplete_regularized ($a $b $z)
+  ;; Derivative wrt a
+  #$$ beta_incomplete_regularized(a,b,z)*(log(z)+psi[0](b+a)-psi[0](a))
+ -(gamma(a)*hypergeometric_regularized([a,a,1-b],[a+1,a+1],z)*gamma(b+a)*z^a)
+  /gamma(b)$
+  ;; Derivative wrt b
+  #$$ (gamma(b)*gamma(b+a)*hypergeometric_regularized([b,b,1-a],[b+1,b+1],1-z)
+         *(1-z)^b)
+ /gamma(a)
+ +beta_incomplete_regularized(b,a,1-z)*(-log(1-z)-psi[0](b+a)+psi[0](b))$
+
+  ;; The derivative wrt z
+  #$$ ((1-z)^(b-1)*z^(a-1))/beta(a,b)$
+  )
 
 ;;; Integral of the Generalized Incomplete Beta function
 

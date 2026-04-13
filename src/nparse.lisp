@@ -1836,3 +1836,15 @@
 
 (defun strip-lineinfo-op (maxima-op)
   (remove-if #'(lambda (x) (and (consp x) (integerp (first x)) (stringp (second x)))) maxima-op))
+
+(defun getalias (x)
+  (cond ((get x 'alias))
+	((eq x '$false) nil)
+	(t x)))
+
+(defun amperchk (name)
+  (cond
+    ((symbolp name) name)
+    ((stringp name)
+     (getalias (or (getopr0 name) (implode (cons #\$ (coerce name 'list))))))
+    (t name)))

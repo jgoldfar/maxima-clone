@@ -671,26 +671,23 @@
 		 ((mexpt) $%e ((mtimes) -1 ((mexpt) x 2)))))
 	  )))
 
-(defprop %atan2 ((x y) ((mtimes) y ((mexpt) ((mplus) ((mexpt) x 2) ((mexpt) y 2)) -1))
-		 ((mtimes) -1 x ((mexpt) ((mplus) ((mexpt) x 2) ((mexpt) y 2)) -1)))
-  grad)
+(defgrad %atan2 ($x $y)
+  #$$y/(y^2+x^2)$
+  #$$-(x/(y^2+x^2))$)
 
-(defprop $li 
-  ((n x)
-; Do not put a noun form on the property list, but NIL.
-; SDIFFGRAD generates the noun form.
-;   ((%derivative) ((mqapply) (($li array) n) x) n 1)
-   nil
-   ((mtimes) ((mqapply) (($li array) ((mplus) -1 n)) x) ((mexpt) x -1)))
-  grad)
+(defgrad $li ($n $x)
+  ;; wrt n
+  nil
+  ;; wrt x
+  #$$ li[n-1](x)/x$
+  )
 
-(defprop $psi 
-  ((n x)
-; Do not put a noun form on the property list, but NIL.
-; SDIFFGRAD generates the noun form.
-   nil
-   ((mqapply) (($psi array) ((mplus) 1 n)) x))
-  grad)
+(defgrad $psi ($n $x)
+  ;; wrt n
+  nil
+  ;; wrt x
+  #$$ psi[n+1](x)$
+  )
 
 (defun atvarschk (argl)
   (do ((largl (length argl) (1- largl))

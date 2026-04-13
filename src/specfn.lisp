@@ -640,12 +640,8 @@
 ;; See also http://en.wikipedia.org/wiki/Lambert's_W_function
 
 ;;; Derivative of lambert_w
-(defprop %lambert_w
-  ((x) 
-   ((mtimes)
-    ((mexpt) $%e ((mtimes ) -1 ((%lambert_w) x)))
-    ((mexpt) ((mplus) 1 ((%lambert_w) x)) -1)))
-  grad)
+(defgrad %lambert_w ($x)
+  #$$%e^-lambert_w(x)/(lambert_w(x)+1)$)
 
 ;;; Integral of lambert_w
 ;;; integrate(W(x),x) := x*(W(x)^2-W(x)+1)/W(x)
@@ -880,13 +876,12 @@
 
 
 ;;; Derivative of lambert_w
-(defprop %generalized_lambert_w
-  ((k x)
-   nil
-   ((mtimes)
-    ((mexpt) $%e ((mtimes ) -1 ((%generalized_lambert_w) k x)))
-    ((mexpt) ((mplus) 1 ((%generalized_lambert_w) k x)) -1)))
-  grad)
+(defgrad %generalized_lambert_w ($k $x)
+  ;; wrt k
+  nil
+  ;; wrt x
+  #$$ %e^-generalized_lambert_w(k,x)/(generalized_lambert_w(k,x)+1)$
+  )
 
 ;;; Integral of lambert_w
 ;;; integrate(W(k,x),x) := x*(W(k,x)^2-W(k,x)+1)/W(k,x)

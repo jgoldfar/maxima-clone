@@ -162,36 +162,14 @@
                   (take '(%expintegral_e) n z))))))
 
 ;;; Differentiation of Exponential Integral E
-
-(defprop %expintegral_e 
-  ((n z)
-    ;; The derivative wrt the parameter n is expressed in terms of the
-    ;; Regularized Hypergeometric function 2F2 (see functions.wolfram.com)
-    ((mplus)
-       ((mtimes) -1
-          (($hypergeometric_regularized)
-             ((mlist) 
-               ((mplus) 1 ((mtimes) -1 n))
-               ((mplus) 1 ((mtimes) -1 n)))
-             ((mlist) 
-               ((mplus) 2 ((mtimes) -1 n))
-               ((mplus) 2 ((mtimes) -1 n)))
-             ((mtimes) -1 z))
-          ((mexpt) 
-             ((%gamma) ((mplus) 1 ((mtimes) -1 n))) 2))
-       ((mtimes) 
-          ((%gamma) ((mplus) 1 ((mtimes) -1 n)))
-          ((mexpt) z ((mplus) -1 n))
-          ((mplus)
-             ((mtimes) -1
-                ((mqapply) 
-                   (($psi array) 0)
-                   ((mplus) 1 ((mtimes) -1 n))))
-             ((%log) z))))
-
-   ;; The derivative wrt the argument of the function
-   ((mtimes) -1 ((%expintegral_e) ((mplus) -1 n) z)))
-  grad)
+(defgrad %expintegral_e ($n $z)
+  ;; The derivative wrt the parameter n is expressed in terms of the
+  ;; Regularized Hypergeometric function 2F2 (see functions.wolfram.com)
+  #$$gamma(1-n)*z^(n-1)*(log(z)-psi[0](1-n))-hypergeometric_regularized(
+                                        [1-n,1-n],[2-n,2-n],-z)
+                                        *gamma(1-n)^2$
+  ;; The derivative wrt the argument of the function
+  #$$-expintegral_e(n-1,z)$)
 
 ;;; Integral of Exponential Integral E
 
@@ -900,12 +878,9 @@
 
 ;;; Differentiation of Exponential Integral E1
 
-(defprop %expintegral_e1
-  ((x)
-   ((mtimes) -1
-    ((mexpt) x -1)
-    ((mexpt) $%e ((mtimes) -1 x))))
-  grad)
+(defgrad %expintegral_e1 ($x)
+  #$$ -(%e^-x/x)$
+  )
 
 ;;; Integral of Exponential Integral E1
 
@@ -1013,11 +988,9 @@
 (defprop %expintegral_ei t commutes-with-conjugate)
 
 ;;; Differentiation of Exponential Integral Ei
-
-(defprop %expintegral_ei
-  ((x)
-   ((mtimes) ((mexpt) x -1) ((mexpt) $%e x)))
-  grad)
+(defgrad %expintegral_ei ($x)
+  #$$ %e^x/x$
+  )
 
 ;;; Integral of Exponential Ei
 
@@ -1212,11 +1185,9 @@
             (list '($conjugate simp) (take '(%expintegral_li) z))))))
 
 ;;; Differentiation of Exponential Integral Li 
-
-(defprop %expintegral_li
-  ((x)
-   ((mtimes) ((mexpt) ((%log) x) -1)))
-  grad)
+(defgrad %expintegral_li ($x)
+  #$$ 1/log(x)$
+  )
 
 ;;; Integral of Exponential Li
 
@@ -1360,11 +1331,9 @@
 (defprop %expintegral_si odd-function-reflect reflection-rule)
 
 ;;; Differentiation of Exponential Integral Si
-
-(defprop %expintegral_si
-  ((x)
-   ((mtimes) ((%sin) x) ((mexpt) x -1)))
-  grad)
+(defgrad %expintegral_si ($x)
+  #$$ sin(x)/x$
+  )
 
 ;;; Integral of Exponential Si
 
@@ -1522,11 +1491,9 @@
 (defprop %expintegral_si odd-function-reflect reflection-rule)
 
 ;;; Differentiation of Exponential Integral Shi
-
-(defprop %expintegral_shi
-  ((x)
-   ((mtimes) ((%sinh) x) ((mexpt) x -1)))
-  grad)
+(defgrad %expintegral_shi ($x)
+  #$$ sinh(x)/x$
+  )
 
 ;;; Integral of Exponential Shi
 
@@ -1692,11 +1659,9 @@
            (list '($conjugate simp) (take '(%expintegral_ci) z))))))
 
 ;;; Differentiation of Exponential Integral Ci
-
-(defprop %expintegral_ci
-  ((x)
-   ((mtimes) ((%cos) x) ((mexpt) x -1)))
-  grad)
+(defgrad %expintegral_ci ($x)
+  #$$ cos(x)/x$
+  )
 
 ;;; Integral of Exponential Ci
 
@@ -1879,11 +1844,9 @@
            (list '($conjugate simp) (take '(%expintegral_chi) z))))))
 
 ;;; Differentiation of Exponential Integral Chi
-
-(defprop %expintegral_chi
-  ((x)
-   ((mtimes) ((%cosh) x) ((mexpt) x -1)))
-  grad)
+(defgrad %expintegral_chi ($x)
+  #$$ cosh(x)/x$
+  )
 
 ;;; Integral of Exponential Chi
 

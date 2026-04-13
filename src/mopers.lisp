@@ -150,5 +150,103 @@
 (defmacro mdo-unless (x) `(seventh ,x))
 (defmacro mdo-body (x)	 `(eighth ,x))
 
+(defvar *defgrad-syms* nil
+  "A list of all the symbols whose derivatives are defined by DEFGRAD")
+
+(defun check-defgrad (a g)
+  ;; See if the arg A exists somewhere in the expression G.
+  (cond ((atom g)
+         (eq a g))
+        ((consp g)
+         (some #'identity
+               (mapcar #'(lambda (g)
+                           (check-defgrad a g))
+                       g)))
+        (t nil)))
+
+;; DEFGRAD defines derivatives for the function NAME having arguments ARGUMENTS.
+;;
+;;   NAME       - the noun-form (%foo) of the function
+;;   ARGUMENTS  - A list of the arguments of the function.
+;;   BODY       - The derivatives of the function.  This should be a list of
+;;                derivatives arranged in the same order as the ARGUMENTS.
+;;
+;; The derivatives can be expressed using #$$...$.  In this case the
+;; names of the arguments MUST start with "$" because #$$ read
+;; expressions that way.
+;;
+;; Use of #$$ is not required.  In that case, each derivative must be
+;; a quoted list of the maxima internal representation of the
+;; derivative.
+;;
+;; In general do NOT use #$...$ because this calls the simplifier and
+;; requires basically all of maxima to be available to simplify the
+;; expression.  It might work, but it's best just to use #$$...$.
+;;
+;; For example here are two ways to define the derivatives of atan2:
+;;
+;;   (defgrad %atan2 ($x $y)
+;;     #$$y/(y^2+x^2)$
+;;     #$$-(x/(y^2+x^2))$)
+;;  
+;;   (defgrad %atan2 (x y)
+;;     '((mtimes) y
+;;       ((mexpt) ((mplus) ((mexpt) x 2) ((mexpt) y 2)) -1))
+;;     '((mtimes) -1 x
+;;       ((mexpt) ((mplus) ((mexpt) x 2) ((mexpt) y 2)) -1)))
+;;
+;; The first form is clearly easier to read and understand, but either
+;; scheme will work.
+;;
+;; The derivative forms can also be lambda's.  See gamma_incomplete.
+;; But if the lambda also uses #$$...$, it MUST call meval* itself to
+;; make sure the result is appropriately simplified.
+
 (defmacro defgrad (name arguments &body body)
-  `(defprop ,name (,arguments ,@body) grad))
+  "DEFGRAD defines derivatives for the function NAME having arguments ARGUMENTS.
+
+    NAME       - the noun-form (%foo) of the function
+    ARGUMENTS  - A list of the arguments of the function.
+    BODY       - The derivatives of the function.  This should be a list of
+                 derivatives arranged in the same order as the ARGUMENTS.
+
+  The derivatives can be expressed using #$$...$.  In this case the
+  names of the arguments MUST start with \"$\" because #$$ read
+  expressions that way.
+
+  Use of #$$ is not required.  In that case, each derivative must be a
+  quoted list of the maxima internal representation of the derivative.
+
+  The derivative may also be a lambda expression that returns the
+  derivative or NIL."
+  ;; Check that the argument variables show up somewhere in the body.
+  ;; Otherwise, the defintion of the derivative is potentially
+  ;; incorrect.
+  (loop for arg in arguments
+        unless (check-defgrad arg body)
+          do
+             (progn
+               ;; Print a warning that the definition is wrong
+               ;; and exit the loop.  Don't use MWARNING for this
+               ;; because DISPLA may not be defined yet to print
+               ;; the message.
+               (warn "DEFGRAD ~A: Argument ~S not used in derivative expressions."
+                     name arg)
+               (return nil)))
+  `(progn
+     (push ',name *defgrad-syms*)
+     (setf (get ',name 'grad)
+           `(,',arguments
+             ,,@body))))
+
+;; When DEFGRAD uses #$$ to define derivatives, we MUST call MEVAL* on
+;; them to get them simplified appropriately.  It's ok to call MEVAL*
+;; if we didn't use #$$.
+(defun process-defgrad ()
+  (dolist (sym *defgrad-syms*)
+    (destructuring-bind (args &rest glist)
+        (get sym 'grad)
+      (setf (get sym 'grad)
+            (list* args
+                   (mapcar #'meval*
+                           glist))))))
