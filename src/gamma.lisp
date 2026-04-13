@@ -549,7 +549,7 @@
   nil
   ;; wrt z
   ;; Obvious from the definition of gamma_incomplete_lower
-  #$$ z^(a-1)*exp(-z)
+  #$$ z^(a-1)*exp(-z) $
   )
 
 ;;
