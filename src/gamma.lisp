@@ -541,6 +541,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; (defprop %gamma_incomplete_lower ??? grad) WHAT TO PUT HERE ??
+(defgrad %gamma_incomplete_lower ($a $z)
+  ;; wrt a
+  ;;
+  ;; According to
+  ;; https://functions.wolfram.com/GammaBetaErf/Gamma3/20/01/01/0001/,
+  ;; this is involves functions that Maxima doesn't know.
+  nil
+  ;; wrt z
+  ;; Obvious from the definition of gamma_incomplete_lower
+  #$$ z^(a-1)*exp(-z)
+  )
 
 ;;
 ;; Handles some special cases for the order a and simplifies it to an
