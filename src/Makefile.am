@@ -307,7 +307,7 @@ else
 endif
 
 gcl-depends.mk: maxima.system Makefile *.lisp
-	echo $(call MAKE_DEPENDS,$(GCL_MAXIMA),gcl-depends.mk.tmp) '(system::quit)' | $(EXECUTEGCL)
+	echo $(call MAKE_DEPENDS,"$(GCL_MAXIMA)",gcl-depends.mk.tmp) '(system::quit)' | $(EXECUTEGCL)
 	sed -e "s#\\\\#/#g" < gcl-depends.mk.tmp > gcl-depends.mk
 -include gcl-depends.mk
 
