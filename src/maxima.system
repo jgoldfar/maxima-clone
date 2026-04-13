@@ -234,7 +234,8 @@
 	     (:file "displm")
 	     (:file "safe-recursion")))
    (:module rat-macros :source-pathname ""
-	    :depends-on ("defmfun")
+	    :depends-on ("defmfun" "compatibility-macros" "declarations" "fundamental-macros"
+                                   "prerequisites")
 	    :components
 	    ((:file "ratmac")
 	     (:file "mhayat")))
