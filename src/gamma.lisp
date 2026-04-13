@@ -540,7 +540,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (defprop %gamma_incomplete_lower ??? grad) WHAT TO PUT HERE ??
 (defgrad %gamma_incomplete_lower ($a $z)
   ;; wrt a
   ;;
