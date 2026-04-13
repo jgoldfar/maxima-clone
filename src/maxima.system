@@ -213,7 +213,8 @@
 	    :components
 	    ((:file "getopt")))
    (:module fundamental-macros :source-pathname ""
-	    :depends-on ("globals" "defmfun")
+	    :depends-on ("globals" "defmfun" "compatiblity-macros1"
+                                   "declarations" "prerequisites")
 	    :components
 	    ((:file "defcal")
 	     (:file "maxmac")))
