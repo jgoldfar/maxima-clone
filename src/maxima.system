@@ -199,7 +199,7 @@
 	    ;; get transl.lisp doesn't work.  It results in a compiler
 	    ;; error about maxima::$local being an unknown block.  I
 	    ;; (rtoy) didn't investigate further.
-	    :depends-on ("defmfun")
+	    :depends-on ("defmfun" "compatiblity-macros1")
 	    :components
 	    ((:file "transm")))
    (:module command-line :source-pathname ""
