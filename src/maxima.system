@@ -199,7 +199,7 @@
 	    ;; get transl.lisp doesn't work.  It results in a compiler
 	    ;; error about maxima::$local being an unknown block.  I
 	    ;; (rtoy) didn't investigate further.
-	    :depends-on ("defmfun" "compatiblity-macros1" "declarations"
+	    :depends-on ("defmfun" "compatibility-macros1" "declarations"
                                    "prerequisites")
 	    :components
 	    ((:file "transm")))
@@ -213,13 +213,13 @@
 	    :components
 	    ((:file "getopt")))
    (:module fundamental-macros :source-pathname ""
-	    :depends-on ("globals" "defmfun" "compatiblity-macros1"
+	    :depends-on ("globals" "defmfun" "compatibility-macros1"
                                    "declarations" "prerequisites")
 	    :components
 	    ((:file "defcal")
 	     (:file "maxmac")))
    (:module utility-macros :source-pathname ""
-	    :depends-on ("defmfun" "compatiblity-macros" "compatiblity-macros1"
+	    :depends-on ("defmfun" "compatibility-macros" "compatibility-macros1"
                                    "prerequisites")
 	    :components
 	    ((:file "mopers")
