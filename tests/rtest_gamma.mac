@@ -3912,6 +3912,16 @@ gamma_incomplete_lower(1/3-2,z);
 ((9/10-3/(5*z))*%e^-z)/z^(2/3)+(9*''gamma_incomplete_lower(1/3,z))/10;
 
 /*
+ * Derivative of gamma_incomplete_lower.  We don't have a formula for
+ * the derivative wrt a, the first arg.
+ */
+diff(gamma_incomplete_lower(a,z), z);
+z^(a-1)*exp(-z);
+
+diff(gamma_incomplete_lower(a,z), a);
+'diff(gamma_incomplete_lower(a,z), a);
+
+/*
  * Test expansion of gamma_incomplete_regularized.
  */
 gamma_incomplete_regularized(3,z) - gamma_incomplete(3,z)/gamma(3);
