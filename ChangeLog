@@ -6,6 +6,10 @@ Bug fixes for numbered bugs:
  * \#4585 Taylor polynomials involving tangent & a quotient
  * \#4634 Divergent integral simplifies to -1/4 with simplify_sum
 
+Bug fixes for unnumbered bugs:
+-----------------------------
+* rtest_gruntz test #38
+
 Changes in the Windows installer:
 ---------------------------------
  * Update SBCL
