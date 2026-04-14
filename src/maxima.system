@@ -584,7 +584,9 @@
 	     (:file "mactex")
 	     (:file "dskfn")))
    (:module factoring :source-pathname ""
-	    :depends-on ("globals" "defmfun")
+	    :depends-on ("globals" "defmfun" "compatibility-macros" "compatibility-macros1"
+                                   "declarations" "fundamental-macros" "other-macros"
+                                   "prerequisites" "rat-macros" "utilities")
 	    :components
 	    ((:file "lesfac")
 	     (:file "factor")
@@ -593,7 +595,7 @@
 	     (:file "ufact")
 	     (:file "result")))
    (:module ifactor :source-pathname ""
-	    :depends-on ("defmfun")
+	    :depends-on ("defmfun" "prerequisites" "rat-macros" "utility-macros")
 	    :components
 	    ((:file "ifactor")))
    (:module rational-functions :source-pathname ""
