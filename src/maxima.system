@@ -573,7 +573,9 @@
 	    :depends-on ("defmfun")
 	    :components ((:file "server")))
    (:module i-o :source-pathname ""
-	    :depends-on ("globals" "defmfun" "compatibility-macros" "compatibility-macros1")
+	    :depends-on ("globals" "defmfun" "compatibility-macros" "compatibility-macros1"
+                                   "declarations" "fundamental-macros" "other-macros"
+                                   "prerequisites" "utilities" "utility-macros")
 	    :components
 	    ((:file "macsys")
 	     (:file "testsuite")
