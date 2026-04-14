@@ -800,6 +800,10 @@ else if $MATHML_UNDERSCORE_IS_SUBSCRIPT is at least one, then
 (defprop mcond 25. mathml-lbp)
 (defprop mcond 25. mathml-rbp)
 
+(defprop %del mathml-prefix mathml)
+(defprop %del ("<mo>&DifferentialD;</mo>") mathmlsym)
+(defprop %del 125 mathml-rbp)
+
 (defprop %derivative mathml-derivative mathml)
 
 (defun mathml-derivative (x l r)
