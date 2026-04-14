@@ -552,7 +552,10 @@
 		       )
 		      )))
    (:module simplification :source-pathname ""
-	    :depends-on ("globals" "defmfun" "reader" "utility-macros")
+	    :depends-on ("globals" "defmfun" "reader" "utility-macros" "compatibility-macros"
+                                   "compatibility-macros1" "declarations" "destructuring-let"
+                                   "fundamental-macros" "i-o" "other-macros" "prerequisites"
+                                   "utility-macros")
 	    :components
 	    ((:file "simp")
 	     (:file "float")
