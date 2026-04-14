@@ -1285,15 +1285,6 @@
 ;No RPOS
 (def-mheader	|$!| (mfactorial))
 
-(def-mheader |$!!| (%genfact))
-
-(def-led (|$!!| 160.) (op left)
-  (list '$expr
-	(mheader '$!!)
-	(convert left '$expr)
-	(list (mheader '$/) (convert left '$expr) 2)
-	2))
-
 (def-lbp     |$^| 140.)
 (def-rbp     |$^| 139.)
 (def-pos     |$^| $expr)

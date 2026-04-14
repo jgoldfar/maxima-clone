@@ -573,16 +573,41 @@ n! + m! + o!;
 /* verify double factorial symbol continues to work the same */
 
 n!!;
-genfact(n, n/2, 2);
+n!!;
 
 n!!!;
-genfact(n, n/2, 2)!;
+(n!!)!;
 
 n!!!!;
-genfact(genfact(n, n/2, 2), genfact(n, n/2, 2)/2, 2);
+(n!!)!!;
 
 (n!)!!;
-genfact(n!, n!/2, 2);
+n! !!;
 
 n!!*m!!;
-genfact(m, m/2, 2)*genfact(n, n/2, 2);
+(n!!)*(m!!);
+
+(reset (display2d), display2d);
+true;
+
+printf (false, "~m", n!!);
+"n!!
+";
+
+/* n!!! parses (correctly) as (n!!)! and displays as n!!! as well. */
+
+printf (false, "~m", n!!!);
+"n!!!
+";
+
+printf (false, "~m", n!!!!);
+"(n!!)!!
+";
+
+printf (false, "~m", (n!)!!);
+"(n!)!!
+";
+
+printf (false, "~m", n!!*m!!);
+"m!! n!!
+";
