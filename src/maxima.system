@@ -255,13 +255,16 @@
 	     (:file "outmis")
 	     (:file "ar")))
    (:module commands :source-pathname ""
-	    :depends-on ("globals" "defmfun" "compatibility-macros1" "declarations" "evaluator"
-                                   "fundamental-macros" "i-o" "prerequisites" "utility-macros")
+	    :depends-on ("globals" "defmfun" "compatibility-macros" "compatibility-macros1"
+                                   "declarations" "fundamental-macros" "prerequisites"
+                                   "utility-macros")
 	    :components
 	    ((:file "comm")
 	     (:file "comm2")))
    (:module evaluator :source-pathname ""
-	    :depends-on ("globals" "defmfun" "utility-macros")
+	    :depends-on ("globals" "defmfun" "utility-macros" "compatibility-macros"
+                                   "compatibility-macros1" "declarations" "destructuring-let"
+                                   "fundamental-macros" "prerequisites" "utilities" "commands")
 	    :components
 	    ((:file "mlisp")
 	     (:file "mmacro")
