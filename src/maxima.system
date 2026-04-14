@@ -650,7 +650,8 @@
 	    ((:file "nparse")))
    (:module numerical-functions :source-pathname ""
 	    :depends-on ("globals" "defmfun" "trigonometry" "algebraic-database" 
-                                   "utility-macros" "reader" "utility-macros")
+                                   "utility-macros" "reader" "utility-macros"
+                                   "fundamental-macros" "other-macros" "prerequisites")
 	    :components
 	    ((:file "bessel")
 	     (:file "ellipt")
