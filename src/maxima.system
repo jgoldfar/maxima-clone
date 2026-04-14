@@ -600,7 +600,9 @@
 	    ((:file "ifactor")))
    (:module rational-functions :source-pathname ""
 	    :depends-on ("globals" "defmfun" "rat-macros" "other-macros" 
-			 "compatibility-macros1" "ifactor" "factoring")
+			 "compatibility-macros1" "ifactor" "factoring"
+                                   "compatibility-macros" "declarations" "destructuring-let"
+                                   "fundamental-macros" "prerequisites" "utilities")
 	    :components
 	    ((:file "rat3a")
 	     (:file "rat3b")
