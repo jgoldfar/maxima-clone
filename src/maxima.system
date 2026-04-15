@@ -224,6 +224,8 @@
 	    :components
 	    ((:file "mopers")
 	     (:file "mforma")))
+   ;; This contains the reader macro #$...$ so we want io compile this
+   ;; as early as possible before anything uses it.
    (:module reader :source-pathname ""
 	    :depends-on ("globals" "defmfun" "compatibility-macros" "compatibility-macros1"
                                    "declarations" "fundamental-macros" "prerequisites"
