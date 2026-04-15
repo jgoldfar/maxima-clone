@@ -171,6 +171,9 @@
    (:module destructuring-let :source-pathname ""
 	    :components
 	    ((:file "letmac")))
+   (:module errset :source-pathname ""
+            :components
+            ((:file "errset")))
    (:module compatibility-macros1 :source-pathname ""
 	    :components
 	    ((:file "generr")
@@ -236,7 +239,7 @@
 	     (:file "mhayat")))
    #+gcl (:file "optimize")		; jfa check this
    (:module utilities :source-pathname ""
-	    :depends-on ("globals" "defmfun" "utility-macros")
+	    :depends-on ("globals" "defmfun" "utility-macros" "errset")
 	    :components
 	    ((:file "opers")
 	     (:file "utils")

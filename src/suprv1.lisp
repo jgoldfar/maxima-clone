@@ -753,6 +753,7 @@
 ; is caught, then a Maxima error is signaled.
 ;
 ; The errcatch tags are ERRORSW, MACSYMA-QUIT and RAT-ERR.
+#+nil
 (defmacro with-errcatch-tag-$errors (form)
   (let ((block-name (gensym)))
     `(block ,block-name
@@ -771,6 +772,7 @@
 
 ; This is similar to the classic errset, but errcatch handles lisp and
 ; Maxima errors.
+#+nil
 (defmacro errcatch (form)
   `(let ((errcatch (cons bindlist loclist))
          (*mdebug* nil))
