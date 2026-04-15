@@ -1849,6 +1849,10 @@
      (getalias (or (getopr0 name) (implode (cons #\$ (coerce name 'list))))))
     (t name)))
 
+
+;; Code for handling #$...$ in Lisp code that parses a Maxima
+;; expression and returns the corresponding internal Lisp
+;; representation.
 (defun macsyma-read-string (a-string &aux answer)
   (cond ((not (or (search "$" a-string :test #'char-equal)
 		  (search ";" a-string :test #'char-equal)))
