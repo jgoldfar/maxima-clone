@@ -633,11 +633,6 @@
 	     (:file "evalw")
 	     (:file "trprop")
 	     (:file "mdefun")))
-   #+nil
-   (:module reader :source-pathname ""
-	    :depends-on ("globals" "defmfun" "compatibility-macros" "compatibility-macros1")
-	    :components
-	    ((:file "nparse")))
    (:module numerical-functions :source-pathname ""
 	    :depends-on ("globals" "defmfun" "trigonometry" "algebraic-database" 
                                    "utility-macros" "reader" "utility-macros")
