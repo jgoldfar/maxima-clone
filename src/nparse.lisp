@@ -1848,3 +1848,50 @@
     ((stringp name)
      (getalias (or (getopr0 name) (implode (cons #\$ (coerce name 'list))))))
     (t name)))
+
+(defun macsyma-read-string (a-string &aux answer)
+  (cond ((not (or (search "$" a-string :test #'char-equal)
+		  (search ";" a-string :test #'char-equal)))
+	 (vector-push-extend #\$ a-string)))
+  (with-input-from-string (stream a-string)
+    (setq answer (third (mread stream)))
+    answer))
+
+(defvar *sharp-read-buffer*
+  (make-array 140 :element-type ' #.(array-element-type "a") :fill-pointer 0 :adjustable t))
+
+(defun $-read-aux (arg stream &aux (meval-flag t) (*mread-prompt* ""))
+  (declare (special *mread-prompt*)
+	   (ignore arg))
+  (setf (fill-pointer *sharp-read-buffer*) 0)
+  (cond ((eql #\$ (peek-char t stream))
+	 (tyi stream)
+	 (setq meval-flag nil)))
+  (with-output-to-string (st *sharp-read-buffer*)
+    (let (char)
+      (loop while (not (eql char #\$))
+	     do
+	     (setq char (tyi stream))
+	     (write-char char st))))
+  (if meval-flag
+      (list 'meval* (list 'quote (macsyma-read-string *sharp-read-buffer*)))
+      (list 'quote (macsyma-read-string *sharp-read-buffer*))))
+
+(defun x$-cl-macro-read (stream sub-char arg)
+  (declare (ignore arg))
+  ($-read-aux sub-char stream))
+
+(defvar *macsyma-readtable*)
+
+(defun find-lisp-readtable-for-macsyma ()
+  (cond ((and (boundp '*macsyma-readtable*)
+	      (readtablep *macsyma-readtable*))
+	 *macsyma-readtable*)
+	(t (setq *macsyma-readtable* (copy-readtable nil))
+	   (set-dispatch-macro-character #\# #\$ 'x$-cl-macro-read *macsyma-readtable*)
+	   *macsyma-readtable*)))
+
+(defun set-readtable-for-macsyma ()
+  (setq *readtable* (find-lisp-readtable-for-macsyma)))
+
+(set-dispatch-macro-character #\# #\$ #'x$-cl-macro-read)

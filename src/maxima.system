@@ -224,6 +224,12 @@
 	    :components
 	    ((:file "mopers")
 	     (:file "mforma")))
+   (:module reader :source-pathname ""
+	    :depends-on ("globals" "defmfun" "compatibility-macros" "compatibility-macros1"
+                                   "declarations" "fundamental-macros" "prerequisites"
+                                   "utility-macros")
+	    :components
+	    ((:file "nparse")))
    (:module other-macros :source-pathname ""
 	    :depends-on ("defmfun" "compatibility-macros1")
 	    :components
@@ -239,7 +245,7 @@
 	     (:file "mhayat")))
    #+gcl (:file "optimize")		; jfa check this
    (:module utilities :source-pathname ""
-	    :depends-on ("globals" "defmfun" "utility-macros" "errset")
+	    :depends-on ("globals" "defmfun" "utility-macros" )
 	    :components
 	    ((:file "opers")
 	     (:file "utils")
@@ -624,6 +630,7 @@
 	     (:file "evalw")
 	     (:file "trprop")
 	     (:file "mdefun")))
+   #+nil
    (:module reader :source-pathname ""
 	    :depends-on ("globals" "defmfun" "compatibility-macros" "compatibility-macros1")
 	    :components

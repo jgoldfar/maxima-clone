@@ -171,6 +171,7 @@
 
 (defvar *scan-string-buffer*  nil)
 
+#+nil
 (defun macsyma-read-string (a-string &aux answer)
   (cond ((not (or (search "$" a-string :test #'char-equal)
 		  (search ";" a-string :test #'char-equal)))
@@ -179,8 +180,11 @@
     (setq answer (third (mread stream)))
     answer))
 
+#+nil
 (defvar *sharp-read-buffer*
   (make-array 140 :element-type ' #.(array-element-type "a") :fill-pointer 0 :adjustable t))
+
+#+nil
 
 (defun $-read-aux (arg stream &aux (meval-flag t) (*mread-prompt* ""))
   (declare (special *mread-prompt*)
@@ -199,14 +203,18 @@
       (list 'meval* (list 'quote (macsyma-read-string *sharp-read-buffer*)))
       (list 'quote (macsyma-read-string *sharp-read-buffer*))))
 
+#+nil
 (defun x$-cl-macro-read (stream sub-char arg)
   (declare (ignore arg))
   ($-read-aux sub-char stream))
 
+#+nil
 (set-dispatch-macro-character #\# #\$ #'x$-cl-macro-read)
 
+#+nil
 (defvar *macsyma-readtable*)
 
+#+nil
 (defun find-lisp-readtable-for-macsyma ()
   (cond ((and (boundp '*macsyma-readtable*)
 	      (readtablep *macsyma-readtable*))
@@ -215,6 +223,7 @@
 	   (set-dispatch-macro-character #\# #\$ 'x$-cl-macro-read *macsyma-readtable*)
 	   *macsyma-readtable*)))
 
+#+nil
 (defun set-readtable-for-macsyma ()
   (setq *readtable* (find-lisp-readtable-for-macsyma)))
 
