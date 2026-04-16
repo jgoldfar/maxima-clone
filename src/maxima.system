@@ -762,7 +762,11 @@
 	     (:file "matrun")
 	     (:file "nisimp")))
    (:module limits :source-pathname ""
-	    :depends-on ("globals" "defmfun")
+	    :depends-on ("globals" "defmfun" "compatibility-macros1"
+                                   "declarations" "destructuring-let"
+                                   "errset" "fundamental-macros"
+                                   "other-macros" "prerequisites"
+                                   "utilities" "utility-macros")
 	    :components ((:file "tlimit")
 			 (:file "limit")))
    (:module solve :source-pathname ""
