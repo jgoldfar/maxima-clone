@@ -244,16 +244,20 @@
        (intl:gettext 
          "double_factorial: double_factorial(~:M) is undefined.") z))
 
-    ((or (integerp z)   ; at this point odd negative integer. Evaluate.
-         (complex-float-numerical-eval-p z))
+    ((integerp z)   ; at this point odd negative integer. Evaluate.
      (cond
-       ((and (integerp z) (= z -1))  1)  ; Special cases -1 and -3 
-       ((and (integerp z) (= z -3)) -1)
+       ((= z -1)  1)  ; Special cases -1 and -3 
+       ((= z -3) -1)
        (t
+         ;; Apply identity: n!! = (- 1)^((n - 1)/2) n / (- n)!! for negative odd integer n.
+         (let ((parity (mod (/ (1- z) 2) 2)))
+           (* (if (= parity 0) 1 -1) (/ z (ftake '%double_factorial (- z))))))))
+
+     ((complex-float-numerical-eval-p z)
         ;; Odd negative integer, float or complex float.
         (complexify 
           (double-factorial 
-            (complex ($float ($realpart z)) ($float ($imagpart z))))))))
+            (complex ($float ($realpart z)) ($float ($imagpart z))))))
   
     ((and (not (ratnump z))
           (complex-bigfloat-numerical-eval-p z))

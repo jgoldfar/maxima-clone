@@ -398,6 +398,9 @@ makegamma(double_factorial(n));
 
 /* Some small numbers */
 
+makelist (k!!, k, -13, -1, 2);
+[1/10395, -1/945, 1/105, -1/15, 1/3, -1, 1];
+
 double_factorial(-3);
 -1;
 errcatch(double_factorial(-2));
