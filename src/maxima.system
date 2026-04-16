@@ -820,7 +820,8 @@
             :components
 	    ((:file "polynomialp")))
    (:module poisson-series :source-pathname ""
-	    :depends-on ("defmfun")
+	    :depends-on ("defmfun" "declarations" "fundamental-macros"
+                                   "prerequisites")
 	    :components
 	    ((:file "pois2")
 	     (:file "pois3")))
