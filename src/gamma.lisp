@@ -187,12 +187,21 @@
 
 ;;; The changes to the parser to connect the operator !! to double_factorial(z)
 
-;(def-mheader |$!!| (%double_factorial))
+(def-mheader |$!!| (%double_factorial))
 
-;(def-led (|$!!| 160.) (op left)
-;  (list '$expr
-;	(mheader '$!!)
-;	(convert left '$expr)))
+(def-led (|$!!| 160.) (op left)
+  (list '$expr
+	(mheader '$!!)
+	(convert left '$expr)))
+
+;; Pretty-printer display double_factorial(n) as n!! .
+;; Apply display properties to both noun and verb forms; that matches current behavior of ordinary factorial.
+
+(setf (get '%double_factorial 'dissym) (list #\! #\!))
+(setf (get '$double_factorial 'dissym) (list #\! #\!))
+
+(setf (get '%double_factorial 'dimension) 'dimension-postfix)
+(setf (get '$double_factorial 'dimension) 'dimension-postfix)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -279,6 +288,22 @@
 
     (t
       (give-up))))
+
+;; Numerical evaluation of double factorial for ordinary floats and bigfloats.
+;;
+;; Results here are calculated from
+;;
+;;   z!! = T[2](z) 2^(z/2) gamma(1 + z/2)$
+;;
+;; with T[2](z) = sqrt(2/%pi)^((1-cos(%pi z))/2).
+;;
+;; Apparently different choices of the factor T[2](z) are possible here,
+;; with none being conclusively the right thing;
+;; the choice of T[2](z) shown here is mentioned by a Stackexchange item [1].
+;;
+;; [1] pregunton (https://math.stackexchange.com/users/255320/pregunton),
+;;     Define the triple factorial, $n!!!$, as a continuous function for $n \in \mathbb{C}$,
+;;     URL (version: 2019-12-28): https://math.stackexchange.com/q/3488935
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Double factorial for a complex float argument. The result is a CL complex.

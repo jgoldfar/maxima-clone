@@ -118,3 +118,6 @@ mathml_non_numeric_subscripts:false;
 box(box(x^2+y^2,sum_of_squares)=box(r^2,hypotenuse_squared),Pythagoras);
 lambda([x,y], x/y);
 lambda([[x]], lreduce("*",x,1));
+diff(x*y^2);
+diff(x);
+diff(x[1]^2*x[3]^3+y1^3*z4^5);

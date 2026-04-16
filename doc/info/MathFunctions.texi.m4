@@ -1106,26 +1106,226 @@ Example:
 
 @c -----------------------------------------------------------------------------
 @anchor{!!}
+@anchor{double_factorial}
 @fnindex Double factorial
 @deffn {Operator} !!
+@deffnx {Function} double_factorial (@var{z})
 
 The double factorial operator.
+@code{!!} and @code{double_factorial} are equivalent.
+The operator is displayed as @code{!!}
+whether input as @code{!!} or @code{double_factorial}.
 
-For an integer, float, or rational number @code{n}, @code{n!!} evaluates to the
-product @code{n (n-2) (n-4) (n-6) ... (n - 2 (k-1))} where @code{k} is equal to
-@code{entier (n/2)}, that is, the largest integer less than or equal to
-@code{n/2}.  Note that this definition does not coincide with other published
-definitions for arguments which are not integers.
-@c REPORTED TO BUG TRACKER AS BUG # 1093138 !!!
+@code{0!!} simplifies to @code{1} and @code{(- 1)!!} simplifies to @code{1}.
 
-For an even (or odd) integer @code{n}, @code{n!!} evaluates to the product of
-all the consecutive even (or odd) integers from 2 (or 1) through @code{n}
-inclusive.
+For a positive integer @var{n},
+@code{@var{n}!!} simplifies to
+the product @code{n (n - 2) (n - 4) (n - 6) ... 5 3 1} for odd @var{n}
+and @code{n (n - 2) (n - 4) ... 6 4 2} for even @var{n}.
 
-For an argument @code{n} which is not an integer, float, or rational, @code{n!!}
-yields a noun form @code{genfact (n, n/2, 2)}.
-@c n!! IS NEITHER SIMPLIFIED NOR EVALUATED IN THIS CASE 
-@c -- MENTION THAT? OR TOO MUCH DETAIL ???
+For a negative odd integer @var{n},
+the double factorial is equal to @code{(- 1)^((n - 1)/2)*n/(- n)!!}.
+The double factorial is not defined for negative even integers.
+
+For real or complex float or bigfloat argument @var{z},
+@code{@var{z}!!} simplifies to a real or complex float or bigfloat result,
+equal to @code{sqrt(2/%pi)^((1 - cos(%pi*z))/2)*(2^(z/2))*gamma(1 + z/2)}.
+This expression agrees with the product definitions for even and odd positive integers.
+
+When the global flag @code{factorial_expand} is @code{true},
+@code{(@var{z} - 1)!!} simplifies to @code{@var{z}!/@var{z}!!},
+where @var{z} is any expression.
+
+Also when the global flag @code{factorial_expand} is @code{true} and @code{k} is an even positive integer,
+@code{(@var{z} + k)!!} simplifies to
+@code{(@var{z} + 2) (@var{z} + 4) (@var{z} + 6) ... (@var{z} + k) @var{z}!!},
+and @code{@var{z} - k} simplifies to
+@code{@var{z}!!/((@var{z} - k + 2) (@var{z} - k + 4) (@var{z} - k + 6) ... @var{z})}.
+
+Maxima knows the derivative of the double factorial.
+
+@code{!!} distributes over lists, matrices, and equations.
+See @mrefdot{distribute_over}
+
+Examples:
+
+@code{!!} and @code{double_factorial} are equivalent.
+
+@c ===beg===
+@c 8!!;
+@c double_factorial (8);
+@c x!!;
+@c double_factorial (x);
+@c is (x!! = double_factorial (x));
+@c ===end===
+@example maxima
+@group
+(%i1) 8!!;
+(%o1)                          384
+@end group
+@group
+(%i2) double_factorial (8);
+(%o2)                          384
+@end group
+@group
+(%i3) x!!;
+(%o3)                          x!!
+@end group
+@group
+(%i4) double_factorial (x);
+(%o4)                          x!!
+@end group
+@group
+(%i5) is (x!! = double_factorial (x));
+(%o5)                         true
+@end group
+@end example
+
+Double factorial of even and odd positive integers.
+
+@c ===beg===
+@c makelist (n!!, n, 1, 9);
+@c ===end===
+@example maxima
+@group
+(%i1) makelist (n!!, n, 1, 9);
+(%o1)          [1, 2, 3, 8, 15, 48, 105, 384, 945]
+@end group
+@end example
+
+Double factorial of odd negative integers.
+
+@c ===beg===
+@c makelist (n!!, n, -9, -1, 2);
+@c ===end===
+@example maxima
+@group
+(%i1) makelist (n!!, n, -9, -1, 2);
+(%o1) [0.009523809523809523, - 0.06666666666666667, 
+                                      0.3333333333333335, - 1, 1]
+@end group
+@end example
+
+Double factorial of float and bigfloat values.
+
+@c ===beg===
+@c makelist ((float (k + 1/2))!!, k, -5, 5, 2);
+@c makelist ((bfloat (k + 1/2))!!, k, -5, 5, 2);
+@c ===end===
+@example maxima
+@group
+(%i1) makelist ((float (k + 1/2))!!, k, -5, 5, 2);
+(%o1) [0.7363534302684733, - 1.8408835756711817, 
+0.9204417878355904, 1.3806626817533858, 4.8323193861368505, 
+26.577756623752663]
+@end group
+@group
+(%i2) makelist ((bfloat (k + 1/2))!!, k, -5, 5, 2);
+(%o2) [7.363534302684728b-1, - 1.840883575671182b0, 
+9.20441787835591b-1, 1.380662681753387b0, 4.832319386136853b0, 
+2.657775662375269b1]
+@end group
+@end example
+
+Double factorial of complex float and complex bigfloat values.
+
+@c ===beg===
+@c makelist ((float (k + %i/2))!!, k, -5, 5, 2);
+@c makelist ((bfloat (k + %i/2))!!, k, -5, 5, 2);
+@c ===end===
+@example maxima
+@group
+(%i1) makelist ((float (k + %i/2))!!, k, -5, 5, 2);
+(%o1) [0.0738293842296815 %i + 0.20245223746676777, 
+- 0.12026203395566047 %i - 0.644271404515144, 
+0.7044024214929739 - 0.2018736683019115 %i, 
+0.15032754244457538 %i + 0.8053392556439295, 
+0.8536522551556902 %i + 2.3408539957095003, 
+5.438688273633204 %i + 11.27744385096966]
+@end group
+@group
+(%i2) makelist ((bfloat (k + %i/2))!!, k, -5, 5, 2);
+(%o2) [7.382938422968142b-2 %i + 2.024522374667677b-1, 
+- 1.202620339556604b-1 %i - 6.442714045151438b-1, 
+7.04402421492974b-1 - 2.018736683019115b-1 %i, 
+1.503275424445755b-1 %i + 8.053392556439297b-1, 
+8.536522551556913b-1 %i + 2.340853995709501b0, 
+5.438688273633207b0 %i + 1.127744385096966b1]
+@end group
+@end example
+
+Simplification of double factorial when @code{factorial_expand} is @code{true}.
+
+@c ===beg===
+@c factorial_expand: true;
+@c (n - 1)!!;
+@c (n + 6)!!;
+@c (n - 6)!!;
+@c ===end===
+@example maxima
+@group
+(%i1) factorial_expand: true;
+(%o1)                         true
+@end group
+@group
+(%i2) (n - 1)!!;
+                               n!
+(%o2)                          ---
+                               n!!
+@end group
+@group
+(%i3) (n + 6)!!;
+(%o3)              (n + 2) (n + 4) (n + 6) n!!
+@end group
+@group
+(%i4) (n - 6)!!;
+                               n!!
+(%o4)                   -----------------
+                        (n - 4) (n - 2) n
+@end group
+@end example
+
+Derivative of the double factorial.
+
+@c ===beg===
+@c diff (x!!, x);
+@c ===end===
+@example maxima
+@group
+(%i1) diff (x!!, x);
+                    2
+           %pi log(---) sin(%pi x)
+                   %pi                    x
+      x!! (----------------------- + psi (- + 1) + log(2))
+                      2                 0 2
+(%o1) ----------------------------------------------------
+                               2
+@end group
+@end example
+
+Distributing the double factorial over a list, a matrix, and an equation.
+
+@c ===beg===
+@c [ 1, 3, 7, 9 ]!!;
+@c matrix ([1, 3, 7], [9, 11, 13])!!;
+@c (z = 7)!!;
+@c ===end===
+@example maxima
+@group
+(%i1) [ 1, 3, 7, 9 ]!!;
+(%o1)                   [1, 3, 105, 945]
+@end group
+@group
+(%i2) matrix ([1, 3, 7], [9, 11, 13])!!;
+                     [  1     3     105   ]
+(%o2)                [                    ]
+                     [ 945  10395  135135 ]
+@end group
+@group
+(%i3) (z = 7)!!;
+(%o3)                       z!! = 105
+@end group
+@end example
 
 @opencatbox{Categories:}
 @category{Gamma and factorial functions}

@@ -332,13 +332,19 @@ errcatch(genfact(-2,-2,1));
 errcatch(genfact(2,5,2));
 [];
 
-/* for all other numbers we get a noun form */
+/* for rational numbers we get a noun form at present, although expressions in terms of the gamma function are possible */
+
 (3/2)!!;
-genfact(3/2,0,2);
+(3/2)!!;
+
+/* for floats and bigfloats we get a numerical result */
+
 (2.5)!!;
-genfact(2.5,1,2);
+''(ev (float (sqrt(2/%pi)^((1-cos(%pi*z))/2)*2^(z/2)*gamma(1 + z/2)), z = 5/2));
+
 (2.5b0)!!;
-genfact(2.5b0,1,2);
+''(ev (bfloat (sqrt(2/%pi)^((1-cos(%pi*z))/2)*2^(z/2)*gamma(1 + z/2)), z = 5/2));
+
 
 /******************************************************************************
   Double factorial

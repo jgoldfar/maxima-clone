@@ -171,6 +171,9 @@
    (:module destructuring-let :source-pathname ""
 	    :components
 	    ((:file "letmac")))
+   (:module errset :source-pathname ""
+            :components
+            ((:file "errset")))
    (:module compatibility-macros1 :source-pathname ""
 	    :components
 	    ((:file "generr")
@@ -224,6 +227,14 @@
 	    :components
 	    ((:file "mopers")
 	     (:file "mforma")))
+   ;; This contains the reader macro #$...$ so we want io compile this
+   ;; as early as possible before anything uses it.
+   (:module reader :source-pathname ""
+	    :depends-on ("globals" "defmfun" "compatibility-macros" "compatibility-macros1"
+                                   "declarations" "fundamental-macros" "prerequisites"
+                                   "utility-macros")
+	    :components
+	    ((:file "nparse")))
    (:module other-macros :source-pathname ""
 	    :depends-on ("defmfun" "compatibility-macros1" "declarations"
                                    "prerequisites" "utility-macros")
@@ -644,10 +655,6 @@
 	     (:file "evalw")
 	     (:file "trprop")
 	     (:file "mdefun")))
-   (:module reader :source-pathname ""
-	    :depends-on ("globals" "defmfun" "compatibility-macros" "compatibility-macros1")
-	    :components
-	    ((:file "nparse")))
    (:module numerical-functions :source-pathname ""
 	    :depends-on ("globals" "defmfun" "trigonometry" "algebraic-database" 
                                    "utility-macros" "reader" "utility-macros"
