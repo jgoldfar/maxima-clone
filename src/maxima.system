@@ -744,7 +744,9 @@
 	     (:file "linnew")
 	     (:file "matrix")))
    (:module determinants :source-pathname ""
-	    :depends-on ("globals" "defmfun")
+	    :depends-on ("globals" "defmfun" "declarations"
+                                   "maxima-language-compiler-macros"
+                                   "prerequisites")
 	    :components
 	    ((:file "sprdet")
 	     (:file "newinv")
