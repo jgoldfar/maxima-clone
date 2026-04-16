@@ -681,7 +681,7 @@
 	    ((:file "spgcd")
 	     (:file "ezgcd")))
    (:module documentation :source-pathname ""
-	    :depends-on ("globals" "defmfun")
+	    :depends-on ("globals" "defmfun" "fundamental-macros")
 	    :components
 	    ((:file "macdes")
 	     (:file "verify-html-index")))
