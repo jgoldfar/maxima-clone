@@ -734,7 +734,11 @@
 	    :components
 	    ((:file "specfn")))
    (:module matrix-algebra :source-pathname ""
-	    :depends-on ("globals" "defmfun")
+	    :depends-on ("globals" "defmfun" "compatibility-macros"
+                                   "compatibility-macros1" "declarations"
+                                   "fundamental-macros"
+                                   "maxima-language-compiler-macros"
+                                   "prerequisites" "utility-macros")
 	    :components
 	    ((:file "mat")
 	     (:file "linnew")
