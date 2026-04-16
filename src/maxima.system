@@ -770,7 +770,10 @@
 	    :components ((:file "tlimit")
 			 (:file "limit")))
    (:module solve :source-pathname ""
-	    :depends-on ("globals" "defmfun" "compatibility-macros1")
+	    :depends-on ("globals" "defmfun" "compatibility-macros1"
+                                   "declarations" "fundamental-macros"
+                                   "other-macros" "prerequisites" "rat-macros"
+                                   "utilities" "utility-macros")
 	    :components
 	    ((:file "solve")
 	     (:file "psolve")
