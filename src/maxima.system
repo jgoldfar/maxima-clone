@@ -790,7 +790,9 @@
 	     (:file "mdebug")))
    (:module miscellaneous :source-pathname ""
 	    :depends-on ("globals" "defmfun" "pattern-matching" "compatibility-macros1"
-                                   "reader" "utility-macros")
+                                   "reader" "utility-macros" "commands"
+                                   "destructuring-let" "errset" "other-macros"
+                                   "rat-macros")
 	    :components
 	    ((:file "scs")
 	     (:file "asum")
