@@ -729,7 +729,8 @@
 	     (:file "trigo")
 	     (:file "trgred")))
    (:module special-functions :source-pathname ""
-	    :depends-on ("globals" "defmfun" "reader" "utility-macros")
+	    :depends-on ("globals" "defmfun" "reader" "utility-macros"
+                                   "other-macros" "rat-macros")
 	    :components
 	    ((:file "specfn")))
    (:module matrix-algebra :source-pathname ""
