@@ -752,7 +752,10 @@
 	     (:file "newinv")
 	     (:file "newdet")))
    (:module pattern-matching :source-pathname ""
-	    :depends-on ("globals" "defmfun" "compatibility-macros1")
+	    :depends-on ("globals" "defmfun" "compatibility-macros1"
+                                   "declarations" "evaluator"
+                                   "fundamental-macros" "prerequisites"
+                                   "rat-macros")
 	    :components
 	    ((:file "schatc")
 	     (:file "matcom")
