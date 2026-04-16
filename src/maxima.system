@@ -828,7 +828,9 @@
    (:module translated-packages :source-pathname ""
 	    :depends-on ("globals" "maxima-language-compiler-macros"
 			 "compatibility-macros1"
-			 "defmfun")
+			 "defmfun" "declarations" "errset"
+                                   "miscellaneous" "other-macros" "prerequisites"
+                                   "utility-macros")
 	    :components
 	    ((:file "desoln")
 	     (:file "elim")
