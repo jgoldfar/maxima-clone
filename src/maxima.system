@@ -696,7 +696,10 @@
 	     (:file "askp"))		;does this belong here?
 	    )
    (:module integration :source-pathname ""
-	    :depends-on ("globals" "defmfun" "pattern-matching")
+	    :depends-on ("globals" "defmfun" "pattern-matching" 
+                                   "compatibility-macros" "declarations"
+                                   "destructuring-let" "errset" "fundamental-macros"
+                                   "prerequisites" "rat-macros" "utility-macros")
 	    :components
 	    ((:file "sinint")
 	     (:file "sin")
