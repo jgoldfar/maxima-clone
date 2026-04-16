@@ -686,7 +686,9 @@
 	    ((:file "macdes")
 	     (:file "verify-html-index")))
    (:module algebraic-database :source-pathname ""
-	    :depends-on ("globals" "defmfun" "compatibility-macros1")
+	    :depends-on ("globals" "defmfun" "compatibility-macros1" "declarations"
+                                   "evaluator" "fundamental-macros" "other-macros"
+                                   "prerequisites" "utility-macros")
 	    :components
 	    ((:file "inmis")
 	     (:file "db")
