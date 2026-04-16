@@ -713,7 +713,9 @@
                                    "other-macros" "prerequisites" "rat-macros")
 	    :components ((:file "hayat")))
    (:module definite-integration :source-pathname ""
-	    :depends-on ("globals" "defmfun")
+	    :depends-on ("globals" "defmfun" "declarations" "destructuring-let"
+                                   "fundamental-macros" "other-macros"
+                                   "prerequisites")
 	    :components
 	    ((:file "defint")
 	     (:file "residu")))
