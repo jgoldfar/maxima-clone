@@ -707,7 +707,10 @@
 	     (:file "irinte")
 	     (:file "laplac")))
    (:module taylor-series :source-pathname ""
-	    :depends-on ("globals" "defmfun")
+	    :depends-on ("globals" "defmfun" "compatibility-macros"
+                                   "compatibility-macros1" "declarations"
+                                   "destructuring-let" "fundamental-macros"
+                                   "other-macros" "prerequisites" "rat-macros")
 	    :components ((:file "hayat")))
    (:module definite-integration :source-pathname ""
 	    :depends-on ("globals" "defmfun")
