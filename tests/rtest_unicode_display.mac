@@ -491,10 +491,10 @@ print_string_2d_unicode(e4);
 
 print_string_2d_unicode(e5);
 "     6
-    d
+    ∂
 ─────────── (h(u , v , w ))
   3   2         i   j   k
-du  dv  dw
+∂u  ∂v  ∂w
   i   j   k
 "$
 
@@ -904,10 +904,10 @@ print_string_2d_unicode(transpose(matrix(ee1)));
 
 (ee2:[e5,e6b,e7,e8a,e8b],print_string_2d_unicode(ee2));
 "      6                                  │
-     d                             1     │                  │  1  │
+     ∂                             1     │                  │  1  │
 [─────────── (h(u , v , w )), ───────────│                , │─────│, 
    3   2         i   j   k       1       │                  │ n   │
- du  dv  dw                   ─────── + 1│                  │p    │
+ ∂u  ∂v  ∂w                   ─────── + 1│                  │p    │
    i   j   k                  f(u, v)    │                  │ q   │
                                          │(u = 0), (v = 1)  │  r  │
                                                             │   s │
@@ -948,10 +948,10 @@ print_string_2d_unicode(transpose(matrix(ee1)));
 print_string_2d_unicode(matrix(ee2));
 "         ┌                             ┐
          │      6                      │
-         │     d                       │
+         │     ∂                       │
  Col 1 = │ ─────────── (h(u , v , w )) │
          │   3   2         i   j   k   │
-         │ du  dv  dw                  │
+         │ ∂u  ∂v  ∂w                  │
          │   i   j   k                 │
          └                             ┘
          ┌                              ┐         ┌         ┐
@@ -1002,10 +1002,10 @@ print_string_2d_unicode(matrix(ee2));
 print_string_2d_unicode(transpose(matrix(ee2)));
 "┌                                             ┐
 │              6                              │
-│             d                               │
+│             ∂                               │
 │         ─────────── (h(u , v , w ))         │
 │           3   2         i   j   k           │
-│         du  dv  dw                          │
+│         ∂u  ∂v  ∂w                          │
 │           i   j   k                         │
 │                                             │
 │                   │                         │
@@ -1310,10 +1310,10 @@ block ([linel: 140], print_string_2d_unicode (matrix (ee1, ee2, ee4, ee5)));
 │                                                                                                                         │  4  │   │
 │                                                                                                                         │     │   │
 │         6                                     │                                                                         │ y   │   │
-│        d                                1     │                  │  1  │   ┌                                         ┐  │  5  │   │
+│        ∂                                1     │                  │  1  │   ┌                                         ┐  │  5  │   │
 │    ─────────── (h(u , v , w ))     ───────────│                  │─────│   │ y   y   y   y   y   y   y   y   y   y   │  │     │   │
 │      3   2         i   j   k          1       │                  │ n   │   │  1   2   3   4   5   6   7   8   9   10 │  │ y   │   │
-│    du  dv  dw                      ─────── + 1│                  │p    │   └                                         ┘  │  6  │   │
+│    ∂u  ∂v  ∂w                      ─────── + 1│                  │p    │   └                                         ┘  │  6  │   │
 │      i   j   k                     f(u, v)    │                  │ q   │                                                │     │   │
 │                                               │(u = 0), (v = 1)  │  r  │                                                │ y   │   │
 │                                                                  │   s │                                                │  7  │   │
@@ -1352,12 +1352,12 @@ print_string_2d_unicode (foo: diff(f[i[j[k[l]]]](x[i], y[j[k[l]]], z[m]), x[i], 
 "        n
   n    m
  2  + 2   + 1
-d
+∂
 ────────────── (f    (x , y   , z ))
          n       i     i   j     m
    n    m         j         k
   2    2           k         l
-dx   dy    dz       l
+∂x   ∂y    ∂z       l
   i    j     m
         k
          l
@@ -1368,12 +1368,12 @@ print_string_2d_unicode (box (foo));
 ║        n                           ║
 ║  n    m                            ║
 ║ 2  + 2   + 1                       ║
-║d                                   ║
+║∂                                   ║
 ║────────────── (f    (x , y   , z ))║
 ║         n       i     i   j     m  ║
 ║   n    m         j         k       ║
 ║  2    2           k         l      ║
-║dx   dy    dz       l               ║
+║∂x   ∂y    ∂z       l               ║
 ║  i    j     m                      ║
 ║        k                           ║
 ║         l                          ║
@@ -1382,9 +1382,9 @@ print_string_2d_unicode (box (foo));
 
 print_string_2d_unicode (baz: diff(f[i[j[k[l]]]](x, y, z), x, 1, y, 1, z, 1));
 "    3
-   d
+   ∂
 ──────── (f    (x, y, z))
-dx dy dz   i
+∂x ∂y ∂z   i
             j
              k
               l
@@ -1393,9 +1393,9 @@ dx dy dz   i
 print_string_2d_unicode (box (baz));
 "╔═════════════════════════╗
 ║    3                    ║
-║   d                     ║
+║   ∂                     ║
 ║──────── (f    (x, y, z))║
-║dx dy dz   i             ║
+║∂x ∂y ∂z   i             ║
 ║            j            ║
 ║             k           ║
 ║              l          ║
@@ -1404,9 +1404,9 @@ print_string_2d_unicode (box (baz));
 
 print_string_2d_unicode (quux: baz/(1 - foo));
 "           3
-          d
+          ∂
        ──────── (f    (x, y, z))
-       dx dy dz   i
+       ∂x ∂y ∂z   i
                    j
                     k
                      l
@@ -1414,12 +1414,12 @@ print_string_2d_unicode (quux: baz/(1 - foo));
             n
       n    m
      2  + 2   + 1
-    d
+    ∂
 1 - ────────────── (f    (x , y   , z ))
              n       i     i   j     m
        n    m         j         k
       2    2           k         l
-    dx   dy    dz       l
+    ∂x   ∂y    ∂z       l
       i    j     m
             k
              l
@@ -1428,9 +1428,9 @@ print_string_2d_unicode (quux: baz/(1 - foo));
 print_string_2d_unicode (box (quux));
 "╔════════════════════════════════════════╗
 ║           3                            ║
-║          d                             ║
+║          ∂                             ║
 ║       ──────── (f    (x, y, z))        ║
-║       dx dy dz   i                     ║
+║       ∂x ∂y ∂z   i                     ║
 ║                   j                    ║
 ║                    k                   ║
 ║                     l                  ║
@@ -1438,14 +1438,143 @@ print_string_2d_unicode (box (quux));
 ║            n                           ║
 ║      n    m                            ║
 ║     2  + 2   + 1                       ║
-║    d                                   ║
+║    ∂                                   ║
 ║1 - ────────────── (f    (x , y   , z ))║
 ║             n       i     i   j     m  ║
 ║       n    m         j         k       ║
 ║      2    2           k         l      ║
-║    dx   dy    dz       l               ║
+║    ∂x   ∂y    ∂z       l               ║
 ║      i    j     m                      ║
 ║            k                           ║
 ║             l                          ║
 ╚════════════════════════════════════════╝
+";
+
+print_string_2d_unicode ((depends(G,[x,y]),'diff(G,x)));
+"∂G
+──
+∂x
+";
+
+print_string_2d_unicode ('diff(G,y));
+"∂G
+──
+∂y
+";
+
+print_string_2d_unicode ('diff(G,x,1,y,1));
+"  2
+ ∂ G
+─────
+∂x ∂y
+";
+
+print_string_2d_unicode ('diff(G,x,1,y,2));
+"  3
+ ∂ G
+──────
+     2
+∂x ∂y
+";
+
+print_string_2d_unicode ('diff(G,x,2,y,1));
+"  3
+ ∂ G
+──────
+  2
+∂x  ∂y
+";
+
+print_string_2d_unicode ('diff(G,x,4,y,2));
+"   6
+  ∂ G
+───────
+  4   2
+∂x  ∂y
+";
+
+print_string_2d_unicode ((f : cos(x+y)+%e, 'diff(f,x)));
+"∂
+── (cos(y + x) + %e)
+∂x
+";
+
+print_string_2d_unicode ('diff(f,y));
+"∂
+── (cos(y + x) + %e)
+∂y
+";
+
+print_string_2d_unicode ('diff(f,x,1,y,1));
+"  2
+ ∂
+───── (cos(y + x) + %e)
+∂x ∂y
+";
+
+print_string_2d_unicode ('diff(f,x,1,y,2));
+"   3
+  ∂
+────── (cos(y + x) + %e)
+     2
+∂x ∂y
+";
+
+print_string_2d_unicode ('diff(f,x,2,y,1));
+"   3
+  ∂
+────── (cos(y + x) + %e)
+  2
+∂x  ∂y
+";
+
+print_string_2d_unicode ('diff(f,x,4,y,2));
+"   6
+  ∂
+─────── (cos(y + x) + %e)
+  4   2
+∂x  ∂y
+";
+
+print_string_2d_unicode ((f : cos(x)+%e, 'diff(f,x)));
+"d
+── (cos(x) + %e)
+dx
+";
+
+print_string_2d_unicode ('diff(f,y));
+"∂
+── (cos(x) + %e)
+∂y
+";
+
+print_string_2d_unicode ('diff(f,x,1,y,1));
+"  2
+ ∂
+───── (cos(x) + %e)
+∂x ∂y
+";
+
+print_string_2d_unicode ('diff(f,x,1,y,2));
+"   3
+  ∂
+────── (cos(x) + %e)
+     2
+∂x ∂y
+";
+
+print_string_2d_unicode ('diff(f,x,2,y,1));
+"   3
+  ∂
+────── (cos(x) + %e)
+  2
+∂x  ∂y
+";
+
+print_string_2d_unicode ('diff(f,x,4,y,2));
+"   6
+  ∂
+─────── (cos(x) + %e)
+  4   2
+∂x  ∂y
 ";
