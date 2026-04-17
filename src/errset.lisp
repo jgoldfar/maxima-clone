@@ -6,7 +6,22 @@
 ;;;     All rights reserved                                            ;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;; Macros and conditions related to signaling Maxima errors.  These
+;;; use to be in merror.lisp but were moved here to make the
+;;; dependencies between defsystem modules simpler.
+
 (in-package :maxima)
+
+(define-condition maxima-$error (error)
+  ((message :initform $error :reader the-$error))
+  (:documentation "Muser error, to be signalled by MERROR, usually.")
+  (:report (lambda (c stream)
+	     (declare (ignore c))
+	     (let ((*standard-output* stream))
+	       ($errormsg)))))
+
+(defvar *merror-signals-$error-p* nil
+  "When T, MERROR will signal a MAXIMA-$ERROR condition.")
 
 ;; Sample:
 ;; (defun h (he)
@@ -19,6 +34,17 @@
   `(let ((*merror-signals-$error-p* t))
      (declare (special *merror-signals-$error-p*))
      ,@body))
+
+(defmacro rat-error-to-merror (&body body)
+  (let ((result (gensym)) (error-args (gensym)) (error-p (gensym)))
+    `(let ((,result) (,error-p t))
+       (let ((,error-args
+              (catch 'rat-err
+                (setf ,result (progn ,@body))
+                (setf ,error-p nil))))
+         (when ,error-p
+           (apply #'merror ,error-args)))
+       ,result)))
 
 ; Evaluate form while catching throws to some specific tags (called
 ; "errcatch tags").  If no throw to an errcatch tag is caught, then

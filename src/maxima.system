@@ -180,6 +180,9 @@
    (:module destructuring-let :source-pathname ""
 	    :components
 	    ((:file "letmac")))
+   ;; Contains macros and conditions related to maxima errors.
+   ;; Without this, there would be a circular dependency utilities ->
+   ;; i-o -> utilities because of the error macros.
    (:module errset :source-pathname ""
             :components
             ((:file "errset")))
