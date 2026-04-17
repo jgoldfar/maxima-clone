@@ -216,7 +216,7 @@
 	     (:file "compat")))
    (:module maxima-language-compiler-macros :source-pathname ""
 	    :depends-on ("defmfun" "compatibility-macros1" "declarations"
-                                   "prerequisites")
+                                   "prerequisites" "compatibility-macros")
 	    :components
 	    ((:file "transm")))
    (:module command-line :source-pathname ""
@@ -640,7 +640,7 @@
 	    :depends-on ("globals" "defmfun" "maxima-language-compiler-macros" "evaluator"
                                    "compatibility-macros" "compatibility-macros1"
                                    "declarations" "destructuring-let" "fundamental-macros"
-                                   "i-o" "prerequisites" "compatibility-macros")
+                                   "i-o" "prerequisites")
 	    :components
 	    ((:file "transl")
 	     (:file "transs"
