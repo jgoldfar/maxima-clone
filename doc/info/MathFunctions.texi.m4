@@ -1201,8 +1201,9 @@ Double factorial of odd negative integers.
 @example maxima
 @group
 (%i1) makelist (n!!, n, -9, -1, 2);
-(%o1) [0.009523809523809523, - 0.06666666666666667, 
-                                      0.3333333333333335, - 1, 1]
+                       1     1   1
+(%o1)                [---, - --, -, - 1, 1]
+                      105    15  3
 @end group
 @end example
 
