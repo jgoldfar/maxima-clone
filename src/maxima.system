@@ -217,13 +217,14 @@
 	    ((:file "getopt")))
    (:module fundamental-macros :source-pathname ""
 	    :depends-on ("globals" "defmfun" "compatibility-macros1"
-                                   "declarations" "prerequisites")
+                                   "declarations" "prerequisites"
+                                   "compatibility-macros")
 	    :components
 	    ((:file "defcal")
 	     (:file "maxmac")))
    (:module utility-macros :source-pathname ""
 	    :depends-on ("defmfun" "compatibility-macros" "compatibility-macros1"
-                                   "prerequisites")
+                                   "prerequisites" "errset")
 	    :components
 	    ((:file "mopers")
 	     (:file "mforma")))
@@ -565,8 +566,7 @@
    (:module simplification :source-pathname ""
 	    :depends-on ("globals" "defmfun" "reader" "utility-macros" "compatibility-macros"
                                    "compatibility-macros1" "declarations" "destructuring-let"
-                                   "fundamental-macros" "i-o" "other-macros" "prerequisites"
-                                   "utility-macros")
+                                   "fundamental-macros" "i-o" "other-macros" "prerequisites")
 	    :components
 	    ((:file "simp")
 	     (:file "float")
@@ -586,7 +586,8 @@
    (:module i-o :source-pathname ""
 	    :depends-on ("globals" "defmfun" "compatibility-macros" "compatibility-macros1"
                                    "declarations" "fundamental-macros" "other-macros"
-                                   "prerequisites" "utilities" "utility-macros")
+                                   "prerequisites" "utilities" "utility-macros"
+                                   "evaluator")
 	    :components
 	    ((:file "macsys")
 	     (:file "testsuite")
@@ -699,7 +700,8 @@
 	    :depends-on ("globals" "defmfun" "pattern-matching" 
                                    "compatibility-macros" "declarations"
                                    "destructuring-let" "errset" "fundamental-macros"
-                                   "prerequisites" "rat-macros" "utility-macros")
+                                   "prerequisites" "rat-macros" "utility-macros"
+                                   "errset")
 	    :components
 	    ((:file "sinint")
 	     (:file "sin")
@@ -710,7 +712,7 @@
 	    :depends-on ("globals" "defmfun" "compatibility-macros"
                                    "compatibility-macros1" "declarations"
                                    "destructuring-let" "fundamental-macros"
-                                   "other-macros" "prerequisites" "rat-macros")
+                                   "other-macros" "prerequisites" "rat-macros" "errset")
 	    :components ((:file "hayat")))
    (:module definite-integration :source-pathname ""
 	    :depends-on ("globals" "defmfun" "declarations" "destructuring-let"
@@ -723,7 +725,7 @@
 	    :depends-on ("globals" "pattern-matching" "defmfun"
                                    "compatibility-macros" "declarations"
                                    "errset" "fundamental-macros" "other-macros"
-                                   "prerequisites" "utility-macros")
+                                   "prerequisites" "utility-macros" "errset")
 	    :components
 	    ((:file "trigi")
 	     (:file "trigo")
@@ -738,7 +740,8 @@
                                    "compatibility-macros1" "declarations"
                                    "fundamental-macros"
                                    "maxima-language-compiler-macros"
-                                   "prerequisites" "utility-macros")
+                                   "prerequisites" "utility-macros"
+                                   "destructuring-let" "utilities")
 	    :components
 	    ((:file "mat")
 	     (:file "linnew")
@@ -770,7 +773,7 @@
 	    :components ((:file "tlimit")
 			 (:file "limit")))
    (:module solve :source-pathname ""
-	    :depends-on ("globals" "defmfun" "compatibility-macros1"
+	    :depends-on ("globals" "defmfun" "compatibility-macros1" "compatibility-macros"
                                    "declarations" "fundamental-macros"
                                    "other-macros" "prerequisites" "rat-macros"
                                    "utilities" "utility-macros")
@@ -782,9 +785,9 @@
 	     (:file "polyrz")
 	     (:file "cpoly")))
    (:module debugging :source-pathname ""
-	    :depends-on ("globals" "defmfun" "compatibility-macros1"
+	    :depends-on ("globals" "defmfun" "compatibility-macros1" "compatibility-macros"
                                    "declarations" "fundamental-macros"
-                                   "prerequisites")
+                                   "prerequisites" "utility-macros")
 	    :components
 	    ((:file "mtrace")
 	     (:file "mdebug")))
@@ -792,7 +795,7 @@
 	    :depends-on ("globals" "defmfun" "pattern-matching" "compatibility-macros1"
                                    "reader" "utility-macros" "commands"
                                    "destructuring-let" "errset" "other-macros"
-                                   "rat-macros")
+                                   "rat-macros" "declarations"  "fundamental-macros")
 	    :components
 	    ((:file "scs")
 	     (:file "asum")
