@@ -146,6 +146,10 @@
 	     ))
    ;; Very important module to set the float format correctly so that
    ;; all literal floats numbers have the desired type.
+   ;;
+   ;; NOTE: For any new module that's added that has literal floats,
+   ;; make sure it depends on float-format or, transitively,
+   ;; compatibility-macros1.
    (:module float-format :source-pathname ""
             :components
             (:file "float-format"))
@@ -185,9 +189,9 @@
             ;; that depends on compatibility-macros1 will have the
             ;; correct float type.
             ;;
-            ;; NOTE: curently this has not been verified that all
-            ;; files with literal floats depend on
-            ;; compatibility-macros1.
+            ;; It appears as if any module that has literal floats
+            ;; depends on compability-macors1, so they all implicitly
+            ;; depend on float-format.
             :depends-on ("float-format")
 	    :components
 	    ((:file "generr")
