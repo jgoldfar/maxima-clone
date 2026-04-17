@@ -215,11 +215,6 @@
 	    ((:file "mormac")
 	     (:file "compat")))
    (:module maxima-language-compiler-macros :source-pathname ""
-	    ;; Should depend on transl to get special var tr-abort,
-	    ;; but making this depend on maxima-language-compiler to
-	    ;; get transl.lisp doesn't work.  It results in a compiler
-	    ;; error about maxima::$local being an unknown block.  I
-	    ;; (rtoy) didn't investigate further.
 	    :depends-on ("defmfun" "compatibility-macros1" "declarations"
                                    "prerequisites")
 	    :components
