@@ -1,7 +1,8 @@
 /* Various tests of TeX output. Run it via batch("tests/rtest_tex.mac").
  * This program is not organized (at present) in actual result -- expected result pairs.
  */
- 
+linel:2^10;
+
 latex0 (s) :=
     (print ("\\documentclass{article}"),
     print (concat ("\\title{", s, "}")),
@@ -170,6 +171,32 @@ a newline."),
     tex ('(not a)),
     tex ('((riff or raff) and not (roff or ruff))),
     tex ('(not foo ((a + b)^2/(a - b)^2) or bar (x and baz (sqrt(y^n)) or z))),
+
+
+    tex_text ("\\subsection*{Derivatives, Partial Derivatives}"),
+    tex_text ("$F = F(x), G=G(x,y)$"),
+    block([f,F,G],
+      tex ((depends(F,[x]),'diff(F,x))),
+      tex ('diff(F,x,3)),
+      tex ('diff(F,y)),
+      tex ((depends(G,[x,y]),'diff(G,x))),
+      tex ('diff(G,y)),
+      tex ('diff(G,x,1,y,1)),
+      tex ('diff(G,x,1,y,2)),
+      tex ('diff(G,x,2,y,1)),
+      tex ('diff(G,x,4,y,2)),
+      tex ((f : cos(x+y)+%e, 'diff(f,x))),
+      tex ('diff(f,y)),
+      tex ('diff(f,x,1,y,1)),
+      tex ('diff(f,x,1,y,2)),
+      tex ('diff(f,x,2,y,1)),
+      tex ('diff(f,x,4,y,2)),
+      tex ((f : cos(x)+%e, 'diff(f,x))),
+      tex ('diff(f,y)),
+      tex ('diff(f,x,1,y,1)),
+      tex ('diff(f,x,1,y,2)),
+      tex ('diff(f,x,2,y,1)),
+      tex ('diff(f,x,4,y,2))),
 
     tex_text ("\\subsection*{Lists, matrices, and sets}"),
     tex ([a, b, c, d, e]),
@@ -530,3 +557,4 @@ with_stdout (s,
     print ("\\end{document}"));
 
 close (s);
+linel:79;

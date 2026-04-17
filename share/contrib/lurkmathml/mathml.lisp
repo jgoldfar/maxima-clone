@@ -807,7 +807,7 @@ else if $MATHML_UNDERSCORE_IS_SUBSCRIPT is at least one, then
 (defprop %derivative mathml-derivative mathml)
 
 (defun mathml-derivative (x l r)
-  (mathml (mathml-d x "&DifferentialD;") l r lop rop ))
+  (mathml (mathml-d x (dim-derivative-sym x "<mo form=\"prefix\">&DifferentialD;</mo>" "<mo form=\"prefix\">&PartialD;</mo>")) l r lop rop ))
 
 (defun mathml-d(x dsym) ;dsym should be "&DifferentialD;" or "&PartialD;"
   ;; format the macsyma derivative form so it looks

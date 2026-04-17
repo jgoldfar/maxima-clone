@@ -972,7 +972,7 @@
 (defun tex-derivative (x l r)
   (tex (if $derivabbrev
 	   (tex-dabbrev x)
-	   (tex-d x '$d)) l r lop rop ))
+	   (tex-d x (dim-derivative-sym x '$d "\\partial"))) l r lop rop ))
 
 (defun tex-d(x dsym)		    ;dsym should be $d or "$\\partial"
   ;; format the macsyma derivative form so it looks
