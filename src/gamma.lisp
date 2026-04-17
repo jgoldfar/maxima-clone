@@ -251,7 +251,7 @@
        (t
          ;; Apply identity: n!! = (- 1)^((n - 1)/2) n / (- n)!! for negative odd integer n.
          (let ((parity (mod (/ (1- z) 2) 2)))
-           (* (if (= parity 0) 1 -1) (/ z (ftake '%double_factorial (- z))))))))
+           (mul (if (= parity 0) 1 -1) (div z (ftake '%double_factorial (- z))))))))
 
      ((complex-float-numerical-eval-p z)
         ;; Odd negative integer, float or complex float.
