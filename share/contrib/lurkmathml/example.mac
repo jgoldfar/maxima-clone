@@ -142,3 +142,4 @@ diff(x[1]^2*x[3]^3+y1^3*z4^5);
 'diff(f,x,1,y,2);
 'diff(f,x,2,y,1);
 'diff(f,x,4,y,2);
+taylor(x+x^3,x,0,2);
