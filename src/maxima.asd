@@ -41,6 +41,7 @@
     :components
     ((:file "float-format")))
    (:module globals :pathname ""
+    :depends-on (intl compatibility-macros1)
     :components
     ((:file "globals")))
    (:module intl :pathname ""
@@ -455,7 +456,7 @@
     :depends-on (globals defmfun package)
     :components ((:file "numeric")))
    (:module server :pathname ""
-    :depends-on (compatibility-macros)
+    :depends-on (defmfun)
     :components ((:file "server")))
    (:module i-o :pathname ""
     :depends-on (globals defmfun compatibility-macros compatibility-macros1
@@ -554,7 +555,7 @@
     :components ((:file "spgcd")
 		 (:file "ezgcd")))
    (:module documentation :pathname ""
-    :depends-on (globals defmfun compatibility-macros)
+    :depends-on (globals defmfun fundamental-macros)
     :components ((:file "macdes")
 		 (:file "verify-html-index")))
    (:module algebraic-database :pathname ""
