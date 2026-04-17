@@ -640,7 +640,7 @@
 	    :depends-on ("globals" "defmfun" "maxima-language-compiler-macros" "evaluator"
                                    "compatibility-macros" "compatibility-macros1"
                                    "declarations" "destructuring-let" "fundamental-macros"
-                                   "i-o" "prerequisites")
+                                   "i-o" "prerequisites" "compatibility-macros")
 	    :components
 	    ((:file "transl")
 	     (:file "transs"
@@ -671,7 +671,7 @@
 	     (:file "mdefun")))
    (:module numerical-functions :source-pathname ""
 	    :depends-on ("globals" "defmfun" "trigonometry" "algebraic-database" 
-                                   "utility-macros" "reader" "utility-macros"
+                                   "utility-macros" "reader"
                                    "fundamental-macros" "other-macros" "prerequisites")
 	    :components
 	    ((:file "bessel")
@@ -713,8 +713,7 @@
 	    :depends-on ("globals" "defmfun" "pattern-matching" 
                                    "compatibility-macros" "declarations"
                                    "destructuring-let" "errset" "fundamental-macros"
-                                   "prerequisites" "rat-macros" "utility-macros"
-                                   "errset")
+                                   "prerequisites" "rat-macros" "utility-macros")
 	    :components
 	    ((:file "sinint")
 	     (:file "sin")
@@ -738,7 +737,7 @@
 	    :depends-on ("globals" "pattern-matching" "defmfun"
                                    "compatibility-macros" "declarations"
                                    "errset" "fundamental-macros" "other-macros"
-                                   "prerequisites" "utility-macros" "errset")
+                                   "prerequisites" "utility-macros")
 	    :components
 	    ((:file "trigi")
 	     (:file "trigo")

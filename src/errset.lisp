@@ -8,6 +8,18 @@
 
 (in-package :maxima)
 
+;; Sample:
+;; (defun h (he)
+;;   (merror "hi there ~:M and ~:M" he he))
+;; This will signal a MAXIMA-$ERROR condition:
+;; (with-$error (h '$you))
+
+(defmacro with-$error (&body body)
+  "Let MERROR signal a MAXIMA-$ERROR condition."
+  `(let ((*merror-signals-$error-p* t))
+     (declare (special *merror-signals-$error-p*))
+     ,@body))
+
 ; Evaluate form while catching throws to some specific tags (called
 ; "errcatch tags").  If no throw to an errcatch tag is caught, then
 ; the values from form are returned.  If a throw to an errcatch tag

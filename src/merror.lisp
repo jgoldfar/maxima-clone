@@ -70,18 +70,6 @@
 (defvar *merror-signals-$error-p* nil
   "When T, MERROR will signal a MAXIMA-$ERROR condition.")
 
-;; Sample:
-;; (defun h (he)
-;;   (merror "hi there ~:M and ~:M" he he))
-;; This will signal a MAXIMA-$ERROR condition:
-;; (with-$error (h '$you))
-
-(defmacro with-$error (&body body)
-  "Let MERROR signal a MAXIMA-$ERROR condition."
-  `(let ((*merror-signals-$error-p* t))
-     (declare (special *merror-signals-$error-p*))
-     ,@body))
-
 (defun merror (sstring &rest l)
   (declare (special *quit-on-error*))
   (setq $error `((mlist simp) ,sstring ,@ l))
