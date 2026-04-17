@@ -163,8 +163,20 @@ Ref: https://developer.mozilla.org/en-US/docs/Web/MathML/Reference/Values#Consta
 	  (list (cond ((numberp x) (mathmlnumformat x))
                       ((and (stringp x) (> (length x) 0) (not (char= #\< (aref x 0)))) (format nil "<mtext>~a</mtext>" x))
                       ((stringp x) x)
-		      ((and (symbolp x) (get x 'mathmlword)))
-		      (t (mathml-stripdollar x))))
+		      ((symbolp x)
+		       (or (get x 'mathmlword)
+			   (let ((m (get x 'reversealias)))
+			     (when m
+			       (or (get m 'mathmlword)
+				   (mathml-stripdollar m))))
+			   (mathml-stripdollar x)))
+		      (t ;; adapted from mactex.lisp
+		       (let ((x (if (member (marray-type x) '(array hash-table $functional))
+				    ($sconcat x)
+				    (format nil "~A" x))))
+			 ;; Do not apply stringdisp here -- we are outputting a string
+			 ;; only because we don't have a better way to handle Lisp arrays.
+			 (format nil "<mtext>~a</mtext>" ($xml_sanitize (string-trim '(#\") x)))))))
 	  r))
 
 (defun mathmlnumformat(atom)
