@@ -96,7 +96,6 @@
 ;;;
 ;;; This was written with "small" lists in mind.  The original use case
 ;;; was finding duplicates in parameter lists of functions, etc.
-;;;    - Kris Katterjohn 06/2017
 (defun find-duplicate (list &key (test #'eql) key)
   (declare (optimize (speed 3)))
   (declare (type (or function null) key)
@@ -112,11 +111,12 @@
 ;;;
 ;;; N.B. Maxima gensyms are interned, so they are not Lisp gensyms.
 ;;; This function can return the same symbol multiple times, it can
-;;; return a symbol that was created and used elsewhere, etc.
+;;; return a symbol that was created and used elsewhere, etc.  I (kjak)
+;;; do not think any of this is correct for a function named gensym.
 ;;;
 ;;; Maxima produces some expressions that contain Maxima gensyms, so
-;;; the use of uninterned symbols instead can cause confusion (since
-;;; these print like any other symbol).
+;;; the use of uninterned symbols instead can cause confusion since
+;;; these print like any other symbol when lispdisp=false (the default).
 (defmfun $gensym (&optional x)
   (typecase x
     (null
