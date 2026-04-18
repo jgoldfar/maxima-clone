@@ -45,10 +45,10 @@
 	(t
 	 (push (cons f type) *tr-runtime-warned*)
 	 (when $tr_warn_bad_function_calls
-	   (let ((tabl (cdr (assoc type '((macro . (macro-warnedp "Macros should be loaded when you are translating."))
-					 (undefined . (undefined-warnp "The function was totally undefined. Maybe you want to quote it."))
-					 (punt-nil . (punt-nil-warnp "If you want the value of the function name, use `apply'"))
-					 (mfexpr . (mfexpr-warnedp "MFEXPRS should be loaded at translating time. Use of them in translated code (nay, any code!), is NOT recommended however.")))
+	   (let ((tabl (cdr (assoc type '((undefined . (undefined-warnp "The function was totally undefined. Maybe you want to quote it."))
+					 (punt-nil . (punt-nil-warnp "If you want the value of the function name, use `apply'."))
+					 (macro . (lisp-macro-warnp "Lisp macros should already be loaded at translate time."))
+					 (mfexpr . (mfexpr-warnp "Maxima fexprs should already be loaded at translate time.")))
 				   :test #'eq))))
 	     (cond ((null tabl))
 		   ((get f (car tabl)))
