@@ -604,7 +604,7 @@
 (displa-def %product dim-%product 115.)
 
 (defun dim-%product (form result)
-  (dsumprod form result '(d-prodsign) 5 3 1))
+  (dsumprod form result '(d-prodsign) 6 3 1))
 
 (displa-def rat dim-rat "/")
 (displa-def %rat dim-rat "/")
