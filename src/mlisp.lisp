@@ -1890,8 +1890,12 @@ wrapper for this."
 			   (setf (aref (symbol-array ary) lispsub)
 				  (delete (car hashl1) hashl :count 1 :test #'equal))
 			   (return nil))))
-		  (if (> (aref (symbol-array ary) 1) (aref (symbol-array ary) 0))
-		      (arraysize fun (* 2 (aref (symbol-array ary) 0))))
+          (let* ((s-ary (symbol-array ary))
+                 (num-buckets (aref s-ary 0))
+                 (num-elements (aref s-ary 1)))
+            (when (and (> num-elements num-buckets)
+                       (< num-buckets +hasher-mod+))
+              (arraysize fun (min +hasher-mod+ (* 2 num-buckets)))))
 		  r)
 		 ((and (eq fun 'mqapply) (or (mxorlistp (setq ary (meval (cadr l)))) (arrayp ary))
 		       (prog2
@@ -1949,10 +1953,13 @@ wrapper for this."
       (aexpr (mapply1 (cadr arrfun) subs (cadr arrfun) form))
       (a-subr (apply (cadr arrfun) subs)))))
 
+(defconstant +hasher-mod+ 32768
+  "Modulus used by the HASHER function - must be a power of 2.")
+
 (defun hasher (l)  ; This is not the best way to write a hasher.  But,
   (if (null l)	   ; please don't change this code or you're liable to
       0					; break SAVE files.
-      (logand #o77777
+      (logand (1- +hasher-mod+) ; NOTE: Assumes that +hasher-mod+ is 2^n.
 	      (let ((x (car l)))
 		(cond ((specrepp x)
 		       (merror (intl:gettext "hash function: cannot hash a special expression (CRE, Taylor or Poisson).")))
