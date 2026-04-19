@@ -135,3 +135,11 @@
 	 nil)
 	(t
 	 (putprop base val sel))))
+
+(defun prefixp (prefix sequence &key (test #'eql))
+  "Returns T if PREFIX is a prefix of SEQUENCE.
+  Accepts any sequence type and an optional :TEST function (defaults to EQL).
+  E.g. '(1 2) is a prefix of '(1 2 3), and \"hell\" is a prefix of \"hello\".
+  Any sequence is a prefix of itself."
+  (let ((m (mismatch sequence prefix :test test)))
+    (or (not m) (>= m (length prefix)))))
