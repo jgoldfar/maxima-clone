@@ -732,10 +732,14 @@
                    :if-does-not-exist :create)
     (declare (ignorable stream))))
 
+(defun test-directory-cached-dir-base ()
+  "Returns the base path of the directory that will be used for tests,
+  which does not depend on the Maxima and Lisp version."
+  (combine-path *maxima-userdir* "test-directory-cached" ""))
+
 (defun test-directory-cached-dir ()
   "Returns the path of the directory that will be used for tests."
-  (combine-path *maxima-userdir*
-                "test-directory-cached"
+  (combine-path (test-directory-cached-dir-base)
                 (maxima-version1)
                 *maxima-lispname*
                 (lisp-implementation-version1)))
@@ -1035,11 +1039,23 @@
                           ;; Cache miss! Perform the file search by looping over all
                           ;; directories and testing whether a file with the given name
                           ;; exists in there. Build a list of all files found.
+                          ;; Ignore any directories that were created for testing the cache
+                          ;; and foreign binary directories (those for other Maxima/Lisp versions).
                           (dbg "result miss")
-                          (let (result)
-                            (dolist (dir dirs)
-                              (let* ((dir-path (car dir))
-                                     (merged (merge-pathnames query-file dir-path)))
+                          (let (result
+                                (test-dir-base (test-directory-cached-dir-base))
+                                (obj-dir-base (maxima-objdir-base)))
+                            (loop
+                              for dir in dirs
+                              for dir-path = (car dir)
+                              for dir-ns = (namestring dir-path)
+                              ;; Skip any cache test directories.
+                              unless (prefixp test-dir-base dir-ns)
+                              ;; Skip foreign binary directories.
+                              unless (and (prefixp obj-dir-base dir-ns)
+                                          (not (prefixp *maxima-objdir* dir-ns)))
+                              do
+                              (let ((merged (merge-pathnames query-file dir-path)))
                                 (when (file-exists-p merged)
                                   (dbg "found in \"~A\"" dir-path)
                                   (push (truename merged) result))))
@@ -1081,8 +1097,19 @@
 	     (let ((pathnames (directory-cached path mtime-cache)))
 	       (when *debug-new-file-search*
 		 (format *debug-io* "wildpath ~S~%" path))
+           ;; Remove files inside directory cache test directories and
+           ;; foreign binary directories (those for other Maxima/Lisp versions).
+           (let ((test-dir-base (test-directory-cached-dir-base))
+                 (obj-dir-base (maxima-objdir-base)))
+             (setf pathnames
+               (remove-if #'(lambda (path)
+                              (let ((ns (namestring path)))
+                                (or (prefixp test-dir-base ns)
+                                    (and (prefixp obj-dir-base ns)
+                                         (not (prefixp *maxima-objdir* ns))))))
+                          pathnames)))
 	       (when pathnames
-		 ;; We MUST sort the results in alphabetical order
+         ;; We MUST sort the results in alphabetical order
 		 ;; because that's how the old search paths were
 		 ;; sorted.
 		 (setf pathnames (sort pathnames #'string< :key #'namestring))
