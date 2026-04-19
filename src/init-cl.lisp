@@ -295,6 +295,9 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
                          (maxima-parse-dirstring maxima-objdir-env)
                          (concatenate 'string *maxima-userdir* "/binary"))
                        "/" (maxima-version1) "/" *maxima-lispname* "/" (lisp-implementation-version1)))
+    ;; NOTE: If this format is changed (e.g. by adding more subdirectories),
+    ;;       the function MAXIMA-OBJDIR-BASE may have to be adapted,
+    ;;       because its job is to strip these subdirectories.
 
     (when maxima-htmldir-env
       (setq *maxima-htmldir* (combine-path (maxima-parse-dirstring maxima-htmldir-env) "doc" "info")))
@@ -907,6 +910,21 @@ maxima [options] --batch-string='batch_answers_from_file:false; ...'
 (defun maxima-objdir (&rest subdirs)
   "Return a pathname string such that subdirs is a subdirectory of maxima_objdir"
   (apply #'combine-path *maxima-objdir* subdirs))
+
+(defun maxima-objdir-base ()
+  "Return the Maxima object directory stripped of the subdirectories
+  that are specific to the Maxima version, Lisp implementation and Lisp version.
+  If the user has overridden $maxima_objdir manually, return the directory itself.
+  A trailing slash is always added, if necessary.
+  Example for default path: '/home/user/.maxima/binary/5_47post/sbcl/2_6_3'
+                         -> '/home/user/.maxima/binary/'"
+  (let ((path (pathname (combine-path *maxima-objdir* "")))) ; ensure trailing slash
+    (if (string= *maxima-objdir* (gethash '$maxima_objdir *variable-initial-values*))
+      ;; *MAXIMA-OBJDIR* has its default value: strip the last 3 subdirectories
+      (namestring (make-pathname :directory (butlast (pathname-directory path) 3)
+                                 :defaults path))
+      ;; User override: return the path as-is (with ensured trailing slash)
+      (namestring path))))
 
 (defun maxima-load-pathname-directory ()
   "Return the directory part of *load-pathname*."
