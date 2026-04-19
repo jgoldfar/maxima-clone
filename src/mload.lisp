@@ -1056,6 +1056,7 @@
                                           (not (prefixp *maxima-objdir* dir-ns)))
                               do
                               (let ((merged (merge-pathnames query-file dir-path)))
+                                (dbg "probe \"~A\"" merged)
                                 (when (file-exists-p merged)
                                   (dbg "found in \"~A\"" dir-path)
                                   (push (truename merged) result))))
