@@ -721,7 +721,8 @@
 	     (:file "sin")
 	     (:file "risch")
 	     (:file "irinte")
-	     (:file "laplac")))
+	     (:file "laplac")
+             (:file "hypgeo")))
    (:module taylor-series :source-pathname ""
 	    :depends-on ("globals" "defmfun" "compatibility-macros"
                                    "compatibility-macros1" "declarations"
@@ -842,6 +843,14 @@
 	    :components
 	    ((:file "pois2")
 	     (:file "pois3")))
+   (:module hypergeometric :source-pathname ""
+            :components
+            ((:file "hyp")
+	     (:file "hypergeometric")
+	     (:file "nfloat"
+		    ;; Comment in nfloat says hypergeometric needs to
+		    ;; be loaded first.
+		    :depends-on ("hypergeometric"))))
    (:module translated-packages :source-pathname ""
 	    :depends-on ("globals" "maxima-language-compiler-macros"
 			 "compatibility-macros1"
@@ -852,13 +861,6 @@
 	    ((:file "desoln")
 	     (:file "elim")
 	     (:file "invert")
-	     (:file "hypgeo")
-	     (:file "hyp")
-	     (:file "hypergeometric")
-	     (:file "nfloat"
-		    ;; Comment in nfloat says hypergeometric needs to
-		    ;; be loaded first.
-		    :depends-on ("hypergeometric"))
 	     (:file "todd-coxeter")
 	     (:file "plot")))
    (:module graphics-drivers :source-pathname ""
