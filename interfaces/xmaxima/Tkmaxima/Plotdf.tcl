@@ -54,7 +54,7 @@ set ::plotdfOptions {
 }
 
 proc makeFrameDf { win } {
-    set w [makeFrame $win df]
+    set w [makeFrame $win df [oget $win background]]
     if { $w eq "." } { set w "" }
     makeLocal $win c dydx buttonFont type
 

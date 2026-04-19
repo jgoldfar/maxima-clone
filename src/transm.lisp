@@ -47,7 +47,8 @@
 		      *in-translate-file*
 		      *in-translate*
 		      *untranslated-functions-called*
-		      $tr_numer))
+		      $tr_numer
+                      *local*))
 
 (defmacro bind-transl-state (&rest forms)
   ;; this binds all transl state variables to NIL.

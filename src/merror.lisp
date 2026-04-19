@@ -59,29 +59,6 @@
 ;;; for, among other things, then the values could get garbage
 ;;; collected.
 
-(define-condition maxima-$error (error)
-  ((message :initform $error :reader the-$error))
-  (:documentation "Muser error, to be signalled by MERROR, usually.")
-  (:report (lambda (c stream)
-	     (declare (ignore c))
-	     (let ((*standard-output* stream))
-	       ($errormsg)))))
-
-(defvar *merror-signals-$error-p* nil
-  "When T, MERROR will signal a MAXIMA-$ERROR condition.")
-
-;; Sample:
-;; (defun h (he)
-;;   (merror "hi there ~:M and ~:M" he he))
-;; This will signal a MAXIMA-$ERROR condition:
-;; (with-$error (h '$you))
-
-(defmacro with-$error (&body body)
-  "Let MERROR signal a MAXIMA-$ERROR condition."
-  `(let ((*merror-signals-$error-p* t))
-     (declare (special *merror-signals-$error-p*))
-     ,@body))
-
 (defun merror (sstring &rest l)
   (declare (special *quit-on-error*))
   (setq $error `((mlist simp) ,sstring ,@ l))
@@ -210,17 +187,6 @@
          (setf ,result (progn ,@body))
          (setf ,error-p nil))
        (unless ,error-p ,result))))
-
-(defmacro rat-error-to-merror (&body body)
-  (let ((result (gensym)) (error-args (gensym)) (error-p (gensym)))
-    `(let ((,result) (,error-p t))
-       (let ((,error-args
-              (catch 'rat-err
-                (setf ,result (progn ,@body))
-                (setf ,error-p nil))))
-         (when ,error-p
-           (apply #'merror ,error-args)))
-       ,result)))
 
 ;;; The user-error function is called on "strings" and expressions.
 ;;; Cons up a format string so that $ERROR can be bound.

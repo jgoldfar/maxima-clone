@@ -144,6 +144,11 @@ true;
 kill (functions, values);
 done;
 
+(saved_display2d:display2d,
+ display2d:true,
+ 0)$
+0$
+
 at_difference (sin(x), x, a, b);
 sin(b) - sin(a);
 
@@ -225,3 +230,6 @@ block([display2d_unicode: false], aa: abs (box ('at_difference ((1 - g(u[k]))/(1
 ev (aa, at_difference);
 /* ensure following result is simplified so that MMINUS and MQUOTIENT are replaced by simplified expressions */
 ''(abs (box ((1 - g(5/7))/(g(5/7) + 1) - (1 - g(2/3))/(g(2/3) + 1))));
+
+(display2d:saved_display2d, 0)$
+0$

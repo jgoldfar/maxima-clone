@@ -284,14 +284,18 @@
 (defun tex-stripdollar (sym)
   (let
     ((nn-list (extract-trailing-digits (symbol-name sym))))
-    (if nn-list
-      ;; SYM matches foo_mm_nn.
-      (apply #'concatenate 'string (tex-array `((,(intern (first nn-list)) 'array) ,@(rest nn-list)) nil nil))
-      ;; SYM is a simple symbol.
-      (let ((s (maybe-invert-string-case (quote-% (stripdollar sym)))))
-        (if (> (length s) 1)
-          (concatenate 'string "{\\it " s "}")
-          s)))))
+    (cond (nn-list
+	   ;; If SYM matches $%I[_0-9]+, then we should not treat it as a subscripted imaginary sqrt(-1)=$%I.
+	   ;; Wrap %I in braces {} in order to avoid this.
+	   (when (string= (car nn-list) "$%I") (rplaca nn-list "{%I}"))
+	   ;; SYM matches foo_mm_nn.
+	   (apply #'concatenate 'string (tex-array `((,(intern (first nn-list)) 'array) ,@(rest nn-list)) nil nil)))
+	  (t
+	   ;; SYM is a simple symbol.
+	   (let ((s (maybe-invert-string-case (quote-% (stripdollar sym)))))
+             (if (> (length s) 1)
+		 (concatenate 'string "{\\it " s "}")
+		 s))))))
 
 ;; Given a string foo_mm_nn, return foo, mm, and nn,
 ;; where mm and nn are integers (not strings of digits).

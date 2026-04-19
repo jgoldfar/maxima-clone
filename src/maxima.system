@@ -144,6 +144,15 @@
 	     #-(or ecl abcl lispworks) (:private-file "autoconf-variables")
 	     #+(or ecl abcl lispworks) (:file "autoconf-variables")
 	     ))
+   ;; Very important module to set the float format correctly so that
+   ;; all literal floats numbers have the desired type.
+   ;;
+   ;; NOTE: For any new module that's added that has literal floats,
+   ;; make sure it depends on float-format or, transitively,
+   ;; compatibility-macros1.
+   (:module float-format :source-pathname ""
+            :components
+            (:file "float-format"))
    (:module intl :source-pathname ""
 	    :components 
 	    (
@@ -154,7 +163,7 @@
 	     #+#.(cl:if (cl:and (cl:member :cmu cl:*features*) (cl:find-package '#:intl))  '(or) '(and))
 	     (:file "intl")))
    (:module globals :source-pathname ""
-	    :depends-on ("intl")
+	    :depends-on ("intl" "compatibility-macros1")
 	    :components
 	    ((:file "globals")))
    (:module info :source-pathname ""
@@ -171,10 +180,22 @@
    (:module destructuring-let :source-pathname ""
 	    :components
 	    ((:file "letmac")))
+   ;; Contains macros and conditions related to maxima errors.
+   ;; Without this, there would be a circular dependency utilities ->
+   ;; i-o -> utilities because of the error macros.
    (:module errset :source-pathname ""
             :components
             ((:file "errset")))
    (:module compatibility-macros1 :source-pathname ""
+            ;; This is a critical dependency so that we read floats
+            ;; with the correct type.  And transitively, everything
+            ;; that depends on compatibility-macros1 will have the
+            ;; correct float type.
+            ;;
+            ;; It appears as if any module that has literal floats
+            ;; depends on compability-macors1, so they all implicitly
+            ;; depend on float-format.
+            :depends-on ("float-format")
 	    :components
 	    ((:file "generr")
 	     (:file "clmacs")))
@@ -192,22 +213,17 @@
 	    (#+gcl (:file "gcl-compat")
 		   (:file "commac")))
    (:module prerequisites :source-pathname ""
-	    :depends-on ("defmfun")
+	    :depends-on ("defmfun" "compatibility-macros1")
 	    :components
 	    ((:file "mormac")
 	     (:file "compat")))
    (:module maxima-language-compiler-macros :source-pathname ""
-	    ;; Should depend on transl to get special var tr-abort,
-	    ;; but making this depend on maxima-language-compiler to
-	    ;; get transl.lisp doesn't work.  It results in a compiler
-	    ;; error about maxima::$local being an unknown block.  I
-	    ;; (rtoy) didn't investigate further.
-	    :depends-on ("defmfun")
+	    :depends-on ("defmfun" "compatibility-macros1" "declarations"
+                                   "prerequisites" "compatibility-macros")
 	    :components
 	    ((:file "transm")))
    (:module command-line :source-pathname ""
-	    :depends-on ("defmfun")
-	    :depends-on ("getopt")
+	    :depends-on ("defmfun" "getopt")
 	    :components
 	    ((:file "command-line")))
    (:module getopt :source-pathname ""
@@ -215,12 +231,15 @@
 	    :components
 	    ((:file "getopt")))
    (:module fundamental-macros :source-pathname ""
-	    :depends-on ("globals" "defmfun")
+	    :depends-on ("globals" "defmfun" "compatibility-macros1"
+                                   "declarations" "prerequisites"
+                                   "compatibility-macros")
 	    :components
 	    ((:file "defcal")
 	     (:file "maxmac")))
    (:module utility-macros :source-pathname ""
-	    :depends-on ("defmfun")
+	    :depends-on ("defmfun" "compatibility-macros" "compatibility-macros1"
+                                   "prerequisites" "errset")
 	    :components
 	    ((:file "mopers")
 	     (:file "mforma")))
@@ -233,7 +252,8 @@
 	    :components
 	    ((:file "nparse")))
    (:module other-macros :source-pathname ""
-	    :depends-on ("defmfun" "compatibility-macros1")
+	    :depends-on ("defmfun" "compatibility-macros1" "declarations"
+                                   "prerequisites" "utility-macros")
 	    :components
 	    ((:file "mrgmac")
 	     (:file "rzmac")
@@ -241,13 +261,16 @@
 	     (:file "displm")
 	     (:file "safe-recursion")))
    (:module rat-macros :source-pathname ""
-	    :depends-on ("defmfun")
+	    :depends-on ("defmfun" "compatibility-macros" "declarations" "fundamental-macros"
+                                   "prerequisites")
 	    :components
 	    ((:file "ratmac")
 	     (:file "mhayat")))
    #+gcl (:file "optimize")		; jfa check this
    (:module utilities :source-pathname ""
-	    :depends-on ("globals" "defmfun" "utility-macros" )
+	    :depends-on ("globals" "defmfun" "utility-macros" "compatibility-macros"
+                                   "compatibility-macros1" "declarations" "fundamental-macros"
+                                   "prerequisites")
 	    :components
 	    ((:file "opers")
 	     (:file "utils")
@@ -259,12 +282,16 @@
 	     (:file "outmis")
 	     (:file "ar")))
    (:module commands :source-pathname ""
-	    :depends-on ("globals" "defmfun" "compatibility-macros1" "reader" "utility-macros")
+	    :depends-on ("globals" "defmfun" "compatibility-macros" "compatibility-macros1"
+                                   "declarations" "fundamental-macros" "prerequisites"
+                                   "utility-macros")
 	    :components
 	    ((:file "comm")
 	     (:file "comm2")))
    (:module evaluator :source-pathname ""
-	    :depends-on ("globals" "defmfun" "utility-macros")
+	    :depends-on ("globals" "defmfun" "utility-macros" "compatibility-macros"
+                                   "compatibility-macros1" "declarations" "destructuring-let"
+                                   "fundamental-macros" "prerequisites" "utilities" "commands")
 	    :components
 	    ((:file "mlisp")
 	     (:file "mmacro")
@@ -552,7 +579,9 @@
 		       )
 		      )))
    (:module simplification :source-pathname ""
-	    :depends-on ("globals" "defmfun" "reader" "utility-macros")
+	    :depends-on ("globals" "defmfun" "reader" "utility-macros" "compatibility-macros"
+                                   "compatibility-macros1" "declarations" "destructuring-let"
+                                   "fundamental-macros" "i-o" "other-macros" "prerequisites")
 	    :components
 	    ((:file "simp")
 	     (:file "float")
@@ -571,6 +600,8 @@
 	    :components ((:file "server")))
    (:module i-o :source-pathname ""
 	    :depends-on ("globals" "defmfun" "compatibility-macros" "compatibility-macros1"
+                                   "declarations" "fundamental-macros" "other-macros"
+                                   "prerequisites" "utilities" "utility-macros"
                                    "evaluator")
 	    :components
 	    ((:file "macsys")
@@ -580,7 +611,9 @@
 	     (:file "mactex")
 	     (:file "dskfn")))
    (:module factoring :source-pathname ""
-	    :depends-on ("globals" "defmfun")
+	    :depends-on ("globals" "defmfun" "compatibility-macros" "compatibility-macros1"
+                                   "declarations" "fundamental-macros" "other-macros"
+                                   "prerequisites" "rat-macros" "utilities")
 	    :components
 	    ((:file "lesfac")
 	     (:file "factor")
@@ -589,12 +622,14 @@
 	     (:file "ufact")
 	     (:file "result")))
    (:module ifactor :source-pathname ""
-	    :depends-on ("defmfun")
+	    :depends-on ("defmfun" "prerequisites" "rat-macros" "utility-macros")
 	    :components
 	    ((:file "ifactor")))
    (:module rational-functions :source-pathname ""
 	    :depends-on ("globals" "defmfun" "rat-macros" "other-macros" 
-			 "compatibility-macros1" "ifactor" "factoring")
+			 "compatibility-macros1" "ifactor" "factoring"
+                                   "compatibility-macros" "declarations" "destructuring-let"
+                                   "fundamental-macros" "prerequisites" "utilities")
 	    :components
 	    ((:file "rat3a")
 	     (:file "rat3b")
@@ -604,7 +639,10 @@
 	     (:file "nrat4")
 	     (:file "ratout")))
    (:module maxima-language-compiler :source-pathname ""
-	    :depends-on ("globals" "defmfun" "maxima-language-compiler-macros" "evaluator")
+	    :depends-on ("globals" "defmfun" "maxima-language-compiler-macros" "evaluator"
+                                   "compatibility-macros" "compatibility-macros1"
+                                   "declarations" "destructuring-let" "fundamental-macros"
+                                   "i-o" "prerequisites")
 	    :components
 	    ((:file "transl")
 	     (:file "transs"
@@ -635,7 +673,8 @@
 	     (:file "mdefun")))
    (:module numerical-functions :source-pathname ""
 	    :depends-on ("globals" "defmfun" "trigonometry" "algebraic-database" 
-                                   "utility-macros" "reader" "utility-macros")
+                                   "utility-macros" "reader"
+                                   "fundamental-macros" "other-macros" "prerequisites")
 	    :components
 	    ((:file "bessel")
 	     (:file "ellipt")
@@ -644,23 +683,28 @@
 	     (:file "plasma")
 	     (:file "intpol")))
    (:module display :source-pathname ""
-	    :depends-on ("globals" "defmfun")
+	    :depends-on ("globals" "defmfun" "compatibility-macros1" "declarations"
+                                   "fundamental-macros" "prerequisites")
 	    :components
 	    ((:file "displa")
 	     (:file "nforma")
 	     (:file "grind")))
    (:module gcd :source-pathname ""
-	    :depends-on ("globals" "defmfun")
+	    :depends-on ("globals" "defmfun" "declarations" "destructuring-let"
+                                   "fundamental-macros" "prerequisites" 
+                                   "rat-macros" "utilities")
 	    :components
 	    ((:file "spgcd")
 	     (:file "ezgcd")))
    (:module documentation :source-pathname ""
-	    :depends-on ("globals" "defmfun")
+	    :depends-on ("globals" "defmfun" "fundamental-macros")
 	    :components
 	    ((:file "macdes")
 	     (:file "verify-html-index")))
    (:module algebraic-database :source-pathname ""
-	    :depends-on ("globals" "defmfun" "compatibility-macros1")
+	    :depends-on ("globals" "defmfun" "compatibility-macros1" "declarations"
+                                   "evaluator" "fundamental-macros" "other-macros"
+                                   "prerequisites" "utility-macros")
 	    :components
 	    ((:file "inmis")
 	     (:file "db")
@@ -668,7 +712,10 @@
 	     (:file "askp"))		;does this belong here?
 	    )
    (:module integration :source-pathname ""
-	    :depends-on ("globals" "defmfun" "pattern-matching")
+	    :depends-on ("globals" "defmfun" "pattern-matching" 
+                                   "compatibility-macros" "declarations"
+                                   "destructuring-let" "errset" "fundamental-macros"
+                                   "prerequisites" "rat-macros" "utility-macros")
 	    :components
 	    ((:file "sinint")
 	     (:file "sin")
@@ -676,48 +723,74 @@
 	     (:file "irinte")
 	     (:file "laplac")))
    (:module taylor-series :source-pathname ""
-	    :depends-on ("globals" "defmfun")
+	    :depends-on ("globals" "defmfun" "compatibility-macros"
+                                   "compatibility-macros1" "declarations"
+                                   "destructuring-let" "fundamental-macros"
+                                   "other-macros" "prerequisites" "rat-macros" "errset")
 	    :components ((:file "hayat")))
    (:module definite-integration :source-pathname ""
-	    :depends-on ("globals" "defmfun")
+	    :depends-on ("globals" "defmfun" "declarations" "destructuring-let"
+                                   "fundamental-macros" "other-macros"
+                                   "prerequisites")
 	    :components
 	    ((:file "defint")
 	     (:file "residu")))
    (:module trigonometry :source-pathname ""
-	    :depends-on ("globals" "pattern-matching" "defmfun")
+	    :depends-on ("globals" "pattern-matching" "defmfun"
+                                   "compatibility-macros" "declarations"
+                                   "errset" "fundamental-macros" "other-macros"
+                                   "prerequisites" "utility-macros")
 	    :components
 	    ((:file "trigi")
 	     (:file "trigo")
 	     (:file "trgred")))
    (:module special-functions :source-pathname ""
-	    :depends-on ("globals" "defmfun" "reader" "utility-macros")
+	    :depends-on ("globals" "defmfun" "reader" "utility-macros"
+                                   "other-macros" "rat-macros")
 	    :components
 	    ((:file "specfn")))
    (:module matrix-algebra :source-pathname ""
-	    :depends-on ("globals" "defmfun")
+	    :depends-on ("globals" "defmfun" "compatibility-macros"
+                                   "compatibility-macros1" "declarations"
+                                   "fundamental-macros"
+                                   "maxima-language-compiler-macros"
+                                   "prerequisites" "utility-macros"
+                                   "destructuring-let" "utilities")
 	    :components
 	    ((:file "mat")
 	     (:file "linnew")
 	     (:file "matrix")))
    (:module determinants :source-pathname ""
-	    :depends-on ("globals" "defmfun")
+	    :depends-on ("globals" "defmfun" "declarations"
+                                   "maxima-language-compiler-macros"
+                                   "prerequisites")
 	    :components
 	    ((:file "sprdet")
 	     (:file "newinv")
 	     (:file "newdet")))
    (:module pattern-matching :source-pathname ""
-	    :depends-on ("globals" "defmfun" "compatibility-macros1")
+	    :depends-on ("globals" "defmfun" "compatibility-macros1"
+                                   "declarations" "evaluator"
+                                   "fundamental-macros" "prerequisites"
+                                   "rat-macros")
 	    :components
 	    ((:file "schatc")
 	     (:file "matcom")
 	     (:file "matrun")
 	     (:file "nisimp")))
    (:module limits :source-pathname ""
-	    :depends-on ("globals" "defmfun")
+	    :depends-on ("globals" "defmfun" "compatibility-macros1"
+                                   "declarations" "destructuring-let"
+                                   "errset" "fundamental-macros"
+                                   "other-macros" "prerequisites"
+                                   "utilities" "utility-macros")
 	    :components ((:file "tlimit")
 			 (:file "limit")))
    (:module solve :source-pathname ""
-	    :depends-on ("globals" "defmfun" "compatibility-macros1")
+	    :depends-on ("globals" "defmfun" "compatibility-macros1" "compatibility-macros"
+                                   "declarations" "fundamental-macros"
+                                   "other-macros" "prerequisites" "rat-macros"
+                                   "utilities" "utility-macros")
 	    :components
 	    ((:file "solve")
 	     (:file "psolve")
@@ -726,13 +799,17 @@
 	     (:file "polyrz")
 	     (:file "cpoly")))
    (:module debugging :source-pathname ""
-	    :depends-on ("globals" "defmfun" "compatibility-macros1")
+	    :depends-on ("globals" "defmfun" "compatibility-macros1" "compatibility-macros"
+                                   "declarations" "fundamental-macros"
+                                   "prerequisites" "utility-macros")
 	    :components
 	    ((:file "mtrace")
 	     (:file "mdebug")))
    (:module miscellaneous :source-pathname ""
 	    :depends-on ("globals" "defmfun" "pattern-matching" "compatibility-macros1"
-                                   "reader" "utility-macros")
+                                   "reader" "utility-macros" "commands"
+                                   "destructuring-let" "errset" "other-macros"
+                                   "rat-macros" "declarations"  "fundamental-macros")
 	    :components
 	    ((:file "scs")
 	     (:file "asum")
@@ -760,14 +837,17 @@
             :components
 	    ((:file "polynomialp")))
    (:module poisson-series :source-pathname ""
-	    :depends-on ("defmfun")
+	    :depends-on ("defmfun" "declarations" "fundamental-macros"
+                                   "prerequisites")
 	    :components
 	    ((:file "pois2")
 	     (:file "pois3")))
    (:module translated-packages :source-pathname ""
 	    :depends-on ("globals" "maxima-language-compiler-macros"
 			 "compatibility-macros1"
-			 "defmfun")
+			 "defmfun" "declarations" "errset"
+                                   "miscellaneous" "other-macros" "prerequisites"
+                                   "utility-macros")
 	    :components
 	    ((:file "desoln")
 	     (:file "elim")
@@ -789,7 +869,7 @@
 	     (:file "xmaxima_def")
              (:file "geomview_def")))
    (:module final :source-pathname ""
-	    :depends-on ("globals" "defmfun")
+	    :depends-on ("globals" "defmfun" "compatibility-macros1")
 	    ;; These are not compiled, for whatever reason, except on ecl:
 	    ;; On ECL all runtime alterations to the system (i.e from repl)
 	    ;; at runtime are not part of the final executable if they aren't.
