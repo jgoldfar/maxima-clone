@@ -711,11 +711,23 @@
 	     (:file "compar")
 	     (:file "askp"))		;does this belong here?
 	    )
+   (:module hypergeometric :source-pathname ""
+            ;; Simplification and evaluation of hypergeometric functions.
+            :depends-on ("compatibility-macros1" "declarations" "defmfun" "errset" "globals"
+                         "miscellaneous" "other-macros" "prerequisites" "utility-macros")
+            :components
+            ((:file "hyp")
+	     (:file "hypergeometric")
+	     (:file "nfloat"
+		    ;; Comment in nfloat says hypergeometric needs to
+		    ;; be loaded first.
+		    :depends-on ("hypergeometric"))))
    (:module integration :source-pathname ""
 	    :depends-on ("globals" "defmfun" "pattern-matching" 
                                    "compatibility-macros" "declarations"
                                    "destructuring-let" "errset" "fundamental-macros"
-                                   "prerequisites" "rat-macros" "utility-macros")
+                                   "prerequisites" "rat-macros" "utility-macros"
+                                   "hypergeometric")
 	    :components
 	    ((:file "sinint")
 	     (:file "sin")
@@ -843,14 +855,6 @@
 	    :components
 	    ((:file "pois2")
 	     (:file "pois3")))
-   (:module hypergeometric :source-pathname ""
-            :components
-            ((:file "hyp")
-	     (:file "hypergeometric")
-	     (:file "nfloat"
-		    ;; Comment in nfloat says hypergeometric needs to
-		    ;; be loaded first.
-		    :depends-on ("hypergeometric"))))
    (:module translated-packages :source-pathname ""
 	    :depends-on ("globals" "maxima-language-compiler-macros"
 			 "compatibility-macros1"
