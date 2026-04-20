@@ -531,7 +531,7 @@
 	      (update-heights height depth)
 	      (return result)))))
 
-(defun dsumprod (form result d-form sw sh sd)
+(defun dsumprod (form result d-form symbol-w symbol-h symbol-d)
   (prog (str to dummy (w 0) (h 0) (d 0) dummy2 (lsum (eq (caar form) '%lsum)))
      (setq dummy2 (dimension (caddr form) nil 'mparen 'mequal nil 0)
 	   w width
@@ -548,16 +548,16 @@
      (setq dummy (dimension to nil 'mparen 'mparen nil 0))
      (unless (checkfit (max w width))
        (return (dimension-function form result)))
-     (setq dummy2 (cons (cons (- sw) (cons (- (+ sd h)) dummy2)) (cons d-form result)))
-     (cond ((> width sw)
-	    (setq sw 0))
+     (setq dummy2 (cons (cons (- symbol-w) (cons (- (+ symbol-d h)) dummy2)) (cons d-form result)))
+     (cond ((> width symbol-w)
+	    (setq symbol-w 0))
 	   (t
-	    (setq sw (truncate (- sw width) 2)
-		  width (+ sw width))))
-     (setq dummy (cons (cons (- sw w) (cons (+ sh depth) dummy)) dummy2)
+	    (setq symbol-w (truncate (- symbol-w width) 2)
+		  width (+ symbol-w width))))
+     (setq dummy (cons (cons (- symbol-w w) (cons (+ symbol-h depth) dummy)) dummy2)
 	   w (max w width)
-	   d (+ sd h d)
-	   h (+ sh height depth))
+	   d (+ symbol-d h d)
+	   h (+ symbol-h height depth))
      (update-heights h d)
      (setq dummy (dimension (cadr form) (cons (list (1+ (- w width)) 0) dummy)
 			    (caar form) rop w right)
@@ -604,7 +604,7 @@
 (displa-def %product dim-%product 115.)
 
 (defun dim-%product (form result)
-  (dsumprod form result '(d-prodsign) 6 3 1))
+  (dsumprod form result '(d-prodsign) 5 3 1))
 
 (displa-def rat dim-rat "/")
 (displa-def %rat dim-rat "/")
