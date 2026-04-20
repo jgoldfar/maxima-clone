@@ -26,6 +26,8 @@
 
 (in-package :maxima)
 
+(declare-top (special preserve-direction))
+		
 (macsyma-module nummod)
 
 ;; Let's have version numbers 1,2,3,...
