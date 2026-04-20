@@ -398,3 +398,12 @@
   (and (not (atom x))
        (or (eq (caar x) '$matrix)
 	   (and $listarith (eq (caar x) 'mlist)))))
+
+(defun sinp (e)
+  (and (consp e) (eq '%sin (caar e))))
+
+(defun cosp (e)
+  "Return true iff the expression `e` is in general form and its operator is `%cos`."
+  (and (consp e) (eq '%cos (caar e))))
+
+

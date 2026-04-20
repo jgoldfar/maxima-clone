@@ -4322,9 +4322,6 @@ ignoring dummy variables and array indices."
 	   	  ((or (eql 2 sgn) (eql 1 sgn)) 1) ; atan(> 0) = 1
 		  (t (throw 'taylor-catch nil)))))
 
-(defun sinp (e)
-	(and (consp e) (eq '%sin (caar e))))
-
 (defun mrv-sign-sin (e x)
 	(let ((sgn (mrv-sign-helper (div 1 (cadr e)) x)))
 		(cond ((eql sgn 2) 1) ;sin(zeroa) = 1
