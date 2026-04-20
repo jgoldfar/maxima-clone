@@ -911,8 +911,8 @@ limit(li[3](x)/log(-x)^3,x,inf);
  ind$
 
 /* #4085 limit((2-%i)^a/a!,a,inf) */
- errcatch(limit((2-%i)^a/a!,a,inf));
- [0]$
+ limit((2-%i)^a/a!,a,inf);
+ 0$
 
  /* #4081 limit((2+sin(x))^(-2),x,inf) --> und */
  limit((2+sin(x))^(-2),x,inf);
@@ -1469,6 +1469,13 @@ block([ans : limit(x < 8)], [inpart(ans,0),args(ans)]);
 the other test mentioned in ticket 4634. */
 limit(((-1)^N*(2*N+1))/4-1/4,N,inf);
 und$
+
+/* \#4717 limit(signum(exp(%i*x)*exp(x)),x,inf);*/
+limit(signum(exp(%i*x)*exp(x)),x,inf);
+ind$
+
+limit(signum(exp(%i*x)*exp(x))/x,x,inf);
+0$
 
 /* clean up*/
 (kill(values),0);

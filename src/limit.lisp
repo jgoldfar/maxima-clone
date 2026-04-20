@@ -31,13 +31,14 @@
 		      *indicator numer denom exp var val
 		      taylored logcombed
 		      $exponentialize lhp? lhcount
-		      loginprod? context limit-assumptions
+		      loginprod? context *limit-assumptions*
 		      limit-top))
 
 (defconstant +behavior-count+ 4)
 (defvar *behavior-count-now*)
 (defvar *getsignl-asksign-ok* nil)
 (defvar *old-integer-info* nil)
+(defvar *limit-assumptions* nil)
 
 (load-macsyma-macros rzmac)
 
@@ -117,7 +118,7 @@
 		    (some #'(lambda (q) (indefinite-integral-p q x)) (cdr e)))))
 
 (defun toplevel-$limit (&rest args)
-  (let ((limit-assumptions ())
+  (let ((*limit-assumptions* ())
 	(*old-integer-info* ())
 	($keepfloat t)
 	($numer nil)
@@ -125,7 +126,7 @@
 	($%emode t) 
 	($%e_to_numlog nil)
 	(limit-top t))
-    (declare (special limit-assumptions limit-top))
+    (declare (special *limit-assumptions* limit-top))
     (unless limitp
       (setq *old-integer-info* *integer-info*)
       (setq *integer-info* ()))
@@ -279,10 +280,10 @@
   (cond (limit-top
 	 (assume '((mgreaterp) lim-epsilon 0))
 	 (assume '((mgreaterp) prin-inf 100000000))
-	 (setq limit-assumptions (make-limit-assumptions var val direction))
+	 (setq *limit-assumptions* (make-limit-assumptions var val direction))
 	 (setq limit-top ()))
 	(t ()))
-  limit-assumptions)
+  *limit-assumptions*)
 
 (defun make-limit-assumptions (var val direction)
   (let ((new-assumptions))
@@ -304,7 +305,7 @@
 (defun restore-assumptions ()
 ;;;Hackery until assume and forget take reliable args. Nov. 9 1979.
 ;;;JIM.
-  (do ((assumption-list limit-assumptions (cdr assumption-list)))
+  (do ((assumption-list *limit-assumptions* (cdr assumption-list)))
       ((null assumption-list) t)
     (forget (car assumption-list)))
   (forget '((mgreaterp) lim-epsilon 0))
@@ -1332,7 +1333,7 @@ ignoring dummy variables and array indices."
  (let ((lim (limit (cadr e) x pt 'think)))
 	(cond ((or (eq lim '$zeroa) (eql lim 0) (eq lim '$ind)) lim)
 	      ((eq lim '$zerob) '$zeroa)
-		  ((eq lim '$und) (throw 'limit nil))
+		  ((eq lim '$und) '$und)
 		  ((or (eq lim '$minf) (eq lim '$inf) (eq lim '$infinity)) '$inf)
 		  (t (ftake 'mabs lim)))))
 (setf (get 'mabs 'simplim%function) 'simplim%mabs)
@@ -2461,7 +2462,6 @@ ignoring dummy variables and array indices."
 				(push ans undl))
 			  ((or (eq r '$minf) (eq r '$inf) (eq r '$infinity))
 			    (throw 'limit t))
-			  ((eq r nil))
 			  (t (push r sum))))
 	 ;; Add the members of the list sum.
 	 (setq sum (fapply 'mplus sum))
@@ -3833,7 +3833,7 @@ ignoring dummy variables and array indices."
   (let ((e (limit (cadr e) x pt 'think)) (sgn))
     (cond ((eq '$minf e) -1)
 		  ((eq '$inf e) 1)
-		  ((eq '$infinity e) '$und)
+		  ((eq '$infinity e) '$ind)
 		  ((eq '$ind e) '$ind)
 		  ((eq '$und e) e)
 		  ((eq '$zerob e) -1)

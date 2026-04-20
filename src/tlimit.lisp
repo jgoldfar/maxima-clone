@@ -10,19 +10,48 @@
 
 (in-package :maxima)
 
-(declare-top (special taylored *getsignl-asksign-ok*))
+(declare-top (special taylored *limit-assumptions* preserve-direction *getsignl-asksign-ok*))
+
+(declaim (special *limit-method-depth* *already-processed-limits*))
 
 (macsyma-module tlimit)
 
 (load-macsyma-macros rzmac)
 
+;; The function `limit-by-methods` iterates over a list of limit methods and stops when a 
+;; method is successful. A method is considered successful when it returns a value that is 
+;; neither a boolean (often produced by a non‑local exit) nor a limit nounform.
+
+;; To prevent unbounded recursion or repeated evaluation, `limit-by-methods`
+;; uses two safeguards:
+
+;; (a) The special variable `*limit-method-depth*` tracks the current recursion
+;; depth. The depth is incremented upon entry to each method and compared
+;; against `*max-limit-depth*` (default 16). If the limit computation exceeds
+;; this bound, processing stops.
+
+;; (b) Each attempted limit produces a "fingerprint." The fingerprint is a list of 
+;; the method and the limit data (function, limit variable, and limit point). 
+;; These fingerprints are stored in the special variable `*already-processed-limits*`. 
+;; If a newly generated fingerprint matches one already present, the computation ends.
+
+;; To ensure alikeness of each fingerprint, the limit variable is normalized to
+;; `*universal-limit-variable*`. This allows expressions such as limit(f(x), x, a) 
+;; and limit(f(y), y, a) to test as `alike1`, preventing redundant evaluation.
+
+(defvar *limit-method-depth* 0)
+(defvar *universal-limit-variable* (gensym))
+(defvar *already-processed-limits* nil)
+(defmvar *max-limit-depth* 8) ; magic number = 8 for no particular reason
+
 ;; For limits toward `inf`, assume that the limit variable exceeds `*large-positive-number*`
 (defmvar *large-positive-number* 4398046511104) ; 2^42 for no particular reason
 ;; TOP LEVEL FUNCTION(S): $TLIMIT $TLDEFINT
 
+(declaim (special limit-using-taylor))
+
 (defmfun $tlimit (&rest args)
   (let ((limit-using-taylor t))
-    (declare (special limit-using-taylor))
     (apply #'$limit args)))
 
 (defmfun $tldefint (exp var ll ul)
@@ -35,7 +64,7 @@
 ;; expressions containing $ind.
 
 ;; We have subst([h=0,x=0], taylor(asin(x+h)-asin(x),h,0,1)) = %pi (see
-;; bug #4416 limit of Newton quotient involving asin). This bug causes
+;; bug \#4416 limit of Newton quotient involving asin). This bug causes
 ;; trouble for tlimit((asin(x+h) - asin(x))/h,h,0). Until such bugs are
 ;; sorted, we will disallow tlimit from attempting limits involving 
 ;; acos and asin.
@@ -111,15 +140,16 @@
 	(let ((ee) 
 	      (silent-taylor-flag t) 
 	      ($taylordepth 8)
-		  ($radexpand nil)
-		  ($taylor_logexpand t)
-		  ($logexpand nil))
+		    ($radexpand nil)
+        ($taylor_logexpand t)
+		    ($logexpand nil))
     
     (cond
-      ((eq pt '$infinity) nil)
+      ((eq pt '$infinity) nil) ; infinity is an illegitimate limit point
       (t
        (setq e (atan2-to-atan e))
-       (setq ee (catch 'taylor-catch ($totaldisrep ($taylor e x pt n))))
+       (setq ee ($totaldisrep (catch 'taylor-catch ($taylor e x pt n))))
+
        (cond
          ((and ee (not (eql ee 0))) ee)
          ;; Retry if Taylor returns zero and depth is less than 16
@@ -130,22 +160,143 @@
 ;; Previously, when the Taylor series failed, there was code to decide
 ;; whether to call limit1 or simplimit. The choice depended on the last
 ;; argument to taylim (previously named *i*) and the main operator of the 
-;; expression. This updated code eliminates that logic and always dispatches
-;; limit1 when Maxima is unable to find the Taylor polynomial. As a result, 
-;; the last argument of taylim is now unused (orphaned).
-(defun taylim (e var val flag)
-  "Attempt to compute the limit of `e` as `var` approaches `val` using a Taylor expansion.
-  When the Taylor expansion fails, fall back to using `limit1`. The `flag` argument is unused."
+;; expression. This updated code eliminates that logic and now uses the
+;; new limit-by-methods scheme. As a result, the last argument of taylim 
+;; is now unused (orphaned).
+
+;; Occasionally, the taylor code does an asksign (see function coef-sign). When
+;; that happens and asksign determines that the sign is zero, the taylor code
+;; appends this fact to *limit-assumptions*. Often this fact is rather crucial, so after
+;; the first effort to determine the taylor series, the code loops through
+;; *limit-assumptions* and looks for facts of the form equal(XXX,0); when it
+;; finds such a fact, it substitutes 0 for XXX in the expression and tries again
+;; to find the taylor series.
+
+(defun taylim (e var val &optional (flag nil))
+  "Attempt to compute the limit of `e` as `var` approaches `val` using a
+   Taylor expansion. If the Taylor expansion succeeds, apply limit
+   methods to the resulting series. If it fails—or if Taylor-based
+   assumptions require rewriting the expression—fall back to `limit1`
+   and related methods."
   (declare (ignore flag))
-  (let ((et nil))
+
+  ;; Establish recursion‑protection for limit-by-methods.  If these specials
+  ;; are already dynamically bound, preserve their bindings; otherwise start
+  ;; with the default values. The function taylim is currently the only entry point that
+  ;; invokes limit-by-methods, so we set up the guard context here.
+  (let ((*already-processed-limits* *already-processed-limits*)
+        (*limit-method-depth*       *limit-method-depth*)
+        (*getsignl-asksign-ok*      nil)
+        (et nil))
+
     (when (tlimp e var)
-      (setq e (stirling0 e))
-      (setq et (tlimit-taylor e var (ridofab val) $lhospitallim 0)))
+      (let* ((e1  (stirling0 e))
+             (pt  (ridofab val))
+             (redo nil))
+
+        ;; First Taylor attempt
+        (setq et (tlimit-taylor e1 var pt $lhospitallim 0))
+
+        ;; Examine any assumptions recorded during Taylor
+        (dolist (fct *limit-assumptions*)
+          (when (and (consp fct) (eq '$equal (caar fct)))
+            (setq redo t)
+            (setq e1 (maxima-substitute (third fct) (second fct) e1))))
+
+        ;; Retry Taylor after rewriting, if needed
+        (when redo
+          (setq et (tlimit-taylor e1 var pt $lhospitallim 0)))))
+
+    ;; If Taylor succeeded, set taylored to true and dispatch methods on et; otherwise
+    ;; dispatch methods on e.
     (if et
-        (let ((taylored t)) ; the special variable `taylored` prevents infinite looping
-          (or (limit-sum-of-powers et var val)
-              (limit et var val 'think)))
-        (limit1 e var val))))
+        (let ((taylored t))
+          (limit-by-methods et var val
+                            (list 'limit-sum-of-powers
+                                  'limit-method-think 
+                                  'limit1
+                                  'limit-method-reciprocal-limit-point)))
+          (limit-by-methods e var val
+                          (list 
+                                'limit-method-think 
+                                'limit1
+                                'limit-method-reciprocal-limit-point)))))
+
+(defun limit-method-think (e x pt)
+  (limit e x pt 'think))
+
+(defun liminv-new-val (val)
+  (cond ((eq val '$zeroa) '$inf)
+        ((eq val '$zerob) '$minf)
+        ((eq val '$inf) '$zeroa)
+        ((eq val '$minf) '$zerob)
+        (t nil)))
+
+(defun limit-method-reciprocal-limit-point (e var val)
+  "Attempt to compute the limit of E as VAR approaches VAL by transforming the
+  limit point via reciprocal substitution."
+  (let* ((ee (maxima-substitute (div 1 var) var e))
+         (new-val   (liminv-new-val val)))
+    (cond
+      (new-val
+       (let ((preserve-direction t))
+         (taylim ee var new-val nil)))
+      (t
+       (throw 'limit t)))))
+
+(defun successful-limit-result-p (ans)
+  ;; A limit method result is successful only if it is:
+  ;;   - non-nil
+  ;;   - not the special inconclusive marker T
+  ;;   - not a %limit nounform
+  (and ans
+       (not (eq ans t))
+       (not (among '%limit ans))))
+
+;; To call this function, the callee must intialize *limit-method-depth* and *already-processed-limits*. The
+;; function taylim shows an expample of how to do this.
+
+;; Although `limit-by-methods` is defined in the file `tlimit`, it is not specific to the tlimit code.
+(defun limit-by-methods (e x pt methods)
+ "Apply a sequence of limit methods to compute limit(e, x, pt).
+
+Each method FN is called as (FN e x pt) and may return a value,
+NIL, or signal (throw 'limit <value>).  The first value satisfying
+successful-limit-result-p is returned.
+
+Recursion guards:
+  (a) *limit-method-depth* is incremented and compared with
+    *max-limit-depth*; exceeding this bound aborts with (throw 'limit NIL).
+
+  (b) A fingerprint of (FN, e, x, pt) is recorded in
+    *already-processed-limits*; repeating a fingerprint aborts the
+    computation to prevent recursive cycles.
+
+Returns the first valid limit result found, or NIL if no method succeeds."
+  ;; Initialize guards if not already bound
+  (let ((*already-processed-limits* (or *already-processed-limits* nil))
+        (*limit-method-depth* (or *limit-method-depth* 0)))
+
+    (when (> *limit-method-depth* *max-limit-depth*)
+      (throw 'limit nil))
+
+    (let ((*limit-method-depth* (1+ *limit-method-depth*)))
+      (catch 'limit-found
+        (dolist (fn methods)
+          ;; recursion guard
+          (let ((fingerprint (ftake 'mlist
+                                    (position fn methods)
+                                    (maxima-substitute *universal-limit-variable* x e)
+                                    *universal-limit-variable*
+                                    pt)))
+            (when (member fingerprint *already-processed-limits* :test #'alike1)
+              (throw 'limit nil))
+            (push fingerprint *already-processed-limits*))
+
+          ;; run method
+          (let ((ans (catch 'limit (funcall fn e x pt))))
+            (when (successful-limit-result-p ans)
+              (throw 'limit-found ans))))))))
 
 (defun power-of-x-p (e x)
  "Return true if `e` is a monomial of the form `x^q`, where `q` is a rational number. Also returns true if `e` is `x`.

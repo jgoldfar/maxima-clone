@@ -139,6 +139,7 @@
 	  trunclist		;
 	  *within-srf?*		;flag for in srf
 	  mainvar-datum		;
+	  *limit-assumptions*
 	  least_term?		; If non-null then the addition routines
 				; are adding or subtracting coeff's of the
 				; least term of a sum so they should do
@@ -1401,9 +1402,24 @@
 	  lim)))))
 
 (defun coef-sign (coef)
-   (if (not ($freeof '$%i ($rectform coef)))
-       '$im
-     ($asksign coef)))
+  "Determine the sign of `coef`.
+
+  First, find the sign using `$csign`. If `$csign` returns `$complex` or `$imaginary`, 
+  return `$im`; if the sign is`$neg` or `$pos`, return those values.
+
+  Second, call `asksign`. If `$asksign` returns `$zero` and `*limit-assumptions*` 
+  is non-nil, push `coef = 0` onto `*limit-assumptions*` before returning the sign
+  determined by asksign."
+  (let ((sgn ($csign coef)))
+	(cond ((or (eq sgn '$complex) (eq sgn '$imaginary)) '$im)
+	      ((member sgn '($neg $zero $pos)) sgn)
+		  (t 
+		     (let ((asgn ($asksign coef)))
+                ;; When sgn is zero and limit is active, record this fact as a noun equality
+				;; in *limit-assumptions*.
+             (when (and *limit-assumptions* (eq asgn '$zero))
+               (push (ftake '$equal coef 0) *limit-assumptions*))
+            asgn)))))
 
 (defun gvar-lim (gvar)
    (or (cdr (assoc gvar tvar-limits :test #'eq))

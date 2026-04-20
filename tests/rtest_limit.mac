@@ -923,10 +923,10 @@ true;
  ctxt: newcontext (),
  assume (q > 0),
  limit(x^q/(a*x^q- 1),x,inf));
-'limit(x^q/(a*x^q- 1),x,inf);
+1/a;
 
 tlimit(x^q/(a*x^q- 1),x,inf);
-'limit(x^q/(a*x^q- 1),x,inf);
+1/a;
 
 (assume (a > 0),
  declare (q, integer),

@@ -385,7 +385,11 @@ trigsimp (integrate (%e^((-log(x)^2)-1)*log(x),x));
  /(4*abs(2*log(x)-1))$
 
 /* throw away results of integrate, just make sure it runs without crashing */
-block ([foo, bar, ctxt, domain : 'complex],
+
+/* The assignment facsum_combine : 'facsum_combine, prevents some calls to asksign & askinteger. Without
+   this assignment in a fresh Maxima, this test runs with no calls to either asksign or askinteger.  */
+
+block ([foo, bar, ctxt, domain : 'complex, facsum_combine : 'facsum_combine],
   foo : exp(-(log(x) - MU)*(log(x) - MU)/(2*SIGMA*SIGMA))/(x*SIGMA*sqrt(2*%pi)),
   bar : (log(B) - log(x*SIGMA) + ((x-A)*(x-A)/(2*B*B) - (log(x) -MU)*(log(x) -MU)/(2*SIGMA*SIGMA))),
   [foo, bar] : subst ([A=2, MU=3], [foo, bar]),
@@ -1074,3 +1078,9 @@ print_string_2d ("
     \"'My Novel' not found.\"
  
 ";
+
+contexts;
+[initial, global]$
+
+kill(values);
+done$
