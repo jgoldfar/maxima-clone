@@ -657,16 +657,6 @@
              (return r))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Helper functions for Bigfloat numerical evaluation.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun cmul (x y) ($rectform (mul x y)))
-
-(defun cdiv (x y) ($rectform (div x y)))
-
-(defun cpower (x y) ($rectform (power x y)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; We have not changed the above algorithm, but generalized it to handle
 ;;; complex and real Bigfloat numbers. By carefully examination of the
 ;;; algorithm some of the additional calls to $rectform can be eliminated.

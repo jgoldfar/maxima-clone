@@ -581,7 +581,8 @@
    (:module simplification :source-pathname ""
 	    :depends-on ("globals" "defmfun" "reader" "utility-macros" "compatibility-macros"
                                    "compatibility-macros1" "declarations" "destructuring-let"
-                                   "fundamental-macros" "i-o" "other-macros" "prerequisites")
+                                   "fundamental-macros" "i-o" "other-macros" "prerequisites"
+                                   "numerical-utilities")
 	    :components
 	    ((:file "simp")
 	     (:file "float")
@@ -671,6 +672,9 @@
 	     (:file "evalw")
 	     (:file "trprop")
 	     (:file "mdefun")))
+   (:module numerical-utilities :source-pathname ""
+    :components
+    ((:file "numerical-utils")))
    (:module numerical-functions :source-pathname ""
 	    :depends-on ("globals" "defmfun" "trigonometry" "algebraic-database" 
                                    "utility-macros" "reader"
@@ -759,7 +763,8 @@
 	     (:file "trgred")))
    (:module special-functions :source-pathname ""
 	    :depends-on ("globals" "defmfun" "reader" "utility-macros"
-                                   "other-macros" "rat-macros")
+                                   "other-macros" "rat-macros"
+                                   "numerical-utilities")
 	    :components
 	    ((:file "specfn")))
    (:module matrix-algebra :source-pathname ""
@@ -818,11 +823,17 @@
 	    :components
 	    ((:file "mtrace")
 	     (:file "mdebug")))
+   (:module gamma-expint :source-pathname ""
+    :depends-on ("numerical-utilities")
+    :components
+    ((:file "expintegral")
+     (:file "gamma")))
    (:module miscellaneous :source-pathname ""
 	    :depends-on ("globals" "defmfun" "pattern-matching" "compatibility-macros1"
                                    "reader" "utility-macros" "commands"
                                    "destructuring-let" "errset" "other-macros"
-                                   "rat-macros" "declarations"  "fundamental-macros")
+                                   "rat-macros" "declarations"  "fundamental-macros"
+                                   "numerical-utilities")
 	    :components
 	    ((:file "scs")
 	     (:file "asum")
@@ -840,10 +851,8 @@
 	     (:file "maxmin")
 	     (:file "nummod")
 	     (:file "conjugate")
-	     (:file "expintegral")
-	     (:file "gamma")
-		 (:file "hstep")
-		 (:file "sinc")
+             (:file "hstep")
+             (:file "sinc")
 	     (:file "mstuff")))
    (:module polynomial :source-pathname ""
 	    :depends-on ("defmfun")
