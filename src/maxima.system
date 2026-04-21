@@ -281,17 +281,22 @@
 	     (:file "mutils")
 	     (:file "outmis")
 	     (:file "ar")))
+   (:module simp-utilities :source-pathname ""
+            :components
+            ((:file "simp-utils")))
    (:module commands :source-pathname ""
 	    :depends-on ("globals" "defmfun" "compatibility-macros" "compatibility-macros1"
                                    "declarations" "fundamental-macros" "prerequisites"
-                                   "utility-macros")
+                                   "utility-macros"
+                                   "simp-utilities")
 	    :components
 	    ((:file "comm")
 	     (:file "comm2")))
    (:module evaluator :source-pathname ""
 	    :depends-on ("globals" "defmfun" "utility-macros" "compatibility-macros"
                                    "compatibility-macros1" "declarations" "destructuring-let"
-                                   "fundamental-macros" "prerequisites" "utilities" "commands")
+                                   "fundamental-macros" "prerequisites" "utilities" "commands"
+                                   "simp-utilities")
 	    :components
 	    ((:file "mlisp")
 	     (:file "mmacro")
@@ -582,7 +587,8 @@
 	    :depends-on ("globals" "defmfun" "reader" "utility-macros" "compatibility-macros"
                                    "compatibility-macros1" "declarations" "destructuring-let"
                                    "fundamental-macros" "i-o" "other-macros" "prerequisites"
-                                   "numerical-utilities")
+                                   "numerical-utilities"
+                                   "simp-utilities")
 	    :components
 	    ((:file "simp")
 	     (:file "float")
@@ -630,7 +636,8 @@
 	    :depends-on ("globals" "defmfun" "rat-macros" "other-macros" 
 			 "compatibility-macros1" "ifactor" "factoring"
                                    "compatibility-macros" "declarations" "destructuring-let"
-                                   "fundamental-macros" "prerequisites" "utilities")
+                                   "fundamental-macros" "prerequisites" "utilities"
+                                   "simp-utilities")
 	    :components
 	    ((:file "rat3a")
 	     (:file "rat3b")
@@ -689,7 +696,8 @@
 	     (:file "intpol")))
    (:module display :source-pathname ""
 	    :depends-on ("globals" "defmfun" "compatibility-macros1" "declarations"
-                                   "fundamental-macros" "prerequisites")
+                                   "fundamental-macros" "prerequisites"
+                                   "simp-utilities")
 	    :components
 	    ((:file "displa")
 	     (:file "nforma")
@@ -791,7 +799,8 @@
 	    :depends-on ("globals" "defmfun" "compatibility-macros1"
                                    "declarations" "evaluator"
                                    "fundamental-macros" "prerequisites"
-                                   "rat-macros")
+                                   "rat-macros"
+                                   "simp-utilities")
 	    :components
 	    ((:file "schatc")
 	     (:file "matcom")

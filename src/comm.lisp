@@ -726,8 +726,6 @@
 (defun nthelem (n e)
   (car (nthcdr (1- n) e)))
 
-(defun delsimp (e) (remove 'simp e))
-
 (defun remsimp (e)
   (if (atom e) e (cons (delsimp (car e)) (mapcar #'remsimp (cdr e)))))
 
