@@ -313,7 +313,7 @@ externalproject_add(maxima
         COMMAND sed -i s+^.*wine-clisp.sh+clisp.exe+g src/maxima.bat
         COMMAND sed -i s+^.*wine-sbcl.sh+sbcl.exe+g src/maxima.bat
         COMMAND sed -i s+^.*wine-ccl.sh+wx86cl64.exe+g src/maxima.bat
-        COMMAND sed -i s+^.*wine-ecl.sh+ecl/ecl.exe+g src/maxima.bat
+        COMMAND sed -i s+^.*wine-ecl.sh+ecl.exe+g src/maxima.bat
   INSTALL_COMMAND PATH=${CMAKE_BINARY_DIR}/texinfo-installroot/bin:$ENV{PATH} LANG=C $(MAKE) install DESTDIR=${CMAKE_BINARY_DIR}/maxima-installroot/
           COMMAND PATH=${CMAKE_BINARY_DIR}/texinfo-installroot/bin:$ENV{PATH} LANG=C $(MAKE) extradocinstall DESTDIR=${CMAKE_BINARY_DIR}/maxima-installroot/
 )
