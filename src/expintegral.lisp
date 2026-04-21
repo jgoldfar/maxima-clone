@@ -125,15 +125,6 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Global to this file
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun simp-domain-error (&rest args)
-  (if errorsw
-      (throw 'errorsw t)
-      (apply #'merror args)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Part 1: The implementation of the Exponential Integral En
 ;;;
@@ -363,9 +354,9 @@
        ;; We have a half integral order and $expintexpand is not NIL. 
        ;; We expand in a series in terms of the Erfc or Erf function.
        (let ((func (cond ((eq $expintexpand '%erf)
-                          (sub 1 ($erf (power arg '((rat simp) 1 2)))))
+                          (sub 1 (ftake '%erf (power arg '((rat simp) 1 2)))))
                          (t
-                          ($erfc (power arg '((rat simp) 1 2)))))))
+                          (ftake '%erfc (power arg '((rat simp) 1 2)))))))
          (cond
            ((= ratorder 1/2)
             (mul (power '$%pi '((rat simp) 1 2))

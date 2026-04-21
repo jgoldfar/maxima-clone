@@ -118,4 +118,13 @@
 
 (defun cpower (x y) ($rectform (power x y)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Utilitye function to signal an error denoting a domain error for
+;; the special functions.  ARGS should be appropriate for MERROR.
+(defun simp-domain-error (&rest args)
+  (if errorsw
+      (throw 'errorsw t)
+      (apply #'merror args)))
+
 
