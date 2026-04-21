@@ -678,7 +678,8 @@
    (:module numerical-functions :source-pathname ""
 	    :depends-on ("globals" "defmfun" "trigonometry" "algebraic-database" 
                                    "utility-macros" "reader"
-                                   "fundamental-macros" "other-macros" "prerequisites")
+                                   "fundamental-macros" "other-macros" "prerequisites"
+                                   "numerical-utilities")
 	    :components
 	    ((:file "bessel")
 	     (:file "ellipt")
