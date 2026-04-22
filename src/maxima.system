@@ -772,7 +772,8 @@
 	    :depends-on ("globals" "defmfun" "compatibility-macros"
                                    "compatibility-macros1" "declarations"
                                    "destructuring-let" "fundamental-macros"
-                                   "other-macros" "prerequisites" "rat-macros" "errset")
+                                   "other-macros" "prerequisites" "rat-macros" "errset"
+                                   "simp-utilities")
 	    :components ((:file "hayat")))
    (:module definite-integration :source-pathname ""
 	    :depends-on ("globals" "defmfun" "declarations" "destructuring-let"
@@ -785,7 +786,8 @@
 	    :depends-on ("globals" "pattern-matching" "defmfun"
                                    "compatibility-macros" "declarations"
                                    "errset" "fundamental-macros" "other-macros"
-                                   "prerequisites" "utility-macros")
+                                   "prerequisites" "utility-macros"
+                                   "taylor-series")
 	    :components
 	    ((:file "trigi")
 	     (:file "trigo")
