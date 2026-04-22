@@ -66,12 +66,6 @@
 	   (integerp (cadr x))
 	   (integerp (cddr x)))))
 
-(defmfun ($bfloatp :inline-impl t) (x)
-  "Returns true if X is a bigfloat"
-  (and (consp x)
-       (consp (car x))
-       (eq (caar x) 'bigfloat)))
-
 (defmfun $floatnump (x)
   (or (floatp x)
       (and ($ratp x) (floatp (cadr x)) (onep1 (cddr x)))))

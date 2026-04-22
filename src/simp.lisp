@@ -116,17 +116,11 @@
 
 (defun mratcheck (e) (if ($ratp e) (ratdisrep e) e))
 
-(defun specrepcheck (e) (if (specrepp e) (specdisrep e) e))
-
 ;; Note that the following two functions are carefully coupled.
 
 (defun specrepp (e)
   (and (not (atom e))
        (member (caar e) '(mrat mpois)) t))
-
-(defun specdisrep (e)
-  (cond ((eq (caar e) 'mrat) (ratdisrep e))
-	(t ($outofpois e))))
 
 (defun constant (x)
   (cond ((symbolp x) (kindp x '$constant))
@@ -2805,79 +2799,6 @@
 		   ((null y1) (return t))
 		   ((not (alike1 (car x1) (car y1)))
 		    (return (great (car x1) (car y1)))))))))
-
-;; Trivial function used only in ALIKE1.
-;; Should be defined as an open-codable subr.
-
-(defmacro memqarr (l)
-  `(if (member-eq 'array ,l) t))
-
-;; Compares two Macsyma expressions ignoring SIMP flags and all other
-;; items in the header except for the ARRAY flag.
-
-(defun alike1 (x y)
-  ;; Clauses are ordered based on frequency of the case
-  ;; cons, integer, and symbol are very common
-  ;; everything else is rare
-  (cond ((eq x y) t)
-        ((consp x)
-         (let (car-x car-y op)
-         (if (and (consp y)
-                  (not (atom (setq car-x (car x))))
-                  (not (atom (setq car-y (car y))))
-                  (eq (setq op (car car-x)) (car car-y)))
-             (cond
-              ((eq op 'mrat) (like x y))
-              ((eq op 'mpois) (equal (cdr x) (cdr y)))
-              ((eq op 'bigfloat)
-                ;; Bigfloats need special treatment because their precision
-                ;; and an optional DECIMAL flag are stored in the CAR,
-                ;; which would otherwise be ignored.
-                ;; A bigfloat looks like this, [...] means optional:
-                ;; ((BIGFLOAT [SIMP] <PRECISION> [DECIMAL]) <MANTISSA> <EXPONENT>)
-                ;; Compare mantissas and exponents first.
-                (when (and (= (cadr x) (cadr y)) (= (caddr x) (caddr y)))
-                  ;; Mantissas and exponents are the same.
-                  ;; If the CARs are EQ (see BCONS), we're done. Otherwise, we
-                  ;; still need to compare precision and maybe radix (binary/decimal).
-                  ;; If there's a SIMP flag, it must be ignored.
-                  (if (eq car-x car-y)
-                  t
-                  (let ((rest-x (if (eq 'simp (cadar x)) (cddar x) (cdar x)))
-                        (rest-y (if (eq 'simp (cadar y)) (cddar y) (cdar y))))
-                    (and (= (car rest-x) (car rest-y))
-                         (eq (cadr rest-x) (cadr rest-y)))))))
-              ;; General case: First check for CARs being EQ (see EQTEST).
-              ;; If not, just check whether both have or don't have the ARRAY flag.
-              ((or (eq car-x car-y) (eq (memqarr (cdar x)) (memqarr (cdar y))))
-               (alike (cdr x) (cdr y)))
-              (t nil))
-           ;; (foo) and (foo) test non-alike because the car's aren't standard
-           nil)))
-        ((consp y) nil)
-        ((or (symbolp x) (symbolp y)) nil)
-        ((integerp x) (and (integerp y) (= x y)))
-        ;; uncommon cases from here down
-        ((floatp x) (and (floatp y) (= x y)))
-        ((stringp x) (and (stringp y) (string= x y)))
-        ((vectorp x) (and (vectorp y) (lisp-vector-alike1 x y)))
-        ((arrayp x) (and (arrayp y) (lisp-array-alike1 x y)))
-        (t nil)
-        ))
-
-(defun lisp-vector-alike1 (x y)
-  (let ((lx (length x)))
-    (when (eql lx (length y))
-      (lisp-array-elements-alike1 x y lx))))
-
-(defun lisp-array-alike1 (x y)
-  (when (equal (array-dimensions x) (array-dimensions y))
-    (lisp-array-elements-alike1 x y (array-total-size x))))
-
-(defun lisp-array-elements-alike1 (x y n)
-  (dotimes (i n t)
-    (unless (alike1 (row-major-aref x i) (row-major-aref y i))
-      (return-from lisp-array-elements-alike1 nil))))
 
 ;; Not sure if we want to enable comparison of maxima arrays.
 ;; Aside from that, add2lnc calls alike1 (via memalike) and that causes trouble.

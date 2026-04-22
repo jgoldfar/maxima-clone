@@ -190,13 +190,6 @@
       (and (not (atom x)) (not (atom (car x)))
 	   (member (caar x) '(rat bigfloat)) t)))
 
-(declaim (inline zerop1))
-(defun zerop1 (x)
-  "Returns non-NIL if X is Lisp number or bfloat that is equal to 0"
-  (cond
-    ((numberp x) (zerop x))
-    (($bfloatp x) (= 0 (cadr x)))))
-
 (defun bigfloat-one-p (x)
   "Returns T if X, assumed to be a bigfloat, represents the value 1."
   ;; Binary bigfloat ones are of the form '((BIGFLOAT [SIMP] <P>) 2^(<P>-1) 1).
