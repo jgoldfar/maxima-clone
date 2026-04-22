@@ -903,9 +903,6 @@
 	   (div (mod x mod) d)))
 	(t nil)))
 
-(defun multiplep (exp var)
-  (and (not (zerop1 exp)) (zerop1 (sub exp (mul var (coeff exp var 1))))))
-
 (defun linearp (exp var)
   (and (setq exp (islinear exp var)) (not (equal (car exp) 0))))
 
