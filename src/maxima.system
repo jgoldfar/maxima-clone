@@ -250,7 +250,7 @@
             ;; function calls.  Can't really do anything about that.
             ;; and can't depend on those modules because that causes a
             ;; circular dependency.
-            :depends-on ("prerequisites")
+            :depends-on ("prerequisites" "defmfun")
             :components
             ((:file "simp-utils")
              (:file "mopers")
