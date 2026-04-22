@@ -20,11 +20,6 @@
 ;;;
 ;;; Every function in this file is known about externally.
 
-(defmacro while (cond &rest body)
-  `(do ()
-       ((not ,cond))
-     ,@body))
-
 (defun maxima-getenv (envvar)
   #+gcl     (si::getenv envvar)
   #+ecl     (si::getenv envvar)
@@ -83,16 +78,6 @@
 (defun xor (a b)
   (or (and (not a) b) (and (not b) a)))
   
-;;; A MEMQ which works at all levels of a piece of list structure.
-;;;
-;;; Note that (AMONG NIL '(A B C)) is T, however.  This could cause bugs.
-;;; > This is false. (AMONG NIL anything) returns NIL always. -kmp
-
-(defun among (x l) 
-  (cond ((null l) nil)
-	((atom l) (eq x l))
-	(t (or (among x (car l)) (among x (cdr l)))))) 
-
 ;;; Similar to AMONG, but takes a list of objects to look for.  If any
 ;;; are found in L, returns T.
 

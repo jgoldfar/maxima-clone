@@ -241,14 +241,26 @@
 	    :depends-on ("defmfun" "compatibility-macros" "compatibility-macros1"
                                    "prerequisites" "errset")
 	    :components
-	    ((:file "mopers")
+	    (#+nil
+             (:file "mopers")
 	     (:file "mforma")))
+   (:module simp-utilities :source-pathname ""
+            :depends-on ("prerequisites")
+            :components
+            ((:file "simp-utils")
+             (:file "mopers")
+             (:file "opers"
+                    :depends-on ("mopers"))
+             (:file "mutils")
+             (:file "simp"
+                    :depends-on ("opers" "mopers" "mutils"))))
    ;; This contains the reader macro #$...$ so we want io compile this
    ;; as early as possible before anything uses it.
    (:module reader :source-pathname ""
 	    :depends-on ("globals" "defmfun" "compatibility-macros" "compatibility-macros1"
                                    "declarations" "fundamental-macros" "prerequisites"
-                                   "utility-macros")
+                                   "utility-macros"
+                                   "simp-utilities")
 	    :components
 	    ((:file "nparse")))
    (:module other-macros :source-pathname ""
@@ -272,18 +284,18 @@
                                    "compatibility-macros1" "declarations" "fundamental-macros"
                                    "prerequisites")
 	    :components
-	    ((:file "opers")
-	     (:file "utils")
+	    (#+nil
+             (:file "opers")
+             (:file "utils")
 	     (:file "sumcon")
 	     (:file "sublis")
 	     (:file "merror")
 	     (:file "mformt")
-	     (:file "mutils")
+	     #+nil
+             (:file "mutils")
+             (:file "mutils-fn")
 	     (:file "outmis")
 	     (:file "ar")))
-   (:module simp-utilities :source-pathname ""
-            :components
-            ((:file "simp-utils")))
    (:module commands :source-pathname ""
 	    :depends-on ("globals" "defmfun" "compatibility-macros" "compatibility-macros1"
                                    "declarations" "fundamental-macros" "prerequisites"
@@ -590,7 +602,9 @@
                                    "numerical-utilities"
                                    "simp-utilities")
 	    :components
-	    ((:file "simp")
+	    (#+nil
+             (:file "simp")
+             (:file "simp-fn")
 	     (:file "float")
 	     (:file "csimp")
 	     (:file "csimp2")

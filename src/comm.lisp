@@ -1294,6 +1294,7 @@
       (coeff e x 0)
       (coeff e (power x n) 1)))
 
+#+nil
 (defun coeff (e var pow)
   (simplify
    (cond ((alike1 e var) (if (equal pow 1) 1 0))

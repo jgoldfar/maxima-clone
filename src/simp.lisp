@@ -50,6 +50,22 @@
 (defvar *exptrlsw* nil)
 (defvar *expandflag* nil)
 
+(defmacro while (cond &rest body)
+  `(do ()
+       ((not ,cond))
+     ,@body))
+
+(declaim (inline member-eq))
+(defun member-eq (m l)
+  "This function behaves like (MEMBER M L :TEST #'EQ).
+  When inlined, this function is so small that there is almost no code size
+  overhead compared to a MEMBER call, but it is faster because no CALL
+  instruction is required."
+  (while l
+    (when (eq m (car l))
+      (return l))
+    (setq l (cdr l))))
+
 (defprop mnctimes t associative)
 (defprop lambda t lisp-no-simp)
 
@@ -112,26 +128,6 @@
   (cond ((eq (caar e) 'mrat) (ratdisrep e))
 	(t ($outofpois e))))
 
-(defmfun $polysign (x)
-  (setq x (cadr (ratf x)))
-  (cond ((equal x 0) 0) ((pminusp x) -1) (t 1)))
-
-(defmfun $numfactor (x)
-  (setq x (specrepcheck x))
-  (cond ((mnump x) x)
-	((atom x) 1)
-	((not (eq (caar x) 'mtimes)) 1)
-	((mnump (cadr x)) (cadr x))
-	(t 1)))
-
-(defmfun $constantp (x)
-  (cond ((atom x) (or ($numberp x) (kindp x '$constant)))
-	((member (caar x) '(rat bigfloat)) t)
-	((specrepp x) ($constantp (specdisrep x)))
-	((or (mopp (caar x)) (kindp (caar x) '$constant))
-	 (do ((x (cdr x) (cdr x))) ((null x) t)
-	   (if (not ($constantp (car x))) (return nil))))))
-
 (defun constant (x)
   (cond ((symbolp x) (kindp x '$constant))
 	(($subvarp x)
@@ -142,10 +138,6 @@
 (defun maxima-constantp (x)
   (or (numberp x)
       (and (symbolp x) (kindp x '$constant))))
-
-(defmfun $scalarp (x) (or (consttermp x) (eq (scalarclass x) '$scalar)))
-
-(defmfun $nonscalarp (x) (eq (scalarclass x) '$nonscalar))
 
 (defun scalar-or-constant-p (x flag)
   (if flag (not ($nonscalarp x)) ($scalarp x)))
@@ -387,12 +379,6 @@
 (defun rulechk (x) (or (mget x 'oldrules) (get x 'rules)))
 
 (defun resimplify (x) (let ((dosimp t)) (simplifya x nil)))
-
-(defmfun ($resimplify :inline-impl t) (expr)
-  "Resimplifies the expression EXPR based on the current environment.
-  This function is useful when the fact database, option variables,
-  or tellsimp rules have changed since the expression was last simplified."
-  (resimplify expr))
 
 (defun unsimplify (x)
   (if (or (atom x) (specrepp x))
@@ -1249,9 +1235,6 @@
 
 (defprop %sqrt simp-sqrt operators)
 
-(defmfun $sqrt (z)
-  (simplify (list '(%sqrt) z)))
-
 (defun simp-sqrt (x y z)
   (oneargcheck x)
   (setq y (list '(mexpt) (cadr x) '((rat simp) 1 2)))
@@ -1289,10 +1272,6 @@
 
 ;; The abs function distributes over bags.
 (defprop mabs (mlist $matrix mequal) distribute_over)
-
-;; Define a verb function $abs
-(defmfun $abs (x)
-  (simplify (list '(mabs) x)))
 
 ;; The abs function is a simplifying function.
 (defprop mabs simpabs operators)
@@ -1663,14 +1642,6 @@
 (defprop %exp $exp reversealias)
 
 (defprop %exp simp-exp operators)
-
-(defmfun $exp (z)
-  (simplify (list '(%exp) z)))
-
-;; Support a function for code,
-;; which depends on an unsimplified noun form. 
-(defmfun $exp-form (z)
-  (list '(mexpt) '$%e z))
 
 (defun simp-exp (x y z)
   (oneargcheck x)
@@ -2746,33 +2717,6 @@
 	((or (floatp r1) (floatp r2)) 0.0)
 	(t 0)))
 
-(defmfun $orderlessp (a b)
-  (setq a ($totaldisrep (specrepcheck a))
-        b ($totaldisrep (specrepcheck b)))
-  (and (not (alike1 a b)) (great b a) t))
-
-(defmfun $ordergreatp (a b)
-  (setq a ($totaldisrep (specrepcheck a))
-        b ($totaldisrep (specrepcheck b)))
-  (and (not (alike1 a b)) (great a b) t))
-
-;; Test function to order a and b by magnitude. If it is not possible to
-;; order a and b by magnitude they are ordered by great. This function
-;; can be used by sort, e.g. sort([3,1,7,x,sin(1),minf],ordermagnitudep)
-(defmfun $ordermagnitudep (a b)
-  (let (sgn)
-    (setq a ($totaldisrep (specrepcheck a))
-          b ($totaldisrep (specrepcheck b)))
-    (cond ((and (or (constp a) (member a '($inf $minf)))
-                (or (constp b) (member b '($inf $minf)))
-                (member (setq sgn ($csign (sub b a))) '($pos $neg $zero)))
-           (cond ((eq sgn '$pos) t)
-                 ((eq sgn '$zero) (and (not (alike1 a b)) (great b a)))
-                 (t nil)))
-          ((or (constp a) (member a '($inf $minf))) t)
-          ((or (constp b) (member b '($inf $minf))) nil)
-          (t (and (not (alike1 a b)) (great b a))))))
-
 (defun evnump (n) (or (even n) (and (ratnump n) (even (cadr n)))))
 (defun odnump (n) (or (and (integerp n) (oddp n))
 		      (and (ratnump n) (oddp (cadr n)))))
@@ -3097,48 +3041,6 @@
         ;; Different mantissa signs, directly compare.
         (> sgn-mant-x sgn-mant-y)))))
 
-(defmfun $multthru (e1 &optional e2)
-  (let (arg1 arg2)
-    (cond (e2				;called with two args
-	   (setq arg1 (specrepcheck e1)
-		 arg2 (specrepcheck e2))
-           (cond ((or (atom arg2)
-                      (not (member (caar arg2) '(mplus mequal))))
-		  (mul2 arg1 arg2))
-		 ((eq (caar arg2) 'mequal)
-		  (list (car arg2) ($multthru arg1 (cadr arg2))
-			($multthru arg1 (caddr arg2))))
-		 (t (expandterms arg1 (cdr arg2)))))
-	  (t 				;called with only one arg
-	   (prog (l1)
-	      (setq arg1 (setq arg2 (specrepcheck e1)))
-	      (cond ((atom arg1) (return arg1))
-		    ((eq (caar arg1) 'mnctimes)
-		     (setq arg1 (cdr arg1)) (go nct))
-		    ((not (eq (caar arg1) 'mtimes)) (return arg1)))
-	      (setq arg1 (reverse (cdr arg1)))
-	      times (when (mplusp (car arg1))
-		      (setq l1 (nconc l1 (cdr arg1)))
-		      (return (expandterms (muln l1 t) (cdar arg1))))
-	      (setq l1 (cons (car arg1) l1))
-	      (setq arg1 (cdr arg1))
-	      (if (null arg1) (return arg2))
-	      (go times)
-	      nct  (when (mplusp (car arg1))
-		     (setq l1 (nreverse l1))
-		     (return (addn (mapcar
-				    #'(lambda (u)
-					(simplifya
-					 (cons '(mnctimes) 
-					       (append l1 (ncons u) (cdr arg1)))
-					 t))
-				    (cdar arg1))
-				   t)))
-	      (setq l1 (cons (car arg1) l1))
-	      (setq arg1 (cdr arg1))
-	      (if (null arg1) (return arg2))
-	      (go nct))))))
-
 ;;  EXPANDEXPT computes the expansion of (x1 + x2 + ... + xm)^n
 ;;  taking a sum and integer power as arguments.
 ;;  Its theory is to recurse down the binomial expansion of
@@ -3290,9 +3192,6 @@
     (merror (intl:gettext "expand: expon must be a nonnegative integer; found: ~M") $expon))
   (resimplify (specrepcheck exp)))
 
-(defmfun $expand (exp &optional (expop $maxposex) (expon $maxnegex))
-  (expand1 exp expop expon))
-
 (defun fixexpand (a)
   (if (not (mplusp a))
       (ncons a)
@@ -3363,23 +3262,6 @@
 			    (not (or (atom simp-in)
 				     (atom (cadr simp-in))
 				     (member (caaadr simp-in) '(mplus mtimes rat))))))))))
-
-;; The following was formerly in SININT.  This code was placed here because
-;; SININT is now an out-of-core file on MC, and this code is needed in-core
-;; because of the various calls to it. - BMT & JPG
-
-(defmfun $integrate (expr x &optional lo hi)
-  (declare (special *in-risch-p* context))
-  (let ($ratfac)
-    (if (not hi)
-	(with-new-context (context)
-	  (if (member '%risch *nounl*)
-	      (if *in-risch-p*
-            ;; Give up; we're being called from RISCHINT by some path.
-            (list '(%integrate) expr x)
-            (rischint expr x))
-	      (sinint expr x)))
-	($defint expr x lo hi))))
 
 (defun ratp (a ratp-var)
   (cond ((atom a) t)
@@ -3497,3 +3379,21 @@
   (cons '(mlist simp)
 	(mapcar #'(lambda (z) (list '(mequal simp) z (meval z))) l)))
 
+(defun coeff (e var pow)
+  (simplify
+   (cond ((alike1 e var) (if (equal pow 1) 1 0))
+	 ((atom e) (if (equal pow 0) e 0))
+	 ((eq (caar e) 'mexpt)
+	  (cond ((alike1 (cadr e) var)
+		 (if (or (equal pow 0) (not (alike1 (caddr e) pow))) 0 1))
+		((equal pow 0) e)
+		(t 0)))
+	 ((or (eq (caar e) 'mplus) (mbagp e))
+	  (cons (if (eq (caar e) 'mplus) '(mplus) (car e))
+		(mapcar #'(lambda (e) (coeff e var pow)) (cdr e))))
+	 ((eq (caar e) 'mrat) (ratcoeff e var pow))
+         ((equal pow 0) (if (coeff-contains-powers e var) 0 e))
+	 ((eq (caar e) 'mtimes)
+	  (let ((term (if (equal pow 1) var (power var pow))))
+	    (if (memalike term (cdr e)) ($delete term e 1) 0)))
+	 (t 0))))
