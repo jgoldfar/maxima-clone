@@ -975,9 +975,6 @@ TDNEG TDZERO TDPN) to store it, and also sets SIGN."
           ((eq '$nz sgn) (daddgq nil (neg x))))))
     (setf *local-signs* nil)))
 
-(defun like (x y)
-  (alike1 (specrepcheck x) (specrepcheck y)))
-
 (setf (get '$und 'sysconst) t)
 (setf (get '$ind 'sysconst) t)
 (setf (get '$zeroa 'sysconst) t)

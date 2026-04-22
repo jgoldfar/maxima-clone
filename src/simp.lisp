@@ -102,8 +102,6 @@
 (defprop $equal t binary)
 (defprop $notequal t binary)
 
-(defun ratdisrep (e) (simplifya ($ratdisrep e) nil))
-
 (defun sratsimp (e) (simplifya ($ratsimp e) nil))
 
 (defun simpcheck (e flag)
@@ -2816,13 +2814,6 @@
   (and
     (alike1 (mfuncall '$arrayinfo x) (mfuncall '$arrayinfo y))
     (alike1 ($listarray x) ($listarray y))))
-
-;; Maps ALIKE1 down two lists.
-
-(defun alike (x y)
-  (do ((x x (cdr x)) (y y (cdr y))) ((atom x) (equal x y))
-    (cond ((or (atom y) (not (alike1 (car x) (car y))))
-	   (return nil)))))
 
 (defun ordfna (e a)			; A is an atom
   (cond ((numberp a)

@@ -245,6 +245,11 @@
              (:file "mopers")
 	     (:file "mforma")))
    (:module simp-utilities :source-pathname ""
+            ;; There are other dependencies.  We call $ratdisrep,
+            ;; $outofpois, $ratsimp and others.  These are all
+            ;; function calls.  Can't really do anything about that.
+            ;; and can't depend on those modules because that causes a
+            ;; circular dependency.
             :depends-on ("prerequisites")
             :components
             ((:file "simp-utils")
@@ -252,7 +257,7 @@
              (:file "opers"
                     :depends-on ("mopers"))
              (:file "mutils"
-                    :depends-on "simp-utils")
+                    :depends-on ("simp-utils"))
              (:file "simp"
                     :depends-on ("simp-utils" "opers" "mopers" "mutils"))))
    ;; This contains the reader macro #$...$ so we want io compile this

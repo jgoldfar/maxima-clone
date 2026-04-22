@@ -21,8 +21,31 @@
     ((numberp x) (zerop x))
     (($bfloatp x) (= 0 (cadr x)))))
 
+(defun ratdisrep (e)
+  (simplifya (locally 
+                 (declare (notinline $ratdisrep))
+               ($ratdisrep e))
+             nil))
+
+(defun specdisrep (e)
+  (cond ((eq (caar e) 'mrat)
+         (ratdisrep e))
+	(t
+         (locally
+             (declare (notinline $outofpois))
+           ($outofpois e)))))
+
+(defun specrepcheck (e)
+  (if (specrepp e)
+      (specdisrep e)
+      e))
+
+
 ;; Compares two Macsyma expressions ignoring SIMP flags and all other
 ;; items in the header except for the ARRAY flag.
+
+(defun like (x y)
+  (alike1 (specrepcheck x) (specrepcheck y)))
 
 ;; Trivial function used only in ALIKE1.
 ;; Should be defined as an open-codable subr.
@@ -94,9 +117,11 @@
         (t nil)
         ))
 
-(defun specrepcheck (e) (if (specrepp e) (specdisrep e) e))
+;; Maps ALIKE1 down two lists.
 
-(defun specdisrep (e)
-  (cond ((eq (caar e) 'mrat) (ratdisrep e))
-	(t ($outofpois e))))
+(defun alike (x y)
+  (do ((x x (cdr x)) (y y (cdr y))) ((atom x) (equal x y))
+    (cond ((or (atom y) (not (alike1 (car x) (car y))))
+	   (return nil)))))
+
 
