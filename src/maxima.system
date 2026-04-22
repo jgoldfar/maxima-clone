@@ -752,7 +752,8 @@
 	    :depends-on ("globals" "pattern-matching" "defmfun"
                                    "compatibility-macros" "declarations"
                                    "errset" "fundamental-macros" "other-macros"
-                                   "prerequisites" "utility-macros")
+                                   "prerequisites" "utility-macros"
+                                   "simplification" "algebraic-database")
 	    :components
 	    ((:file "trigi")
 	     (:file "trigo")
