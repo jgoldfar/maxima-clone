@@ -260,6 +260,10 @@
                     :depends-on ("simp-utils"))
              (:file "simp"
                     :depends-on ("simp-utils" "opers" "mopers" "mutils"))))
+   (:module m2-pattern-matcher :source-pathname ""
+            :depends-on ("simp-utilities")
+            :components
+            ((:file "schatc")))
    ;; This contains the reader macro #$...$ so we want io compile this
    ;; as early as possible before anything uses it.
    (:module reader :source-pathname ""
@@ -747,7 +751,8 @@
    (:module hypergeometric :source-pathname ""
             ;; Simplification and evaluation of hypergeometric functions.
             :depends-on ("compatibility-macros1" "declarations" "defmfun" "errset" "globals"
-                         "miscellaneous" "other-macros" "prerequisites" "utility-macros")
+                         "miscellaneous" "other-macros" "prerequisites" "utility-macros"
+                         "m2-pattern-matcher")
             :components
             ((:file "hyp")
 	     (:file "hypergeometric")
@@ -760,7 +765,8 @@
                                    "compatibility-macros" "declarations"
                                    "destructuring-let" "errset" "fundamental-macros"
                                    "prerequisites" "rat-macros" "utility-macros"
-                                   "hypergeometric")
+                                   "hypergeometric"
+                                   "m2-pattern-matcher")
 	    :components
 	    ((:file "sinint")
 	     (:file "sin")
@@ -778,7 +784,8 @@
    (:module definite-integration :source-pathname ""
 	    :depends-on ("globals" "defmfun" "declarations" "destructuring-let"
                                    "fundamental-macros" "other-macros"
-                                   "prerequisites")
+                                   "prerequisites"
+                                   "m2-pattern-matcher")
 	    :components
 	    ((:file "defint")
 	     (:file "residu")))
@@ -787,7 +794,8 @@
                                    "compatibility-macros" "declarations"
                                    "errset" "fundamental-macros" "other-macros"
                                    "prerequisites" "utility-macros"
-                                   "taylor-series")
+                                   "taylor-series"
+                                   "m2-pattern-matcher")
 	    :components
 	    ((:file "trigi")
 	     (:file "trigo")
@@ -824,8 +832,7 @@
                                    "rat-macros"
                                    "simp-utilities")
 	    :components
-	    ((:file "schatc")
-	     (:file "matcom")
+	    ((:file "matcom")
 	     (:file "matrun")
 	     (:file "nisimp")))
    (:module limits :source-pathname ""
@@ -856,7 +863,7 @@
 	    ((:file "mtrace")
 	     (:file "mdebug")))
    (:module gamma-expint :source-pathname ""
-    :depends-on ("numerical-utilities")
+    :depends-on ("numerical-utilities" "m2-pattern-matcher")
     :components
     ((:file "expintegral")
      (:file "gamma")))
@@ -865,7 +872,8 @@
                                    "reader" "utility-macros" "commands"
                                    "destructuring-let" "errset" "other-macros"
                                    "rat-macros" "declarations"  "fundamental-macros"
-                                   "numerical-utilities")
+                                   "numerical-utilities"
+                                   "m2-pattern-matcher")
 	    :components
 	    ((:file "scs")
 	     (:file "asum")
