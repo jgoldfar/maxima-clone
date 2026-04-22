@@ -251,6 +251,11 @@
              (:file "mopers")
              (:file "opers"
                     :depends-on ("mopers"))
+             ;; NOTE: There is a circular dependency between mutils
+             ;; and simp.  mutils calls ALIKE1 from simp, and simp
+             ;; calls AMONG, ZEROP1 from mutils.  These should be
+             ;; fixed, but since this is all in this module, it
+             ;; doesn't matter too much right now.
              (:file "mutils")
              (:file "simp"
                     :depends-on ("opers" "mopers" "mutils"))))
