@@ -263,7 +263,8 @@
    (:module m2-pattern-matcher :source-pathname ""
             :depends-on ("simp-utilities")
             :components
-            ((:file "schatc")))
+            ((:file "schatc")
+             (:file "schatc-util")))
    ;; This contains the reader macro #$...$ so we want io compile this
    ;; as early as possible before anything uses it.
    (:module reader :source-pathname ""

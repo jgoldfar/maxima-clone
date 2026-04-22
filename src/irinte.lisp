@@ -219,9 +219,6 @@
   (declare (ignore xx ee fff gg dd pp r0 e0))
   nil)
 
-(defun cdras (a b)
-  (cdr (assoc a b :test #'equal)))
-
 (defun intir (funct x)
   (inti funct x (jmaug (specrepcheck funct) x)))
 
