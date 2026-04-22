@@ -761,7 +761,7 @@
 		    ;; be loaded first.
 		    :depends-on ("hypergeometric"))))
    (:module integration :source-pathname ""
-	    :depends-on ("globals" "defmfun" "pattern-matching" 
+	    :depends-on ("globals" "defmfun"
                                    "compatibility-macros" "declarations"
                                    "destructuring-let" "errset" "fundamental-macros"
                                    "prerequisites" "rat-macros" "utility-macros"
@@ -790,7 +790,7 @@
 	    ((:file "defint")
 	     (:file "residu")))
    (:module trigonometry :source-pathname ""
-	    :depends-on ("globals" "pattern-matching" "defmfun"
+	    :depends-on ("globals" "defmfun"
                                    "compatibility-macros" "declarations"
                                    "errset" "fundamental-macros" "other-macros"
                                    "prerequisites" "utility-macros"
@@ -868,7 +868,7 @@
     ((:file "expintegral")
      (:file "gamma")))
    (:module miscellaneous :source-pathname ""
-	    :depends-on ("globals" "defmfun" "pattern-matching" "compatibility-macros1"
+	    :depends-on ("globals" "defmfun" "compatibility-macros1"
                                    "reader" "utility-macros" "commands"
                                    "destructuring-let" "errset" "other-macros"
                                    "rat-macros" "declarations"  "fundamental-macros"
