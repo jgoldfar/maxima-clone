@@ -640,7 +640,8 @@
     (if foo (not (apparently-a-directory-p foo)))))
 
 (defun apparently-a-directory-p (path)
-  (member (pathname-name path) '(nil :unspecific) :test #'eq))
+  #+allegro (excl:file-directory-p path)
+  #-allegro (member (pathname-name path) '(nil :unspecific) :test #'eq))
 
 ;; We keep these here in case we want to optimize the search.  To
 ;; speed things up, we might want to support search lists like
