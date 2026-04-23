@@ -758,7 +758,8 @@
             ;; Simplification and evaluation of hypergeometric functions.
             :depends-on ("compatibility-macros1" "declarations" "defmfun" "errset" "globals"
                          "miscellaneous" "other-macros" "prerequisites" "utility-macros"
-                         "m2-pattern-matcher")
+                         "m2-pattern-matcher"
+                         "variable-predicates")
             :components
             ((:file "hyp")
 	     (:file "hypergeometric")
