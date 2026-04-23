@@ -1,7 +1,11 @@
-;;;;  -*- LISP -*-
-
-;;;; This software has NO WARRANTY, not even the implied warranty of
-;;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+;;; -*-  Mode: Lisp; Package: Maxima; Syntax: Common-Lisp; Base: 10 -*- ;;;;
+;;;
+;;; This file is part of the Maxima computer algebra system
+;;; (https://sourceforge.net/projects/maxima/)
+;;;
+;;; Maxima is copyrighted by its authors and licensed under the GNU
+;;; General Public License.  See COPYING and AUTHORS for details.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (in-package :maxima)
 
