@@ -125,15 +125,6 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Global to this file
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun simp-domain-error (&rest args)
-  (if errorsw
-      (throw 'errorsw t)
-      (apply #'merror args)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Part 1: The implementation of the Exponential Integral En
 ;;;
@@ -363,9 +354,9 @@
        ;; We have a half integral order and $expintexpand is not NIL. 
        ;; We expand in a series in terms of the Erfc or Erf function.
        (let ((func (cond ((eq $expintexpand '%erf)
-                          (sub 1 ($erf (power arg '((rat simp) 1 2)))))
+                          (sub 1 (ftake '%erf (power arg '((rat simp) 1 2)))))
                          (t
-                          ($erfc (power arg '((rat simp) 1 2)))))))
+                          (ftake '%erfc (power arg '((rat simp) 1 2)))))))
          (cond
            ((= ratorder 1/2)
             (mul (power '$%pi '((rat simp) 1 2))
@@ -655,16 +646,6 @@
              (when *debug-expintegral*
                (setq *debug-expint-fracmaxit* (max *debug-expint-fracmaxit* i)))
              (return r))))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Helper functions for Bigfloat numerical evaluation.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun cmul (x y) ($rectform (mul x y)))
-
-(defun cdiv (x y) ($rectform (div x y)))
-
-(defun cpower (x y) ($rectform (power x y)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; We have not changed the above algorithm, but generalized it to handle

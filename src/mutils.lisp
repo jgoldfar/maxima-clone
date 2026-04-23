@@ -18,29 +18,16 @@
 ;;;
 ;;; Every function in this file is known about externally.
 
-;;; This function searches for the key in the left hand side of the input list
-;;; of the form [x,y,z...] where each of the list elements is a expression of
-;;; a binary operand and 2 elements.  For example x=1, 2^3, [a,b] etc.
-;;; The key checked against the first operand and and returns the second
-;;; operand if the key is found.
-;;; If the key is not found it either returns the default value if supplied or
-;;; false.
-;;; Author Dan Stanger 12/1/02
+;;; A MEMQ which works at all levels of a piece of list structure.
+;;;
+;;; Note that (AMONG NIL '(A B C)) is T, however.  This could cause bugs.
+;;; > This is false. (AMONG NIL anything) returns NIL always. -kmp
 
-(defmfun $assoc (key ielist &optional default)
-  (let ((elist (if (listp ielist)
-                   (margs ielist)
-                   (merror 
-                     (intl:gettext "assoc: second argument must be a nonatomic expression; found: ~:M") 
-                     ielist)))
-        found)
-    (dolist (i elist)
-      (unless (and (listp i) (= 3 (length i)))
-        (merror (intl:gettext "assoc: elements of the second argument must be an expression of two parts; found: ~:M") i))
-      (when (alike1 key (second i))
-        (setq found i)
-        (return)))
-    (if found (third found) default)))
+(defun among (x l) 
+  (cond ((null l) nil)
+	((atom l) (eq x l))
+	(t (or (among x (car l)) (among x (cdr l)))))) 
+
 
 ;;; (ASSOL item A-list)
 ;;;
@@ -78,17 +65,6 @@
       ((null l))
     (when (alike1 x (car l)) (return l)))))
 
-(declaim (inline member-eq))
-(defun member-eq (m l)
-  "This function behaves like (MEMBER M L :TEST #'EQ).
-  When inlined, this function is so small that there is almost no code size
-  overhead compared to a MEMBER call, but it is faster because no CALL
-  instruction is required."
-  (while l
-    (when (eq m (car l))
-      (return l))
-    (setq l (cdr l))))
-
 ;;; Return the first duplicate element of the list LIST, or NIL if there
 ;;; are no duplicates present in LIST.  The function KEY is applied to
 ;;; each element of the list before comparison (or uses the element itself
@@ -106,32 +82,6 @@
         (when (member i seen :test test)
           (return-from find-duplicate e))
         (push i seen)))))
-
-;;; Return a Maxima gensym.
-;;;
-;;; N.B. Maxima gensyms are interned, so they are not Lisp gensyms.
-;;; This function can return the same symbol multiple times, it can
-;;; return a symbol that was created and used elsewhere, etc.  I (kjak)
-;;; do not think any of this is correct for a function named gensym.
-;;;
-;;; Maxima produces some expressions that contain Maxima gensyms, so
-;;; the use of uninterned symbols instead can cause confusion since
-;;; these print like any other symbol when lispdisp=false (the default).
-(defmfun $gensym (&optional x)
-  (typecase x
-    (null
-     (intern (symbol-name (gensym "$G")) :maxima))
-    (string
-     (intern
-       (symbol-name (gensym (format nil "$~a" (maybe-invert-string-case x))))
-       :maxima))
-    ((integer 0)
-     (let ((*gensym-counter* x))
-       (intern (symbol-name (gensym "$G")) :maxima)))
-    (t
-     (merror
-       (intl:gettext
-         "gensym: Argument must be a nonnegative integer or a string. Found: ~M") x))))
 
 ;; Does X or a subexpression match PREDICATE?
 ;;
@@ -240,32 +190,6 @@
       (and (not (atom x)) (not (atom (car x)))
 	   (member (caar x) '(rat bigfloat)) t)))
 
-(defmfun ($ratp :inline-impl t) (x)
-  (and (not (atom x))
-       (consp (car x))
-       (eq (caar x) 'mrat)))
-
-(defmfun $ratnump (x)
-  (or (integerp x)
-      (ratnump x)
-      (and ($ratp x)
-	   (not (member-eq 'trunc (car x)))
-	   (integerp (cadr x))
-	   (integerp (cddr x)))))
-
-(defmfun ($bfloatp :inline-impl t) (x)
-  "Returns true if X is a bigfloat"
-  (and (consp x)
-       (consp (car x))
-       (eq (caar x) 'bigfloat)))
-
-(declaim (inline zerop1))
-(defun zerop1 (x)
-  "Returns non-NIL if X is Lisp number or bfloat that is equal to 0"
-  (cond
-    ((numberp x) (zerop x))
-    (($bfloatp x) (= 0 (cadr x)))))
-
 (defun bigfloat-one-p (x)
   "Returns T if X, assumed to be a bigfloat, represents the value 1."
   ;; Binary bigfloat ones are of the form '((BIGFLOAT [SIMP] <P>) 2^(<P>-1) 1).
@@ -283,34 +207,6 @@
     ((numberp x) (= 1 x))
     (($bfloatp x) (bigfloat-one-p x))))
 
-(defmfun $floatnump (x)
-  (or (floatp x)
-      (and ($ratp x) (floatp (cadr x)) (onep1 (cddr x)))))
-
-(defmfun $numberp (x)
-  "Returns true if X is a Maxima rational, a float, or a bigfloat number"
-  (or ($ratnump x) ($floatnump x) ($bfloatp x)))
-
-(defmfun $integerp (x)
-  (or (integerp x)
-      (and ($ratp x)
-	   (not (member-eq 'trunc (car x)))
-	   (integerp (cadr x))
-	   (equal (cddr x) 1))))
-
-;; The call to $INTEGERP in the following two functions checks for a CRE
-;; rational number with an integral numerator and a unity denominator.
-
-(defmfun ($oddp :inline-impl t) (x)
-  (cond ((integerp x) (oddp x))
-	((atom x) nil)
-	(($integerp x) (oddp (cadr x)))))
-
-(defmfun ($evenp :inline-impl t) (x)
-  (cond ((integerp x) (evenp x))
-	((atom x) nil)
-	(($integerp x) (not (oddp (cadr x))))))
-
 ;; EVEN works for any arbitrary lisp object since it does an integer
 ;; check first.  In other cases, you may want the Lisp EVENP function
 ;; which only works for integers.
@@ -318,11 +214,6 @@
 (declaim (inline even))
 (defun even (x)
   (and (integerp x) (not (oddp x))))
-
-(defmfun $taylorp (x)
-  (and (not (atom x))
-       (eq (caar x) 'mrat)
-       (member-eq 'trunc (cdar x)) t))
 
 ;; Is there a bfloat anywhere in X?
 (defun some-bfloatp (x)

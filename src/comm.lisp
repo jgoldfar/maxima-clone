@@ -726,8 +726,6 @@
 (defun nthelem (n e)
   (car (nthcdr (1- n) e)))
 
-(defun delsimp (e) (remove 'simp e))
-
 (defun remsimp (e)
   (if (atom e) e (cons (delsimp (car e)) (mapcar #'remsimp (cdr e)))))
 
@@ -1296,6 +1294,7 @@
       (coeff e x 0)
       (coeff e (power x n) 1)))
 
+#+nil
 (defun coeff (e var pow)
   (simplify
    (cond ((alike1 e var) (if (equal pow 1) 1 0))

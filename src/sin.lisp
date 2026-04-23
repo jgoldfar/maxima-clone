@@ -31,53 +31,6 @@
 
 ;;; Predicate functions
 
-;; Note: varp and freevarp are not used in this file anymore.  But
-;; they are used in other files.  Someday, varp and freevarp should be
-;; moved elsewhere.
-(declaim (inline varp))
-(defun varp (x)
-  (declare (special var))
-  (alike1 x var))
-
-(defun freevar (a)
-  (declare (special var))
-  (cond ((atom a) (not (eq a var)))
-	((varp a) nil)
-	((and (not (atom (car a)))
-	      (member 'array (cdar a) :test #'eq))
-	 (cond ((freevar (cdr a)) t)
-	       (t (merror "~&FREEVAR: variable of integration appeared in subscript."))))
-	(t (and (freevar (car a)) (freevar (cdr a))))))
-
-;; Same as varp, but the second arg specifies the variable to be
-;; tested instead of using the special variable VAR.
-(defun varp2 (x var2)
-  (alike1 x var2))
-
-;; Like freevar but the second arg specifies the variable to be tested
-;; instead of using the special variable VAR.
-(defun freevar2 (a var2)
-  (cond ((atom a) (not (eq a var2)))
-	((varp2 a var2) nil)
-	((and (not (atom (car a)))
-	      (member 'array (cdar a) :test #'eq))
-	 (cond ((freevar2 (cdr a) var2) t)
-	       (t (merror "~&FREEVAR: variable of integration appeared in subscript."))))
-	(t (and (freevar2 (car a) var2) (freevar2 (cdr a) var2)))))
-
-(defun integerp1 (x)
-  "Returns 2*x if 2*x is an integer, else nil"
-  (integerp2 (mul2* 2 x)))
-
-(defun integerp2 (x)
-  "Returns x if x is an integer, else false"
-  (let (u)
-    (cond ((not (numberp x)) nil)
-	  ((not (floatp x)) x)
-	  ((prog2 (setq u (maxima-rationalize x))
-	       (equal (cdr u) 1))
-           (car u)))))
-
 ;; This predicate is used with m2 pattern matcher.
 ;; A rational expression in var2.
 (defun rat8 (ex var2)

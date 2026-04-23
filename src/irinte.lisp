@@ -14,11 +14,7 @@
 
 (load-macsyma-macros rzmac)
 
-(defun zerp (a) (equal a 0))
-
 (defun integerpfr (a) (if (not (maxima-integerp a)) (integerp1 a)))
-
-(defun nonzerp (a) (not (equal a 0)))
 
 (defun hasvar2 (exp var2)
   (not (freevar2 exp var2)))
@@ -218,9 +214,6 @@
 (defun ns-intir3 (xx ee fff gg dd pp r0 e0)
   (declare (ignore xx ee fff gg dd pp r0 e0))
   nil)
-
-(defun cdras (a b)
-  (cdr (assoc a b :test #'equal)))
 
 (defun intir (funct x)
   (inti funct x (jmaug (specrepcheck funct) x)))

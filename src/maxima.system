@@ -241,14 +241,35 @@
 	    :depends-on ("defmfun" "compatibility-macros" "compatibility-macros1"
                                    "prerequisites" "errset")
 	    :components
-	    ((:file "mopers")
-	     (:file "mforma")))
+	    ((:file "mforma")))
+   (:module simp-utilities :source-pathname ""
+            ;; There are other dependencies.  We call $ratdisrep,
+            ;; $outofpois, $ratsimp and others.  These are all
+            ;; function calls.  Can't really do anything about that.
+            ;; and can't depend on those modules because that causes a
+            ;; circular dependency.
+            :depends-on ("prerequisites" "defmfun")
+            :components
+            ((:file "simp-utils")
+             (:file "mopers")
+             (:file "opers"
+                    :depends-on ("mopers"))
+             (:file "mutils"
+                    :depends-on ("simp-utils"))
+             (:file "simp"
+                    :depends-on ("simp-utils" "opers" "mopers" "mutils"))))
+   (:module m2-pattern-matcher :source-pathname ""
+            :depends-on ("simp-utilities")
+            :components
+            ((:file "schatc")
+             (:file "schatc-util")))
    ;; This contains the reader macro #$...$ so we want io compile this
    ;; as early as possible before anything uses it.
    (:module reader :source-pathname ""
 	    :depends-on ("globals" "defmfun" "compatibility-macros" "compatibility-macros1"
                                    "declarations" "fundamental-macros" "prerequisites"
-                                   "utility-macros")
+                                   "utility-macros"
+                                   "simp-utilities")
 	    :components
 	    ((:file "nparse")))
    (:module other-macros :source-pathname ""
@@ -272,26 +293,27 @@
                                    "compatibility-macros1" "declarations" "fundamental-macros"
                                    "prerequisites")
 	    :components
-	    ((:file "opers")
-	     (:file "utils")
+	    ((:file "utils")
 	     (:file "sumcon")
 	     (:file "sublis")
 	     (:file "merror")
 	     (:file "mformt")
-	     (:file "mutils")
+	     (:file "mutils-fn")
 	     (:file "outmis")
 	     (:file "ar")))
    (:module commands :source-pathname ""
 	    :depends-on ("globals" "defmfun" "compatibility-macros" "compatibility-macros1"
                                    "declarations" "fundamental-macros" "prerequisites"
-                                   "utility-macros")
+                                   "utility-macros"
+                                   "simp-utilities")
 	    :components
 	    ((:file "comm")
 	     (:file "comm2")))
    (:module evaluator :source-pathname ""
 	    :depends-on ("globals" "defmfun" "utility-macros" "compatibility-macros"
                                    "compatibility-macros1" "declarations" "destructuring-let"
-                                   "fundamental-macros" "prerequisites" "utilities" "commands")
+                                   "fundamental-macros" "prerequisites" "utilities" "commands"
+                                   "simp-utilities")
 	    :components
 	    ((:file "mlisp")
 	     (:file "mmacro")
@@ -581,9 +603,11 @@
    (:module simplification :source-pathname ""
 	    :depends-on ("globals" "defmfun" "reader" "utility-macros" "compatibility-macros"
                                    "compatibility-macros1" "declarations" "destructuring-let"
-                                   "fundamental-macros" "i-o" "other-macros" "prerequisites")
+                                   "fundamental-macros" "i-o" "other-macros" "prerequisites"
+                                   "numerical-utilities"
+                                   "simp-utilities")
 	    :components
-	    ((:file "simp")
+	    ((:file "simp-fn")
 	     (:file "float")
 	     (:file "csimp")
 	     (:file "csimp2")
@@ -629,7 +653,8 @@
 	    :depends-on ("globals" "defmfun" "rat-macros" "other-macros" 
 			 "compatibility-macros1" "ifactor" "factoring"
                                    "compatibility-macros" "declarations" "destructuring-let"
-                                   "fundamental-macros" "prerequisites" "utilities")
+                                   "fundamental-macros" "prerequisites" "utilities"
+                                   "simp-utilities")
 	    :components
 	    ((:file "rat3a")
 	     (:file "rat3b")
@@ -671,10 +696,14 @@
 	     (:file "evalw")
 	     (:file "trprop")
 	     (:file "mdefun")))
+   (:module numerical-utilities :source-pathname ""
+    :components
+    ((:file "numerical-utils")))
    (:module numerical-functions :source-pathname ""
 	    :depends-on ("globals" "defmfun" "trigonometry" "algebraic-database" 
                                    "utility-macros" "reader"
-                                   "fundamental-macros" "other-macros" "prerequisites")
+                                   "fundamental-macros" "other-macros" "prerequisites"
+                                   "numerical-utilities")
 	    :components
 	    ((:file "bessel")
 	     (:file "ellipt")
@@ -684,7 +713,8 @@
 	     (:file "intpol")))
    (:module display :source-pathname ""
 	    :depends-on ("globals" "defmfun" "compatibility-macros1" "declarations"
-                                   "fundamental-macros" "prerequisites")
+                                   "fundamental-macros" "prerequisites"
+                                   "simp-utilities")
 	    :components
 	    ((:file "displa")
 	     (:file "nforma")
@@ -711,10 +741,17 @@
 	     (:file "compar")
 	     (:file "askp"))		;does this belong here?
 	    )
+   (:module variable-predicates :source-pathname ""
+            ;; Variable predicates like FREEVAR, VARP.
+            :depends-on ("simp-utilities")
+            :components
+            ((:file "var-predicate")))
    (:module hypergeometric :source-pathname ""
             ;; Simplification and evaluation of hypergeometric functions.
             :depends-on ("compatibility-macros1" "declarations" "defmfun" "errset" "globals"
-                         "miscellaneous" "other-macros" "prerequisites" "utility-macros")
+                         "miscellaneous" "other-macros" "prerequisites" "utility-macros"
+                         "m2-pattern-matcher"
+                         "variable-predicates")
             :components
             ((:file "hyp")
 	     (:file "hypergeometric")
@@ -723,44 +760,54 @@
 		    ;; be loaded first.
 		    :depends-on ("hypergeometric"))))
    (:module integration :source-pathname ""
-	    :depends-on ("globals" "defmfun" "pattern-matching" 
+	    :depends-on ("globals" "defmfun"
                                    "compatibility-macros" "declarations"
                                    "destructuring-let" "errset" "fundamental-macros"
                                    "prerequisites" "rat-macros" "utility-macros"
-                                   "hypergeometric")
+                                   "m2-pattern-matcher"
+                                   "variable-predicates")
 	    :components
-	    ((:file "sinint")
-	     (:file "sin")
+	    ((:file "sin-util")
+             (:file "sinint")
 	     (:file "risch")
-	     (:file "irinte")
-	     (:file "laplac")
-             (:file "hypgeo")))
+	     (:file "irinte"
+                    :depends-on ("sin-util"))
+             (:file "sin"
+                    :depends-on ("sin-util" "irinte"))))
    (:module taylor-series :source-pathname ""
 	    :depends-on ("globals" "defmfun" "compatibility-macros"
                                    "compatibility-macros1" "declarations"
                                    "destructuring-let" "fundamental-macros"
-                                   "other-macros" "prerequisites" "rat-macros" "errset")
+                                   "other-macros" "prerequisites" "rat-macros" "errset"
+                                   "simp-utilities")
 	    :components ((:file "hayat")))
    (:module definite-integration :source-pathname ""
 	    :depends-on ("globals" "defmfun" "declarations" "destructuring-let"
                                    "fundamental-macros" "other-macros"
-                                   "prerequisites")
+                                   "prerequisites"
+                                   "hypergeometric"
+                                   "m2-pattern-matcher"
+                                   "variable-predicates")
 	    :components
 	    ((:file "defint")
-	     (:file "residu")))
+	     (:file "residu")
+	     (:file "laplac")
+             (:file "hypgeo")))
    (:module trigonometry :source-pathname ""
-	    :depends-on ("globals" "pattern-matching" "defmfun"
+	    :depends-on ("globals" "defmfun"
                                    "compatibility-macros" "declarations"
                                    "errset" "fundamental-macros" "other-macros"
                                    "prerequisites" "utility-macros"
-                                   "simplification" "algebraic-database")
+                                   "taylor-series"
+                                   "m2-pattern-matcher")
 	    :components
 	    ((:file "trigi")
 	     (:file "trigo")
 	     (:file "trgred")))
    (:module special-functions :source-pathname ""
 	    :depends-on ("globals" "defmfun" "reader" "utility-macros"
-                                   "other-macros" "rat-macros")
+                                   "other-macros" "rat-macros"
+                                   "numerical-utilities")
 	    :components
 	    ((:file "specfn")))
    (:module matrix-algebra :source-pathname ""
@@ -786,10 +833,10 @@
 	    :depends-on ("globals" "defmfun" "compatibility-macros1"
                                    "declarations" "evaluator"
                                    "fundamental-macros" "prerequisites"
-                                   "rat-macros")
+                                   "rat-macros"
+                                   "simp-utilities")
 	    :components
-	    ((:file "schatc")
-	     (:file "matcom")
+	    ((:file "matcom")
 	     (:file "matrun")
 	     (:file "nisimp")))
    (:module limits :source-pathname ""
@@ -819,11 +866,18 @@
 	    :components
 	    ((:file "mtrace")
 	     (:file "mdebug")))
+   (:module gamma-expint :source-pathname ""
+    :depends-on ("numerical-utilities" "m2-pattern-matcher")
+    :components
+    ((:file "expintegral")
+     (:file "gamma")))
    (:module miscellaneous :source-pathname ""
-	    :depends-on ("globals" "defmfun" "pattern-matching" "compatibility-macros1"
+	    :depends-on ("globals" "defmfun" "compatibility-macros1"
                                    "reader" "utility-macros" "commands"
                                    "destructuring-let" "errset" "other-macros"
-                                   "rat-macros" "declarations"  "fundamental-macros")
+                                   "rat-macros" "declarations"  "fundamental-macros"
+                                   "numerical-utilities"
+                                   "m2-pattern-matcher")
 	    :components
 	    ((:file "scs")
 	     (:file "asum")
@@ -841,10 +895,8 @@
 	     (:file "maxmin")
 	     (:file "nummod")
 	     (:file "conjugate")
-	     (:file "expintegral")
-	     (:file "gamma")
-		 (:file "hstep")
-		 (:file "sinc")
+             (:file "hstep")
+             (:file "sinc")
 	     (:file "mstuff")))
    (:module polynomial :source-pathname ""
 	    :depends-on ("defmfun")
