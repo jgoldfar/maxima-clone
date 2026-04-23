@@ -241,9 +241,7 @@
 	    :depends-on ("defmfun" "compatibility-macros" "compatibility-macros1"
                                    "prerequisites" "errset")
 	    :components
-	    (#+nil
-             (:file "mopers")
-	     (:file "mforma")))
+	    ((:file "mforma")))
    (:module simp-utilities :source-pathname ""
             ;; There are other dependencies.  We call $ratdisrep,
             ;; $outofpois, $ratsimp and others.  These are all
@@ -295,16 +293,12 @@
                                    "compatibility-macros1" "declarations" "fundamental-macros"
                                    "prerequisites")
 	    :components
-	    (#+nil
-             (:file "opers")
-             (:file "utils")
+	    ((:file "utils")
 	     (:file "sumcon")
 	     (:file "sublis")
 	     (:file "merror")
 	     (:file "mformt")
-	     #+nil
-             (:file "mutils")
-             (:file "mutils-fn")
+	     (:file "mutils-fn")
 	     (:file "outmis")
 	     (:file "ar")))
    (:module commands :source-pathname ""
@@ -613,9 +607,7 @@
                                    "numerical-utilities"
                                    "simp-utilities")
 	    :components
-	    (#+nil
-             (:file "simp")
-             (:file "simp-fn")
+	    ((:file "simp-fn")
 	     (:file "float")
 	     (:file "csimp")
 	     (:file "csimp2")
