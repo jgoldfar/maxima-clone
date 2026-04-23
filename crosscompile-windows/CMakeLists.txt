@@ -297,7 +297,6 @@ configure_file("${CMAKE_SOURCE_DIR}/wine-lisp.sh.tmpl" "${CMAKE_BINARY_DIR}/wine
 configure_file("${CMAKE_SOURCE_DIR}/wine-sbcl.sh.tmpl" "${CMAKE_BINARY_DIR}/wine-sbcl.sh")
 configure_file("${CMAKE_SOURCE_DIR}/wine-ccl.sh.tmpl" "${CMAKE_BINARY_DIR}/wine-ccl.sh")
 configure_file("${CMAKE_SOURCE_DIR}/wine-ecl.sh.tmpl" "${CMAKE_BINARY_DIR}/wine-ecl.sh")
-configure_file("${CMAKE_SOURCE_DIR}/ecl/ecl-lisp-build.sh.tmpl" "${CMAKE_BINARY_DIR}/ecl-lisp-build.sh")
 
 externalproject_add(maxima
   # first copy the maxima source to a build directory, since out-of-source-builds do not work
