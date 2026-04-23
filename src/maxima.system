@@ -749,6 +749,11 @@
 	     (:file "compar")
 	     (:file "askp"))		;does this belong here?
 	    )
+   (:module variable-predicates :source-pathname ""
+            ;; Variable predicates like FREEVAR, VARP.
+            :depends-on ("simp-utilities")
+            :components
+            ((:file "var-predicate")))
    (:module hypergeometric :source-pathname ""
             ;; Simplification and evaluation of hypergeometric functions.
             :depends-on ("compatibility-macros1" "declarations" "defmfun" "errset" "globals"
@@ -766,15 +771,16 @@
                                    "compatibility-macros" "declarations"
                                    "destructuring-let" "errset" "fundamental-macros"
                                    "prerequisites" "rat-macros" "utility-macros"
-                                   "hypergeometric"
-                                   "m2-pattern-matcher")
+                                   "m2-pattern-matcher"
+                                   "variable-predicates")
 	    :components
-	    ((:file "sinint")
-	     (:file "sin")
+	    ((:file "sin-util")
+             (:file "sinint")
 	     (:file "risch")
-	     (:file "irinte")
-	     (:file "laplac")
-             (:file "hypgeo")))
+	     (:file "irinte"
+                    :depends-on ("sin-util"))
+             (:file "sin"
+                    :depends-on ("sin-util" "irinte"))))
    (:module taylor-series :source-pathname ""
 	    :depends-on ("globals" "defmfun" "compatibility-macros"
                                    "compatibility-macros1" "declarations"
@@ -786,10 +792,14 @@
 	    :depends-on ("globals" "defmfun" "declarations" "destructuring-let"
                                    "fundamental-macros" "other-macros"
                                    "prerequisites"
-                                   "m2-pattern-matcher")
+                                   "hypergeometric"
+                                   "m2-pattern-matcher"
+                                   "variable-predicates")
 	    :components
 	    ((:file "defint")
-	     (:file "residu")))
+	     (:file "residu")
+	     (:file "laplac")
+             (:file "hypgeo")))
    (:module trigonometry :source-pathname ""
 	    :depends-on ("globals" "defmfun"
                                    "compatibility-macros" "declarations"
