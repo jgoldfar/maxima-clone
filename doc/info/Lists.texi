@@ -2523,7 +2523,7 @@ The argument @var{s} is a list.
 
 Functions known to be n-ary include
 addition @code{+}, multiplication @code{*}, @code{and}, @code{or}, @code{max},
-@code{min}, and @code{append}.
+@code{min}, @code{append}, and @code{union}.
 Functions may also be declared n-ary by @code{declare(@var{F}, nary)}.
 For these functions,
 @code{xreduce} is expected to be faster than either @code{rreduce} or @code{lreduce}.
