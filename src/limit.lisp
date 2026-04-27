@@ -56,10 +56,7 @@
 #+nil
 (unless (boundp 'integer-info) (setq integer-info ()))
 
-;; For limits toward infinity for the gruntz code, we assume that the limit
-;; variable exceeds *large-positive-number*. This value matches the value
-;; that the limit code uses for the same purpose.
-(defmvar *large-positive-number* (expt 10 8))
+
 
 ;; Don't ask sign questions about $ind.
 (putprop '$ind t 'internal)
@@ -278,8 +275,8 @@
 
 (defun limit-context (var val direction) ;Only works on entry!
   (cond (limit-top
-	 (assume '((mgreaterp) lim-epsilon 0))
-	 (assume '((mgreaterp) prin-inf 100000000))
+	 (assume (ftake 'mgreaterp 'lim-epsilon 0))
+	 (assume (ftake 'mgreaterp 'prin-inf *large-positive-number*))
 	 (setq *limit-assumptions* (make-limit-assumptions var val direction))
 	 (setq limit-top ()))
 	(t ()))
@@ -292,13 +289,16 @@
 	  ((and (not (infinityp val)) (null direction))
 	   ())
 	  ((eq val '$inf)
-	   `(,(assume `((mgreaterp) ,var 100000000)) ,@new-assumptions))
+	   (cons (assume (ftake 'mgreaterp var *large-positive-number*)) new-assumptions))
+
 	  ((eq val '$minf)
-	   `(,(assume `((mgreaterp) -100000000 ,var)) ,@new-assumptions))
+	   (cons (assume (ftake 'mgreaterp (- *large-positive-number*) var)) new-assumptions))
+
 	  ((eq direction '$plus)
-	   `(,(assume `((mgreaterp) ,var 0)) ,@new-assumptions)) ;All limits around 0
+	   (cons (assume (ftake 'mgreaterp var 0)) new-assumptions)) ;All limits around 0
+
 	  ((eq direction '$minus)
-	   `(,(assume `((mgreaterp) 0 ,var)) ,@new-assumptions))
+	   (cons (assume (ftake 'mgreaterp 0 var)) new-assumptions))
 	  (t
 	   ()))))
 
@@ -308,8 +308,8 @@
   (do ((assumption-list *limit-assumptions* (cdr assumption-list)))
       ((null assumption-list) t)
     (forget (car assumption-list)))
-  (forget '((mgreaterp) lim-epsilon 0))
-  (forget '((mgreaterp) prin-inf 100000000))
+  (forget (ftake 'mgreaterp 'lim-epsilon 0))
+  (forget (ftake 'mgreaterp 'prin-inf *large-positive-number*))
   (cond ((and (not (null *integer-info*))
 	      (not limitp))
 	 (do ((list *integer-info* (cdr list)))

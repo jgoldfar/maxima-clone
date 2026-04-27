@@ -44,8 +44,8 @@
 (defvar *already-processed-limits* nil)
 (defmvar *max-limit-depth* 8) ; magic number = 8 for no particular reason
 
-;; For limits toward `inf`, assume that the limit variable exceeds `*large-positive-number*`
-(defmvar *large-positive-number* 4398046511104) ; 2^42 for no particular reason
+;; For limits toward `inf`, assume that the limit variable exceeds *large-positive-number*. 
+(defmvar *large-positive-number* (expt 10 8))
 ;; TOP LEVEL FUNCTION(S): $TLIMIT $TLDEFINT
 
 (declaim (special limit-using-taylor))
